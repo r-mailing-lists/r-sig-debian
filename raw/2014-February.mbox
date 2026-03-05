@@ -1,0 +1,652 @@
+From csebranek at gmail.com  Wed Feb 12 00:00:52 2014
+From: csebranek at gmail.com (Chad Sebranek)
+Date: Tue, 11 Feb 2014 17:00:52 -0600
+Subject: [R-sig-Debian] R installation on Ubuntu
+Message-ID: <CABaYX-o3mx964Pb_jkxLT+HLQj3qX_DB2evhf+RaKrELO6LX0w@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140211/cb67fa52/attachment.pl>
+
+From skostysh at princeton.edu  Wed Feb 12 07:33:08 2014
+From: skostysh at princeton.edu (Scott Kostyshak)
+Date: Wed, 12 Feb 2014 01:33:08 -0500
+Subject: [R-sig-Debian] R installation on Ubuntu
+In-Reply-To: <CABaYX-o3mx964Pb_jkxLT+HLQj3qX_DB2evhf+RaKrELO6LX0w@mail.gmail.com>
+References: <CABaYX-o3mx964Pb_jkxLT+HLQj3qX_DB2evhf+RaKrELO6LX0w@mail.gmail.com>
+Message-ID: <CAE3=dmeBQusjGig=q2ysjciE8iGesB-Ajc=TTiBH44NDRN0MdA@mail.gmail.com>
+
+On Tue, Feb 11, 2014 at 6:00 PM, Chad Sebranek <csebranek at gmail.com> wrote:
+> When installing R (using apt-get install r-base), I believe it works for
+> the most part, but at the end of the installation it says:
+>
+>
+> "Errors were encountered while processing:
+>  install-info
+>  doc-base"
+
+A shot in the dark (the exact error should be in the output/log
+somewhere): one reason this could happen is because you don't have a
+TeX distribution installed (or it's not being found). I think
+install-info looks for pdflatex.
+
+Scott
+
+
+--
+Scott Kostyshak
+Economics PhD Candidate
+Princeton University
+
+
+From jmacdon at uw.edu  Wed Feb 12 17:46:27 2014
+From: jmacdon at uw.edu (James W. MacDonald)
+Date: Wed, 12 Feb 2014 11:46:27 -0500
+Subject: [R-sig-Debian] Font issue in Debian Jesse after updates
+Message-ID: <52FBA563.9000105@uw.edu>
+
+Hi,
+
+My primary work computer (on which I have no sudo privileges) is running 
+Debian jessie. For various reasons I need to compile R in my personal 
+directory rather than using the site-wide install.
+
+On 2013-12-20 the sysadmin ran apt-get upgrade, and now any R that I 
+compile errors when I try to use X11 fonts:
+
+ > plot(1:10)
+Error in axis(side = side, at = at, labels = labels, ...) :
+   could not find any X11 fonts
+Check that the Font Path is correct.
+
+Anything compiled prior to the update is fine (e.g., I have two R-3.0.2 
+versions, one from before the upgrade and one I compiled yesterday. One 
+can find X11 fonts, and the other cannot, so it isn't a locale problem).
+
+Has anybody seen this? Any suggestions?
+
+Best,
+
+Jim
+
+-- 
+James W. MacDonald, M.S.
+Biostatistician
+University of Washington
+Environmental and Occupational Health Sciences
+4225 Roosevelt Way NE, # 100
+Seattle WA 98105-6099
+
+
+From jranke at uni-bremen.de  Mon Feb 17 10:12:16 2014
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 17 Feb 2014 10:12:16 +0100
+Subject: [R-sig-Debian] Font issue in Debian Jesse after updates
+In-Reply-To: <52FBA563.9000105@uw.edu>
+References: <52FBA563.9000105@uw.edu>
+Message-ID: <1521425.cqTGrtvNse@stiller>
+
+Hi,
+
+did you talk to your sysadmin about this? It is not possible to see what 
+happened as you do not provide a build log, but it seems some x fonts arent't 
+installed any more, or some xorg related headers (-dev packages) are not 
+present on the build machine.
+
+Kind regards,
+
+Johannes
+
+Am Mittwoch, 12. Februar 2014, 11:46:27 schrieb James W. MacDonald:
+> Hi,
+> 
+> My primary work computer (on which I have no sudo privileges) is running
+> Debian jessie. For various reasons I need to compile R in my personal
+> directory rather than using the site-wide install.
+> 
+> On 2013-12-20 the sysadmin ran apt-get upgrade, and now any R that I
+> 
+> compile errors when I try to use X11 fonts:
+>  > plot(1:10)
+> 
+> Error in axis(side = side, at = at, labels = labels, ...) :
+>    could not find any X11 fonts
+> Check that the Font Path is correct.
+> 
+> Anything compiled prior to the update is fine (e.g., I have two R-3.0.2
+> versions, one from before the upgrade and one I compiled yesterday. One
+> can find X11 fonts, and the other cannot, so it isn't a locale problem).
+> 
+> Has anybody seen this? Any suggestions?
+> 
+> Best,
+> 
+> Jim
+
+
+From jmacdon at uw.edu  Mon Feb 17 17:48:01 2014
+From: jmacdon at uw.edu (James W. MacDonald)
+Date: Mon, 17 Feb 2014 11:48:01 -0500
+Subject: [R-sig-Debian] Font issue in Debian Jesse after updates
+In-Reply-To: <1521425.cqTGrtvNse@stiller>
+References: <52FBA563.9000105@uw.edu> <1521425.cqTGrtvNse@stiller>
+Message-ID: <53023D41.9040808@uw.edu>
+
+Hi Johannes,
+
+Thanks for responding. Turns out the problem was me. I have an
+
+export LD_LIBRARY_PATH=
+
+in my .bashrc that I sometimes need that I neglected to comment back 
+out.
+
+Best,
+
+Jim
+
+
+
+On Monday, February 17, 2014 4:12:16 AM, Johannes Ranke wrote:
+> Hi,
+>
+> did you talk to your sysadmin about this? It is not possible to see what
+> happened as you do not provide a build log, but it seems some x fonts arent't
+> installed any more, or some xorg related headers (-dev packages) are not
+> present on the build machine.
+>
+> Kind regards,
+>
+> Johannes
+>
+> Am Mittwoch, 12. Februar 2014, 11:46:27 schrieb James W. MacDonald:
+>> Hi,
+>>
+>> My primary work computer (on which I have no sudo privileges) is running
+>> Debian jessie. For various reasons I need to compile R in my personal
+>> directory rather than using the site-wide install.
+>>
+>> On 2013-12-20 the sysadmin ran apt-get upgrade, and now any R that I
+>>
+>> compile errors when I try to use X11 fonts:
+>>   > plot(1:10)
+>>
+>> Error in axis(side = side, at = at, labels = labels, ...) :
+>>     could not find any X11 fonts
+>> Check that the Font Path is correct.
+>>
+>> Anything compiled prior to the update is fine (e.g., I have two R-3.0.2
+>> versions, one from before the upgrade and one I compiled yesterday. One
+>> can find X11 fonts, and the other cannot, so it isn't a locale problem).
+>>
+>> Has anybody seen this? Any suggestions?
+>>
+>> Best,
+>>
+>> Jim
+>
+
+--
+James W. MacDonald, M.S.
+Biostatistician
+University of Washington
+Environmental and Occupational Health Sciences
+4225 Roosevelt Way NE, # 100
+Seattle WA 98105-6099
+
+
+From elodie.chapeaublanc at curie.fr  Mon Feb 24 17:17:35 2014
+From: elodie.chapeaublanc at curie.fr (Elodie Chapeaublanc)
+Date: Mon, 24 Feb 2014 17:17:35 +0100
+Subject: [R-sig-Debian] Error  gdata and gplots packages
+In-Reply-To: <530B6FC7.4020100@curie.fr>
+References: <530B6FC7.4020100@curie.fr>
+Message-ID: <530B709F.1060207@curie.fr>
+
+Hi, I just installed Ubuntu 12.04.4. I installed R by following 
+instructions from CRAN after modification into my /etc/apt/sources.list file
+
+  sudo apt-get update
+
+  sudo apt-get install r-base
+
+  sudo apt-get install r-base-dev
+
+
+  When I try to load library(gdata) ou library(gplots), I have error 
+message :
+
+library(gdata)
+
+gdata: read.xls support for 'XLS' (Excel 97-2004) files ENABLED.
+
+gdata: read.xls support for 'XLSX' (Excel 2007+) files ENABLED.
+
+Attachement du package : ?gdata?
+
+L'objet suivant est masqu? from ?package:stats?:
+
+     nobs
+
+L'objet suivant est masqu? from ?package:utils?:
+
+     object.size
+
+> library(gplots)
+
+KernSmooth 2.23 loaded
+
+Copyright M. P. Wand 1997-2009
+
+Attachement du package : ?gplots?
+
+L'objet suivant est masqu? from ?package:stats?:
+
+     lowess
+
+
+
+sessionInfo()
+R version 3.0.2 (2013-09-25)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+  [1] LC_CTYPE=fr_FR.UTF-8       LC_NUMERIC=C
+  [3] LC_TIME=fr_FR.UTF-8        LC_COLLATE=fr_FR.UTF-8
+  [5] LC_MONETARY=fr_FR.UTF-8    LC_MESSAGES=fr_FR.UTF-8
+  [7] LC_PAPER=fr_FR.UTF-8       LC_NAME=C
+  [9] LC_ADDRESS=C               LC_TELEPHONE=C
+[11] LC_MEASUREMENT=fr_FR.UTF-8 LC_IDENTIFICATION=C
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods base
+
+other attached packages:
+[1] gplots_2.12.1 gdata_2.13.2
+
+loaded via a namespace (and not attached):
+[1] bitops_1.0-6       caTools_1.16       gtools_3.3.0 KernSmooth_2.23-10
+
+
+Thanks,
+
+Elodie
+
+
+
+-- 
+--
+Elodie Chapeaublanc
+IE Bioinformatique
+?quipe Oncologie Mol?culaire
+Institut Curie - UMR 144 - CNRS
+26 rue d'Ulm - 75248 Paris Cedex 05
+Tel: +33 1 56 24 63 57
+Email: elodie.chapeaublanc at curie.fr
+
+
+From bates at stat.wisc.edu  Mon Feb 24 17:31:41 2014
+From: bates at stat.wisc.edu (Douglas Bates)
+Date: Mon, 24 Feb 2014 10:31:41 -0600
+Subject: [R-sig-Debian] Error gdata and gplots packages
+In-Reply-To: <530B709F.1060207@curie.fr>
+References: <530B6FC7.4020100@curie.fr>
+	<530B709F.1060207@curie.fr>
+Message-ID: <CAO7JsnR3PAh8NBua2zndok9zwFDFKWu=yHYHcWHj-fUY-zknLg@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140224/d5d9a9a0/attachment.pl>
+
+From info at aghmed.fsnet.co.uk  Mon Feb 24 17:33:10 2014
+From: info at aghmed.fsnet.co.uk (Michael Dewey)
+Date: Mon, 24 Feb 2014 16:33:10 +0000
+Subject: [R-sig-Debian] Error  gdata and gplots packages
+In-Reply-To: <530B709F.1060207@curie.fr>
+References: <530B6FC7.4020100@curie.fr>
+ <530B709F.1060207@curie.fr>
+Message-ID: <Zen-1WHyT2-000AWW-Cj@smarthost01b.mail.zen.net.uk>
+
+At 16:17 24/02/2014, Elodie Chapeaublanc wrote:
+>Hi, I just installed Ubuntu 12.04.4. I installed 
+>R by following instructions from CRAN after 
+>modification into my /etc/apt/sources.list file
+>
+>  sudo apt-get update
+>
+>  sudo apt-get install r-base
+>
+>  sudo apt-get install r-base-dev
+>
+>
+>  When I try to load library(gdata) ou library(gplots), I have error message :
+
+Dear Elodie
+
+I am not that expert either at R or French but I 
+do not see any error message there. See inline below
+
+
+>library(gdata)
+>
+>gdata: read.xls support for 'XLS' (Excel 97-2004) files ENABLED.
+>
+>gdata: read.xls support for 'XLSX' (Excel 2007+) files ENABLED.
+>
+>Attachement du package : ?gdata?
+>
+>L'objet suivant est masqu? from ?package:stats?:
+>
+>     nobs
+
+Is this what was concerning you?
+
+>L'objet suivant est masqu? from ?package:utils?:
+>
+>     object.size
+>
+>>library(gplots)
+>
+>KernSmooth 2.23 loaded
+>
+>Copyright M. P. Wand 1997-2009
+>
+>Attachement du package : ?gplots?
+>
+>L'objet suivant est masqu? from ?package:stats?:
+>
+>     lowess
+>
+
+At this point does running one of the examples from either package work?
+
+
+>sessionInfo()
+>R version 3.0.2 (2013-09-25)
+>Platform: x86_64-pc-linux-gnu (64-bit)
+>
+>locale:
+>  [1] LC_CTYPE=fr_FR.UTF-8       LC_NUMERIC=C
+>  [3] LC_TIME=fr_FR.UTF-8        LC_COLLATE=fr_FR.UTF-8
+>  [5] LC_MONETARY=fr_FR.UTF-8    LC_MESSAGES=fr_FR.UTF-8
+>  [7] LC_PAPER=fr_FR.UTF-8       LC_NAME=C
+>  [9] LC_ADDRESS=C               LC_TELEPHONE=C
+>[11] LC_MEASUREMENT=fr_FR.UTF-8 LC_IDENTIFICATION=C
+>
+>attached base packages:
+>[1] stats     graphics  grDevices utils     datasets  methods base
+>
+>other attached packages:
+>[1] gplots_2.12.1 gdata_2.13.2
+>
+>loaded via a namespace (and not attached):
+>[1] bitops_1.0-6       caTools_1.16       gtools_3.3.0 KernSmooth_2.23-10
+>
+>
+>Thanks,
+>
+>Elodie
+>
+>
+>
+>--
+>--
+>Elodie Chapeaublanc
+>IE Bioinformatique
+>?quipe Oncologie Mol?culaire
+>Institut Curie - UMR 144 - CNRS
+>26 rue d'Ulm - 75248 Paris Cedex 05
+>Tel: +33 1 56 24 63 57
+>Email: elodie.chapeaublanc at curie.fr
+>
+>_______________________________________________
+>R-SIG-Debian mailing list
+>R-SIG-Debian at r-project.org
+>https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+Michael Dewey
+info at aghmed.fsnet.co.uk
+http://www.aghmed.fsnet.co.uk/home.html
+
+
+From edd at debian.org  Mon Feb 24 17:46:38 2014
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 24 Feb 2014 10:46:38 -0600
+Subject: [R-sig-Debian] Error  gdata and gplots packages
+In-Reply-To: <530B709F.1060207@curie.fr>
+References: <530B6FC7.4020100@curie.fr>
+	<530B709F.1060207@curie.fr>
+Message-ID: <21259.30574.835845.838044@max.nulle.part>
+
+
+Elodie,
+
+There is no error. Those are warning messages telling you that functions are
+masked -- just as it says. No more, no less.
+
+Amicalement,  Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From sims at princeton.edu  Mon Feb 24 23:09:23 2014
+From: sims at princeton.edu (Chris Sims)
+Date: Mon, 24 Feb 2014 17:09:23 -0500
+Subject: [R-sig-Debian] Error  gdata and gplots packages
+In-Reply-To: <21259.30574.835845.838044@max.nulle.part>
+References: <530B6FC7.4020100@curie.fr>	<530B709F.1060207@curie.fr>
+	<21259.30574.835845.838044@max.nulle.part>
+Message-ID: <530BC313.7030601@princeton.edu>
+
+On 02/24/2014 11:46 AM, Dirk Eddelbuettel wrote:
+> Elodie,
+>
+> There is no error. Those are warning messages telling you that functions are
+> masked -- just as it says. No more, no less.
+>
+> Amicalement,  Dirk
+>
+In case an explanation of what "masking" or "masquer" is:
+
+Suppose I write
+
+ > sin <- function (x) "transgression"
+
+This puts a sin() function on the workspace that "masks" the standard 
+sin() function.  Now I can invoke the sin()
+function with the result below
+
+ > sin(2)
+[1] "transgression"
+
+The original sin() function is part of the base package, so I can still 
+invoke it by
+
+ > base::sin(2)
+[1] 0.9092974
+
+Or I can get rid of my new sin() function, in which case the old one 
+pops back up:
+
+ > rm(sin)
+ > sin(2)
+[1] 0.9092974
+
+When you define your own function interactively that masks a function 
+already on the workspace, there is no
+error message.  But when you load a package that masks functions on the 
+workspace, you get a warning.
+
+
+From info at aghmed.fsnet.co.uk  Tue Feb 25 12:55:05 2014
+From: info at aghmed.fsnet.co.uk (Michael Dewey)
+Date: Tue, 25 Feb 2014 11:55:05 +0000
+Subject: [R-sig-Debian] Error  gdata and gplots packages
+In-Reply-To: <530B7480.8030604@curie.fr>
+References: <530B6FC7.4020100@curie.fr> <530B709F.1060207@curie.fr>
+	<Zen-1WHyT2-000AWW-Cj@smarthost01b.mail.zen.net.uk>
+	<530B7480.8030604@curie.fr>
+Message-ID: <Zen-1WIGbS-00005Y-7D@smarthost01c.mail.zen.net.uk>
+
+At 16:34 24/02/2014, you wrote:
+
+Dear Elodie
+Please do not reply to me personally but to the whole list
+
+You now give us a different error message. Is 
+there any reason why you decided not to do this the first time?
+
+I do not think there is much we can do to help 
+you until we are sure that you are telling us the 
+whole story. Please give us a minimal 
+reproducible example. I suspect your problem has 
+nothing to do with Debian and might be more suitable for R-help.
+
+>These warnings stop the script execution in 
+>Shiny application (Rstudio shiny server 
+>packages) where gdata and gplots are loaded :
+>
+>
+>
+>
+>An error has occurred
+>
+>
+>
+>The application failed to start.
+>
+>The application exited during initialization.
+>
+>gdata: read.xls support for 'XLS' (Excel 
+>97-2004) files ENABLED. gdata: read.xls support 
+>for 'XLSX' (Excel 2007+) files ENABLED. 
+>Attaching package: ?gdata? L'objet suivant est 
+>masqu? from ?package:stats?: nobs L'objet 
+>suivant est masqu? from ?package:utils?: 
+>object.size Erreur dans 
+>`[.data.frame`(cancerandtechno, , 1) : undefined 
+>columns selected Calls: runApp ... eval -> eval 
+>-> do.call -> strsplit -> [ -> [.data.frame Ex?cution arr?t?e
+>
+>
+>
+>Le 24/02/2014 17:33, Michael Dewey a ?crit :
+>>At 16:17 24/02/2014, Elodie Chapeaublanc wrote:
+>>>Hi, I just installed Ubuntu 12.04.4. I 
+>>>installed R by following instructions from 
+>>>CRAN after modification into my /etc/apt/sources.list file
+>>>
+>>>  sudo apt-get update
+>>>
+>>>  sudo apt-get install r-base
+>>>
+>>>  sudo apt-get install r-base-dev
+>>>
+>>>
+>>>  When I try to load library(gdata) ou 
+>>> library(gplots), I have error message :
+>>
+>>Dear Elodie
+>>
+>>I am not that expert either at R or French but 
+>>I do not see any error message there. See inline below
+>>
+>>
+>>>library(gdata)
+>>>
+>>>gdata: read.xls support for 'XLS' (Excel 97-2004) files ENABLED.
+>>>
+>>>gdata: read.xls support for 'XLSX' (Excel 2007+) files ENABLED.
+>>>
+>>>Attachement du package : 'gdata'
+>>>
+>>>L'objet suivant est masqu? from 'package:stats':
+>>>
+>>>     nobs
+>>
+>>Is this what was concerning you?
+>>
+>>>L'objet suivant est masqu? from 'package:utils':
+>>>
+>>>     object.size
+>>>
+>>>>library(gplots)
+>>>
+>>>KernSmooth 2.23 loaded
+>>>
+>>>Copyright M. P. Wand 1997-2009
+>>>
+>>>Attachement du package : 'gplots'
+>>>
+>>>L'objet suivant est masqu? from 'package:stats':
+>>>
+>>>     lowess
+>>
+>>At this point does running one of the examples from either package work?
+>>
+>>
+>>>sessionInfo()
+>>>R version 3.0.2 (2013-09-25)
+>>>Platform: x86_64-pc-linux-gnu (64-bit)
+>>>
+>>>locale:
+>>>  [1] LC_CTYPE=fr_FR.UTF-8       LC_NUMERIC=C
+>>>  [3] LC_TIME=fr_FR.UTF-8        LC_COLLATE=fr_FR.UTF-8
+>>>  [5] LC_MONETARY=fr_FR.UTF-8    LC_MESSAGES=fr_FR.UTF-8
+>>>  [7] LC_PAPER=fr_FR.UTF-8       LC_NAME=C
+>>>  [9] LC_ADDRESS=C               LC_TELEPHONE=C
+>>>[11] LC_MEASUREMENT=fr_FR.UTF-8 LC_IDENTIFICATION=C
+>>>
+>>>attached base packages:
+>>>[1] stats     graphics  grDevices utils     datasets  methods base
+>>>
+>>>other attached packages:
+>>>[1] gplots_2.12.1 gdata_2.13.2
+>>>
+>>>loaded via a namespace (and not attached):
+>>>[1] bitops_1.0-6       caTools_1.16       gtools_3.3.0 KernSmooth_2.23-10
+>>>
+>>>
+>>>Thanks,
+>>>
+>>>Elodie
+>>>
+>>>
+>>>
+>>>--
+>>>--
+>>>Elodie Chapeaublanc
+>>>IE Bioinformatique
+>>>?quipe Oncologie Mol?culaire
+>>>Institut Curie - UMR 144 - CNRS
+>>>26 rue d'Ulm - 75248 Paris Cedex 05
+>>>Tel: +33 1 56 24 63 57
+>>>Email: <mailto:elodie.chapeaublanc at curie.fr>elodie.chapeaublanc at curie.fr
+>>>
+>>>_______________________________________________
+>>>R-SIG-Debian mailing list
+>>><mailto:R-SIG-Debian at r-project.org>R-SIG-Debian at r-project.org
+>>>https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+>>Michael Dewey
+>><mailto:info at aghmed.fsnet.co.uk>info at aghmed.fsnet.co.uk
+>>http://www.aghmed.fsnet.co.uk/home.html
+>
+>
+>
+>--
+>--
+>Elodie Chapeaublanc
+>IE Bioinformatique
+>?quipe Oncologie Mol?culaire
+>Institut Curie - UMR 144 - CNRS
+>26 rue d'Ulm - 75248 Paris Cedex 05
+>Tel: +33 1 56 24 63 57
+>Email: <mailto:elodie.chapeaublanc at curie.fr>elodie.chapeaublanc at curie.fr
+
+Michael Dewey
+info at aghmed.fsnet.co.uk
+http://www.aghmed.fsnet.co.uk/home.html
+
+

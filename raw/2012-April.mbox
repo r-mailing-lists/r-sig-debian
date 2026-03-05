@@ -1,0 +1,1226 @@
+From andreas.leha at med.uni-goettingen.de  Sat Apr  7 00:56:39 2012
+From: andreas.leha at med.uni-goettingen.de (Andreas Leha)
+Date: Sat, 07 Apr 2012 00:56:39 +0200
+Subject: [R-sig-Debian] symbol lookup error
+Message-ID: <87wr5sh3ko.fsf@med.uni-goettingen.de>
+
+Hi all,
+
+I am on debian testing with pre-packaged R (2.14.1) installed.  I started
+getting weird crashes.  Now I have a reproducible example:
+
+# R
+R version 2.14.1 (2011-12-22)
+Copyright (C) 2011 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+> save(/usr/lib/R/bin/exec/R: symbol lookup error: /usr/lib/R/lib/libR.so: undefined symbol: _pcre_valid_utf8
+# 
+
+
+Right after entering 'save(' I pressed TAB.
+
+Any help on this would be highly appreciated.
+
+Regards,
+Andreas
+
+
+From andreas.leha at med.uni-goettingen.de  Sat Apr  7 01:28:57 2012
+From: andreas.leha at med.uni-goettingen.de (Andreas Leha)
+Date: Sat, 07 Apr 2012 01:28:57 +0200
+Subject: [R-sig-Debian] symbol lookup error
+References: <87wr5sh3ko.fsf@med.uni-goettingen.de>
+Message-ID: <87sjggh22u.fsf@med.uni-goettingen.de>
+
+Andreas Leha <andreas.leha at med.uni-goettingen.de> writes:
+
+> Hi all,
+>
+> I am on debian testing with pre-packaged R (2.14.1) installed.  I started
+> getting weird crashes.  Now I have a reproducible example:
+>
+> # R
+> R version 2.14.1 (2011-12-22)
+> Copyright (C) 2011 The R Foundation for Statistical Computing
+> ISBN 3-900051-07-0
+> Platform: x86_64-pc-linux-gnu (64-bit)
+>
+>> save(/usr/lib/R/bin/exec/R: symbol lookup error: /usr/lib/R/lib/libR.so: undefined symbol: _pcre_valid_utf8
+> # 
+>
+>
+> Right after entering 'save(' I pressed TAB.
+>
+> Any help on this would be highly appreciated.
+>
+> Regards,
+> Andreas
+
+
+Pressed that 'send' button too early (or googled too late):  Now I saw
+that this is already reported
+(http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=667442)
+
+Sorry for the noise.
+
+- Andreas
+
+
+From jaisuvyas at gmail.com  Wed Apr 11 18:18:54 2012
+From: jaisuvyas at gmail.com (Jaisen Nedumpala)
+Date: Wed, 11 Apr 2012 21:48:54 +0530
+Subject: [R-sig-Debian] Dependency problem bug with r-cran-vr
+Message-ID: <CAKnL019RKvRdN3zmwov1zZhxD=8MMXhO3s5TeZuoHD5+ftQP0Q@mail.gmail.com>
+
+Hi,
+
+I was trying to connect GRASS with R, following the guidelines described here:
+
+http://grass.osgeo.org/wiki/R_statistics
+
+The line in my /etc/apt/sources.list is like:
+
+deb http://ftp.iitm.ac.in/cran/bin/linux/debian squeeze-cran/
+
+But when I tried to install r-cran-vr, I got an unmet dependency
+problem with r-cran-mass and r-cran-class.
+But these two packages were already installed. Then why it happen?
+--------------------------------------------------------------
+jaisen at debian:~$ sudo apt-get install r-cran-vr
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+Some packages could not be installed. This may mean that you have
+requested an impossible situation or if you are using the unstable
+distribution that some required packages have not yet been created
+or been moved out of Incoming.
+The following information may help to resolve the situation:
+
+The following packages have unmet dependencies:
+ r-cran-vr : Depends: r-cran-mass but it is not going to be installed
+             Depends: r-cran-class but it is not going to be installed
+E: Broken packages
+jaisen at debian:~$
+--------------------------------------------------------------
+Everything was nice and fine, except this one. How to fix this
+problem? Please help me.
+
+Regards,
+-- 
+~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
+- ????????? ???????? -
+~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
+? ? (`'?.?(`'?.?^?.?'?)?.?'?)
+???`?* .? Jaisen . *..??`?
+? ? (?.?'?(`'?.? ?.?'?)`'?.?)
+? ? ?.??^.`'?.? ?.?'?
+? ?? ( `?.?`?.?
+? ? ? `?.? )`?.?
+? ?? ?.?(? `?.?
+? ? ?.?(.??)`?.?
+? ? ? ( `v? )
+? ? ? ? `v?
+
+
+From jranke at uni-bremen.de  Wed Apr 11 18:30:24 2012
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Wed, 11 Apr 2012 18:30:24 +0200
+Subject: [R-sig-Debian] Dependency problem bug with r-cran-vr
+In-Reply-To: <CAKnL019RKvRdN3zmwov1zZhxD=8MMXhO3s5TeZuoHD5+ftQP0Q@mail.gmail.com>
+References: <CAKnL019RKvRdN3zmwov1zZhxD=8MMXhO3s5TeZuoHD5+ftQP0Q@mail.gmail.com>
+Message-ID: <201204111830.25934.jranke@uni-bremen.de>
+
+Jaisen,
+
+r-cran-vr is not in the squeeze-cran repository - it is an outdated meta-
+package that was fully replaced by its components (r-cran-mass and r-cran-
+class are the debian packages of two of those components).
+
+There should be no need for r-cran-vr any more. Try without it.
+
+Kind regards,
+
+Johannes
+
+On Wednesday 11 April 2012 18:18:54 Jaisen Nedumpala wrote:
+> Hi,
+> 
+> I was trying to connect GRASS with R, following the guidelines described
+> here:
+> 
+> http://grass.osgeo.org/wiki/R_statistics
+> 
+> The line in my /etc/apt/sources.list is like:
+> 
+> deb http://ftp.iitm.ac.in/cran/bin/linux/debian squeeze-cran/
+> 
+> But when I tried to install r-cran-vr, I got an unmet dependency
+> problem with r-cran-mass and r-cran-class.
+> But these two packages were already installed. Then why it happen?
+> --------------------------------------------------------------
+> jaisen at debian:~$ sudo apt-get install r-cran-vr
+> Reading package lists... Done
+> Building dependency tree
+> Reading state information... Done
+> Some packages could not be installed. This may mean that you have
+> requested an impossible situation or if you are using the unstable
+> distribution that some required packages have not yet been created
+> or been moved out of Incoming.
+> The following information may help to resolve the situation:
+> 
+> The following packages have unmet dependencies:
+>  r-cran-vr : Depends: r-cran-mass but it is not going to be installed
+>              Depends: r-cran-class but it is not going to be installed
+> E: Broken packages
+> jaisen at debian:~$
+> --------------------------------------------------------------
+> Everything was nice and fine, except this one. How to fix this
+> problem? Please help me.
+> 
+> Regards,
+
+
+From jaisuvyas at gmail.com  Thu Apr 12 19:02:31 2012
+From: jaisuvyas at gmail.com (Jaisen Nedumpala)
+Date: Thu, 12 Apr 2012 22:32:31 +0530
+Subject: [R-sig-Debian] Dependency problem bug with r-cran-vr
+In-Reply-To: <201204111830.25934.jranke@uni-bremen.de>
+References: <CAKnL019RKvRdN3zmwov1zZhxD=8MMXhO3s5TeZuoHD5+ftQP0Q@mail.gmail.com>
+	<201204111830.25934.jranke@uni-bremen.de>
+Message-ID: <CAKnL01-AuJa6EmuJZ1099rnNGCpLQ1b03y=u_y4fvPqnv60Uyw@mail.gmail.com>
+
+2012/4/11 Johannes Ranke <jranke at uni-bremen.de>:
+> Jaisen,
+>
+> r-cran-vr is not in the squeeze-cran repository - it is an outdated meta-
+> package that was fully replaced by its components (r-cran-mass and r-cran-
+> class are the debian packages of two of those components).
+>
+> There should be no need for r-cran-vr any more. Try without it.
+>
+> Kind regards,
+
+Thank you. Ok, Now trying without it..
+>
+> Johannes
+>
+Warm regards,
+-- 
+~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
+- ????????? ???????? -
+~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
+? ? (`'?.?(`'?.?^?.?'?)?.?'?)
+???`?* .? Jaisen . *..??`?
+? ? (?.?'?(`'?.? ?.?'?)`'?.?)
+? ? ?.??^.`'?.? ?.?'?
+? ?? ( `?.?`?.?
+? ? ? `?.? )`?.?
+? ?? ?.?(? `?.?
+? ? ?.?(.??)`?.?
+? ? ? ( `v? )
+? ? ? ? `v?
+
+From wolfgang.raffelsberger at gmail.com  Wed Apr 18 18:24:49 2012
+From: wolfgang.raffelsberger at gmail.com (Wolfgang Raffelsberger)
+Date: Wed, 18 Apr 2012 18:24:49 +0200
+Subject: [R-sig-Debian] Error installing libraries (eg RODBC) on R-2.15.0 :
+	cannot find 'config.log'
+Message-ID: <CALDESV_wqrOb9x09s77+bg9C-+LX7_nnc208BCT_5AWPuSxfxg@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120418/4248b64e/attachment.pl>
+
+From mar36 at psu.edu  Wed Apr 18 19:44:49 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Wed, 18 Apr 2012 13:44:49 -0400
+Subject: [R-sig-Debian] Error installing libraries (eg RODBC) on
+ R-2.15.0 : cannot find 'config.log'
+In-Reply-To: <CALDESV_wqrOb9x09s77+bg9C-+LX7_nnc208BCT_5AWPuSxfxg@mail.gmail.com>
+References: <CALDESV_wqrOb9x09s77+bg9C-+LX7_nnc208BCT_5AWPuSxfxg@mail.gmail.com>
+Message-ID: <4F8EFD91.7010501@psu.edu>
+
+On 04/18/2012 12:24 PM, Wolfgang Raffelsberger wrote:
+> Dear list,
+>
+> as I started installing R-2.15.0 on a Red Hat 4.5.1-4 as well a Ubuntu
+> 10.04.3 systems.
+> While the basic installation went fine (like the previous R-2.14.2), now
+> I'm having trouble installing almost one third of the additional libraries
+> I want (which installed flawlessly with R-2.14.2), among them RODBC for
+> which I show the message below (obtained on Ubuntu) :
+>
+> surf_forInstallation_>  R  CMD INSTALL RODBC_1.3-5.tar.gz
+> * installing to library '/linux/biolo/R_surf/R-2.15.0/lib64/R/library'
+> * installing *source* package 'RODBC' ...
+> ** package 'RODBC' successfully unpacked and MD5 sums checked
+> checking for gcc...
+> gcc -std=gnu99
+> checking for C compiler default output file name... configure: error: C
+> compiler cannot create executables
+> See `config.log' for more details.
+> ERROR: configuration failed for package 'RODBC'
+> * removing '/linux/biolo/R_surf/R-2.15.0/lib64/R/library/RODBC'
+>
+>
+> In fact, I get identical messages on our Red Hat 4.5.1-4 and the Ubuntu
+> 10.04.3 systems mentioned above.
+> Obviously something with our C compiler(s) didn't work out.
+> In order to learn more about the problem I tried to look at config.log
+> mentioned in the installation-message above, however, I cannot find
+> the file, neither in my current path nor in
+>   /linux/biolo/R_surf/R-2.15.0/lib64/R/library .
+> Obviously the RODBC directory doesn't exist any more when the installation
+> attempt ends.
+>
+> Any hints ?
+> I'm new to the Debian-list, but at least I haven't seen similar (recent)
+> posts on R-help or the bioconductor lists.
+
+Wolfgang,
+
+For the Ubuntu box, I would start by using my R PPA found here:
+
+https://launchpad.net/~marutter/+archive/rrutter
+
+I would also suggest using apt and/or synaptic to install as many 
+packages as possible from the repositories (sudo apt-get install 
+r-cran-rodbc, for example).
+
+The error you received indicates to me you do not have any development 
+packages or a c++ complier installed.  Have you installed "r-base-dev"? 
+  That should install the needed compilers.
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From wolfgang.raffelsberger at gmail.com  Thu Apr 19 11:14:59 2012
+From: wolfgang.raffelsberger at gmail.com (Wolfgang Raffelsberger)
+Date: Thu, 19 Apr 2012 11:14:59 +0200
+Subject: [R-sig-Debian] Error installing libraries (eg RODBC) on
+ R-2.15.0 : cannot find 'config.log'
+In-Reply-To: <4F8EFD91.7010501@psu.edu>
+References: <CALDESV_wqrOb9x09s77+bg9C-+LX7_nnc208BCT_5AWPuSxfxg@mail.gmail.com>
+	<4F8EFD91.7010501@psu.edu>
+Message-ID: <CALDESV9pF9dx_e0Vk88FkP9oimQPQe4P7By7MBMp0JAQqDLxHg@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120419/05c5e467/attachment.pl>
+
+From edd at debian.org  Thu Apr 19 15:00:36 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 19 Apr 2012 08:00:36 -0500
+Subject: [R-sig-Debian] Error installing libraries (eg RODBC) on
+ R-2.15.0 : cannot find 'config.log'
+In-Reply-To: <CALDESV9pF9dx_e0Vk88FkP9oimQPQe4P7By7MBMp0JAQqDLxHg@mail.gmail.com>
+References: <CALDESV_wqrOb9x09s77+bg9C-+LX7_nnc208BCT_5AWPuSxfxg@mail.gmail.com>
+	<4F8EFD91.7010501@psu.edu>
+	<CALDESV9pF9dx_e0Vk88FkP9oimQPQe4P7By7MBMp0JAQqDLxHg@mail.gmail.com>
+Message-ID: <20368.3188.955641.70227@max.nulle.part>
+
+
+On 19 April 2012 at 11:14, Wolfgang Raffelsberger wrote:
+| Dear  Michael,
+| 
+| thank's for your quick answer. Yes, I've thought about the sudo option
+| which should work with RODBC as you stated, but probably it won't with a
+
+a) For RODBC, just do 'apt-get install r-cran-rodbc'. Similar for many other
+packages on the repos, and if you got to Michael's PPA (for Ubuntu) or Don's
+site (for Debian) you get almost all of CRAN as a binary .deb.
+
+| bunch of other R-libraries suffering the same problem.
+| Anyway, this is the installation on a bigger system and the system
+| adminstrator doesn't think giving me the rights for sudo is a good solution
+| - in particular,  if similar installations didn't require this in the past.
+
+b) What you do with is entirely your local issue, as is your current error of
+being unable to replicate what you once had. Based on the limited info you
+had, we cannot help you.
+ 
+| Somehow I was hoping to find a way to see the content of the `config.log'
+| for more details, but if it really gets written to disk it seems to
+| disappear within milliseconds thereafter. I'll try the R-devel list to
+| suggest an argument allowing to display or keep this file.
+
+c) Untangle the steps that R CMD INSTALL does.  Unpack the tar.gz by hand,
+run configure by hand. Nobody will delete the file under you.
+
+Dirk
+ 
+| Wolfgang
+| 
+| 2012/4/18 Michael Rutter <mar36 at psu.edu>
+| 
+| > On 04/18/2012 12:24 PM, Wolfgang Raffelsberger wrote:
+| >
+| >> Dear list,
+| >>
+| >> as I started installing R-2.15.0 on a Red Hat 4.5.1-4 as well a Ubuntu
+| >> 10.04.3 systems.
+| >> While the basic installation went fine (like the previous R-2.14.2), now
+| >> I'm having trouble installing almost one third of the additional libraries
+| >> I want (which installed flawlessly with R-2.14.2), among them RODBC for
+| >> which I show the message below (obtained on Ubuntu) :
+| >>
+| >> surf_forInstallation_>  R  CMD INSTALL RODBC_1.3-5.tar.gz
+| >> * installing to library '/linux/biolo/R_surf/R-2.15.0/**lib64/R/library'
+| >> * installing *source* package 'RODBC' ...
+| >> ** package 'RODBC' successfully unpacked and MD5 sums checked
+| >> checking for gcc...
+| >> gcc -std=gnu99
+| >> checking for C compiler default output file name... configure: error: C
+| >> compiler cannot create executables
+| >> See `config.log' for more details.
+| >> ERROR: configuration failed for package 'RODBC'
+| >> * removing '/linux/biolo/R_surf/R-2.15.0/**lib64/R/library/RODBC'
+| >>
+| >>
+| >> In fact, I get identical messages on our Red Hat 4.5.1-4 and the Ubuntu
+| >> 10.04.3 systems mentioned above.
+| >> Obviously something with our C compiler(s) didn't work out.
+| >> In order to learn more about the problem I tried to look at config.log
+| >> mentioned in the installation-message above, however, I cannot find
+| >> the file, neither in my current path nor in
+| >>  /linux/biolo/R_surf/R-2.15.0/**lib64/R/library .
+| >> Obviously the RODBC directory doesn't exist any more when the installation
+| >> attempt ends.
+| >>
+| >> Any hints ?
+| >> I'm new to the Debian-list, but at least I haven't seen similar (recent)
+| >> posts on R-help or the bioconductor lists.
+| >>
+| >
+| > Wolfgang,
+| >
+| > For the Ubuntu box, I would start by using my R PPA found here:
+| >
+| > https://launchpad.net/~**marutter/+archive/rrutter<https://launchpad.net/~marutter/+archive/rrutter>
+| >
+| > I would also suggest using apt and/or synaptic to install as many packages
+| > as possible from the repositories (sudo apt-get install r-cran-rodbc, for
+| > example).
+| >
+| > The error you received indicates to me you do not have any development
+| > packages or a c++ complier installed.  Have you installed "r-base-dev"?
+| >  That should install the needed compilers.
+| >
+| > Michael
+| >
+| > --
+| > Dr. Michael A. Rutter
+| > School of Science
+| > Penn State Erie, The Behrend College
+| > Station Road
+| > Erie, PA 16563
+| > http://math.bd.psu.edu/**faculty/rutter<http://math.bd.psu.edu/faculty/rutter>
+| >
+| > ______________________________**_________________
+| > R-SIG-Debian mailing list
+| > R-SIG-Debian at r-project.org
+| > https://stat.ethz.ch/mailman/**listinfo/r-sig-debian<https://stat.ethz.ch/mailman/listinfo/r-sig-debian>
+| >
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+R/Finance 2012 Conference on May 11 and 12, 2012 at UIC in Chicago, IL
+See agenda, registration details and more at http://www.RinFinance.com
+
+
+From wolfgang.raffelsberger at gmail.com  Thu Apr 19 17:16:51 2012
+From: wolfgang.raffelsberger at gmail.com (Wolfgang Raffelsberger)
+Date: Thu, 19 Apr 2012 17:16:51 +0200
+Subject: [R-sig-Debian] Error installing libraries (eg RODBC) on
+ R-2.15.0 : cannot find 'config.log'
+In-Reply-To: <20368.3188.955641.70227@max.nulle.part>
+References: <CALDESV_wqrOb9x09s77+bg9C-+LX7_nnc208BCT_5AWPuSxfxg@mail.gmail.com>
+	<4F8EFD91.7010501@psu.edu>
+	<CALDESV9pF9dx_e0Vk88FkP9oimQPQe4P7By7MBMp0JAQqDLxHg@mail.gmail.com>
+	<20368.3188.955641.70227@max.nulle.part>
+Message-ID: <CALDESV9g=TQbABk=ZKV=RmVwPSQXjgB=3HA8wAhDfJPatMzyLA@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120419/821c8dec/attachment.pl>
+
+From don at donarmstrong.com  Mon Apr 23 23:10:36 2012
+From: don at donarmstrong.com (Don Armstrong)
+Date: Mon, 23 Apr 2012 14:10:36 -0700
+Subject: [R-sig-Debian] Ubuntu Lucid, R 2.14.2, and ggplot2
+In-Reply-To: <20120326225001.GK16976@rzlab.ucr.edu>
+References: <6DF125D4-22F6-4EE8-98CD-CC1E11FE81C2@genome.wustl.edu>
+	<944A8BBB-CFCC-4E87-BC10-19E72B1BDB96@genome.wustl.edu>
+	<20331.34705.949857.689995@max.nulle.part>
+	<201203261525.20089.jranke@uni-bremen.de>
+	<20120326225001.GK16976@rzlab.ucr.edu>
+Message-ID: <20120423211036.GS3458@rzlab.ucr.edu>
+
+On Mon, 26 Mar 2012, Don Armstrong wrote:
+> On Mon, 26 Mar 2012, Johannes Ranke wrote:
+> > Dear Dirk, dear all,
+> >  
+> > > | Perhaps an indication that this cran2deb stuff is very green?
+> > > 
+> > > It has been inoperational for years as you could have noticed by looking at
+> > > the version numbers of the packages you were getting, relative to CRAN.
+> > > 
+> > > Use http://debian-r.debian.net, which is a pretty new, well done "reboot"
+> > > of the same idea.
+> > 
+> > This indeed looks nice - I wonder how hard it would be to make the Debian 
+> > stable/squeeze variant work...
+> 
+> I need to fix a few things, and then I will be doing the rebuilds for
+> stable too. Probably two weeks or so.
+
+Builds for stable are now happening, and should be flowing into the
+archives in the next few days. Unfortunately, a lot of the newer
+packages require R >= 2.14.0 in order to function, so they'll be
+missing. If there's significant need for older packages (or if I end
+up needing some) I may backport R 2.14.0 and add an additional
+squeeze-backports archive, but I have no firm plans to do that yet.
+
+
+Don Armstrong
+
+-- 
+To steal ideas from one person is plagiarism; to steal from many is
+research.
+ -- Steven Wright
+
+http://www.donarmstrong.com              http://rzlab.ucr.edu
+
+
+From jranke at uni-bremen.de  Tue Apr 24 00:29:37 2012
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Tue, 24 Apr 2012 00:29:37 +0200
+Subject: [R-sig-Debian] Ubuntu Lucid, R 2.14.2, and ggplot2
+In-Reply-To: <20120423211036.GS3458@rzlab.ucr.edu>
+References: <6DF125D4-22F6-4EE8-98CD-CC1E11FE81C2@genome.wustl.edu>
+	<20120326225001.GK16976@rzlab.ucr.edu>
+	<20120423211036.GS3458@rzlab.ucr.edu>
+Message-ID: <201204240029.38140.jranke@uni-bremen.de>
+
+On Monday 23 April 2012 23:10:36 Don Armstrong wrote:
+> On Mon, 26 Mar 2012, Don Armstrong wrote:
+> > On Mon, 26 Mar 2012, Johannes Ranke wrote:
+> > > Dear Dirk, dear all,
+> > > 
+> > > > | Perhaps an indication that this cran2deb stuff is very green?
+> > > > 
+> > > > It has been inoperational for years as you could have noticed by
+> > > > looking at the version numbers of the packages you were getting,
+> > > > relative to CRAN.
+> > > > 
+> > > > Use http://debian-r.debian.net, which is a pretty new, well done
+> > > > "reboot" of the same idea.
+> > > 
+> > > This indeed looks nice - I wonder how hard it would be to make the
+> > > Debian stable/squeeze variant work...
+> > 
+> > I need to fix a few things, and then I will be doing the rebuilds for
+> > stable too. Probably two weeks or so.
+> 
+> Builds for stable are now happening, and should be flowing into the
+> archives in the next few days. Unfortunately, a lot of the newer
+> packages require R >= 2.14.0 in order to function, so they'll be
+> missing. If there's significant need for older packages (or if I end
+> up needing some) I may backport R 2.14.0 and add an additional
+> squeeze-backports archive, but I have no firm plans to do that yet.
+
+Don, 
+
+this sounds great! But why don't you use the R 2.15.0 backport to squeeze on 
+CRAN? Am I missing something?
+
+Johannes
+
+> 
+> 
+> Don Armstrong
+
+
+From don at donarmstrong.com  Tue Apr 24 00:32:20 2012
+From: don at donarmstrong.com (Don Armstrong)
+Date: Mon, 23 Apr 2012 15:32:20 -0700
+Subject: [R-sig-Debian] Ubuntu Lucid, R 2.14.2, and ggplot2
+In-Reply-To: <201204240029.38140.jranke@uni-bremen.de>
+References: <6DF125D4-22F6-4EE8-98CD-CC1E11FE81C2@genome.wustl.edu>
+	<20120326225001.GK16976@rzlab.ucr.edu>
+	<20120423211036.GS3458@rzlab.ucr.edu>
+	<201204240029.38140.jranke@uni-bremen.de>
+Message-ID: <20120423223220.GW3458@rzlab.ucr.edu>
+
+On Tue, 24 Apr 2012, Johannes Ranke wrote:
+> this sounds great! But why don't you use the R 2.15.0 backport to
+> squeeze on CRAN?
+
+Primarily because I want a build against the version of R actually in
+Debian squeeze. 
+
+I'll probably also do a secondary set of builds against a backported
+R, but when I do that, I'll either upload it to backports.debian.org
+myself (or ideally someone else will beat me to it.)
+
+
+Don Armstrong
+
+-- 
+I have no use for "before and after" pictures.
+I can't remember starting, and I'm never done.
+ -- a softer world #221
+    http://www.asofterworld.com/index.php?id=221
+
+http://www.donarmstrong.com              http://rzlab.ucr.edu
+
+
+From jranke at uni-bremen.de  Tue Apr 24 08:16:11 2012
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Tue, 24 Apr 2012 08:16:11 +0200
+Subject: [R-sig-Debian] Ubuntu Lucid, R 2.14.2, and ggplot2
+In-Reply-To: <20120423223220.GW3458@rzlab.ucr.edu>
+References: <6DF125D4-22F6-4EE8-98CD-CC1E11FE81C2@genome.wustl.edu>
+	<201204240029.38140.jranke@uni-bremen.de>
+	<20120423223220.GW3458@rzlab.ucr.edu>
+Message-ID: <201204240816.11752.jranke@uni-bremen.de>
+
+On Tuesday 24 April 2012 00:32:20 Don Armstrong wrote:
+> On Tue, 24 Apr 2012, Johannes Ranke wrote:
+> > this sounds great! But why don't you use the R 2.15.0 backport to
+> > squeeze on CRAN?
+> 
+> Primarily because I want a build against the version of R actually in
+> Debian squeeze.
+> 
+> I'll probably also do a secondary set of builds against a backported
+> R, but when I do that, I'll either upload it to backports.debian.org
+> myself (or ideally someone else will beat me to it.)
+
+Sounds good. I won't be the one as I am not a DD. Backporting troubles lately 
+have been zero, so it is _probably_ not a huge amount of maintenance work, 
+thanks to Dicks careful packaging for unstable.
+
+Johannes
+
+> 
+> 
+> Don Armstrong
+
+
+From edd at debian.org  Tue Apr 24 20:20:04 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 24 Apr 2012 13:20:04 -0500
+Subject: [R-sig-Debian] Ubuntu Lucid, R 2.14.2, and ggplot2
+In-Reply-To: <201204240816.11752.jranke@uni-bremen.de>
+References: <6DF125D4-22F6-4EE8-98CD-CC1E11FE81C2@genome.wustl.edu>
+	<201204240029.38140.jranke@uni-bremen.de>
+	<20120423223220.GW3458@rzlab.ucr.edu>
+	<201204240816.11752.jranke@uni-bremen.de>
+Message-ID: <20374.61140.817120.469868@max.nulle.part>
+
+
+On 24 April 2012 at 08:16, Johannes Ranke wrote:
+| On Tuesday 24 April 2012 00:32:20 Don Armstrong wrote:
+| > On Tue, 24 Apr 2012, Johannes Ranke wrote:
+| > > this sounds great! But why don't you use the R 2.15.0 backport to
+| > > squeeze on CRAN?
+| > 
+| > Primarily because I want a build against the version of R actually in
+| > Debian squeeze.
+| > 
+| > I'll probably also do a secondary set of builds against a backported
+| > R, but when I do that, I'll either upload it to backports.debian.org
+| > myself (or ideally someone else will beat me to it.)
+| 
+| Sounds good. I won't be the one as I am not a DD. Backporting troubles lately 
+| have been zero, so it is _probably_ not a huge amount of maintenance work, 
+
+One thing that comes to mind is that I always had to patch the two m4 files
+as R Core / Brian Ripley insisted on finding '1.0.6' as the version of bzip2
+even though Debian's 1.0.5 had all the relevant security patches...  So I
+guess we rely on backports having the right version too.  Which should be a
+safe bet.
+
+debian/rules is a bit of a mess code-wise, but the functionality is stable
+and solid so I have little inclination for doing a rewrite just for rewrite's
+sake. 
+
+| thanks to Dicks careful packaging for unstable.
+
+Hah. I don't get too many German people writing that 'Dick' variant. More
+common around here....
+
+Dirk (with an r :-)
+
+-- 
+R/Finance 2012 Conference on May 11 and 12, 2012 at UIC in Chicago, IL
+See agenda, registration details and more at http://www.RinFinance.com
+
+
+From mar36 at psu.edu  Thu Apr 26 15:19:28 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Thu, 26 Apr 2012 09:19:28 -0400
+Subject: [R-sig-Debian] R packages for Ubuntu 12.04 LTS Precise Pangolin now
+	available
+Message-ID: <4F994B60.50500@psu.edu>
+
+Ubuntu users,
+
+The latest version of Ubuntu (12.04 LTS: Precise Pangolin) has been 
+released.  Current R packages are also available from the following 
+locations:
+
+The CRAN repository
+http://cran.r-project.org/bin/linux/ubuntu/
+
+My Launchpad PPA (feeds CRAN, has a few more packages)
+https://launchpad.net/~marutter/+archive/rrutter
+
+cran2deb4ubuntu (over 1000 packages found in CRAN Taskviews, not all 
+uploaded yet)
+https://launchpad.net/~marutter/+archive/c2d4u
+
+If you have any questions, please let me know.
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From mar36 at psu.edu  Fri Apr 27 20:11:30 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Fri, 27 Apr 2012 14:11:30 -0400
+Subject: [R-sig-Debian] A guide to R packages for Ubuntu
+Message-ID: <4F9AE152.3080001@psu.edu>
+
+As per a request, here is a brief guide to what is available to R users 
+as packages in Ubuntu.
+
+Each release of Ubuntu includes the latest version of R and the 
+recommended packages.  In addition, there are approximately 80 
+additional r-cran packages available in the default repositories.  The 
+limitation to these packages is that they are not updated and reflect 
+the current version of the program or package when that version of 
+Ubuntu was released.
+
+If you want to have current versions of R and the recommended packages, 
+there are two repositories to choose from:
+
+CRAN: http://cran.r-project.org/bin/linux/ubuntu/
+Launchpad PPA: https://launchpad.net/~marutter/+archive/rrutter
+
+Both sites have the same packages (the PPA packages are mirrored on 
+CRAN), but there may be a reason to use one over the other.
+
+CRAN Advantages:
+- A local mirror may be faster in terms of internet speed.
+- Older versions of the packages are available, so if an update to R or 
+a core package breaks your code, you can reinstall an older version via 
+synaptic or apt.
+
+PPA Advantages:
+- Quickest way to get the updates (only by about 24 hours however)
+- Easy to install (sudo add-apt-repository ppa:marutter/rrutter)
+
+If you have been using CRAN, then there is no reason to change to the 
+PPA, as the same packages is provided at both locations.  I will 
+continue to maintain both sites, so no need to worry about one or the 
+other going away.
+
+If you want additional packages (over 1,100), you can check out my 
+cran2deb4ubuntu PPA:
+
+https://launchpad.net/~marutter/+archive/c2d4u
+
+In theory, this PPA has all the packages listed in the CRAN Task Views 
+and any dependencies.  In practice, is has about 98% of them, as some 
+packages have issues.  These packages can be installed via synaptic or 
+apt (sudo apt-get install r-cran-ggplot2, for example).  The main 
+advantage of this approach is that tricky Ubuntu package requirements 
+will automatically be installed when installing the package.  They will 
+also be automatically updated during normal Ubuntu updates, which is 
+another advantage.  These packages are NOT installed when a 
+install.packages("foo") command is used from within R.
+
+One of my plans this summer/sabbatical is create documentation for the 
+cran2deb4ubuntu project and give more information about what is and what 
+is not available.
+
+If you have any further questions, please let me know.
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From landronimirc at gmail.com  Sun Apr 29 18:34:59 2012
+From: landronimirc at gmail.com (Liviu Andronic)
+Date: Sun, 29 Apr 2012 18:34:59 +0200
+Subject: [R-sig-Debian] A guide to R packages for Ubuntu
+In-Reply-To: <4F9AE152.3080001@psu.edu>
+References: <4F9AE152.3080001@psu.edu>
+Message-ID: <CABxs9VnLcF6gjBeEYMJTO2XYc55dZ2w_sUxHhPhRh_0d=KQymw@mail.gmail.com>
+
+On Fri, Apr 27, 2012 at 8:11 PM, Michael Rutter <mar36 at psu.edu> wrote:
+> If you want additional packages (over 1,100), you can check out my
+> cran2deb4ubuntu PPA:
+>
+> https://launchpad.net/~marutter/+archive/c2d4u
+>
+Very interesting! Thanks for sharing this with us. It looks like
+'cran2deb' did evolve to a useful state.
+
+
+> In theory, this PPA has all the packages listed in the CRAN Task Views and
+> any dependencies. ?In practice, is has about 98% of them, as some packages
+> have issues.
+>
+Is there a reason to limit 'cran2deb4ubuntu' to Task Views packages?
+For example, I would like to install all the Rcmdr plug-ins via the
+PPA but the only one available is 'rcmdrplugin.doe'. Very useful GUIs
+such as 'playwith' and 'latticist' are missing, too. Even some popular
+toolkit deps are missing: 'gwidgetstcltk'. Are there plans to increase
+the number of packages provided?
+
+Regards
+Liviu
+
+
+From Lee.Hachadoorian+L at gmail.com  Sun Apr 29 19:48:20 2012
+From: Lee.Hachadoorian+L at gmail.com (Lee Hachadoorian)
+Date: Sun, 29 Apr 2012 13:48:20 -0400
+Subject: [R-sig-Debian] A guide to R packages for Ubuntu
+In-Reply-To: <4F9AE152.3080001@psu.edu>
+References: <4F9AE152.3080001@psu.edu>
+Message-ID: <4F9D7EE4.20107@gmail.com>
+
+On 04/27/2012 02:11 PM, Michael Rutter wrote:
+> As per a request, here is a brief guide to what is available to R 
+> users as packages in Ubuntu.
+>
+> Each release of Ubuntu includes the latest version of R and the 
+> recommended packages.  In addition, there are approximately 80 
+> additional r-cran packages available in the default repositories.  The 
+> limitation to these packages is that they are not updated and reflect 
+> the current version of the program or package when that version of 
+> Ubuntu was released.
+>
+> If you want to have current versions of R and the recommended 
+> packages, there are two repositories to choose from:
+>
+> CRAN: http://cran.r-project.org/bin/linux/ubuntu/
+> Launchpad PPA: https://launchpad.net/~marutter/+archive/rrutter
+>
+> Both sites have the same packages (the PPA packages are mirrored on 
+> CRAN), but there may be a reason to use one over the other.
+>
+> CRAN Advantages:
+> - A local mirror may be faster in terms of internet speed.
+> - Older versions of the packages are available, so if an update to R 
+> or a core package breaks your code, you can reinstall an older version 
+> via synaptic or apt.
+>
+> PPA Advantages:
+> - Quickest way to get the updates (only by about 24 hours however)
+> - Easy to install (sudo add-apt-repository ppa:marutter/rrutter)
+>
+> If you have been using CRAN, then there is no reason to change to the 
+> PPA, as the same packages is provided at both locations.  I will 
+> continue to maintain both sites, so no need to worry about one or the 
+> other going away.
+>
+> If you want additional packages (over 1,100), you can check out my 
+> cran2deb4ubuntu PPA:
+>
+> https://launchpad.net/~marutter/+archive/c2d4u
+>
+> In theory, this PPA has all the packages listed in the CRAN Task Views 
+> and any dependencies.  In practice, is has about 98% of them, as some 
+> packages have issues.  These packages can be installed via synaptic or 
+> apt (sudo apt-get install r-cran-ggplot2, for example).  The main 
+> advantage of this approach is that tricky Ubuntu package requirements 
+> will automatically be installed when installing the package.  They 
+> will also be automatically updated during normal Ubuntu updates, which 
+> is another advantage.  These packages are NOT installed when a 
+> install.packages("foo") command is used from within R.
+>
+> One of my plans this summer/sabbatical is create documentation for the 
+> cran2deb4ubuntu project and give more information about what is and 
+> what is not available.
+>
+> If you have any further questions, please let me know.
+> Michael
+>
+Michael,
+
+Thanks so much for this information. I have a question about 
+cran2deb4ubuntu PPA. Currently I use a CRAN repository, then 
+install.packages() within R for whatever isn't available in the 
+repository. If I want to use cran2deb4ubuntu, does it completely replace 
+the CRAN repository? Or do I use both and let the package manager 
+determine where to retrieve a package from?
+
+Also, since I have many packages installed within R, do you know what 
+the effect would be of adding the PPA? Would installed packages get 
+updated, or would I have to uninstall in R and reinstall via PPA?
+
+Thanks again for your work on this.
+
+--Lee
+
+-- 
+Lee Hachadoorian
+PhD, Earth&  Environmental Sciences (Geography)
+Research Associate, CUNY Center for Urban Research
+http://freecity.commons.gc.cuny.edu
+
+
+From edd at debian.org  Sun Apr 29 20:30:08 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 29 Apr 2012 13:30:08 -0500
+Subject: [R-sig-Debian] A guide to R packages for Ubuntu
+In-Reply-To: <4F9D7EE4.20107@gmail.com>
+References: <4F9AE152.3080001@psu.edu>
+	<4F9D7EE4.20107@gmail.com>
+Message-ID: <20381.34992.119622.837446@max.nulle.part>
+
+
+On 29 April 2012 at 13:48, Lee Hachadoorian wrote:
+| Thanks so much for this information. I have a question about 
+| cran2deb4ubuntu PPA. Currently I use a CRAN repository, then 
+| install.packages() within R for whatever isn't available in the 
+| repository. If I want to use cran2deb4ubuntu, does it completely replace 
+| the CRAN repository? Or do I use both and let the package manager 
+| determine where to retrieve a package from?
+
+It is entirely independent, and R resolves what it loads via .libPath(). On
+my system, with the default suggested by the Debian / Ubuntu package
+
+  R> .libPaths()
+  [1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"       
+  [3] "/usr/lib/R/library"           
+  R> 
+
+the local R packages always win.
+ 
+| Also, since I have many packages installed within R, do you know what 
+| the effect would be of adding the PPA? Would installed packages get 
+| updated, or would I have to uninstall in R and reinstall via PPA?
+
+No need, but see above and understand what .libPaths does. It's all
+documented and has been answered before, eg 
+
+  http://stackoverflow.com/questions/2170043/r-apt-get-install-r-cran-foo-vs-install-packagesfoo
+
+Dirk
+
+-- 
+R/Finance 2012 Conference on May 11 and 12, 2012 at UIC in Chicago, IL
+See agenda, registration details and more at http://www.RinFinance.com
+
+
+From Lee.Hachadoorian+L at gmail.com  Mon Apr 30 01:52:21 2012
+From: Lee.Hachadoorian+L at gmail.com (Lee Hachadoorian)
+Date: Sun, 29 Apr 2012 19:52:21 -0400
+Subject: [R-sig-Debian] A guide to R packages for Ubuntu
+In-Reply-To: <20381.34992.119622.837446@max.nulle.part>
+References: <4F9AE152.3080001@psu.edu>	<4F9D7EE4.20107@gmail.com>
+	<20381.34992.119622.837446@max.nulle.part>
+Message-ID: <4F9DD435.5020500@gmail.com>
+
+On 04/29/2012 02:30 PM, Dirk Eddelbuettel wrote:
+> | Also, since I have many packages installed within R, do you know what
+> | the effect would be of adding the PPA? Would installed packages get
+> | updated, or would I have to uninstall in R and reinstall via PPA?
+>
+> No need, but see above and understand what .libPaths does. It's all
+> documented and has been answered before, eg
+>
+>    http://stackoverflow.com/questions/2170043/r-apt-get-install-r-cran-foo-vs-install-packagesfoo
+>
+> Dirk
+Thanks for the information.
+
+--Lee
+
+-- 
+Lee Hachadoorian
+PhD, Earth&  Environmental Sciences (Geography)
+Research Associate, CUNY Center for Urban Research
+http://freecity.commons.gc.cuny.edu
+
+
+From mar36 at psu.edu  Mon Apr 30 02:04:20 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Sun, 29 Apr 2012 20:04:20 -0400
+Subject: [R-sig-Debian] A guide to R packages for Ubuntu
+In-Reply-To: <CABxs9VnLcF6gjBeEYMJTO2XYc55dZ2w_sUxHhPhRh_0d=KQymw@mail.gmail.com>
+References: <4F9AE152.3080001@psu.edu>
+	<CABxs9VnLcF6gjBeEYMJTO2XYc55dZ2w_sUxHhPhRh_0d=KQymw@mail.gmail.com>
+Message-ID: <4F9DD704.7030500@psu.edu>
+
+
+>>
+> Is there a reason to limit 'cran2deb4ubuntu' to Task Views packages?
+> For example, I would like to install all the Rcmdr plug-ins via the
+> PPA but the only one available is 'rcmdrplugin.doe'. Very useful GUIs
+> such as 'playwith' and 'latticist' are missing, too. Even some popular
+> toolkit deps are missing: 'gwidgetstcltk'. Are there plans to increase
+> the number of packages provided?
+>
+> Regards
+> Liviu
+
+Liviu,
+
+I had to draw a line somewhere.  Maintaining all the packages was out of 
+the question, as the number is just too high.  Since there is no list at 
+this time of the most popular packages, I choose the Task View lists as 
+a good place to start.  If and when this number of packages becomes 
+manageable, I may add more.
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From landronimirc at gmail.com  Mon Apr 30 07:54:44 2012
+From: landronimirc at gmail.com (Liviu Andronic)
+Date: Mon, 30 Apr 2012 07:54:44 +0200
+Subject: [R-sig-Debian] A guide to R packages for Ubuntu
+In-Reply-To: <4F9DD704.7030500@psu.edu>
+References: <4F9AE152.3080001@psu.edu>
+	<CABxs9VnLcF6gjBeEYMJTO2XYc55dZ2w_sUxHhPhRh_0d=KQymw@mail.gmail.com>
+	<4F9DD704.7030500@psu.edu>
+Message-ID: <CABxs9VkbrFNkH_1ToTj98YYYuYWfpOmEd=XYanrc+n5Etr3DYw@mail.gmail.com>
+
+On Mon, Apr 30, 2012 at 2:04 AM, Michael Rutter <mar36 at psu.edu> wrote:
+> I had to draw a line somewhere. ?Maintaining all the packages was out of the
+> question, as the number is just too high. ?Since there is no list at this
+> time of the most popular packages, I choose the Task View lists as a good
+> place to start. ?If and when this number of packages becomes manageable, I
+> may add more.
+>
+I see, thanks for letting me know. Although not as reliable as the
+Task Views, could the Crantastic popularity contest [1] be used for
+this purpose?
+
+Regards
+Liviu
+
+[1] http://crantastic.org/popcon
+
+
+From bastosfh at gmail.com  Mon Apr 30 17:59:49 2012
+From: bastosfh at gmail.com (Flavio Bastos)
+Date: Mon, 30 Apr 2012 12:59:49 -0300
+Subject: [R-sig-Debian] ez package installation fails - ubuntu 12.04
+In-Reply-To: <CACKo9wW4Hk82b26AR4vET7u=DwQptsDnxsA1VtxHhJ6ydy_W+A@mail.gmail.com>
+References: <CACKo9wW4Hk82b26AR4vET7u=DwQptsDnxsA1VtxHhJ6ydy_W+A@mail.gmail.com>
+Message-ID: <CACKo9wUh1SRYG26Nx7iGDZ_=8yUDhZ=MkT5BWSauzG_dUS7zdA@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120430/abeab3e3/attachment.pl>
+
+From f.calboli at imperial.ac.uk  Mon Apr 30 18:07:31 2012
+From: f.calboli at imperial.ac.uk (Federico Calboli)
+Date: Mon, 30 Apr 2012 17:07:31 +0100
+Subject: [R-sig-Debian] ez package installation fails - ubuntu 12.04
+In-Reply-To: <CACKo9wUh1SRYG26Nx7iGDZ_=8yUDhZ=MkT5BWSauzG_dUS7zdA@mail.gmail.com>
+References: <CACKo9wW4Hk82b26AR4vET7u=DwQptsDnxsA1VtxHhJ6ydy_W+A@mail.gmail.com>
+	<CACKo9wUh1SRYG26Nx7iGDZ_=8yUDhZ=MkT5BWSauzG_dUS7zdA@mail.gmail.com>
+Message-ID: <DD6F6AF5-F327-4C80-BF01-31788512E0B6@imperial.ac.uk>
+
+On 30 Apr 2012, at 16:59, Flavio Bastos wrote:
+
+> Hello everyone,
+> 
+> I've just installed ubuntu 12.04 and the package named 'ez' fails to
+> install because of a dependency.
+
+you are obviously using 
+
+install.libraries('ez', dependencies = T)
+
+Right?
+
+F
+
+
+From edd at debian.org  Mon Apr 30 18:31:59 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 30 Apr 2012 11:31:59 -0500
+Subject: [R-sig-Debian] ez package installation fails - ubuntu 12.04
+In-Reply-To: <CACKo9wUh1SRYG26Nx7iGDZ_=8yUDhZ=MkT5BWSauzG_dUS7zdA@mail.gmail.com>
+References: <CACKo9wW4Hk82b26AR4vET7u=DwQptsDnxsA1VtxHhJ6ydy_W+A@mail.gmail.com>
+	<CACKo9wUh1SRYG26Nx7iGDZ_=8yUDhZ=MkT5BWSauzG_dUS7zdA@mail.gmail.com>
+Message-ID: <20382.48767.446699.603891@max.nulle.part>
+
+
+On 30 April 2012 at 12:59, Flavio Bastos wrote:
+| Hello everyone,
+| 
+| I've just installed ubuntu 12.04 and the package named 'ez' fails to
+| install because of a dependency.
+| The error messages are:
+| 
+| Error : package ?Matrix? 1.0-2 is loaded, but >= 1.0.3 is required by ?ez?
+| ERROR: lazy loading failed for package ?ez?
+| * removing ?/usr/local/lib/R/site-library/ez?
+| 
+| The downloaded packages are in
+|     ?/tmp/Rtmp38etdB/downloaded_packages?
+| Mensagens de aviso perdidas:
+| In install.packages("ez") :
+|   installation of package ?ez? had non-zero exit status
+| 
+| 
+| I'm not sure if this is the proper way to report a bug. I hope it helps.
+| 
+| Is there anything I can do to get it working?
+
+Read   http://cran.r-project.org/bin/linux/ubuntu/    and add the CRAN
+repository. This will, among other things, give you a current version of the
+Matrix package as r-cran-matrix.
+
+Dirk
+
+-- 
+R/Finance 2012 Conference on May 11 and 12, 2012 at UIC in Chicago, IL
+See agenda, registration details and more at http://www.RinFinance.com
+
+
+From bastosfh at gmail.com  Mon Apr 30 21:50:01 2012
+From: bastosfh at gmail.com (Flavio Bastos)
+Date: Mon, 30 Apr 2012 16:50:01 -0300
+Subject: [R-sig-Debian] ez package installation fails - ubuntu 12.04
+In-Reply-To: <DD6F6AF5-F327-4C80-BF01-31788512E0B6@imperial.ac.uk>
+References: <CACKo9wW4Hk82b26AR4vET7u=DwQptsDnxsA1VtxHhJ6ydy_W+A@mail.gmail.com>
+	<CACKo9wUh1SRYG26Nx7iGDZ_=8yUDhZ=MkT5BWSauzG_dUS7zdA@mail.gmail.com>
+	<DD6F6AF5-F327-4C80-BF01-31788512E0B6@imperial.ac.uk>
+Message-ID: <CACKo9wXZW7fe0_ciHuEUDLUsKnioneghDKc3KxOH=_rA-evfEw@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120430/f407b9bf/attachment.pl>
+
+From bastosfh at gmail.com  Mon Apr 30 22:26:23 2012
+From: bastosfh at gmail.com (Flavio Bastos)
+Date: Mon, 30 Apr 2012 17:26:23 -0300
+Subject: [R-sig-Debian] ez package installation fails - ubuntu 12.04
+In-Reply-To: <CACKo9wXZW7fe0_ciHuEUDLUsKnioneghDKc3KxOH=_rA-evfEw@mail.gmail.com>
+References: <CACKo9wW4Hk82b26AR4vET7u=DwQptsDnxsA1VtxHhJ6ydy_W+A@mail.gmail.com>
+	<CACKo9wUh1SRYG26Nx7iGDZ_=8yUDhZ=MkT5BWSauzG_dUS7zdA@mail.gmail.com>
+	<DD6F6AF5-F327-4C80-BF01-31788512E0B6@imperial.ac.uk>
+	<CACKo9wXZW7fe0_ciHuEUDLUsKnioneghDKc3KxOH=_rA-evfEw@mail.gmail.com>
+Message-ID: <CACKo9wWBvmanXpuE_wFetVEcFQaUDv0=mN6YJzd7GTr_vfUgEw@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120430/cbaa462c/attachment.pl>
+
+From bates at stat.wisc.edu  Mon Apr 30 23:05:07 2012
+From: bates at stat.wisc.edu (Douglas Bates)
+Date: Mon, 30 Apr 2012 16:05:07 -0500
+Subject: [R-sig-Debian] ez package installation fails - ubuntu 12.04
+In-Reply-To: <CACKo9wXZW7fe0_ciHuEUDLUsKnioneghDKc3KxOH=_rA-evfEw@mail.gmail.com>
+References: <CACKo9wW4Hk82b26AR4vET7u=DwQptsDnxsA1VtxHhJ6ydy_W+A@mail.gmail.com>
+	<CACKo9wUh1SRYG26Nx7iGDZ_=8yUDhZ=MkT5BWSauzG_dUS7zdA@mail.gmail.com>
+	<DD6F6AF5-F327-4C80-BF01-31788512E0B6@imperial.ac.uk>
+	<CACKo9wXZW7fe0_ciHuEUDLUsKnioneghDKc3KxOH=_rA-evfEw@mail.gmail.com>
+Message-ID: <CAO7JsnR_UOhi1uF9VA=xActwKE1tqo4OKNTpjLHaoiSkDXuHqw@mail.gmail.com>
+
+On Mon, Apr 30, 2012 at 2:50 PM, Flavio Bastos <bastosfh at gmail.com> wrote:
+> Yes, I used:
+>
+> install.packages('ez', dependencies = T)
+>
+> I also tried installing the following lines at the end of
+> /etc/apt/sources.list:
+>
+> deb http://sft.if.usp.br/ubuntu/ precise main
+> deb-src http://sft.if.usp.br/ubuntu/ precise main
+
+Go back and reread the description that Dirk mentioned.  He is
+suggesting using the CRAN archive, not the Ubuntu archive.  Because of
+the release schedules of R and Ubuntu, the Rpackages on the Ubuntu
+archive are usually 9-15 months behind the releases on CRAN.
+
+The Brazil mirrors for CRAN are listed at
+http://cran.R-project.org/mirrors.html.  If you used the one in Rio
+the line to add to sources.list would be
+
+deb http://cran.fiocruz.br/bin/linux/ubuntu precise/
+
+>
+> After that I updated (apt-get update) and upgraded (apt-get upgrade).
+> Nevertheless, the version of the r-cran-matrix that I get is the same old
+> one.
+>
+> Thanks again for the help.
+>
+>
+>
+>
+> On Mon, Apr 30, 2012 at 1:07 PM, Federico Calboli
+> <f.calboli at imperial.ac.uk>wrote:
+>
+>> On 30 Apr 2012, at 16:59, Flavio Bastos wrote:
+>>
+>> > Hello everyone,
+>> >
+>> > I've just installed ubuntu 12.04 and the package named 'ez' fails to
+>> > install because of a dependency.
+>>
+>> you are obviously using
+>>
+>> install.libraries('ez', dependencies = T)
+>>
+>> Right?
+>>
+>> F
+>>
+>>
+>
+> ? ? ? ?[[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+

@@ -1,0 +1,1056 @@
+From jranke at uni-bremen.de  Wed Oct  3 22:23:04 2007
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Wed, 3 Oct 2007 22:23:04 +0200
+Subject: [R-sig-Debian] R CMD javareconf in r-base-dev 2.6.0
+Message-ID: <20071003202304.GA28038@mail.uni-bremen.de>
+
+Hi Dirk, hi list,
+
+I just ran into a slight problem while building the recommended packages
+for CRAN in a chroot environment against the fresh backport of your R
+2.6.0 packages. It seems that R CMD javareconf wants to change files in
+/etc/R during the build, and since I am not building the packages as
+root in my etch chroot, this fails, even if I am using fakeroot. My
+workaround was to simply remove gij-4.1 from the chroot, so
+/usr/bin/java is not found any more.
+
+Johannes
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de     Key ID: F649AF90
+UFT Bremen, Leobenerstr. 1         +49 421 218 63373
+D-28359 Bremen                     http://www.uft.uni-bremen.de/chemie/ranke
+
+
+From edd at debian.org  Wed Oct  3 22:45:05 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 3 Oct 2007 15:45:05 -0500
+Subject: [R-sig-Debian] R CMD javareconf in r-base-dev 2.6.0
+In-Reply-To: <20071003202304.GA28038@mail.uni-bremen.de>
+References: <20071003202304.GA28038@mail.uni-bremen.de>
+Message-ID: <18179.65361.940989.436083@ron.nulle.part>
+
+
+Hi Johannes,
+
+On 3 October 2007 at 22:23, Johannes Ranke wrote:
+| Hi Dirk, hi list,
+| 
+| I just ran into a slight problem while building the recommended packages
+| for CRAN in a chroot environment against the fresh backport of your R
+| 2.6.0 packages. It seems that R CMD javareconf wants to change files in
+
+You are ahead of me, as this hook is to be used by rJava and CRAN packages
+using rJava.  I actually haven't used it yet, as I didn't get around to
+putting it in, and the testing it. So far only step 1 has been done :)
+
+[ The idea is to have the ability of building jar archvies using tools from
+Debian main.  Users can then switch to Sun's or IBM's Java (which the buildd
+cannot depend on for lack of freeness) and things still work, according to
+Simon who knows R and Java inside out. ]
+
+| /etc/R during the build, and since I am not building the packages as
+| root in my etch chroot, this fails, even if I am using fakeroot. My
+
+Hm, I am confused.  Do you build manually in the chroot?  Or do you use
+pbuilder?  I don't think my pbuilder has gij and hence /usr/bin/java.  But
+then you are rebuilding for testing so things ought to be different....
+
+| workaround was to simply remove gij-4.1 from the chroot, so
+| /usr/bin/java is not found any more.
+
+Sounds like exactly the right solution.  Hope it is not too much of a bother.
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From jranke at uni-bremen.de  Thu Oct  4 08:22:41 2007
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Thu, 4 Oct 2007 08:22:41 +0200
+Subject: [R-sig-Debian] R 2.6.0 packages for Debian etch on CRAN
+Message-ID: <20071004062241.GA31267@mail.uni-bremen.de>
+
+Dear list,
+
+I am happy to be able to announce the availability of R 2.6.0 binaries
+for i386 and amd64 machines running Debian etch. You can get them from
+CRAN mirrors by adding
+
+	deb http://<favorite-cran-mirror>/bin/linux/debian stable/
+
+to your sources list and install them. Please refer to
+
+	http://cran.r-project.org/bin/linux/debian/
+
+for details and report problems directly to me or to this list.
+
+Best regards,
+
+Johannes Ranke
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de     Key ID: F649AF90
+UFT, University of Bremen          http://www.uft.uni-bremen.de/chemie/ranke
+
+
+From jranke at uni-bremen.de  Thu Oct  4 08:30:57 2007
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Thu, 4 Oct 2007 08:30:57 +0200
+Subject: [R-sig-Debian] R CMD javareconf in r-base-dev 2.6.0
+In-Reply-To: <18179.65361.940989.436083@ron.nulle.part>
+References: <20071003202304.GA28038@mail.uni-bremen.de>
+	<18179.65361.940989.436083@ron.nulle.part>
+Message-ID: <20071004063057.GB31267@mail.uni-bremen.de>
+
+Hi Dirk,
+
+* Dirk Eddelbuettel <edd at debian.org> [071003 23:50]:
+> 
+> Hi Johannes,
+> 
+> On 3 October 2007 at 22:23, Johannes Ranke wrote:
+> | Hi Dirk, hi list,
+> | 
+> | I just ran into a slight problem while building the recommended packages
+> | for CRAN in a chroot environment against the fresh backport of your R
+> | 2.6.0 packages. It seems that R CMD javareconf wants to change files in
+> 
+> You are ahead of me, as this hook is to be used by rJava and CRAN packages
+> using rJava.  I actually haven't used it yet, as I didn't get around to
+> putting it in, and the testing it. So far only step 1 has been done :)
+
+I wonder if it is necessary to run this command (if /usr/bin/java
+exists) for every R package that is being built, regardless if it needs
+java or not. I have no idea how many people are out there building debs
+for R packages, and you'd probably argue that they better use pbuilder.
+ 
+> [ The idea is to have the ability of building jar archvies using tools from
+> Debian main.  Users can then switch to Sun's or IBM's Java (which the buildd
+> cannot depend on for lack of freeness) and things still work, according to
+> Simon who knows R and Java inside out. ]
+
+This sounds very nice indeed.
+ 
+> | /etc/R during the build, and since I am not building the packages as
+> | root in my etch chroot, this fails, even if I am using fakeroot. My
+> 
+> Hm, I am confused.  Do you build manually in the chroot?  Or do you use
+> pbuilder?  I don't think my pbuilder has gij and hence /usr/bin/java.  But
+> then you are rebuilding for testing so things ought to be different....
+
+Yes, I am using my own script to build in a "stable" chroot without
+pbuilder so far. 
+ 
+> | workaround was to simply remove gij-4.1 from the chroot, so
+> | /usr/bin/java is not found any more.
+> 
+> Sounds like exactly the right solution.  Hope it is not too much of a bother.
+
+Not at all, I just thought it might be interesting for you to hear.
+ 
+Johannes
+
+> Dirk
+> 
+> -- 
+> Three out of two people have difficulties with fractions.
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de     Key ID: F649AF90
+UFT Bremen, Leobenerstr. 1         +49 421 218 63373
+D-28359 Bremen                     http://www.uft.uni-bremen.de/chemie/ranke
+
+
+From edd at debian.org  Thu Oct  4 14:31:01 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 4 Oct 2007 07:31:01 -0500
+Subject: [R-sig-Debian] R CMD javareconf in r-base-dev 2.6.0
+In-Reply-To: <20071004063057.GB31267@mail.uni-bremen.de>
+References: <20071003202304.GA28038@mail.uni-bremen.de>
+	<18179.65361.940989.436083@ron.nulle.part>
+	<20071004063057.GB31267@mail.uni-bremen.de>
+Message-ID: <18180.56581.311372.948211@ron.nulle.part>
+
+
+Hi Johannes,
+
+Many thanks for the speedy built of the backports from my R 2.6.0 package!
+
+On 4 October 2007 at 08:30, Johannes Ranke wrote:
+| Hi Dirk,
+| 
+| * Dirk Eddelbuettel <edd at debian.org> [071003 23:50]:
+| > 
+| > Hi Johannes,
+| > 
+| > On 3 October 2007 at 22:23, Johannes Ranke wrote:
+| > | Hi Dirk, hi list,
+| > | 
+| > | I just ran into a slight problem while building the recommended packages
+| > | for CRAN in a chroot environment against the fresh backport of your R
+| > | 2.6.0 packages. It seems that R CMD javareconf wants to change files in
+| > 
+| > You are ahead of me, as this hook is to be used by rJava and CRAN packages
+| > using rJava.  I actually haven't used it yet, as I didn't get around to
+| > putting it in, and the testing it. So far only step 1 has been done :)
+| 
+| I wonder if it is necessary to run this command (if /usr/bin/java
+| exists) for every R package that is being built, regardless if it needs
+| java or not. I have no idea how many people are out there building debs
+| for R packages, and you'd probably argue that they better use pbuilder.
+
+Well, but are other users really calling r-cran.mk ?  
+
+To the best of my knowledge, it is used only in the (numerous) r-cran-*
+packages --- which are all built in a pbuilder chroots that do _not_ contain
+/usr/bin/java by default so the test comes up false and no R CMD javareconf
+is run --- and the (not really official) pkg-bioc effort of automatic
+creation of Debian package, which also uses pbuilder behaves the same. 
+So I saw no downside.
+
+What have I overlooked?  If and when users install packages directly from
+CRAN via R's install.packages(), this command isn't run either.
+
+But I may have overlooked something obvious, so let me know. We can always
+back it out for a -2 revision.
+
+Cheers, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From jranke at uni-bremen.de  Thu Oct  4 15:23:50 2007
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Thu, 4 Oct 2007 15:23:50 +0200
+Subject: [R-sig-Debian] R CMD javareconf in r-base-dev 2.6.0
+In-Reply-To: <18180.56581.311372.948211@ron.nulle.part>
+References: <20071003202304.GA28038@mail.uni-bremen.de>
+	<18179.65361.940989.436083@ron.nulle.part>
+	<20071004063057.GB31267@mail.uni-bremen.de>
+	<18180.56581.311372.948211@ron.nulle.part>
+Message-ID: <20071004132350.GA32717@mail.uni-bremen.de>
+
+Hi Dirk,
+
+* Dirk Eddelbuettel <edd at debian.org> [071004 14:40]:
+> 
+> Hi Johannes,
+> 
+> Many thanks for the speedy built of the backports from my R 2.6.0 package!
+
+It's easy, basing on your work.
+ 
+> On 4 October 2007 at 08:30, Johannes Ranke wrote:
+> | Hi Dirk,
+> | 
+> | * Dirk Eddelbuettel <edd at debian.org> [071003 23:50]:
+> | > 
+> | > Hi Johannes,
+> | > 
+> | > On 3 October 2007 at 22:23, Johannes Ranke wrote:
+> | > | Hi Dirk, hi list,
+> | > | 
+> | > | I just ran into a slight problem while building the recommended packages
+> | > | for CRAN in a chroot environment against the fresh backport of your R
+> | > | 2.6.0 packages. It seems that R CMD javareconf wants to change files in
+> | > 
+> | > You are ahead of me, as this hook is to be used by rJava and CRAN packages
+> | > using rJava.  I actually haven't used it yet, as I didn't get around to
+> | > putting it in, and the testing it. So far only step 1 has been done :)
+> | 
+> | I wonder if it is necessary to run this command (if /usr/bin/java
+> | exists) for every R package that is being built, regardless if it needs
+> | java or not. I have no idea how many people are out there building debs
+> | for R packages, and you'd probably argue that they better use pbuilder.
+> 
+> Well, but are other users really calling r-cran.mk ?  
+> 
+> To the best of my knowledge, it is used only in the (numerous) r-cran-*
+> packages --- which are all built in a pbuilder chroots that do _not_ contain
+> /usr/bin/java by default so the test comes up false and no R CMD javareconf
+> is run --- and the (not really official) pkg-bioc effort of automatic
+> creation of Debian package, which also uses pbuilder behaves the same. 
+> So I saw no downside.
+> 
+> What have I overlooked?  If and when users install packages directly from
+> CRAN via R's install.packages(), this command isn't run either.
+> 
+> But I may have overlooked something obvious, so let me know. We can always
+> back it out for a -2 revision.
+
+I see no real problem at the moment either. Let's see what happens when
+you actually package R packages using java!
+
+Best,
+
+Johannes
+
+> 
+> Cheers, Dirk
+> 
+> -- 
+> Three out of two people have difficulties with fractions.
+
+
+From markus.jantti at iki.fi  Fri Oct 12 04:33:06 2007
+From: markus.jantti at iki.fi (=?ISO-8859-1?Q?Markus_J=E4ntti?=)
+Date: Thu, 11 Oct 2007 22:33:06 -0400
+Subject: [R-sig-Debian] problems with java under debian (including the R
+ help page search engine)
+Message-ID: <470EDCE2.1000402@iki.fi>
+
+Dear List:
+
+this is a problem that affects my use of R under Debian, but is a problem with 
+using the Java virtual machine. I am turning to this list, since I am hoping 
+someone might have more experience with trying to figure out why Java does not 
+work under Debian than I do. I apologize in advance for trying to exploit list 
+knowledge for a problem that is only tangential to the list.
+
+I am experiencing strange problems using Java on my Debian unstable. When I am 
+logged in as my normal user, the Java virtual machine invariable crashes (I 
+paste in below the bud report broduced by bug buddy). I have tried uninstalling 
+and re-installing my java -- the sun-java6-*, see below for output from
+dpkg --list  -- to no avail. I uninstalled it and used various other java:s 
+(including the ecj-gjc and so on), with little success.
+
+However, I then noticed this did not affect other users on my system. If I 
+create a new user and fire up the R help search page, it works as it should. 
+This led me to search for java settings under my standard account that are 
+causing the crash, but not amount of using "strace" before using crashing Java 
+applications, such as comparing for my regular userid and a new one the output of
+
+strace -o tmp.log /usr/lib/jvm/java-6-sun-1.6.0.03/bin/ControlPanel
+
+produced any hint I could understand. (I also experimented with moving 
+$HOME/.java out of the way. Did not help. Trying to use the 
+/usr/lib/jvm/java-6-sun-1.6.0.03/bin/ControlPanel (which crashes under my 
+regular userid but not under alternative ones) and see what files under $HOME 
+changed also did not give a hint.
+
+I have also tried to see if update-alternatives is wrong, but as the Java 
+Virtual Machine works for other users, I can't really see how that would be the 
+problem.
+
+hefaistos:/etc/alternatives# ls -l /etc/alternatives/iceweasel-javaplugin.so
+lrwxrwxrwx 1 root root 64 2007-10-11 21:55 
+/etc/alternatives/iceweasel-javaplugin.so -> 
+/usr/lib/jvm/java-6-sun/jre/plugin/i386/ns7/libjavaplugin_oji.so
+
+Also, about:plugins in iceweasel shows the above plugin.
+
+Finally, I do not seem to have any java-related environment variables set in my 
+$HOME/.bash_profile, $OME/.bashrc or $HOME/.profile, not do I have a Java 
+Virtual Machine lurking under my $HOME.
+
+The simple solution might be to  just start using a new username but this might 
+just postpone the problem, rather than solve it. I would be very greatful for 
+any suggestsions on how to find out what settings can cause such crashes.
+
+I add below the information on the Java packages and the bud-buddy bug report.
+
+TIA,
+
+Markus
+
+markus at hefaistos:~$ dpkg --list | grep sun-java6
+
+ii  sun-java6-bin                        6-03-2 
+Sun Java(TM) Runtime Environment (JRE) 6 (ar
+ii  sun-java6-demo                       6-03-2 
+Sun Java(TM) Development Kit (JDK) 6 demos a
+ii  sun-java6-doc                        6-03-2 
+Sun JDK(TM) Documention -- integration insta
+ii  sun-java6-fonts                      6-03-2 
+Lucida TrueType fonts (from the Sun JRE)
+ii  sun-java6-jdk                        6-03-2 
+Sun Java(TM) Development Kit (JDK) 6
+ii  sun-java6-jre                        6-03-2 
+Sun Java(TM) Runtime Environment (JRE) 6 (ar
+ii  sun-java6-plugin                     6-03-2 
+The Java(TM) Plug-in, Java SE 6
+
+markus at hefaistos:~/Desktop$ cat "<unknown>-bugreport.txt"
+
+--System: Linux 2.6.22-2-686 #1 SMP Fri Aug 31 00:24:01 UTC 2007 i686
+X Vendor: The X.Org Foundation
+X Vendor Release: 70000000
+Selinux: No
+Accessibility: Disabled
+GTK+ Theme: Industrial
+Icon Theme: gnome
+
+Memory status: size: 234995712 vsize: 234995712 resident: 23953408 share: 
+13811712 rss: 23953408 rss_rlim: 4294967295
+CPU usage: start_time: 1192126999 rtime: 23 utime: 21 stime: 2 cutime:0 cstime: 
+0 timeout: 0 it_real_value: 0 frequency: 100
+
+Backtrace was generated from '/usr/lib/bug-buddy/<unknown>'
+
+Using host libthread_db library "/lib/i686/cmov/libthread_db.so.1".
+[Thread debugging using libthread_db enabled]
+[New Thread 0xb7dd66b0 (LWP 22831)]
+[New Thread 0xb4d97b90 (LWP 22844)]
+[New Thread 0xb4de8b90 (LWP 22842)]
+[New Thread 0xb4e39b90 (LWP 22841)]
+[New Thread 0xb506bb90 (LWP 22840)]
+[New Thread 0xb50ffb90 (LWP 22839)]
+[New Thread 0xb562cb90 (LWP 22838)]
+[New Thread 0xb567db90 (LWP 22837)]
+[New Thread 0xb56feb90 (LWP 22836)]
+[New Thread 0xb574fb90 (LWP 22835)]
+[New Thread 0xb5b4cb90 (LWP 22834)]
+[New Thread 0xb5b9db90 (LWP 22833)]
+[New Thread 0xb5c1eb90 (LWP 22832)]
+0xffffe410 in __kernel_vsyscall ()
+#0  0xffffe410 in __kernel_vsyscall ()
+#1  0xb7f2d676 in pthread_cond_wait@@GLIBC_2.3.2 ()
+    from /lib/i686/cmov/libpthread.so.0
+#2  0xb7f2dd28 in pthread_cond_wait at GLIBC_2.0 ()
+    from /lib/i686/cmov/libpthread.so.0
+#3  0x0630b2d9 in os::PlatformEvent::park ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+#4  0x06362e95 in ObjectMonitor::wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+#5  0x063606ff in ObjectSynchronizer::wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+#6  0x0625defa in JVM_MonitorWait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+#7  0xb5d3a68e in ?? ()
+#8  0x080524ec in ?? ()
+#9  0xbfc195e0 in ?? ()
+#10 0x00000000 in ?? ()
+
+Thread 13 (Thread 0xb5c1eb90 (LWP 22832)):
+#0  0xffffe410 in __kernel_vsyscall ()
+No symbol table info available.
+#1  0xb7f2d8fc in pthread_cond_timedwait@@GLIBC_2.3.2 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#2  0xb7f2dd9f in pthread_cond_timedwait at GLIBC_2.0 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#3  0x062f978e in Monitor::wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#4  0x063c4ab7 in VMThread::loop ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#5  0x063c446f in VMThread::run ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#6  0x0630b719 in java_start ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#7  0xb7f2946b in start_thread () from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#8  0xb7eaa6de in clone () from /lib/i686/cmov/libc.so.6
+No symbol table info available.
+
+Thread 12 (Thread 0xb5b9db90 (LWP 22833)):
+#0  0xffffe410 in __kernel_vsyscall ()
+No symbol table info available.
+#1  0xb7f2d676 in pthread_cond_wait@@GLIBC_2.3.2 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#2  0xb7f2dd28 in pthread_cond_wait at GLIBC_2.0 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#3  0x0630b2d9 in os::PlatformEvent::park ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#4  0x06362e95 in ObjectMonitor::wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#5  0x063606ff in ObjectSynchronizer::wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#6  0x0625defa in JVM_MonitorWait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#7  0xb5d3a68e in ?? ()
+No symbol table info available.
+#8  0x0807a8ec in ?? ()
+No symbol table info available.
+#9  0xb5b9cd50 in ?? ()
+No symbol table info available.
+#10 0x00000000 in ?? ()
+No symbol table info available.
+
+Thread 11 (Thread 0xb5b4cb90 (LWP 22834)):
+#0  0xffffe410 in __kernel_vsyscall ()
+No symbol table info available.
+#1  0xb7f2d676 in pthread_cond_wait@@GLIBC_2.3.2 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#2  0xb7f2dd28 in pthread_cond_wait at GLIBC_2.0 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#3  0x0630b2d9 in os::PlatformEvent::park ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#4  0x06362e95 in ObjectMonitor::wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#5  0x063606ff in ObjectSynchronizer::wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#6  0x0625defa in JVM_MonitorWait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#7  0xb5d3a68e in ?? ()
+No symbol table info available.
+#8  0x0807b8ec in ?? ()
+No symbol table info available.
+#9  0xb5b4bd9c in ?? ()
+No symbol table info available.
+#10 0x00000000 in ?? ()
+No symbol table info available.
+
+Thread 10 (Thread 0xb574fb90 (LWP 22835)):
+#0  0xffffe410 in __kernel_vsyscall ()
+No symbol table info available.
+#1  0xb7f2f65e in sem_wait at GLIBC_2.0 () from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#2  0x0630ba64 in check_pending_signals ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#3  0x0630900d in os::signal_wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#4  0x06306218 in signal_thread_entry ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#5  0x06384190 in JavaThread::run ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#6  0x0630b719 in java_start ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#7  0xb7f2946b in start_thread () from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#8  0xb7eaa6de in clone () from /lib/i686/cmov/libc.so.6
+No symbol table info available.
+
+Thread 9 (Thread 0xb56feb90 (LWP 22836)):
+#0  0xffffe410 in __kernel_vsyscall ()
+No symbol table info available.
+#1  0xb7f2d676 in pthread_cond_wait@@GLIBC_2.3.2 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#2  0xb7f2dd28 in pthread_cond_wait at GLIBC_2.0 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#3  0x062f9871 in Monitor::wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#4  0x0618fdae in CompileQueue::get ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#5  0x061916c5 in CompileBroker::compiler_thread_loop ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#6  0x06384190 in JavaThread::run ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#7  0x0630b719 in java_start ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#8  0xb7f2946b in start_thread () from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#9  0xb7eaa6de in clone () from /lib/i686/cmov/libc.so.6
+No symbol table info available.
+
+Thread 8 (Thread 0xb567db90 (LWP 22837)):
+#0  0xffffe410 in __kernel_vsyscall ()
+No symbol table info available.
+#1  0xb7f2d676 in pthread_cond_wait@@GLIBC_2.3.2 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#2  0xb7f2dd28 in pthread_cond_wait at GLIBC_2.0 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#3  0x062f96e6 in Monitor::wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#4  0x062dcf84 in LowMemoryDetector::low_memory_detector_thread_entry ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#5  0x06384190 in JavaThread::run ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#6  0x0630b719 in java_start ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#7  0xb7f2946b in start_thread () from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#8  0xb7eaa6de in clone () from /lib/i686/cmov/libc.so.6
+No symbol table info available.
+
+Thread 7 (Thread 0xb562cb90 (LWP 22838)):
+#0  0xffffe410 in __kernel_vsyscall ()
+No symbol table info available.
+#1  0xb7f2d8fc in pthread_cond_timedwait@@GLIBC_2.3.2 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#2  0xb7f2dd9f in pthread_cond_timedwait at GLIBC_2.0 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#3  0x06309aab in os::sleep ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#4  0x0638349a in WatcherThread::run ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#5  0x0630b719 in java_start ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#6  0xb7f2946b in start_thread () from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#7  0xb7eaa6de in clone () from /lib/i686/cmov/libc.so.6
+No symbol table info available.
+
+Thread 6 (Thread 0xb50ffb90 (LWP 22839)):
+#0  0xffffe410 in __kernel_vsyscall ()
+No symbol table info available.
+#1  0xb7f2d676 in pthread_cond_wait@@GLIBC_2.3.2 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#2  0xb7f2dd28 in pthread_cond_wait at GLIBC_2.0 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#3  0x0630b2d9 in os::PlatformEvent::park ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#4  0x06362e95 in ObjectMonitor::wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#5  0x063606ff in ObjectSynchronizer::wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#6  0x0625defa in JVM_MonitorWait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#7  0xb5d3a68e in ?? ()
+No symbol table info available.
+#8  0xb511b8ec in ?? ()
+No symbol table info available.
+#9  0xb50fefec in ?? ()
+No symbol table info available.
+#10 0x00000000 in ?? ()
+No symbol table info available.
+
+Thread 5 (Thread 0xb506bb90 (LWP 22840)):
+#0  0xffffe410 in __kernel_vsyscall ()
+No symbol table info available.
+#1  0xb7ea05e7 in poll () from /lib/i686/cmov/libc.so.6
+No symbol table info available.
+#2  0xb540654e in performPoll ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/xawt/libmawt.so
+No symbol table info available.
+#3  0xb5406363 in waitForEvents ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/xawt/libmawt.so
+No symbol table info available.
+#4  0xb5d3a68e in ?? ()
+No symbol table info available.
+#5  0xb51518ec in ?? ()
+No symbol table info available.
+#6  0xffffffff in ?? ()
+No symbol table info available.
+#7  0xffffffff in ?? ()
+No symbol table info available.
+#8  0xffffffff in ?? ()
+No symbol table info available.
+#9  0xb506ac6c in ?? ()
+No symbol table info available.
+#10 0xb506ac8c in ?? ()
+No symbol table info available.
+#11 0xb5d32edd in ?? ()
+No symbol table info available.
+#12 0xb506ac6c in ?? ()
+No symbol table info available.
+#13 0x00000000 in ?? ()
+No symbol table info available.
+
+Thread 4 (Thread 0xb4e39b90 (LWP 22841)):
+#0  0xffffe410 in __kernel_vsyscall ()
+No symbol table info available.
+#1  0xb7f2d676 in pthread_cond_wait@@GLIBC_2.3.2 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#2  0xb7f2dd28 in pthread_cond_wait at GLIBC_2.0 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#3  0x0630b2d9 in os::PlatformEvent::park ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#4  0x06362e95 in ObjectMonitor::wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#5  0x063606ff in ObjectSynchronizer::wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#6  0x0625defa in JVM_MonitorWait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#7  0xb5d3a68e in ?? ()
+No symbol table info available.
+#8  0xb515b8ec in ?? ()
+No symbol table info available.
+#9  0xb4e38d4c in ?? ()
+No symbol table info available.
+#10 0x00000000 in ?? ()
+No symbol table info available.
+
+Thread 3 (Thread 0xb4de8b90 (LWP 22842)):
+#0  0xffffe410 in __kernel_vsyscall ()
+No symbol table info available.
+#1  0xb7f2d8fc in pthread_cond_timedwait@@GLIBC_2.3.2 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#2  0xb7f2dd9f in pthread_cond_timedwait at GLIBC_2.0 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#3  0x0630c0e1 in os::Linux::Event::timedwait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#4  0x063099a5 in os::sleep ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#5  0x0626e5d0 in JVM_Sleep ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#6  0xb5d3a68e in ?? ()
+No symbol table info available.
+#7  0xb5160cec in ?? ()
+No symbol table info available.
+#8  0xb4de7dcc in ?? ()
+No symbol table info available.
+#9  0x000007d0 in ?? ()
+No symbol table info available.
+#10 0x00000000 in ?? ()
+No symbol table info available.
+
+Thread 2 (Thread 0xb4d97b90 (LWP 22844)):
+#0  0xffffe410 in __kernel_vsyscall ()
+No symbol table info available.
+#1  0xb7f3114b in waitpid () from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#2  0xb486a624 in g_spawn_sync () from /usr/lib/libglib-2.0.so.0
+No symbol table info available.
+#3  0xb486a93c in g_spawn_command_line_sync () from /usr/lib/libglib-2.0.so.0
+No symbol table info available.
+#4  0xb5019238 in ?? () from /usr/lib/gtk-2.0/modules/libgnomebreakpad.so
+No symbol table info available.
+#5  <signal handler called>
+No symbol table info available.
+#6  0xb5d40ab8 in ?? ()
+No symbol table info available.
+#7  0xb5d32d77 in ?? ()
+No symbol table info available.
+#8  0x00000000 in ?? ()
+No symbol table info available.
+
+Thread 1 (Thread 0xb7dd66b0 (LWP 22831)):
+#0  0xffffe410 in __kernel_vsyscall ()
+No symbol table info available.
+#1  0xb7f2d676 in pthread_cond_wait@@GLIBC_2.3.2 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#2  0xb7f2dd28 in pthread_cond_wait at GLIBC_2.0 ()
+    from /lib/i686/cmov/libpthread.so.0
+No symbol table info available.
+#3  0x0630b2d9 in os::PlatformEvent::park ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#4  0x06362e95 in ObjectMonitor::wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#5  0x063606ff in ObjectSynchronizer::wait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#6  0x0625defa in JVM_MonitorWait ()
+    from /usr/lib/jvm/java-6-sun-1.6.0.03/jre/lib/i386/client/libjvm.so
+No symbol table info available.
+#7  0xb5d3a68e in ?? ()
+No symbol table info available.
+#8  0x080524ec in ?? ()
+No symbol table info available.
+#9  0xbfc195e0 in ?? ()
+No symbol table info available.
+#10 0x00000000 in ?? ()
+No symbol table info available.
+#0  0xffffe410 in __kernel_vsyscall ()
+The program is running.  Quit anyway (and detach it)? (y or n) [answered Y; 
+input not from terminal]
+
+
+----------- .xsession-errors ---------------------
+/usr/lib/bug-buddy/<unknown>: No such file or directory.
+Could not read ack from child process
+Plugin: Java VM process has died.
+plugin: java process exited with status 0
+Could not start JavaVM!
+VM did not start up properly
+/usr/lib/bug-buddy/<unknown>: No such file or directory.
+Could not read ack from child process
+Plugin: Java VM process has died.
+plugin: java process exited with status 0
+Could not start JavaVM!
+VM did not start up properly
+/usr/lib/bug-buddy/<unknown>: No such file or directory.
+--------------------------------------------------
+
+Markus Jantti
+Abo Akademi University
+markus.jantti at iki.fi
+http://www.iki.fi/~mjantti
+
+
+From vincent.goulet at act.ulaval.ca  Mon Oct 22 00:38:20 2007
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Sun, 21 Oct 2007 18:38:20 -0400
+Subject: [R-sig-Debian] R 2.6.0 packages for Ubuntu Gutsy Gibbon
+Message-ID: <79F02026-E5CA-42AE-BD58-AC552EDC081E@act.ulaval.ca>
+
+Hi everyone,
+
+Title says it all: the packages of version 2.6.0 of R for the  
+recently released Ubuntu Gutsy Gibbon are currently making their way  
+to CRAN. From the head of the README file:
+
+R packages for Ubuntu on i386 are available. The plans are to support
+at least the latest two Ubuntu releases and the latest LTS release. As
+of October 2007, these are Gutsy Gibbon (7.10), Feisty Fawn (7.04) and
+Dapper Drake (6.06), respectively. Up-to-date packages for version
+2.6.0 of R for Edgy Eft (6.10) remain available, but support for this
+Ubuntu release is being phased out for the next R release.
+
+As usual, please report any problems to me.
+
+Vincent
+
+--
+   Vincent Goulet, Associate Professor
+   ?cole d'actuariat
+   Universit? Laval, Qu?bec
+   Vincent.Goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+
+
+From mwkimpel at gmail.com  Tue Oct 30 16:26:33 2007
+From: mwkimpel at gmail.com (Mark W Kimpel)
+Date: Tue, 30 Oct 2007 11:26:33 -0400
+Subject: [R-sig-Debian] trouble installing building packages from source
+ using R 2.6.0 on Ubuntu Gutsy AMD64
+Message-ID: <47274D29.1050808@iupui.edu>
+
+I have recently upgraded to Ubuntu Gutsy and, for the first time, am 
+using a 64-bit installation. After failing miserably to install R from 
+source, not a problem for me in the past with a 32-bit install, I went 
+the route of using the Debian Etch build. This went smoothly, but I am 
+unable to update my numerous R and BioConductor packages, getting 
+non-zero exit status errors on each package. Is there a repository of 
+pre-built packages for Debian Etch 64 besides the r-base and 
+r-recommended? If not, could someone suggest how I might get things 
+working installing from source?
+
+I have installed the ia32 library, which did help me build VMWare, but 
+did not help with R. Reading the R-admin manual, there are some 
+suggested compiler flags, but I don't know how to enter them as I am a 
+relative new-comer to Linux.
+
+Thanks so much,
+Mark
+
+---
+
+Mark W. Kimpel MD  ** Neuroinformatics ** Dept. of Psychiatry
+Indiana University School of Medicine
+
+15032 Hunter Court, Westfield, IN  46074
+
+(317) 490-5129 Work, & Mobile & VoiceMail
+(317) 663-0513 Home (no voice mail please)
+
+
+From edd at debian.org  Tue Oct 30 16:51:32 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 30 Oct 2007 10:51:32 -0500
+Subject: [R-sig-Debian] trouble installing building packages from source
+ using R 2.6.0 on Ubuntu Gutsy AMD64
+In-Reply-To: <47274D29.1050808@iupui.edu>
+References: <47274D29.1050808@iupui.edu>
+Message-ID: <18215.21252.922249.788805@ron.nulle.part>
+
+
+On 30 October 2007 at 11:26, Mark W Kimpel wrote:
+| I have recently upgraded to Ubuntu Gutsy and, for the first time, am 
+| using a 64-bit installation. After failing miserably to install R from 
+| source, not a problem for me in the past with a 32-bit install, I went 
+| the route of using the Debian Etch build. This went smoothly, but I am 
+
+You mean you installed the .deb file from Debian onto Ubuntu?  Not something
+I'd recommend....
+
+IIRC we have backports for 64 bit, and we have backports for Ubuntu.  We just
+don't have them for 64 Bit Ubuntu ...   
+
+| unable to update my numerous R and BioConductor packages, getting 
+| non-zero exit status errors on each package. Is there a repository of 
+| pre-built packages for Debian Etch 64 besides the r-base and 
+| r-recommended? If not, could someone suggest how I might get things 
+| working installing from source?
+
+At work, I use Ubuntu 32bit.  I simply have and entry for Debian _sources_:
+
+foo:~> grep debian /etc/apt/sources.list
+deb-src http://localhost:9999/ftp.debian.org/debian/ unstable main contrib non-free
+
+(and please ignore the localhost bit, just my apt-proxy ...)   
+
+Then it is just a matter of apt-get update; apt-get source r-base to fetch
+the sources for a local rebuild / backport.  For Feisty, I need to modidy
+debian/rules and debian/control to un-hardwire the choice of gcc 4.2 to just
+gcc (and g++, gfortran).  We can help you with that; and the exisiting
+backports have the _exact_ patch required.
+
+After that, everything just works. I tend to install CRAN and BioC directly
+into /usr/local which I then share over NFS.  No problems whatsoever. [ A
+while back I needed a more recent graphviz from Debian but Gutsy may already
+have that for you. ]
+
+If all this is too much sys-admining for you, then you should consider
+getting some local help.  We'll try to coach you from here but you do need to
+some of the heavy lifting too.
+
+Hth, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From jranke at uni-bremen.de  Tue Oct 30 16:52:19 2007
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Tue, 30 Oct 2007 16:52:19 +0100
+Subject: [R-sig-Debian] trouble installing building packages from source
+	using R 2.6.0 on Ubuntu Gutsy AMD64
+In-Reply-To: <47274D29.1050808@iupui.edu>
+References: <47274D29.1050808@iupui.edu>
+Message-ID: <20071030155219.GA27876@mail.uni-bremen.de>
+
+Hi Mark,
+
+Did you try what is written at the very end of the READMEs
+
+	http://cran.r-project.org/bin/linux/ubuntu/
+
+and
+
+	http://cran.r-project.org/bin/linux/debian/
+
+i.e. install r-base-dev and then update the packages from within R?
+
+Johannes
+
+* Mark W Kimpel <mwkimpel at gmail.com> [071030 16:40]:
+> I have recently upgraded to Ubuntu Gutsy and, for the first time, am 
+> using a 64-bit installation. After failing miserably to install R from 
+> source, not a problem for me in the past with a 32-bit install, I went 
+> the route of using the Debian Etch build. This went smoothly, but I am 
+> unable to update my numerous R and BioConductor packages, getting 
+> non-zero exit status errors on each package. Is there a repository of 
+> pre-built packages for Debian Etch 64 besides the r-base and 
+> r-recommended? If not, could someone suggest how I might get things 
+> working installing from source?
+> 
+> I have installed the ia32 library, which did help me build VMWare, but 
+> did not help with R. Reading the R-admin manual, there are some 
+> suggested compiler flags, but I don't know how to enter them as I am a 
+> relative new-comer to Linux.
+> 
+> Thanks so much,
+> Mark
+> 
+> ---
+> 
+> Mark W. Kimpel MD  ** Neuroinformatics ** Dept. of Psychiatry
+> Indiana University School of Medicine
+> 
+> 15032 Hunter Court, Westfield, IN  46074
+> 
+> (317) 490-5129 Work, & Mobile & VoiceMail
+> (317) 663-0513 Home (no voice mail please)
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de     Key ID: F649AF90
+UFT Bremen, Leobenerstr. 1         +49 421 218 63373
+D-28359 Bremen                     http://www.uft.uni-bremen.de/chemie/ranke
+
+
+From vincent.goulet at act.ulaval.ca  Wed Oct 31 03:02:36 2007
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Tue, 30 Oct 2007 22:02:36 -0400
+Subject: [R-sig-Debian] trouble installing building packages from source
+	using R 2.6.0 on Ubuntu Gutsy AMD64
+In-Reply-To: <47274D29.1050808@iupui.edu>
+References: <47274D29.1050808@iupui.edu>
+Message-ID: <706E8B87-EE96-43F0-AEE2-BC53B9B01BFF@act.ulaval.ca>
+
+Le mar. 30 oct. ? 11:26, Mark W Kimpel a ?crit :
+
+> I have recently upgraded to Ubuntu Gutsy and, for the first time, am
+> using a 64-bit installation. After failing miserably to install R from
+> source, not a problem for me in the past with a 32-bit install, I went
+> the route of using the Debian Etch build. This went smoothly, but I am
+> unable to update my numerous R and BioConductor packages, getting
+> non-zero exit status errors on each package. Is there a repository of
+> pre-built packages for Debian Etch 64 besides the r-base and
+> r-recommended? If not, could someone suggest how I might get things
+> working installing from source?
+
+As Dirk mentioned, there aren't any binary packages of R for 64-bit  
+Ubuntu. If you look up the archives of the list, you'll see that this  
+subject has been discussed a few times already, but so far nobody has  
+volunteered to maintain packages.
+
+I cannot help you to build from source any further than pointing to  
+the build scripts I use for the i386 packages. There you will see the  
+changes (referred to by Dirk) I make to the Debian source packages so  
+that they build on Ubuntu. See the Ubuntu README for details.
+
+Vincent
+
+>
+> I have installed the ia32 library, which did help me build VMWare, but
+> did not help with R. Reading the R-admin manual, there are some
+> suggested compiler flags, but I don't know how to enter them as I am a
+> relative new-comer to Linux.
+>
+> Thanks so much,
+> Mark
+>
+> ---
+>
+> Mark W. Kimpel MD  ** Neuroinformatics ** Dept. of Psychiatry
+> Indiana University School of Medicine
+>
+> 15032 Hunter Court, Westfield, IN  46074
+>
+> (317) 490-5129 Work, & Mobile & VoiceMail
+> (317) 663-0513 Home (no voice mail please)
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+

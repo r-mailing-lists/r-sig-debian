@@ -1,0 +1,165 @@
+From jeroenooms at gmail.com  Sat Feb  3 12:50:41 2018
+From: jeroenooms at gmail.com (Jeroen Ooms)
+Date: Sat, 3 Feb 2018 12:50:41 +0100
+Subject: [R-sig-Debian] broken dependencies on 2cd4u
+Message-ID: <CABFfbXsgz674EmX4jDdCKVF-+W4j+7M5k+YwMK4NNkCb_4-nAQ@mail.gmail.com>
+
+As of a few days I'm seeing this error on travis:
+
+The following packages have unmet dependencies:
+ libleptonica-dev : Depends: liblept5 (= 1.74.4-1+nmu1ppa1~trusty1)
+but it is not going to be installed
+
+Which is caused by:
+
+The following packages have unmet dependencies:
+ liblept5 : Depends: libopenjp2-7 (>= 2.0.0) but it is not installable
+
+This is caused by the recent update libleptonica on c2d4u. I guess
+this new version also requires a backport of libopenjp2-7.
+
+More generally I'm wondering if perhaps c/c++ libs backports should go
+into a separate PPA? I was assuming c2d4u would only provide r-cran
+packages but not have any side effects on system libs.
+
+
+From marutter at gmail.com  Sat Feb  3 16:43:32 2018
+From: marutter at gmail.com (Michael Rutter)
+Date: Sat, 3 Feb 2018 10:43:32 -0500
+Subject: [R-sig-Debian] broken dependencies on 2cd4u
+In-Reply-To: <CABFfbXsgz674EmX4jDdCKVF-+W4j+7M5k+YwMK4NNkCb_4-nAQ@mail.gmail.com>
+References: <CABFfbXsgz674EmX4jDdCKVF-+W4j+7M5k+YwMK4NNkCb_4-nAQ@mail.gmail.com>
+Message-ID: <75a157d7-b979-a003-7375-2b2d70a1bebf@gmail.com>
+
+
+
+On 02/03/2018 06:50 AM, Jeroen Ooms wrote:
+> As of a few days I'm seeing this error on travis:
+> 
+> The following packages have unmet dependencies:
+>   libleptonica-dev : Depends: liblept5 (= 1.74.4-1+nmu1ppa1~trusty1)
+> but it is not going to be installed
+> 
+> Which is caused by:
+> 
+> The following packages have unmet dependencies:
+>   liblept5 : Depends: libopenjp2-7 (>= 2.0.0) but it is not installable
+> 
+> This is caused by the recent update libleptonica on c2d4u. I guess
+> this new version also requires a backport of libopenjp2-7.
+> 
+> More generally I'm wondering if perhaps c/c++ libs backports should go
+> into a separate PPA? I was assuming c2d4u would only provide r-cran
+> packages but not have any side effects on system libs.
+
+Jeroen,
+
+Sorry about this one.  There was an update of the tesseract package, and 
+it required a newer version of libleptonica-dev.  I thought I could copy 
+in a version from another PPA and have it work cleanly, but this was not 
+the case.
+
+I have deleted both packages, thus putting things back to the way they 
+where as of January 26th.  Let me know if there are still issues.
+
+Michael
+
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From jeroenooms at gmail.com  Sun Feb  4 13:49:08 2018
+From: jeroenooms at gmail.com (Jeroen Ooms)
+Date: Sun, 4 Feb 2018 13:49:08 +0100
+Subject: [R-sig-Debian] broken dependencies on 2cd4u
+In-Reply-To: <75a157d7-b979-a003-7375-2b2d70a1bebf@gmail.com>
+References: <CABFfbXsgz674EmX4jDdCKVF-+W4j+7M5k+YwMK4NNkCb_4-nAQ@mail.gmail.com>
+ <75a157d7-b979-a003-7375-2b2d70a1bebf@gmail.com>
+Message-ID: <CABFfbXt_-hmjQKvh0yqm-ZW7mXra8xZ34D6z29S-ohiaPqm_3A@mail.gmail.com>
+
+OK thanks for fixing it :-)
+
+I think it would be useful having a separate PPA where we provide
+backports of important libs used by R packages. But these should not
+be in c2d4u, because then enabling c2d4u may have unexpected side
+effects on non-R software.
+
+I maintain backports of imagemagick and jq myself (for the magick and
+jqr packages). We could add one for tesseract 4 as well, once it is
+final:
+
+ https://launchpad.net/~opencpu/+archive/ubuntu/imagemagick
+ https://launchpad.net/~opencpu/+archive/ubuntu/jq
+
+J
+
+
+
+
+
+
+On Sat, Feb 3, 2018 at 4:43 PM, Michael Rutter <marutter at gmail.com> wrote:
+>
+>
+> On 02/03/2018 06:50 AM, Jeroen Ooms wrote:
+>>
+>> As of a few days I'm seeing this error on travis:
+>>
+>> The following packages have unmet dependencies:
+>>   libleptonica-dev : Depends: liblept5 (= 1.74.4-1+nmu1ppa1~trusty1)
+>> but it is not going to be installed
+>>
+>> Which is caused by:
+>>
+>> The following packages have unmet dependencies:
+>>   liblept5 : Depends: libopenjp2-7 (>= 2.0.0) but it is not installable
+>>
+>> This is caused by the recent update libleptonica on c2d4u. I guess
+>> this new version also requires a backport of libopenjp2-7.
+>>
+>> More generally I'm wondering if perhaps c/c++ libs backports should go
+>> into a separate PPA? I was assuming c2d4u would only provide r-cran
+>> packages but not have any side effects on system libs.
+>
+>
+> Jeroen,
+>
+> Sorry about this one.  There was an update of the tesseract package, and it
+> required a newer version of libleptonica-dev.  I thought I could copy in a
+> version from another PPA and have it work cleanly, but this was not the
+> case.
+>
+> I have deleted both packages, thus putting things back to the way they where
+> as of January 26th.  Let me know if there are still issues.
+>
+> Michael
+>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From vcgato29 at gmail.com  Tue Feb 13 20:04:48 2018
+From: vcgato29 at gmail.com (Victor Corral)
+Date: Tue, 13 Feb 2018 11:04:48 -0800
+Subject: [R-sig-Debian] OpenSourceSoftware
+Message-ID: <CACDEaLmjAPcUXUvJV8KUSyCer0AZSHm0-Z36fuacsth6uegx8g@mail.gmail.com>
+
+I am the new Copywriter owner of the open source software. Victor Corral
+
+-- 
+Victor Corral
+
+	[[alternative HTML version deleted]]
+
+

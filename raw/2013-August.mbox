@@ -1,0 +1,769 @@
+From tighe at brandeis.edu  Fri Aug  2 19:08:20 2013
+From: tighe at brandeis.edu (Elizabeth Tighe)
+Date: Fri, 02 Aug 2013 13:08:20 -0400
+Subject: [R-sig-Debian] revolution mkl with R 3.01 on Ubuntu 13.04
+In-Reply-To: <51EC85FE.4020502@psu.edu>
+References: <51E8661C.1080909@brandeis.edu>
+	<20968.35339.154953.193234@max.nulle.part>
+	<51E8A0F8.7050403@brandeis.edu>
+	<20968.42343.556446.572219@max.nulle.part>
+	<51EC85FE.4020502@psu.edu>
+Message-ID: <51FBE784.3030105@brandeis.edu>
+
+Michael,
+
+I was traveling and just now finally able to carve out time to install 
+openblas from your RDev PPA.
+
+R is now running on all available cores, many thanks (and "time for all 
+15 tests" in R-benchmark-25 is 11 seconds!)
+
+Your helpfulness and work to maintain R software for Ubuntu is much 
+appreciated!
+
+Liz
+
+
+
+
+On 7/21/2013 9:08 PM, Michael Rutter wrote:
+>
+>
+> On 07/18/2013 10:33 PM, Dirk Eddelbuettel wrote:
+>>
+>> On 18 July 2013 at 22:14, Elizabeth Tighe wrote:
+>> |
+>> | Dirk,  That worked! Sort of.  It's gone from running processes on one
+>> | processor to two processors and Rbenchmark ran in 64 seconds rather
+>> than
+>> | 178.  Is there a way to get it to use more than 2 processors when it
+>> | can?  (revo mkl used all available processors by default).
+>>
+>> That is by R's "design choice" as the parallel package sets the
+>> default to
+>> two.  See help(options), and/or the vignette for r-sig-hpc.
+>>
+>> There have been helpful discussion over on r-sig-hpc over the months; you
+>> probably want to lurk on that list / google-search its archives.
+>>
+>
+> I am a little late to this thread, but I have an update.  Many moons
+> ago, I filed a bug/request to get the openblas package to run on more
+> than two threads.  Every once in a while, I would get an update to that
+> request, and finally the said the had fixed that issue.  I added this to
+> my "to do" pile, and I have finally gotten around to testing it.
+>
+> And the good news is that it works.  If you go to my RDev PPA
+> (https://launchpad.net/~marutter/+archive/rdev), you will find the
+> latest version of Ubuntu's obenblas package backported to Raring,
+> Quantal, and Precise.  You will also find updated versions of atlas and
+> blas, as the new version of openblas breaks R if those are not installed
+> as well.  I think Raring is fine, but Quantal and Precise need at least
+> one installed.
+>
+> If you install the libopenblas-base pacakge, it should work right out of
+> the box.  On my quad core machine, it ran 4 threads without having to do
+> anything besides installing the package.  R-benchmark-25.R went from
+> 20.1 to 16.6 seconds, but all cores were being used for the Matrix
+> function part of the test.
+>
+> Hope this helps,
+> Michael
+>
+>
+
+
+From ross at biostat.ucsf.edu  Fri Aug  2 20:12:45 2013
+From: ross at biostat.ucsf.edu (Ross Boylan)
+Date: Fri, 02 Aug 2013 11:12:45 -0700
+Subject: [R-sig-Debian] roxygen
+In-Reply-To: <201307201241.55844.ross@biostat.ucsf.edu>
+References: <201307201241.55844.ross@biostat.ucsf.edu>
+Message-ID: <51FBF69D.5090708@biostat.ucsf.edu>
+
+On 7/20/2013 12:41 PM, Ross Boylan wrote:
+> I am modifying a package that appears to have been made with roxygen.  I'm
+> currently running Debian stable (wheezy) amd64 with the stock R 2.15.1.  I
+> have some other, mostly older, flavors as well.
+>
+> roxygen doesn't seem to be in the Debian repositories or (if I wanted to
+> switch to R v3) http://cran.r-project.org/bin/linux/debian/wheezy-cran3/.
+>
+> Any tips?  Just install from source and discover what dependencies it needs?
+>
+> Ross
+>
+Just for the record,  roxygen2 installed from source and just worked.  
+(roxygen has a note saying to use roxygen2).
+
+Ross
+
+
+From greatauklet at gmail.com  Fri Aug  2 21:29:27 2013
+From: greatauklet at gmail.com (Martin Renner)
+Date: Fri, 2 Aug 2013 11:29:27 -0800
+Subject: [R-sig-Debian] segfault and RunSnowWorker: not found
+Message-ID: <2B8ACFFB-D961-428F-A385-A426DDD147D4@gmail.com>
+
+Hi,
+
+While I suspect that this is an issue peculiar to my machine (Debian squeeze amd64, R version 3.0.1, up-to-date packages), I'm hoping that somebody on this list may be able to give me suggestions on how to troubleshoot and fix the following:
+
+> library (snow)
+> cl <- makeSOCKcluster(c("localhost","localhost"))
+sh: 1: RunSnowWorker: not found
+
+
+I presume/hope that this may be related to an (even more pressing) issue I have with mclapply (package 'parallel'). While 
+> example (mclapply) 
+works as expected, any of my longer parallel jobs result in segfaults:
+
+ *** caught segfault ***
+address 0x7f0aeed649d0, cause 'memory not mapped'
+
+Traceback:
+ 1: mcexit(0L)
+ 2: mcparallel(FUN(X[[i]], ...), mc.set.seed = mc.set.seed, silent = mc.silent)
+ 3: FUN(1:8[[2L]], ...)
+ 4: lapply(jobid, function(i) mcparallel(FUN(X[[i]], ...), mc.set.seed = mc.set.seed,     silent = mc.silent))
+ 5: mclapply(sppDaysL, predDist, mc.cores = 8)
+aborting ...
+
+To add to the puzzle: the first couple of iterations sometimes finish successfully, but on other runs segfaults start to appear with the first iteration. The reported address seems to be always the same. htop indicates that there is still sufficient RAM available and memtester came out clean. Running the code with mc.cores=1 works fine -- run times are just not practical when I can't take advantage of my 8 cores. Likewise, no problems running in parallel under Mac OS X. 
+
+I tried the cran binaries R version 3.0.1 (2013-05-16) as well as my locally compiled version with the same result. I also tried a blank user account, again with the same issue. Any suggestions how I could troubleshoot this seqfault or RunSnowWorker: not found issue would be much appreciated. 
+
+Best wishes,
+
+Martin
+
+
+Martin Renner
+Tern Again Consulting
+388 E. Bayview Ave.
+Homer, AK 99603, USA
+phone: +1 907 235 0728
+cell:         299 6152
+
+
+From ross at biostat.ucsf.edu  Sun Aug  4 00:12:26 2013
+From: ross at biostat.ucsf.edu (Ross Boylan)
+Date: Sat, 3 Aug 2013 15:12:26 -0700
+Subject: [R-sig-Debian] packaging rstan
+Message-ID: <201308031516.37123.ross@biostat.ucsf.edu>
+
+I'm thinking of packaging stan and its R library rstan for Debian.  Any tips?
+
+stan does hybrid monte carlo estimation.
+
+stan has a somewhat unusual architecture: the stanc compiler converts a stan 
+program (a particular model) to C++ and the C++ compiler then builds an 
+executable which you can run.
+
+The R package provides a wrapper around this; I'm not sure of the exact 
+architecture but I think it builds a dynamically loadable object and loads it 
+into R.
+
+I think both of them require the stan library (in the libstan sense, not the R 
+sense).
+
+Ross Boylan
+
+P.S. In case you're wondering why bother when R already has a HybridMC 
+package, stan provides automatic differentiation, compiled code, automatic 
+tuning of hybrid monte-carlo parameters, and the "no U-turn" (NUTS) algorithm 
+that extends the usual hybrid monte carlo approach.
+
+
+From tighe at brandeis.edu  Fri Aug 16 18:45:55 2013
+From: tighe at brandeis.edu (Elizabeth Tighe)
+Date: Fri, 16 Aug 2013 12:45:55 -0400
+Subject: [R-sig-Debian] running R in batch mode on Ubuntu
+Message-ID: <520E5743.108@brandeis.edu>
+
+
+So, I'm submitting R 3.0.1 jobs on Ubuntu (13.04) using 'R CMD BATCH 
+--no-save filename.R &'  (have an alias set to subr='R CMD BATCH --no-save")
+
+and am having a problem of sometimes the process ending without the R 
+commands contained in the batch file actually having finished running.
+
+We're running Bayesian models using R2jags jags.parallel and it ends 
+during the jags run, so it might be something funky with that package, 
+but am curious to know if the general issue of R process ending 
+unceremoniously is anything anyone has run into.
+
+Thanks,
+Liz
+
+
+From edd at debian.org  Fri Aug 16 18:50:16 2013
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 16 Aug 2013 11:50:16 -0500
+Subject: [R-sig-Debian] running R in batch mode on Ubuntu
+In-Reply-To: <520E5743.108@brandeis.edu>
+References: <520E5743.108@brandeis.edu>
+Message-ID: <21006.22600.946684.204288@max.nulle.part>
+
+
+On 16 August 2013 at 12:45, Elizabeth Tighe wrote:
+| 
+| So, I'm submitting R 3.0.1 jobs on Ubuntu (13.04) using 'R CMD BATCH 
+| --no-save filename.R &'  (have an alias set to subr='R CMD BATCH --no-save")
+| 
+| and am having a problem of sometimes the process ending without the R 
+| commands contained in the batch file actually having finished running.
+| 
+| We're running Bayesian models using R2jags jags.parallel and it ends 
+| during the jags run, so it might be something funky with that package, 
+| but am curious to know if the general issue of R process ending 
+| unceremoniously is anything anyone has run into.
+
+Use either littler ("sudo apt-get install littler") which we wrote for 
+this purpose, or else use Rscript (which came a little later, but now comes
+with R).
+
+There are also packages for parsing command-line arguments, so you can really
+create scripts '#!/usr/bin/r' with all the glory.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From mar36 at psu.edu  Fri Aug 16 20:13:16 2013
+From: mar36 at psu.edu (Michael Rutter)
+Date: Fri, 16 Aug 2013 14:13:16 -0400
+Subject: [R-sig-Debian] running R in batch mode on Ubuntu
+In-Reply-To: <21006.22600.946684.204288@max.nulle.part>
+References: <520E5743.108@brandeis.edu>
+	<21006.22600.946684.204288@max.nulle.part>
+Message-ID: <520E6BBC.80300@psu.edu>
+
+
+
+On 08/16/2013 12:50 PM, Dirk Eddelbuettel wrote:
+>
+> On 16 August 2013 at 12:45, Elizabeth Tighe wrote:
+> |
+> | So, I'm submitting R 3.0.1 jobs on Ubuntu (13.04) using 'R CMD BATCH
+> | --no-save filename.R &'  (have an alias set to subr='R CMD BATCH --no-save")
+> |
+> | and am having a problem of sometimes the process ending without the R
+> | commands contained in the batch file actually having finished running.
+> |
+> | We're running Bayesian models using R2jags jags.parallel and it ends
+> | during the jags run, so it might be something funky with that package,
+> | but am curious to know if the general issue of R process ending
+> | unceremoniously is anything anyone has run into.
+>
+> Use either littler ("sudo apt-get install littler") which we wrote for
+> this purpose, or else use Rscript (which came a little later, but now comes
+> with R).
+>
+> There are also packages for parsing command-line arguments, so you can really
+> create scripts '#!/usr/bin/r' with all the glory.
+>
+> Dirk
+>
+
+Liz,
+
+Another alternative would be to use "screen" or one of its alternatives, 
+"Byobu" or "tmux".  These are what are called terminal multiplexers.  It 
+allows you to start a process, logout will killing the process, then log 
+in later from the same location or different location.
+
+You can start you R script without the "&", and then detach the 
+terminal.  Not exit, but detach using a specific key sequence like 
+Ctrl-A d.  You can then log back in (reattach) to the terminal and see 
+if it is still running or if it failed, what the output is.  If you do a 
+google search for "screen tutorial linux", you will find some good 
+information.  I often use this when I am running a long process on a 
+server and am too lazy to write a proper script :)
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+Associate Professor of Statistics
+Program Coordinator, Mathematics
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From tighe at brandeis.edu  Fri Aug 16 20:50:27 2013
+From: tighe at brandeis.edu (Elizabeth Tighe)
+Date: Fri, 16 Aug 2013 14:50:27 -0400
+Subject: [R-sig-Debian] running R in batch mode on Ubuntu
+In-Reply-To: <520E6BBC.80300@psu.edu>
+References: <520E5743.108@brandeis.edu>
+	<21006.22600.946684.204288@max.nulle.part> <520E6BBC.80300@psu.edu>
+Message-ID: <520E7473.6070702@brandeis.edu>
+
+Dirk & Michael,
+
+Many thanks for the swift replies! I've installed littler, but couldn't 
+find documentation re: how to address issue of running in batch mode? 
+Will check out screen ... We have programs that can take many hours to 
+run so ability to log out and check back in later when the process is 
+finished is helpful (as well as be able to connect back should ssh 
+connection get interrupted).
+
+Thanks!
+Liz
+
+
+
+
+
+On 8/16/2013 2:13 PM, Michael Rutter wrote:
+>
+>
+> On 08/16/2013 12:50 PM, Dirk Eddelbuettel wrote:
+>>
+>> On 16 August 2013 at 12:45, Elizabeth Tighe wrote:
+>> |
+>> | So, I'm submitting R 3.0.1 jobs on Ubuntu (13.04) using 'R CMD BATCH
+>> | --no-save filename.R &'  (have an alias set to subr='R CMD BATCH
+>> --no-save")
+>> |
+>> | and am having a problem of sometimes the process ending without the R
+>> | commands contained in the batch file actually having finished running.
+>> |
+>> | We're running Bayesian models using R2jags jags.parallel and it ends
+>> | during the jags run, so it might be something funky with that package,
+>> | but am curious to know if the general issue of R process ending
+>> | unceremoniously is anything anyone has run into.
+>>
+>> Use either littler ("sudo apt-get install littler") which we wrote for
+>> this purpose, or else use Rscript (which came a little later, but now
+>> comes
+>> with R).
+>>
+>> There are also packages for parsing command-line arguments, so you can
+>> really
+>> create scripts '#!/usr/bin/r' with all the glory.
+>>
+>> Dirk
+>>
+>
+> Liz,
+>
+> Another alternative would be to use "screen" or one of its alternatives,
+> "Byobu" or "tmux".  These are what are called terminal multiplexers.  It
+> allows you to start a process, logout will killing the process, then log
+> in later from the same location or different location.
+>
+> You can start you R script without the "&", and then detach the
+> terminal.  Not exit, but detach using a specific key sequence like
+> Ctrl-A d.  You can then log back in (reattach) to the terminal and see
+> if it is still running or if it failed, what the output is.  If you do a
+> google search for "screen tutorial linux", you will find some good
+> information.  I often use this when I am running a long process on a
+> server and am too lazy to write a proper script :)
+>
+> Michael
+>
+
+
+From edd at debian.org  Fri Aug 16 21:21:50 2013
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 16 Aug 2013 14:21:50 -0500
+Subject: [R-sig-Debian] running R in batch mode on Ubuntu
+In-Reply-To: <520E7473.6070702@brandeis.edu>
+References: <520E5743.108@brandeis.edu>
+	<21006.22600.946684.204288@max.nulle.part> <520E6BBC.80300@psu.edu>
+	<520E7473.6070702@brandeis.edu>
+Message-ID: <21006.31694.663930.761138@max.nulle.part>
+
+
+Liz,
+
+On 16 August 2013 at 14:50, Elizabeth Tighe wrote:
+| Dirk & Michael,
+| 
+| Many thanks for the swift replies! I've installed littler, but couldn't 
+| find documentation re: how to address issue of running in batch mode? 
+
+ i)  Look in /usr/share/doc/littler/examples/ which contains several
+     example files you can batch.
+
+ ii) Look at my talks page and fetch one of the HPC talks (last done at useR
+     at NIST three years ago as I recall) which has working examples using
+     littler to run batch jobs on clusters.
+
+Dirk
+
+| Will check out screen ... We have programs that can take many hours to 
+| run so ability to log out and check back in later when the process is 
+| finished is helpful (as well as be able to connect back should ssh 
+| connection get interrupted).
+| 
+| Thanks!
+| Liz
+| 
+| 
+| 
+| 
+| 
+| On 8/16/2013 2:13 PM, Michael Rutter wrote:
+| >
+| >
+| > On 08/16/2013 12:50 PM, Dirk Eddelbuettel wrote:
+| >>
+| >> On 16 August 2013 at 12:45, Elizabeth Tighe wrote:
+| >> |
+| >> | So, I'm submitting R 3.0.1 jobs on Ubuntu (13.04) using 'R CMD BATCH
+| >> | --no-save filename.R &'  (have an alias set to subr='R CMD BATCH
+| >> --no-save")
+| >> |
+| >> | and am having a problem of sometimes the process ending without the R
+| >> | commands contained in the batch file actually having finished running.
+| >> |
+| >> | We're running Bayesian models using R2jags jags.parallel and it ends
+| >> | during the jags run, so it might be something funky with that package,
+| >> | but am curious to know if the general issue of R process ending
+| >> | unceremoniously is anything anyone has run into.
+| >>
+| >> Use either littler ("sudo apt-get install littler") which we wrote for
+| >> this purpose, or else use Rscript (which came a little later, but now
+| >> comes
+| >> with R).
+| >>
+| >> There are also packages for parsing command-line arguments, so you can
+| >> really
+| >> create scripts '#!/usr/bin/r' with all the glory.
+| >>
+| >> Dirk
+| >>
+| >
+| > Liz,
+| >
+| > Another alternative would be to use "screen" or one of its alternatives,
+| > "Byobu" or "tmux".  These are what are called terminal multiplexers.  It
+| > allows you to start a process, logout will killing the process, then log
+| > in later from the same location or different location.
+| >
+| > You can start you R script without the "&", and then detach the
+| > terminal.  Not exit, but detach using a specific key sequence like
+| > Ctrl-A d.  You can then log back in (reattach) to the terminal and see
+| > if it is still running or if it failed, what the output is.  If you do a
+| > google search for "screen tutorial linux", you will find some good
+| > information.  I often use this when I am running a long process on a
+| > server and am too lazy to write a proper script :)
+| >
+| > Michael
+| >
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From jranke at uni-bremen.de  Sun Aug 18 15:25:54 2013
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Sun, 18 Aug 2013 15:25:54 +0200
+Subject: [R-sig-Debian] segfault and RunSnowWorker: not found
+In-Reply-To: <2B8ACFFB-D961-428F-A385-A426DDD147D4@gmail.com>
+References: <2B8ACFFB-D961-428F-A385-A426DDD147D4@gmail.com>
+Message-ID: <201308181525.54514.jranke@uni-bremen.de>
+
+Hi,
+
+just for the record: On Debian squeeze, amd64, using R 3.0.1 from CRAN I get:
+
+> library(snow)
+> cl <- makeSOCKcluster(c("localhost", "localhost"))
+> sessionInfo()
+R version 3.0.1 (2013-05-16)                                                                                                                       
+Platform: x86_64-pc-linux-gnu (64-bit)                                                                                                             
+                                                                                                                                                   
+locale:                                                                                                                                            
+ [1] LC_CTYPE=de_DE at euro       LC_NUMERIC=C                                                                                                        
+ [3] LC_TIME=de_DE at euro        LC_COLLATE=de_DE at euro                                                                                               
+ [5] LC_MONETARY=de_DE at euro    LC_MESSAGES=de_DE at euro                                                                                              
+ [7] LC_PAPER=C                LC_NAME=C                                                                                                           
+ [9] LC_ADDRESS=C              LC_TELEPHONE=C                                                                                                      
+[11] LC_MEASUREMENT=de_DE at euro LC_IDENTIFICATION=C                                                                                                 
+                                                                                                                                                   
+attached base packages:                                                                                                                            
+[1] stats     graphics  grDevices utils     datasets  methods   base                                                                               
+                                                                                                                                                   
+other attached packages:                                                                                                                           
+[1] snow_0.3-12                                                                                                                                    
+
+So it seems to be a problem with your installation.
+
+Johannes
+
+Am Freitag, 2. August 2013, 21:29:27 schrieb Martin Renner:
+> Hi,
+> 
+> While I suspect that this is an issue peculiar to my machine (Debian squeeze 
+amd64, R version 3.0.1, up-to-date packages), I'm hoping that somebody on this 
+list may be able to give me suggestions on how to troubleshoot and fix the 
+following:
+> > library (snow)
+> > cl <- makeSOCKcluster(c("localhost","localhost"))
+> 
+> sh: 1: RunSnowWorker: not found
+> 
+> 
+> I presume/hope that this may be related to an (even more pressing) issue I
+> have with mclapply (package 'parallel'). While
+> 
+> > example (mclapply)
+> 
+> works as expected, any of my longer parallel jobs result in segfaults:
+> 
+>  *** caught segfault ***
+> address 0x7f0aeed649d0, cause 'memory not mapped'
+> 
+> Traceback:
+>  1: mcexit(0L)
+>  2: mcparallel(FUN(X[[i]], ...), mc.set.seed = mc.set.seed, silent =
+> mc.silent) 3: FUN(1:8[[2L]], ...)
+>  4: lapply(jobid, function(i) mcparallel(FUN(X[[i]], ...), mc.set.seed =
+> mc.set.seed,     silent = mc.silent)) 5: mclapply(sppDaysL, predDist,
+> mc.cores = 8)
+> aborting ...
+> 
+> To add to the puzzle: the first couple of iterations sometimes finish
+> successfully, but on other runs segfaults start to appear with the first
+> iteration. The reported address seems to be always the same. htop
+> indicates that there is still sufficient RAM available and memtester came
+> out clean. Running the code with mc.cores=1 works fine -- run times are
+> just not practical when I can't take advantage of my 8 cores. Likewise, no
+> problems running in parallel under Mac OS X.
+> 
+> I tried the cran binaries R version 3.0.1 (2013-05-16) as well as my
+> locally compiled version with the same result. I also tried a blank user
+> account, again with the same issue. Any suggestions how I could
+> troubleshoot this seqfault or RunSnowWorker: not found issue would be much
+> appreciated.
+> 
+> Best wishes,
+> 
+> Martin
+> 
+> 
+> Martin Renner
+> Tern Again Consulting
+> 388 E. Bayview Ave.
+> Homer, AK 99603, USA
+> phone: +1 907 235 0728
+> cell:         299 6152
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+-- 
+PD Dr. Johannes Ranke
+Kronacher Str. 8
+79639 Grenzach-Wyhlen
+http://chem.uft.uni-bremen.de/ranke
+-------------- next part --------------
+> library(snow)
+> cl <- makeSOCKcluster(c("localhost", "localhost"))
+> sessionInfo()
+R version 3.0.1 (2013-05-16)                                                                                                                       
+Platform: x86_64-pc-linux-gnu (64-bit)                                                                                                             
+                                                                                                                                                   
+locale:                                                                                                                                            
+ [1] LC_CTYPE=de_DE at euro       LC_NUMERIC=C                                                                                                        
+ [3] LC_TIME=de_DE at euro        LC_COLLATE=de_DE at euro                                                                                               
+ [5] LC_MONETARY=de_DE at euro    LC_MESSAGES=de_DE at euro                                                                                              
+ [7] LC_PAPER=C                LC_NAME=C                                                                                                           
+ [9] LC_ADDRESS=C              LC_TELEPHONE=C                                                                                                      
+[11] LC_MEASUREMENT=de_DE at euro LC_IDENTIFICATION=C                                                                                                 
+                                                                                                                                                   
+attached base packages:                                                                                                                            
+[1] stats     graphics  grDevices utils     datasets  methods   base                                                                               
+                                                                                                                                                   
+other attached packages:                                                                                                                           
+[1] snow_0.3-12                                                                                                                                    
+
+From greatauklet at gmail.com  Wed Aug 28 03:26:59 2013
+From: greatauklet at gmail.com (Martin Renner)
+Date: Tue, 27 Aug 2013 17:26:59 -0800
+Subject: [R-sig-Debian] segfault and RunSnowWorker: not found
+In-Reply-To: <201308181525.54514.jranke@uni-bremen.de>
+References: <2B8ACFFB-D961-428F-A385-A426DDD147D4@gmail.com>
+	<201308181525.54514.jranke@uni-bremen.de>
+Message-ID: <A56C536D-C312-42B3-AA6D-E513E7D656CE@gmail.com>
+
+Hallo Johannes,
+
+Danke f?r die Antwort. 
+
+Yes, I did figure this is something peculiar to my installation. At last, I think I found a reproducible scenario that will trigger this segfault -- describing it here in case this might help others. It looks like parallel execution in package 'parallel' fails when debian package "libopenblas" is also installed. I can reproduce this on a fresh install. 
+
+Best,
+Martin
+
+ 
+
+Using the R 3.0.1 debian CRAN binaries on Debian wheezy, amd64, all works well. But after adding debian package "libopenblas-dev"  and executing: 
+> library (parallel)
+> example (mclapply) 
+
+I get: 
+mclppl> simplify2array(mclapply(rep(4, 5), rnorm))
+
+ *** caught segfault ***
+           [,1]       [,2]       [,3]       [,4]       [,5]
+[1,] -1.4367983 -0.2086828 -0.5020836  1.0936661 -0.2593556
+[2,]  0.9047555  0.6281615 -1.3045477 -0.5334737 -0.2911158
+[3,] -0.8932667  0.2139596 -1.2259668 -0.3311813 -1.0246794
+[4,]  0.6238694  0.9832240 -0.1994412 -0.2410835 -0.6639767
+
+address 0x7f02ab5139d0, cause 'memory not mapped'
+
+Traceback:
+ 1: mcexit(0L)
+ 2: FUN(1:2[[1L]], ...)
+ 3: lapply(seq_len(cores), inner.do)
+ 4: mclapply(rep(4, 5), rnorm)
+ 5: lapply(x, length)
+ 6: unlist(lapply(x, length))
+ 7: unique(unlist(lapply(x, length)))
+ 8: simplify2array(mclapply(rep(4, 5), rnorm))
+ 9: eval(expr, envir, enclos)
+......
+
+
+
+> sessionInfo()
+R version 2.15.1 (2012-06-22)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=C                 LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+> 
+
+
+
+
+
+
+On 18 Aug 2013, at 05:25 , Johannes Ranke <jranke at uni-bremen.de> wrote:
+
+> Hi,
+> 
+> just for the record: On Debian squeeze, amd64, using R 3.0.1 from CRAN I get:
+> 
+>> library(snow)
+>> cl <- makeSOCKcluster(c("localhost", "localhost"))
+>> sessionInfo()
+> R version 3.0.1 (2013-05-16)                                                                                                                       
+> Platform: x86_64-pc-linux-gnu (64-bit)                                                                                                             
+> 
+> locale:                                                                                                                                            
+> [1] LC_CTYPE=de_DE at euro       LC_NUMERIC=C                                                                                                        
+> [3] LC_TIME=de_DE at euro        LC_COLLATE=de_DE at euro                                                                                               
+> [5] LC_MONETARY=de_DE at euro    LC_MESSAGES=de_DE at euro                                                                                              
+> [7] LC_PAPER=C                LC_NAME=C                                                                                                           
+> [9] LC_ADDRESS=C              LC_TELEPHONE=C                                                                                                      
+> [11] LC_MEASUREMENT=de_DE at euro LC_IDENTIFICATION=C                                                                                                 
+> 
+> attached base packages:                                                                                                                            
+> [1] stats     graphics  grDevices utils     datasets  methods   base                                                                               
+> 
+> other attached packages:                                                                                                                           
+> [1] snow_0.3-12                                                                                                                                    
+> 
+> So it seems to be a problem with your installation.
+> 
+> Johannes
+> 
+> Am Freitag, 2. August 2013, 21:29:27 schrieb Martin Renner:
+>> Hi,
+>> 
+>> While I suspect that this is an issue peculiar to my machine (Debian squeeze 
+> amd64, R version 3.0.1, up-to-date packages), I'm hoping that somebody on this 
+> list may be able to give me suggestions on how to troubleshoot and fix the 
+> following:
+>>> library (snow)
+>>> cl <- makeSOCKcluster(c("localhost","localhost"))
+>> 
+>> sh: 1: RunSnowWorker: not found
+>> 
+>> 
+>> I presume/hope that this may be related to an (even more pressing) issue I
+>> have with mclapply (package 'parallel'). While
+>> 
+>>> example (mclapply)
+>> 
+>> works as expected, any of my longer parallel jobs result in segfaults:
+>> 
+>> *** caught segfault ***
+>> address 0x7f0aeed649d0, cause 'memory not mapped'
+>> 
+>> Traceback:
+>> 1: mcexit(0L)
+>> 2: mcparallel(FUN(X[[i]], ...), mc.set.seed = mc.set.seed, silent =
+>> mc.silent) 3: FUN(1:8[[2L]], ...)
+>> 4: lapply(jobid, function(i) mcparallel(FUN(X[[i]], ...), mc.set.seed =
+>> mc.set.seed,     silent = mc.silent)) 5: mclapply(sppDaysL, predDist,
+>> mc.cores = 8)
+>> aborting ...
+>> 
+>> To add to the puzzle: the first couple of iterations sometimes finish
+>> successfully, but on other runs segfaults start to appear with the first
+>> iteration. The reported address seems to be always the same. htop
+>> indicates that there is still sufficient RAM available and memtester came
+>> out clean. Running the code with mc.cores=1 works fine -- run times are
+>> just not practical when I can't take advantage of my 8 cores. Likewise, no
+>> problems running in parallel under Mac OS X.
+>> 
+>> I tried the cran binaries R version 3.0.1 (2013-05-16) as well as my
+>> locally compiled version with the same result. I also tried a blank user
+>> account, again with the same issue. Any suggestions how I could
+>> troubleshoot this seqfault or RunSnowWorker: not found issue would be much
+>> appreciated.
+>> 
+>> Best wishes,
+>> 
+>> Martin
+>> 
+>> 
+>> Martin Renner
+>> Tern Again Consulting
+>> 388 E. Bayview Ave.
+>> Homer, AK 99603, USA
+>> phone: +1 907 235 0728
+>> cell:         299 6152
+>> 
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+> 
+> -- 
+> PD Dr. Johannes Ranke
+> Kronacher Str. 8
+> 79639 Grenzach-Wyhlen
+> http://chem.uft.uni-bremen.de/ranke
+> <snow.txt>
+
+

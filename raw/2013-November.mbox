@@ -1,0 +1,1132 @@
+From kirill.mueller at ivt.baug.ethz.ch  Thu Nov  7 14:40:18 2013
+From: kirill.mueller at ivt.baug.ethz.ch (=?ISO-8859-1?Q?Kirill_M=FCller?=)
+Date: Thu, 7 Nov 2013 14:40:18 +0100
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+Message-ID: <527B9842.7040401@ivt.baug.ethz.ch>
+
+Hi
+
+When attempting to install R in version 2.15 (for testing purposes) on a 
+clean Ubuntu 12.04 machine from the CRAN Ubuntu repository, I can't seem 
+to install r-recommended:
+
++ sudo apt-get install --no-install-recommends 
+r-base-dev=2.15.3-1precise0precise1 r-base-core=2.15.3-1precise0precise1 
+r-recommended=2.15.3-1precise0precise1 qpdf
+
+Reading package lists... Done
+
+Building dependency tree
+
+Reading state information... Done
+
+Some packages could not be installed. This may mean that you have
+
+requested an impossible situation or if you are using the unstable
+
+distribution that some required packages have not yet been created
+
+or been moved out of Incoming.
+
+The following information may help to resolve the situation:
+
+The following packages have unmet dependencies:
+
+r-recommended : Depends: r-cran-boot (>= 1.2.19) but it is not going to 
+be installed
+
+Depends: r-cran-cluster (>= 1.9.6-2) but it is not going to be installed
+
+Depends: r-cran-foreign (>= 0.7-2) but it is not going to be installed
+
+Depends: r-cran-kernsmooth (>= 2.2.14) but it is not going to be installed
+
+Depends: r-cran-lattice (>= 0.10.11) but it is not going to be installed
+
+Depends: r-cran-mgcv (>= 1.1.5) but it is not going to be installed
+
+Depends: r-cran-nlme (>= 3.1.52) but it is not going to be installed
+
+Depends: r-cran-rpart (>= 3.1.20) but it is not going to be installed
+
+Depends: r-cran-survival (>= 2.13.2-1) but it is not going to be installed
+
+Depends: r-cran-mass but it is not going to be installed
+
+Depends: r-cran-class but it is not going to be installed
+
+Depends: r-cran-nnet but it is not going to be installed
+
+Depends: r-cran-codetools but it is not going to be installed
+
+Depends: r-cran-matrix but it is not going to be installed
+
+E: Unable to correct problems, you have held broken packages.
+
+
+Is there a way to automatically infer the versions for the R packages 
+r-recommends depends on, and install these? Thanks!
+
+
+Cheers
+
+Kirill
+
+
+From edd at debian.org  Thu Nov  7 14:52:58 2013
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 7 Nov 2013 07:52:58 -0600
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <527B9842.7040401@ivt.baug.ethz.ch>
+References: <527B9842.7040401@ivt.baug.ethz.ch>
+Message-ID: <21115.39738.56970.179459@max.nulle.part>
+
+
+On 7 November 2013 at 14:40, Kirill M?ller wrote:
+| When attempting to install R in version 2.15 (for testing purposes) on a 
+| clean Ubuntu 12.04 machine from the CRAN Ubuntu repository, I can't seem 
+| to install r-recommended:
+| 
+| + sudo apt-get install --no-install-recommends 
+| r-base-dev=2.15.3-1precise0precise1 r-base-core=2.15.3-1precise0precise1 
+| r-recommended=2.15.3-1precise0precise1 qpdf
+
+What happens when you do no hard-code version numbers?
+
+What does, say, 'apt-cache policy r-recommended' say?  
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From kirill.mueller at ivt.baug.ethz.ch  Thu Nov  7 15:02:29 2013
+From: kirill.mueller at ivt.baug.ethz.ch (=?ISO-8859-1?Q?Kirill_M=FCller?=)
+Date: Thu, 7 Nov 2013 15:02:29 +0100
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <21115.39738.56970.179459@max.nulle.part>
+References: <527B9842.7040401@ivt.baug.ethz.ch>
+	<21115.39738.56970.179459@max.nulle.part>
+Message-ID: <527B9D75.9050909@ivt.baug.ethz.ch>
+
+On 11/07/2013 02:52 PM, Dirk Eddelbuettel wrote:
+> On 7 November 2013 at 14:40, Kirill M?ller wrote:
+> | When attempting to install R in version 2.15 (for testing purposes) on a
+> | clean Ubuntu 12.04 machine from the CRAN Ubuntu repository, I can't seem
+> | to install r-recommended:
+> |
+> | + sudo apt-get install --no-install-recommends
+> | r-base-dev=2.15.3-1precise0precise1 r-base-core=2.15.3-1precise0precise1
+> | r-recommended=2.15.3-1precise0precise1 qpdf
+>
+> What happens when you do no hard-code version numbers?
+Everything works fine in this case. But I need R 2.15 -- as you may have 
+guessed, this is for r-travis. Here are a few failed builds:
+
+https://travis-ci.org/krlmlr/r-travis/jobs/13630510 -- explicitly 
+installing all packages r-recommended depends on
+
+https://travis-ci.org/krlmlr/r-travis/jobs/13630201 -- install R 2.15 
+and current r-recommended
+
+https://travis-ci.org/krlmlr/r-travis/jobs/13629522 -- the original 
+case: install R 2.15 and r-recommended 2.15
+
+If this can't be resolved easily on the client side: Perhaps this could 
+be fixed by (a) adding older deb-s to the repo and/or (b) specifying a 
+maximum version in r-recommended?
+
+On the other hand, r-recommended is necessary for CRAN checks, not so 
+for "regular" checks against older R versions.
+
+>
+> What does, say, 'apt-cache policy r-recommended' say?
+It aims at installing the most recent version, I guess. I have fired up 
+another build to check this:
+
+https://travis-ci.org/krlmlr/r-travis/jobs/13633723
+
+
+-Kirill
+
+
+From edd at debian.org  Thu Nov  7 16:12:29 2013
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 7 Nov 2013 09:12:29 -0600
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <527B9D75.9050909@ivt.baug.ethz.ch>
+References: <527B9842.7040401@ivt.baug.ethz.ch>
+	<21115.39738.56970.179459@max.nulle.part>
+	<527B9D75.9050909@ivt.baug.ethz.ch>
+Message-ID: <21115.44509.671955.994307@max.nulle.part>
+
+
+On 7 November 2013 at 15:02, Kirill M?ller wrote:
+| On 11/07/2013 02:52 PM, Dirk Eddelbuettel wrote:
+| > What does, say, 'apt-cache policy r-recommended' say?
+| It aims at installing the most recent version, I guess. I have fired up 
+
+Let me try again: when you run 'apt-cache policy r-recommended', does it show
+you a version 2.15, and if so, does it have the particular version.release
+you specified?  If it exists, you need to work with apt documentation to see
+how to override the preference for a different (higher) version.
+
+It should work in theory as you showed, but I a) never had a need for that
+and never done it and b) don't know anybody else who did.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From kirill.mueller at ivt.baug.ethz.ch  Thu Nov  7 16:53:47 2013
+From: kirill.mueller at ivt.baug.ethz.ch (=?ISO-8859-1?Q?Kirill_M=FCller?=)
+Date: Thu, 7 Nov 2013 16:53:47 +0100
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <21115.44509.671955.994307@max.nulle.part>
+References: <527B9842.7040401@ivt.baug.ethz.ch>	<21115.39738.56970.179459@max.nulle.part>	<527B9D75.9050909@ivt.baug.ethz.ch>
+	<21115.44509.671955.994307@max.nulle.part>
+Message-ID: <527BB78B.7020106@ivt.baug.ethz.ch>
+
+
+On 11/07/2013 04:12 PM, Dirk Eddelbuettel wrote:
+> On 7 November 2013 at 15:02, Kirill M?ller wrote:
+> | On 11/07/2013 02:52 PM, Dirk Eddelbuettel wrote:
+> | > What does, say, 'apt-cache policy r-recommended' say?
+> | It aims at installing the most recent version, I guess. I have fired up
+>
+> Let me try again: when you run 'apt-cache policy r-recommended', does it show
+> you a version 2.15, and if so, does it have the particular version.release
+> you specified?  If it exists, you need to work with apt documentation to see
+> how to override the preference for a different (higher) version.
+The particular call returns the following on the test system:
+
+r-recommended:
+   Installed: (none)
+   Candidate: 3.0.2-1precise0
+   Version table:
+      3.0.2-1precise0 0
+         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+         500 http://ppa.launchpad.net/marutter/rrutter/ubuntu/ 
+precise/main amd64 Packages
+      3.0.1-6precise0 0
+         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+      3.0.1-5precise0 0
+         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+      3.0.1-3precise 0
+         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+      3.0.1-1precise0precise2 0
+         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+      3.0.1-1precise0 0
+         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+      3.0.0-2precise 0
+         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+      2.15.3-1precise0precise1 0
+         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+      2.15.2-1precise0 0
+         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+      2.15.1-1precise2 0
+         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+      2.15.0-1precise0 0
+         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+      2.14.1-1 0
+         500 http://us.archive.ubuntu.com/ubuntu/ precise/universe amd64 
+Packages
+
+The package.version I have requested (=2.15.3-1precise0precise1) is 
+available. However, the dependencies in r-recommended only state a 
+minimum version of the dependent packages. Also, when I look at 
+`apt-cache show r-cran-mass=7.3-26-1raring0` (the oldest version in 
+CRAN), it tells me that it depends on r-base-core (>= 3.0.0-2raring). So 
+it wouldn't even work in theory.
+
+Is it possible to arrange to always keep, for each R version available 
+in the Ubuntu archive, the most recent version of each "recommended" 
+package?
+
+> It should work in theory as you showed, but I a) never had a need for that
+> and never done it and b) don't know anybody else who did.
+Thanks for your feedback.
+
+
+-Kirill
+
+
+From jranke at uni-bremen.de  Thu Nov  7 17:43:37 2013
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Thu, 7 Nov 2013 17:43:37 +0100
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <527BB78B.7020106@ivt.baug.ethz.ch>
+References: <527B9842.7040401@ivt.baug.ethz.ch>
+	<21115.39738.56970.179459@max.nulle.part>
+	<527B9D75.9050909@ivt.baug.ethz.ch>
+	<21115.44509.671955.994307@max.nulle.part>
+	<527BB78B.7020106@ivt.baug.ethz.ch>
+Message-ID: <20131107164337.GA9314@debws.eurofins.com>
+
+Hi,
+
+Maybe you want to try the squeeze-cran repository containing R 2.15 (I
+kept in order not to cause accidental breakage of add-on packages), as
+opposed to the squeeze-cran3 repository:
+
+deb http://<favorite-cran-mirror>/bin/linux/debian squeeze-cran/
+
+This also contains the recommended packages to go with it.
+
+Johannes
+
+On Thu, Nov 07, 2013 at 04:53:47PM +0100, Kirill M?ller wrote:
+> 
+> On 11/07/2013 04:12 PM, Dirk Eddelbuettel wrote:
+> >On 7 November 2013 at 15:02, Kirill M?ller wrote:
+> >| On 11/07/2013 02:52 PM, Dirk Eddelbuettel wrote:
+> >| > What does, say, 'apt-cache policy r-recommended' say?
+> >| It aims at installing the most recent version, I guess. I have fired up
+> >
+> >Let me try again: when you run 'apt-cache policy r-recommended', does it show
+> >you a version 2.15, and if so, does it have the particular version.release
+> >you specified?  If it exists, you need to work with apt documentation to see
+> >how to override the preference for a different (higher) version.
+> The particular call returns the following on the test system:
+> 
+> r-recommended:
+>   Installed: (none)
+>   Candidate: 3.0.2-1precise0
+>   Version table:
+>      3.0.2-1precise0 0
+>         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>         500 http://ppa.launchpad.net/marutter/rrutter/ubuntu/
+> precise/main amd64 Packages
+>      3.0.1-6precise0 0
+>         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>      3.0.1-5precise0 0
+>         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>      3.0.1-3precise 0
+>         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>      3.0.1-1precise0precise2 0
+>         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>      3.0.1-1precise0 0
+>         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>      3.0.0-2precise 0
+>         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>      2.15.3-1precise0precise1 0
+>         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>      2.15.2-1precise0 0
+>         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>      2.15.1-1precise2 0
+>         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>      2.15.0-1precise0 0
+>         500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>      2.14.1-1 0
+>         500 http://us.archive.ubuntu.com/ubuntu/ precise/universe
+> amd64 Packages
+> 
+> The package.version I have requested (=2.15.3-1precise0precise1) is
+> available. However, the dependencies in r-recommended only state a
+> minimum version of the dependent packages. Also, when I look at
+> `apt-cache show r-cran-mass=7.3-26-1raring0` (the oldest version in
+> CRAN), it tells me that it depends on r-base-core (>=
+> 3.0.0-2raring). So it wouldn't even work in theory.
+> 
+> Is it possible to arrange to always keep, for each R version
+> available in the Ubuntu archive, the most recent version of each
+> "recommended" package?
+> 
+> >It should work in theory as you showed, but I a) never had a need for that
+> >and never done it and b) don't know anybody else who did.
+> Thanks for your feedback.
+> 
+> 
+> -Kirill
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From kirill.mueller at ivt.baug.ethz.ch  Thu Nov  7 17:56:59 2013
+From: kirill.mueller at ivt.baug.ethz.ch (=?ISO-8859-1?Q?Kirill_M=FCller?=)
+Date: Thu, 7 Nov 2013 17:56:59 +0100
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <20131107164337.GA9314@debws.eurofins.com>
+References: <527B9842.7040401@ivt.baug.ethz.ch>
+	<21115.39738.56970.179459@max.nulle.part>
+	<527B9D75.9050909@ivt.baug.ethz.ch>
+	<21115.44509.671955.994307@max.nulle.part>
+	<527BB78B.7020106@ivt.baug.ethz.ch>
+	<20131107164337.GA9314@debws.eurofins.com>
+Message-ID: <527BC65B.9080802@ivt.baug.ethz.ch>
+
+Johannes,
+
+Thanks. Are there any pitfalls when using this on Ubuntu?
+
+
+-Kirill
+
+
+On 11/07/2013 05:43 PM, Johannes Ranke wrote:
+> Hi,
+>
+> Maybe you want to try the squeeze-cran repository containing R 2.15 (I
+> kept in order not to cause accidental breakage of add-on packages), as
+> opposed to the squeeze-cran3 repository:
+>
+> deb http://<favorite-cran-mirror>/bin/linux/debian squeeze-cran/
+>
+> This also contains the recommended packages to go with it.
+>
+> Johannes
+>
+> On Thu, Nov 07, 2013 at 04:53:47PM +0100, Kirill M?ller wrote:
+>> On 11/07/2013 04:12 PM, Dirk Eddelbuettel wrote:
+>>> On 7 November 2013 at 15:02, Kirill M?ller wrote:
+>>> | On 11/07/2013 02:52 PM, Dirk Eddelbuettel wrote:
+>>> | > What does, say, 'apt-cache policy r-recommended' say?
+>>> | It aims at installing the most recent version, I guess. I have fired up
+>>>
+>>> Let me try again: when you run 'apt-cache policy r-recommended', does it show
+>>> you a version 2.15, and if so, does it have the particular version.release
+>>> you specified?  If it exists, you need to work with apt documentation to see
+>>> how to override the preference for a different (higher) version.
+>> The particular call returns the following on the test system:
+>>
+>> r-recommended:
+>>    Installed: (none)
+>>    Candidate: 3.0.2-1precise0
+>>    Version table:
+>>       3.0.2-1precise0 0
+>>          500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>>          500 http://ppa.launchpad.net/marutter/rrutter/ubuntu/
+>> precise/main amd64 Packages
+>>       3.0.1-6precise0 0
+>>          500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>>       3.0.1-5precise0 0
+>>          500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>>       3.0.1-3precise 0
+>>          500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>>       3.0.1-1precise0precise2 0
+>>          500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>>       3.0.1-1precise0 0
+>>          500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>>       3.0.0-2precise 0
+>>          500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>>       2.15.3-1precise0precise1 0
+>>          500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>>       2.15.2-1precise0 0
+>>          500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>>       2.15.1-1precise2 0
+>>          500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>>       2.15.0-1precise0 0
+>>          500 http://cran.rstudio.com/bin/linux/ubuntu/ precise/ Packages
+>>       2.14.1-1 0
+>>          500 http://us.archive.ubuntu.com/ubuntu/ precise/universe
+>> amd64 Packages
+>>
+>> The package.version I have requested (=2.15.3-1precise0precise1) is
+>> available. However, the dependencies in r-recommended only state a
+>> minimum version of the dependent packages. Also, when I look at
+>> `apt-cache show r-cran-mass=7.3-26-1raring0` (the oldest version in
+>> CRAN), it tells me that it depends on r-base-core (>=
+>> 3.0.0-2raring). So it wouldn't even work in theory.
+>>
+>> Is it possible to arrange to always keep, for each R version
+>> available in the Ubuntu archive, the most recent version of each
+>> "recommended" package?
+>>
+>>> It should work in theory as you showed, but I a) never had a need for that
+>>> and never done it and b) don't know anybody else who did.
+>> Thanks for your feedback.
+>>
+>>
+>> -Kirill
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+_________________________________________________
+ETH Z?rich
+Institute for Transport Planning and Systems
+HIL F 32.2
+Wolfgang-Pauli-Str. 15
+8093 Z?rich
+
+Phone:       +41 44 633 33 17
+Fax:         +41 44 633 10 57
+Secretariat: +41 44 633 31 05
+E-Mail:      kirill.mueller at ivt.baug.ethz.ch
+
+
+From edd at debian.org  Thu Nov  7 18:14:21 2013
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 7 Nov 2013 11:14:21 -0600
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <527BB78B.7020106@ivt.baug.ethz.ch>
+References: <527B9842.7040401@ivt.baug.ethz.ch>
+	<21115.39738.56970.179459@max.nulle.part>
+	<527B9D75.9050909@ivt.baug.ethz.ch>
+	<21115.44509.671955.994307@max.nulle.part>
+	<527BB78B.7020106@ivt.baug.ethz.ch>
+Message-ID: <21115.51821.444548.653697@max.nulle.part>
+
+
+On 7 November 2013 at 16:53, Kirill M?ller wrote:
+| Is it possible to arrange to always keep, for each R version available 
+| in the Ubuntu archive, the most recent version of each "recommended" 
+| package?
+
+Your requirements appear to be orthogonal to how the distro normally, so
+maybe you think about having a distinct repo.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From edd at debian.org  Thu Nov  7 18:15:29 2013
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 7 Nov 2013 11:15:29 -0600
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <527BC65B.9080802@ivt.baug.ethz.ch>
+References: <527B9842.7040401@ivt.baug.ethz.ch>
+	<21115.39738.56970.179459@max.nulle.part>
+	<527B9D75.9050909@ivt.baug.ethz.ch>
+	<21115.44509.671955.994307@max.nulle.part>
+	<527BB78B.7020106@ivt.baug.ethz.ch>
+	<20131107164337.GA9314@debws.eurofins.com>
+	<527BC65B.9080802@ivt.baug.ethz.ch>
+Message-ID: <21115.51889.497811.433587@max.nulle.part>
+
+
+On 7 November 2013 at 17:56, Kirill M?ller wrote:
+| Thanks. Are there any pitfalls when using this on Ubuntu?
+
+Every official recommendation is "don't do that". Doing it for a CI box is
+silly.
+
+It would be cleaner to just build yourself a one-off 2.15 deb package, wget
+it onto the travis host and use it.
+
+Dirk 
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From pgilbert902 at gmail.com  Thu Nov  7 19:50:36 2013
+From: pgilbert902 at gmail.com (Paul Gilbert)
+Date: Thu, 07 Nov 2013 13:50:36 -0500
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <21115.51821.444548.653697@max.nulle.part>
+References: <527B9842.7040401@ivt.baug.ethz.ch>	<21115.39738.56970.179459@max.nulle.part>	<527B9D75.9050909@ivt.baug.ethz.ch>	<21115.44509.671955.994307@max.nulle.part>	<527BB78B.7020106@ivt.baug.ethz.ch>
+	<21115.51821.444548.653697@max.nulle.part>
+Message-ID: <527BE0FC.8070301@gmail.com>
+
+On 13-11-07 12:14 PM, Dirk Eddelbuettel wrote:
+>
+> On 7 November 2013 at 16:53, Kirill M?ller wrote:
+> | Is it possible to arrange to always keep, for each R version available
+> | in the Ubuntu archive, the most recent version of each "recommended"
+> | package?
+>
+> Your requirements appear to be orthogonal to how the distro normally, so
+> maybe you think about having a distinct repo.
+>
+> Dirk
+>
+Orthogonal in this case may mean null space. Many of the current 
+recommended packages list R (>= 3.0.0) in there Depends line. And for 
+the ones that list older R versions, you would be assuming that they are 
+back-tested against old R versions more carefully than most packages - a 
+fair assumption, but ...
+
+As a general principle, I think R and most open source code encourage an 
+approach of upgrading regularly. You will not get much sympathy when you 
+complain that the newest version of some package does not work with some 
+ancient version of R. Open source does tend to differ from commercial 
+software in this respect. You might get more sympathy if you are willing 
+to pay a lot to lock yourself into the past.
+
+Paul
+
+
+From kirill.mueller at ivt.baug.ethz.ch  Thu Nov  7 21:51:36 2013
+From: kirill.mueller at ivt.baug.ethz.ch (=?ISO-8859-1?Q?Kirill_M=FCller?=)
+Date: Thu, 7 Nov 2013 21:51:36 +0100
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <21115.51889.497811.433587@max.nulle.part>
+References: <527B9842.7040401@ivt.baug.ethz.ch>	<21115.39738.56970.179459@max.nulle.part>	<527B9D75.9050909@ivt.baug.ethz.ch>	<21115.44509.671955.994307@max.nulle.part>	<527BB78B.7020106@ivt.baug.ethz.ch>	<20131107164337.GA9314@debws.eurofins.com>	<527BC65B.9080802@ivt.baug.ethz.ch>
+	<21115.51889.497811.433587@max.nulle.part>
+Message-ID: <527BFD58.3000802@ivt.baug.ethz.ch>
+
+On 11/07/2013 06:15 PM, Dirk Eddelbuettel wrote:
+> It would be cleaner to just build yourself a one-off 2.15 deb package, wget
+> it onto the travis host and use it.
+I could as well host a PPA on LaunchPad. Could you point me at the 
+scripts you use to build the official CRAN bits?
+
+
+-Kirill
+
+
+From edd at debian.org  Thu Nov  7 22:38:03 2013
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 7 Nov 2013 15:38:03 -0600
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <527BFD58.3000802@ivt.baug.ethz.ch>
+References: <527B9842.7040401@ivt.baug.ethz.ch>
+	<21115.39738.56970.179459@max.nulle.part>
+	<527B9D75.9050909@ivt.baug.ethz.ch>
+	<21115.44509.671955.994307@max.nulle.part>
+	<527BB78B.7020106@ivt.baug.ethz.ch>
+	<20131107164337.GA9314@debws.eurofins.com>
+	<527BC65B.9080802@ivt.baug.ethz.ch>
+	<21115.51889.497811.433587@max.nulle.part>
+	<527BFD58.3000802@ivt.baug.ethz.ch>
+Message-ID: <21116.2107.277973.135507@max.nulle.part>
+
+
+On 7 November 2013 at 21:51, Kirill M?ller wrote:
+| I could as well host a PPA on LaunchPad. 
+
+Yes, you'd have more control that way and could even made the packages 'fat'
+or include debs for commonly used R packages (ie RCurl).
+
+| Could you point me at the 
+| scripts you use to build the official CRAN bits?
+
+Every Debian package on every mirror has its debian/* files as part of the .diff.gz.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From jranke at uni-bremen.de  Thu Nov  7 22:51:44 2013
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Thu, 7 Nov 2013 22:51:44 +0100
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <527BFD58.3000802@ivt.baug.ethz.ch>
+References: <527B9842.7040401@ivt.baug.ethz.ch>
+	<21115.39738.56970.179459@max.nulle.part>
+	<527B9D75.9050909@ivt.baug.ethz.ch>
+	<21115.44509.671955.994307@max.nulle.part>
+	<527BB78B.7020106@ivt.baug.ethz.ch>
+	<20131107164337.GA9314@debws.eurofins.com>
+	<527BC65B.9080802@ivt.baug.ethz.ch>
+	<21115.51889.497811.433587@max.nulle.part>
+	<527BFD58.3000802@ivt.baug.ethz.ch>
+Message-ID: <20131107215144.GA3562@stiller.fritz.box>
+
+On Thu, Nov 07, 2013 at 09:51:36PM +0100, Kirill M?ller wrote:
+> On 11/07/2013 06:15 PM, Dirk Eddelbuettel wrote:
+> >It would be cleaner to just build yourself a one-off 2.15 deb package, wget
+> >it onto the travis host and use it.
+> I could as well host a PPA on LaunchPad. Could you point me at the
+> scripts you use to build the official CRAN bits?
+
+you can use the sources
+
+deb-src http://<favorite-cran-mirror>/bin/linux/debian squeeze-cran/
+
+together with these simple scripts:
+
+http://kriemhild.uft.uni-bremen.de/viewvc/r-backports/build_r-base.sh?revision=83&view=markup
+
+and 
+
+http://kriemhild.uft.uni-bremen.de/viewvc/r-backports/build_others.sh?revision=92&view=markup
+
+Johannes
+
+
+From jranke at uni-bremen.de  Thu Nov  7 23:35:21 2013
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Thu, 7 Nov 2013 23:35:21 +0100
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <21115.51889.497811.433587@max.nulle.part>
+References: <527B9842.7040401@ivt.baug.ethz.ch>
+	<21115.39738.56970.179459@max.nulle.part>
+	<527B9D75.9050909@ivt.baug.ethz.ch>
+	<21115.44509.671955.994307@max.nulle.part>
+	<527BB78B.7020106@ivt.baug.ethz.ch>
+	<20131107164337.GA9314@debws.eurofins.com>
+	<527BC65B.9080802@ivt.baug.ethz.ch>
+	<21115.51889.497811.433587@max.nulle.part>
+Message-ID: <20131107223521.GA4095@stiller.fritz.box>
+
+On Thu, Nov 07, 2013 at 11:15:29AM -0600, Dirk Eddelbuettel wrote:
+> 
+> On 7 November 2013 at 17:56, Kirill M?ller wrote:
+> | Thanks. Are there any pitfalls when using this on Ubuntu?
+> 
+> Every official recommendation is "don't do that". Doing it for a CI box is
+> silly.
+
+Talking about silly, I just read up a bit on what travis and CI are. If
+installing R 2.15 with recommended packages from the CRAN Ubuntu repos
+is so difficult, I do not see the point in using that as a platform for
+testing R packages, or am I missing something here?
+
+Johannes
+ 
+> It would be cleaner to just build yourself a one-off 2.15 deb package, wget
+> it onto the travis host and use it.
+> 
+> Dirk 
+> 
+> -- 
+> Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+
+From kirill.mueller at ivt.baug.ethz.ch  Thu Nov  7 23:46:47 2013
+From: kirill.mueller at ivt.baug.ethz.ch (=?ISO-8859-1?Q?Kirill_M=FCller?=)
+Date: Thu, 7 Nov 2013 23:46:47 +0100
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <20131107223521.GA4095@stiller.fritz.box>
+References: <527B9842.7040401@ivt.baug.ethz.ch>
+	<21115.39738.56970.179459@max.nulle.part>
+	<527B9D75.9050909@ivt.baug.ethz.ch>
+	<21115.44509.671955.994307@max.nulle.part>
+	<527BB78B.7020106@ivt.baug.ethz.ch>
+	<20131107164337.GA9314@debws.eurofins.com>
+	<527BC65B.9080802@ivt.baug.ethz.ch>
+	<21115.51889.497811.433587@max.nulle.part>
+	<20131107223521.GA4095@stiller.fritz.box>
+Message-ID: <527C1857.5050008@ivt.baug.ethz.ch>
+
+On 11/07/2013 11:35 PM, Johannes Ranke wrote:
+> Talking about silly, I just read up a bit on what travis and CI are. If
+> installing R 2.15 with recommended packages from the CRAN Ubuntu repos
+> is so difficult, I do not see the point in using that as a platform for
+> testing R packages, or am I missing something here?
+>
+> Johannes
+https://github.com/craigcitro/r-travis is a recent effort to integrate R 
+with Travis. There are some obstacles to overcome, but it works quite 
+nicely already. It's free, it supports Ubuntu and OS X, and it 
+integrates with GitHub like a charm. May sound silly, but that's reason 
+enough for me.
+
+Do you know a CI platform where testing R packages would work "out of 
+the box"? Or perhaps a better suggestion on installing R + recommended?
+
+
+-Kirill
+
+
+From mar36 at psu.edu  Fri Nov  8 00:17:52 2013
+From: mar36 at psu.edu (Michael Rutter)
+Date: Thu, 07 Nov 2013 18:17:52 -0500
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <20131107215144.GA3562@stiller.fritz.box>
+References: <527B9842.7040401@ivt.baug.ethz.ch>	<21115.39738.56970.179459@max.nulle.part>	<527B9D75.9050909@ivt.baug.ethz.ch>	<21115.44509.671955.994307@max.nulle.part>	<527BB78B.7020106@ivt.baug.ethz.ch>	<20131107164337.GA9314@debws.eurofins.com>	<527BC65B.9080802@ivt.baug.ethz.ch>	<21115.51889.497811.433587@max.nulle.part>	<527BFD58.3000802@ivt.baug.ethz.ch>
+	<20131107215144.GA3562@stiller.fritz.box>
+Message-ID: <527C1FA0.3070508@psu.edu>
+
+
+
+On 11/07/2013 04:51 PM, Johannes Ranke wrote:
+> On Thu, Nov 07, 2013 at 09:51:36PM +0100, Kirill M?ller wrote:
+>> On 11/07/2013 06:15 PM, Dirk Eddelbuettel wrote:
+>>> It would be cleaner to just build yourself a one-off 2.15 deb package, wget
+>>> it onto the travis host and use it.
+>> I could as well host a PPA on LaunchPad. Could you point me at the
+>> scripts you use to build the official CRAN bits?
+>
+> you can use the sources
+>
+> deb-src http://<favorite-cran-mirror>/bin/linux/debian squeeze-cran/
+>
+> together with these simple scripts:
+>
+> http://kriemhild.uft.uni-bremen.de/viewvc/r-backports/build_r-base.sh?revision=83&view=markup
+>
+> and
+>
+> http://kriemhild.uft.uni-bremen.de/viewvc/r-backports/build_others.sh?revision=92&view=markup
+>
+> Johannes
+
+All the packages that you need are on the Ubuntu CRAN site (I believe), 
+the trick is convincing Ubuntu to install the correct ones.  One 
+solution would be to ge here:
+
+http://cran.us.r-project.org/bin/linux/ubuntu/precise/
+
+Manually download the packages you need.  Look for dates around March 2, 
+2013.  That is the was the day 2.15.3 was created for Ubuntu.  Once you 
+have downloaded the packages, install them using "dpkg".
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+Associate Professor of Statistics
+Program Coordinator, Mathematics
+Penn State Erie, The Behrend College
+4205 College Drive
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+mar36 at psu.edu
+
+
+From jranke at uni-bremen.de  Fri Nov  8 08:16:29 2013
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Fri, 8 Nov 2013 08:16:29 +0100
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <527C1857.5050008@ivt.baug.ethz.ch>
+References: <527B9842.7040401@ivt.baug.ethz.ch>
+	<20131107223521.GA4095@stiller.fritz.box>
+	<527C1857.5050008@ivt.baug.ethz.ch>
+Message-ID: <201311080816.29933.jranke@uni-bremen.de>
+
+Am Donnerstag, 7. November 2013, 23:46:47 schrieb Kirill M?ller:
+> On 11/07/2013 11:35 PM, Johannes Ranke wrote:
+> > Talking about silly, I just read up a bit on what travis and CI are. If
+> > installing R 2.15 with recommended packages from the CRAN Ubuntu repos
+> > is so difficult, I do not see the point in using that as a platform for
+> > testing R packages, or am I missing something here?
+> > 
+> > Johannes
+> 
+> https://github.com/craigcitro/r-travis is a recent effort to integrate R
+> with Travis. There are some obstacles to overcome, but it works quite
+> nicely already. It's free, it supports Ubuntu and OS X, and it
+> integrates with GitHub like a charm. May sound silly, but that's reason
+> enough for me.
+
+Ah, you misunderstood - I meant I was silly because I did not know what Travis 
+and a CI platform are and had to read up. I think r-travis is an interesting 
+project indeed. Of course there is e.g. r-forge, but their build system has 
+some lack from time to time, they only test on Linux and Windows, and it does 
+not integrate with github. I have to say I am wondering if travis-ci.org would 
+be able to handle all the R packages on github though...
+
+> Do you know a CI platform where testing R packages would work "out of
+> the box"? Or perhaps a better suggestion on installing R + recommended?
+
+Well, is Debian stable supported by travis? This would be a quick and easily 
+automated way to get R 2.15 + recommended on Linux, without the need to set up 
+you own repository.
+
+Johannes
+
+> 
+> 
+> -Kirill
+
+
+-- 
+PD Dr. Johannes Ranke
+Kronacher Str. 8
+79639 Grenzach-Wyhlen
+http://chem.uft.uni-bremen.de/ranke
+
+
+From jranke at uni-bremen.de  Fri Nov  8 08:41:50 2013
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Fri, 8 Nov 2013 08:41:50 +0100
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <201311080816.29933.jranke@uni-bremen.de>
+References: <527B9842.7040401@ivt.baug.ethz.ch>
+	<20131107223521.GA4095@stiller.fritz.box>
+	<527C1857.5050008@ivt.baug.ethz.ch>
+	<201311080816.29933.jranke@uni-bremen.de>
+Message-ID: <20131108074150.GA6128@time.local>
+
+On Fri, Nov 08, 2013 at 08:16:29AM +0100, Johannes Ranke wrote:
+> Am Donnerstag, 7. November 2013, 23:46:47 schrieb Kirill M?ller:
+> > On 11/07/2013 11:35 PM, Johannes Ranke wrote:
+> > > Talking about silly, I just read up a bit on what travis and CI are. If
+> > > installing R 2.15 with recommended packages from the CRAN Ubuntu repos
+> > > is so difficult, I do not see the point in using that as a platform for
+> > > testing R packages, or am I missing something here?
+> > > 
+> > > Johannes
+> > 
+> > https://github.com/craigcitro/r-travis is a recent effort to integrate R
+> > with Travis. There are some obstacles to overcome, but it works quite
+> > nicely already. It's free, it supports Ubuntu and OS X, and it
+> > integrates with GitHub like a charm. May sound silly, but that's reason
+> > enough for me.
+> 
+> Ah, you misunderstood - I meant I was silly because I did not know what Travis 
+> and a CI platform are and had to read up. I think r-travis is an interesting 
+> project indeed. Of course there is e.g. r-forge, but their build system has 
+> some lack from time to time, they only test on Linux and Windows, and it does 
+> not integrate with github. I have to say I am wondering if travis-ci.org would 
+> be able to handle all the R packages on github though...
+> 
+> > Do you know a CI platform where testing R packages would work "out of
+> > the box"? Or perhaps a better suggestion on installing R + recommended?
+> 
+> Well, is Debian stable supported by travis? This would be a quick and easily 
+> automated way to get R 2.15 + recommended on Linux, without the need to set up 
+> you own repository.
+
+Oops, I should say oldstable, time is flying, wheezy has been released a
+while ago... However, squeeze will still be around for a while.
+
+> Johannes
+> 
+> > 
+> > 
+> > -Kirill
+> 
+> 
+> -- 
+> PD Dr. Johannes Ranke
+> Kronacher Str. 8
+> 79639 Grenzach-Wyhlen
+> http://chem.uft.uni-bremen.de/ranke
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From kirill.mueller at ivt.baug.ethz.ch  Fri Nov  8 09:10:05 2013
+From: kirill.mueller at ivt.baug.ethz.ch (=?ISO-8859-1?Q?Kirill_M=FCller?=)
+Date: Fri, 8 Nov 2013 09:10:05 +0100
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <527C1FA0.3070508@psu.edu>
+References: <527B9842.7040401@ivt.baug.ethz.ch>	<21115.39738.56970.179459@max.nulle.part>	<527B9D75.9050909@ivt.baug.ethz.ch>	<21115.44509.671955.994307@max.nulle.part>	<527BB78B.7020106@ivt.baug.ethz.ch>	<20131107164337.GA9314@debws.eurofins.com>	<527BC65B.9080802@ivt.baug.ethz.ch>	<21115.51889.497811.433587@max.nulle.part>	<527BFD58.3000802@ivt.baug.ethz.ch>
+	<20131107215144.GA3562@stiller.fritz.box>
+	<527C1FA0.3070508@psu.edu>
+Message-ID: <527C9C5D.1010501@ivt.baug.ethz.ch>
+
+
+On 11/08/2013 12:17 AM, Michael Rutter wrote:
+>
+> All the packages that you need are on the Ubuntu CRAN site (I 
+> believe), the trick is convincing Ubuntu to install the correct ones.  
+> One solution would be to ge here:
+>
+> http://cran.us.r-project.org/bin/linux/ubuntu/precise/
+>
+> Manually download the packages you need.  Look for dates around March 
+> 2, 2013.  That is the was the day 2.15.3 was created for Ubuntu.  Once 
+> you have downloaded the packages, install them using "dpkg".
+>
+> Michael
+>
+Thanks a lot to everyone for the useful input. Indeed, CRAN/Ubuntu 
+indeed contains packages "old enough" to run on R 2.15. The desired 
+configuration can be achieved with aptitude and a modification in its 
+conflict resolution heuristics:
+
+sudo aptitude install -R -y r-base-dev=2.15.3-1precise0precise1 
+r-base-core=2.15.3-1precise0precise1 
+r-recommended=2.15.3-1precise0precise1 -o 
+"Aptitude::ProblemResolver::Non-Default-Level=5000"
+
+This works in principle, but needs more tweaking to be more robust, 
+especially w.r.t. apt-get update calls.
+
+
+Cheers
+
+Kirill
+
+
+From pgilbert902 at gmail.com  Fri Nov  8 19:12:03 2013
+From: pgilbert902 at gmail.com (Paul Gilbert)
+Date: Fri, 08 Nov 2013 13:12:03 -0500
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <527C9C5D.1010501@ivt.baug.ethz.ch>
+References: <527B9842.7040401@ivt.baug.ethz.ch>	<21115.39738.56970.179459@max.nulle.part>	<527B9D75.9050909@ivt.baug.ethz.ch>	<21115.44509.671955.994307@max.nulle.part>	<527BB78B.7020106@ivt.baug.ethz.ch>	<20131107164337.GA9314@debws.eurofins.com>	<527BC65B.9080802@ivt.baug.ethz.ch>	<21115.51889.497811.433587@max.nulle.part>	<527BFD58.3000802@ivt.baug.ethz.ch>	<20131107215144.GA3562@stiller.fritz.box>	<527C1FA0.3070508@psu.edu>
+	<527C9C5D.1010501@ivt.baug.ethz.ch>
+Message-ID: <527D2973.8040209@gmail.com>
+
+I may have misunderstood the first question in this thread, but now that 
+I have a vague idea what Travis-CI is about, perhaps someone could 
+answer some questions (apologies if I have not yet grokked the proper 
+terminology):
+
+-An R package would often require other R packages in order to build and 
+test. Would the strategy for making other packages available be to use 
+"install", or "before_script"? Potentially this settup will take very 
+much more time than the actual testing, or is there a way to easy this 
+load?
+
+-Are you thinking of all packages being available via apt-get, or will 
+this support "R CMD INSTALL"?
+
+-How do the virtual machine snapshots get set up? Is that what is being 
+done in the R+Travis project, or what would be needed to merge this into 
+travis as a first-class citizen?
+
+-Is there a mechanism to contribute worker boxes for specific platforms? 
+Is it possible to restrict them to be available only for certain 
+purposes? (e.g. R package builds but not C++ project testing.)
+
+-Is this thread on R-sig-debian only because the original question was 
+about installing on Ubuntu? I have the impression that the Travis-CI 
+infrastructure is more general than debian, or am I wrong about that?.
+
+WRT my original misunderstanding: I do think you need to think of R and 
+recommended packages as one combined compiler system, not try to test 
+newer recommended packages against older R versions. I don't think 
+mixing new recommended packages with old R versions should be expected 
+to work very well, and (I hope) very few people would think of using a 
+mixed system. Even installing from source you get them together. OTOH, 
+testing new versions of other packages against old versions of R (with 
+the corresponding recommended packages) makes sense if the package 
+maintainer has not indicated that a newer R version is needed.
+
+Thanks,
+Paul
+
+On 13-11-08 03:10 AM, Kirill M?ller wrote:
+>
+> On 11/08/2013 12:17 AM, Michael Rutter wrote:
+>>
+>> All the packages that you need are on the Ubuntu CRAN site (I
+>> believe), the trick is convincing Ubuntu to install the correct ones.
+>> One solution would be to ge here:
+>>
+>> http://cran.us.r-project.org/bin/linux/ubuntu/precise/
+>>
+>> Manually download the packages you need.  Look for dates around March
+>> 2, 2013.  That is the was the day 2.15.3 was created for Ubuntu.  Once
+>> you have downloaded the packages, install them using "dpkg".
+>>
+>> Michael
+>>
+> Thanks a lot to everyone for the useful input. Indeed, CRAN/Ubuntu
+> indeed contains packages "old enough" to run on R 2.15. The desired
+> configuration can be achieved with aptitude and a modification in its
+> conflict resolution heuristics:
+>
+> sudo aptitude install -R -y r-base-dev=2.15.3-1precise0precise1
+> r-base-core=2.15.3-1precise0precise1
+> r-recommended=2.15.3-1precise0precise1 -o
+> "Aptitude::ProblemResolver::Non-Default-Level=5000"
+>
+> This works in principle, but needs more tweaking to be more robust,
+> especially w.r.t. apt-get update calls.
+>
+>
+> Cheers
+>
+> Kirill
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From edd at debian.org  Fri Nov  8 19:49:04 2013
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 8 Nov 2013 12:49:04 -0600
+Subject: [R-sig-Debian] Can't install R 2.15 and r-recommended on Ubuntu
+In-Reply-To: <527D2973.8040209@gmail.com>
+References: <527B9842.7040401@ivt.baug.ethz.ch>
+	<21115.39738.56970.179459@max.nulle.part>
+	<527B9D75.9050909@ivt.baug.ethz.ch>
+	<21115.44509.671955.994307@max.nulle.part>
+	<527BB78B.7020106@ivt.baug.ethz.ch>
+	<20131107164337.GA9314@debws.eurofins.com>
+	<527BC65B.9080802@ivt.baug.ethz.ch>
+	<21115.51889.497811.433587@max.nulle.part>
+	<527BFD58.3000802@ivt.baug.ethz.ch>
+	<20131107215144.GA3562@stiller.fritz.box>
+	<527C1FA0.3070508@psu.edu> <527C9C5D.1010501@ivt.baug.ethz.ch>
+	<527D2973.8040209@gmail.com>
+Message-ID: <21117.12832.686624.706813@max.nulle.part>
+
+
+Hi Paul,
+
+Super-briefly as I am at work:
+
+On 8 November 2013 at 13:12, Paul Gilbert wrote:
+| I may have misunderstood the first question in this thread, but now that 
+| I have a vague idea what Travis-CI is about, perhaps someone could 
+| answer some questions (apologies if I have not yet grokked the proper 
+| terminology):
+
+A lot of stuff got discussed in the 'Issue' tickets on GH. You can browse
+them there.  For better or worse, kids these days don't use mailing lists ...
+
+| 
+| -An R package would often require other R packages in order to build and 
+| test. Would the strategy for making other packages available be to use 
+| "install", or "before_script"? Potentially this settup will take very 
+| much more time than the actual testing, or is there a way to easy this 
+| load?
+
+Rock, meet hard place.
+
+Until R and key packages are in a pre-build image used by Travis, that time
+has to be spent.  It is a tough job to contribute to global warming and
+burning cpu cycles and disk spins, but someone has got to do it ...
+ 
+| -Are you thinking of all packages being available via apt-get, or will 
+| this support "R CMD INSTALL"?
+
+A mix, because there is no complete CRAN archive accessible via apt-get on an
+Ubuntu platform.
+ 
+| -How do the virtual machine snapshots get set up? Is that what is being 
+| done in the R+Travis project, or what would be needed to merge this into 
+| travis as a first-class citizen?
+
+The intent is to do so much good work in the r-travis project that Travis-CI
+notices and promotes R to a first-class language.  We have a good shot at that.
+ 
+| -Is there a mechanism to contribute worker boxes for specific platforms? 
+| Is it possible to restrict them to be available only for certain 
+| purposes? (e.g. R package builds but not C++ project testing.)
+
+I do not fully understand the question.
+
+r-travis specific questions are kinda misplaced here.  Maybe create an Issue
+ticket at Github.
+
+| -Is this thread on R-sig-debian only because the original question was 
+| about installing on Ubuntu? I have the impression that the Travis-CI 
+| infrastructure is more general than debian, or am I wrong about that?.
+
+I think Kirill was lost in an apt-get attempt and asked here which makes
+perfect sense as this is the place for R on Debian/Ubuntu deployment
+questions.
+ 
+| WRT my original misunderstanding: I do think you need to think of R and 
+| recommended packages as one combined compiler system, not try to test 
+| newer recommended packages against older R versions. I don't think 
+| mixing new recommended packages with old R versions should be expected 
+| to work very well, and (I hope) very few people would think of using a 
+
+Agreed, and most of us disagree with what Kirill tried there. Arguably, he
+was just trying for a creative shortcut, but the better solution would be to
+have several Ubuntu release (say, current plus LTS plus maybe the upcoming
+one for bleeding edge) under Travis. A shortcut remains a shortcut, and is
+ill-advised in something designed to be "the" QA and Testing framework.
+
+| mixed system. Even installing from source you get them together. OTOH, 
+| testing new versions of other packages against old versions of R (with 
+| the corresponding recommended packages) makes sense if the package 
+| maintainer has not indicated that a newer R version is needed.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+

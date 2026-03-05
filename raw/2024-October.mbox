@@ -1,0 +1,669 @@
+From |@uren@gerber @end|ng |rom he|@|nk|@||  Tue Oct 15 15:14:49 2024
+From: |@uren@gerber @end|ng |rom he|@|nk|@|| (Gerber, Lauren J)
+Date: Tue, 15 Oct 2024 13:14:49 +0000
+Subject: [R-sig-Debian] R Package: 'ggbreak' in Dockerfile
+In-Reply-To: <AM0PR07MB544244AD8C0565F8C20B0139E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+References: <AM0PR07MB54427FFCF5D74433002C85EBE6782@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <AM0PR07MB544244AD8C0565F8C20B0139E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+Message-ID: <AM0PR07MB5442702C93E56CB0DCDC03A8E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+
+Hi All,
+
+Does anyone have experience successfully installing and loading the R package ?ggbreak? in a Docker container?
+
+I ask because I have successfully used the ?ggbreak? package in a script outside the Docker container (on my local computer), but for some reason, I get the following error message when trying to load it using library(ggbreak) or library(?ggbreak?) inside the same script that has been copied to the Docker container:
+
+Error in library(ggbreak) : there is no package called 'ggbreak'
+Execution halted
+
+I have tried installing ?ggbreak? using Bioconductor, the ?ggbreak? GitHub repo, and the standard install.packages() function in R, and none have helped. The image is building successfully; the issue is specifically when I run the container, which generates the above error message. I am wondering if I am missing some type of dependency upstream, or something else.
+
+Please see the contents of the Dockerfile below:
+
+FROM selenium/standalone-firefox:127.0
+
+USER root
+
+ENV SE_OFFLINE=true
+ENV PATH "$PATH:/usr/bin/geckodriver"
+ENV HOME "/root/"
+
+RUN apt-get update \
+    && apt install -y \
+    software-properties-common \
+    dirmngr \
+    gnupg2 \
+    wget \
+    build-essential \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    libasound2 \
+#    libasound2t64 \
+    python3 \
+    python3-pip \
+    python3.11-venv \
+#    python3.12-venv \
+    git-all \
+    lsb-release \
+    libxml-twig-perl \
+    libc6-dev \
+    vim \
+    && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+    | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+    && add-apt-repository -y "ppa:marutter/rrutter4.0"
+
+RUN apt-get update -y \
+    && apt-get install -y r-base\
+    && apt-get clean \
+    && apt-get purge \
+    && rm -rf /var/lib/apt/lists/* /tmp/*
+
+RUN pip3 install --upgrade pip wheel setuptools>5
+RUN pip3 install pandas
+RUN pip3 install openpyxl
+RUN pip3 install selenium-firefox
+RUN pip3 install --no-cache-dir --upgrade rbase
+RUN pip3 install webdriver-manager
+RUN pip3 install 'rpy2>=3.5.12'
+RUN pip3 install xlsxwriter
+
+# Install additional R packages
+# RUN R -e "install.packages(c('tools', 'ggplot2', 'ggbreak', 'ggrepel', 'stringr'), repos='http://cran.us.r-project.org')"
+RUN R -e "install.packages('tools', repos='http://cran.us.r-project.org')"
+RUN R -e "install.packages('ggplot2', repos='http://cran.us.r-project.org')"
+# RUN R -e "install.packages('ggbreak', repos='http://cran.us.r-project.org')"
+# RUN R -e "install.packages('remotes', repos='http://cran.rstudio.com/')"
+# RUN R -e "remotes::install_github('YuLab-SMU/ggbreak')"
+RUN R -e "install.packages('ggrepel', repos='http://cran.us.r-project.org')"
+RUN R -e "install.packages('stringr', repos='http://cran.us.r-project.org')"
+RUN R -e "install.packages('BiocManager', repos='http://cran.us.r-project.org')"
+RUN R -e "BiocManager::install('ggbreak')"
+
+# Create an app directory
+RUN mkdir /app
+RUN mkdir /volume_w_htmls
+RUN mkdir /volume
+RUN mkdir /volume2
+RUN mkdir /home/seluser/Downloads
+
+# Set the working directory
+WORKDIR /app
+
+# Copy bash script to Docker image
+COPY ./webscraping_combined_boxplots.sh /app/webscraping_combined_boxplots.sh
+
+# Make bash script executable
+RUN chmod +x /app/webscraping_combined_boxplots.sh
+
+ENTRYPOINT ["/app/webscraping_combined_boxplots.sh"]
+
+CMD ["param1", "param2", "param3", "param4", "param5", "param6", "param7", "param8", "param9", "param10", "param11", "param12", "param13", "param14", "param15", "param16", "param17", "param18", "param19"]
+
+
+Would you please advise?
+
+Thank you in advance for your help.
+
+Br,
+Lauren
+--
+Lauren J. Gerber
+Bioinformatician
+Precision Systems Medicine (Kallioniemi) Research Group
+iCAN ? Digital Precision Cancer Medicine Flagship
+Institute for Molecular Medicine Finland (FIMM)
+Nordic EMBL Partnership for Molecular Medicine
+Biomedicum Helsinki 2U, D301a1
+P.O. Box 20 (Tukholmankatu 8)
+FI-00014 University of Helsinki, Finland
+lauren.gerber at helsinki.fi
+
+	[[alternative HTML version deleted]]
+
+
+From jm@cdon @end|ng |rom uw@edu  Tue Oct 15 15:21:54 2024
+From: jm@cdon @end|ng |rom uw@edu (James W. MacDonald)
+Date: Tue, 15 Oct 2024 13:21:54 +0000
+Subject: [R-sig-Debian] R Package: 'ggbreak' in Dockerfile
+In-Reply-To: <AM0PR07MB5442702C93E56CB0DCDC03A8E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+References: <AM0PR07MB54427FFCF5D74433002C85EBE6782@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <AM0PR07MB544244AD8C0565F8C20B0139E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <AM0PR07MB5442702C93E56CB0DCDC03A8E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+Message-ID: <DM4PR08MB8194C96D5409A8720D2DF955C2452@DM4PR08MB8194.namprd08.prod.outlook.com>
+
+Don't you have to load BiocManager before using it?
+
+-----Original Message-----
+From: R-SIG-Debian <r-sig-debian-bounces at r-project.org> On Behalf Of Gerber, Lauren J
+Sent: Tuesday, October 15, 2024 9:15 AM
+To: r-sig-debian at r-project.org
+Cc: dirk at eddelbuettel.com
+Subject: Re: [R-sig-Debian] R Package: 'ggbreak' in Dockerfile
+
+Hi All,
+
+Does anyone have experience successfully installing and loading the R package  ggbreak  in a Docker container?
+
+I ask because I have successfully used the  ggbreak  package in a script outside the Docker container (on my local computer), but for some reason, I get the following error message when trying to load it using library(ggbreak) or library( ggbreak ) inside the same script that has been copied to the Docker container:
+
+Error in library(ggbreak) : there is no package called 'ggbreak'
+Execution halted
+
+I have tried installing  ggbreak  using Bioconductor, the  ggbreak  GitHub repo, and the standard install.packages() function in R, and none have helped. The image is building successfully; the issue is specifically when I run the container, which generates the above error message. I am wondering if I am missing some type of dependency upstream, or something else.
+
+Please see the contents of the Dockerfile below:
+
+FROM selenium/standalone-firefox:127.0
+
+USER root
+
+ENV SE_OFFLINE=true
+ENV PATH "$PATH:/usr/bin/geckodriver"
+ENV HOME "/root/"
+
+RUN apt-get update \
+    && apt install -y \
+    software-properties-common \
+    dirmngr \
+    gnupg2 \
+    wget \
+    build-essential \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    libasound2 \
+#    libasound2t64 \
+    python3 \
+    python3-pip \
+    python3.11-venv \
+#    python3.12-venv \
+    git-all \
+    lsb-release \
+    libxml-twig-perl \
+    libc6-dev \
+    vim \
+    && wget -q -O - https://urldefense.com/v3/__https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj1qvC-XQQ$  \
+    | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+    && add-apt-repository -y "ppa:marutter/rrutter4.0"
+
+RUN apt-get update -y \
+    && apt-get install -y r-base\
+    && apt-get clean \
+    && apt-get purge \
+    && rm -rf /var/lib/apt/lists/* /tmp/*
+
+RUN pip3 install --upgrade pip wheel setuptools>5 RUN pip3 install pandas RUN pip3 install openpyxl RUN pip3 install selenium-firefox RUN pip3 install --no-cache-dir --upgrade rbase RUN pip3 install webdriver-manager RUN pip3 install 'rpy2>=3.5.12'
+RUN pip3 install xlsxwriter
+
+# Install additional R packages
+# RUN R -e "install.packages(c('tools', 'ggplot2', 'ggbreak', 'ggrepel', 'stringr'), repos='https://urldefense.com/v3/__http://cran.us.r-project.org__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj0ggNUwsA$ ')"
+RUN R -e "install.packages('tools', repos='https://urldefense.com/v3/__http://cran.us.r-project.org__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj0ggNUwsA$ ')"
+RUN R -e "install.packages('ggplot2', repos='https://urldefense.com/v3/__http://cran.us.r-project.org__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj0ggNUwsA$ ')"
+# RUN R -e "install.packages('ggbreak', repos='https://urldefense.com/v3/__http://cran.us.r-project.org__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj0ggNUwsA$ ')"
+# RUN R -e "install.packages('remotes', repos='https://urldefense.com/v3/__http://cran.rstudio.com/__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj1ACvaCfA$ ')"
+# RUN R -e "remotes::install_github('YuLab-SMU/ggbreak')"
+RUN R -e "install.packages('ggrepel', repos='https://urldefense.com/v3/__http://cran.us.r-project.org__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj0ggNUwsA$ ')"
+RUN R -e "install.packages('stringr', repos='https://urldefense.com/v3/__http://cran.us.r-project.org__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj0ggNUwsA$ ')"
+RUN R -e "install.packages('BiocManager', repos='https://urldefense.com/v3/__http://cran.us.r-project.org__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj0ggNUwsA$ ')"
+RUN R -e "BiocManager::install('ggbreak')"
+
+# Create an app directory
+RUN mkdir /app
+RUN mkdir /volume_w_htmls
+RUN mkdir /volume
+RUN mkdir /volume2
+RUN mkdir /home/seluser/Downloads
+
+# Set the working directory
+WORKDIR /app
+
+# Copy bash script to Docker image
+COPY ./webscraping_combined_boxplots.sh /app/webscraping_combined_boxplots.sh
+
+# Make bash script executable
+RUN chmod +x /app/webscraping_combined_boxplots.sh
+
+ENTRYPOINT ["/app/webscraping_combined_boxplots.sh"]
+
+CMD ["param1", "param2", "param3", "param4", "param5", "param6", "param7", "param8", "param9", "param10", "param11", "param12", "param13", "param14", "param15", "param16", "param17", "param18", "param19"]
+
+
+Would you please advise?
+
+Thank you in advance for your help.
+
+Br,
+Lauren
+--
+Lauren J. Gerber
+Bioinformatician
+Precision Systems Medicine (Kallioniemi) Research Group iCAN   Digital Precision Cancer Medicine Flagship Institute for Molecular Medicine Finland (FIMM) Nordic EMBL Partnership for Molecular Medicine Biomedicum Helsinki 2U, D301a1 P.O. Box 20 (Tukholmankatu 8)
+FI-00014 University of Helsinki, Finland lauren.gerber at helsinki.fi
+
+	[[alternative HTML version deleted]]
+
+
+From |kry|ov @end|ng |rom d|@root@org  Tue Oct 15 15:38:28 2024
+From: |kry|ov @end|ng |rom d|@root@org (Ivan Krylov)
+Date: Tue, 15 Oct 2024 16:38:28 +0300
+Subject: [R-sig-Debian] R Package: 'ggbreak' in Dockerfile
+In-Reply-To: <AM0PR07MB5442702C93E56CB0DCDC03A8E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+References: <AM0PR07MB54427FFCF5D74433002C85EBE6782@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <AM0PR07MB544244AD8C0565F8C20B0139E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <AM0PR07MB5442702C93E56CB0DCDC03A8E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+Message-ID: <20241015163828.513fbd95@arachnoid>
+
+? Tue, 15 Oct 2024 13:14:49 +0000
+"Gerber, Lauren J" <lauren.gerber at helsinki.fi> ?????:
+
+> RUN R -e "BiocManager::install('ggbreak')"
+
+> ENTRYPOINT ["/app/webscraping_combined_boxplots.sh"]
+
+> Error in library(ggbreak) : there is no package called 'ggbreak'
+> Execution halted
+
+Does the container build process produce any kind of log output? What
+is the library path where the package ends up being installed by
+BiocManager?
+
+When you run R from webscraping_combined_boxplots.sh, do you set R_LIBS
+or R_LIBS_USER or any other related environment variables (documented
+in ?Startup) that may affect the set of libraries considered by R when
+loading the 'ggbreak' package? In particular, is the library where
+BiocManager::install('ggbreak') installs the package present in the
+list returned by .libPaths()?
+
+-- 
+Best regards,
+Ivan
+
+
+From edd @end|ng |rom deb|@n@org  Tue Oct 15 15:40:23 2024
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 15 Oct 2024 08:40:23 -0500
+Subject: [R-sig-Debian] R Package: 'ggbreak' in Dockerfile
+In-Reply-To: <DM4PR08MB8194C96D5409A8720D2DF955C2452@DM4PR08MB8194.namprd08.prod.outlook.com>
+References: <AM0PR07MB54427FFCF5D74433002C85EBE6782@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <AM0PR07MB544244AD8C0565F8C20B0139E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <AM0PR07MB5442702C93E56CB0DCDC03A8E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM4PR08MB8194C96D5409A8720D2DF955C2452@DM4PR08MB8194.namprd08.prod.outlook.com>
+Message-ID: <26382.28871.867148.237785@rob.eddelbuettel.com>
+
+
+On 15 October 2024 at 13:21, James W. MacDonald wrote:
+| Don't you have to load BiocManager before using it?
+
+Correct. The most minimal 'proof' I can offer is that after
+
+   docker run --rm -ti rocker/r2u:noble
+
+the one line 'two-command' wrapping both R CMD INSTALL for BiocManager plus
+calling BiocManager::install() for ggbreak, ie
+
+   time (install.r BiocManager; installBioc.r ggbreak)
+
+finishes in 16 seconds from my machine (on decent connectivity) installing 35
+(binary) packages in total on Ubuntu 24.04 ending in
+
+  [... stuff omitted ...]
+  
+  'getOption("repos")' replaces Bioconductor standard repositories, see
+  'help("repositories", package = "BiocManager")' for details.            
+   Replacement repositories:                                                                                
+       CRAN: https://cloud.r-project.org                                                                    
+   Bioconductor version 3.19 (BiocManager 1.30.25), R 4.4.1 (2024-06-14)
+   Installing package(s) 'BiocVersion', 'ggbreak'
+   
+   [... two screens full of logs omitted]
+   
+   Setting up r-cran-ggbreak (0.1.2-1.ca2404.1) ...
+
+   real    0m16.012s
+   user    0m8.481s
+   sys     0m2.769s
+
+This uses binaries thanks to r2u [1] but you can of course do it 'by hand'
+from source too if you ensure you have all your ducks in a row as all
+packages are in good standing at CRAN and BioConductor.  Doing it
+incrementally and carefully perusing your build logs should get you there.
+
+Dirk
+
+[1] More about r2u is at https://eddelbuettel.github.io/r2u/
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From |@uren@gerber @end|ng |rom he|@|nk|@||  Tue Oct 15 15:51:02 2024
+From: |@uren@gerber @end|ng |rom he|@|nk|@|| (Gerber, Lauren J)
+Date: Tue, 15 Oct 2024 13:51:02 +0000
+Subject: [R-sig-Debian] R Package: 'ggbreak' in Dockerfile
+In-Reply-To: <DM4PR08MB8194C96D5409A8720D2DF955C2452@DM4PR08MB8194.namprd08.prod.outlook.com>
+References: <AM0PR07MB54427FFCF5D74433002C85EBE6782@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <AM0PR07MB544244AD8C0565F8C20B0139E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <AM0PR07MB5442702C93E56CB0DCDC03A8E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM4PR08MB8194C96D5409A8720D2DF955C2452@DM4PR08MB8194.namprd08.prod.outlook.com>
+Message-ID: <AM0PR07MB5442FBA487693B7565781F1FE6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+
+Hi James,
+
+I just tried fixing my script and added library(BiocManager) before library(ggbreak), then rebuilt the image, and am still getting the same error.
+
+Error in library(ggbreak) : there is no package called 'ggbreak'
+Execution halted
+
+I will say that when I ran docker exec docker_container_id R -e "installed.packages()" I get the following:
+
+             Package        LibPath                         Version
+BiocManager  "BiocManager"  "/usr/local/lib/R/site-library" "1.30.25"
+BiocVersion  "BiocVersion"  "/usr/local/lib/R/site-library" "3.19.1"
+R6           "R6"           "/usr/local/lib/R/site-library" "2.5.1"
+RColorBrewer "RColorBrewer" "/usr/local/lib/R/site-library" "1.1-3"
+Rcpp         "Rcpp"         "/usr/local/lib/R/site-library" "1.0.13"
+cli          "cli"          "/usr/local/lib/R/site-library" "3.6.3"
+colorspace   "colorspace"   "/usr/local/lib/R/site-library" "2.1-1"
+digest       "digest"       "/usr/local/lib/R/site-library" "0.6.37"
+dplyr        "dplyr"        "/usr/local/lib/R/site-library" "1.1.4"
+fansi        "fansi"        "/usr/local/lib/R/site-library" "1.0.6"
+farver       "farver"       "/usr/local/lib/R/site-library" "2.1.2"
+generics     "generics"     "/usr/local/lib/R/site-library" "0.1.3"
+ggplot2      "ggplot2"      "/usr/local/lib/R/site-library" "3.5.1"
+ggrepel      "ggrepel"      "/usr/local/lib/R/site-library" "0.9.6"
+glue         "glue"         "/usr/local/lib/R/site-library" "1.8.0"
+gridGraphics "gridGraphics" "/usr/local/lib/R/site-library" "0.5-1"
+gtable       "gtable"       "/usr/local/lib/R/site-library" "0.3.5"
+isoband      "isoband"      "/usr/local/lib/R/site-library" "0.2.7"
+labeling     "labeling"     "/usr/local/lib/R/site-library" "0.4.3"
+lifecycle    "lifecycle"    "/usr/local/lib/R/site-library" "1.0.4"
+magrittr     "magrittr"     "/usr/local/lib/R/site-library" "2.0.3"
+munsell      "munsell"      "/usr/local/lib/R/site-library" "0.5.1"
+patchwork    "patchwork"    "/usr/local/lib/R/site-library" "1.3.0"
+pillar       "pillar"       "/usr/local/lib/R/site-library" "1.9.0"
+pkgconfig    "pkgconfig"    "/usr/local/lib/R/site-library" "2.0.3"
+rlang        "rlang"        "/usr/local/lib/R/site-library" "1.1.4"
+scales       "scales"       "/usr/local/lib/R/site-library" "1.3.0"
+stringi      "stringi"      "/usr/local/lib/R/site-library" "1.8.4"
+stringr      "stringr"      "/usr/local/lib/R/site-library" "1.5.1"
+tibble       "tibble"       "/usr/local/lib/R/site-library" "3.2.1"
+tidyselect   "tidyselect"   "/usr/local/lib/R/site-library" "1.2.1"
+utf8         "utf8"         "/usr/local/lib/R/site-library" "1.2.4"
+vctrs        "vctrs"        "/usr/local/lib/R/site-library" "0.6.5"
+viridisLite  "viridisLite"  "/usr/local/lib/R/site-library" "0.4.2"
+withr        "withr"        "/usr/local/lib/R/site-library" "3.0.1"
+KernSmooth   "KernSmooth"   "/usr/lib/R/library"            "2.23-24"
+MASS         "MASS"         "/usr/lib/R/library"            "7.3-61"
+Matrix       "Matrix"       "/usr/lib/R/library"            "1.6-5"
+base         "base"         "/usr/lib/R/library"            "4.4.1"
+boot         "boot"         "/usr/lib/R/library"            "1.3-30"
+class        "class"        "/usr/lib/R/library"            "7.3-22"
+cluster      "cluster"      "/usr/lib/R/library"            "2.1.6"
+codetools    "codetools"    "/usr/lib/R/library"            "0.2-19"
+compiler     "compiler"     "/usr/lib/R/library"            "4.4.1"
+datasets     "datasets"     "/usr/lib/R/library"            "4.4.1"
+foreign      "foreign"      "/usr/lib/R/library"            "0.8-86"
+grDevices    "grDevices"    "/usr/lib/R/library"            "4.4.1"
+graphics     "graphics"     "/usr/lib/R/library"            "4.4.1"
+grid         "grid"         "/usr/lib/R/library"            "4.4.1"
+lattice      "lattice"      "/usr/lib/R/library"            "0.22-5"
+methods      "methods"      "/usr/lib/R/library"            "4.4.1"
+mgcv         "mgcv"         "/usr/lib/R/library"            "1.9-1"
+nlme         "nlme"         "/usr/lib/R/library"            "3.1-165"
+nnet         "nnet"         "/usr/lib/R/library"            "7.3-19"
+parallel     "parallel"     "/usr/lib/R/library"            "4.4.1"
+rpart        "rpart"        "/usr/lib/R/library"            "4.1.23"
+spatial      "spatial"      "/usr/lib/R/library"            "7.3-15"
+splines      "splines"      "/usr/lib/R/library"            "4.4.1"
+stats        "stats"        "/usr/lib/R/library"            "4.4.1"
+stats4       "stats4"       "/usr/lib/R/library"            "4.4.1"
+survival     "survival"     "/usr/lib/R/library"            "3.7-0"
+tcltk        "tcltk"        "/usr/lib/R/library"            "4.4.1"
+tools        "tools"        "/usr/lib/R/library"            "4.4.1"
+utils        "utils"        "/usr/lib/R/library"            "4.4.1"
+
+
+As you can see, ggbreak is not there. Please let me know if you have any additional thoughts.
+
+Br,
+Lauren
+--
+Lauren J. Gerber
+Bioinformatician
+Precision Systems Medicine (Kallioniemi) Research Group
+iCAN ? Digital Precision Cancer Medicine Flagship
+Institute for Molecular Medicine Finland (FIMM)
+Nordic EMBL Partnership for Molecular Medicine
+Biomedicum Helsinki 2U, D301a1
+P.O. Box 20 (Tukholmankatu 8)
+FI-00014 University of Helsinki, Finland
+lauren.gerber at helsinki.fi
+
+From: James W. MacDonald <jmacdon at uw.edu>
+Date: Tuesday, 15. October 2024 at 16.22
+To: Gerber, Lauren J <lauren.gerber at helsinki.fi>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Cc: dirk at eddelbuettel.com <dirk at eddelbuettel.com>
+Subject: RE: R Package: 'ggbreak' in Dockerfile
+Don't you have to load BiocManager before using it?
+
+-----Original Message-----
+From: R-SIG-Debian <r-sig-debian-bounces at r-project.org> On Behalf Of Gerber, Lauren J
+Sent: Tuesday, October 15, 2024 9:15 AM
+To: r-sig-debian at r-project.org
+Cc: dirk at eddelbuettel.com
+Subject: Re: [R-sig-Debian] R Package: 'ggbreak' in Dockerfile
+
+Hi All,
+
+Does anyone have experience successfully installing and loading the R package  ggbreak  in a Docker container?
+
+I ask because I have successfully used the  ggbreak  package in a script outside the Docker container (on my local computer), but for some reason, I get the following error message when trying to load it using library(ggbreak) or library( ggbreak ) inside the same script that has been copied to the Docker container:
+
+Error in library(ggbreak) : there is no package called 'ggbreak'
+Execution halted
+
+I have tried installing  ggbreak  using Bioconductor, the  ggbreak  GitHub repo, and the standard install.packages() function in R, and none have helped. The image is building successfully; the issue is specifically when I run the container, which generates the above error message. I am wondering if I am missing some type of dependency upstream, or something else.
+
+Please see the contents of the Dockerfile below:
+
+FROM selenium/standalone-firefox:127.0
+
+USER root
+
+ENV SE_OFFLINE=true
+ENV PATH "$PATH:/usr/bin/geckodriver"
+ENV HOME "/root/"
+
+RUN apt-get update \
+    && apt install -y \
+    software-properties-common \
+    dirmngr \
+    gnupg2 \
+    wget \
+    build-essential \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    libasound2 \
+#    libasound2t64 \
+    python3 \
+    python3-pip \
+    python3.11-venv \
+#    python3.12-venv \
+    git-all \
+    lsb-release \
+    libxml-twig-perl \
+    libc6-dev \
+    vim \
+    && wget -q -O - https://urldefense.com/v3/__https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj1qvC-XQQ$<https://urldefense.com/v3/__https:/cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj1qvC-XQQ$>  \
+    | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+    && add-apt-repository -y "ppa:marutter/rrutter4.0"
+
+RUN apt-get update -y \
+    && apt-get install -y r-base\
+    && apt-get clean \
+    && apt-get purge \
+    && rm -rf /var/lib/apt/lists/* /tmp/*
+
+RUN pip3 install --upgrade pip wheel setuptools>5 RUN pip3 install pandas RUN pip3 install openpyxl RUN pip3 install selenium-firefox RUN pip3 install --no-cache-dir --upgrade rbase RUN pip3 install webdriver-manager RUN pip3 install 'rpy2>=3.5.12'
+RUN pip3 install xlsxwriter
+
+# Install additional R packages
+# RUN R -e "install.packages(c('tools', 'ggplot2', 'ggbreak', 'ggrepel', 'stringr'), repos='https://urldefense.com/v3/__http://cran.us.r-project.org__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj0ggNUwsA$ ')"
+RUN R -e "install.packages('tools', repos='https://urldefense.com/v3/__http://cran.us.r-project.org__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj0ggNUwsA$ ')"
+RUN R -e "install.packages('ggplot2', repos='https://urldefense.com/v3/__http://cran.us.r-project.org__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj0ggNUwsA$ ')"
+# RUN R -e "install.packages('ggbreak', repos='https://urldefense.com/v3/__http://cran.us.r-project.org__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj0ggNUwsA$ ')"
+# RUN R -e "install.packages('remotes', repos='https://urldefense.com/v3/__http://cran.rstudio.com/__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj1ACvaCfA$ ')"
+# RUN R -e "remotes::install_github('YuLab-SMU/ggbreak')"
+RUN R -e "install.packages('ggrepel', repos='https://urldefense.com/v3/__http://cran.us.r-project.org__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj0ggNUwsA$ ')"
+RUN R -e "install.packages('stringr', repos='https://urldefense.com/v3/__http://cran.us.r-project.org__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj0ggNUwsA$ ')"
+RUN R -e "install.packages('BiocManager', repos='https://urldefense.com/v3/__http://cran.us.r-project.org__;!!K-Hz7m0Vt54!j4qWJp3neZb132HVgGwaZ3mog2adnEcdl8X0OTb3wuUcviOwwus9E8QSsmCmKta8dZ-FmpzQOKC7qePXnj0ggNUwsA$ ')"
+RUN R -e "BiocManager::install('ggbreak')"
+
+# Create an app directory
+RUN mkdir /app
+RUN mkdir /volume_w_htmls
+RUN mkdir /volume
+RUN mkdir /volume2
+RUN mkdir /home/seluser/Downloads
+
+# Set the working directory
+WORKDIR /app
+
+# Copy bash script to Docker image
+COPY ./webscraping_combined_boxplots.sh /app/webscraping_combined_boxplots.sh
+
+# Make bash script executable
+RUN chmod +x /app/webscraping_combined_boxplots.sh
+
+ENTRYPOINT ["/app/webscraping_combined_boxplots.sh"]
+
+CMD ["param1", "param2", "param3", "param4", "param5", "param6", "param7", "param8", "param9", "param10", "param11", "param12", "param13", "param14", "param15", "param16", "param17", "param18", "param19"]
+
+
+Would you please advise?
+
+Thank you in advance for your help.
+
+Br,
+Lauren
+--
+Lauren J. Gerber
+Bioinformatician
+Precision Systems Medicine (Kallioniemi) Research Group iCAN   Digital Precision Cancer Medicine Flagship Institute for Molecular Medicine Finland (FIMM) Nordic EMBL Partnership for Molecular Medicine Biomedicum Helsinki 2U, D301a1 P.O. Box 20 (Tukholmankatu 8)
+FI-00014 University of Helsinki, Finland lauren.gerber at helsinki.fi
+
+        [[alternative HTML version deleted]]
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Tue Oct 15 16:11:37 2024
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 15 Oct 2024 09:11:37 -0500
+Subject: [R-sig-Debian] R Package: 'ggbreak' in Dockerfile
+In-Reply-To: <AM0PR07MB5442FBA487693B7565781F1FE6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+References: <AM0PR07MB54427FFCF5D74433002C85EBE6782@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <AM0PR07MB544244AD8C0565F8C20B0139E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <AM0PR07MB5442702C93E56CB0DCDC03A8E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM4PR08MB8194C96D5409A8720D2DF955C2452@DM4PR08MB8194.namprd08.prod.outlook.com>
+ <AM0PR07MB5442FBA487693B7565781F1FE6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+Message-ID: <26382.30745.69846.343300@rob.eddelbuettel.com>
+
+
+Lauren,
+
+On 15 October 2024 at 13:51, Gerber, Lauren J wrote:
+| I just tried fixing my script and added library(BiocManager) before library
+| (ggbreak), then rebuilt the image, and am still getting the same error.
+
+You need _two_ distinct commands. First
+
+    install.packages("BiocManager")
+
+and second once that is done use it to install 'ggbreak' from BioConductor
+
+    BiocManager::install("ggreak")
+
+The two wrappers I showed in my earlier email do this for you, from the
+command-line, which I find pleasant for both shell and docker use.
+Preferences of course vary but the key here is that a) ggbreak is a
+BioConductor package and b) you must use BiocManager::install() to install
+those.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From |@uren@gerber @end|ng |rom he|@|nk|@||  Tue Oct 15 16:33:14 2024
+From: |@uren@gerber @end|ng |rom he|@|nk|@|| (Gerber, Lauren J)
+Date: Tue, 15 Oct 2024 14:33:14 +0000
+Subject: [R-sig-Debian] R Package: 'ggbreak' in Dockerfile
+In-Reply-To: <26382.30745.69846.343300@rob.eddelbuettel.com>
+References: <AM0PR07MB54427FFCF5D74433002C85EBE6782@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <AM0PR07MB544244AD8C0565F8C20B0139E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <AM0PR07MB5442702C93E56CB0DCDC03A8E6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM4PR08MB8194C96D5409A8720D2DF955C2452@DM4PR08MB8194.namprd08.prod.outlook.com>
+ <AM0PR07MB5442FBA487693B7565781F1FE6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <26382.30745.69846.343300@rob.eddelbuettel.com>
+Message-ID: <AM0PR07MB544220E9BF3A5CF700CE350CE6452@AM0PR07MB5442.eurprd07.prod.outlook.com>
+
+Hi All,
+
+Thank you all for your help.
+
+I now added the line: library(BiocManager) to my script, as well as deleted the information below about the repo, which was causing an issue in my dockerfile:
+
+RUN R -e "install.packages('BiocManager', repos='http://cran.us.r-project.org')"
+RUN R -e "BiocManager::install('ggbreak')"
+
+I really appreciate that this forum exists.
+
+Br,
+Lauren
+--
+Lauren J. Gerber
+Bioinformatician
+Precision Systems Medicine (Kallioniemi) Research Group
+iCAN ? Digital Precision Cancer Medicine Flagship
+Institute for Molecular Medicine Finland (FIMM)
+Nordic EMBL Partnership for Molecular Medicine
+Biomedicum Helsinki 2U, D301a1
+P.O. Box 20 (Tukholmankatu 8)
+FI-00014 University of Helsinki, Finland
+lauren.gerber at helsinki.fi
+
+From: Dirk Eddelbuettel <edd at debian.org>
+Date: Tuesday, 15. October 2024 at 17.12
+To: Gerber, Lauren J <lauren.gerber at helsinki.fi>
+Cc: r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: R Package: 'ggbreak' in Dockerfile
+
+Lauren,
+
+On 15 October 2024 at 13:51, Gerber, Lauren J wrote:
+| I just tried fixing my script and added library(BiocManager) before library
+| (ggbreak), then rebuilt the image, and am still getting the same error.
+
+You need _two_ distinct commands. First
+
+    install.packages("BiocManager")
+
+and second once that is done use it to install 'ggbreak' from BioConductor
+
+    BiocManager::install("ggreak")
+
+The two wrappers I showed in my earlier email do this for you, from the
+command-line, which I find pleasant for both shell and docker use.
+Preferences of course vary but the key here is that a) ggbreak is a
+BioConductor package and b) you must use BiocManager::install() to install
+those.
+
+Dirk
+
+--
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+	[[alternative HTML version deleted]]
+
+

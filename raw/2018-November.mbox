@@ -1,0 +1,274 @@
+From tighe @ending from br@ndei@@edu  Wed Nov 28 18:37:02 2018
+From: tighe @ending from br@ndei@@edu (Elizabeth Tighe)
+Date: Wed, 28 Nov 2018 12:37:02 -0500
+Subject: [R-sig-Debian] Problem Upgrading to R 3.5 on Ubuntu 18.04
+Message-ID: <a071e0d4-057a-096a-aac7-4880ed49bf47@brandeis.edu>
+
+
+Somehow during the process of updating both Ubuntu and R to the latest 
+versions I ended up with a version of R 3.5 installed into the sudo 
+user's home directory with default libraries set to the sudo user home 
+directory as well (/home/uname/R/x86_64-pc-linux-gnu-library/3.5 rather 
+than usr/local/lib/R/site-library).
+
+I've tried to remove using sudo apt purge r-base r-base-dev and get a 
+message that the software is not installed. If I type "R" it opens 
+version 3.5.? If I go to Ubuntu's graphical interface as sudo user, 
+Software library, R is listed as installed and if I click on the 
+"Remove" button, nothing happens ...
+
+Any suggestions on how to expunge this rogue installation and start anew?
+
+Thanks,
+Liz
+
+-- 
+Elizabeth Tighe, Ph.D.
+Research Scientist
+Steinhardt Social Research Institute
+Brandeis University
+781.736.3824
+
+
+From edd @ending from debi@n@org  Wed Nov 28 19:12:06 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Wed, 28 Nov 2018 12:12:06 -0600
+Subject: [R-sig-Debian] Problem Upgrading to R 3.5 on Ubuntu 18.04
+In-Reply-To: <a071e0d4-057a-096a-aac7-4880ed49bf47@brandeis.edu>
+References: <a071e0d4-057a-096a-aac7-4880ed49bf47@brandeis.edu>
+Message-ID: <23550.55926.198314.956212@rob.eddelbuettel.com>
+
+
+On 28 November 2018 at 12:37, Elizabeth Tighe wrote:
+| Somehow during the process of updating both Ubuntu and R to the latest 
+| versions I ended up with a version of R 3.5 installed into the sudo 
+| user's home directory with default libraries set to the sudo user home 
+| directory as well (/home/uname/R/x86_64-pc-linux-gnu-library/3.5 rather 
+| than usr/local/lib/R/site-library).
+
+"Hate when that happens" :)
+ 
+| I've tried to remove using sudo apt purge r-base r-base-dev and get a 
+| message that the software is not installed. If I type "R" it opens 
+| version 3.5.? If I go to Ubuntu's graphical interface as sudo user, 
+| Software library, R is listed as installed and if I click on the 
+| "Remove" button, nothing happens ...
+| 
+| Any suggestions on how to expunge this rogue installation and start anew?
+
+What you had (and what you want, if I read the message correctly) is an
+explicit setting for (e.g.) .libPaths() which I like, but which I can't
+"enforce" in the package -- I once tried about 1 1/2 years ago and all broke
+loose because those who had ~/R/... path no longer saw it.
+
+So now again, and as it had been since the 2000s, this is governed by a
+setting in eg
+
+  /etc/R/Renviron.site
+
+which is a convenience symbolic link to
+
+  /usr/lib/R/etc/Renviron.site
+
+The file has comments, so see those.  My (personal) version just comments the
+settings out so that I get
+
+  R> .libPaths()
+  [1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"       "/usr/lib/R/library"           
+  R> 
+
+Now, the tricky bit that R allows half a dozen ways to influence this -- see
+help(Startup) in R for all the gory details.  So I fiddling with
+Renviron.site does not influence a fresh R session you will need to trace
+want on your box does -- "dotfiles" can be sourced from the current
+directory, the home directory, the /etc/ directory, ... and environment
+variables enter too.
+
+Keep us posted, hope this gets you started.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From tighe @ending from br@ndei@@edu  Wed Nov 28 20:49:13 2018
+From: tighe @ending from br@ndei@@edu (Elizabeth Tighe)
+Date: Wed, 28 Nov 2018 14:49:13 -0500
+Subject: [R-sig-Debian] Problem Upgrading to R 3.5 on Ubuntu 18.04
+In-Reply-To: <23550.55926.198314.956212@rob.eddelbuettel.com>
+References: <a071e0d4-057a-096a-aac7-4880ed49bf47@brandeis.edu>
+ <23550.55926.198314.956212@rob.eddelbuettel.com>
+Message-ID: <efffd557-5f18-db6d-2ff4-9bf04efa3cf3@brandeis.edu>
+
+
+Thanks Dirk!? The prior install and updates had been running fine for so 
+long I forgot all about the documentation on Renviron, Startup, etc.!? 
+Thanks.? Will changing the libPaths in Renviron.site help with the issue 
+that the operating system doesn't seem to recognize the installation re: 
+message that the "software is not installed" when I tried to remove it?? 
+Also what does it mean in your note when you say: "you will need to 
+trace want on your box does"?
+
+Thanks!
+
+Liz
+
+On 11/28/2018 1:12 PM, Dirk Eddelbuettel wrote:
+> On 28 November 2018 at 12:37, Elizabeth Tighe wrote:
+> | Somehow during the process of updating both Ubuntu and R to the latest
+> | versions I ended up with a version of R 3.5 installed into the sudo
+> | user's home directory with default libraries set to the sudo user home
+> | directory as well (/home/uname/R/x86_64-pc-linux-gnu-library/3.5 rather
+> | than usr/local/lib/R/site-library).
+>
+> "Hate when that happens" :)
+>   
+> | I've tried to remove using sudo apt purge r-base r-base-dev and get a
+> | message that the software is not installed. If I type "R" it opens
+> | version 3.5.? If I go to Ubuntu's graphical interface as sudo user,
+> | Software library, R is listed as installed and if I click on the
+> | "Remove" button, nothing happens ...
+> |
+> | Any suggestions on how to expunge this rogue installation and start anew?
+>
+> What you had (and what you want, if I read the message correctly) is an
+> explicit setting for (e.g.) .libPaths() which I like, but which I can't
+> "enforce" in the package -- I once tried about 1 1/2 years ago and all broke
+> loose because those who had ~/R/... path no longer saw it.
+>
+> So now again, and as it had been since the 2000s, this is governed by a
+> setting in eg
+>
+>    /etc/R/Renviron.site
+>
+> which is a convenience symbolic link to
+>
+>    /usr/lib/R/etc/Renviron.site
+>
+> The file has comments, so see those.  My (personal) version just comments the
+> settings out so that I get
+>
+>    R> .libPaths()
+>    [1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"       "/usr/lib/R/library"
+>    R>
+>
+> Now, the tricky bit that R allows half a dozen ways to influence this -- see
+> help(Startup) in R for all the gory details.  So I fiddling with
+> Renviron.site does not influence a fresh R session you will need to trace
+> want on your box does -- "dotfiles" can be sourced from the current
+> directory, the home directory, the /etc/ directory, ... and environment
+> variables enter too.
+>
+> Keep us posted, hope this gets you started.
+>
+> Dirk
+>
+
+-- 
+Elizabeth Tighe, Ph.D.
+Research Scientist
+Steinhardt Social Research Institute
+Brandeis University
+781.736.3824
+
+
+From edd @ending from debi@n@org  Wed Nov 28 21:27:58 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Wed, 28 Nov 2018 14:27:58 -0600
+Subject: [R-sig-Debian] Problem Upgrading to R 3.5 on Ubuntu 18.04
+In-Reply-To: <efffd557-5f18-db6d-2ff4-9bf04efa3cf3@brandeis.edu>
+References: <a071e0d4-057a-096a-aac7-4880ed49bf47@brandeis.edu>
+ <23550.55926.198314.956212@rob.eddelbuettel.com>
+ <efffd557-5f18-db6d-2ff4-9bf04efa3cf3@brandeis.edu>
+Message-ID: <23550.64078.498166.171070@rob.eddelbuettel.com>
+
+
+On 28 November 2018 at 14:49, Elizabeth Tighe wrote:
+| 
+| Thanks Dirk!? The prior install and updates had been running fine for so 
+| long I forgot all about the documentation on Renviron, Startup, etc.!? 
+| Thanks.? Will changing the libPaths in Renviron.site help with the issue 
+| that the operating system doesn't seem to recognize the installation re: 
+| message that the "software is not installed" when I tried to remove it?? 
+| Also what does it mean in your note when you say: "you will need to 
+| trace want on your box does"?
+
+Sorry bad habit of typing replies when doing something else and not
+proofreading before sending -- my bad.  Meant to say that you may have to
+chase where you system (re-)sets and overrides in case changing the value
+in Renviron.site does not propagate.  Also make sure you test on fresh
+sessions so something like
+
+   edit somefile
+   Rscript -e 'print(.libPaths())'
+
+is recommended as the file change will never alter a running session.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @ending from debi@n@org  Thu Nov 29 16:30:27 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Thu, 29 Nov 2018 09:30:27 -0600
+Subject: [R-sig-Debian] MRutter PPA versioning issue, again
+Message-ID: <23552.1555.999548.120017@rob.eddelbuettel.com>
+
+
+Michael,
+
+ESS broke again on my laptop after I upgraded to Ubuntu 18.10.  The elpa-ess
+package seems to be provided multiple times, sadly the one with xenial
+(16.04) in its name wins ... and breaks the setup.  I one for cosmic, I had
+one from bionic (18.04), but because the names 'wrapped' the 'x' wins over
+'b' and 'c'.  We had talked about that in the past, it would really be
+preferably to use numbers.
+
+I am not sure how to correct this without a rebuild. Fut for starters I think
+you need to look at what gets mirrored because the xenial version should
+probably not be here:
+  http://cloud.r-project.org/bin/linux/ubuntu/cosmic-cran35/
+
+Thanks again for you do here. It's a tremendous help.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From je@udide @ending from gm@il@com  Thu Nov 29 16:42:00 2018
+From: je@udide @ending from gm@il@com (Oloko Ayodele Oloko)
+Date: Thu, 29 Nov 2018 16:42:00 +0100
+Subject: [R-sig-Debian] God punishment
+Message-ID: <CAJvHvrNmOsx0sS8JKPfJuRj-ui3HWBw4U-H=VH9w0wK_ETOkyw@mail.gmail.com>
+
+May God deal with you in a way you will never forget for using my e-mail
+for your R transaction in Jesus name. Amen........
+
+Kind Regards,
+Ayodele
+
+	[[alternative HTML version deleted]]
+
+
+From edd @ending from debi@n@org  Thu Nov 29 16:49:40 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Thu, 29 Nov 2018 09:49:40 -0600
+Subject: [R-sig-Debian] God punishment
+In-Reply-To: <CAJvHvrNmOsx0sS8JKPfJuRj-ui3HWBw4U-H=VH9w0wK_ETOkyw@mail.gmail.com>
+References: <CAJvHvrNmOsx0sS8JKPfJuRj-ui3HWBw4U-H=VH9w0wK_ETOkyw@mail.gmail.com>
+Message-ID: <23552.2708.807221.498250@rob.eddelbuettel.com>
+
+
+That user has been unsubscribed.
+
+Dirk, with his list admin hat on
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+

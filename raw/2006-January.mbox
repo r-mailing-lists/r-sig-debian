@@ -1,0 +1,234 @@
+From edd at debian.org  Mon Jan 16 17:09:15 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 16 Jan 2006 10:09:15 -0600
+Subject: [R-sig-Debian] New Debian packages using /usr/share/R as well as
+	/usr/lib/R
+Message-ID: <17355.50475.404781.86494@basebud.nulle.part>
+
+
+R always had all its files below /usr/lib/R, which isn't perfectly in line
+with the Filesystem Hierarchy Standard (FHS). We did get some bug reports on
+this, and I tried to argue for a while that this was consistent upstream
+behaviour etc pp I would expect the issue to come back again.
+
+Brian Ripley had made some changes to R a few months ago which allow to split
+doc/, include/ and share/ off into /usr/share/R.  The set of R 2.2.1-3
+packages now available at
+	http://dirk.eddelbuettel.com/code/debian/
+uses this. Ans while "It works for me" so far, I would appreciate additional
+testing.  
+
+Thanks, Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From dmbates at gmail.com  Mon Jan 16 17:29:32 2006
+From: dmbates at gmail.com (Douglas Bates)
+Date: Mon, 16 Jan 2006 10:29:32 -0600
+Subject: [R-sig-Debian] New Debian packages using /usr/share/R as well
+	as /usr/lib/R
+In-Reply-To: <17355.50475.404781.86494@basebud.nulle.part>
+References: <17355.50475.404781.86494@basebud.nulle.part>
+Message-ID: <40e66e0b0601160829u1db1f2b7n7dc3e84d96fc258e@mail.gmail.com>
+
+I should know this but ...
+
+Is it possible to add some version of the URL you give below to
+/etc/apt/sources.list so that I can use
+
+wajig build r-base-core
+
+to download and build the new package?
+
+On 1/16/06, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> R always had all its files below /usr/lib/R, which isn't perfectly in line
+> with the Filesystem Hierarchy Standard (FHS). We did get some bug reports on
+> this, and I tried to argue for a while that this was consistent upstream
+> behaviour etc pp I would expect the issue to come back again.
+>
+> Brian Ripley had made some changes to R a few months ago which allow to split
+> doc/, include/ and share/ off into /usr/share/R.  The set of R 2.2.1-3
+> packages now available at
+>         http://dirk.eddelbuettel.com/code/debian/
+> uses this. Ans while "It works for me" so far, I would appreciate additional
+> testing.
+>
+> Thanks, Dirk
+>
+> --
+> Hell, there are no rules here - we're trying to accomplish something.
+>                                                   -- Thomas A. Edison
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From edd at debian.org  Mon Jan 16 17:52:42 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 16 Jan 2006 10:52:42 -0600
+Subject: [R-sig-Debian] New Debian packages using /usr/share/R as well
+	as /usr/lib/R
+In-Reply-To: <40e66e0b0601160829u1db1f2b7n7dc3e84d96fc258e@mail.gmail.com>
+References: <17355.50475.404781.86494@basebud.nulle.part>
+	<40e66e0b0601160829u1db1f2b7n7dc3e84d96fc258e@mail.gmail.com>
+Message-ID: <17355.53082.694322.773824@basebud.nulle.part>
+
+
+Doug,
+
+Sorry, forgot to say that this isn't apt-get get'able.
+
+On 16 January 2006 at 10:29, Douglas Bates wrote:
+| I should know this but ...
+| 
+| Is it possible to add some version of the URL you give below to
+| /etc/apt/sources.list so that I can use
+| 
+| wajig build r-base-core
+| 
+| to download and build the new package?
+
+Possibly, but someone has to tell me how to build Packages* and Releases*
+files. 
+
+In this case, could you just fetch the .diff.gz by hand and apply it to
+r-base_2.2.1.orig.tar.gz by hand?
+
+I also forgot to show the draft changelog, now below.
+
+Regards, Dirk
+
+
+r-base (2.2.1-3) unstable; urgency=low
+
+  * Re-wrote parts of debian/* to take advantage of recent upstream changes
+    permitting installation of (most) files outside of /usr/lib/R;
+  * debian/rules: Use configure options 
+      --datadir=/usr/share/R/share and 
+      --includedir=/usr/share/R/include
+    as well as 'make install' targets
+      rsharedir, rincludedir, and rdocdir
+  * debian/r-{base-html.{files,dirs}, doc-pdf.{files,links},
+    doc-html.{file,links}}:
+    updated accordingly to refer to /usr/share/R/* instead of /usr/lib/R
+  * Architecture-independent files of r-base-core (apart from the actual
+    default packages below /usr/lib/R/library/) now reside below
+    /usr/share/R					(Closes: #300765)
+  
+  * debian/control: Added Build-Depends: for libx11-dev, libxt-dev, x-dev
+    (though the existing Build-Depends on tcl/tk effectively cover this).
+    Credits for the suggestion go to the xlibs-split-check script .
+
+ -- Dirk Eddelbuettel <edd at debian.org>  Sun, 15 Jan 2006 19:11:34 -0600
+
+
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From edd at debian.org  Mon Jan 16 18:33:47 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 16 Jan 2006 11:33:47 -0600
+Subject: [R-sig-Debian] New Debian packages using /usr/share/R as
+	well	as /usr/lib/R
+In-Reply-To: <1137431372.6968.2.camel@pallas.pp.htv.fi>
+References: <17355.50475.404781.86494@basebud.nulle.part>
+	<1137431372.6968.2.camel@pallas.pp.htv.fi>
+Message-ID: <17355.55547.142526.776422@basebud.nulle.part>
+
+
+(CCing back to the list)
+
+On 16 January 2006 at 19:09, Markus Jantti wrote:
+| Hi -- 
+| 
+| thanks for the good work. Am happy to test.
+| 
+| Just downloaded and installed the files. It seems that (compared to
+| previous releases) 
+| 
+| /etc/R/Renviron
+| 
+| lacks R_LIBS:
+| 
+| pallas:~# diff /etc/R/Renviron /etc/R/Renviron.dpkg-old
+| 39a40,43
+| > # edd Apr 2003  Allow local install in /usr/local, also add a
+| directory for
+| > #               Debian packaged CRAN packages, and finally the default
+| dir
+| > R_LIBS=
+| ${R_LIBS-'/usr/local/lib/R/site-library:/usr/lib/R/site-library:/usr/lib/R/library'}
+| >
+| 
+| (I delibarately let dpkg replace my old config files.)
+
+Thanks for catching that!   I'll try to fix this, that was not intentional.
+
+Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From edd at debian.org  Mon Jan 16 18:59:56 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 16 Jan 2006 11:59:56 -0600
+Subject: [R-sig-Debian] New Debian packages using /usr/share/R
+	as	well	as /usr/lib/R
+In-Reply-To: <17355.55547.142526.776422@basebud.nulle.part>
+References: <17355.50475.404781.86494@basebud.nulle.part>
+	<1137431372.6968.2.camel@pallas.pp.htv.fi>
+	<17355.55547.142526.776422@basebud.nulle.part>
+Message-ID: <17355.57116.595514.901583@basebud.nulle.part>
+
+
+On 16 January 2006 at 11:33, Dirk Eddelbuettel wrote:
+| On 16 January 2006 at 19:09, Markus Jantti wrote:
+| | Just downloaded and installed the files. It seems that (compared to
+| | previous releases) 
+| | 
+| | /etc/R/Renviron
+| | 
+| | lacks R_LIBS:
+| | 
+| | pallas:~# diff /etc/R/Renviron /etc/R/Renviron.dpkg-old
+| | 39a40,43
+| | > # edd Apr 2003  Allow local install in /usr/local, also add a
+| | directory for
+| | > #               Debian packaged CRAN packages, and finally the default
+| | dir
+| | > R_LIBS=
+| | ${R_LIBS-'/usr/local/lib/R/site-library:/usr/lib/R/site-library:/usr/lib/R/library'}
+| | >
+| | 
+| | (I delibarately let dpkg replace my old config files.)
+| 
+| Thanks for catching that!   I'll try to fix this, that was not intentional.
+
+Mistake on my part; I tried getting /usr/lib/R/etc into /usr/share/R/etc
+but that isn't supported yet upstream. I had moved out the patch for R_LIBS
+and while I moved it back, it wasn't uncommented.
+
+Files in   	http://dirk.eddelbuettel.com/code/debian/
+have been updated, but they still aren't apt-get'able.
+
+Thanks again to Markus for catching this.
+
+Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+

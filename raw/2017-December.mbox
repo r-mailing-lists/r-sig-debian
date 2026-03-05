@@ -1,0 +1,621 @@
+From goran.brostrom at umu.se  Fri Dec  1 19:55:15 2017
+From: goran.brostrom at umu.se (=?UTF-8?Q?G=c3=b6ran_Brostr=c3=b6m?=)
+Date: Fri, 1 Dec 2017 19:55:15 +0100
+Subject: [R-sig-Debian] undefined symbol: sgemv_thread_n
+Message-ID: <0f88acce-f967-702e-8d6a-529012ca1ab4@umu.se>
+
+Hello,
+
+the following is a part of a question asked on R-help. I realized that 
+it is better suited for asking here. Apologies for the cross-posting!
+
+I'm on Ubuntu artful, and upgraded with 'apt'. Then
+
+----------------------------------------------------------------
+goran at M6800:~/src/R-3.4.3$ /usr/bin/R
+/usr/lib/R/bin/exec/R: symbol lookup error: 
+/usr/lib/x86_64-linux-gnu/libblas.so.3: undefined symbol: sgemv_thread_n
+----------------------------------------------------------------
+
+Never seen this before. What can I do?
+
+G?ran Brostr?m
+
+
+From edd at debian.org  Fri Dec  1 20:24:58 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 1 Dec 2017 13:24:58 -0600
+Subject: [R-sig-Debian] undefined symbol: sgemv_thread_n
+In-Reply-To: <0f88acce-f967-702e-8d6a-529012ca1ab4@umu.se>
+References: <0f88acce-f967-702e-8d6a-529012ca1ab4@umu.se>
+Message-ID: <23073.44170.828521.20700@bud.eddelbuettel.com>
+
+
+On 1 December 2017 at 19:55, G?ran Brostr?m wrote:
+| Hello,
+| 
+| the following is a part of a question asked on R-help. I realized that 
+| it is better suited for asking here. Apologies for the cross-posting!
+| 
+| I'm on Ubuntu artful, and upgraded with 'apt'. Then
+| 
+| ----------------------------------------------------------------
+| goran at M6800:~/src/R-3.4.3$ /usr/bin/R
+| /usr/lib/R/bin/exec/R: symbol lookup error: 
+| /usr/lib/x86_64-linux-gnu/libblas.so.3: undefined symbol: sgemv_thread_n
+| ----------------------------------------------------------------
+| 
+| Never seen this before. What can I do?
+
+At home:
+
+edd at bud:~$ COLUMNS=70 dpkg -l | grep blas
+ii  libblas-common 3.7.0-1      amd64        Dependency package for all BLAS i
+ii  libblas-dev    3.7.0-1      amd64        Basic Linear Algebra Subroutines 
+ii  libblas3       3.7.0-1      amd64        Basic Linear Algebra Reference im
+ii  libopenblas-ba 0.2.19-2     amd64        Optimized BLAS (linear algebra) l
+edd at bud:~$
+
+At work:
+........ at .....:~$ COLUMNS=70 dpkg -l | grep blas
+ii  libblas-common 3.7.0-1      amd64        Dependency package for all BLAS i
+ii  libblas-dev    3.7.0-1      amd64        Basic Linear Algebra Subroutines 
+ii  libblas3       3.7.0-1      amd64        Basic Linear Algebra Reference im
+ii  libcublas8.0:a 8.0.44-3     amd64        NVIDIA cuBLAS Library
+ii  libnvblas8.0:a 8.0.44-3     amd64        NVBLAS runtime library
+ii  libopenblas-ba 0.2.19-2     amd64        Optimized BLAS (linear algebra) l
+ii  libopenblas-de 0.2.19-2     amd64        Optimized BLAS (linear algebra) l
+........ at .....:~$ 
+
+In other words, I tend to use standard blas or openblas or atlas (but
+seemingly less often).  Both are 17.04, but that doesn't matter as they both
+have been updated regularly over the years.
+
+You must have gotten out of whack between what compiled R, and what runs it.
+Did you by chance compile R 3.4.3 locally?
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd at debian.org  Fri Dec  1 20:33:39 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 1 Dec 2017 13:33:39 -0600
+Subject: [R-sig-Debian] undefined symbol: sgemv_thread_n
+In-Reply-To: <23073.44170.828521.20700@bud.eddelbuettel.com>
+References: <0f88acce-f967-702e-8d6a-529012ca1ab4@umu.se>
+ <23073.44170.828521.20700@bud.eddelbuettel.com>
+Message-ID: <23073.44691.939554.380725@bud.eddelbuettel.com>
+
+
+On 1 December 2017 at 13:24, Dirk Eddelbuettel wrote:
+| 
+| On 1 December 2017 at 19:55, G?ran Brostr?m wrote:
+| | Hello,
+| | 
+| | the following is a part of a question asked on R-help. I realized that 
+| | it is better suited for asking here. Apologies for the cross-posting!
+| | 
+| | I'm on Ubuntu artful, and upgraded with 'apt'. Then
+| | 
+| | ----------------------------------------------------------------
+| | goran at M6800:~/src/R-3.4.3$ /usr/bin/R
+| | /usr/lib/R/bin/exec/R: symbol lookup error: 
+| | /usr/lib/x86_64-linux-gnu/libblas.so.3: undefined symbol: sgemv_thread_n
+| | ----------------------------------------------------------------
+| | 
+| | Never seen this before. What can I do?
+| 
+| At home:
+| 
+| edd at bud:~$ COLUMNS=70 dpkg -l | grep blas
+| ii  libblas-common 3.7.0-1      amd64        Dependency package for all BLAS i
+| ii  libblas-dev    3.7.0-1      amd64        Basic Linear Algebra Subroutines 
+| ii  libblas3       3.7.0-1      amd64        Basic Linear Algebra Reference im
+| ii  libopenblas-ba 0.2.19-2     amd64        Optimized BLAS (linear algebra) l
+| edd at bud:~$
+| 
+| At work:
+| ........ at .....:~$ COLUMNS=70 dpkg -l | grep blas
+| ii  libblas-common 3.7.0-1      amd64        Dependency package for all BLAS i
+| ii  libblas-dev    3.7.0-1      amd64        Basic Linear Algebra Subroutines 
+| ii  libblas3       3.7.0-1      amd64        Basic Linear Algebra Reference im
+| ii  libcublas8.0:a 8.0.44-3     amd64        NVIDIA cuBLAS Library
+| ii  libnvblas8.0:a 8.0.44-3     amd64        NVBLAS runtime library
+| ii  libopenblas-ba 0.2.19-2     amd64        Optimized BLAS (linear algebra) l
+| ii  libopenblas-de 0.2.19-2     amd64        Optimized BLAS (linear algebra) l
+| ........ at .....:~$ 
+| 
+| In other words, I tend to use standard blas or openblas or atlas (but
+| seemingly less often).  Both are 17.04, but that doesn't matter as they both
+| have been updated regularly over the years.
+| 
+| You must have gotten out of whack between what compiled R, and what runs it.
+| Did you by chance compile R 3.4.3 locally?
+
+And R 3.4.3 is now as a .deb on the CRAN mirrors and starts as expected as
+well.  So your troubles may well be home-grown...
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From goran.brostrom at umu.se  Fri Dec  1 21:12:04 2017
+From: goran.brostrom at umu.se (=?UTF-8?Q?G=c3=b6ran_Brostr=c3=b6m?=)
+Date: Fri, 1 Dec 2017 21:12:04 +0100
+Subject: [R-sig-Debian] undefined symbol: sgemv_thread_n
+In-Reply-To: <23073.44170.828521.20700@bud.eddelbuettel.com>
+References: <0f88acce-f967-702e-8d6a-529012ca1ab4@umu.se>
+ <23073.44170.828521.20700@bud.eddelbuettel.com>
+Message-ID: <0041cfeb-f289-860c-1736-5347ce772ddb@umu.se>
+
+
+
+Den 2017-12-01 kl. 20:24, skrev Dirk Eddelbuettel:
+>
+> On 1 December 2017 at 19:55, G?ran Brostr?m wrote:
+> | Hello,
+> |
+> | the following is a part of a question asked on R-help. I realized that
+> | it is better suited for asking here. Apologies for the cross-posting!
+> |
+> | I'm on Ubuntu artful, and upgraded with 'apt'. Then
+> |
+> | ----------------------------------------------------------------
+> | goran at M6800:~/src/R-3.4.3$ /usr/bin/R
+> | /usr/lib/R/bin/exec/R: symbol lookup error:
+> | /usr/lib/x86_64-linux-gnu/libblas.so.3: undefined symbol: sgemv_thread_n
+> | ----------------------------------------------------------------
+> |
+> | Never seen this before. What can I do?
+>
+> At home:
+>
+> edd at bud:~$ COLUMNS=70 dpkg -l | grep blas
+> ii  libblas-common 3.7.0-1      amd64        Dependency package for all BLAS i
+> ii  libblas-dev    3.7.0-1      amd64        Basic Linear Algebra Subroutines
+> ii  libblas3       3.7.0-1      amd64        Basic Linear Algebra Reference im
+> ii  libopenblas-ba 0.2.19-2     amd64        Optimized BLAS (linear algebra) l
+> edd at bud:~$
+>
+> At work:
+> ........ at .....:~$ COLUMNS=70 dpkg -l | grep blas
+> ii  libblas-common 3.7.0-1      amd64        Dependency package for all BLAS i
+> ii  libblas-dev    3.7.0-1      amd64        Basic Linear Algebra Subroutines
+> ii  libblas3       3.7.0-1      amd64        Basic Linear Algebra Reference im
+> ii  libcublas8.0:a 8.0.44-3     amd64        NVIDIA cuBLAS Library
+> ii  libnvblas8.0:a 8.0.44-3     amd64        NVBLAS runtime library
+> ii  libopenblas-ba 0.2.19-2     amd64        Optimized BLAS (linear algebra) l
+> ii  libopenblas-de 0.2.19-2     amd64        Optimized BLAS (linear algebra) l
+> ........ at .....:~$
+>
+> In other words, I tend to use standard blas or openblas or atlas (but
+> seemingly less often).  Both are 17.04, but that doesn't matter as they both
+> have been updated regularly over the years.
+>
+> You must have gotten out of whack between what compiled R, and what runs it.
+> Did you by chance compile R 3.4.3 locally?
+
+Yes, first I installed R-3.4.3 from source and it started OK, but when I 
+tried
+
+ > library(eha)
+
+I got the error above.
+
+So I installed by apt, and then I got the above.
+
+This is what I always have done, installing both from source and the 
+ubuntu versions via 'apt upgrade', and it has always worked without 
+problems. What has changed now? And how can I get out of this?
+
+G?ran
+>
+> Dirk
+>
+
+
+From edd at debian.org  Fri Dec  1 21:35:28 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 1 Dec 2017 14:35:28 -0600
+Subject: [R-sig-Debian] undefined symbol: sgemv_thread_n
+In-Reply-To: <0041cfeb-f289-860c-1736-5347ce772ddb@umu.se>
+References: <0f88acce-f967-702e-8d6a-529012ca1ab4@umu.se>
+ <23073.44170.828521.20700@bud.eddelbuettel.com>
+ <0041cfeb-f289-860c-1736-5347ce772ddb@umu.se>
+Message-ID: <23073.48400.792433.961714@bud.eddelbuettel.com>
+
+
+On 1 December 2017 at 21:12, G?ran Brostr?m wrote:
+| Yes, first I installed R-3.4.3 from source and it started OK, but when I 
+| tried
+| 
+|  > library(eha)
+| 
+| I got the error above.
+
+At that point I suggest to reinstall eha, and/or do 'ldd' on its shared
+library to find out what it thinks it is pointing to.  The 'threaded gemv'
+must be coming from somewhere.
+ 
+| So I installed by apt, and then I got the above.
+
+You may now have several R's on your system so you need to check your path.
+Remember /usr/local generally wins so even if you have a self-compiled R and
+a packaged on 'R' will probably get you /usr/local/bin/R.
+ 
+| This is what I always have done, installing both from source and the 
+| ubuntu versions via 'apt upgrade', and it has always worked without 
+| problems. What has changed now? And how can I get out of this?
+
+We cannot tell. This is somewhat incomplete information. It appears to be
+related to your computer.
+
+You may be tired of me saying 'Docker' but it gives you a clean room, akin to
+installing on a fresh empty machine.  Useful for debugging.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From goran.brostrom at umu.se  Fri Dec  1 23:24:39 2017
+From: goran.brostrom at umu.se (=?UTF-8?Q?G=c3=b6ran_Brostr=c3=b6m?=)
+Date: Fri, 1 Dec 2017 23:24:39 +0100
+Subject: [R-sig-Debian] undefined symbol: sgemv_thread_n
+In-Reply-To: <0041cfeb-f289-860c-1736-5347ce772ddb@umu.se>
+References: <0f88acce-f967-702e-8d6a-529012ca1ab4@umu.se>
+ <23073.44170.828521.20700@bud.eddelbuettel.com>
+ <0041cfeb-f289-860c-1736-5347ce772ddb@umu.se>
+Message-ID: <66a2de40-8372-f6e6-7548-b63cc0b9b2f7@umu.se>
+
+Dirk,
+
+thanks for your help. At work I have (ubuntu 16.04):
+
+ii  libblas-common 3.6.0-2ubuntu2  amd64        Dependency package for 
+all BLAS implementations
+ii  libblas-dev    3.6.0-2ubuntu2  amd64        Basic Linear Algebra 
+Subroutines 3, static library
+ii  libblas3       3.6.0-2ubuntu2  amd64        Basic Linear Algebra 
+Reference implementations, shared library
+
+and everything works before and after upgrading (/usr/bin/R). However, 
+at home (ubuntu 17.10):
+
+goran at M6800:~$ dpkg -l | grep blas
+ii  libblas-dev:amd64 3.7.1-3ubuntu2   amd64        Basic Linear Algebra 
+Subroutines 3, static library
+ii  libblas3:amd64    3.7.1-3ubuntu2   amd64        Basic Linear Algebra 
+Reference implementations, shared library
+ii  libopenblas-base:amd64  0.2.20+ds-4  amd64        Optimized BLAS 
+(linear algebra) library (shared library)
+
+and it worked before upgrade but not after. Seems to be missing 
+'libblas-common'. So I try to install:
+
+goran at M6800:~$ sudo apt install libblas-common
+[sudo] password for goran:
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+E: Unable to locate package libblas-common
+
+So there is no such package in 17.10, but I have it in 16.04. What can 
+be the replacement? Maybe I should downgrade to R-3.4.2, which works, 
+but it doesn't feel right.
+
+G?ran
+
+On 2017-12-01 21:12, G?ran Brostr?m wrote:
+> 
+> 
+> Den 2017-12-01 kl. 20:24, skrev Dirk Eddelbuettel:
+>> 
+>> On 1 December 2017 at 19:55, G?ran Brostr?m wrote: | Hello, | | the
+>> following is a part of a question asked on R-help. I realized that 
+>> | it is better suited for asking here. Apologies for the
+>> cross-posting! | | I'm on Ubuntu artful, and upgraded with 'apt'.
+>> Then | |
+>> ---------------------------------------------------------------- |
+>> goran at M6800:~/src/R-3.4.3$ /usr/bin/R | /usr/lib/R/bin/exec/R:
+>> symbol lookup error: | /usr/lib/x86_64-linux-gnu/libblas.so.3:
+>> undefined symbol: sgemv_thread_n |
+>> ---------------------------------------------------------------- | 
+>> | Never seen this before. What can I do?
+>> 
+>> At home:
+>> 
+>> edd at bud:~$ COLUMNS=70 dpkg -l | grep blas ii  libblas-common
+>> 3.7.0-1      amd64        Dependency package for all BLAS i ii
+>> libblas-dev    3.7.0-1      amd64        Basic Linear Algebra 
+>> Subroutines ii  libblas3       3.7.0-1      amd64        Basic
+>> Linear Algebra Reference im ii  libopenblas-ba 0.2.19-2     amd64
+>> Optimized BLAS (linear algebra) l edd at bud:~$
+>> 
+>> At work: ........ at .....:~$ COLUMNS=70 dpkg -l | grep blas ii
+>> libblas-common 3.7.0-1      amd64        Dependency package for all
+>> BLAS i ii  libblas-dev    3.7.0-1      amd64        Basic Linear
+>> Algebra Subroutines ii  libblas3       3.7.0-1      amd64
+>> Basic Linear Algebra Reference im ii  libcublas8.0:a 8.0.44-3
+>> amd64        NVIDIA cuBLAS Library ii  libnvblas8.0:a 8.0.44-3
+>> amd64        NVBLAS runtime library ii  libopenblas-ba 0.2.19-2
+>> amd64        Optimized BLAS (linear algebra) l ii  libopenblas-de
+>> 0.2.19-2     amd64        Optimized BLAS (linear algebra) l 
+>> ........ at .....:~$
+>> 
+>> In other words, I tend to use standard blas or openblas or atlas
+>> (but seemingly less often).  Both are 17.04, but that doesn't
+>> matter as they both have been updated regularly over the years.
+>> 
+>> You must have gotten out of whack between what compiled R, and what
+>>  runs it. Did you by chance compile R 3.4.3 locally?
+> 
+> Yes, first I installed R-3.4.3 from source and it started OK, but
+> when I tried
+> 
+>> library(eha)
+> 
+> I got the error above.
+> 
+> So I installed by apt, and then I got the above.
+> 
+> This is what I always have done, installing both from source and the
+>  ubuntu versions via 'apt upgrade', and it has always worked without
+>  problems. What has changed now? And how can I get out of this?
+> 
+> G?ran
+>> 
+>> Dirk
+>> 
+> 
+> _______________________________________________ R-SIG-Debian mailing
+> list R-SIG-Debian at r-project.org 
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From edd at debian.org  Fri Dec  1 23:33:31 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 1 Dec 2017 16:33:31 -0600
+Subject: [R-sig-Debian] undefined symbol: sgemv_thread_n
+In-Reply-To: <66a2de40-8372-f6e6-7548-b63cc0b9b2f7@umu.se>
+References: <0f88acce-f967-702e-8d6a-529012ca1ab4@umu.se>
+ <23073.44170.828521.20700@bud.eddelbuettel.com>
+ <0041cfeb-f289-860c-1736-5347ce772ddb@umu.se>
+ <66a2de40-8372-f6e6-7548-b63cc0b9b2f7@umu.se>
+Message-ID: <23073.55483.454113.408268@bud.eddelbuettel.com>
+
+
+Hi there,
+
+On 1 December 2017 at 23:24, G?ran Brostr?m wrote:
+| Dirk,
+| 
+| thanks for your help. At work I have (ubuntu 16.04):
+| 
+| ii  libblas-common 3.6.0-2ubuntu2  amd64        Dependency package for 
+| all BLAS implementations
+| ii  libblas-dev    3.6.0-2ubuntu2  amd64        Basic Linear Algebra 
+| Subroutines 3, static library
+| ii  libblas3       3.6.0-2ubuntu2  amd64        Basic Linear Algebra 
+| Reference implementations, shared library
+| 
+| and everything works before and after upgrading (/usr/bin/R). However, 
+| at home (ubuntu 17.10):
+| 
+| goran at M6800:~$ dpkg -l | grep blas
+| ii  libblas-dev:amd64 3.7.1-3ubuntu2   amd64        Basic Linear Algebra 
+| Subroutines 3, static library
+| ii  libblas3:amd64    3.7.1-3ubuntu2   amd64        Basic Linear Algebra 
+| Reference implementations, shared library
+| ii  libopenblas-base:amd64  0.2.20+ds-4  amd64        Optimized BLAS 
+| (linear algebra) library (shared library)
+| 
+| and it worked before upgrade but not after. Seems to be missing 
+| 'libblas-common'.
+
+Maybe. Maybe not. Did you check packages.ubuntu.com (or another source) to
+see if it still exists?  Per
+https://packages.ubuntu.com/search?keywords=libblas-common it is only listed
+for xenial (16.04) and zesty (17.04), not your 17.10.
+
+| So I try to install:
+| 
+| goran at M6800:~$ sudo apt install libblas-common
+| [sudo] password for goran:
+| Reading package lists... Done
+| Building dependency tree
+| Reading state information... Done
+| E: Unable to locate package libblas-common
+| 
+| So there is no such package in 17.10, but I have it in 16.04. What can 
+| be the replacement? Maybe I should downgrade to R-3.4.2, which works, 
+| but it doesn't feel right.
+
+No that would not be right.
+
+To recap: you have an issue on 17.10 only, and the R is self-built or the one
+installable as binary via CRAN?
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From goran.brostrom at umu.se  Fri Dec  1 23:52:11 2017
+From: goran.brostrom at umu.se (=?UTF-8?Q?G=c3=b6ran_Brostr=c3=b6m?=)
+Date: Fri, 1 Dec 2017 23:52:11 +0100
+Subject: [R-sig-Debian] undefined symbol: sgemv_thread_n
+In-Reply-To: <23073.55483.454113.408268@bud.eddelbuettel.com>
+References: <0f88acce-f967-702e-8d6a-529012ca1ab4@umu.se>
+ <23073.44170.828521.20700@bud.eddelbuettel.com>
+ <0041cfeb-f289-860c-1736-5347ce772ddb@umu.se>
+ <66a2de40-8372-f6e6-7548-b63cc0b9b2f7@umu.se>
+ <23073.55483.454113.408268@bud.eddelbuettel.com>
+Message-ID: <a45a515b-26f3-a528-c0e0-9dfcbfe20758@umu.se>
+
+
+
+On 2017-12-01 23:33, Dirk Eddelbuettel wrote:
+> 
+> Hi there,
+> 
+> On 1 December 2017 at 23:24, G?ran Brostr?m wrote:
+> | Dirk,
+> |
+> | thanks for your help. At work I have (ubuntu 16.04):
+> |
+> | ii  libblas-common 3.6.0-2ubuntu2  amd64        Dependency package for
+> | all BLAS implementations
+> | ii  libblas-dev    3.6.0-2ubuntu2  amd64        Basic Linear Algebra
+> | Subroutines 3, static library
+> | ii  libblas3       3.6.0-2ubuntu2  amd64        Basic Linear Algebra
+> | Reference implementations, shared library
+> |
+> | and everything works before and after upgrading (/usr/bin/R). However,
+> | at home (ubuntu 17.10):
+> |
+> | goran at M6800:~$ dpkg -l | grep blas
+> | ii  libblas-dev:amd64 3.7.1-3ubuntu2   amd64        Basic Linear Algebra
+> | Subroutines 3, static library
+> | ii  libblas3:amd64    3.7.1-3ubuntu2   amd64        Basic Linear Algebra
+> | Reference implementations, shared library
+> | ii  libopenblas-base:amd64  0.2.20+ds-4  amd64        Optimized BLAS
+> | (linear algebra) library (shared library)
+> |
+> | and it worked before upgrade but not after. Seems to be missing
+> | 'libblas-common'.
+> 
+> Maybe. Maybe not. Did you check packages.ubuntu.com (or another source) to
+> see if it still exists?  Per
+> https://packages.ubuntu.com/search?keywords=libblas-common it is only listed
+> for xenial (16.04) and zesty (17.04), not your 17.10.
+
+Yes, that is what I found.
+> 
+> | So I try to install:
+> |
+> | goran at M6800:~$ sudo apt install libblas-common
+> | [sudo] password for goran:
+> | Reading package lists... Done
+> | Building dependency tree
+> | Reading state information... Done
+> | E: Unable to locate package libblas-common
+> |
+> | So there is no such package in 17.10, but I have it in 16.04. What can
+> | be the replacement? Maybe I should downgrade to R-3.4.2, which works,
+> | but it doesn't feel right.
+> 
+> No that would not be right.
+> 
+> To recap: you have an issue on 17.10 only, and the R is self-built or the one
+> installable as binary via CRAN?
+
+The binary via CRAN. I had both versions a few hours ago, but I 
+uninstalled both ('dpkg --purge r-base' and 'sudo make uninstall' + 
+removing everything under /usr/local/lib/R/'. Then I installed r-base 
+('sudo apt install r-base') and the error message is the same.
+
+G?ran
+> 
+> Dirk
+>
+
+
+From goran.brostrom at umu.se  Sat Dec  2 13:20:53 2017
+From: goran.brostrom at umu.se (=?UTF-8?Q?G=c3=b6ran_Brostr=c3=b6m?=)
+Date: Sat, 2 Dec 2017 13:20:53 +0100
+Subject: [R-sig-Debian] undefined symbol: sgemv_thread_n (solved (?))
+In-Reply-To: <23073.55483.454113.408268@bud.eddelbuettel.com>
+References: <0f88acce-f967-702e-8d6a-529012ca1ab4@umu.se>
+ <23073.44170.828521.20700@bud.eddelbuettel.com>
+ <0041cfeb-f289-860c-1736-5347ce772ddb@umu.se>
+ <66a2de40-8372-f6e6-7548-b63cc0b9b2f7@umu.se>
+ <23073.55483.454113.408268@bud.eddelbuettel.com>
+Message-ID: <66294d59-a3d5-a438-db55-5890d661bbea@umu.se>
+
+Hi,
+
+I removed openblas:
+
+goran at M6800:~$ sudo dpkg --purge libopenblas-dev
+
+and
+
+goran at M6800:~$ sudo dpkg --purge libopenblas-base
+
+which left me with
+
+goran at M6800:~$ dpkg -l | grep blas
+pi  libblas-dev:amd64 3.7.1-3ubuntu2  amd64        Basic Linear Algebra 
+Subroutines 3, static library
+ii  libblas3:amd64  3.7.1-3ubuntu2 amd64        Basic Linear Algebra 
+Reference implementations, shared library
+
+And now everything just works.
+
+G?ran
+
+On 2017-12-01 23:33, Dirk Eddelbuettel wrote:
+> 
+> Hi there,
+> 
+> On 1 December 2017 at 23:24, G?ran Brostr?m wrote:
+> | Dirk,
+> |
+> | thanks for your help. At work I have (ubuntu 16.04):
+> |
+> | ii  libblas-common 3.6.0-2ubuntu2  amd64        Dependency package for
+> | all BLAS implementations
+> | ii  libblas-dev    3.6.0-2ubuntu2  amd64        Basic Linear Algebra
+> | Subroutines 3, static library
+> | ii  libblas3       3.6.0-2ubuntu2  amd64        Basic Linear Algebra
+> | Reference implementations, shared library
+> |
+> | and everything works before and after upgrading (/usr/bin/R). However,
+> | at home (ubuntu 17.10):
+> |
+> | goran at M6800:~$ dpkg -l | grep blas
+> | ii  libblas-dev:amd64 3.7.1-3ubuntu2   amd64        Basic Linear Algebra
+> | Subroutines 3, static library
+> | ii  libblas3:amd64    3.7.1-3ubuntu2   amd64        Basic Linear Algebra
+> | Reference implementations, shared library
+> | ii  libopenblas-base:amd64  0.2.20+ds-4  amd64        Optimized BLAS
+> | (linear algebra) library (shared library)
+> |
+> | and it worked before upgrade but not after. Seems to be missing
+> | 'libblas-common'.
+> 
+> Maybe. Maybe not. Did you check packages.ubuntu.com (or another source) to
+> see if it still exists?  Per
+> https://packages.ubuntu.com/search?keywords=libblas-common it is only listed
+> for xenial (16.04) and zesty (17.04), not your 17.10.
+> 
+> | So I try to install:
+> |
+> | goran at M6800:~$ sudo apt install libblas-common
+> | [sudo] password for goran:
+> | Reading package lists... Done
+> | Building dependency tree
+> | Reading state information... Done
+> | E: Unable to locate package libblas-common
+> |
+> | So there is no such package in 17.10, but I have it in 16.04. What can
+> | be the replacement? Maybe I should downgrade to R-3.4.2, which works,
+> | but it doesn't feel right.
+> 
+> No that would not be right.
+> 
+> To recap: you have an issue on 17.10 only, and the R is self-built or the one
+> installable as binary via CRAN?
+> 
+> Dirk
+>
+
+

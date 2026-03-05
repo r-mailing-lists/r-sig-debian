@@ -1,0 +1,94 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2019-11",
+  "messages": [
+    {
+      "id": "msg-dfd7b1a49363",
+      "message_id": "<CAN3x1RbysSh9TLTu2DEQnHMrjyYS79FEa2YF8ozi+VhQA+Q-7w@mail.gmail.com>",
+      "from_name": "Tim Head",
+      "from_email_hash": "4477f1b804e343ccb9247813110d028a2a8a5d1f593620e5c6784ff41acc6528",
+      "date": "2019-11-22T12:03:28+01:00",
+      "subject": "[R-sig-Debian] Installing R 3.5 on Ubuntu bionic stopped(?) working",
+      "subject_clean": "Installing R 3.5 on Ubuntu bionic stopped(?) working",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hello all,\n\ni am one of the maintainers of the open-source\nhttps://repo2docker.readthedocs.io/ tool. The tool builds a container image\nfrom a directory. Depending on what it finds in the directory it will\ninstall different software for the user. The focus of the tool is to make\nit easier for researchers to create environments in which their code runs\nand can then be used to share and reproduce their results.\n\nOne language we support is R. We let people choose which version they need\nand because we are based on Ubuntu we use the packages provided on\nhttps://cran.r-project.org/bin/linux/ubuntu/README.html to install R 3.5\nand 3.6 (R 3.4 comes as part of Ubuntu bionic).\n\nRecently a user reported that R 3.5 builds had stopped working with the\nfollowing error message:\n\nThe following packages have unmet dependencies:\n r-base : Depends: r-recommended (= 3.5.3-1bionic) but 3.6.1-3bionic is to\nbe installed\n          Recommends: r-base-html but it is not going to be installed\nE: Unable to correct problems, you have held broken packages.\n\nWhich is the output of running (something like) `apt-get install --yes\nr-base=3.5.3-1bionic r-base-dev=3.5.3-1bionic libclang-dev`.\n\nThis used to work but as someone who isn't mega familiar with Ubuntu/Debian\npackaging nor R I don't know how to start debugging this. It seems like\nsomething is pulling in a newer (3.6.x) version of a package. The full\nissue with a minimal Dockerfile to reproduce the error is in\nhttps://github.com/jupyter/repo2docker/issues/813#issuecomment-555523826.\nYou can also see repo2docker in action on\nhttps://mybinder.org/v2/gh/betatim/r-versions-binder/master (make sure to\nunfold the build log) which is where repo2docker is used in production.\n\nI saw another thread with a discussion about not maintaining combos of\nUbuntu and R and R package versions. Maybe this is related? (I don't know\nenough to judge that as I know very little about R, despite helping\nmaintain a tool that uses it :-)\n\nWith repo2docker we are in a slightly weird position where we want to\nenable container image builds that worked 6months or 12months ago to also\nwork today. This means if a user built a container with R 3.5 in the past\non this particular version of Ubuntu we'd like to be able to re-run that\ncontainer image build in the future. Not having to build R from source and\ninstead using the packages provided here looked like a good way of doing\nthis. But maybe this isn't the right way to go about it.\n\nAnd and all ideas and thoughts would be great to figure out if we are on\nthe right track here as well as how to help fix this.\n\nT\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Hello all,\n\ni am one of the maintainers of the open-source\nhttps://repo2docker.readthedocs.io/ tool. The tool builds a container image\nfrom a directory. Depending on what it finds in the directory it ",
+      "thread_id": "thread-dfd7b1a49363",
+      "thread_depth": 0,
+      "month": "2019-11"
+    },
+    {
+      "id": "msg-68b6c1c5c49e",
+      "message_id": "<24023.57212.386265.414512@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2019-11-22T07:15:40-06:00",
+      "subject": "[R-sig-Debian]  Installing R 3.5 on Ubuntu bionic stopped(?) working",
+      "subject_clean": "Installing R 3.5 on Ubuntu bionic stopped(?) working",
+      "in_reply_to": "<CAN3x1RbysSh9TLTu2DEQnHMrjyYS79FEa2YF8ozi+VhQA+Q-7w@mail.gmail.com>",
+      "references": [
+        "<CAN3x1RbysSh9TLTu2DEQnHMrjyYS79FEa2YF8ozi+VhQA+Q-7w@mail.gmail.com>"
+      ],
+      "body_plain": "Tim,\n\nOn 22 November 2019 at 12:03, Tim Head wrote:\n| One language we support is R. We let people choose which version they need\n| and because we are based on Ubuntu we use the packages provided on\n| https://cran.r-project.org/bin/linux/ubuntu/README.html to install R 3.5\n| and 3.6 (R 3.4 comes as part of Ubuntu bionic).\n\nHm, I will be frank. I am a little surprised that ever worked. We offer\n\n- in each distro release exactly one version.  So R 3.4.* from bionic.\n\n- by opting into add-on repos like the CRAN one, or c2d4u, or ...  additional\n  ones _but generally only exactly one current version_.  So R 3.6.1 now.\n\nWe (as providers of these repos) never promised other interim version.\n \n| With repo2docker we are in a slightly weird position where we want to\n| enable container image builds that worked 6months or 12months ago to also\n| work today. This means if a user built a container with R 3.5 in the past\n\nYou could maybe base that on the versioned Rocker container (the \"r-ver\"\nstack) which is also tagged to corresponding dates at MRAN.  No support for\nbinary packages though.\n\nSomewhat simpler but without MRAN tagging are r-base releases. These should\nstill be at hub.docker.com:\n\nedd at rob:~$ docker images | grep ^r-base\nr-base                       3.6.1               4e55790c88ae        4 months ago        642MB\nr-base                       latest              4e55790c88ae        4 months ago        642MB\nr-base                       3.6.0               6dfc0dec6d66        6 months ago        662MB\nr-base                       3.5.3               62c848eeb175        8 months ago        649MB\nr-base                       3.5.2               578644a0540c        10 months ago       650MB\nr-base                       3.5.1               93ca38345db2        16 months ago       678MB\nr-base                       3.5.0               fb43e8fe1667        17 months ago       698MB\nr-base                       3.4.3               d1e1c25485af        20 months ago       670MB\nr-base                       3.4.2               02d3b7e00020        2 years ago         651MB\nr-base                       3.4.0               5a6c58403310        2 years ago         656MB\nr-base                       3.3.3               88436550cddc        2 years ago         635MB\nr-base                       3.3.1               7ba1baf9d8bb        3 years ago         657MB\nedd at rob:~$ \n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "Tim,\n\nOn 22 November 2019 at 12:03, Tim Head wrote:\n| One language we support is R. We let people choose which version they need\n| and because we are based on Ubuntu we use the packages provided on\n| ",
+      "thread_id": "thread-dfd7b1a49363",
+      "thread_depth": 1,
+      "month": "2019-11"
+    },
+    {
+      "id": "msg-79e23af7ead1",
+      "message_id": "<CAN3x1RZx8+0W1cjQ8DwrXBNHnAZnOBGNM671_G0+ESLZAJKUVw@mail.gmail.com>",
+      "from_name": "Tim Head",
+      "from_email_hash": "4477f1b804e343ccb9247813110d028a2a8a5d1f593620e5c6784ff41acc6528",
+      "date": "2019-11-22T16:51:25+01:00",
+      "subject": "[R-sig-Debian]  Installing R 3.5 on Ubuntu bionic stopped(?) working",
+      "subject_clean": "Installing R 3.5 on Ubuntu bionic stopped(?) working",
+      "in_reply_to": "<24023.57212.386265.414512@rob.eddelbuettel.com>",
+      "references": [
+        "<CAN3x1RbysSh9TLTu2DEQnHMrjyYS79FEa2YF8ozi+VhQA+Q-7w@mail.gmail.com>",
+        "<24023.57212.386265.414512@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Hi,\n\nthanks for the fast reply!\n\nOn Fri, Nov 22, 2019 at 2:15 PM Dirk Eddelbuettel <edd at debian.org> wrote:\n\n>\n> Tim,\n>\n> On 22 November 2019 at 12:03, Tim Head wrote:\n> | One language we support is R. We let people choose which version they\n> need\n> | and because we are based on Ubuntu we use the packages provided on\n> | https://cran.r-project.org/bin/linux/ubuntu/README.html to install R 3.5\n> | and 3.6 (R 3.4 comes as part of Ubuntu bionic).\n>\n> Hm, I will be frank. I am a little surprised that ever worked. We offer\n>\n> - in each distro release exactly one version.  So R 3.4.* from bionic.\n>\n> - by opting into add-on repos like the CRAN one, or c2d4u, or ...\n> additional\n>   ones _but generally only exactly one current version_.  So R 3.6.1 now.\n>\n> We (as providers of these repos) never promised other interim version.\n>\n\nOk. Sounds like we were making \"off-label\" use of the packages then. It was\ngood while it lasted ;)\n\n\n>\n> | With repo2docker we are in a slightly weird position where we want to\n> | enable container image builds that worked 6months or 12months ago to also\n> | work today. This means if a user built a container with R 3.5 in the past\n>\n> You could maybe base that on the versioned Rocker container (the \"r-ver\"\n> stack) which is also tagged to corresponding dates at MRAN.  No support for\n> binary packages though.\n>\n\nThe drawback of using rocker or other base images is that we currently have\nthe ability to compose several different ways of installing software (You\nwant R and Python? No problem!) which gets lost if we start using different\nbase images. Or at least we have to be careful about what base images we\nuse so that they all share Ubuntu bionic as the base.\n\nAs we are only after the R executables themselves maybe using conda to\ninstall them or compiling from source is a way to explore.\n\nThanks!\n\nT\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Hi,\n\nthanks for the fast reply!\n\nOn Fri, Nov 22, 2019 at 2:15 PM Dirk Eddelbuettel <edd at debian.org> wrote:\n\n>\n> Tim,\n>\n> On 22 November 2019 at 12:03, Tim Head wrote:\n> | One language we support is",
+      "thread_id": "thread-dfd7b1a49363",
+      "thread_depth": 2,
+      "month": "2019-11"
+    },
+    {
+      "id": "msg-8b11fa705af6",
+      "message_id": "<24024.4102.192684.992739@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2019-11-22T10:42:46-06:00",
+      "subject": "[R-sig-Debian]  Installing R 3.5 on Ubuntu bionic stopped(?) working",
+      "subject_clean": "Installing R 3.5 on Ubuntu bionic stopped(?) working",
+      "in_reply_to": "<CAN3x1RZx8+0W1cjQ8DwrXBNHnAZnOBGNM671_G0+ESLZAJKUVw@mail.gmail.com>",
+      "references": [
+        "<CAN3x1RbysSh9TLTu2DEQnHMrjyYS79FEa2YF8ozi+VhQA+Q-7w@mail.gmail.com>",
+        "<24023.57212.386265.414512@rob.eddelbuettel.com>",
+        "<CAN3x1RZx8+0W1cjQ8DwrXBNHnAZnOBGNM671_G0+ESLZAJKUVw@mail.gmail.com>"
+      ],
+      "body_plain": "On 22 November 2019 at 16:51, Tim Head wrote:\n| On Fri, Nov 22, 2019 at 2:15 PM Dirk Eddelbuettel <edd at debian.org> wrote:\n| > | With repo2docker we are in a slightly weird position where we want to\n| > | enable container image builds that worked 6months or 12months ago to also\n| > | work today. This means if a user built a container with R 3.5 in the past\n| >\n| > You could maybe base that on the versioned Rocker container (the \"r-ver\"\n| > stack) which is also tagged to corresponding dates at MRAN.  No support for\n| > binary packages though.\n| >\n| \n| The drawback of using rocker or other base images is that we currently have\n| the ability to compose several different ways of installing software (You\n| want R and Python? No problem!) which gets lost if we start using different\n\nAll Rocker containers use standard Debian (or Ubuntu, it depends) so you can\njust say 'apt-get install python3-scipy' (to pick one example).  That is the\nwhole point of using a rich distro with over 20,000 packages.\n\nRocker itself has hybrid containers as we also ship tensorflow etc pp.\n\n| base images. Or at least we have to be careful about what base images we\n| use so that they all share Ubuntu bionic as the base.\n\nDoing it consistently through time is a hard task.  As I said earlier, we (as\nin: these add-on repos giving you R) generally do not attempt it.\n| \n| As we are only after the R executables themselves maybe using conda to\n| install them or compiling from source is a way to explore.\n\nI have very little experience with conda. All is see, usually, is people\nmixing and matching and ending up in tears. But you can always try.\n\nCheers, Dirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 22 November 2019 at 16:51, Tim Head wrote:\n| On Fri, Nov 22, 2019 at 2:15 PM Dirk Eddelbuettel <edd at debian.org> wrote:\n| > | With repo2docker we are in a slightly weird position where we want to",
+      "thread_id": "thread-dfd7b1a49363",
+      "thread_depth": 3,
+      "month": "2019-11"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-dfd7b1a49363",
+      "subject": "Installing R 3.5 on Ubuntu bionic stopped(?) working",
+      "message_count": 4,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Tim Head"
+      ],
+      "started": "2019-11-22T12:03:28+01:00",
+      "last_reply": "2019-11-22T10:42:46-06:00",
+      "root_message_id": "msg-dfd7b1a49363"
+    }
+  ]
+}

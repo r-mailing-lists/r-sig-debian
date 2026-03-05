@@ -1,0 +1,1044 @@
+From vincent.goulet at act.ulaval.ca  Fri Aug  1 18:48:10 2008
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Fri, 1 Aug 2008 12:48:10 -0400
+Subject: [R-sig-Debian] [R] I install R in Ubuntu with apt-get,
+	But I cannot see help.start() page.why
+In-Reply-To: <ffe0539f0807312150u932ff85r3108d30a3b872e1d@mail.gmail.com>
+References: <ffe0539f0807312150u932ff85r3108d30a3b872e1d@mail.gmail.com>
+Message-ID: <23F04E2A-0480-4F66-8F65-E7866D5ADE98@act.ulaval.ca>
+
+[Moved from r-help to r-SIG-Debian, where this belongs.]
+
+Le ven. 1 ao?t ? 00:50, xiaopeng hu a ?crit :
+
+> I install R in Ubuntu with apt-get,But I cannot see help.start()  
+> page.why
+
+Errr... I don't think this qualifies as a post that follows the  
+posting guide linked at the bottom of this message.
+
+What did you do *exactly* and what does "cannot see" mean? Normally  
+help.start() should open the help system"s home page in your default  
+browser. Perhaps on another virtual desktop or in a different tab?
+
+Please be more specific if you want us to help you.
+
+---
+   Vincent Goulet, Associate Professor
+   ?cole d'actuariat
+   Universit? Laval, Qu?bec
+   Vincent.Goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+
+>
+> Thanks
+>
+> 	[[alternative HTML version deleted]]
+>
+> ______________________________________________
+> R-help at r-project.org mailing list
+> https://stat.ethz.ch/mailman/listinfo/r-help
+> PLEASE do read the posting guide http://www.R-project.org/posting-guide.html
+> and provide commented, minimal, self-contained, reproducible code.
+
+
+From gabraham at csse.unimelb.edu.au  Tue Aug 12 06:31:18 2008
+From: gabraham at csse.unimelb.edu.au (Gad Abraham)
+Date: Tue, 12 Aug 2008 14:31:18 +1000
+Subject: [R-sig-Debian] Conflict between octave3.0-headers and r-base-dev
+Message-ID: <48A11216.3020309@csse.unimelb.edu.au>
+
+Hi,
+
+I'm using Ubuntu Hardy i386, and the R 2.7.1 Ubuntu packages from CRAN.
+
+The CRAN r-base-dev package depends on refblas3-dev or atlas3-base-dev, 
+but octave3.0-headers depends on libblas-dev. The two blas packages seem 
+to conflict, so r-base-dev and octave3.0-headers can't be installed 
+together.
+
+Is this a known issue?
+
+Thanks,
+Gad
+
+$ sudo apt-get install octave3.0-headers
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following extra packages will be installed:
+   libblas-dev libfftw3-dev libhdf5-serial-dev liblapack-dev
+Suggested packages:
+   libhdf5-doc
+The following packages will be REMOVED:
+   r-base-dev refblas3-dev
+The following NEW packages will be installed:
+   libblas-dev libfftw3-dev libhdf5-serial-dev liblapack-dev 
+octave3.0-headers
+
+
+-- 
+Gad Abraham
+Dept. CSSE and NICTA
+The University of Melbourne
+Parkville 3010, Victoria, Australia
+email: gabraham at csse.unimelb.edu.au
+web: http://www.csse.unimelb.edu.au/~gabraham
+
+
+From edd at debian.org  Tue Aug 12 14:44:42 2008
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 12 Aug 2008 07:44:42 -0500
+Subject: [R-sig-Debian] Conflict between octave3.0-headers and r-base-dev
+In-Reply-To: <48A11216.3020309@csse.unimelb.edu.au>
+References: <48A11216.3020309@csse.unimelb.edu.au>
+Message-ID: <18593.34234.560498.161492@ron.nulle.part>
+
+
+Gad,
+
+Thanks for the bug report and for using the appropriate list for it.
+
+On 12 August 2008 at 14:31, Gad Abraham wrote:
+| Hi,
+| 
+| I'm using Ubuntu Hardy i386, and the R 2.7.1 Ubuntu packages from CRAN.
+| 
+| The CRAN r-base-dev package depends on refblas3-dev or atlas3-base-dev, 
+| but octave3.0-headers depends on libblas-dev. The two blas packages seem 
+| to conflict, so r-base-dev and octave3.0-headers can't be installed 
+| together.
+| 
+| Is this a known issue?
+
+Maybe not, and looks like the Depends for r-base-dev need to be updated to
+reflect the newer library names.  Unfortunately, 'everybody' is at Dortmund
+this week for UseR but I already mentioned this to Vincent.
+
+On Debian we have 'libblas-dev | libatlas-base-dev, liblapack-dev |
+libatlas-base-dev' but that, I think, wasn't possible for Vincent and Ubuntu as the
+newer atlas/blas packages had not yet migrated.  I think he can simply stop
+changed 'down' to the older refblas choice.
+
+Hope this helps, Dirk
+ 
+| Thanks,
+| Gad
+| 
+| $ sudo apt-get install octave3.0-headers
+| Reading package lists... Done
+| Building dependency tree
+| Reading state information... Done
+| The following extra packages will be installed:
+|    libblas-dev libfftw3-dev libhdf5-serial-dev liblapack-dev
+| Suggested packages:
+|    libhdf5-doc
+| The following packages will be REMOVED:
+|    r-base-dev refblas3-dev
+| The following NEW packages will be installed:
+|    libblas-dev libfftw3-dev libhdf5-serial-dev liblapack-dev 
+| octave3.0-headers
+| 
+| 
+| -- 
+| Gad Abraham
+| Dept. CSSE and NICTA
+| The University of Melbourne
+| Parkville 3010, Victoria, Australia
+| email: gabraham at csse.unimelb.edu.au
+| web: http://www.csse.unimelb.edu.au/~gabraham
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From vincent.goulet at act.ulaval.ca  Wed Aug 13 06:27:04 2008
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Wed, 13 Aug 2008 06:27:04 +0200
+Subject: [R-sig-Debian] Conflict between octave3.0-headers and r-base-dev
+In-Reply-To: <18593.34234.560498.161492@ron.nulle.part>
+References: <48A11216.3020309@csse.unimelb.edu.au>
+	<18593.34234.560498.161492@ron.nulle.part>
+Message-ID: <2284D43E-0407-443A-950F-13B4DAED3DAC@act.ulaval.ca>
+
+Le mar. 12 ao?t ? 14:44, Dirk Eddelbuettel a ?crit :
+
+>
+> Gad,
+>
+> Thanks for the bug report and for using the appropriate list for it.
+>
+> On 12 August 2008 at 14:31, Gad Abraham wrote:
+> | Hi,
+> |
+> | I'm using Ubuntu Hardy i386, and the R 2.7.1 Ubuntu packages from  
+> CRAN.
+> |
+> | The CRAN r-base-dev package depends on refblas3-dev or atlas3-base- 
+> dev,
+> | but octave3.0-headers depends on libblas-dev. The two blas  
+> packages seem
+> | to conflict, so r-base-dev and octave3.0-headers can't be installed
+> | together.
+> |
+> | Is this a known issue?
+>
+> Maybe not, and looks like the Depends for r-base-dev need to be  
+> updated to
+> reflect the newer library names.  Unfortunately, 'everybody' is at  
+> Dortmund
+> this week for UseR but I already mentioned this to Vincent.
+>
+> On Debian we have 'libblas-dev | libatlas-base-dev, liblapack-dev |
+> libatlas-base-dev' but that, I think, wasn't possible for Vincent  
+> and Ubuntu as the
+> newer atlas/blas packages had not yet migrated.  I think he can  
+> simply stop
+> changed 'down' to the older refblas choice.
+
+[Note: I already had this discussion in person with Dirk, but we'll do  
+as if not for the purpose of the list.]
+
+I'm puzzled here. In the comments of my build script I specifically  
+mention that the libblas-dev and liblapack-dev backports are required  
+for Ubuntu releases <= Hardy, which I assume meant that I checked it  
+was actually needed back in April (when Hardy was released). In any  
+case, it looks like I goofed here.
+
+I did build a version of 2.7.1-2 successfully without the said  
+backports. However, I am reluctant to put it on CRAN for now for two  
+main reasons: 1) it's not really tested; and 2) it doesn't appear to  
+be an important update for most people. Oh, and 3) 2.7.2 is due out in  
+about two weeks.
+
+What you can do, Gad, is to first install libblas-dev and liblapack- 
+dev on you system (this should remove a number of other packages,  
+including R) and then install the .deb packages located here:
+
+	http://vgoulet.act.ulaval.ca/pub/R/bin/linux/hardy-test/
+
+Fetch all the files in the above directory and manually install with
+
+	sudo dpkg -i *.deb
+
+(Assuming the downloaded files are the only .deb files in your current  
+directory, of course.)
+
+Play a little bit with all this and *please* report if everything is  
+working as expected or not.
+
+Cheers from Dortmund,
+
+Vincent
+
+>
+>
+> Hope this helps, Dirk
+>
+> | Thanks,
+> | Gad
+> |
+> | $ sudo apt-get install octave3.0-headers
+> | Reading package lists... Done
+> | Building dependency tree
+> | Reading state information... Done
+> | The following extra packages will be installed:
+> |    libblas-dev libfftw3-dev libhdf5-serial-dev liblapack-dev
+> | Suggested packages:
+> |    libhdf5-doc
+> | The following packages will be REMOVED:
+> |    r-base-dev refblas3-dev
+> | The following NEW packages will be installed:
+> |    libblas-dev libfftw3-dev libhdf5-serial-dev liblapack-dev
+> | octave3.0-headers
+> |
+> |
+> | --
+> | Gad Abraham
+> | Dept. CSSE and NICTA
+> | The University of Melbourne
+> | Parkville 3010, Victoria, Australia
+> | email: gabraham at csse.unimelb.edu.au
+> | web: http://www.csse.unimelb.edu.au/~gabraham
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+> -- 
+> Three out of two people have difficulties with fractions.
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From gabraham at csse.unimelb.edu.au  Thu Aug 14 08:17:01 2008
+From: gabraham at csse.unimelb.edu.au (Gad Abraham)
+Date: Thu, 14 Aug 2008 16:17:01 +1000
+Subject: [R-sig-Debian] Conflict between octave3.0-headers and r-base-dev
+In-Reply-To: <2284D43E-0407-443A-950F-13B4DAED3DAC@act.ulaval.ca>
+References: <48A11216.3020309@csse.unimelb.edu.au>
+	<18593.34234.560498.161492@ron.nulle.part>
+	<2284D43E-0407-443A-950F-13B4DAED3DAC@act.ulaval.ca>
+Message-ID: <48A3CDDD.6040507@csse.unimelb.edu.au>
+
+Vincent Goulet wrote:
+> Le mar. 12 ao?t ? 14:44, Dirk Eddelbuettel a ?crit :
+> 
+>>
+>> Gad,
+>>
+>> Thanks for the bug report and for using the appropriate list for it.
+>>
+>> On 12 August 2008 at 14:31, Gad Abraham wrote:
+>> | Hi,
+>> |
+>> | I'm using Ubuntu Hardy i386, and the R 2.7.1 Ubuntu packages from CRAN.
+>> |
+>> | The CRAN r-base-dev package depends on refblas3-dev or atlas3-base-dev,
+>> | but octave3.0-headers depends on libblas-dev. The two blas packages 
+>> seem
+>> | to conflict, so r-base-dev and octave3.0-headers can't be installed
+>> | together.
+>> |
+>> | Is this a known issue?
+>>
+>> Maybe not, and looks like the Depends for r-base-dev need to be 
+>> updated to
+>> reflect the newer library names.  Unfortunately, 'everybody' is at 
+>> Dortmund
+>> this week for UseR but I already mentioned this to Vincent.
+>>
+>> On Debian we have 'libblas-dev | libatlas-base-dev, liblapack-dev |
+>> libatlas-base-dev' but that, I think, wasn't possible for Vincent and 
+>> Ubuntu as the
+>> newer atlas/blas packages had not yet migrated.  I think he can simply 
+>> stop
+>> changed 'down' to the older refblas choice.
+> 
+> [Note: I already had this discussion in person with Dirk, but we'll do 
+> as if not for the purpose of the list.]
+> 
+> I'm puzzled here. In the comments of my build script I specifically 
+> mention that the libblas-dev and liblapack-dev backports are required 
+> for Ubuntu releases <= Hardy, which I assume meant that I checked it was 
+> actually needed back in April (when Hardy was released). In any case, it 
+> looks like I goofed here.
+> 
+> I did build a version of 2.7.1-2 successfully without the said 
+> backports. However, I am reluctant to put it on CRAN for now for two 
+> main reasons: 1) it's not really tested; and 2) it doesn't appear to be 
+> an important update for most people. Oh, and 3) 2.7.2 is due out in 
+> about two weeks.
+> 
+> What you can do, Gad, is to first install libblas-dev and liblapack-dev 
+> on you system (this should remove a number of other packages, including 
+> R) and then install the .deb packages located here:
+> 
+>     http://vgoulet.act.ulaval.ca/pub/R/bin/linux/hardy-test/
+> 
+> Fetch all the files in the above directory and manually install with
+> 
+>     sudo dpkg -i *.deb
+> 
+> (Assuming the downloaded files are the only .deb files in your current 
+> directory, of course.)
+> 
+> Play a little bit with all this and *please* report if everything is 
+> working as expected or not.
+
+Hi Vincent,
+
+I've installed these debs, played around with R, compiled some R 
+packages from source, and so far, it works perfectly.
+
+Thanks!
+Gad
+
+-- 
+Gad Abraham
+Dept. CSSE and NICTA
+The University of Melbourne
+Parkville 3010, Victoria, Australia
+email: gabraham at csse.unimelb.edu.au
+web: http://www.csse.unimelb.edu.au/~gabraham
+
+
+From vincent.goulet at act.ulaval.ca  Thu Aug 14 10:06:26 2008
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Thu, 14 Aug 2008 10:06:26 +0200
+Subject: [R-sig-Debian] Conflict between octave3.0-headers and r-base-dev
+In-Reply-To: <48A3CDDD.6040507@csse.unimelb.edu.au>
+References: <48A11216.3020309@csse.unimelb.edu.au>
+	<18593.34234.560498.161492@ron.nulle.part>
+	<2284D43E-0407-443A-950F-13B4DAED3DAC@act.ulaval.ca>
+	<48A3CDDD.6040507@csse.unimelb.edu.au>
+Message-ID: <E143C13D-56ED-4C10-8C39-F94700896E1F@act.ulaval.ca>
+
+Le jeu. 14 ao?t ? 08:17, Gad Abraham a ?crit :
+
+> Vincent Goulet wrote:
+>> Le mar. 12 ao?t ? 14:44, Dirk Eddelbuettel a ?crit :
+>>>
+>>> Gad,
+>>>
+>>> Thanks for the bug report and for using the appropriate list for it.
+>>>
+>>> On 12 August 2008 at 14:31, Gad Abraham wrote:
+>>> | Hi,
+>>> |
+>>> | I'm using Ubuntu Hardy i386, and the R 2.7.1 Ubuntu packages  
+>>> from CRAN.
+>>> |
+>>> | The CRAN r-base-dev package depends on refblas3-dev or atlas3- 
+>>> base-dev,
+>>> | but octave3.0-headers depends on libblas-dev. The two blas  
+>>> packages seem
+>>> | to conflict, so r-base-dev and octave3.0-headers can't be  
+>>> installed
+>>> | together.
+>>> |
+>>> | Is this a known issue?
+>>>
+>>> Maybe not, and looks like the Depends for r-base-dev need to be  
+>>> updated to
+>>> reflect the newer library names.  Unfortunately, 'everybody' is at  
+>>> Dortmund
+>>> this week for UseR but I already mentioned this to Vincent.
+>>>
+>>> On Debian we have 'libblas-dev | libatlas-base-dev, liblapack-dev |
+>>> libatlas-base-dev' but that, I think, wasn't possible for Vincent  
+>>> and Ubuntu as the
+>>> newer atlas/blas packages had not yet migrated.  I think he can  
+>>> simply stop
+>>> changed 'down' to the older refblas choice.
+>> [Note: I already had this discussion in person with Dirk, but we'll  
+>> do as if not for the purpose of the list.]
+>> I'm puzzled here. In the comments of my build script I specifically  
+>> mention that the libblas-dev and liblapack-dev backports are  
+>> required for Ubuntu releases <= Hardy, which I assume meant that I  
+>> checked it was actually needed back in April (when Hardy was  
+>> released). In any case, it looks like I goofed here.
+>> I did build a version of 2.7.1-2 successfully without the said  
+>> backports. However, I am reluctant to put it on CRAN for now for  
+>> two main reasons: 1) it's not really tested; and 2) it doesn't  
+>> appear to be an important update for most people. Oh, and 3) 2.7.2  
+>> is due out in about two weeks.
+>> What you can do, Gad, is to first install libblas-dev and liblapack- 
+>> dev on you system (this should remove a number of other packages,  
+>> including R) and then install the .deb packages located here:
+>>    http://vgoulet.act.ulaval.ca/pub/R/bin/linux/hardy-test/
+>> Fetch all the files in the above directory and manually install with
+>>    sudo dpkg -i *.deb
+>> (Assuming the downloaded files are the only .deb files in your  
+>> current directory, of course.)
+>> Play a little bit with all this and *please* report if everything  
+>> is working as expected or not.
+>
+> Hi Vincent,
+>
+> I've installed these debs, played around with R, compiled some R  
+> packages from source, and so far, it works perfectly.
+
+Good, thanks for reporting back. Well then, I guess I'll integrate the  
+change for the next R release.
+
+Best,
+
+Vincent
+
+
+>
+>
+> Thanks!
+> Gad
+>
+> -- 
+> Gad Abraham
+> Dept. CSSE and NICTA
+> The University of Melbourne
+> Parkville 3010, Victoria, Australia
+> email: gabraham at csse.unimelb.edu.au
+> web: http://www.csse.unimelb.edu.au/~gabraham
+
+
+From mwkimpel at gmail.com  Thu Aug 14 18:20:50 2008
+From: mwkimpel at gmail.com (Mark Kimpel)
+Date: Thu, 14 Aug 2008 12:20:50 -0400
+Subject: [R-sig-Debian] RGBL not compiling with R-devel under Debian Lenny
+Message-ID: <6b93d1830808140920y3053369ek866bb9e759ca696b@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20080814/f0fa1915/attachment.pl>
+
+From f.calboli at imperial.ac.uk  Wed Aug 27 12:19:47 2008
+From: f.calboli at imperial.ac.uk (Federico Calboli)
+Date: Wed, 27 Aug 2008 11:19:47 +0100
+Subject: [R-sig-Debian] r-base-core issue
+Message-ID: <48B52A43.90306@imperial.ac.uk>
+
+Hi All,
+
+I cannot upgrade r-base and r-recommended because the latest (latest as in it 
+was not listed as 'upgradable' yesterday but today is) r-base-cose is 
+2.7.1-2hardy0 not hardy1:
+
+r-base:
+   Depends: r-base-core (>=2.7.2-1hardy1) but 2.7.1-2hardy0 is to be installed
+   Depends: r-recommended (=2.7.2-1hardy1) but 2.7.1-2hardy0 is to be installed
+
+r-base-core:
+
+r-recommended:
+   Depends: r-base-core (>=2.7.2-1hardy1) but 2.7.1-2hardy0 is to be installed
+
+Cheers,
+
+Fede
+
+-- 
+Federico C. F. Calboli
+Department of Epidemiology and Public Health
+Imperial College, St Mary's Campus
+Norfolk Place, London W2 1PG
+
+Tel  +44 (0)20 7594 1602     Fax (+44) 020 7594 3193
+
+f.calboli [.a.t] imperial.ac.uk
+f.calboli [.a.t] gmail.com
+
+
+From mar36 at psu.edu  Wed Aug 27 14:58:36 2008
+From: mar36 at psu.edu (Michael Rutter)
+Date: Wed, 27 Aug 2008 08:58:36 -0400
+Subject: [R-sig-Debian] r-base-core issue
+In-Reply-To: <48B52A43.90306@imperial.ac.uk>
+References: <48B52A43.90306@imperial.ac.uk>
+Message-ID: <48B54F7C.1090404@psu.edu>
+
+Fede,
+
+The hardy0 name on the amd64 packages does not match the hardy1 on the 
+generic (any architecture) metapackage r-base.  We will get this 
+straightened out and matching packages will likely be on CRAN in the 
+next 24 hours or so.
+
+Sorry for the inconvenience,
+Michael
+
+Federico Calboli wrote:
+> Hi All,
+> 
+> I cannot upgrade r-base and r-recommended because the latest (latest as 
+> in it was not listed as 'upgradable' yesterday but today is) r-base-cose 
+> is 2.7.1-2hardy0 not hardy1:
+> 
+> r-base:
+>   Depends: r-base-core (>=2.7.2-1hardy1) but 2.7.1-2hardy0 is to be 
+> installed
+>   Depends: r-recommended (=2.7.2-1hardy1) but 2.7.1-2hardy0 is to be 
+> installed
+> 
+> r-base-core:
+> 
+> r-recommended:
+>   Depends: r-base-core (>=2.7.2-1hardy1) but 2.7.1-2hardy0 is to be 
+> installed
+> 
+> Cheers,
+> 
+> Fede
+> 
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From vincent.goulet at act.ulaval.ca  Wed Aug 27 15:56:44 2008
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Wed, 27 Aug 2008 09:56:44 -0400
+Subject: [R-sig-Debian] r-base-core issue
+In-Reply-To: <48B52A43.90306@imperial.ac.uk>
+References: <48B52A43.90306@imperial.ac.uk>
+Message-ID: <E10E07DE-C6B1-493A-8583-9DF669480CD4@act.ulaval.ca>
+
+Fede,
+
+This is my bad. Updated package are on their way to CRAN now. Please  
+report if the issue is fixed or not (perhaps off-list if it's just a  
+"yes").
+
+Best
+
+Vincent
+
+Le mer. 27 ao?t ? 06:19, Federico Calboli a ?crit :
+
+> Hi All,
+>
+> I cannot upgrade r-base and r-recommended because the latest (latest  
+> as in it was not listed as 'upgradable' yesterday but today is) r- 
+> base-cose is 2.7.1-2hardy0 not hardy1:
+>
+> r-base:
+>  Depends: r-base-core (>=2.7.2-1hardy1) but 2.7.1-2hardy0 is to be  
+> installed
+>  Depends: r-recommended (=2.7.2-1hardy1) but 2.7.1-2hardy0 is to be  
+> installed
+>
+> r-base-core:
+>
+> r-recommended:
+>  Depends: r-base-core (>=2.7.2-1hardy1) but 2.7.1-2hardy0 is to be  
+> installed
+>
+> Cheers,
+>
+> Fede
+>
+> -- 
+> Federico C. F. Calboli
+> Department of Epidemiology and Public Health
+> Imperial College, St Mary's Campus
+> Norfolk Place, London W2 1PG
+>
+> Tel  +44 (0)20 7594 1602     Fax (+44) 020 7594 3193
+>
+> f.calboli [.a.t] imperial.ac.uk
+> f.calboli [.a.t] gmail.com
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+
+---
+   Vincent Goulet, Associate Professor
+   ?cole d'actuariat
+   Universit? Laval, Qu?bec
+   Vincent.Goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+
+
+From artibeus at gmail.com  Wed Aug 27 19:24:24 2008
+From: artibeus at gmail.com (Josh Stumpf)
+Date: Wed, 27 Aug 2008 13:24:24 -0400
+Subject: [R-sig-Debian] R 2.7.2 kernlab issues
+Message-ID: <28bef6b80808271024g7f3f13c6i6d345a822a859b42@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20080827/ba115fdd/attachment.pl>
+
+From jranke at uni-bremen.de  Wed Aug 27 21:53:04 2008
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Wed, 27 Aug 2008 21:53:04 +0200
+Subject: [R-sig-Debian] Delay for Debian packages on CRAN
+Message-ID: <20080827195303.GA8197@localdomain>
+
+Dear users of CRAN R packages for Debian,
+
+as I currently only have a very bad internet connection, packaging of R
+2.7.2 for CRAN (backport to Debian etch) will be delayed quite a bit. If
+anybody wants to step forward and supply packages, please go ahead, I
+can help with copying them to CRAN. In this case, you might want to look
+at the repository where I keep my backporting scripts.
+
+For my part, it will take a while till I get it done. Sorry for any
+inconvenience that might be cause by this.
+
+Kind regards,
+
+Johannes
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+
+From edd at debian.org  Thu Aug 28 04:34:31 2008
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 27 Aug 2008 21:34:31 -0500
+Subject: [R-sig-Debian] R 2.7.2 kernlab issues
+In-Reply-To: <28bef6b80808271024g7f3f13c6i6d345a822a859b42@mail.gmail.com>
+References: <28bef6b80808271024g7f3f13c6i6d345a822a859b42@mail.gmail.com>
+Message-ID: <18614.3767.103395.682837@ron.nulle.part>
+
+
+Josh,
+
+On 27 August 2008 at 13:24, Josh Stumpf wrote:
+| Hello,
+| 
+| After upgrading to 2.7.2 this morning via the cran repository, I get the
+| following error when calling R via the command line:
+| 
+| Error in dyn.load(file, DLLpath = DLLpath, ...) :
+|   unable to load shared library
+| '/home/jstumpf/R/i486-pc-linux-gnu-library/2.7/kernlab/libs/kernlab.so':
+|   libRlapack.so: cannot open shared object file: No such file or directory
+| Fatal error: unable to restore saved data in .RData
+
+The libRlapack.so gives it away: You probably built / installed this with R
+2.6.* or earlier when we had libRlapack. This changed with improved
+Lapack/Blas/Atlas packages for Debian during the winter and the 2.7.* series
+uses libblas.  
+
+On my system (where I coincidentally just updated packages from CRAN a few
+hours agao) I have
+
+edd at ron:~> ldd /usr/local/lib/R/site-library/kernlab/libs/kernlab.so
+        linux-gate.so.1 =>  (0xb7f21000)
+        libblas.so.3gf => /usr/lib/atlas/libblas.so.3gf (0xb7b5e000)
+        libgfortran.so.3 => /usr/lib/libgfortran.so.3 (0xb7aac000)
+        liblapack.so.3gf => /usr/lib/atlas/liblapack.so.3gf (0xb7338000)
+        libR.so => /usr/lib/R/lib/libR.so (0xb7044000)
+        libstdc++.so.6 => /usr/lib/libstdc++.so.6 (0xb6f57000)
+        libm.so.6 => /lib/i686/cmov/libm.so.6 (0xb6f31000)
+        libgcc_s.so.1 => /lib/libgcc_s.so.1 (0xb6f24000)
+        libc.so.6 => /lib/i686/cmov/libc.so.6 (0xb6dc9000)
+        libreadline.so.5 => /lib/libreadline.so.5 (0xb6d97000)
+        libpcre.so.3 => /usr/lib/libpcre.so.3 (0xb6d6e000)
+        libz.so.1 => /usr/lib/libz.so.1 (0xb6d59000)
+        libdl.so.2 => /lib/i686/cmov/libdl.so.2 (0xb6d55000)
+        /lib/ld-linux.so.2 (0xb7f22000)
+        libncurses.so.5 => /lib/libncurses.so.5 (0xb6d23000)
+edd at ron:~>     
+
+which shows libblas and liblapack with the 3gf suffix indicating the new
+Fortran builds I was referring to above.
+
+The fix should be simple. Fire up R and run update.packages():
+
+    $ R
+    > update.packages()
+
+and install the littler package and use update.r (my preference).
+
+Hope this helps, Dirk
+
+| 
+| Has anyone else had this issue? Any solutions?
+| 
+| Joshua Stumpf
+| Eastern Michigan University
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From edd at debian.org  Thu Aug 28 04:53:44 2008
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 27 Aug 2008 21:53:44 -0500
+Subject: [R-sig-Debian] R 2.7.2 kernlab issues
+In-Reply-To: <18614.3767.103395.682837@ron.nulle.part>
+References: <28bef6b80808271024g7f3f13c6i6d345a822a859b42@mail.gmail.com>
+	<18614.3767.103395.682837@ron.nulle.part>
+Message-ID: <18614.4920.448108.417232@ron.nulle.part>
+
+
+On 27 August 2008 at 21:34, Dirk Eddelbuettel wrote:
+| The fix should be simple. Fire up R and run update.packages():
+| 
+|     $ R
+|     > update.packages()
+| 
+| and install the littler package and use update.r (my preference).
+
+That should have been 'or install the littler package'. Sorry.
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From edd at debian.org  Sat Aug 30 00:37:44 2008
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 29 Aug 2008 17:37:44 -0500
+Subject: [R-sig-Debian] (Current) Ubuntu : r-base-dev seems incompatible
+	with	atlas-base-dev.
+In-Reply-To: <1220047458.10253.21.camel@yod>
+References: <1220047458.10253.21.camel@yod>
+Message-ID: <18616.31288.781403.657335@ron.nulle.part>
+
+
+Emmanuel,
+
+On 30 August 2008 at 00:04, Emmanuel Charpentier wrote:
+| Dear list,
+| 
+| Setup : Ubuntu Hardy + updates + backports + security + R repository on
+| a 3.2 GHz PIV dual-core processor.
+| 
+| Bitten (again...) by the "I'll optimize my setup" bug, I tried to test
+| atlas. Following Dirk's advice on a not-so-recent post to R-help, I
+| tried "apt-get install -s atlas3-doc atlas3-base-dev" (I tend to
+| recompile some packages, so I need r-base-dev and I *think* I need
+| atlas3-base-dev to allow the recompiled packages to use it, but I might
+| be completely wrong...). Ahem ... :
+| 
+| [ Snip... ]
+| 
+| Les paquets suivants seront ENLEV?S :
+|   libblas-dev liblapack-dev r-base-dev
+| 
+| [ Snip again ... ]
+| 
+| (for non-francophones : "The following packages will be REMOVED : ...").
+| 
+| However, atlas3-base *is* currently installed, and I never had problems
+| recompiling packages.
+
+Quick guess: you have the old atlas-* packages instead of the new libatlas-*
+packages. Try 
+
+	$ sudo apt-get install libatlas3gf-base libatlas-base-dev
+
+| So, my (first) question is : what would be the benefits of installing
+| atlas3-base-dev ? Isn't that necessary for recompiling packages ?
+
+[Make that libatlas-base-dev]  So that you can compile against Atlas and get
+the 'automatically tuned linear algebra system' for better performance on
+linear algebra.
+
+| Second question : what would be the benefits/drawbacks of "apt-get
+| install atlas3-sse2 lapack3" ? A brief test seems to hint to limited
+| benefits...
+
+[Make that libatlas3gf-sse2]  Faster performance for binary code tuned to
+your process.  Atlas actually provides lapack, and replace it in use.
+
+| Last but not least : Atlas does not seem to exist on other architectures
+| (I'm interested in amd64, of course...), at least in Debian and Ubuntu.
+| Are there similar projects for amd64 I'm not aware of ?
+
+Are you sure?  This has built on many architectures for many years, and the
+reason it took so long to get to libatlas [ie the new build with the new
+Fortran compuler] was as far as I know the darn portability.
+
+All this works on my Debian (which gets R from my Debian packages) and Ubuntu
+(which gets R from CRAN) machines.
+
+Hope this helps, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From jgove at gis.net  Fri Aug 15 16:16:21 2008
+From: jgove at gis.net (Jeff)
+Date: Fri, 15 Aug 2008 14:16:21 -0000
+Subject: [R-sig-Debian] multiple versions on ubuntu
+Message-ID: <48A58FA1.4060106@gis.net>
+
+I am new to ubuntu, but have used R for years on Fedora. I have a simple 
+question that I do not quite understand. I first installed R from the 
+ubuntu repository (2.6.2 I believe it was--whatever is current there) 
+before finding the debian/ubuntu SIG here when searching for R 2.7.1. 
+Subsequently I upgraded to 2.7.1 using the instructions at 
+http://cran.r-project.org/bin/linux/ubuntu/. I am using Hardy on an 
+amd64 platform. I did both installations with synaptic.
+
+The question I have is why I end up with what appears to be two 
+installation of R? I first noticed this when I looked at the package 
+list and there were two sets of documentation for all of the packages; 
+i.e., in /usr/lib/R/library and /usr/lib64/R/library. Checking these 
+directories on disk shows what appears to be full mirror installations. 
+In addition, running the little script to check for multiple packages at 
+the R wiki for debian returns...
+
+ Warning: you have multiple copies of the following packages:
+           Package      LibPath                Version 
+base       "base"       "/usr/lib/R/library"   "2.7.1" 
+base       "base"       "/usr/lib64/R/library" "2.7.1" 
+boot       "boot"       "/usr/lib/R/library"   "1.2-33"
+boot       "boot"       "/usr/lib64/R/library" "1.2-33"
+... etc.
+
+At first I thought that synaptic had left the earlier version on, but 
+this obviously shows that there are two sets of the same packages. This 
+does not happen on my fedora 64 installation. Also, FWIW...
+
+ R.version
+               _                          
+platform       x86_64-pc-linux-gnu        
+arch           x86_64                      
+os             linux-gnu                  
+system         x86_64, linux-gnu          
+status                                    
+major          2                          
+minor          7.1                        
+year           2008                       
+month          06                         
+day            23                         
+svn rev        45970                      
+language       R                          
+version.string R version 2.7.1 (2008-06-23)
+
+Any thoughts?
+
+Many thanks, sorry for such a simple question. I admit to being on the 
+learning curve for unbuntu, and am more used to fedora/yum for 
+installations.
+
+Sincerely,
+
+Jeff Gove
+
+
+From skembel at berkeley.edu  Wed Aug 27 08:00:55 2008
+From: skembel at berkeley.edu (Steve Kembel)
+Date: Tue, 26 Aug 2008 23:00:55 -0700
+Subject: [R-sig-Debian] amd64 packages for ubuntu hardy version mismatch?
+Message-ID: <9DFF2703-95B4-4E27-86F3-D513FC6011C7@berkeley.edu>
+
+Hi,
+
+Trying to do a fresh install of R 2.7.2 packages on an AMD64 server  
+running Ubuntu Hardy 8.04 and have run into some problems - version of  
+r-base-core for AMD64 appears to not match version of other packages  
+including r-base and r-recommended and so install fails. The deb  
+packages for r-base-core_2.7.2-1hardy1_amd64 don't appear to have been  
+built yet. Guessing this is an AMD64 issue since the  
+2.7.2-1hardy1_i386 packages seem to be present on the repository.
+
+Any suggestions?
+
+Many thanks,
+Steve
+
+---
+$sudo apt-get update
+$sudo apt-get install r-base
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+Some packages could not be installed. This may mean that you have
+requested an impossible situation or if you are using the unstable
+distribution that some required packages have not yet been created
+or been moved out of Incoming.
+
+Since you only requested a single operation it is extremely likely that
+the package is simply not installable and a bug report against
+that package should be filed.
+The following information may help to resolve the situation:
+
+The following packages have unmet dependencies:
+   r-base: Depends: r-base-core (>= 2.7.2-1hardy1) but 2.7.2-1hardy0  
+is to be installed
+           Depends: r-recommended (= 2.7.2-1hardy1) but it is not  
+going to be installed
+E: Broken packages
+
+
+From emm.charpentier at free.fr  Sat Aug 30 14:11:23 2008
+From: emm.charpentier at free.fr (Emmanuel Charpentier)
+Date: Sat, 30 Aug 2008 14:11:23 +0200
+Subject: [R-sig-Debian] (Current) Ubuntu : r-base-dev seems incompatible
+	with	atlas-base-dev.
+In-Reply-To: <18616.31288.781403.657335@ron.nulle.part>
+References: <1220047458.10253.21.camel@yod>
+	<18616.31288.781403.657335@ron.nulle.part>
+Message-ID: <1220098283.12884.17.camel@yod>
+
+Dear Dirk,
+
+Le vendredi 29 ao?t 2008 ? 17:37 -0500, Dirk Eddelbuettel a ?crit :
+> Emmanuel,
+> 
+> On 30 August 2008 at 00:04, Emmanuel Charpentier wrote:
+> | Dear list,
+> | 
+> | Setup : Ubuntu Hardy + updates + backports + security + R repository on
+> | a 3.2 GHz PIV dual-core processor.
+> | 
+> | Bitten (again...) by the "I'll optimize my setup" bug, I tried to test
+> | atlas. Following Dirk's advice on a not-so-recent post to R-help, I
+> | tried "apt-get install -s atlas3-doc atlas3-base-dev" (I tend to
+> | recompile some packages, so I need r-base-dev and I *think* I need
+> | atlas3-base-dev to allow the recompiled packages to use it, but I might
+> | be completely wrong...). Ahem ... :
+> | 
+> | [ Snip... ]
+> | 
+> | Les paquets suivants seront ENLEV?S :
+> |   libblas-dev liblapack-dev r-base-dev
+> | 
+> | [ Snip again ... ]
+> | 
+> | (for non-francophones : "The following packages will be REMOVED : ...").
+> | 
+> | However, atlas3-base *is* currently installed, and I never had problems
+> | recompiling packages.
+> 
+> Quick guess: you have the old atlas-* packages instead of the new libatlas-*
+> packages. Try 
+> 
+> 	$ sudo apt-get install libatlas3gf-base libatlas-base-dev
+
+Right on ! It happened that I had already libatlas3gf-base on my PIV
+system. libatlas-base-dev  installed without a hitch.
+
+My asinine insistence on atlas* was probably due to the fact that this
+system has been installed quite a bit ago (dapper ? or even before
+that ? ) and has been upgraded since. It has ben, however, reinforced by
+a README.Atlas file which hasn't been updated since 2001 and points to
+atlas2-*.
+
+Maybe an upgrade of this file would be in order ?
+
+Anyway, installing libatlas3gf-sse2 didn't produce any difference in the
+"small" test hinted at in the README file.
+
+[ Snip ...  ]
+
+> | Last but not least : Atlas does not seem to exist on other architectures
+> | (I'm interested in amd64, of course...), at least in Debian and Ubuntu.
+> | Are there similar projects for amd64 I'm not aware of ?
+> 
+> Are you sure?  This has built on many architectures for many years, and the
+> reason it took so long to get to libatlas [ie the new build with the new
+> Fortran compuler] was as far as I know the darn portability.
+> 
+> All this works on my Debian (which gets R from my Debian packages) and Ubuntu
+> (which gets R from CRAN) machines.
+
+We are both right : no atlas* executable package in Ubuntu or Debian
+amd64 (there is, however, an altas2-base-dev (IIRC)...). But there is
+indeed a libatlas3gf-base and a -dev packages in Ubuntu amd64.
+
+That's what happens when you use "dpkg -l atlas*" instead of searching
+"atlas" in the synaptic GUI... I might have got the right hint by
+searching "*atlas*" instead...
+
+Installing it gave me more or less 3x acceleration of your matrix
+inversion test. Mmmm...
+
+> Hope this helps, Dirk
+
+It sure did ! Thank you, Dirk !
+
+					Emmanuel Charpentier
+
+

@@ -1,0 +1,984 @@
+From gregor.gorjanc at bfro.uni-lj.si  Tue May  3 12:31:55 2005
+From: gregor.gorjanc at bfro.uni-lj.si (Gregor GORJANC)
+Date: Tue May  3 12:33:19 2005
+Subject: [R-sig-Debian] r-doc-html link problems
+Message-ID: <4277531B.60101@bfro.uni-lj.si>
+
+Hello!
+
+I have a Debian package r-doc-html 2.1.0-1 and I can't find the HTML files
+of manuals. Contents of the package are:
+
+$ dpkg -S r-doc-html
+r-doc-html: /usr/share/doc/r-doc-html/changelog.Debian.gz
+r-doc-html: /usr/share/doc/r-doc-html/manual/R-data.html
+r-doc-html: /usr/share/doc/r-doc-html/manual/R-lang.html
+r-doc-html: /usr/share/doc/r-doc-html/copyright
+r-doc-html: /usr/share/doc/r-doc-html
+r-doc-html: /usr/share/doc/r-doc-html/manual/R-intro.html
+r-doc-html: /usr/share/doc/r-doc-html/manual/R-FAQ.html
+r-doc-html: /usr/share/doc/r-doc-html/manual/R-admin.html
+r-doc-html: /usr/share/doc/r-doc-html/manual/R-exts.html
+r-doc-html: /usr/share/doc/r-doc-html/manual
+
+$ cd /usr/share/doc/r-doc-html
+$ ll
+total 24K
+-rw-r--r--  1 root root 12K 2005-04-19 03:32 changelog.Debian.gz
+-rw-r--r--  1 root root 12K 2005-04-18 23:29 copyright
+lrwxrwxrwx  1 root root  25 2005-01-03 12:44 manual ->
+../../../lib/R/doc/manual/
+
+$ cd manual
+$ pwd
+/usr/lib/R/doc/manual
+$ ll
+total 9.1M
+lrwxrwxrwx  1 root root   41 2005-05-03 12:20 R-admin.html ->
+../../../../lib/R/doc/manual/R-admin.html
+-rw-r--r--  1 root root 252K 2005-02-21 02:34 R-admin.pdf
+lrwxrwxrwx  1 root root   40 2005-05-03 12:20 R-data.html ->
+../../../../lib/R/doc/manual/R-data.html
+-rw-r--r--  1 root root 266K 2005-02-21 02:34 R-data.pdf
+-rw-r--r--  1 root root 6.6M 2005-02-21 02:34 refman.pdf
+lrwxrwxrwx  1 root root   40 2005-05-03 12:20 R-exts.html ->
+../../../../lib/R/doc/manual/R-exts.html
+-rw-r--r--  1 root root 561K 2005-02-21 02:34 R-exts.pdf
+lrwxrwxrwx  1 root root   39 2005-05-03 12:20 R-FAQ.html ->
+../../../../lib/R/doc/manual/R-FAQ.html
+-rw-r--r--  1 root root 398K 2005-02-21 02:34 R-FAQ.pdf
+lrwxrwxrwx  1 root root   41 2005-05-03 12:20 R-intro.html ->
+../../../../lib/R/doc/manual/R-intro.html
+-rw-r--r--  1 root root 647K 2005-02-21 02:34 R-intro.pdf
+lrwxrwxrwx  1 root root   40 2005-05-03 12:20 R-lang.html ->
+../../../../lib/R/doc/manual/R-lang.html
+-rw-r--r--  1 root root 410K 2005-02-21 02:34 R-lang.pdf
+
+This links point to them selves. Should I report this to
+http://bugs.debian.org/r-doc-html?
+
+I appologize for wrapping.
+
+-- 
+Lep pozdrav / With regards,
+    Gregor Gorjanc
+
+----------------------------------------------------------------------
+University of Ljubljana
+Biotechnical Faculty        URI: http://www.bfro.uni-lj.si/MR/ggorjan
+Zootechnical Department     mail: gregor.gorjanc <at> bfro.uni-lj.si
+Groblje 3                   tel: +386 (0)1 72 17 861
+SI-1230 Domzale             fax: +386 (0)1 72 17 888
+Slovenia, Europe
+----------------------------------------------------------------------
+"One must learn by doing the thing; for though you think you know it,
+ you have no certainty until you try." Sophocles ~ 450 B.C.
+
+From gregor.gorjanc at bfro.uni-lj.si  Tue May  3 12:32:43 2005
+From: gregor.gorjanc at bfro.uni-lj.si (Gregor GORJANC)
+Date: Tue May  3 12:34:26 2005
+Subject: [R-sig-Debian] Locale settings on Debian
+Message-ID: <4277534B.2030008@bfro.uni-lj.si>
+
+Hello!
+
+I have a problem with locales in R (debian package r-base) 2.1.0-1. I get
+the following error:
+
+$ R
+
+R : Copyright 2005, The R Foundation for Statistical Computing
+Version 2.1.0  (2005-04-18), ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for a HTML browser interface to help.
+Type 'q()' to quit R.
+
+
+R> plot(1:10)
+Error in X11() : could not find any X11 fonts
+Check that the Font Path is correct.
+In addition: Warning messages:
+1: locale not supported by Xlib: some X ops will operate in C locale
+2: X cannot set locale modifiers
+
+# In R I have the following locales, which are a mixture of mine setting
+# (look at the end of this mail) and R settings i.e. some my locales
+# settings were overriden by R and some added
+R> Sys.getlocale()
+[1]"LC_CTYPE=en_US.utf8;LC_NUMERIC=C;LC_TIME=en_US.utf8;LC_COLLATE=en_US.utf8;
+LC_MONETARY=en_US.utf8;LC_MESSAGES=en_US.utf8;LC_PAPER=C;LC_NAME=C;LC_ADDRESS=C;
+LC_TELEPHONE=C;LC_MEASUREMENT=C;LC_IDENTIFICATION=C"
+
+# and new internationalization functions say that everything should be OK
+R> l10n_info()
+$MBCS
+[1] TRUE
+
+$"UTF-8"
+[1] TRUE
+
+# and It afcourse works fine if I set
+R> Sys.setlocale("LC_CTYPE", "C")
+
+# If I echo LC variables in terminal I have
+$ echo $LC
+$LC_ALL          $LC_MEASUREMENT  $LC_PAPER        $LC_TIME
+
+$ echo $LC_PAPER
+a4
+
+$ echo $LC_TIME
+en_US
+
+$ echo $LC_MEASUREMENT
+metric
+
+$ echo $LC_ALL
+en_US.utf8
+
+$ echo $LAN
+$LANG      $LANGUAGE
+
+$ echo $LANG
+en_US.utf8
+
+$ echo $LANGUAGE
+en_US.utf8
+
+# I use en_US.utf8 since I need possibility to display also non-ascii
+# characters in terminal.
+
+Does anyone have any suggestions what should I do?
+
+---
+Lep pozdrav / With regards,
+    Gregor Gorjanc
+
+----------------------------------------------------------------------
+University of Ljubljana
+Biotechnical Faculty        URI: http://www.bfro.uni-lj.si/MR/ggorjan
+Zootechnical Department     mail: gregor.gorjanc <at> bfro.uni-lj.si
+Groblje 3                   tel: +386 (0)1 72 17 861
+SI-1230 Domzale             fax: +386 (0)1 72 17 888
+Slovenia, Europe
+----------------------------------------------------------------------
+"One must learn by doing the thing; for though you think you know it,
+ you have no certainty until you try." Sophocles ~ 450 B.C.
+
+From edd at debian.org  Tue May  3 13:20:17 2005
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue May  3 13:20:43 2005
+Subject: [R-sig-Debian] r-doc-html link problems
+In-Reply-To: <4277531B.60101@bfro.uni-lj.si>
+References: <4277531B.60101@bfro.uni-lj.si>
+Message-ID: <17015.24177.6613.212539@basebud.nulle.part>
+
+
+On 3 May 2005 at 12:31, Gregor GORJANC wrote:
+| Hello!
+| 
+| I have a Debian package r-doc-html 2.1.0-1 and I can't find the HTML files
+| of manuals. Contents of the package are:
+
+"It works for me", i.e. 'dpkg -c' on the uninstalled .deb shows the manuals
+in /usr/lib/R/doc/manual/ and the links under /usr/share/doc/r-base-html.
+
+| This links point to them selves. Should I report this to
+| http://bugs.debian.org/r-doc-html?
+
+Someone made the same bug report to me before, and I couldn't replicate it.
+It looks like it happens during upgrades.  Try purgeing the package, and
+re-installing.
+
+| I appologize for wrapping.
+
+I apologize for the inconvenience, but not knowing what caused it and seeing the
+package itself intact I am not sure what alter.
+
+Regards, Dirk
+
+-- 
+An economist is an expert who will know tomorrow why the things he 
+predicted yesterday didn't happen today.  --  Laurence J. Peter
+
+From gregor.gorjanc at bfro.uni-lj.si  Tue May  3 13:36:56 2005
+From: gregor.gorjanc at bfro.uni-lj.si (Gregor GORJANC)
+Date: Tue May  3 13:38:03 2005
+Subject: [R-sig-Debian] r-doc-html link problems
+In-Reply-To: <17015.24177.6613.212539@basebud.nulle.part>
+References: <4277531B.60101@bfro.uni-lj.si>
+	<17015.24177.6613.212539@basebud.nulle.part>
+Message-ID: <42776258.9010904@bfro.uni-lj.si>
+
+Dirk Eddelbuettel wrote:
+> On 3 May 2005 at 12:31, Gregor GORJANC wrote:
+> | Hello!
+> | 
+> | I have a Debian package r-doc-html 2.1.0-1 and I can't find the HTML files
+> | of manuals. Contents of the package are:
+> 
+> "It works for me", i.e. 'dpkg -c' on the uninstalled .deb shows the manuals
+> in /usr/lib/R/doc/manual/ and the links under /usr/share/doc/r-base-html.
+> 
+> | This links point to them selves. Should I report this to
+> | http://bugs.debian.org/r-doc-html?
+> 
+> Someone made the same bug report to me before, and I couldn't replicate it.
+> It looks like it happens during upgrades.  Try purgeing the package, and
+> re-installing.
+Yap, that helped. Thank you Dirk!
+
+-- 
+Lep pozdrav / With regards,
+    Gregor Gorjanc
+
+----------------------------------------------------------------------
+University of Ljubljana
+Biotechnical Faculty        URI: http://www.bfro.uni-lj.si/MR/ggorjan
+Zootechnical Department     mail: gregor.gorjanc <at> bfro.uni-lj.si
+Groblje 3                   tel: +386 (0)1 72 17 861
+SI-1230 Domzale             fax: +386 (0)1 72 17 888
+Slovenia, Europe
+----------------------------------------------------------------------
+"One must learn by doing the thing; for though you think you know it,
+ you have no certainty until you try." Sophocles ~ 450 B.C.
+
+From edd at debian.org  Tue May  3 13:54:10 2005
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue May  3 13:54:23 2005
+Subject: [R-sig-Debian] r-doc-html link problems
+In-Reply-To: <42776258.9010904@bfro.uni-lj.si>
+References: <4277531B.60101@bfro.uni-lj.si>
+	<17015.24177.6613.212539@basebud.nulle.part>
+	<42776258.9010904@bfro.uni-lj.si>
+Message-ID: <17015.26210.498523.813926@basebud.nulle.part>
+
+
+On 3 May 2005 at 13:36, Gregor GORJANC wrote:
+| Dirk Eddelbuettel wrote:
+| > On 3 May 2005 at 12:31, Gregor GORJANC wrote:
+| > | Hello!
+| > | 
+| > | I have a Debian package r-doc-html 2.1.0-1 and I can't find the HTML files
+| > | of manuals. Contents of the package are:
+| > 
+| > "It works for me", i.e. 'dpkg -c' on the uninstalled .deb shows the manuals
+| > in /usr/lib/R/doc/manual/ and the links under /usr/share/doc/r-base-html.
+| > 
+| > | This links point to them selves. Should I report this to
+| > | http://bugs.debian.org/r-doc-html?
+| > 
+| > Someone made the same bug report to me before, and I couldn't replicate it.
+| > It looks like it happens during upgrades.  Try purgeing the package, and
+| > re-installing.
+| Yap, that helped. Thank you Dirk!
+
+Any idea what your directory structure was like before, or which version you
+were upgrading from?  If there was something the package could during the
+preinst phase it would help.
+
+Dirk
+
+-- 
+An economist is an expert who will know tomorrow why the things he 
+predicted yesterday didn't happen today.  --  Laurence J. Peter
+
+From gregor.gorjanc at bfro.uni-lj.si  Wed May  4 08:44:19 2005
+From: gregor.gorjanc at bfro.uni-lj.si (Gregor GORJANC)
+Date: Wed May  4 08:45:31 2005
+Subject: [R-sig-Debian] r-doc-html link problems
+In-Reply-To: <17016.12530.828172.186860@basebud.nulle.part>
+References: <4277531B.60101@bfro.uni-lj.si>	<17015.24177.6613.212539@basebud.nulle.part>	<42776258.9010904@bfro.uni-lj.si>	<17015.26210.498523.813926@basebud.nulle.part>	<4277723C.4080506@bfro.uni-lj.si>
+	<17016.12530.828172.186860@basebud.nulle.part>
+Message-ID: <42786F43.6050401@bfro.uni-lj.si>
+
+Dirk Eddelbuettel wrote:
+> On 3 May 2005 at 14:44, Gregor GORJANC wrote:
+> | Dirk Eddelbuettel wrote:
+> | ...
+> | > | > Someone made the same bug report to me before, and I couldn't replicate it.
+> | > | > It looks like it happens during upgrades.  Try purgeing the package, and
+> | > | > re-installing.
+> | > | Yap, that helped. Thank you Dirk!
+> | > 
+> | > Any idea what your directory structure was like before, or which version you
+> | > were upgrading from?  If there was something the package could during the
+> | > preinst phase it would help.
+> | 
+> | I showed the directory structure in first mail. Maybe there was a problem,
+> 
+> I need to know what it looked like _before_ you installed the suspected
+> version.  
+Don't hold me for word but I think that HTML files without any links were
+in map /usr/lib/R/doc/manual. I'm saying this based on my bookmark in
+konqueror. That's all I can come up with.
+
+> | Unfortunatelly I don't know which version I had before.
+> 
+> Yes, this one will be hard to debug without a time machine.
+:)
+
+-- 
+Lep pozdrav / With regards,
+    Gregor Gorjanc
+
+----------------------------------------------------------------------
+University of Ljubljana
+Biotechnical Faculty        URI: http://www.bfro.uni-lj.si/MR/ggorjan
+Zootechnical Department     mail: gregor.gorjanc <at> bfro.uni-lj.si
+Groblje 3                   tel: +386 (0)1 72 17 861
+SI-1230 Domzale             fax: +386 (0)1 72 17 888
+Slovenia, Europe
+----------------------------------------------------------------------
+"One must learn by doing the thing; for though you think you know it,
+ you have no certainty until you try." Sophocles ~ 450 B.C.
+
+From rdiaz at cnio.es  Fri May  6 17:14:02 2005
+From: rdiaz at cnio.es (Ramon Diaz-Uriarte)
+Date: Fri May  6 17:21:13 2005
+Subject: [R-sig-Debian] building from source after installing Debian packages
+Message-ID: <200505061714.02819.rdiaz@cnio.es>
+
+(Apologies for double posting; I sent this to r-help and was suggested that I 
+ask here which I should probable have done to begin with).
+
+***************
+Dear All,
+
+I've got into the habit of installing R from the precompiled Debian binaries, 
+including many of the packages from the r-cran-* Debian packages, and later 
+building from source (e.g., to link against Goto's BLAS, or to build patched 
+versions, etc). I install the newly built R to the very same place 
+(/usr/lib/R). This allows me to build and update R when I wish, AND provides 
+the ease of quickly updating many packages.
+
+Things have always worked fine, but after a few funny problems (which could be 
+unrelated to the process itself) I've started wondering if this is a rather 
+silly thing to do, and if I should keep my own build separate from the Debian 
+stuff. Any advice would be much appreciated.
+
+Thanks,
+-- 
+Ram?n D?az-Uriarte
+Bioinformatics Unit
+Centro Nacional de Investigaciones Oncol?gicas (CNIO)
+(Spanish National Cancer Center)
+Melchor Fern?ndez Almagro, 3
+28029 Madrid (Spain)
+Fax: +-34-91-224-6972
+Phone: +-34-91-224-6900
+
+http://ligarto.org/rdiaz
+PGP KeyID: 0xE89B3462
+(http://ligarto.org/rdiaz/0xE89B3462.asc)
+
+
+
+
+**NOTA DE CONFIDENCIALIDAD** Este correo electr?nico, y en su caso los ficheros adjuntos, pueden contener informaci?n protegida para el uso exclusivo de su destinatario. Se proh?be la distribuci?n, reproducci?n o cualquier otro tipo de transmisi?n por parte de otra persona que no sea el destinatario. Si usted recibe por error este correo, se ruega comunicarlo al remitente y borrar el mensaje recibido. 
+**CONFIDENTIALITY NOTICE** This email communication and any attachments may contain confidential and privileged information for the sole use of the designated recipient named above. Distribution, reproduction or any other use of this transmission by any party other than the intended recipient is prohibited. If you are not the intended recipient please contact the sender and delete all copies.
+
+From edd at debian.org  Sat May  7 03:43:56 2005
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat May  7 03:44:09 2005
+Subject: [R-sig-Debian] building from source after installing Debian
+	packages
+In-Reply-To: <200505061714.02819.rdiaz@cnio.es>
+References: <200505061714.02819.rdiaz@cnio.es>
+Message-ID: <17020.7516.286250.380410@basebud.nulle.part>
+
+
+On 6 May 2005 at 17:14, Ramon Diaz-Uriarte wrote:
+| (Apologies for double posting; I sent this to r-help and was suggested that I 
+| ask here which I should probable have done to begin with).
+| 
+| ***************
+| Dear All,
+| 
+| I've got into the habit of installing R from the precompiled Debian binaries, 
+| including many of the packages from the r-cran-* Debian packages, and later 
+| building from source (e.g., to link against Goto's BLAS, or to build patched 
+| versions, etc). I install the newly built R to the very same place 
+| (/usr/lib/R). This allows me to build and update R when I wish, AND provides 
+| the ease of quickly updating many packages.
+| 
+| Things have always worked fine, but after a few funny problems (which could be 
+| unrelated to the process itself) I've started wondering if this is a rather 
+| silly thing to do, and if I should keep my own build separate from the Debian 
+| stuff. Any advice would be much appreciated.
+
+I don't think there is a silver bullet. It's a touch problem as you're mixing
+two systems.
+
+We plan to (eventually) provide all CRAN packages as apt-get'able .deb
+packages. But I do not know how long it will take to get there. We have some
+code to build the packages, and the code needs volunteers to test, correct,
+extend, ... it.
+
+OTOH as you're building the packages anyway for yourself, possibly for
+several machines, it may make sense if you also start a 'community pool' into
+which we're uploading Debian packages?  It is /really/ easy to build Debian
+packages from CRAN sources, but some checking by actual users would surely
+improve the overall quality.
+
+Would that be interest?  Does anybody feel like prototyping this /
+experimenting with it?
+
+Cheers, Dirk
+
+-- 
+An economist is an expert who will know tomorrow why the things he 
+predicted yesterday didn't happen today.  --  Laurence J. Peter
+
+From rdiaz at cnio.es  Mon May  9 14:55:56 2005
+From: rdiaz at cnio.es (Ramon Diaz-Uriarte)
+Date: Mon May  9 15:03:40 2005
+Subject: [R-sig-Debian] building from source after installing Debian
+	packages
+In-Reply-To: <17020.7516.286250.380410@basebud.nulle.part>
+References: <200505061714.02819.rdiaz@cnio.es>
+	<17020.7516.286250.380410@basebud.nulle.part>
+Message-ID: <200505091455.56705.rdiaz@cnio.es>
+
+Hi Dirk,
+
+
+On Saturday 07 May 2005 03:43, Dirk Eddelbuettel wrote:
+> On 6 May 2005 at 17:14, Ramon Diaz-Uriarte wrote:
+> | (Apologies for double posting; I sent this to r-help and was suggested
+> | that I ask here which I should probable have done to begin with).
+> |
+> | ***************
+> | Dear All,
+> |
+> | I've got into the habit of installing R from the precompiled Debian
+> | binaries, including many of the packages from the r-cran-* Debian
+> | packages, and later building from source (e.g., to link against Goto's
+> | BLAS, or to build patched versions, etc). I install the newly built R to
+> | the very same place (/usr/lib/R). This allows me to build and update R
+> | when I wish, AND provides the ease of quickly updating many packages.
+> |
+> | Things have always worked fine, but after a few funny problems (which
+> | could be unrelated to the process itself) I've started wondering if this
+> | is a rather silly thing to do, and if I should keep my own build separate
+> | from the Debian stuff. Any advice would be much appreciated.
+
+> I don't think there is a silver bullet. It's a touch problem as you're
+> mixing two systems.
+
+And I guess that potential problems might be hidden behind an "apparently 
+running OK" installation?
+>
+> We plan to (eventually) provide all CRAN packages as apt-get'able .deb
+> packages. But I do not know how long it will take to get there. We have
+> some code to build the packages, and the code needs volunteers to test,
+> correct, extend, ... it.
+>
+> OTOH as you're building the packages anyway for yourself, possibly for
+
+I think my message was poorly worded. Actually, I use the deb packages (and 
+only build those that do not exist as debs). That is the "advantage" of my 
+modus operandi: I can use all the pre-built Debian packages, while at the 
+same time using Goto's BLAS and using the patched R sources for R itself.
+
+> several machines, it may make sense if you also start a 'community pool'
+> into which we're uploading Debian packages?  It is /really/ easy to build
+> Debian packages from CRAN sources, but some checking by actual users would
+> surely improve the overall quality.
+>
+> Would that be interest?  Does anybody feel like prototyping this /
+> experimenting with it?
+
+Sure. What can I do? How do I do it? In case architecture matters, I can do 
+and test these sorts of things for Intel Xeons, AMD Opterons (debian-pure64 
+sid), and Intel Centrinos.
+
+
+Best,
+
+R.
+
+-- 
+Ram?n D?az-Uriarte
+Bioinformatics Unit
+Centro Nacional de Investigaciones Oncol?gicas (CNIO)
+(Spanish National Cancer Center)
+Melchor Fern?ndez Almagro, 3
+28029 Madrid (Spain)
+Fax: +-34-91-224-6972
+Phone: +-34-91-224-6900
+
+http://ligarto.org/rdiaz
+PGP KeyID: 0xE89B3462
+(http://ligarto.org/rdiaz/0xE89B3462.asc)
+
+
+
+
+**NOTA DE CONFIDENCIALIDAD** Este correo electr?nico, y en su caso los ficheros adjuntos, pueden contener informaci?n protegida para el uso exclusivo de su destinatario. Se proh?be la distribuci?n, reproducci?n o cualquier otro tipo de transmisi?n por parte de otra persona que no sea el destinatario. Si usted recibe por error este correo, se ruega comunicarlo al remitente y borrar el mensaje recibido. 
+**CONFIDENTIALITY NOTICE** This email communication and any attachments may contain confidential and privileged information for the sole use of the designated recipient named above. Distribution, reproduction or any other use of this transmission by any party other than the intended recipient is prohibited. If you are not the intended recipient please contact the sender and delete all copies.
+
+From edd at debian.org  Tue May 10 03:15:15 2005
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue May 10 03:15:26 2005
+Subject: [R-sig-Debian] building from source after installing Debian
+	packages
+In-Reply-To: <200505091455.56705.rdiaz@cnio.es>
+References: <200505061714.02819.rdiaz@cnio.es>
+	<17020.7516.286250.380410@basebud.nulle.part>
+	<200505091455.56705.rdiaz@cnio.es>
+Message-ID: <17024.2851.171696.811085@basebud.nulle.part>
+
+
+Ramon,
+
+| > Would that be interest?  Does anybody feel like prototyping this /
+| > experimenting with it?
+| 
+| Sure. What can I do? How do I do it? In case architecture matters, I can do 
+| and test these sorts of things for Intel Xeons, AMD Opterons (debian-pure64 
+| sid), and Intel Centrinos.
+
+Try signing up at alioth.debian.org; you'll get a $USER-guest account as a
+non-Debianer (e.g. rdiaz-guest) which we can add to the pkg-bioc project.
+There is a bit of code which can already (auto-)build batches packages, but
+much remains to be done.  See if you can get hold of the Perl script and make
+it work. Also see the pkg-bioc-devel list archives.
+
+Welcome aboard!
+
+Cheers, Dirk
+
+-- 
+An economist is an expert who will know tomorrow why the things he 
+predicted yesterday didn't happen today.  --  Laurence J. Peter
+
+From rdiaz at cnio.es  Tue May 10 13:54:01 2005
+From: rdiaz at cnio.es (Ramon Diaz-Uriarte)
+Date: Tue May 10 14:01:55 2005
+Subject: [R-sig-Debian] building from source after installing Debian
+	packages
+In-Reply-To: <17024.2851.171696.811085@basebud.nulle.part>
+References: <200505061714.02819.rdiaz@cnio.es>
+	<200505091455.56705.rdiaz@cnio.es>
+	<17024.2851.171696.811085@basebud.nulle.part>
+Message-ID: <200505101354.01724.rdiaz@cnio.es>
+
+On Tuesday 10 May 2005 03:15, Dirk Eddelbuettel wrote:
+> Ramon,
+>
+> | > Would that be interest?  Does anybody feel like prototyping this /
+> | > experimenting with it?
+> |
+> | Sure. What can I do? How do I do it? In case architecture matters, I can
+> | do and test these sorts of things for Intel Xeons, AMD Opterons
+> | (debian-pure64 sid), and Intel Centrinos.
+>
+> Try signing up at alioth.debian.org; you'll get a $USER-guest account as a
+> non-Debianer (e.g. rdiaz-guest) which we can add to the pkg-bioc project.
+> There is a bit of code which can already (auto-)build batches packages, but
+> much remains to be done.  See if you can get hold of the Perl script and
+> make it work. Also see the pkg-bioc-devel list archives.
+>
+> Welcome aboard!
+>
+> Cheers, Dirk
+
+
+Hi Dirk,
+
+I signed (rdiaz-guest) and was looking around. I could not find the code for 
+building packages (it seems there are no files for the pkg-bioc project which 
+I can access from alioth); is this the Perl script you mention and Egon 
+refers to in his message today to the pkg-bioc-devel list? 
+
+In addition, a couple of questions: to prevent accidentally building packages 
+which might use Goto's BLAS I assume all package building should be done 
+against a non-Goto's version?. Finally, I know no Perl at all (= even 
+surrounded by bioinformaticians I've resisted heroically all efforts to coax 
+me to learn Perl), but I assume that should be no problem, at least in terms 
+of checking that things work, etc.
+
+
+Best,
+
+R.
+-- 
+Ram?n D?az-Uriarte
+Bioinformatics Unit
+Centro Nacional de Investigaciones Oncol?gicas (CNIO)
+(Spanish National Cancer Center)
+Melchor Fern?ndez Almagro, 3
+28029 Madrid (Spain)
+Fax: +-34-91-224-6972
+Phone: +-34-91-224-6900
+
+http://ligarto.org/rdiaz
+PGP KeyID: 0xE89B3462
+(http://ligarto.org/rdiaz/0xE89B3462.asc)
+
+
+
+
+**NOTA DE CONFIDENCIALIDAD** Este correo electr?nico, y en su caso los ficheros adjuntos, pueden contener informaci?n protegida para el uso exclusivo de su destinatario. Se proh?be la distribuci?n, reproducci?n o cualquier otro tipo de transmisi?n por parte de otra persona que no sea el destinatario. Si usted recibe por error este correo, se ruega comunicarlo al remitente y borrar el mensaje recibido. 
+**CONFIDENTIALITY NOTICE** This email communication and any attachments may contain confidential and privileged information for the sole use of the designated recipient named above. Distribution, reproduction or any other use of this transmission by any party other than the intended recipient is prohibited. If you are not the intended recipient please contact the sender and delete all copies.
+
+From e.willighagen at science.ru.nl  Tue May 10 14:10:47 2005
+From: e.willighagen at science.ru.nl (Egon Willighagen)
+Date: Tue May 10 14:13:43 2005
+Subject: [R-sig-Debian] building from source after installing Debian
+	packages
+In-Reply-To: <200505101354.01724.rdiaz@cnio.es>
+References: <200505061714.02819.rdiaz@cnio.es>
+	<17024.2851.171696.811085@basebud.nulle.part>
+	<200505101354.01724.rdiaz@cnio.es>
+Message-ID: <200505101410.47674.e.willighagen@science.ru.nl>
+
+On Tuesday 10 May 2005 01:54 pm, Ramon Diaz-Uriarte wrote:
+> On Tuesday 10 May 2005 03:15, Dirk Eddelbuettel wrote:
+> I signed (rdiaz-guest) and was looking around. I could not find the code
+> for building packages (it seems there are no files for the pkg-bioc project
+> which I can access from alioth); is this the Perl script you mention and
+> Egon refers to in his message today to the pkg-bioc-devel list?
+
+$ cat tools/CVS/Root
+:ext:egonw-guest@cvs.alioth.debian.org:/cvsroot/pkg-bioc
+
+So do,
+
+cvs -d:ext:rdiaz-guest@cvs.alioth.debian.org:/cvsroot/pkg-bioc co tools
+
+> In addition, a couple of questions: to prevent accidentally building
+> packages which might use Goto's BLAS I assume all package building should
+> be done against a non-Goto's version?. 
+
+We could try... in general, if Debian cannot fullfil a dependency, it's marked 
+as cannot build in the Perl build script.
+
+> Finally, I know no Perl at all (= 
+> even surrounded by bioinformaticians I've resisted heroically all efforts
+> to coax me to learn Perl), but I assume that should be no problem, at least
+> in terms of checking that things work, etc.
+
+:)
+
+The script is pretty well documented, and Perl is not difficult.
+
+Egon
+
+From edd at debian.org  Wed May 11 03:22:44 2005
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed May 11 03:22:56 2005
+Subject: [R-sig-Debian] building from source after installing Debian
+	packages
+In-Reply-To: <200505101354.01724.rdiaz@cnio.es>
+References: <200505061714.02819.rdiaz@cnio.es>
+	<200505091455.56705.rdiaz@cnio.es>
+	<17024.2851.171696.811085@basebud.nulle.part>
+	<200505101354.01724.rdiaz@cnio.es>
+Message-ID: <17025.24164.842146.784710@basebud.nulle.part>
+
+
+Ramon,
+
+On 10 May 2005 at 13:54, Ramon Diaz-Uriarte wrote:
+| I signed (rdiaz-guest) and was looking around.
+
+Excellent -- I just added you to 'pkg-bioc' (which also covers CRAN, the
+projects just happens to have been started by Matt with an initial BioC focus)
+
+| I could not find the code for 
+| building packages (it seems there are no files for the pkg-bioc project which 
+| I can access from alioth); is this the Perl script you mention and Egon 
+| refers to in his message today to the pkg-bioc-devel list? 
+
+I think Egon covered that in his follow-up.
+
+| In addition, a couple of questions: to prevent accidentally building packages 
+| which might use Goto's BLAS I assume all package building should be done 
+| against a non-Goto's version?. 
+
+Dunno -- I never installed Goto's BLAS but stuck with Atlas. With Atlas, it
+is actually much slicker, and easier, thanks to Camm's wizardry with the 
+virtual packages. You can build with /any/ version of refblas, blas, atlas,
+... and the correct dependencies are created. (There have of course been
+bugs, but it is stable now).
+
+Just try with Goto BLAS. If it creates a Depends: we cannot satisfy you will
+surely hear from us :)
+
+| Finally, I know no Perl at all (= even 
+| surrounded by bioinformaticians I've resisted heroically all efforts to coax 
+| me to learn Perl), but I assume that should be no problem, at least in terms 
+| of checking that things work, etc.
+
+I sort-of remembered that from talking to you in the past.  Well, most of the
+work at the next stage will be testing, and adding / refining Depends: at the
+Debian layer (where package names may be different from what is encoded at
+CRAN). 
+
+Thanks for joining the team! We're glad to have you.
+
+Cheers, Dirk
+
+-- 
+An economist is an expert who will know tomorrow why the things he 
+predicted yesterday didn't happen today.  --  Laurence J. Peter
+
+From rdiaz at cnio.es  Wed May 11 14:25:23 2005
+From: rdiaz at cnio.es (Ramon Diaz-Uriarte)
+Date: Wed May 11 14:33:45 2005
+Subject: [R-sig-Debian] building from source after installing Debian
+	packages
+In-Reply-To: <200505101410.47674.e.willighagen@science.ru.nl>
+References: <200505061714.02819.rdiaz@cnio.es>
+	<200505101354.01724.rdiaz@cnio.es>
+	<200505101410.47674.e.willighagen@science.ru.nl>
+Message-ID: <200505111425.23257.rdiaz@cnio.es>
+
+> So do,
+>
+> cvs -d:ext:rdiaz-guest@cvs.alioth.debian.org:/cvsroot/pkg-bioc co tools
+
+Thanks, Egon!! I just checked out the sources.
+>
+> > In addition, a couple of questions: to prevent accidentally building
+> > packages which might use Goto's BLAS I assume all package building should
+> > be done against a non-Goto's version?.
+>
+> We could try... in general, if Debian cannot fullfil a dependency, it's
+> marked as cannot build in the Perl build script.
+
+OK. I'll try and see what happens (but might try with the orthodox stuff 
+first).
+
+>
+> > Finally, I know no Perl at all (=
+> > even surrounded by bioinformaticians I've resisted heroically all efforts
+> > to coax me to learn Perl), but I assume that should be no problem, at
+> > least in terms of checking that things work, etc.
+> >
+> :)
+>
+> The script is pretty well documented, and Perl is not difficult.
+
+The first part is certainly true!
+
+R.
+
+>
+> Egon
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian@r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Ram?n D?az-Uriarte
+Bioinformatics Unit
+Centro Nacional de Investigaciones Oncol?gicas (CNIO)
+(Spanish National Cancer Center)
+Melchor Fern?ndez Almagro, 3
+28029 Madrid (Spain)
+Fax: +-34-91-224-6972
+Phone: +-34-91-224-6900
+
+http://ligarto.org/rdiaz
+PGP KeyID: 0xE89B3462
+(http://ligarto.org/rdiaz/0xE89B3462.asc)
+
+
+
+
+**NOTA DE CONFIDENCIALIDAD** Este correo electr?nico, y en su caso los ficheros adjuntos, pueden contener informaci?n protegida para el uso exclusivo de su destinatario. Se proh?be la distribuci?n, reproducci?n o cualquier otro tipo de transmisi?n por parte de otra persona que no sea el destinatario. Si usted recibe por error este correo, se ruega comunicarlo al remitente y borrar el mensaje recibido. 
+**CONFIDENTIALITY NOTICE** This email communication and any attachments may contain confidential and privileged information for the sole use of the designated recipient named above. Distribution, reproduction or any other use of this transmission by any party other than the intended recipient is prohibited. If you are not the intended recipient please contact the sender and delete all copies.
+
+From rdiaz at cnio.es  Wed May 11 14:34:39 2005
+From: rdiaz at cnio.es (Ramon Diaz-Uriarte)
+Date: Wed May 11 14:42:43 2005
+Subject: [R-sig-Debian] building from source after installing Debian
+	packages
+In-Reply-To: <17025.24164.842146.784710@basebud.nulle.part>
+References: <200505061714.02819.rdiaz@cnio.es>
+	<200505101354.01724.rdiaz@cnio.es>
+	<17025.24164.842146.784710@basebud.nulle.part>
+Message-ID: <200505111434.39285.rdiaz@cnio.es>
+
+> Dunno -- I never installed Goto's BLAS but stuck with Atlas. With Atlas, it
+> is actually much slicker, and easier, thanks to Camm's wizardry with the
+> virtual packages. You can build with /any/ version of refblas, blas, atlas,
+> ... and the correct dependencies are created. (There have of course been
+> bugs, but it is stable now).
+>
+> Just try with Goto BLAS. If it creates a Depends: we cannot satisfy you
+> will surely hear from us :)
+
+OK. I'll try that.
+
+>
+> | Finally, I know no Perl at all (= even
+> | surrounded by bioinformaticians I've resisted heroically all efforts to
+> | coax me to learn Perl), but I assume that should be no problem, at least
+> | in terms of checking that things work, etc.
+>
+> I sort-of remembered that from talking to you in the past.  Well, most of
+> the work at the next stage will be testing, and adding / refining Depends:
+> at the Debian layer (where package names may be different from what is
+> encoded at CRAN).
+
+I checked-out the cvs and I'll start playing with it this weekend. (But why  
+is my non-perl-parlance so easy to remember?)
+
+>
+> Thanks for joining the team! We're glad to have you.
+
+Thanks.
+
+Best,
+
+R.
+
+>
+> Cheers, Dirk
+
+-- 
+Ram?n D?az-Uriarte
+Bioinformatics Unit
+Centro Nacional de Investigaciones Oncol?gicas (CNIO)
+(Spanish National Cancer Center)
+Melchor Fern?ndez Almagro, 3
+28029 Madrid (Spain)
+Fax: +-34-91-224-6972
+Phone: +-34-91-224-6900
+
+http://ligarto.org/rdiaz
+PGP KeyID: 0xE89B3462
+(http://ligarto.org/rdiaz/0xE89B3462.asc)
+
+
+
+
+**NOTA DE CONFIDENCIALIDAD** Este correo electr?nico, y en su caso los ficheros adjuntos, pueden contener informaci?n protegida para el uso exclusivo de su destinatario. Se proh?be la distribuci?n, reproducci?n o cualquier otro tipo de transmisi?n por parte de otra persona que no sea el destinatario. Si usted recibe por error este correo, se ruega comunicarlo al remitente y borrar el mensaje recibido. 
+**CONFIDENTIALITY NOTICE** This email communication and any attachments may contain confidential and privileged information for the sole use of the designated recipient named above. Distribution, reproduction or any other use of this transmission by any party other than the intended recipient is prohibited. If you are not the intended recipient please contact the sender and delete all copies.
+
+From Gregor.Gorjanc at bfro.uni-lj.si  Sun May 29 23:59:12 2005
+From: Gregor.Gorjanc at bfro.uni-lj.si (Gorjanc Gregor)
+Date: Sun May 29 23:59:22 2005
+Subject: [R-sig-Debian] Adding R's texmf to tetex's texmf
+Message-ID: <7FFEE688B57D7346BC6241C55900E730B701AF@pollux.bfro.uni-lj.si>
+
+Hello!
+
+I use Sweave for a report and up to now I always copied Sweave.sty to
+a folder where I have the report. But this can be done better (or did 
+I miss anything) with 
+
+* extension of TEXMF variable in texmf/web2c/texmf.cnf or 
+
+* linking /usr/lib/R/share/texmf to somewhere in /usr/share/texmf
+
+I tried with the following and I didn't need to put Sweave.sty in
+folder with a report:
+
+cd /usr/share/texmf/tex/latex
+mkdir R
+cd R
+ln -s /usr/lib/R/share/texmf/Sweave.sty
+# This two are not really needed but to do everything
+ln -s /usr/lib/R/share/texmf/Rd.sty
+ln -s /usr/lib/R/share/texmf/upquote.sty
+# Rebuild TeX database
+texhash
+
+Could this be added in postinstall script for debian package?
+
+I am not sure if this is also OK/enough for pdflatex or any other
+"TeX" tools. 
+
+Any comments?
+
+Lep pozdrav / With regards,
+    Gregor Gorjanc
+
+----------------------------------------------------------------------
+University of Ljubljana
+Biotechnical Faculty        URI: http://www.bfro.uni-lj.si/MR/ggorjan
+Zootechnical Department     mail: gregor.gorjanc <at> bfro.uni-lj.si
+Groblje 3                   tel: +386 (0)1 72 17 861
+SI-1230 Domzale             fax: +386 (0)1 72 17 888
+Slovenia, Europe
+----------------------------------------------------------------------
+"One must learn by doing the thing; for though you think you know it,
+ you have no certainty until you try." Sophocles ~ 450 B.C.
+
+From edd at debian.org  Mon May 30 02:19:17 2005
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon May 30 02:19:27 2005
+Subject: [R-sig-Debian] Adding R's texmf to tetex's texmf
+In-Reply-To: <7FFEE688B57D7346BC6241C55900E730B701AF@pollux.bfro.uni-lj.si>
+References: <7FFEE688B57D7346BC6241C55900E730B701AF@pollux.bfro.uni-lj.si>
+Message-ID: <17050.23557.752962.30902@basebud.nulle.part>
+
+
+On 29 May 2005 at 23:59, Gorjanc Gregor wrote:
+| Hello!
+| 
+| I use Sweave for a report and up to now I always copied Sweave.sty to
+| a folder where I have the report. But this can be done better (or did 
+| I miss anything) with 
+| 
+| * extension of TEXMF variable in texmf/web2c/texmf.cnf or 
+| 
+| * linking /usr/lib/R/share/texmf to somewhere in /usr/share/texmf
+| 
+| I tried with the following and I didn't need to put Sweave.sty in
+| folder with a report:
+| 
+| cd /usr/share/texmf/tex/latex
+| mkdir R
+| cd R
+| ln -s /usr/lib/R/share/texmf/Sweave.sty
+| # This two are not really needed but to do everything
+| ln -s /usr/lib/R/share/texmf/Rd.sty
+| ln -s /usr/lib/R/share/texmf/upquote.sty
+| # Rebuild TeX database
+| texhash
+| 
+| Could this be added in postinstall script for debian package?
+
+Yes. We wouldn't do the linking in the postinst, but just place the files or
+links in, say, /usr/share/texmf/tex/latex/R and then run texhash.
+
+| I am not sure if this is also OK/enough for pdflatex or any other
+| "TeX" tools. 
+
+Should be -- the share the same path search library kpathsea.
+
+Cheers, Dirk
+
+-- 
+Statistics: The (futile) attempt to offer certainty about uncertainty.
+         -- Roger Koenker, 'Dictionary of Received Ideas of Statistics'
+
+From prcleary at doctors.org.uk  Mon May 30 12:18:36 2005
+From: prcleary at doctors.org.uk (prcleary)
+Date: Mon May 30 12:17:30 2005
+Subject: [R-sig-Debian] automated response
+Message-ID: <10505301118.AA11946280@doctors.org.uk>
+
+I am on holiday until the 6th June. I will get back to you then.
+Cheers,
+Paul.
+

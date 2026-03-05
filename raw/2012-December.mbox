@@ -1,0 +1,650 @@
+From bfb at riseup.net  Mon Dec  3 19:40:11 2012
+From: bfb at riseup.net (bfb)
+Date: Mon, 03 Dec 2012 10:40:11 -0800
+Subject: [R-sig-Debian] How to used MKL (not revolution-mkl) with Debian
+ packages
+In-Reply-To: <50BCF0DF.90909@riseup.net>
+References: <1320279871.3580.3.camel@GongTop1> <50BCF0DF.90909@riseup.net>
+Message-ID: <50BCF20B.9050607@riseup.net>
+
+Hey there,
+Thanks for providing this information. I've been trying to link R to MKL 
+BLAS for about a week, and this is a huge breakthrough! You're great!
+
+Did you also link libRlapack.so to MKL? If so, did you use the same flags?
+
+Thanks much.
+
+
+From pauljohn32 at gmail.com  Tue Dec 11 17:54:45 2012
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Tue, 11 Dec 2012 10:54:45 -0600
+Subject: [R-sig-Debian] Debian packaging and openblas related crash when
+	profiling in R
+Message-ID: <CAErODj9a195Zv-9ja2VoFb7EJw=1+KrQJjpX8osEtggN_Aunyw@mail.gmail.com>
+
+Hello R-sig-debian and (hopefully) Dirk:
+
+On Debian wheezy, I have the R packaging that CRAN (you) provide.  I
+run into a little trouble while trying to fiddle with alternative
+BLAS.
+
+I know you and I went around on this last year and I think perhaps
+I've found something wrong in the framework, or I've just done
+something wrong.
+
+I installed the packages openblas-base and openblas-dev, and they do
+the "update alternatives" thing so that their shared library is at the
+right spot. I can't tell if R runs any faster, but it does run, which
+is encouraging.
+
+Now here's the problem I see. Using Rprof causes R to crash, but only
+when openblas stuff is in the picture. I wondered what you think?
+
+Here's the code to reproduce this:
+
+datM <- read.csv("http://pj.freefaculty.org/scraps/profile/missingDat.csv")
+library(Amelia)
+set.seed(12345)
+Rprof("Amelia-1.out")
+impA <- amelia(datM, m = 5, idvars="group")
+Rprof(NULL)
+summaryRprof("Amelia-1.out")
+
+
+Here's the crashed session
+
+> datM <- read.csv("http://pj.freefaculty.org/scraps/profile/missingDat.csv")
+> library(Amelia)
+Loading required package: foreign
+##
+## Amelia II: Multiple Imputation
+## (Version 1.6.3, built: 2012-06-21)
+## Copyright (C) 2005-2012 James Honaker, Gary King and Matthew Blackwell
+## Refer to http://gking.harvard.edu/amelia/ for more information
+##
+> set.seed(12345)
+> Rprof("Amelia-1.out")
+> impA <- amelia(datM, m = 5, idvars="group")
+-- Imputation 1 --
+
+ 1
+ *** caught segfault ***
+address 0x11000088, cause 'memory not mapped'
+Warning: stack imbalance in 'length', 121 then 122
+Warning: stack imbalance in '==', 120 then 121
+Warning: stack imbalance in 'if', 118 then 119
+Warning: stack imbalance in '<-', 120 then 124
+Warning: stack imbalance in '<-', 97 then 94
+Warning: stack imbalance in 'min', 117 then 116
+Warning: stack imbalance in 'min', 117 then 118
+
+Traceback:
+ 1: am.inv(a = g11)
+ 2: doTryCatch(return(expr), name, parentenv, handler)
+ 3: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 4: tryCatchList(expr, classes, parentenv, handlers)
+ 5: tryCatch(expr, error = function(e) {    call <- conditionCall(e)
+ if (!is.null(call)) {        if (identical(call[[1L]],
+quote(doTryCatch)))             call <- sys.call(-4L)        dcall <-
+deparse(call)[1L]        prefix <- paste("Error in", dcall, ": ")
+  LONG <- 75L        msg <- conditionMessage(e)        sm <-
+strsplit(msg, "\n")[[1L]]        w <- 14L + nchar(dcall, type = "w") +
+nchar(sm[1L], type = "w")        if (is.na(w))             w <- 14L +
+nchar(dcall, type = "b") + nchar(sm[1L],                 type = "b")
+     if (w > LONG)             prefix <- paste0(prefix, "\n  ")    }
+ else prefix <- "Error : "    msg <- paste0(prefix,
+conditionMessage(e), "\n")    .Internal(seterrmessage(msg[1L]))    if
+(!silent && identical(getOption("show.error.messages"),         TRUE))
+{        cat(msg, file = stderr())
+.Internal(printDeferredWarnings())    }    invisible(structure(msg,
+class = "try-error", condition = e))})
+ 6: try(am.inv(a = g11), silent = TRUE)
+ 7: amsweep(thetareal, c(FALSE, o[ss, ]))
+ 8: emfred(x, thetaold, indx$o, indx$m, indx$ivector, indx$icap,
+indx$AMr1, indx$AMr2, AM1stln = AM1stln, returntype = "theta",
+priors = priors, empri = empri, collect = collect)
+ 9: emarch(x.stacked$x, p2s = p2s, thetaold = NULL, tolerance =
+tolerance,     startvals = startvals, x.stacked$priors, empri = empri,
+frontend = frontend,     collect = collect, autopri = prepped$autopri,
+emburn = emburn)
+10: amelia.default(datM, m = 5, idvars = "group")
+11: amelia(datM, m = 5, idvars = "group")
+Warning: stack imbalance in '<-', 108 then 110
+
+Possible actions:
+1: abort (with core dump, if enabled)
+2: normal R exit
+3: exit R without saving workspace
+4: exit R saving workspace
+Selection: 3
+
+Process R exited abnormally with code 70 at Tue Dec 11 10:36:51 2012
+
+I double-checked /etc/alternatives and as you can see it does now
+point to openbas
+
+pauljohn at pjlap-124:alternatives$ ls -la libblas.*
+lrwxrwxrwx 1 root root 36 Dec 11 10:34 libblas.a ->
+/usr/lib/openblas-base/libopenblas.a
+lrwxrwxrwx 1 root root 37 Dec 11 10:34 libblas.so ->
+/usr/lib/openblas-base/libopenblas.so
+lrwxrwxrwx 1 root root 39 Dec 11 10:34 libblas.so.3 ->
+/usr/lib/openblas-base/libopenblas.so.0
+lrwxrwxrwx 1 root root 39 Dec 11 10:34 libblas.so.3gf ->
+/usr/lib/openblas-base/libopenblas.so.0
+
+-- 
+Paul E. Johnson
+Professor, Political Science      Assoc. Director
+1541 Lilac Lane, Room 504      Center for Research Methods
+University of Kansas                 University of Kansas
+http://pj.freefaculty.org               http://quant.ku.edu
+
+
+From edd at debian.org  Tue Dec 11 19:33:44 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 11 Dec 2012 12:33:44 -0600
+Subject: [R-sig-Debian] Debian packaging and openblas related crash
+	when	profiling in R
+In-Reply-To: <CAErODj9a195Zv-9ja2VoFb7EJw=1+KrQJjpX8osEtggN_Aunyw@mail.gmail.com>
+References: <CAErODj9a195Zv-9ja2VoFb7EJw=1+KrQJjpX8osEtggN_Aunyw@mail.gmail.com>
+Message-ID: <20679.31880.474541.317926@max.nulle.part>
+
+
+On 11 December 2012 at 10:54, Paul Johnson wrote:
+| Hello R-sig-debian and (hopefully) Dirk:
+| 
+| On Debian wheezy, I have the R packaging that CRAN (you) provide.  I
+
+Not so -- I provide the distro package. Johannes provides the Debian
+"backport" build via CRAN, Michael does likewise for Ubuntu.
+
+| run into a little trouble while trying to fiddle with alternative
+| BLAS.
+| 
+| I know you and I went around on this last year and I think perhaps
+| I've found something wrong in the framework, or I've just done
+| something wrong.
+| 
+| I installed the packages openblas-base and openblas-dev, and they do
+| the "update alternatives" thing so that their shared library is at the
+| right spot. I can't tell if R runs any faster, but it does run, which
+| is encouraging.
+| 
+| Now here's the problem I see. Using Rprof causes R to crash, but only
+| when openblas stuff is in the picture. I wondered what you think?
+| 
+| Here's the code to reproduce this:
+
+May I humbly suggest we file this under user-error?  
+
+R is famously single-threaded, OpenBLAS is not and I *strongly* suspect that
+by profiling you are getting yourself into callbacks that R is simply not
+built for. If you want to profile, constrain yourself to a single-threaded
+blas such as reference blas or Atlas.
+
+Dirk
+ 
+
+| datM <- read.csv("http://pj.freefaculty.org/scraps/profile/missingDat.csv")
+| library(Amelia)
+| set.seed(12345)
+| Rprof("Amelia-1.out")
+| impA <- amelia(datM, m = 5, idvars="group")
+| Rprof(NULL)
+| summaryRprof("Amelia-1.out")
+| 
+| 
+| Here's the crashed session
+| 
+| > datM <- read.csv("http://pj.freefaculty.org/scraps/profile/missingDat.csv")
+| > library(Amelia)
+| Loading required package: foreign
+| ##
+| ## Amelia II: Multiple Imputation
+| ## (Version 1.6.3, built: 2012-06-21)
+| ## Copyright (C) 2005-2012 James Honaker, Gary King and Matthew Blackwell
+| ## Refer to http://gking.harvard.edu/amelia/ for more information
+| ##
+| > set.seed(12345)
+| > Rprof("Amelia-1.out")
+| > impA <- amelia(datM, m = 5, idvars="group")
+| -- Imputation 1 --
+| 
+|  1
+|  *** caught segfault ***
+| address 0x11000088, cause 'memory not mapped'
+| Warning: stack imbalance in 'length', 121 then 122
+| Warning: stack imbalance in '==', 120 then 121
+| Warning: stack imbalance in 'if', 118 then 119
+| Warning: stack imbalance in '<-', 120 then 124
+| Warning: stack imbalance in '<-', 97 then 94
+| Warning: stack imbalance in 'min', 117 then 116
+| Warning: stack imbalance in 'min', 117 then 118
+| 
+| Traceback:
+|  1: am.inv(a = g11)
+|  2: doTryCatch(return(expr), name, parentenv, handler)
+|  3: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+|  4: tryCatchList(expr, classes, parentenv, handlers)
+|  5: tryCatch(expr, error = function(e) {    call <- conditionCall(e)
+|  if (!is.null(call)) {        if (identical(call[[1L]],
+| quote(doTryCatch)))             call <- sys.call(-4L)        dcall <-
+| deparse(call)[1L]        prefix <- paste("Error in", dcall, ": ")
+|   LONG <- 75L        msg <- conditionMessage(e)        sm <-
+| strsplit(msg, "\n")[[1L]]        w <- 14L + nchar(dcall, type = "w") +
+| nchar(sm[1L], type = "w")        if (is.na(w))             w <- 14L +
+| nchar(dcall, type = "b") + nchar(sm[1L],                 type = "b")
+|      if (w > LONG)             prefix <- paste0(prefix, "\n  ")    }
+|  else prefix <- "Error : "    msg <- paste0(prefix,
+| conditionMessage(e), "\n")    .Internal(seterrmessage(msg[1L]))    if
+| (!silent && identical(getOption("show.error.messages"),         TRUE))
+| {        cat(msg, file = stderr())
+| .Internal(printDeferredWarnings())    }    invisible(structure(msg,
+| class = "try-error", condition = e))})
+|  6: try(am.inv(a = g11), silent = TRUE)
+|  7: amsweep(thetareal, c(FALSE, o[ss, ]))
+|  8: emfred(x, thetaold, indx$o, indx$m, indx$ivector, indx$icap,
+| indx$AMr1, indx$AMr2, AM1stln = AM1stln, returntype = "theta",
+| priors = priors, empri = empri, collect = collect)
+|  9: emarch(x.stacked$x, p2s = p2s, thetaold = NULL, tolerance =
+| tolerance,     startvals = startvals, x.stacked$priors, empri = empri,
+| frontend = frontend,     collect = collect, autopri = prepped$autopri,
+| emburn = emburn)
+| 10: amelia.default(datM, m = 5, idvars = "group")
+| 11: amelia(datM, m = 5, idvars = "group")
+| Warning: stack imbalance in '<-', 108 then 110
+| 
+| Possible actions:
+| 1: abort (with core dump, if enabled)
+| 2: normal R exit
+| 3: exit R without saving workspace
+| 4: exit R saving workspace
+| Selection: 3
+| 
+| Process R exited abnormally with code 70 at Tue Dec 11 10:36:51 2012
+| 
+| I double-checked /etc/alternatives and as you can see it does now
+| point to openbas
+| 
+| pauljohn at pjlap-124:alternatives$ ls -la libblas.*
+| lrwxrwxrwx 1 root root 36 Dec 11 10:34 libblas.a ->
+| /usr/lib/openblas-base/libopenblas.a
+| lrwxrwxrwx 1 root root 37 Dec 11 10:34 libblas.so ->
+| /usr/lib/openblas-base/libopenblas.so
+| lrwxrwxrwx 1 root root 39 Dec 11 10:34 libblas.so.3 ->
+| /usr/lib/openblas-base/libopenblas.so.0
+| lrwxrwxrwx 1 root root 39 Dec 11 10:34 libblas.so.3gf ->
+| /usr/lib/openblas-base/libopenblas.so.0
+| 
+| -- 
+| Paul E. Johnson
+| Professor, Political Science      Assoc. Director
+| 1541 Lilac Lane, Room 504      Center for Research Methods
+| University of Kansas                 University of Kansas
+| http://pj.freefaculty.org               http://quant.ku.edu
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From djmbiau at yahoo.fr  Thu Dec 13 22:31:34 2012
+From: djmbiau at yahoo.fr (Biau David)
+Date: Thu, 13 Dec 2012 21:31:34 +0000 (GMT)
+Subject: [R-sig-Debian] =?utf-8?b?cGFja2FnZSDigJhEZXNpZ27igJkgaXMgbm90IGF2?=
+ =?utf-8?q?ailable_=28for_R_version_2=2E15=2E2=29?=
+Message-ID: <1355434294.53232.YahooMailNeo@web172404.mail.ir2.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20121213/d75834f1/attachment.pl>
+
+From basille at ase-research.org  Thu Dec 13 23:40:07 2012
+From: basille at ase-research.org (Mathieu Basille)
+Date: Thu, 13 Dec 2012 17:40:07 -0500
+Subject: [R-sig-Debian]
+ =?windows-1252?q?package_=91Design=92_is_not_avail?=
+ =?windows-1252?q?able_=28for_R_version_2=2E15=2E2=29?=
+In-Reply-To: <1355434294.53232.YahooMailNeo@web172404.mail.ir2.yahoo.com>
+References: <1355434294.53232.YahooMailNeo@web172404.mail.ir2.yahoo.com>
+Message-ID: <50CA5947.9030404@ase-research.org>
+
+Dear David,
+
+I'm afraid it's not a Debian problem, but instead a Design problem. As you 
+can see here [1]: "Package ?Design? was removed from the CRAN repository."
+As a matter of fact, it has been replaced, many years ago, by the package 
+'rms'. See changes here [2]. Was it the only package with problem? If yes, 
+problem solved :)
+
+Best,
+Mathieu.
+
+
+[1] http://cran.r-project.org/web/packages/Design/index.html
+
+[2] http://biostat.mc.vanderbilt.edu/wiki/Main/Rrms
+
+
+Le 13/12/2012 16:31, Biau David a ?crit :
+>
+> Dear all,
+>
+> i have re-installed Debian on my computer and for some reason I cannot install some packages anymore using the install.package command from the R console. Some packages I can, and some I cannot (Design for instance)
+>
+> this is what I get:
+>
+>> install.packages('Design')
+> Installing package(s) into ?/usr/local/lib/R/site-library?
+> (as ?lib? is unspecified)
+> --- Please select a CRAN mirror for use in this session ---
+> Loading Tcl/Tk interface ... done
+> Warning message:
+> package ?Design? is not available (for R version 2.15.2)
+>
+>
+>
+> Any idea why and how to sort the problem?
+>
+> Thanks,
+>
+>
+> David Biau
+> 	[[alternative HTML version deleted]]
+>
+>
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+-- 
+
+~$ whoami
+Mathieu Basille, PhD
+
+~$ locate --details
+University of Florida \\
+Fort Lauderdale Research and Education Center
+(+1) 954-577-6314
+http://ase-research.org/basille
+
+~$ fortune
+? Le tout est de tout dire, et je manque de mots
+Et je manque de temps, et je manque d'audace. ?
+  -- Paul ?luard
+
+
+From edd at debian.org  Fri Dec 14 00:22:44 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 13 Dec 2012 17:22:44 -0600
+Subject: [R-sig-Debian]
+ =?utf-8?b?cGFja2FnZSDigJhEZXNpZ27igJkgaXMgbm90IGF2?=
+ =?utf-8?q?_ailable_=28for_R_version_2=2E15=2E2=29?=
+In-Reply-To: <1355434294.53232.YahooMailNeo@web172404.mail.ir2.yahoo.com>
+References: <1355434294.53232.YahooMailNeo@web172404.mail.ir2.yahoo.com>
+Message-ID: <20682.25412.472117.271423@max.nulle.part>
+
+
+On 13 December 2012 at 21:31, Biau David wrote:
+| 
+| Dear all,
+| 
+| i have re-installed Debian on my computer and for some reason I cannot install some packages anymore using the install.package command from the R console. Some packages I can, and some I cannot (Design for instance)
+| 
+| this is what I get:
+| 
+| > install.packages('Design')
+| Installing package(s) into ?/usr/local/lib/R/site-library?
+| (as ?lib? is unspecified)
+| --- Please select a CRAN mirror for use in this session ---
+| Loading Tcl/Tk interface ... done
+| Warning message:
+| package ?Design? is not available (for R version 2.15.2) 
+| 
+| 
+| 
+| Any idea why and how to sort the problem?
+
+Please see:   
+
+       http://cran.r-project.org/web/packages/Design/index.html
+
+which is standard boilerplate for removed packages.  In this case, either one 
+of
+
+	sudo apt-get install r-cran-rms
+
+or
+
+        install.packages("rms")
+
+will do the trick as Frank Harrell's "rms" package replaced his "Design"
+package several years ago.
+
+Hth,  Dirk
+
+| 
+| Thanks,
+| 
+| ?
+| David Biau
+| 	[[alternative HTML version deleted]]
+| 
+| 
+| ----------------------------------------------------------------------
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com  
+
+
+From djmbiau at yahoo.fr  Fri Dec 14 06:31:50 2012
+From: djmbiau at yahoo.fr (Biau David)
+Date: Fri, 14 Dec 2012 05:31:50 +0000 (GMT)
+Subject: [R-sig-Debian]
+ =?utf-8?b?cGFja2FnZSDigJhEZXNpZ27igJkgaXMgbm90IGF2?=
+ =?utf-8?q?_ailable_=28for_R_version_2=2E15=2E2=29?=
+In-Reply-To: <20682.25412.472117.271423@max.nulle.part>
+References: <1355434294.53232.YahooMailNeo@web172404.mail.ir2.yahoo.com>
+	<20682.25412.472117.271423@max.nulle.part>
+Message-ID: <1355463110.56093.YahooMailNeo@web172405.mail.ir2.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20121214/b693d3ad/attachment.pl>
+
+From pauljohn32 at gmail.com  Fri Dec 14 08:17:16 2012
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Fri, 14 Dec 2012 01:17:16 -0600
+Subject: [R-sig-Debian] Debian packaging and openblas related crash when
+ profiling in R
+In-Reply-To: <20679.31880.474541.317926@max.nulle.part>
+References: <CAErODj9a195Zv-9ja2VoFb7EJw=1+KrQJjpX8osEtggN_Aunyw@mail.gmail.com>
+	<20679.31880.474541.317926@max.nulle.part>
+Message-ID: <CAErODj94-TSEXgQCsrJVSDsgFVM1LRRqbYeiz_732M_d9-WU+w@mail.gmail.com>
+
+Dirk!
+
+Correct as usual!
+
+On Tue, Dec 11, 2012 at 12:33 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+> | On Debian wheezy, I have the R packaging that CRAN (you) provide.  I
+>
+> Not so -- I provide the distro package. Johannes provides the Debian
+> "backport" build via CRAN, Michael does likewise for Ubuntu.
+>
+> | run into a little trouble while trying to fiddle with alternative
+> | BLAS.
+> |
+> | I know you and I went around on this last year and I think perhaps
+> | I've found something wrong in the framework, or I've just done
+> | something wrong.
+> |
+> | I installed the packages openblas-base and openblas-dev, and they do
+> | the "update alternatives" thing so that their shared library is at the
+> | right spot. I can't tell if R runs any faster, but it does run, which
+> | is encouraging.
+> |
+> | Now here's the problem I see. Using Rprof causes R to crash, but only
+> | when openblas stuff is in the picture. I wondered what you think?
+> |
+
+Here's the evidence you are right.
+
+Before starting R, restrict openblas's use of threads in the environment
+
+$ export GOTO_NUM_THREADS=1
+
+After that, HAPPY profiling in R!
+
+pj
+
+-- 
+Paul E. Johnson
+Professor, Political Science      Assoc. Director
+1541 Lilac Lane, Room 504      Center for Research Methods
+University of Kansas                 University of Kansas
+http://pj.freefaculty.org               http://quant.ku.edu
+
+
+From edd at debian.org  Fri Dec 14 13:39:14 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 14 Dec 2012 06:39:14 -0600
+Subject: [R-sig-Debian] Debian packaging and openblas related crash when
+ profiling in R
+In-Reply-To: <CAErODj94-TSEXgQCsrJVSDsgFVM1LRRqbYeiz_732M_d9-WU+w@mail.gmail.com>
+References: <CAErODj9a195Zv-9ja2VoFb7EJw=1+KrQJjpX8osEtggN_Aunyw@mail.gmail.com>
+	<20679.31880.474541.317926@max.nulle.part>
+	<CAErODj94-TSEXgQCsrJVSDsgFVM1LRRqbYeiz_732M_d9-WU+w@mail.gmail.com>
+Message-ID: <20683.7666.173210.142073@max.nulle.part>
+
+
+Paul,
+
+On 14 December 2012 at 01:17, Paul Johnson wrote:
+| Dirk!
+| 
+| Correct as usual!
+
+[...]
+ 
+| Here's the evidence you are right.
+| 
+| Before starting R, restrict openblas's use of threads in the environment
+| 
+| $ export GOTO_NUM_THREADS=1
+| 
+| After that, HAPPY profiling in R!
+
+Right. 
+
+If one has tried multithreading before as I have with (so-far unsuccessful)
+endeavours to get OpenMP into one particular package (while maintaining RNG
+outcomes / reproducibility) then those stack error look eerily familiar.
+
+All very frustrating because "it all just works" with one thread.
+
+And that is all R can handle, so if you multithread, set proper mutexes.  And
+for profiling that very logic seems to require turning multithreading off.
+
+Cheers, Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From luke-tierney at uiowa.edu  Fri Dec 14 17:30:04 2012
+From: luke-tierney at uiowa.edu (luke-tierney at uiowa.edu)
+Date: Fri, 14 Dec 2012 10:30:04 -0600
+Subject: [R-sig-Debian] Debian packaging and openblas related crash when
+ profiling in R
+In-Reply-To: <20683.7666.173210.142073@max.nulle.part>
+References: <CAErODj9a195Zv-9ja2VoFb7EJw=1+KrQJjpX8osEtggN_Aunyw@mail.gmail.com>
+	<20679.31880.474541.317926@max.nulle.part>
+	<CAErODj94-TSEXgQCsrJVSDsgFVM1LRRqbYeiz_732M_d9-WU+w@mail.gmail.com>
+	<20683.7666.173210.142073@max.nulle.part>
+Message-ID: <alpine.LFD.2.02.1212141019280.2597@nokomis.stat.uiowa.edu>
+
+On Unix-like systems profiling uses the profile timer, which works via
+signals. If a threaded C-level library isn't programmed to be sure to
+ignore signals it isn't using itself then the signal will go to the
+wrong thread and the handler and the main R process start messing in
+the same memory with out synchronization. I believe we should be able
+to make sure that the handler only does it's work when called from the
+main R thread (maybe just re-signaling to the main thread if the
+signal goes to the wrong one). The few other signals we use could
+probably use this as well. I'll look into this sometime if no one else
+gets there first; there is a lot of fine print involved in
+signal/threads interaction so it may take a while.
+
+Of course the current mechanism of profiling on Unix doesn't really
+make senss for multi-threaded programs as it is based on process user
+time (I believe); for threaded programs we sould want something based
+on clock time. Not sure what the options are these days, but worth
+looking into.
+
+Windows uses a different mechnism for profiling so this is not likely
+to be related to another thread on Windows/Rprof issues.
+
+Best,
+
+luke
+
+On Fri, 14 Dec 2012, Dirk Eddelbuettel wrote:
+
+>
+> Paul,
+>
+> On 14 December 2012 at 01:17, Paul Johnson wrote:
+> | Dirk!
+> |
+> | Correct as usual!
+>
+> [...]
+>
+> | Here's the evidence you are right.
+> |
+> | Before starting R, restrict openblas's use of threads in the environment
+> |
+> | $ export GOTO_NUM_THREADS=1
+> |
+> | After that, HAPPY profiling in R!
+>
+> Right.
+>
+> If one has tried multithreading before as I have with (so-far unsuccessful)
+> endeavours to get OpenMP into one particular package (while maintaining RNG
+> outcomes / reproducibility) then those stack error look eerily familiar.
+>
+> All very frustrating because "it all just works" with one thread.
+>
+> And that is all R can handle, so if you multithread, set proper mutexes.  And
+> for profiling that very logic seems to require turning multithreading off.
+>
+> Cheers, Dirk
+>
+>
+
+-- 
+Luke Tierney
+Chair, Statistics and Actuarial Science
+Ralph E. Wareham Professor of Mathematical Sciences
+University of Iowa                  Phone:             319-335-3386
+Department of Statistics and        Fax:               319-335-3017
+    Actuarial Science
+241 Schaeffer Hall                  email:   luke-tierney at uiowa.edu
+Iowa City, IA 52242                 WWW:  http://www.stat.uiowa.edu
+
+

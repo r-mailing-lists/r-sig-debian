@@ -1,0 +1,1333 @@
+From doumbouy@m822 @end|ng |rom gm@||@com  Mon Mar  2 17:38:25 2020
+From: doumbouy@m822 @end|ng |rom gm@||@com (Moussa DOUMBOUYA)
+Date: Mon, 2 Mar 2020 16:38:25 +0000
+Subject: [R-sig-Debian] =?utf-8?q?Postulation_=C3=A0_la_liste_de_diffusio?=
+ =?utf-8?q?n?=
+Message-ID: <CA+gis87hUtrCC=PsPZuZOSpQo3MX6R25VuX=+kbhf3qHo0godA@mail.gmail.com>
+
+Bonjour, j'ai l'honneur de vous informer que je postule ? la liste de
+diffusion pour des fins utiles de cette formation "MOOC".
+Salutations ? toute l'?quipe d'encadrement.
+Cordialement.
+
+-- 
+
+*DOUMBOUYA Moussa*
+
+*Epid?miologiste bio statisticien*
+
+**************************
+
+Certifi? en FETP premi?re ligne en Guin?e
+
+*Chef de section pr?vention et lutte contre la maladie*
+
+*District sanitaire de MANDIANA *
+
+*R?p. Guin?e Conakry*
+
+*T?l : +224 628 652 583*
+
+*Adresse e-mail : **doumbouyam822 at gmail.com* <doumbouya822 at gmail.com>
+
+	[[alternative HTML version deleted]]
+
+
+From rob00x @end|ng |rom gm@||@com  Sat Mar 28 11:30:09 2020
+From: rob00x @end|ng |rom gm@||@com (Robin Lovelace)
+Date: Sat, 28 Mar 2020 10:30:09 +0000
+Subject: [R-sig-Debian] Advice on article about installing R on Linux
+Message-ID: <CAF16KkW8PjxiHyCUKYUnELwRSwGgMjOh57OiX5Cx7eLbdNoS6A@mail.gmail.com>
+
+Dear list,
+
+I've drafted an article on installing geographic R packages on Linux
+computers and would appreciate any feedback. Is the following text correct,
+useful and future-proof?:
+
+R?s spatial packages can be installed from source on recent (since Ubuntu
+19.04) versions of this popular operating system, once the appropriate
+repository has been set-up, meaning faster install times (only a few
+minutes including the installation of upstream dependencies). The following
+bash commands should install key geographic R packages on Ubuntu 19.04,
+19.10 or 20.04:
+
+sudo -i
+echo 'deb https://cloud.r-project.org/bin/linux/ubuntu eoan-cran35/' | sudo
+tee -a /etc/apt/sources.list
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys
+E298A3A825C0D65DFD57CBB651716619E084DAB9
+sudo apt update
+sudo apt install r-base-dev r-cran-sf r-cran-raster r-cran-tmap
+
+If you are using an older version of Ubuntu and don?t want to upgrade to
+the next Long Term Support release (20.04), see instructions at
+github.com/r-spatial/sf.
+
+3. Other operating systems
+If you are in the fortunate position of switching to Linux and being able
+to choose the distribution that best fits your needs, it?s worth thinking
+about which distribution will be both user-friendly (more on that soon),
+performant and future-proof. Ubuntu is a solid choice, with a large user
+community and repositories such as ?ubuntugis? providing more up-to-date
+versions of upstream geographic libraries such as GDAL.
+
+QGIS is also well-supported on on Ubuntu.
+
+However, you can install R and key geographic packages on other operating
+systems, although it may take longer. Useful links on installing R and
+geographic libraries are provided below for reference:
+
+Installing R on Debian is covered on the CRAN website. Upstream
+dependencies such as GDAL can be installed on recent versions of Debian,
+such as buster, with commands such as apt-get install libgdal-dev as per
+instructions on the rocker/geospatial.
+
+Full article here:
+https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.Rmd
+
+Planning to publish this on Monday, thanks in advance for any feedback.
+
+Robin
+
+P.s. I noticed in the process of writing this that eoan instructions are
+missing here:
+
+https://cran.r-project.org/bin/linux/ubuntu/README.html
+
+Worth updating them?
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Sat Mar 28 13:46:39 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Sat, 28 Mar 2020 07:46:39 -0500
+Subject: [R-sig-Debian] Advice on article about installing R on Linux
+In-Reply-To: <CAF16KkW8PjxiHyCUKYUnELwRSwGgMjOh57OiX5Cx7eLbdNoS6A@mail.gmail.com>
+References: <CAF16KkW8PjxiHyCUKYUnELwRSwGgMjOh57OiX5Cx7eLbdNoS6A@mail.gmail.com>
+Message-ID: <24191.18223.632284.713622@rob.eddelbuettel.com>
+
+
+Hi Robin,
+
+On 28 March 2020 at 10:30, Robin Lovelace wrote:
+| Dear list,
+| 
+| I've drafted an article on installing geographic R packages on Linux
+| computers and would appreciate any feedback. Is the following text correct,
+| useful and future-proof?:
+| 
+| R?s spatial packages can be installed from source on recent (since Ubuntu
+| 19.04) versions of this popular operating system, once the appropriate
+| repository has been set-up, meaning faster install times (only a few
+| minutes including the installation of upstream dependencies). The following
+| bash commands should install key geographic R packages on Ubuntu 19.04,
+| 19.10 or 20.04:
+
+I wonder if we should provide these for "bionic" (18.04) and onwards as that
+is (for a few more weeks) the reigning LTS.  Also, saying 19.04 here and
+pointing to eoan sounds fishy. 19.04 is "disco" IIRC.
+
+I also *strongly* recommend you bullet-proof this by starting from a plain
+ubuntu:$VERSION container and test it.
+ 
+| sudo -i
+| echo 'deb https://cloud.r-project.org/bin/linux/ubuntu eoan-cran35/' | sudo
+| tee -a /etc/apt/sources.list
+
+The cool kids all use a new file in /etc/apt/sources.list.d/ now look in
+yours.  The you can just copy and/or shell redirect.
+
+| sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys
+| E298A3A825C0D65DFD57CBB651716619E084DAB9
+
+I never remember if apt-add-repository works with this too.
+
+| sudo apt update
+| sudo apt install r-base-dev r-cran-sf r-cran-raster r-cran-tmap
+| 
+| If you are using an older version of Ubuntu and don?t want to upgrade to
+| the next Long Term Support release (20.04), see instructions at
+| github.com/r-spatial/sf.
+| 
+| 3. Other operating systems
+| If you are in the fortunate position of switching to Linux and being able
+| to choose the distribution that best fits your needs, it?s worth thinking
+| about which distribution will be both user-friendly (more on that soon),
+| performant and future-proof. Ubuntu is a solid choice, with a large user
+| community and repositories such as ?ubuntugis? providing more up-to-date
+| versions of upstream geographic libraries such as GDAL.
+| 
+| QGIS is also well-supported on on Ubuntu.
+
+And you could mention the Rutter PPA here -- another 4k binary packages!
+ 
+| However, you can install R and key geographic packages on other operating
+| systems, although it may take longer. Useful links on installing R and
+| geographic libraries are provided below for reference:
+| 
+| Installing R on Debian is covered on the CRAN website. Upstream
+| dependencies such as GDAL can be installed on recent versions of Debian,
+| such as buster, with commands such as apt-get install libgdal-dev as per
+| instructions on the rocker/geospatial.
+| 
+| Full article here:
+| https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.Rmd
+
+We could/should also shout out to Fedora who now have a repo with all (!!) of
+CRAN (!!) as per a recent email by Inaki "somewhere" (r-devel? r-pkg-devel?)
+
+| Planning to publish this on Monday, thanks in advance for any feedback.
+
+It's good. Sorry for not responding sooner. The raw Rmd was hard to read; I
+tend to just push .md to GitHub (when I have R-code free writeups like this
+which is almost all of them) as that is always rendered to read.
+
+Dirk
+
+| Robin
+| 
+| P.s. I noticed in the process of writing this that eoan instructions are
+| missing here:
+| 
+| https://cran.r-project.org/bin/linux/ubuntu/README.html
+| 
+| Worth updating them?
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From rob00x @end|ng |rom gm@||@com  Sat Mar 28 15:04:42 2020
+From: rob00x @end|ng |rom gm@||@com (Robin Lovelace)
+Date: Sat, 28 Mar 2020 14:04:42 +0000
+Subject: [R-sig-Debian] Advice on article about installing R on Linux
+In-Reply-To: <CAF16KkUC4Tpm6eO04U6hPH76rZ8+=TRFKwKmeb1KEOfSDh4X1g@mail.gmail.com>
+References: <CAF16KkW8PjxiHyCUKYUnELwRSwGgMjOh57OiX5Cx7eLbdNoS6A@mail.gmail.com>
+ <24191.18223.632284.713622@rob.eddelbuettel.com>
+ <CAF16KkUC4Tpm6eO04U6hPH76rZ8+=TRFKwKmeb1KEOfSDh4X1g@mail.gmail.com>
+Message-ID: <CAF16KkW2DzAxwzH06dXOdZLZE8FAjhGpmM9y2s-dRgddpCb_Fg@mail.gmail.com>
+
+To the list this time...
+
+On Sat, Mar 28, 2020 at 2:03 PM Robin Lovelace <rob00x at gmail.com> wrote:
+
+> Hi Dirk,
+>
+> Thanks for the quick response.
+>
+> I've updated the draft post following your suggestions, see the updated
+> version, in nice .md format, here:
+> https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.md
+>
+> Any better? I think so! The key bit for eoan users is this:
+>
+> sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu eoan-cran35/'
+> sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+> sudo add-apt-repository ppa:marutter/c2d4u3.5
+> sudo apt update
+> sudo apt install r-base-dev r-cran-sf r-cran-raster r-cran-tmap
+>
+> Following your suggestion I have created a Dockerfile to test this:
+> https://github.com/Robinlovelace/geocompr/blob/master/docker/ubuntu-eoan/Dockerfile
+>
+> (Taken with credit from your rocker project work.)
+>
+> Unfortunately it fails with the following message:
+>
+> W: GPG error: https://cloud.r-project.org/bin/linux/ubuntu eoan-cran35/
+> InRelease: The following signatures couldn't be verified because the public
+> key is not available: NO_PUBKEY 51716619E084DAB9
+> E: The repository 'https://cloud.r-project.org/bin/linux/ubuntu
+> eoan-cran35/ InRelease' is not signed.
+>
+> Any ideas? I've tried various combinations mentioned here but not luck
+> yet: https://cran.r-project.org/bin/linux/ubuntu/#secure-apt
+>
+> Regarding Fedora, didn't know that. Is this the message you're referring
+> to? https://copr.fedorainfracloud.org/coprs/iucar/cran/
+>
+> I will add that link to this section if so:
+> https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.md#3-installing-geographic-r-packages-on-other-linux-operating-systems
+>
+> All the best,
+>
+> Robin
+>
+>
+>
+> On Sat, Mar 28, 2020 at 12:46 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+>>
+>> Hi Robin,
+>>
+>> On 28 March 2020 at 10:30, Robin Lovelace wrote:
+>> | Dear list,
+>> |
+>> | I've drafted an article on installing geographic R packages on Linux
+>> | computers and would appreciate any feedback. Is the following text
+>> correct,
+>> | useful and future-proof?:
+>> |
+>> | R?s spatial packages can be installed from source on recent (since
+>> Ubuntu
+>> | 19.04) versions of this popular operating system, once the appropriate
+>> | repository has been set-up, meaning faster install times (only a few
+>> | minutes including the installation of upstream dependencies). The
+>> following
+>> | bash commands should install key geographic R packages on Ubuntu 19.04,
+>> | 19.10 or 20.04:
+>>
+>> I wonder if we should provide these for "bionic" (18.04) and onwards as
+>> that
+>> is (for a few more weeks) the reigning LTS.  Also, saying 19.04 here and
+>> pointing to eoan sounds fishy. 19.04 is "disco" IIRC.
+>>
+>> I also *strongly* recommend you bullet-proof this by starting from a plain
+>> ubuntu:$VERSION container and test it.
+>>
+>> | sudo -i
+>> | echo 'deb https://cloud.r-project.org/bin/linux/ubuntu eoan-cran35/' |
+>> sudo
+>> | tee -a /etc/apt/sources.list
+>>
+>> The cool kids all use a new file in /etc/apt/sources.list.d/ now look in
+>> yours.  The you can just copy and/or shell redirect.
+>>
+>> | sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys
+>> | E298A3A825C0D65DFD57CBB651716619E084DAB9
+>>
+>> I never remember if apt-add-repository works with this too.
+>>
+>> | sudo apt update
+>> | sudo apt install r-base-dev r-cran-sf r-cran-raster r-cran-tmap
+>> |
+>> | If you are using an older version of Ubuntu and don?t want to upgrade to
+>> | the next Long Term Support release (20.04), see instructions at
+>> | github.com/r-spatial/sf.
+>> |
+>> | 3. Other operating systems
+>> | If you are in the fortunate position of switching to Linux and being
+>> able
+>> | to choose the distribution that best fits your needs, it?s worth
+>> thinking
+>> | about which distribution will be both user-friendly (more on that soon),
+>> | performant and future-proof. Ubuntu is a solid choice, with a large user
+>> | community and repositories such as ?ubuntugis? providing more up-to-date
+>> | versions of upstream geographic libraries such as GDAL.
+>> |
+>> | QGIS is also well-supported on on Ubuntu.
+>>
+>> And you could mention the Rutter PPA here -- another 4k binary packages!
+>>
+>> | However, you can install R and key geographic packages on other
+>> operating
+>> | systems, although it may take longer. Useful links on installing R and
+>> | geographic libraries are provided below for reference:
+>> |
+>> | Installing R on Debian is covered on the CRAN website. Upstream
+>> | dependencies such as GDAL can be installed on recent versions of Debian,
+>> | such as buster, with commands such as apt-get install libgdal-dev as per
+>> | instructions on the rocker/geospatial.
+>> |
+>> | Full article here:
+>> |
+>> https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.Rmd
+>>
+>> We could/should also shout out to Fedora who now have a repo with all
+>> (!!) of
+>> CRAN (!!) as per a recent email by Inaki "somewhere" (r-devel?
+>> r-pkg-devel?)
+>>
+>> | Planning to publish this on Monday, thanks in advance for any feedback.
+>>
+>> It's good. Sorry for not responding sooner. The raw Rmd was hard to read;
+>> I
+>> tend to just push .md to GitHub (when I have R-code free writeups like
+>> this
+>> which is almost all of them) as that is always rendered to read.
+>>
+>> Dirk
+>>
+>> | Robin
+>> |
+>> | P.s. I noticed in the process of writing this that eoan instructions are
+>> | missing here:
+>> |
+>> | https://cran.r-project.org/bin/linux/ubuntu/README.html
+>> |
+>> | Worth updating them?
+>> |
+>> |       [[alternative HTML version deleted]]
+>> |
+>> | _______________________________________________
+>> | R-SIG-Debian mailing list
+>> | R-SIG-Debian at r-project.org
+>> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+>> --
+>> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>>
+>
+
+	[[alternative HTML version deleted]]
+
+
+From m@rutter @end|ng |rom gm@||@com  Sat Mar 28 15:46:54 2020
+From: m@rutter @end|ng |rom gm@||@com (Michael Rutter)
+Date: Sat, 28 Mar 2020 10:46:54 -0400
+Subject: [R-sig-Debian] Advice on article about installing R on Linux
+In-Reply-To: <CAF16KkW2DzAxwzH06dXOdZLZE8FAjhGpmM9y2s-dRgddpCb_Fg@mail.gmail.com>
+References: <CAF16KkW8PjxiHyCUKYUnELwRSwGgMjOh57OiX5Cx7eLbdNoS6A@mail.gmail.com>
+ <24191.18223.632284.713622@rob.eddelbuettel.com>
+ <CAF16KkUC4Tpm6eO04U6hPH76rZ8+=TRFKwKmeb1KEOfSDh4X1g@mail.gmail.com>
+ <CAF16KkW2DzAxwzH06dXOdZLZE8FAjhGpmM9y2s-dRgddpCb_Fg@mail.gmail.com>
+Message-ID: <17e31ffa-2e9d-2d23-79e0-cada7db14e8c@gmail.com>
+
+
+
+On 3/28/20 10:04 AM, Robin Lovelace wrote:
+> To the list this time...
+> 
+> On Sat, Mar 28, 2020 at 2:03 PM Robin Lovelace <rob00x at gmail.com> wrote:
+> 
+>> Hi Dirk,
+>>
+>> Thanks for the quick response.
+>>
+>> I've updated the draft post following your suggestions, see the updated
+>> version, in nice .md format, here:
+>> https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.md
+>>
+>> Any better? I think so! The key bit for eoan users is this:
+>>
+>> sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu eoan-cran35/'
+>> sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+>> sudo add-apt-repository ppa:marutter/c2d4u3.5
+>> sudo apt update
+>> sudo apt install r-base-dev r-cran-sf r-cran-raster r-cran-tmap
+>>
+>> Following your suggestion I have created a Dockerfile to test this:
+>> https://github.com/Robinlovelace/geocompr/blob/master/docker/ubuntu-eoan/Dockerfile
+>>
+>> (Taken with credit from your rocker project work.)
+>>
+>> Unfortunately it fails with the following message:
+
+Robin,
+
+My suggestion would be to use the PPA for RRutter3.5 as opposed to the 
+CRAN repository.  The PPA seeds CRAN, so the packages are the same, and 
+eliminates the key issue.  Use:
+
+sudo add-apt-repository ppa:marutter/rrutter3.5
+
+This is also release agnostic, so when you move to focal (20.04), 
+nothing needs to change.
+
+Also, c2d4u doesn't exist for eoan.  It only exists for LTS releases 
+(bionic, xenial, and fading carcass of trusty).  I will be building 
+c2d4u for focal when that releases.
+
+Michael
+
+
+
+>> W: GPG error: https://cloud.r-project.org/bin/linux/ubuntu eoan-cran35/
+>> InRelease: The following signatures couldn't be verified because the public
+>> key is not available: NO_PUBKEY 51716619E084DAB9
+>> E: The repository 'https://cloud.r-project.org/bin/linux/ubuntu
+>> eoan-cran35/ InRelease' is not signed.
+>>
+>> Any ideas? I've tried various combinations mentioned here but not luck
+>> yet: https://cran.r-project.org/bin/linux/ubuntu/#secure-apt
+>>
+>> Regarding Fedora, didn't know that. Is this the message you're referring
+>> to? https://copr.fedorainfracloud.org/coprs/iucar/cran/
+>>
+>> I will add that link to this section if so:
+>> https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.md#3-installing-geographic-r-packages-on-other-linux-operating-systems
+>>
+>> All the best,
+>>
+>> Robin
+>>
+>>
+>>
+>> On Sat, Mar 28, 2020 at 12:46 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+>>
+>>>
+>>> Hi Robin,
+>>>
+>>> On 28 March 2020 at 10:30, Robin Lovelace wrote:
+>>> | Dear list,
+>>> |
+>>> | I've drafted an article on installing geographic R packages on Linux
+>>> | computers and would appreciate any feedback. Is the following text
+>>> correct,
+>>> | useful and future-proof?:
+>>> |
+>>> | R?s spatial packages can be installed from source on recent (since
+>>> Ubuntu
+>>> | 19.04) versions of this popular operating system, once the appropriate
+>>> | repository has been set-up, meaning faster install times (only a few
+>>> | minutes including the installation of upstream dependencies). The
+>>> following
+>>> | bash commands should install key geographic R packages on Ubuntu 19.04,
+>>> | 19.10 or 20.04:
+>>>
+>>> I wonder if we should provide these for "bionic" (18.04) and onwards as
+>>> that
+>>> is (for a few more weeks) the reigning LTS.  Also, saying 19.04 here and
+>>> pointing to eoan sounds fishy. 19.04 is "disco" IIRC.
+>>>
+>>> I also *strongly* recommend you bullet-proof this by starting from a plain
+>>> ubuntu:$VERSION container and test it.
+>>>
+>>> | sudo -i
+>>> | echo 'deb https://cloud.r-project.org/bin/linux/ubuntu eoan-cran35/' |
+>>> sudo
+>>> | tee -a /etc/apt/sources.list
+>>>
+>>> The cool kids all use a new file in /etc/apt/sources.list.d/ now look in
+>>> yours.  The you can just copy and/or shell redirect.
+>>>
+>>> | sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys
+>>> | E298A3A825C0D65DFD57CBB651716619E084DAB9
+>>>
+>>> I never remember if apt-add-repository works with this too.
+>>>
+>>> | sudo apt update
+>>> | sudo apt install r-base-dev r-cran-sf r-cran-raster r-cran-tmap
+>>> |
+>>> | If you are using an older version of Ubuntu and don?t want to upgrade to
+>>> | the next Long Term Support release (20.04), see instructions at
+>>> | github.com/r-spatial/sf.
+>>> |
+>>> | 3. Other operating systems
+>>> | If you are in the fortunate position of switching to Linux and being
+>>> able
+>>> | to choose the distribution that best fits your needs, it?s worth
+>>> thinking
+>>> | about which distribution will be both user-friendly (more on that soon),
+>>> | performant and future-proof. Ubuntu is a solid choice, with a large user
+>>> | community and repositories such as ?ubuntugis? providing more up-to-date
+>>> | versions of upstream geographic libraries such as GDAL.
+>>> |
+>>> | QGIS is also well-supported on on Ubuntu.
+>>>
+>>> And you could mention the Rutter PPA here -- another 4k binary packages!
+>>>
+>>> | However, you can install R and key geographic packages on other
+>>> operating
+>>> | systems, although it may take longer. Useful links on installing R and
+>>> | geographic libraries are provided below for reference:
+>>> |
+>>> | Installing R on Debian is covered on the CRAN website. Upstream
+>>> | dependencies such as GDAL can be installed on recent versions of Debian,
+>>> | such as buster, with commands such as apt-get install libgdal-dev as per
+>>> | instructions on the rocker/geospatial.
+>>> |
+>>> | Full article here:
+>>> |
+>>> https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.Rmd
+>>>
+>>> We could/should also shout out to Fedora who now have a repo with all
+>>> (!!) of
+>>> CRAN (!!) as per a recent email by Inaki "somewhere" (r-devel?
+>>> r-pkg-devel?)
+>>>
+>>> | Planning to publish this on Monday, thanks in advance for any feedback.
+>>>
+>>> It's good. Sorry for not responding sooner. The raw Rmd was hard to read;
+>>> I
+>>> tend to just push .md to GitHub (when I have R-code free writeups like
+>>> this
+>>> which is almost all of them) as that is always rendered to read.
+>>>
+>>> Dirk
+>>>
+>>> | Robin
+>>> |
+>>> | P.s. I noticed in the process of writing this that eoan instructions are
+>>> | missing here:
+>>> |
+>>> | https://cran.r-project.org/bin/linux/ubuntu/README.html
+>>> |
+>>> | Worth updating them?
+>>> |
+>>> |       [[alternative HTML version deleted]]
+>>> |
+>>> | _______________________________________________
+>>> | R-SIG-Debian mailing list
+>>> | R-SIG-Debian at r-project.org
+>>> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>>
+>>> --
+>>> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>>>
+>>
+> 
+> 	[[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From edd @end|ng |rom deb|@n@org  Sat Mar 28 15:57:54 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Sat, 28 Mar 2020 09:57:54 -0500
+Subject: [R-sig-Debian] Advice on article about installing R on Linux
+In-Reply-To: <CAF16KkW2DzAxwzH06dXOdZLZE8FAjhGpmM9y2s-dRgddpCb_Fg@mail.gmail.com>
+References: <CAF16KkW8PjxiHyCUKYUnELwRSwGgMjOh57OiX5Cx7eLbdNoS6A@mail.gmail.com>
+ <24191.18223.632284.713622@rob.eddelbuettel.com>
+ <CAF16KkUC4Tpm6eO04U6hPH76rZ8+=TRFKwKmeb1KEOfSDh4X1g@mail.gmail.com>
+ <CAF16KkW2DzAxwzH06dXOdZLZE8FAjhGpmM9y2s-dRgddpCb_Fg@mail.gmail.com>
+Message-ID: <24191.26098.817708.389108@rob.eddelbuettel.com>
+
+
+On 28 March 2020 at 14:04, Robin Lovelace wrote:
+| To the list this time...
+| 
+| On Sat, Mar 28, 2020 at 2:03 PM Robin Lovelace <rob00x at gmail.com> wrote:
+| 
+| > Hi Dirk,
+| >
+| > Thanks for the quick response.
+| >
+| > I've updated the draft post following your suggestions, see the updated
+| > version, in nice .md format, here:
+| > https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.md
+| >
+| > Any better? I think so! The key bit for eoan users is this:
+| >
+| > sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu eoan-cran35/'
+| > sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+| > sudo add-apt-repository ppa:marutter/c2d4u3.5
+| > sudo apt update
+| > sudo apt install r-base-dev r-cran-sf r-cran-raster r-cran-tmap
+| >
+| > Following your suggestion I have created a Dockerfile to test this:
+| > https://github.com/Robinlovelace/geocompr/blob/master/docker/ubuntu-eoan/Dockerfile
+
+Sounds good.  Should there also be a version for bionic as LTS may be more
+widespread?  Personally I am with you as I also run 19.10 -- but if you were
+to offer 18.04 then 18.04 + 18.10 + 19.04 + 19.10 users could run it. Seems
+better, no?
+
+| > (Taken with credit from your rocker project work.)
+| >
+| > Unfortunately it fails with the following message:
+| >
+| > W: GPG error: https://cloud.r-project.org/bin/linux/ubuntu eoan-cran35/
+| > InRelease: The following signatures couldn't be verified because the public
+| > key is not available: NO_PUBKEY 51716619E084DAB9
+| > E: The repository 'https://cloud.r-project.org/bin/linux/ubuntu
+| > eoan-cran35/ InRelease' is not signed.
+| >
+| > Any ideas? I've tried various combinations mentioned here but not luck
+| > yet: https://cran.r-project.org/bin/linux/ubuntu/#secure-apt
+
+I think you are actively importing key 'A' and it tells you it is missing key
+'B' where A != B.  See e.g.
+
+https://stackoverflow.com/questions/10255082/installing-r-from-cran-ubuntu-repository-no-public-key-error
+
+| > Regarding Fedora, didn't know that. Is this the message you're referring
+| > to? https://copr.fedorainfracloud.org/coprs/iucar/cran/
+
+Yep!
+
+Dirk
+
+| > I will add that link to this section if so:
+| > https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.md#3-installing-geographic-r-packages-on-other-linux-operating-systems
+| >
+| > All the best,
+| >
+| > Robin
+| >
+| >
+| >
+| > On Sat, Mar 28, 2020 at 12:46 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+| >
+| >>
+| >> Hi Robin,
+| >>
+| >> On 28 March 2020 at 10:30, Robin Lovelace wrote:
+| >> | Dear list,
+| >> |
+| >> | I've drafted an article on installing geographic R packages on Linux
+| >> | computers and would appreciate any feedback. Is the following text
+| >> correct,
+| >> | useful and future-proof?:
+| >> |
+| >> | R?s spatial packages can be installed from source on recent (since
+| >> Ubuntu
+| >> | 19.04) versions of this popular operating system, once the appropriate
+| >> | repository has been set-up, meaning faster install times (only a few
+| >> | minutes including the installation of upstream dependencies). The
+| >> following
+| >> | bash commands should install key geographic R packages on Ubuntu 19.04,
+| >> | 19.10 or 20.04:
+| >>
+| >> I wonder if we should provide these for "bionic" (18.04) and onwards as
+| >> that
+| >> is (for a few more weeks) the reigning LTS.  Also, saying 19.04 here and
+| >> pointing to eoan sounds fishy. 19.04 is "disco" IIRC.
+| >>
+| >> I also *strongly* recommend you bullet-proof this by starting from a plain
+| >> ubuntu:$VERSION container and test it.
+| >>
+| >> | sudo -i
+| >> | echo 'deb https://cloud.r-project.org/bin/linux/ubuntu eoan-cran35/' |
+| >> sudo
+| >> | tee -a /etc/apt/sources.list
+| >>
+| >> The cool kids all use a new file in /etc/apt/sources.list.d/ now look in
+| >> yours.  The you can just copy and/or shell redirect.
+| >>
+| >> | sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys
+| >> | E298A3A825C0D65DFD57CBB651716619E084DAB9
+| >>
+| >> I never remember if apt-add-repository works with this too.
+| >>
+| >> | sudo apt update
+| >> | sudo apt install r-base-dev r-cran-sf r-cran-raster r-cran-tmap
+| >> |
+| >> | If you are using an older version of Ubuntu and don?t want to upgrade to
+| >> | the next Long Term Support release (20.04), see instructions at
+| >> | github.com/r-spatial/sf.
+| >> |
+| >> | 3. Other operating systems
+| >> | If you are in the fortunate position of switching to Linux and being
+| >> able
+| >> | to choose the distribution that best fits your needs, it?s worth
+| >> thinking
+| >> | about which distribution will be both user-friendly (more on that soon),
+| >> | performant and future-proof. Ubuntu is a solid choice, with a large user
+| >> | community and repositories such as ?ubuntugis? providing more up-to-date
+| >> | versions of upstream geographic libraries such as GDAL.
+| >> |
+| >> | QGIS is also well-supported on on Ubuntu.
+| >>
+| >> And you could mention the Rutter PPA here -- another 4k binary packages!
+| >>
+| >> | However, you can install R and key geographic packages on other
+| >> operating
+| >> | systems, although it may take longer. Useful links on installing R and
+| >> | geographic libraries are provided below for reference:
+| >> |
+| >> | Installing R on Debian is covered on the CRAN website. Upstream
+| >> | dependencies such as GDAL can be installed on recent versions of Debian,
+| >> | such as buster, with commands such as apt-get install libgdal-dev as per
+| >> | instructions on the rocker/geospatial.
+| >> |
+| >> | Full article here:
+| >> |
+| >> https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.Rmd
+| >>
+| >> We could/should also shout out to Fedora who now have a repo with all
+| >> (!!) of
+| >> CRAN (!!) as per a recent email by Inaki "somewhere" (r-devel?
+| >> r-pkg-devel?)
+| >>
+| >> | Planning to publish this on Monday, thanks in advance for any feedback.
+| >>
+| >> It's good. Sorry for not responding sooner. The raw Rmd was hard to read;
+| >> I
+| >> tend to just push .md to GitHub (when I have R-code free writeups like
+| >> this
+| >> which is almost all of them) as that is always rendered to read.
+| >>
+| >> Dirk
+| >>
+| >> | Robin
+| >> |
+| >> | P.s. I noticed in the process of writing this that eoan instructions are
+| >> | missing here:
+| >> |
+| >> | https://cran.r-project.org/bin/linux/ubuntu/README.html
+| >> |
+| >> | Worth updating them?
+| >> |
+| >> |       [[alternative HTML version deleted]]
+| >> |
+| >> | _______________________________________________
+| >> | R-SIG-Debian mailing list
+| >> | R-SIG-Debian at r-project.org
+| >> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| >>
+| >> --
+| >> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+| >>
+| >
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From rob00x @end|ng |rom gm@||@com  Sat Mar 28 20:45:16 2020
+From: rob00x @end|ng |rom gm@||@com (Robin Lovelace)
+Date: Sat, 28 Mar 2020 19:45:16 +0000
+Subject: [R-sig-Debian] Advice on article about installing R on Linux
+In-Reply-To: <17e31ffa-2e9d-2d23-79e0-cada7db14e8c@gmail.com>
+References: <CAF16KkW8PjxiHyCUKYUnELwRSwGgMjOh57OiX5Cx7eLbdNoS6A@mail.gmail.com>
+ <24191.18223.632284.713622@rob.eddelbuettel.com>
+ <CAF16KkUC4Tpm6eO04U6hPH76rZ8+=TRFKwKmeb1KEOfSDh4X1g@mail.gmail.com>
+ <CAF16KkW2DzAxwzH06dXOdZLZE8FAjhGpmM9y2s-dRgddpCb_Fg@mail.gmail.com>
+ <17e31ffa-2e9d-2d23-79e0-cada7db14e8c@gmail.com>
+Message-ID: <CAF16KkU2mRY1A1ZvOHYxX5sbfbY_PM4KuHSE5p9bO9=F+DF+AA@mail.gmail.com>
+
+Many thanks Michael, this is greatly appreciated.
+
+I have updated the post accordingly:
+https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.md#2-installing-spatial-r-packages-on-ubuntu
+
+I think I should make brief mention of c2d4u ready for the next LTS, then
+hopefully good to go!
+
+If anyone has comments, I'm all ears.
+
+Cheers,
+
+Robin
+
+On Sat, Mar 28, 2020 at 2:47 PM Michael Rutter <marutter at gmail.com> wrote:
+
+>
+>
+> On 3/28/20 10:04 AM, Robin Lovelace wrote:
+> > To the list this time...
+> >
+> > On Sat, Mar 28, 2020 at 2:03 PM Robin Lovelace <rob00x at gmail.com> wrote:
+> >
+> >> Hi Dirk,
+> >>
+> >> Thanks for the quick response.
+> >>
+> >> I've updated the draft post following your suggestions, see the updated
+> >> version, in nice .md format, here:
+> >>
+> https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.md
+> >>
+> >> Any better? I think so! The key bit for eoan users is this:
+> >>
+> >> sudo add-apt-repository 'deb
+> https://cloud.r-project.org/bin/linux/ubuntu eoan-cran35/'
+> >> sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys
+> E298A3A825C0D65DFD57CBB651716619E084DAB9
+> >> sudo add-apt-repository ppa:marutter/c2d4u3.5
+> >> sudo apt update
+> >> sudo apt install r-base-dev r-cran-sf r-cran-raster r-cran-tmap
+> >>
+> >> Following your suggestion I have created a Dockerfile to test this:
+> >>
+> https://github.com/Robinlovelace/geocompr/blob/master/docker/ubuntu-eoan/Dockerfile
+> >>
+> >> (Taken with credit from your rocker project work.)
+> >>
+> >> Unfortunately it fails with the following message:
+>
+> Robin,
+>
+> My suggestion would be to use the PPA for RRutter3.5 as opposed to the
+> CRAN repository.  The PPA seeds CRAN, so the packages are the same, and
+> eliminates the key issue.  Use:
+>
+> sudo add-apt-repository ppa:marutter/rrutter3.5
+>
+> This is also release agnostic, so when you move to focal (20.04),
+> nothing needs to change.
+>
+> Also, c2d4u doesn't exist for eoan.  It only exists for LTS releases
+> (bionic, xenial, and fading carcass of trusty).  I will be building
+> c2d4u for focal when that releases.
+>
+> Michael
+>
+>
+>
+> >> W: GPG error: https://cloud.r-project.org/bin/linux/ubuntu eoan-cran35/
+> >> InRelease: The following signatures couldn't be verified because the
+> public
+> >> key is not available: NO_PUBKEY 51716619E084DAB9
+> >> E: The repository 'https://cloud.r-project.org/bin/linux/ubuntu
+> >> eoan-cran35/ InRelease' is not signed.
+> >>
+> >> Any ideas? I've tried various combinations mentioned here but not luck
+> >> yet: https://cran.r-project.org/bin/linux/ubuntu/#secure-apt
+> >>
+> >> Regarding Fedora, didn't know that. Is this the message you're referring
+> >> to? https://copr.fedorainfracloud.org/coprs/iucar/cran/
+> >>
+> >> I will add that link to this section if so:
+> >>
+> https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.md#3-installing-geographic-r-packages-on-other-linux-operating-systems
+> >>
+> >> All the best,
+> >>
+> >> Robin
+> >>
+> >>
+> >>
+> >> On Sat, Mar 28, 2020 at 12:46 PM Dirk Eddelbuettel <edd at debian.org>
+> wrote:
+> >>
+> >>>
+> >>> Hi Robin,
+> >>>
+> >>> On 28 March 2020 at 10:30, Robin Lovelace wrote:
+> >>> | Dear list,
+> >>> |
+> >>> | I've drafted an article on installing geographic R packages on Linux
+> >>> | computers and would appreciate any feedback. Is the following text
+> >>> correct,
+> >>> | useful and future-proof?:
+> >>> |
+> >>> | R?s spatial packages can be installed from source on recent (since
+> >>> Ubuntu
+> >>> | 19.04) versions of this popular operating system, once the
+> appropriate
+> >>> | repository has been set-up, meaning faster install times (only a few
+> >>> | minutes including the installation of upstream dependencies). The
+> >>> following
+> >>> | bash commands should install key geographic R packages on Ubuntu
+> 19.04,
+> >>> | 19.10 or 20.04:
+> >>>
+> >>> I wonder if we should provide these for "bionic" (18.04) and onwards as
+> >>> that
+> >>> is (for a few more weeks) the reigning LTS.  Also, saying 19.04 here
+> and
+> >>> pointing to eoan sounds fishy. 19.04 is "disco" IIRC.
+> >>>
+> >>> I also *strongly* recommend you bullet-proof this by starting from a
+> plain
+> >>> ubuntu:$VERSION container and test it.
+> >>>
+> >>> | sudo -i
+> >>> | echo 'deb https://cloud.r-project.org/bin/linux/ubuntu
+> eoan-cran35/' |
+> >>> sudo
+> >>> | tee -a /etc/apt/sources.list
+> >>>
+> >>> The cool kids all use a new file in /etc/apt/sources.list.d/ now look
+> in
+> >>> yours.  The you can just copy and/or shell redirect.
+> >>>
+> >>> | sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys
+> >>> | E298A3A825C0D65DFD57CBB651716619E084DAB9
+> >>>
+> >>> I never remember if apt-add-repository works with this too.
+> >>>
+> >>> | sudo apt update
+> >>> | sudo apt install r-base-dev r-cran-sf r-cran-raster r-cran-tmap
+> >>> |
+> >>> | If you are using an older version of Ubuntu and don?t want to
+> upgrade to
+> >>> | the next Long Term Support release (20.04), see instructions at
+> >>> | github.com/r-spatial/sf.
+> >>> |
+> >>> | 3. Other operating systems
+> >>> | If you are in the fortunate position of switching to Linux and being
+> >>> able
+> >>> | to choose the distribution that best fits your needs, it?s worth
+> >>> thinking
+> >>> | about which distribution will be both user-friendly (more on that
+> soon),
+> >>> | performant and future-proof. Ubuntu is a solid choice, with a large
+> user
+> >>> | community and repositories such as ?ubuntugis? providing more
+> up-to-date
+> >>> | versions of upstream geographic libraries such as GDAL.
+> >>> |
+> >>> | QGIS is also well-supported on on Ubuntu.
+> >>>
+> >>> And you could mention the Rutter PPA here -- another 4k binary
+> packages!
+> >>>
+> >>> | However, you can install R and key geographic packages on other
+> >>> operating
+> >>> | systems, although it may take longer. Useful links on installing R
+> and
+> >>> | geographic libraries are provided below for reference:
+> >>> |
+> >>> | Installing R on Debian is covered on the CRAN website. Upstream
+> >>> | dependencies such as GDAL can be installed on recent versions of
+> Debian,
+> >>> | such as buster, with commands such as apt-get install libgdal-dev as
+> per
+> >>> | instructions on the rocker/geospatial.
+> >>> |
+> >>> | Full article here:
+> >>> |
+> >>>
+> https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.Rmd
+> >>>
+> >>> We could/should also shout out to Fedora who now have a repo with all
+> >>> (!!) of
+> >>> CRAN (!!) as per a recent email by Inaki "somewhere" (r-devel?
+> >>> r-pkg-devel?)
+> >>>
+> >>> | Planning to publish this on Monday, thanks in advance for any
+> feedback.
+> >>>
+> >>> It's good. Sorry for not responding sooner. The raw Rmd was hard to
+> read;
+> >>> I
+> >>> tend to just push .md to GitHub (when I have R-code free writeups like
+> >>> this
+> >>> which is almost all of them) as that is always rendered to read.
+> >>>
+> >>> Dirk
+> >>>
+> >>> | Robin
+> >>> |
+> >>> | P.s. I noticed in the process of writing this that eoan instructions
+> are
+> >>> | missing here:
+> >>> |
+> >>> | https://cran.r-project.org/bin/linux/ubuntu/README.html
+> >>> |
+> >>> | Worth updating them?
+> >>> |
+> >>> |       [[alternative HTML version deleted]]
+> >>> |
+> >>> | _______________________________________________
+> >>> | R-SIG-Debian mailing list
+> >>> | R-SIG-Debian at r-project.org
+> >>> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> >>>
+> >>> --
+> >>> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+> >>>
+> >>
+> >
+> >       [[alternative HTML version deleted]]
+> >
+> > _______________________________________________
+> > R-SIG-Debian mailing list
+> > R-SIG-Debian at r-project.org
+> > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> >
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+	[[alternative HTML version deleted]]
+
+
+From doumbouy@m822 @end|ng |rom gm@||@com  Sun Mar 29 14:17:11 2020
+From: doumbouy@m822 @end|ng |rom gm@||@com (Moussa DOUMBOUYA)
+Date: Sun, 29 Mar 2020 12:17:11 +0000
+Subject: [R-sig-Debian] Envoyez les soumissions pour la liste de diffusion
+ R-SIG-Debian
+Message-ID: <CA+gis85Heix41BdBMJy3KfbWfjeEZq_aY413dqvcJh-YJYobmQ@mail.gmail.com>
+
+Bonjour, j'envoie ce mail pour comprendre la proc?dure
+
+-- 
+
+*DOUMBOUYA Moussa*
+
+*Epid?miologiste bio statisticien*
+
+**************************
+
+Certifi? en FETP premi?re ligne en Guin?e
+
+*Chef de section pr?vention et lutte contre la maladie*
+
+*District sanitaire de MANDIANA *
+
+*R?p. Guin?e Conakry*
+
+*T?l : +224 628 652 583*
+
+*Adresse e-mail : **doumbouyam822 at gmail.com* <doumbouya822 at gmail.com>
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Sun Mar 29 14:54:23 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Sun, 29 Mar 2020 07:54:23 -0500
+Subject: [R-sig-Debian] 
+ Envoyez les soumissions pour la liste de diffusion R-SIG-Debian
+In-Reply-To: <CA+gis85Heix41BdBMJy3KfbWfjeEZq_aY413dqvcJh-YJYobmQ@mail.gmail.com>
+References: <CA+gis85Heix41BdBMJy3KfbWfjeEZq_aY413dqvcJh-YJYobmQ@mail.gmail.com>
+Message-ID: <24192.39551.903193.748909@rob.eddelbuettel.com>
+
+
+On 29 March 2020 at 12:17, Moussa DOUMBOUYA wrote:
+| Bonjour, j'envoie ce mail pour comprendre la proc?dure
+
+On a bien recu votre message, mais cette liste n'utilise que l'Anglais comme langage.
+
+Amicalement, Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From rob00x @end|ng |rom gm@||@com  Mon Mar 30 00:48:59 2020
+From: rob00x @end|ng |rom gm@||@com (Robin Lovelace)
+Date: Sun, 29 Mar 2020 23:48:59 +0100
+Subject: [R-sig-Debian] Advice on article about installing R on Linux
+In-Reply-To: <24191.26098.817708.389108@rob.eddelbuettel.com>
+References: <CAF16KkW8PjxiHyCUKYUnELwRSwGgMjOh57OiX5Cx7eLbdNoS6A@mail.gmail.com>
+ <24191.18223.632284.713622@rob.eddelbuettel.com>
+ <CAF16KkUC4Tpm6eO04U6hPH76rZ8+=TRFKwKmeb1KEOfSDh4X1g@mail.gmail.com>
+ <CAF16KkW2DzAxwzH06dXOdZLZE8FAjhGpmM9y2s-dRgddpCb_Fg@mail.gmail.com>
+ <24191.26098.817708.389108@rob.eddelbuettel.com>
+Message-ID: <CAF16KkUMwu032fjgRxPrFGFznp_SO-k96QJgt8b6uZOiNNusZw@mail.gmail.com>
+
+Hi Dirk and all,
+
+Many thanks for the feedback, greatly appreciated.
+
+In response to these comments, and input from Jakub the blog post is now
+ready I think:
+https://github.com/geocompr/geocompr.github.io/blob/source/content/post/2020/installing-r-spatial-packages-linux.md
+
+I would be very grateful you could take a look over this and provide any
+further comments/corrections before I put this out there to the world, in
+around 8 hours' time being the plan.
+
+All the best,
+
+Robin
+
+On Sat, Mar 28, 2020 at 8:40 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> On 28 March 2020 at 14:04, Robin Lovelace wrote:
+> | To the list this time...
+> |
+> | On Sat, Mar 28, 2020 at 2:03 PM Robin Lovelace <rob00x at gmail.com> wrote:
+> |
+> | > Hi Dirk,
+> | >
+> | > Thanks for the quick response.
+> | >
+> | > I've updated the draft post following your suggestions, see the updated
+> | > version, in nice .md format, here:
+> | >
+> https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.md
+> | >
+> | > Any better? I think so! The key bit for eoan users is this:
+> | >
+> | > sudo add-apt-repository 'deb
+> https://cloud.r-project.org/bin/linux/ubuntu eoan-cran35/'
+> | > sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys
+> E298A3A825C0D65DFD57CBB651716619E084DAB9
+> | > sudo add-apt-repository ppa:marutter/c2d4u3.5
+> | > sudo apt update
+> | > sudo apt install r-base-dev r-cran-sf r-cran-raster r-cran-tmap
+> | >
+> | > Following your suggestion I have created a Dockerfile to test this:
+> | >
+> https://github.com/Robinlovelace/geocompr/blob/master/docker/ubuntu-eoan/Dockerfile
+>
+> Sounds good.  Should there also be a version for bionic as LTS may be more
+> widespread?  Personally I am with you as I also run 19.10 -- but if you
+> were
+> to offer 18.04 then 18.04 + 18.10 + 19.04 + 19.10 users could run it. Seems
+> better, no?
+>
+> | > (Taken with credit from your rocker project work.)
+> | >
+> | > Unfortunately it fails with the following message:
+> | >
+> | > W: GPG error: https://cloud.r-project.org/bin/linux/ubuntu
+> eoan-cran35/
+> | > InRelease: The following signatures couldn't be verified because the
+> public
+> | > key is not available: NO_PUBKEY 51716619E084DAB9
+> | > E: The repository 'https://cloud.r-project.org/bin/linux/ubuntu
+> | > eoan-cran35/ InRelease' is not signed.
+> | >
+> | > Any ideas? I've tried various combinations mentioned here but not luck
+> | > yet: https://cran.r-project.org/bin/linux/ubuntu/#secure-apt
+>
+> I think you are actively importing key 'A' and it tells you it is missing
+> key
+> 'B' where A != B.  See e.g.
+>
+>
+> https://stackoverflow.com/questions/10255082/installing-r-from-cran-ubuntu-repository-no-public-key-error
+>
+> | > Regarding Fedora, didn't know that. Is this the message you're
+> referring
+> | > to? https://copr.fedorainfracloud.org/coprs/iucar/cran/
+>
+> Yep!
+>
+> Dirk
+>
+> | > I will add that link to this section if so:
+> | >
+> https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.md#3-installing-geographic-r-packages-on-other-linux-operating-systems
+> | >
+> | > All the best,
+> | >
+> | > Robin
+> | >
+> | >
+> | >
+> | > On Sat, Mar 28, 2020 at 12:46 PM Dirk Eddelbuettel <edd at debian.org>
+> wrote:
+> | >
+> | >>
+> | >> Hi Robin,
+> | >>
+> | >> On 28 March 2020 at 10:30, Robin Lovelace wrote:
+> | >> | Dear list,
+> | >> |
+> | >> | I've drafted an article on installing geographic R packages on Linux
+> | >> | computers and would appreciate any feedback. Is the following text
+> | >> correct,
+> | >> | useful and future-proof?:
+> | >> |
+> | >> | R?s spatial packages can be installed from source on recent (since
+> | >> Ubuntu
+> | >> | 19.04) versions of this popular operating system, once the
+> appropriate
+> | >> | repository has been set-up, meaning faster install times (only a few
+> | >> | minutes including the installation of upstream dependencies). The
+> | >> following
+> | >> | bash commands should install key geographic R packages on Ubuntu
+> 19.04,
+> | >> | 19.10 or 20.04:
+> | >>
+> | >> I wonder if we should provide these for "bionic" (18.04) and onwards
+> as
+> | >> that
+> | >> is (for a few more weeks) the reigning LTS.  Also, saying 19.04 here
+> and
+> | >> pointing to eoan sounds fishy. 19.04 is "disco" IIRC.
+> | >>
+> | >> I also *strongly* recommend you bullet-proof this by starting from a
+> plain
+> | >> ubuntu:$VERSION container and test it.
+> | >>
+> | >> | sudo -i
+> | >> | echo 'deb https://cloud.r-project.org/bin/linux/ubuntu
+> eoan-cran35/' |
+> | >> sudo
+> | >> | tee -a /etc/apt/sources.list
+> | >>
+> | >> The cool kids all use a new file in /etc/apt/sources.list.d/ now look
+> in
+> | >> yours.  The you can just copy and/or shell redirect.
+> | >>
+> | >> | sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys
+> | >> | E298A3A825C0D65DFD57CBB651716619E084DAB9
+> | >>
+> | >> I never remember if apt-add-repository works with this too.
+> | >>
+> | >> | sudo apt update
+> | >> | sudo apt install r-base-dev r-cran-sf r-cran-raster r-cran-tmap
+> | >> |
+> | >> | If you are using an older version of Ubuntu and don?t want to
+> upgrade to
+> | >> | the next Long Term Support release (20.04), see instructions at
+> | >> | github.com/r-spatial/sf.
+> | >> |
+> | >> | 3. Other operating systems
+> | >> | If you are in the fortunate position of switching to Linux and being
+> | >> able
+> | >> | to choose the distribution that best fits your needs, it?s worth
+> | >> thinking
+> | >> | about which distribution will be both user-friendly (more on that
+> soon),
+> | >> | performant and future-proof. Ubuntu is a solid choice, with a large
+> user
+> | >> | community and repositories such as ?ubuntugis? providing more
+> up-to-date
+> | >> | versions of upstream geographic libraries such as GDAL.
+> | >> |
+> | >> | QGIS is also well-supported on on Ubuntu.
+> | >>
+> | >> And you could mention the Rutter PPA here -- another 4k binary
+> packages!
+> | >>
+> | >> | However, you can install R and key geographic packages on other
+> | >> operating
+> | >> | systems, although it may take longer. Useful links on installing R
+> and
+> | >> | geographic libraries are provided below for reference:
+> | >> |
+> | >> | Installing R on Debian is covered on the CRAN website. Upstream
+> | >> | dependencies such as GDAL can be installed on recent versions of
+> Debian,
+> | >> | such as buster, with commands such as apt-get install libgdal-dev
+> as per
+> | >> | instructions on the rocker/geospatial.
+> | >> |
+> | >> | Full article here:
+> | >> |
+> | >>
+> https://github.com/geocompr/geocompr.github.io/blob/installing-on-linux/content/post/2020/installing-r-spatial-packages-linux.Rmd
+> | >>
+> | >> We could/should also shout out to Fedora who now have a repo with all
+> | >> (!!) of
+> | >> CRAN (!!) as per a recent email by Inaki "somewhere" (r-devel?
+> | >> r-pkg-devel?)
+> | >>
+> | >> | Planning to publish this on Monday, thanks in advance for any
+> feedback.
+> | >>
+> | >> It's good. Sorry for not responding sooner. The raw Rmd was hard to
+> read;
+> | >> I
+> | >> tend to just push .md to GitHub (when I have R-code free writeups like
+> | >> this
+> | >> which is almost all of them) as that is always rendered to read.
+> | >>
+> | >> Dirk
+> | >>
+> | >> | Robin
+> | >> |
+> | >> | P.s. I noticed in the process of writing this that eoan
+> instructions are
+> | >> | missing here:
+> | >> |
+> | >> | https://cran.r-project.org/bin/linux/ubuntu/README.html
+> | >> |
+> | >> | Worth updating them?
+> | >> |
+> | >> |       [[alternative HTML version deleted]]
+> | >> |
+> | >> | _______________________________________________
+> | >> | R-SIG-Debian mailing list
+> | >> | R-SIG-Debian at r-project.org
+> | >> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> | >>
+> | >> --
+> | >> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+> | >>
+> | >
+>
+> --
+> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+	[[alternative HTML version deleted]]
+
+

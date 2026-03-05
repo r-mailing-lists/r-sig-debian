@@ -1,0 +1,411 @@
+From wo||g@ng@v|echtb@uer @end|ng |rom m@@@tr|chtun|ver@|ty@n|  Tue Aug 23 17:04:46 2022
+From: wo||g@ng@v|echtb@uer @end|ng |rom m@@@tr|chtun|ver@|ty@n| (Viechtbauer, Wolfgang (NP))
+Date: Tue, 23 Aug 2022 15:04:46 +0000
+Subject: [R-sig-Debian] Font issue under X11() (Ubuntu 20.04)
+Message-ID: <e3fe2d00fd27456eb3f781340ac7d92a@UM-MAIL3214.unimaas.nl>
+
+Hi all,
+
+Using R under (X)ubuntu 20.04 here. I just noticed that the equal symbol (and other symbols like <>) are hanging kinda low under X11(). For example, if I run this code:
+
+plot(NA, xlim=c(0,2), ylim=c(0,2))
+text(1,1,"P = 0.01", cex=2)
+abline(h=1)
+
+then the = symbol is completely below the horizontal line, which looks a bit off. I can fix this with X11.options(family="...") by using a different font, but I am just wondering if there is something misconfigued on my system or if other people are seeing the same thing.
+
+Running R with 'FC_DEBUG=1 R' shows that
+
+family: "Nimbus Sans"(w)
+
+is apparently used as the default.
+
+Best,
+Wolfgang
+
+
+From edd @end|ng |rom deb|@n@org  Tue Aug 23 17:44:41 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 23 Aug 2022 10:44:41 -0500
+Subject: [R-sig-Debian] Font issue under X11() (Ubuntu 20.04)
+In-Reply-To: <e3fe2d00fd27456eb3f781340ac7d92a@UM-MAIL3214.unimaas.nl>
+References: <e3fe2d00fd27456eb3f781340ac7d92a@UM-MAIL3214.unimaas.nl>
+Message-ID: <25348.62953.49930.166164@rob.eddelbuettel.com>
+
+
+On 23 August 2022 at 15:04, Viechtbauer, Wolfgang (NP) wrote:
+| Hi all,
+| 
+| Using R under (X)ubuntu 20.04 here. I just noticed that the equal symbol (and other symbols like <>) are hanging kinda low under X11(). For example, if I run this code:
+| 
+| plot(NA, xlim=c(0,2), ylim=c(0,2))
+| text(1,1,"P = 0.01", cex=2)
+| abline(h=1)
+| 
+| then the = symbol is completely below the horizontal line, which looks a bit off. I can fix this with X11.options(family="...") by using a different font, but I am just wondering if there is something misconfigued on my system or if other people are seeing the same thing.
+| 
+| Running R with 'FC_DEBUG=1 R' shows that
+| 
+| family: "Nimbus Sans"(w)
+| 
+| is apparently used as the default.
+
+Looks to be the same for me under 22.04, but I am not sure what if anything I
+can do for you here.  The package builds do nothing special with respect to
+font configuration, setup, or load. "It's just R and x11."
+
+Maybe a private email to Paul Murrell is the best way forward as this is
+likely deep inside R ...
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From wo||g@ng@v|echtb@uer @end|ng |rom m@@@tr|chtun|ver@|ty@n|  Tue Aug 23 18:10:58 2022
+From: wo||g@ng@v|echtb@uer @end|ng |rom m@@@tr|chtun|ver@|ty@n| (Wolfgang Viechtbauer)
+Date: Tue, 23 Aug 2022 18:10:58 +0200 (CEST)
+Subject: [R-sig-Debian] Font issue under X11() (Ubuntu 20.04)
+In-Reply-To: <25348.62953.49930.166164@rob.eddelbuettel.com>
+References: <e3fe2d00fd27456eb3f781340ac7d92a@UM-MAIL3214.unimaas.nl>
+ <25348.62953.49930.166164@rob.eddelbuettel.com>
+Message-ID: <alpine.DEB.2.22.394.2208231807530.1252830@wv-x5>
+
+On Tue, 23 Aug 2022, Dirk Eddelbuettel wrote:
+> On 23 August 2022 at 15:04, Viechtbauer, Wolfgang (NP) wrote:
+> | Hi all,
+> |
+> | Using R under (X)ubuntu 20.04 here. I just noticed that the equal symbol
+> | (and other symbols like <>) are hanging kinda low under X11(). For example,
+> | if I run this code:
+> |
+> | plot(NA, xlim=c(0,2), ylim=c(0,2))
+> | text(1,1,"P = 0.01", cex=2)
+> | abline(h=1)
+> |
+> | then the = symbol is completely below the horizontal line, which looks a bit
+> | off. I can fix this with X11.options(family="...") by using a different font,
+> | but I am just wondering if there is something misconfigued on my system or if
+> | other people are seeing the same thing.
+> |
+> | Running R with 'FC_DEBUG=1 R' shows that
+> |
+> | family: "Nimbus Sans"(w)
+> |
+> | is apparently used as the default.
+>
+> Looks to be the same for me under 22.04, but I am not sure what if anything I
+> can do for you here.  The package builds do nothing special with respect to
+> font configuration, setup, or load. "It's just R and x11."
+>
+> Maybe a private email to Paul Murrell is the best way forward as this is
+> likely deep inside R ...
+
+Ok, thanks for confirming that this is not just some weird config on my 
+end. Will consider getting in your with Paul.
+
+Best,
+Wolfgang
+
+
+From don@|@hunt @end|ng |rom gm@||@com  Wed Aug 24 13:54:50 2022
+From: don@|@hunt @end|ng |rom gm@||@com (Donal Hunt)
+Date: Wed, 24 Aug 2022 12:54:50 +0100
+Subject: [R-sig-Debian] RcppEigen 0.3.3.9.2 install on rstudio 2022.07.1
+ Build 554 (R 4.2.1)
+Message-ID: <CAF1AMMNuvBL+AqB1Jv9EXk405OyUbEJ5_zYS3s-mmb2T3o0YyA@mail.gmail.com>
+
+Hi everyone!
+
+I recently attended a workshop that introduced the use of R for analysing
+geospatial data. Unfortunately, I've been having lots of fun trying to get
+the dependencies for the workshop installed. :_(
+
+Relevant information:
+
+OS version: Debian 11.4
+R Studio ver: 2022.07.1 Build 554
+R version: 4.2.1 (2022-06-23)
+RcppEigen version: 0.3.3.9.2
+
+I get a ton of warnings while installing the package (see below) and I want
+to verify that I can safely ignore them...
+
+I eventually came across
+https://www.r-bloggers.com/2019/11/rcppeigen-0-3-3-7-0/ which suggests that
+these warnings can be turned off through the use of the following snippet
+in ~/.R/Makevars :
+
+CFLAGS += -Wno-ignored-attributes
+CXXFLAGS += -Wno-ignored-attributes
+
+Mostly looking for confirmation that I'm on the right track and I'm not
+missing something. In addition, it might help someone else down the
+road who encounters the same issue. :)
+
+Thanks!
+
+Donal
+
+== attempted install of RcppEigen from rcran ==
+
+> install.packages("RcppEigen")
+Installing package into ?/home/dhunt/R/x86_64-pc-linux-gnu-library/4.2?
+(as ?lib? is unspecified)
+trying URL '
+https://cloud.r-project.org/src/contrib/RcppEigen_0.3.3.9.2.tar.gz'
+Content type 'application/x-gzip' length 1476004 bytes (1.4 MB)
+==================================================
+downloaded 1.4 MB
+
+* installing *source* package ?RcppEigen? ...
+** package ?RcppEigen? successfully unpacked and MD5 sums checked
+** using staged installation
+** libs
+g++ -std=gnu++14 -I"/usr/share/R/include" -DNDEBUG
+ -I'/home/dhunt/R/x86_64-pc-linux-gnu-library/4.2/Rcpp/include'
+-I../inst/include -fpic  -g -O2
+-ffile-prefix-map=/home/jranke/git/r-backports/bullseye/r-base-4.2.1=.
+-fstack-protector-strong -Wformat -Werror=format-security -Wdate-time
+-D_FORTIFY_SOURCE=2  -UNDEBUG -c RcppEigen.cpp -o RcppEigen.o
+In file included from ../inst/include/Eigen/Core:397,
+                 from ../inst/include/Eigen/Dense:1,
+                 from ../inst/include/RcppEigenForward.h:30,
+                 from ../inst/include/RcppEigen.h:25,
+                 from RcppEigen.cpp:22:
+../inst/include/Eigen/src/Core/arch/SSE/PacketMath.h:60:39: warning:
+ignoring attributes on template argument ?__m128? [-Wignored-attributes]
+   60 | template<> struct is_arithmetic<__m128>  { enum { value = true }; };
+      |                                       ^
+../inst/include/Eigen/src/Core/arch/SSE/PacketMath.h:61:40: warning:
+ignoring attributes on template argument ?__m128i? [-Wignored-attributes]
+   61 | template<> struct is_arithmetic<__m128i> { enum { value = true }; };
+      |                                        ^
+../inst/include/Eigen/src/Core/arch/SSE/PacketMath.h:62:40: warning:
+ignoring attributes on template argument ?__m128d? [-Wignored-attributes]
+   62 | template<> struct is_arithmetic<__m128d> { enum { value = true }; };
+      |                                        ^
+../inst/include/Eigen/src/Core/arch/SSE/PacketMath.h:161:43: warning:
+ignoring attributes on template argument ?Eigen::internal::Packet4f? {aka
+?__m128?} [-Wignored-attributes]
+  161 | template<> struct unpacket_traits<Packet4f> { typedef float  type;
+enum {size=4, alignment=Aligned16}; typedef Packet4f half; };
+      |                                           ^
+../inst/include/Eigen/src/Core/arch/SSE/PacketMath.h:162:43: warning:
+ignoring attributes on template argument ?Eigen::internal::Packet2d? {aka
+?__m128d?} [-Wignored-attributes]
+  162 | template<> struct unpacket_traits<Packet2d> { typedef double type;
+enum {size=2, alignment=Aligned16}; typedef Packet2d half; };
+      |                                           ^
+../inst/include/Eigen/src/Core/arch/SSE/PacketMath.h:163:43: warning:
+ignoring attributes on template argument ?Eigen::internal::Packet4i? {aka
+?__m128i?} [-Wignored-attributes]
+  163 | template<> struct unpacket_traits<Packet4i> { typedef int    type;
+enum {size=4, alignment=Aligned16}; typedef Packet4i half; };
+      |                                           ^
+../inst/include/Eigen/src/Core/arch/SSE/PacketMath.h:718:35: warning:
+ignoring attributes on template argument ?Eigen::internal::Packet4f? {aka
+?__m128?} [-Wignored-attributes]
+  718 | struct palign_impl<Offset,Packet4f>
+      |                                   ^
+../inst/include/Eigen/src/Core/arch/SSE/PacketMath.h:741:35: warning:
+ignoring attributes on template argument ?Eigen::internal::Packet4i? {aka
+?__m128i?} [-Wignored-attributes]
+  741 | struct palign_impl<Offset,Packet4i>
+      |                                   ^
+../inst/include/Eigen/src/Core/arch/SSE/PacketMath.h:764:35: warning:
+ignoring attributes on template argument ?Eigen::internal::Packet2d? {aka
+?__m128d?} [-Wignored-attributes]
+  764 | struct palign_impl<Offset,Packet2d>
+      |                                   ^
+../inst/include/Eigen/src/Core/arch/SSE/PacketMath.h:778:34: warning:
+ignoring attributes on template argument ?Eigen::internal::Packet4f? {aka
+?__m128?} [-Wignored-attributes]
+  778 | ptranspose(PacketBlock<Packet4f,4>& kernel) {
+      |                                  ^
+../inst/include/Eigen/src/Core/arch/SSE/PacketMath.h:783:34: warning:
+ignoring attributes on template argument ?Eigen::internal::Packet2d? {aka
+?__m128d?} [-Wignored-attributes]
+  783 | ptranspose(PacketBlock<Packet2d,2>& kernel) {
+      |                                  ^
+../inst/include/Eigen/src/Core/arch/SSE/PacketMath.h:790:34: warning:
+ignoring attributes on template argument ?Eigen::internal::Packet4i? {aka
+?__m128i?} [-Wignored-attributes]
+  790 | ptranspose(PacketBlock<Packet4i,4>& kernel) {
+      |                                  ^
+In file included from ../inst/include/Eigen/Core:377,
+                 from ../inst/include/Eigen/Dense:1,
+                 from ../inst/include/RcppEigenForward.h:30,
+                 from ../inst/include/RcppEigen.h:25,
+                 from RcppEigen.cpp:22:
+../inst/include/Eigen/src/Core/arch/Default/ConjHelper.h:15:70: warning:
+ignoring attributes on template argument ?Eigen::internal::Packet4f? {aka
+?__m128?} [-Wignored-attributes]
+   15 |   template<> struct conj_helper<PACKET_REAL, PACKET_CPLX,
+false,false> {                                          \
+      |
+ ^
+../inst/include/Eigen/src/Core/arch/SSE/Complex.h:232:1: note: in expansion
+of macro ?EIGEN_MAKE_CONJ_HELPER_CPLX_REAL?
+  232 | EIGEN_MAKE_CONJ_HELPER_CPLX_REAL(Packet2cf,Packet4f)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../inst/include/Eigen/src/Core/arch/Default/ConjHelper.h:22:70: warning:
+ignoring attributes on template argument ?Eigen::internal::Packet4f? {aka
+?__m128?} [-Wignored-attributes]
+   22 |   template<> struct conj_helper<PACKET_CPLX, PACKET_REAL,
+false,false> {                                          \
+      |
+ ^
+../inst/include/Eigen/src/Core/arch/SSE/Complex.h:232:1: note: in expansion
+of macro ?EIGEN_MAKE_CONJ_HELPER_CPLX_REAL?
+  232 | EIGEN_MAKE_CONJ_HELPER_CPLX_REAL(Packet2cf,Packet4f)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../inst/include/Eigen/src/Core/arch/Default/ConjHelper.h:15:70: warning:
+ignoring attributes on template argument ?Eigen::internal::Packet2d? {aka
+?__m128d?} [-Wignored-attributes]
+   15 |   template<> struct conj_helper<PACKET_REAL, PACKET_CPLX,
+false,false> {                                          \
+      |
+ ^
+../inst/include/Eigen/src/Core/arch/SSE/Complex.h:417:1: note: in expansion
+of macro ?EIGEN_MAKE_CONJ_HELPER_CPLX_REAL?
+  417 | EIGEN_MAKE_CONJ_HELPER_CPLX_REAL(Packet1cd,Packet2d)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../inst/include/Eigen/src/Core/arch/Default/ConjHelper.h:22:70: warning:
+ignoring attributes on template argument ?Eigen::internal::Packet2d? {aka
+?__m128d?} [-Wignored-attributes]
+   22 |   template<> struct conj_helper<PACKET_CPLX, PACKET_REAL,
+false,false> {                                          \
+      |
+ ^
+../inst/include/Eigen/src/Core/arch/SSE/Complex.h:417:1: note: in expansion
+of macro ?EIGEN_MAKE_CONJ_HELPER_CPLX_REAL?
+  417 | EIGEN_MAKE_CONJ_HELPER_CPLX_REAL(Packet1cd,Packet2d)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Wed Aug 24 14:27:40 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 24 Aug 2022 07:27:40 -0500
+Subject: [R-sig-Debian] RcppEigen 0.3.3.9.2 install on rstudio 2022.07.1
+ Build 554 (R 4.2.1)
+In-Reply-To: <CAF1AMMNuvBL+AqB1Jv9EXk405OyUbEJ5_zYS3s-mmb2T3o0YyA@mail.gmail.com>
+References: <CAF1AMMNuvBL+AqB1Jv9EXk405OyUbEJ5_zYS3s-mmb2T3o0YyA@mail.gmail.com>
+Message-ID: <25350.6460.68346.658021@rob.eddelbuettel.com>
+
+
+On 24 August 2022 at 12:54, Donal Hunt wrote:
+| these warnings can be turned off through the use of the following snippet
+| in ~/.R/Makevars :
+| 
+| CFLAGS += -Wno-ignored-attributes
+| CXXFLAGS += -Wno-ignored-attributes
+
+Yes. Sadly 'Policy' does not allow me (the package maintainer) to deal with
+that at the package level.  Also see the R manuals on ~/.R/Makevars.
+
+Also note though that you are suppressing _warning_ (irritating as they may
+be) which are not _errors_.  The builds still succeed despite them.
+ 
+| Mostly looking for confirmation that I'm on the right track and I'm not
+| missing something. In addition, it might help someone else down the
+| road who encounters the same issue. :)
+
+Are you aware that the package exists as a binary?
+
+https://packages.debian.org/search?keywords=r-cran-rcppeigen&searchon=names&suite=all&section=all
+
+See https://cloud.r-project.org/bin/linux/debian for backport information.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From wo||g@ng@v|echtb@uer @end|ng |rom m@@@tr|chtun|ver@|ty@n|  Wed Aug 24 15:11:54 2022
+From: wo||g@ng@v|echtb@uer @end|ng |rom m@@@tr|chtun|ver@|ty@n| (Wolfgang Viechtbauer)
+Date: Wed, 24 Aug 2022 15:11:54 +0200 (CEST)
+Subject: [R-sig-Debian] Font issue under X11() (Ubuntu 20.04)
+In-Reply-To: <alpine.DEB.2.22.394.2208231807530.1252830@wv-x5>
+References: <e3fe2d00fd27456eb3f781340ac7d92a@UM-MAIL3214.unimaas.nl>
+ <25348.62953.49930.166164@rob.eddelbuettel.com>
+ <alpine.DEB.2.22.394.2208231807530.1252830@wv-x5>
+Message-ID: <alpine.DEB.2.22.394.2208241504210.188227@wv-x5>
+
+On Tue, 23 Aug 2022, Wolfgang Viechtbauer wrote:
+> On Tue, 23 Aug 2022, Dirk Eddelbuettel wrote:
+>> On 23 August 2022 at 15:04, Viechtbauer, Wolfgang (NP) wrote:
+>> | Hi all,
+>> |
+>> | Using R under (X)ubuntu 20.04 here. I just noticed that the equal symbol
+>> | (and other symbols like <>) are hanging kinda low under X11(). For 
+>> example,
+>> | if I run this code:
+>> |
+>> | plot(NA, xlim=c(0,2), ylim=c(0,2))
+>> | text(1,1,"P = 0.01", cex=2)
+>> | abline(h=1)
+>> |
+>> | then the = symbol is completely below the horizontal line, which looks a 
+>> bit
+>> | off. I can fix this with X11.options(family="...") by using a different 
+>> font,
+>> | but I am just wondering if there is something misconfigued on my system 
+>> or if
+>> | other people are seeing the same thing.
+>> |
+>> | Running R with 'FC_DEBUG=1 R' shows that
+>> |
+>> | family: "Nimbus Sans"(w)
+>> |
+>> | is apparently used as the default.
+>> 
+>> Looks to be the same for me under 22.04, but I am not sure what if anything 
+>> I
+>> can do for you here.  The package builds do nothing special with respect to
+>> font configuration, setup, or load. "It's just R and x11."
+>> 
+>> Maybe a private email to Paul Murrell is the best way forward as this is
+>> likely deep inside R ...
+>
+> Ok, thanks for confirming that this is not just some weird config on my end. 
+> Will consider getting in your with Paul.
+
+Another follow-up. So I think this is really an Ubuntu issue. R looks for 
+Helvetica, but this gets matched to Nimbus Sans, as shown by:
+
+fc-match Helvetica
+
+and that font has these strangely dropped symbols (e.g., =<>), at least 
+for the version that ships with Ubuntu 20.04.
+
+The fix for this is to create ~/.config/fontconfig/fonts.conf with:
+
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<fontconfig>
+     <match>
+         <test name="family">
+             <string>Helvetica</string>
+         </test>
+         <edit mode="assign" name="family" binding="same">
+             <string>Liberation Sans</string>
+         </edit>
+     </match>
+</fontconfig>
+
+(or whatever font you want to use in place of Helvetica). Then X11(), but 
+also other devices like png() and so on will make use of the desired font 
+in place of Helvetica.
+
+I don't think that there is anything for R to address here, so I'll skip 
+contacting Paul.
+
+Best,
+Wolfgang
+
+

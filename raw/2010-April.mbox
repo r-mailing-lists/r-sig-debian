@@ -1,0 +1,1267 @@
+From spluque at gmail.com  Fri Apr  9 06:15:25 2010
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Thu, 08 Apr 2010 23:15:25 -0500
+Subject: [R-sig-Debian] problems loading blas with R 2.11.0~20100402-1
+Message-ID: <87pr29fehu.fsf@kolob.sebmags.homelinux.org>
+
+Hi,
+
+Since upgrading to version 2.11.0~20100402-1, starting R fails with:
+
+/usr/lib64/R/bin/exec/R: error while loading shared libraries: libblas.so.3gf: cannot open shared object file: No such file or directory
+
+Is this occurring to others on sid?
+
+-- 
+Seb
+
+
+From edd at debian.org  Fri Apr  9 13:17:46 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 9 Apr 2010 06:17:46 -0500
+Subject: [R-sig-Debian] problems loading blas with R 2.11.0~20100402-1
+In-Reply-To: <87pr29fehu.fsf@kolob.sebmags.homelinux.org>
+References: <87pr29fehu.fsf@kolob.sebmags.homelinux.org>
+Message-ID: <19391.3290.518025.684742@ron.nulle.part>
+
+
+On 8 April 2010 at 23:15, Sebastian P. Luque wrote:
+| Hi,
+| 
+| Since upgrading to version 2.11.0~20100402-1, starting R fails with:
+| 
+| /usr/lib64/R/bin/exec/R: error while loading shared libraries: libblas.so.3gf: cannot open shared object file: No such file or directory
+| 
+| Is this occurring to others on sid?
+
+I use Debian testing, and that same version works fine there. 
+
+This could be related to the recent Atlas / Blas change in unstable. CCing
+Sylvestre just in case. Maybe we take this off-line and compare blas + atlas
+package versions?
+
+Dirk
+
+
+-- 
+  Registration is open for the 2nd International conference R / Finance 2010
+  See http://www.RinFinance.com for details, and see you in Chicago in April!
+
+
+From spluque at gmail.com  Fri Apr  9 17:09:04 2010
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Fri, 09 Apr 2010 10:09:04 -0500
+Subject: [R-sig-Debian] problems loading blas with R 2.11.0~20100402-1
+In-Reply-To: <1270816050.7208.1791.camel@zlarin> (Sylvestre Ledru's message of
+	"Fri, 09 Apr 2010 14:27:30 +0200")
+References: <87pr29fehu.fsf@kolob.sebmags.homelinux.org>
+	<19391.3290.518025.684742@ron.nulle.part>
+	<1270816050.7208.1791.camel@zlarin>
+Message-ID: <87hbnkfysv.fsf@kolob.sebmags.homelinux.org>
+
+On Fri, 09 Apr 2010 14:27:30 +0200,
+Sylvestre Ledru <sylvestre at debian.org> wrote:
+
+> Le vendredi 09 avril 2010 ? 06:17 -0500, Dirk Eddelbuettel a ?crit :
+>> On 8 April 2010 at 23:15, Sebastian P. Luque wrote:
+>> | Hi,
+>> | 
+>> | Since upgrading to version 2.11.0~20100402-1, starting R fails
+>> with:
+>> | 
+>> | /usr/lib64/R/bin/exec/R: error while loading shared libraries:
+>> libblas.so.3gf: cannot open shared object file: No such file or
+>> directory
+>> | 
+>> | Is this occurring to others on sid?
+
+>> I use Debian testing, and that same version works fine there.
+
+>> This could be related to the recent Atlas / Blas change in
+>> unstable. CCing Sylvestre just in case. Maybe we take this off-line
+>> and compare blas + atlas package versions?
+> Can you tell me which versions of blas and lapack (and atlas if
+> relevant) you are using ?  Both libraries and developments packages,
+
+Sure, this is with:
+
+$ dpkg-query -l 'libblas*'
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Inst/Cfg-files/Unpacked/Failed-cfg/Half-inst/trig-aWait/Trig-pend
+|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||/ Name              Version           Description
++++-=================-=================-==================================================
+un  libblas-3.so      <none>            (no description available)
+un  libblas-3gf.so    <none>            (no description available)
+ii  libblas-dev       1.2-7             Basic Linear Algebra Subroutines 3, static library
+un  libblas.so.3gf    <none>            (no description available)
+ii  libblas3gf        1.2-7             Basic Linear Algebra Reference implementations, sh
+$ dpkg-query -l 'liblapack*'
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Inst/Cfg-files/Unpacked/Failed-cfg/Half-inst/trig-aWait/Trig-pend
+|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||/ Name              Version           Description
++++-=================-=================-==================================================
+un  liblapack-3.so    <none>            (no description available)
+un  liblapack-3gf.so  <none>            (no description available)
+ii  liblapack-dev     3.2.1-7           library of linear algebra routines 3 - static vers
+un  liblapack.so.3gf  <none>            (no description available)
+ii  liblapack3gf      3.2.1-7           library of linear algebra routines 3 - shared vers
+$ dpkg-query -l 'libatlas*'
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Inst/Cfg-files/Unpacked/Failed-cfg/Half-inst/trig-aWait/Trig-pend
+|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||/ Name              Version           Description
++++-=================-=================-==================================================
+un  libatlas-base-dev <none>            (no description available)
+un  libatlas.so.3gf   <none>            (no description available)
+un  libatlas3gf-3dnow <none>            (no description available)
+ii  libatlas3gf-base  3.8.3-19          Automatically Tuned Linear Algebra Software, gener
+un  libatlas3gf-sse   <none>            (no description available)
+un  libatlas3gf-sse2  <none>            (no description available)
+
+
+Thank you both!
+
+-- 
+Seb
+
+
+From davidnemer at gmail.com  Fri Apr  9 17:09:13 2010
+From: davidnemer at gmail.com (David Nemer)
+Date: Fri, 9 Apr 2010 17:09:13 +0200
+Subject: [R-sig-Debian] Ranking correlation with R
+Message-ID: <z2j8d623a001004090809qf409b12fr76786a0ab476e41e@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100409/e01bf840/attachment.pl>
+
+From landronimirc at gmail.com  Fri Apr  9 17:16:22 2010
+From: landronimirc at gmail.com (Liviu Andronic)
+Date: Fri, 9 Apr 2010 16:16:22 +0100
+Subject: [R-sig-Debian] Ranking correlation with R
+In-Reply-To: <z2j8d623a001004090809qf409b12fr76786a0ab476e41e@mail.gmail.com>
+References: <z2j8d623a001004090809qf409b12fr76786a0ab476e41e@mail.gmail.com>
+Message-ID: <p2n68b1e2611004090816kfc14ccdref3692e26506c1f@mail.gmail.com>
+
+Hello
+This has very little to do with Debian, so you should probably repost
+to r-help. However, before you do that,
+"PLEASE do read the posting guide http://www.R-project.org/posting-guide.html
+and provide commented, minimal, self-contained, reproducible code."
+
+I might also want to take a look at ?cor, and perhaps Rcmdr, rattle or Deducer.
+
+Regards
+Liviu
+
+
+
+On Fri, Apr 9, 2010 at 4:09 PM, David Nemer <davidnemer at gmail.com> wrote:
+> Hey Everyone,
+>
+> Im fresh new in R, and Im supposed to write a code to give me a correlation
+> between two rankings. So I have two ranking lists, which contain file names,
+> e.g.:
+>
+> Ranking list 1:
+> file1.java
+> file3.java
+> file2.java
+>
+> Ranking list 2:
+> fiile2.java
+> file4.java
+> file1.java
+>
+> I need to see how much are these two ranking lists are alike, get a
+> correlation between them. I dont even know where to start. Can anyone bring
+> me some light? Thank you in advance.
+>
+> Cheers,
+> --
+> David Nemer
+>
+> ? ? ? ?[[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+
+-- 
+Do you know how to read?
+http://www.alienetworks.com/srtest.cfm
+http://goodies.xfce.org/projects/applications/xfce4-dict#speed-reader
+Do you know how to write?
+http://garbl.home.comcast.net/~garbl/stylemanual/e.htm#e-mail
+
+
+From s.blomberg1 at uq.edu.au  Mon Apr 12 04:10:21 2010
+From: s.blomberg1 at uq.edu.au (Simon Blomberg)
+Date: Mon, 12 Apr 2010 12:10:21 +1000
+Subject: [R-sig-Debian] problems loading blas with R 2.11.0~20100402-1
+References: <87pr29fehu.fsf@kolob.sebmags.homelinux.org>
+	<19391.3290.518025.684742@ron.nulle.part>
+Message-ID: <DE3D1F203DAF7A4CB259560D2801DF8B3B2C12@UQEXMB2.soe.uq.edu.au>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100412/4183deed/attachment.pl>
+
+From s.blomberg1 at uq.edu.au  Mon Apr 12 04:31:15 2010
+From: s.blomberg1 at uq.edu.au (Simon Blomberg)
+Date: Mon, 12 Apr 2010 12:31:15 +1000
+Subject: [R-sig-Debian] problems loading blas with R 2.11.0~20100402-1
+References: <87pr29fehu.fsf@kolob.sebmags.homelinux.org><19391.3290.518025.684742@ron.nulle.part>
+	<DE3D1F203DAF7A4CB259560D2801DF8B3B2C12@UQEXMB2.soe.uq.edu.au>
+Message-ID: <DE3D1F203DAF7A4CB259560D2801DF8B3B2C13@UQEXMB2.soe.uq.edu.au>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100412/b5a7b2fa/attachment.pl>
+
+From edd at debian.org  Mon Apr 12 04:43:21 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 11 Apr 2010 21:43:21 -0500
+Subject: [R-sig-Debian] problems loading blas with R 2.11.0~20100402-1
+In-Reply-To: <DE3D1F203DAF7A4CB259560D2801DF8B3B2C12@UQEXMB2.soe.uq.edu.au>
+References: <87pr29fehu.fsf@kolob.sebmags.homelinux.org>
+	<19391.3290.518025.684742@ron.nulle.part>
+	<DE3D1F203DAF7A4CB259560D2801DF8B3B2C12@UQEXMB2.soe.uq.edu.au>
+Message-ID: <19394.35017.220831.547284@ron.nulle.part>
+
+
+On 12 April 2010 at 12:10, Simon Blomberg wrote:
+| I have the same problem. I'm running Debian unstable. I hope this gets fixed soon!
+
+AFAIK it has been recognised as a upstream issue in the atlas / lapack packages.
+
+Dirk 
+
+| Cheers,
+| 
+| Simon.
+| 
+| Simon Blomberg, BSc (Hons), PhD, MAppStat. 
+| Lecturer and Consultant Statistician 
+| School of Biological Sciences
+| The University of Queensland 
+| St. Lucia Queensland 4072 
+| Australia 
+| T: +61 7 3365 2506 
+| email: S.Blomberg1_at_uq.edu.au
+| http://www.uq.edu.au/~uqsblomb/
+| 
+| Policies:
+| 1.  I will NOT analyse your data for you.
+| 2.  Your deadline is your problem
+| 
+| Statistics is the grammar of science - Karl Pearson.
+| 
+| 
+| 
+| -----Original Message-----
+| From: r-sig-debian-bounces at r-project.org on behalf of Dirk Eddelbuettel
+| Sent: Fri 4/9/2010 9:17 PM
+| To: Sebastian P. Luque
+| Cc: r-sig-debian at r-project.org; Sylvestre Ledru
+| Subject: Re: [R-sig-Debian] problems loading blas with R 2.11.0~20100402-1
+|  
+| 
+| On 8 April 2010 at 23:15, Sebastian P. Luque wrote:
+| | Hi,
+| | 
+| | Since upgrading to version 2.11.0~20100402-1, starting R fails with:
+| | 
+| | /usr/lib64/R/bin/exec/R: error while loading shared libraries: libblas.so.3gf: cannot open shared object file: No such file or directory
+| | 
+| | Is this occurring to others on sid?
+| 
+| I use Debian testing, and that same version works fine there. 
+| 
+| This could be related to the recent Atlas / Blas change in unstable. CCing
+| Sylvestre just in case. Maybe we take this off-line and compare blas + atlas
+| package versions?
+| 
+| Dirk
+| 
+| 
+| -- 
+|   Registration is open for the 2nd International conference R / Finance 2010
+|   See http://www.RinFinance.com for details, and see you in Chicago in April!
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| 
+
+-- 
+  Registration is open for the 2nd International conference R / Finance 2010
+  See http://www.RinFinance.com for details, and see you in Chicago in April!
+
+
+From spluque at gmail.com  Mon Apr 12 16:08:05 2010
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Mon, 12 Apr 2010 09:08:05 -0500
+Subject: [R-sig-Debian] problems loading blas with R 2.11.0~20100402-1
+References: <87pr29fehu.fsf@kolob.sebmags.homelinux.org>
+	<19391.3290.518025.684742@ron.nulle.part>
+	<1270816050.7208.1791.camel@zlarin>
+	<87hbnkfysv.fsf@kolob.sebmags.homelinux.org>
+Message-ID: <877hoc4vcq.fsf@kolob.sebmags.homelinux.org>
+
+On Fri, 09 Apr 2010 10:09:04 -0500,
+"Sebastian P. Luque" <spluque at gmail.com> wrote:
+
+> On Fri, 09 Apr 2010 14:27:30 +0200,
+> Sylvestre Ledru <sylvestre at debian.org> wrote:
+
+> Le vendredi 09 avril 2010 ? 06:17 -0500, Dirk Eddelbuettel a ?crit :
+>>> On 8 April 2010 at 23:15, Sebastian P. Luque wrote:
+>>> | Hi,
+>>> | 
+>>> | Since upgrading to version 2.11.0~20100402-1, starting R fails
+>>> with:
+>>> | 
+>>> | /usr/lib64/R/bin/exec/R: error while loading shared libraries:
+>>> libblas.so.3gf: cannot open shared object file: No such file or
+>>> directory
+>>> | 
+>>> | Is this occurring to others on sid?
+
+>>> I use Debian testing, and that same version works fine there.
+
+>>> This could be related to the recent Atlas / Blas change in
+>>> unstable. CCing Sylvestre just in case. Maybe we take this off-line
+>>> and compare blas + atlas package versions?
+>> Can you tell me which versions of blas and lapack (and atlas if
+>> relevant) you are using ?  Both libraries and developments packages,
+
+> Sure, this is with:
+
+> $ dpkg-query -l 'libblas*'
+> Desired=Unknown/Install/Remove/Purge/Hold
+> | Status=Not/Inst/Cfg-files/Unpacked/Failed-cfg/Half-inst/trig-aWait/Trig-pend
+> |/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+> ||/ Name              Version           Description
+> +++-=================-=================-==================================================
+> un  libblas-3.so      <none>            (no description available)
+> un  libblas-3gf.so    <none>            (no description available)
+> ii  libblas-dev       1.2-7             Basic Linear Algebra Subroutines 3, static library
+> un  libblas.so.3gf    <none>            (no description available)
+> ii  libblas3gf        1.2-7             Basic Linear Algebra Reference implementations, sh
+> $ dpkg-query -l 'liblapack*'
+> Desired=Unknown/Install/Remove/Purge/Hold
+> | Status=Not/Inst/Cfg-files/Unpacked/Failed-cfg/Half-inst/trig-aWait/Trig-pend
+> |/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+> ||/ Name              Version           Description
+> +++-=================-=================-==================================================
+> un  liblapack-3.so    <none>            (no description available)
+> un  liblapack-3gf.so  <none>            (no description available)
+> ii  liblapack-dev     3.2.1-7           library of linear algebra routines 3 - static vers
+> un  liblapack.so.3gf  <none>            (no description available)
+> ii  liblapack3gf      3.2.1-7           library of linear algebra routines 3 - shared vers
+> $ dpkg-query -l 'libatlas*'
+> Desired=Unknown/Install/Remove/Purge/Hold
+> | Status=Not/Inst/Cfg-files/Unpacked/Failed-cfg/Half-inst/trig-aWait/Trig-pend
+> |/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+> ||/ Name              Version           Description
+> +++-=================-=================-==================================================
+> un  libatlas-base-dev <none>            (no description available)
+> un  libatlas.so.3gf   <none>            (no description available)
+> un  libatlas3gf-3dnow <none>            (no description available)
+> ii  libatlas3gf-base  3.8.3-19          Automatically Tuned Linear Algebra Software, gener
+> un  libatlas3gf-sse   <none>            (no description available)
+> un  libatlas3gf-sse2  <none>            (no description available)
+
+Following-up here, rather than forwarding in a separate message (as I
+just did!), to keep the thread.
+
+One of the Debian maintainers of the Blas and Lapack packages (Silvestre
+Ledru) suggested to try this:
+
+---<--------------------cut here---------------start------------------->---
+$ sudo update-alternatives --verbose  --auto libblas.so.3gf
+update-alternatives: warning: forcing reinstallation of alternative /usr/lib/atlas-base/atlas/libblas.so.3gf because link group libblas.so.3gf is broken.
+$ sudo update-alternatives --verbose  --auto liblapack.so.3gf
+update-alternatives: warning: forcing reinstallation of alternative /usr/lib/atlas-base/atlas/liblapack.so.3gf because link group liblapack.so.3gf is broken.
+---<--------------------cut here---------------end--------------------->---
+
+which indeed fixed the problem in my case.  Thanks Silvestre and Dirk
+for all the work!
+
+
+-- 
+Seb
+
+
+From bates at stat.wisc.edu  Tue Apr 13 23:56:50 2010
+From: bates at stat.wisc.edu (Douglas Bates)
+Date: Tue, 13 Apr 2010 16:56:50 -0500
+Subject: [R-sig-Debian] R installation for Ubuntu (Karmic)
+In-Reply-To: <018901cadb50$ffe36640$ffaa32c0$@com>
+References: <018901cadb50$ffe36640$ffaa32c0$@com>
+Message-ID: <j2i40e66e0b1004131456n9697bd6cybfc45e2d8c70b803@mail.gmail.com>
+
+On Tue, Apr 13, 2010 at 4:33 PM, Mark Johnson <mark at vector-group.com> wrote:
+> Mr. Bates,
+>
+> I'm a relatively new Ubuntu user trying to understand how to download and
+> install R (I've already loaded the Vista version)
+>
+> I noted your name in the distribution files for R for Ubuntu. ?Since you're
+> listed as an uploader, I am hoping you can answer my questions or direct me
+> to the correct person.
+
+At one time Dirk Eddelbuettel and I were listed as co-maintainers of
+the R packages for Debian (and hence for Ubuntu) but Dirk was doing
+all the work so I asked that he get all the credit.
+
+> Is there an instruction file for the Ubuntu neophyte? ?Something that
+> describes which files comprise the download and instructions for
+> installation?
+
+You can use the packages in the Ubuntu distribution but they are
+generally out-of-date.  We have an unfortunate habit of releasing new
+versions of R just after the next version of Ubuntu is frozen.  But
+not to worry - there are instructions on any CRAN archive, e.g.
+http://cran.us.r-project.org/bin/linux/ubuntu on how to install R and
+associated packages on Ubuntu from the CRAN archive which has the
+latest releases.
+
+There is also an active Special Interest Group (SIG) mailing list for
+R on Debian or Ubuntu, which I have taken the liberty of cc:'ing on
+this reply.  In the future I would recommend sending such questions to
+that list rather than to me.  You are more likely to get a faster
+response from the list.
+
+> I used SPlus for a long time till my old version no longer ran on the
+> current version of windows. ?I was glad to see R is out here, and have
+> downloaded it for Vista and it works fine, though it will take me some
+> practice before I will be comfortable with it.
+>
+> Recently I replaced the motherboard and updated components on an old PC and
+> installed UBUNTU on that. ?I was trying to download and install R for
+> Ubuntu, but where I got one download and install file for Vista, there are a
+> LOT of different files for Ubuntu, and I don't know how to proceed.
+>
+> From a historical perspective, I used a predecessor tool known at AT&T Bell
+> Labs as "Statlib" (just like the statistical repository). ?I'm unsure of the
+> historical development path, but believe Statlib was a precursor of R and S,
+> but was based on an unmaintainable codebase of hundreds of thousands of
+> lines of undocumented Fortran spaghetti code which led to the development of
+> R and S, and eventually to SPlus.
+>
+>
+> Warmest Regards,
+>
+> Mark Johnson
+> Principal
+> Vector Group Services
+> PH: ?972-370-1515
+> CELL: ?214-606-0553
+> EMAIL: ?mark at vector-group.com
+> TWITTER: ?VGPricing
+> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+> "Logic will get you from A to B.
+> Imagination will take you everywhere."
+> ? ? ? ? ? ? ? ? Albert Einstein
+> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+>
+>
+>
+>
+
+
+From matthieu.stigler at gmail.com  Thu Apr 15 15:57:42 2010
+From: matthieu.stigler at gmail.com (Matthieu Stigler)
+Date: Thu, 15 Apr 2010 15:57:42 +0200
+Subject: [R-sig-Debian] Changing locale?
+Message-ID: <4BC71B56.7030905@gmail.com>
+
+Hi
+
+I need for a specific application to change the locale of R 2.9.2 in 
+Ubuntu 9.04. Trying the example in ?Sys.setlocale:
+Sys.setlocale("LC_TIME", "de_DE.utf8")
+[1] ""
+Warning message:
+In Sys.setlocale("LC_TIME", "de_DE.utf8") :
+  la requ?te OS pour sp?cifier la localisation ? "de_DE.utf8" n'a pas pu 
+?tre honor?e
+
+I tried the code line for windows on R windows (Sys.setlocale("LC_TIME", 
+"German")) and it worked. Does it mean that the basic installation (from 
+ubuntu repo) does not provide those locales? Or did I do something wrong?
+
+Thanks a lot!
+
+Matthieu
+
+ sessionInfo()
+R version 2.9.2 (2009-08-24)
+i486-pc-linux-gnu
+
+locale:
+LC_CTYPE=C;LC_NUMERIC=C;LC_TIME=C;LC_COLLATE=C;LC_MONETARY=C;LC_MESSAGES=fr_FR.UTF-8;LC_PAPER=fr_FR.UTF-8;LC_NAME=C;LC_ADDRESS=C;LC_TELEPHONE=C;LC_MEASUREMENT=fr_FR.UTF-8;LC_IDENTIFICATION=C
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base    
+
+other attached packages:
+[1] Revobase_0.2-1
+
+
+From djmbiau at yahoo.fr  Thu Apr 15 22:42:50 2010
+From: djmbiau at yahoo.fr (Biau David)
+Date: Thu, 15 Apr 2010 20:42:50 +0000 (GMT)
+Subject: [R-sig-Debian] Re : R installation for Ubuntu (Karmic)
+In-Reply-To: <mailman.29.1271239209.12769.r-sig-debian@r-project.org>
+References: <mailman.29.1271239209.12769.r-sig-debian@r-project.org>
+Message-ID: <62646.53665.qm@web25101.mail.ukl.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100415/fc17ed53/attachment.pl>
+
+From edd at debian.org  Thu Apr 15 22:54:42 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 15 Apr 2010 15:54:42 -0500
+Subject: [R-sig-Debian] Re : R installation for Ubuntu (Karmic)
+In-Reply-To: <62646.53665.qm@web25101.mail.ukl.yahoo.com>
+References: <mailman.29.1271239209.12769.r-sig-debian@r-project.org>
+	<62646.53665.qm@web25101.mail.ukl.yahoo.com>
+Message-ID: <19399.32018.673756.489371@ron.nulle.part>
+
+
+On 15 April 2010 at 20:42, Biau David wrote:
+| I recently had to re-install R on Debian Lenny. I couldn't install the latest version through apt-get. 
+
+Possibly because you missed this site and page:
+
+   http://cran.r-project.org/bin/linux/debian/
+	 
+| So i had to compile it manually from the .tar . 
+
+No, you did not have to.
+
+Also, feel free to cut the entire digest before replying to it.
+
+Dirk
+
+--
+
+
+From djmbiau at yahoo.fr  Fri Apr 16 02:27:40 2010
+From: djmbiau at yahoo.fr (Biau David)
+Date: Fri, 16 Apr 2010 00:27:40 +0000 (GMT)
+Subject: [R-sig-Debian] Re :  Re : R installation for Ubuntu (Karmic)
+In-Reply-To: <19399.32018.673756.489371@ron.nulle.part>
+References: <mailman.29.1271239209.12769.r-sig-debian@r-project.org>
+	<62646.53665.qm@web25101.mail.ukl.yahoo.com>
+	<19399.32018.673756.489371@ron.nulle.part>
+Message-ID: <288587.37140.qm@web25104.mail.ukl.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100416/da6095b6/attachment.pl>
+
+From HodgessE at uhd.edu  Fri Apr 16 05:56:50 2010
+From: HodgessE at uhd.edu (Hodgess, Erin)
+Date: Thu, 15 Apr 2010 22:56:50 -0500
+Subject: [R-sig-Debian] Machine file for a multicore laptop.
+Message-ID: <101CBF5360343B45B9C9B0B05D71474C25B378@BALI.uhd.campus>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100415/8372eb82/attachment.pl>
+
+From dbrion1 at yahoo.fr  Fri Apr 16 17:30:45 2010
+From: dbrion1 at yahoo.fr (denis brion)
+Date: Fri, 16 Apr 2010 15:30:45 +0000 (GMT)
+Subject: [R-sig-Debian] Re : Re : Re : R installation for Ubuntu (Karmic)
+In-Reply-To: <288587.37140.qm@web25104.mail.ukl.yahoo.com>
+Message-ID: <815155.60789.qm@web23804.mail.ird.yahoo.com>
+
+@David :
+May be you should add in your mail the file :
+/etc/apt/sources.list 
+(I suppose there might be a typo, as IT addresses are long and booring, and AFAIK, correcting a typo one made is **very** difficult).
+
+FYI binary installs are (/were)  meant to make users life(s) easier, and are (/should be) therefore easier and faster: on the long term, if you go beyond "it does not work" (which makes very mysterious to find what is missing) , this will (might) come true...
+
+--- En date de?: Ven 16.4.10, Biau David <djmbiau at yahoo.fr> a ?crit?:
+
+> De: Biau David <djmbiau at yahoo.fr>
+> Objet: [R-sig-Debian] Re :  Re : R installation for Ubuntu (Karmic)
+> ?: "Dirk Eddelbuettel" <edd at debian.org>
+> Cc: "R-debian" <r-sig-debian at r-project.org>
+> Date: Vendredi 16 avril 2010, 2h27
+> 
+> 
+> 
+> 
+> | I recently had to re-install R on Debian Lenny. I
+> couldn't install the latest version through apt-get. 
+> 
+> Possibly because you missed this site and page:
+> 
+> ? http://cran.r-project.org/bin/linux/debian/
+> ? ? 
+> | So i had to compile it manually from the .tar . 
+> 
+> No, you did not have to.
+> 
+> 
+> ## well, I had the site and page and I had added the
+> relevant backport but it didn't work and i keep installing R
+> 2.7 . Don't know why; i probably missed something.
+> 
+> David Biau
+> 
+> 
+> 
+> ? ? ? 
+> ??? [[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+
+
+
+
+
+From mar36 at psu.edu  Sat Apr 17 16:22:42 2010
+From: mar36 at psu.edu (Michael Rutter)
+Date: Sat, 17 Apr 2010 10:22:42 -0400
+Subject: [R-sig-Debian] Changing locale?
+In-Reply-To: <4BC71B56.7030905@gmail.com>
+References: <4BC71B56.7030905@gmail.com>
+Message-ID: <q2nfce144591004170722ia999fecau4ea562c84210516d@mail.gmail.com>
+
+Matthieu,
+
+Finally found the solution.  This is an Ubuntu issue, so this would
+effect other programs as well, but I was able to change the locale in
+R by doing the following:
+
+sudo gedit /var/lib/locales/supported.d/local
+
+Add "de_DE.utf8 UTF-8" to the file.  Save and exit.
+
+Then execute:
+
+sudo dpkg-reconfigure locales
+
+This will take a minute or so.  I was then able to change locales in R
+without being root.  Full credit goes to this webpage:
+
+http://blog.andrewbeacock.com/2007/01/how-to-change-your-default-locale-on.html
+
+Michael
+
+On Thu, Apr 15, 2010 at 9:57 AM, Matthieu Stigler
+<matthieu.stigler at gmail.com> wrote:
+> Hi
+>
+> I need for a specific application to change the locale of R 2.9.2 in Ubuntu
+> 9.04. Trying the example in ?Sys.setlocale:
+> Sys.setlocale("LC_TIME", "de_DE.utf8")
+> [1] ""
+> Warning message:
+> In Sys.setlocale("LC_TIME", "de_DE.utf8") :
+> ?la requ?te OS pour sp?cifier la localisation ? "de_DE.utf8" n'a pas pu ?tre
+> honor?e
+>
+> I tried the code line for windows on R windows (Sys.setlocale("LC_TIME",
+> "German")) and it worked. Does it mean that the basic installation (from
+> ubuntu repo) does not provide those locales? Or did I do something wrong?
+>
+> Thanks a lot!
+>
+> Matthieu
+>
+> sessionInfo()
+> R version 2.9.2 (2009-08-24)
+> i486-pc-linux-gnu
+>
+> locale:
+> LC_CTYPE=C;LC_NUMERIC=C;LC_TIME=C;LC_COLLATE=C;LC_MONETARY=C;LC_MESSAGES=fr_FR.UTF-8;LC_PAPER=fr_FR.UTF-8;LC_NAME=C;LC_ADDRESS=C;LC_TELEPHONE=C;LC_MEASUREMENT=fr_FR.UTF-8;LC_IDENTIFICATION=C
+>
+> attached base packages:
+> [1] stats ? ? graphics ?grDevices utils ? ? datasets ?methods ? base
+> other attached packages:
+> [1] Revobase_0.2-1
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From matthieu.stigler at gmail.com  Sun Apr 18 12:07:22 2010
+From: matthieu.stigler at gmail.com (mat)
+Date: Sun, 18 Apr 2010 12:07:22 +0200
+Subject: [R-sig-Debian] Changing locale?
+In-Reply-To: <q2nfce144591004170722ia999fecau4ea562c84210516d@mail.gmail.com>
+References: <4BC71B56.7030905@gmail.com>
+	<q2nfce144591004170722ia999fecau4ea562c84210516d@mail.gmail.com>
+Message-ID: <4BCAD9DA.9070904@gmail.com>
+
+
+
+Thanks a lot Michael, it works! Really nice you searched for this 
+problem, thanks!
+
+Mat
+
+Michael Rutter a ?crit :
+> Matthieu,
+>
+> Finally found the solution.  This is an Ubuntu issue, so this would
+> effect other programs as well, but I was able to change the locale in
+> R by doing the following:
+>
+> sudo gedit /var/lib/locales/supported.d/local
+>
+> Add "de_DE.utf8 UTF-8" to the file.  Save and exit.
+>
+> Then execute:
+>
+> sudo dpkg-reconfigure locales
+>
+> This will take a minute or so.  I was then able to change locales in R
+> without being root.  Full credit goes to this webpage:
+>
+> http://blog.andrewbeacock.com/2007/01/how-to-change-your-default-locale-on.html
+>
+> Michael
+>
+> On Thu, Apr 15, 2010 at 9:57 AM, Matthieu Stigler
+> <matthieu.stigler at gmail.com> wrote:
+>   
+>> Hi
+>>
+>> I need for a specific application to change the locale of R 2.9.2 in Ubuntu
+>> 9.04. Trying the example in ?Sys.setlocale:
+>> Sys.setlocale("LC_TIME", "de_DE.utf8")
+>> [1] ""
+>> Warning message:
+>> In Sys.setlocale("LC_TIME", "de_DE.utf8") :
+>>  la requ?te OS pour sp?cifier la localisation ? "de_DE.utf8" n'a pas pu ?tre
+>> honor?e
+>>
+>> I tried the code line for windows on R windows (Sys.setlocale("LC_TIME",
+>> "German")) and it worked. Does it mean that the basic installation (from
+>> ubuntu repo) does not provide those locales? Or did I do something wrong?
+>>
+>> Thanks a lot!
+>>
+>> Matthieu
+>>
+>> sessionInfo()
+>> R version 2.9.2 (2009-08-24)
+>> i486-pc-linux-gnu
+>>
+>> locale:
+>> LC_CTYPE=C;LC_NUMERIC=C;LC_TIME=C;LC_COLLATE=C;LC_MONETARY=C;LC_MESSAGES=fr_FR.UTF-8;LC_PAPER=fr_FR.UTF-8;LC_NAME=C;LC_ADDRESS=C;LC_TELEPHONE=C;LC_MEASUREMENT=fr_FR.UTF-8;LC_IDENTIFICATION=C
+>>
+>> attached base packages:
+>> [1] stats     graphics  grDevices utils     datasets  methods   base
+>> other attached packages:
+>> [1] Revobase_0.2-1
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+>>     
+>
+>
+>
+>
+
+
+From djmbiau at yahoo.fr  Mon Apr 19 02:21:09 2010
+From: djmbiau at yahoo.fr (Biau David)
+Date: Mon, 19 Apr 2010 00:21:09 +0000 (GMT)
+Subject: [R-sig-Debian] Install latest R version from apt on Lenny
+In-Reply-To: <mailman.29.1271498411.30929.r-sig-debian@r-project.org>
+References: <mailman.29.1271498411.30929.r-sig-debian@r-project.org>
+Message-ID: <943370.76217.qm@web25105.mail.ukl.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100419/96a2d177/attachment.pl>
+
+From dbrion1 at yahoo.fr  Mon Apr 19 10:54:48 2010
+From: dbrion1 at yahoo.fr (denis brion)
+Date: Mon, 19 Apr 2010 08:54:48 +0000 (GMT)
+Subject: [R-sig-Debian] Re : Install latest R version from apt on Lenny
+In-Reply-To: <943370.76217.qm@web25105.mail.ukl.yahoo.com>
+Message-ID: <936415.47537.qm@web23801.mail.ird.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100419/f178c0a3/attachment.pl>
+
+From jranke at uni-bremen.de  Mon Apr 19 15:30:15 2010
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 19 Apr 2010 15:30:15 +0200
+Subject: [R-sig-Debian] Re : Install latest R version from apt on Lenny
+In-Reply-To: <936415.47537.qm@web23801.mail.ird.yahoo.com>
+References: <936415.47537.qm@web23801.mail.ird.yahoo.com>
+Message-ID: <201004191530.15406.jranke@uni-bremen.de>
+
+Hi,
+
+if you want the latest R version on lenny, please follow the instructions in 
+the README that Dirk gave already pointed to:
+
+	http://cran.r-project.org/bin/linux/debian/
+
+Installing packages with the method Denis just sketched is much more 
+cumbersome as dependencies are not automatically resolved.
+
+Note that in the line 
+
+	deb http://<favorite-cran-mirror>/bin/linux/debian lenny-cran/
+
+you need to substitude <favorite-cran-mirror> by one of the mirror URLs listed 
+in
+
+	http://cran.r-project.org/mirrors.html
+
+Kind regards,
+
+Johannes
+
+Am Montag, 19. April 2010 10:54:48 schrieb denis brion:
+> You can download a recent R package with the command :
+>  wget
+>  http://cran.r-project.org/bin/linux/debian/lenny-cran/r-base-core_2.10.1-2
+> ~lennycran.0_i386.deb (one line) (works in any system, even in cygwin);
+>  perhaps it would be a nice repository to add to your list....-as it is the
+>  place where the latest version is- Then, you might use wajig
+>  http://www.togaware.com/linux/survivor/Wajig_Overview.html with the option
+>  "--simulate" to know which is missing (without installing, therefore you
+>  can know if it might generate dependency conflicts).
+> 
+> >From http://www.togaware.com/linux/survivor/Installing_Packages0.html
+> 
+> the command line :
+> sudo wajig --simulate install r-base-core-dbg_2.10.1-2~lennycran.0_i386.deb
+> might give you the list of waht you need, without installing : if all your
+>  dependencies are OK -ie you can find in the repositories you trust- , you
+>  can remove "--simulate" and courageously relaunch;
+> 
+> FYI : there is a nice how to in http://wiki.debian-facile.org/manuel:apt
+>  (treats wajig, too).
+> 
+> Sorry I cannot go further (looked at two *.deb files dependencies from
+>  cygwin without fully testing), but I do not use debian on
+>  [mon-thurs]days...
+> 
+> --- En date de : Lun 19.4.10, Biau David <djmbiau at yahoo.fr> a ?crit :
+> 
+> De: Biau David <djmbiau at yahoo.fr>
+> Objet: Install latest R version from apt on Lenny
+> ?: r-sig-debian at r-project.org
+> Cc: dbrion1 at yahoo.fr
+> Date: Lundi 19 avril 2010, 2h21
+> 
+> 
+> 
+> well, I had the site and page and I had added the relevant backport but it
+>  didn't work and i keep installing R 2.7 . Don't know why; i probably
+>  missed something.
+> 
+> ####
+> May be you should add in your mail the file :
+> /etc/apt/sources.list  (I suppose there might be a typo, as IT addresses
+>  are long and booring, and AFAIK, correcting a typo one made is **very**
+>  difficult).
+> 
+> 
+> FYI binary installs are (/were)  meant to make users life(s) easier, and
+>  are (/should be) therefore easier and faster: on the long term, if you go
+>  beyond "it does not work" (which makes very mysterious to find what is
+>  missing) , this will (might) come true...
+> 
+> ####
+> Hi Denis,
+> 
+> Here it is. I have add some issues with my source list since revently. I
+>  think after trying the instalation though. I have therefore deleted some
+>  souce list that seemed duplicates to me. There are still some duplicates
+>  that I cannot install. The file looks worse than on Synaptic. It looks
+>  like I have a lot more in the file than actually appear on Synaptic.
+> 
+> Clearly I should have tried to go beyong the "it does not work..." but I
+>  gave it a fair try (you remember) and I had to get my work back on track.
+>  Also, I learned by installing the way you told me, that is, installing R
+>  where I want so I may now install different versions of R.
+> 
+> > /etc/apt/sources.list
+> 
+> # deb cdrom:[Debian GNU/Linux 5.0.3 _Lenny_ - Official i386 NETINST
+>  Binary-1 20090906-12:06]/ lenny main
+> 
+> # deb cdrom:[Debian GNU/Linux 5.0.3 _Lenny_ - Official i386 NETINST
+>  Binary-1 20090906-12:06]/ lenny main
+> 
+> deb http://ftp.fr.debian.org/debian/ lenny main contrib
+> deb-src http://ftp.fr.debian.org/debian/ lenny main contrib
+> 
+> deb http://security.debian.org/ lenny/updates main contrib
+> deb-src http://security.debian.org/ lenny/updates main contrib
+> 
+> deb http://volatile.debian.org/debian-volatile lenny/volatile main
+> deb http://ftp.fr.debian.org/debian/ lenny-proposed-updates main contrib
+> deb-src http://ftp.fr.debian.org/debian/ lenny-proposed-updates main
+>  contrib deb http://security.debian.org/debian-security lenny/updates main
+> deb http://security.debian.org/debian-security lenny/updates main
+> deb http://security.debian.org/debian-security lenny/updates main
+> deb http://security.debian.org/debian-security lenny/updates main
+> deb http://www.backports.org/debian lenny-backports main contrib non-free
+> deb http://download.videolan.org/pub/videolan/debian sid main
+> deb http://ftp.us.debian.org/debian etch main contrib non-free
+> 
+> I have changed the subject of the post.
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 	[[alternative HTML version deleted]]
+> 
+
+
+From djmbiau at yahoo.fr  Wed Apr 21 12:37:46 2010
+From: djmbiau at yahoo.fr (Biau David)
+Date: Wed, 21 Apr 2010 10:37:46 +0000 (GMT)
+Subject: [R-sig-Debian] Re : Install latest R version from apt on Lenny
+In-Reply-To: <mailman.25.1271757609.585.r-sig-debian@r-project.org>
+References: <mailman.25.1271757609.585.r-sig-debian@r-project.org>
+Message-ID: <402011.54029.qm@web25107.mail.ukl.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100421/1a0d439d/attachment.pl>
+
+From jranke at uni-bremen.de  Thu Apr 22 22:26:45 2010
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Thu, 22 Apr 2010 22:26:45 +0200
+Subject: [R-sig-Debian] Re : Install latest R version from apt on Lenny
+In-Reply-To: <402011.54029.qm@web25107.mail.ukl.yahoo.com>
+References: <mailman.25.1271757609.585.r-sig-debian@r-project.org>
+	<402011.54029.qm@web25107.mail.ukl.yahoo.com>
+Message-ID: <201004222226.45972.jranke@uni-bremen.de>
+
+Hi David,
+
+I will add a note in the README in order to help avoid this problem with the 
+backport of R 2.11.0 I am currently building.
+
+Kind regards,
+
+Johannes
+
+Am Mittwoch, 21. April 2010 12:37:46 schrieb Biau David:
+> OK, thanks both. I'll try that. I suspect (very strongly) that it comes
+>  from the fact that I did not replace the cran mirror line by an actulal
+>  cran mirror URLs... I will give a look at all my backports this weekend
+>  and do a little cleaning too!
+> 
+> thanks,
+>  
+> David Biau.
+>  
+> #################################
+> 
+> From: Johannes Ranke <jranke at uni-bremen.de>
+> To: r-sig-debian at r-project.org
+> 
+> Subject: Re: [R-sig-Debian] Re : Install latest R version from apt on
+>     Lenny
+> Message-ID: <201004191530.15406.jranke at uni-bremen.de>
+> Content-Type: Text/Plain;  charset="iso-8859-15"
+> 
+> Hi,
+> 
+> if you want the latest R version on lenny, please follow the instructions
+>  in the README that Dirk gave already pointed to:
+> 
+>     http://cran.r-project.org/bin/linux/debian/
+> 
+> Installing packages with the method Denis just sketched is much more
+> cumbersome as dependencies are not automatically resolved.
+> 
+> Note that in the line
+> 
+>     deb http://<favorite-cran-mirror>/bin/linux/debian lenny-cran/
+> 
+> you need to substitude <favorite-cran-mirror> by one of the mirror URLs
+>  listed in
+> 
+>     http://cran.r-project.org/mirrors.html
+> 
+> Kind regards,
+> 
+> Johannes
+>
+
+
+From spluque at gmail.com  Fri Apr 23 15:44:43 2010
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Fri, 23 Apr 2010 08:44:43 -0500
+Subject: [R-sig-Debian] segfault with format.POSIXct()
+Message-ID: <87k4ry706s.fsf@kolob.sebmags.homelinux.org>
+
+Hi,
+
+I posted in R-devel, thinking it might be a general R problem, but Uwe
+cannot reproduce it in his GNU/Linux distro, with the same R version.
+So I'm posting here to ask whether Debian R users are having this
+problem.
+
+I'm getting a segmentation fault as follows:
+
+---<--------------------cut here---------------start------------------->---
+R> begt <- as.POSIXct(strptime("10/01/2009 06:00:00", format="%d/%m/%Y %H:%M:%S"),
++                    tz="GMT")
+R> tser <- seq(begt, by=5, length.out=91000)
+R> tser.trunc <- format(tser)
+Error: segfault from C stack overflow
+---<--------------------cut here---------------end--------------------->---
+
+With the following set up:
+
+---<--------------------cut here---------------start------------------->---
+R> sessionInfo()
+R version 2.11.0 RC (2010-04-19 r51778) 
+x86_64-pc-linux-gnu 
+
+locale:
+ [1] LC_CTYPE=en_CA.UTF-8       LC_NUMERIC=C               LC_TIME=en_CA.UTF-8        LC_COLLATE=en_CA.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_CA.UTF-8    LC_PAPER=en_CA.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=en_CA.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] slmisc_0.7.3   lattice_0.18-3
+
+loaded via a namespace (and not attached):
+[1] grid_2.11.0
+---<--------------------cut here---------------end--------------------->---
+
+Removing my local slmisc package from the loaded packages doesn't make a
+difference.  Thanks for any leads.
+
+
+-- 
+Seb
+
+
+From spluque at gmail.com  Fri Apr 23 16:36:19 2010
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Fri, 23 Apr 2010 09:36:19 -0500
+Subject: [R-sig-Debian] segfault with format.POSIXct()
+In-Reply-To: <87k4ry706s.fsf@kolob.sebmags.homelinux.org> (Sebastian
+	P. Luque's message of "Fri, 23 Apr 2010 08:44:43 -0500")
+References: <87k4ry706s.fsf@kolob.sebmags.homelinux.org>
+Message-ID: <87y6ge5j8c.fsf@kolob.sebmags.homelinux.org>
+
+On Fri, 23 Apr 2010 08:44:43 -0500,
+"Sebastian P. Luque" <spluque at gmail.com> wrote:
+
+> Hi, I posted in R-devel, thinking it might be a general R problem, but
+> Uwe cannot reproduce it in his GNU/Linux distro, with the same R
+> version.  So I'm posting here to ask whether Debian R users are having
+> this problem.
+
+[...]
+
+It does seem to be related to bug 14267, which is fixed in R-devel.
+Duncan Murdoch has just committed a patch for this in the 2.11.0 branch
+(see thread in the R-devel list).
+
+
+-- 
+Seb
+
+
+From jranke at uni-bremen.de  Fri Apr 23 21:41:09 2010
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Fri, 23 Apr 2010 21:41:09 +0200
+Subject: [R-sig-Debian] R 2.11.0 for Debian lenny on CRAN
+Message-ID: <201004232141.09297.jranke@uni-bremen.de>
+
+Dear all,
+
+This is to announce the immediate availability of R 2.11.0 for Debian lenny on 
+CRAN. The packages have arrived at cran.r-project.org and are in the process 
+of propagating to the mirrors.
+
+You may have to update or rebuild R packages installed under R < 2.10.0 
+(including r-cran-* packages from Debian lenny), as R 2.11.0 does not accept 
+them any more because of the new help system.
+
+Please report any problems you may have to this list, as always. 
+
+Kind regards,
+
+Johannes
+
+
+From krcabrer at une.net.co  Sun Apr 25 23:27:35 2010
+From: krcabrer at une.net.co (Kenneth Roy Cabrera Torres)
+Date: Sun, 25 Apr 2010 21:27:35 +0000 (UTC)
+Subject: [R-sig-Debian] A newbee problem compiling R in ubuntu.
+References: <1264996930.16942.2.camel@ubuntu.une.net.co>
+	<13e802631001312216t7ed0a1bfg776bf7a879f85af@mail.gmail.com>
+	<19303.33181.274658.998014@ron.nulle.part>
+	<1265075421.11406.91.camel@corn.betterworld.us>
+	<40e66e0b1002020727p3462fa7cg7e736fbc67886490@mail.gmail.com>
+Message-ID: <loom.20100425T232648-100@post.gmane.org>
+
+Thank you for your help!!
+
+Kenneth
+
+
+From yintengfei at gmail.com  Tue Apr 27 17:31:27 2010
+From: yintengfei at gmail.com (Tengfei Yin)
+Date: Tue, 27 Apr 2010 10:31:27 -0500
+Subject: [R-sig-Debian] R for ubuntu 10.04?
+Message-ID: <l2m316751b31004270831zedb4bfa3icb01eb72f496ba05@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100427/ad81428d/attachment.pl>
+
+From mar36 at psu.edu  Tue Apr 27 17:38:45 2010
+From: mar36 at psu.edu (Michael Rutter)
+Date: Tue, 27 Apr 2010 11:38:45 -0400
+Subject: [R-sig-Debian] R for ubuntu 10.04?
+In-Reply-To: <l2m316751b31004270831zedb4bfa3icb01eb72f496ba05@mail.gmail.com>
+References: <l2m316751b31004270831zedb4bfa3icb01eb72f496ba05@mail.gmail.com>
+Message-ID: <4BD70505.9090706@psu.edu>
+
+Tengfei,
+
+Yes, there will be packages for 10.04 (lucid lynx) available on CRAN.  I 
+have done some testing and things should work fine.  It takes a couple 
+of days for the packages to hit CRAN, so please be patient.  If you did 
+upgrade, there are R packages in universe that you can install based on 
+the version of R that is available about 2 months before the Ubuntu release.
+
+Michael
+
+On 04/27/2010 11:31 AM, Tengfei Yin wrote:
+> Hi dear all
+>
+> I am currently using Ubuntu 9.10 (karmic) and R 2.10, I can find a R release
+> that support "karmic" in cran under ubuntu directory, I plan to update my
+> laptop to Ubuntu 10.04 after April 30, since I have to use some new features
+> or new version in it, e.g. QT 4.6,  I don't know if there is going to be a R
+> release that will support this newly released Ubuntu?
+>
+> Thanks in advance!
+>
+> Best wishes
+>
+> Tengfei
+>
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From yintengfei at gmail.com  Tue Apr 27 17:44:16 2010
+From: yintengfei at gmail.com (Tengfei Yin)
+Date: Tue, 27 Apr 2010 10:44:16 -0500
+Subject: [R-sig-Debian] R for ubuntu 10.04?
+In-Reply-To: <4BD70505.9090706@psu.edu>
+References: <l2m316751b31004270831zedb4bfa3icb01eb72f496ba05@mail.gmail.com> 
+	<4BD70505.9090706@psu.edu>
+Message-ID: <t2k316751b31004270844k4bb0ce1eueba1dc6b086a945c@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100427/1515857f/attachment.pl>
+
+From edd at debian.org  Tue Apr 27 18:17:02 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 27 Apr 2010 11:17:02 -0500
+Subject: [R-sig-Debian] R for ubuntu 10.04?
+In-Reply-To: <l2m316751b31004270831zedb4bfa3icb01eb72f496ba05@mail.gmail.com>
+References: <l2m316751b31004270831zedb4bfa3icb01eb72f496ba05@mail.gmail.com>
+Message-ID: <19415.3582.315287.495243@ron.nulle.part>
+
+
+On 27 April 2010 at 10:31, Tengfei Yin wrote:
+| I am currently using Ubuntu 9.10 (karmic) and R 2.10, I can find a R release
+| that support "karmic" in cran under ubuntu directory, I plan to update my
+| laptop to Ubuntu 10.04 after April 30, since I have to use some new features
+| or new version in it, e.g. QT 4.6,  I don't know if there is going to be a R
+| release that will support this newly released Ubuntu?
+
+As Michael said, it will.  
+
+In the meantime, you can __already upgrade to R 2.11.0__ which has available
+since last week.  So update your Karmic release to a new R now, and then
+upgrade your Ubuntu relase from Karmic to Lucid once Ubuntu releases.   
+
+-- 
+  Regards, Dirk
+
+
+From yintengfei at gmail.com  Tue Apr 27 18:36:16 2010
+From: yintengfei at gmail.com (Tengfei Yin)
+Date: Tue, 27 Apr 2010 11:36:16 -0500
+Subject: [R-sig-Debian] R for ubuntu 10.04?
+In-Reply-To: <19415.3582.315287.495243@ron.nulle.part>
+References: <l2m316751b31004270831zedb4bfa3icb01eb72f496ba05@mail.gmail.com> 
+	<19415.3582.315287.495243@ron.nulle.part>
+Message-ID: <s2n316751b31004270936h1b3aac26xeea790facee27c89@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100427/1a4e3393/attachment.pl>
+

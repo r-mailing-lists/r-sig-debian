@@ -1,0 +1,1978 @@
+From m@rong|u@|u|g| @end|ng |rom gm@||@com  Tue Jul 14 12:26:13 2020
+From: m@rong|u@|u|g| @end|ng |rom gm@||@com (Luigi Marongiu)
+Date: Tue, 14 Jul 2020 12:26:13 +0200
+Subject: [R-sig-Debian] How to install libisl.so.19 on chromebook?
+Message-ID: <CAMk+s2Tk6vyx72oCBpRdUOEgC3ke3a+QrQDU+bScqqBju_wRzg@mail.gmail.com>
+
+I am trying to install minpack.lm on R 3.3.3 (Debian version) on a
+Chromebook. But I get this error:
+```
+> install.packages("minpack.lm")
+Installing package into ?/home/marongiuluigi/R/x86_64-pc-linux-gnu-library/3.3?
+(as ?lib? is unspecified)
+trying URL 'https://cran.rstudio.com/src/contrib/minpack.lm_1.2-1.tar.gz'
+Content type 'application/x-gzip' length 43029 bytes (42 KB)
+==================================================
+downloaded 42 KB
+
+* installing *source* package ?minpack.lm? ...
+** package ?minpack.lm? successfully unpacked and MD5 sums checked
+** libs
+gfortran   -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-3.3.3=.
+-fstack-protector-strong  -c chkder.f -o chkder.o
+/usr/local/libexec/gcc/x86_64-cros-linux-gnu/8.3.0/f951: error while
+loading shared libraries: libisl.so.19: cannot open shared object
+file: No such file or directory
+/usr/lib/R/etc/Makeconf:155: recipe for target 'chkder.o' failed
+make: *** [chkder.o] Error 1
+ERROR: compilation failed for package ?minpack.lm?
+* removing ?/home/marongiuluigi/R/x86_64-pc-linux-gnu-library/3.3/minpack.lm?
+Warning in install.packages :
+  installation of package ?minpack.lm? had non-zero exit status
+```
+I tried to install  libisl.so.19 but:
+```
+$ sudo apt-get install libisl.so.19
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+E: Unable to locate package libisl.so.19
+E: Couldn't find any package by glob 'libisl.so.19'
+E: Couldn't find any package by regex 'libisl.so.19'
+```
+I downloaded libisl.so.19 for debian, but where shall I place it?
+Is there an easier way to install this library?
+Thank you
+
+-- 
+Best regards,
+Luigi
+
+
+From edd @end|ng |rom deb|@n@org  Tue Jul 14 12:54:50 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 14 Jul 2020 05:54:50 -0500
+Subject: [R-sig-Debian] How to install libisl.so.19 on chromebook?
+In-Reply-To: <CAMk+s2Tk6vyx72oCBpRdUOEgC3ke3a+QrQDU+bScqqBju_wRzg@mail.gmail.com>
+References: <CAMk+s2Tk6vyx72oCBpRdUOEgC3ke3a+QrQDU+bScqqBju_wRzg@mail.gmail.com>
+Message-ID: <24333.36602.71449.486488@rob.eddelbuettel.com>
+
+
+On 14 July 2020 at 12:26, Luigi Marongiu wrote:
+| I am trying to install minpack.lm on R 3.3.3 (Debian version) on a
+| Chromebook. But I get this error:
+| ```
+| > install.packages("minpack.lm")
+| Installing package into ?/home/marongiuluigi/R/x86_64-pc-linux-gnu-library/3.3?
+| (as ?lib? is unspecified)
+| trying URL 'https://cran.rstudio.com/src/contrib/minpack.lm_1.2-1.tar.gz'
+| Content type 'application/x-gzip' length 43029 bytes (42 KB)
+| ==================================================
+| downloaded 42 KB
+| 
+| * installing *source* package ?minpack.lm? ...
+| ** package ?minpack.lm? successfully unpacked and MD5 sums checked
+| ** libs
+| gfortran   -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-3.3.3=.
+| -fstack-protector-strong  -c chkder.f -o chkder.o
+| /usr/local/libexec/gcc/x86_64-cros-linux-gnu/8.3.0/f951: error while
+| loading shared libraries: libisl.so.19: cannot open shared object
+| file: No such file or directory
+| /usr/lib/R/etc/Makeconf:155: recipe for target 'chkder.o' failed
+| make: *** [chkder.o] Error 1
+| ERROR: compilation failed for package ?minpack.lm?
+| * removing ?/home/marongiuluigi/R/x86_64-pc-linux-gnu-library/3.3/minpack.lm?
+| Warning in install.packages :
+|   installation of package ?minpack.lm? had non-zero exit status
+| ```
+| I tried to install  libisl.so.19 but:
+| ```
+| $ sudo apt-get install libisl.so.19
+| Reading package lists... Done
+| Building dependency tree
+| Reading state information... Done
+| E: Unable to locate package libisl.so.19
+| E: Couldn't find any package by glob 'libisl.so.19'
+| E: Couldn't find any package by regex 'libisl.so.19'
+| ```
+| I downloaded libisl.so.19 for debian, but where shall I place it?
+| Is there an easier way to install this library?
+| Thank you
+
+That is not the correct package name as it is a _file name_.
+
+Use eg
+
+ https://packages.debian.org/
+
+to search (go to Search the contents of packages) or search directly via
+
+ apt search libisl
+
+which will lead you to packages
+
+ libisl-dev
+ libisl22           # on the release I run on Ubuntu right now
+
+with a major name reflecting the current release. For an older version I find
+the package search above useful, there are other pages too.
+
+Hope this helps,  Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@rong|u@|u|g| @end|ng |rom gm@||@com  Tue Jul 14 13:08:04 2020
+From: m@rong|u@|u|g| @end|ng |rom gm@||@com (Luigi Marongiu)
+Date: Tue, 14 Jul 2020 13:08:04 +0200
+Subject: [R-sig-Debian] How to install libisl.so.19 on chromebook?
+In-Reply-To: <24333.36602.71449.486488@rob.eddelbuettel.com>
+References: <CAMk+s2Tk6vyx72oCBpRdUOEgC3ke3a+QrQDU+bScqqBju_wRzg@mail.gmail.com>
+ <24333.36602.71449.486488@rob.eddelbuettel.com>
+Message-ID: <CAMk+s2T2a-SPU5PkCGOgSQHKbmqmVGQE7GngucsJjDWewmhCSw@mail.gmail.com>
+
+Thank you, it looks like I have already libisl:
+```
+apt search libisl
+Sorting... Done
+Full Text Search... Done
+libisl-dbg/oldstable 0.18-1 amd64
+  manipulating sets and relations of integer points bounded by linear
+constraints
+
+libisl-dev/oldstable 0.18-1 amd64
+  manipulating sets and relations of integer points bounded by linear
+constraints
+
+libisl15/oldstable,now 0.18-1 amd64 [installed,automatic]
+  manipulating sets and relations of integer points bounded by linear
+constraints
+
+libisl19/now 0.19-1 amd64 [installed,local]
+  manipulating sets and relations of integer points bounded by linear
+constraints
+```
+thus the problem must be with the installation step: I should tell the
+compiler to look for libisl19 instead of  libisl.so.19...
+
+On Tue, Jul 14, 2020 at 12:54 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+>
+> On 14 July 2020 at 12:26, Luigi Marongiu wrote:
+> | I am trying to install minpack.lm on R 3.3.3 (Debian version) on a
+> | Chromebook. But I get this error:
+> | ```
+> | > install.packages("minpack.lm")
+> | Installing package into ?/home/marongiuluigi/R/x86_64-pc-linux-gnu-library/3.3?
+> | (as ?lib? is unspecified)
+> | trying URL 'https://cran.rstudio.com/src/contrib/minpack.lm_1.2-1.tar.gz'
+> | Content type 'application/x-gzip' length 43029 bytes (42 KB)
+> | ==================================================
+> | downloaded 42 KB
+> |
+> | * installing *source* package ?minpack.lm? ...
+> | ** package ?minpack.lm? successfully unpacked and MD5 sums checked
+> | ** libs
+> | gfortran   -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-3.3.3=.
+> | -fstack-protector-strong  -c chkder.f -o chkder.o
+> | /usr/local/libexec/gcc/x86_64-cros-linux-gnu/8.3.0/f951: error while
+> | loading shared libraries: libisl.so.19: cannot open shared object
+> | file: No such file or directory
+> | /usr/lib/R/etc/Makeconf:155: recipe for target 'chkder.o' failed
+> | make: *** [chkder.o] Error 1
+> | ERROR: compilation failed for package ?minpack.lm?
+> | * removing ?/home/marongiuluigi/R/x86_64-pc-linux-gnu-library/3.3/minpack.lm?
+> | Warning in install.packages :
+> |   installation of package ?minpack.lm? had non-zero exit status
+> | ```
+> | I tried to install  libisl.so.19 but:
+> | ```
+> | $ sudo apt-get install libisl.so.19
+> | Reading package lists... Done
+> | Building dependency tree
+> | Reading state information... Done
+> | E: Unable to locate package libisl.so.19
+> | E: Couldn't find any package by glob 'libisl.so.19'
+> | E: Couldn't find any package by regex 'libisl.so.19'
+> | ```
+> | I downloaded libisl.so.19 for debian, but where shall I place it?
+> | Is there an easier way to install this library?
+> | Thank you
+>
+> That is not the correct package name as it is a _file name_.
+>
+> Use eg
+>
+>  https://packages.debian.org/
+>
+> to search (go to Search the contents of packages) or search directly via
+>
+>  apt search libisl
+>
+> which will lead you to packages
+>
+>  libisl-dev
+>  libisl22           # on the release I run on Ubuntu right now
+>
+> with a major name reflecting the current release. For an older version I find
+> the package search above useful, there are other pages too.
+>
+> Hope this helps,  Dirk
+>
+> --
+> https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+
+-- 
+Best regards,
+Luigi
+
+
+From edd @end|ng |rom deb|@n@org  Tue Jul 14 13:30:03 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 14 Jul 2020 06:30:03 -0500
+Subject: [R-sig-Debian] How to install libisl.so.19 on chromebook?
+In-Reply-To: <CAMk+s2T2a-SPU5PkCGOgSQHKbmqmVGQE7GngucsJjDWewmhCSw@mail.gmail.com>
+References: <CAMk+s2Tk6vyx72oCBpRdUOEgC3ke3a+QrQDU+bScqqBju_wRzg@mail.gmail.com>
+ <24333.36602.71449.486488@rob.eddelbuettel.com>
+ <CAMk+s2T2a-SPU5PkCGOgSQHKbmqmVGQE7GngucsJjDWewmhCSw@mail.gmail.com>
+Message-ID: <24333.38715.248355.512502@rob.eddelbuettel.com>
+
+
+There is something wrong with your system / setup I did not notice first:
+
+On 14 July 2020 at 13:08, Luigi Marongiu wrote:
+| Thank you, it looks like I have already libisl:
+| ```
+| apt search libisl
+| Sorting... Done
+| Full Text Search... Done
+| libisl-dbg/oldstable 0.18-1 amd64
+|   manipulating sets and relations of integer points bounded by linear
+| constraints
+| 
+| libisl-dev/oldstable 0.18-1 amd64
+|   manipulating sets and relations of integer points bounded by linear
+| constraints
+| 
+| libisl15/oldstable,now 0.18-1 amd64 [installed,automatic]
+|   manipulating sets and relations of integer points bounded by linear
+| constraints
+| 
+| libisl19/now 0.19-1 amd64 [installed,local]
+|   manipulating sets and relations of integer points bounded by linear
+| constraints
+| ```
+| thus the problem must be with the installation step: I should tell the
+| compiler to look for libisl19 instead of  libisl.so.19...
+| 
+| On Tue, Jul 14, 2020 at 12:54 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+| >
+| >
+| > On 14 July 2020 at 12:26, Luigi Marongiu wrote:
+| > | I am trying to install minpack.lm on R 3.3.3 (Debian version) on a
+| > | Chromebook. But I get this error:
+| > | ```
+| > | > install.packages("minpack.lm")
+| > | Installing package into ?/home/marongiuluigi/R/x86_64-pc-linux-gnu-library/3.3?
+| > | (as ?lib? is unspecified)
+| > | trying URL 'https://cran.rstudio.com/src/contrib/minpack.lm_1.2-1.tar.gz'
+| > | Content type 'application/x-gzip' length 43029 bytes (42 KB)
+| > | ==================================================
+| > | downloaded 42 KB
+| > |
+| > | * installing *source* package ?minpack.lm? ...
+| > | ** package ?minpack.lm? successfully unpacked and MD5 sums checked
+| > | ** libs
+| > | gfortran   -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-3.3.3=.
+| > | -fstack-protector-strong  -c chkder.f -o chkder.o
+| > | /usr/local/libexec/gcc/x86_64-cros-linux-gnu/8.3.0/f951: error while
+
+Why is gfortran calling into /usr/local?
+
+You are outside of the package management system here.  Can you not use the
+package gfortran (and gcc, g++, ...) because ...
+
+| > | loading shared libraries: libisl.so.19: cannot open shared object
+| > | file: No such file or directory
+| > | /usr/lib/R/etc/Makeconf:155: recipe for target 'chkder.o' failed
+
+... you are trying the packaged R.
+
+Dirk
+
+| > | make: *** [chkder.o] Error 1
+| > | ERROR: compilation failed for package ?minpack.lm?
+| > | * removing ?/home/marongiuluigi/R/x86_64-pc-linux-gnu-library/3.3/minpack.lm?
+| > | Warning in install.packages :
+| > |   installation of package ?minpack.lm? had non-zero exit status
+| > | ```
+| > | I tried to install  libisl.so.19 but:
+| > | ```
+| > | $ sudo apt-get install libisl.so.19
+| > | Reading package lists... Done
+| > | Building dependency tree
+| > | Reading state information... Done
+| > | E: Unable to locate package libisl.so.19
+| > | E: Couldn't find any package by glob 'libisl.so.19'
+| > | E: Couldn't find any package by regex 'libisl.so.19'
+| > | ```
+| > | I downloaded libisl.so.19 for debian, but where shall I place it?
+| > | Is there an easier way to install this library?
+| > | Thank you
+| >
+| > That is not the correct package name as it is a _file name_.
+| >
+| > Use eg
+| >
+| >  https://packages.debian.org/
+| >
+| > to search (go to Search the contents of packages) or search directly via
+| >
+| >  apt search libisl
+| >
+| > which will lead you to packages
+| >
+| >  libisl-dev
+| >  libisl22           # on the release I run on Ubuntu right now
+| >
+| > with a major name reflecting the current release. For an older version I find
+| > the package search above useful, there are other pages too.
+| >
+| > Hope this helps,  Dirk
+| >
+| > --
+| > https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+| 
+| 
+| 
+| -- 
+| Best regards,
+| Luigi
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@rong|u@|u|g| @end|ng |rom gm@||@com  Tue Jul 14 13:57:01 2020
+From: m@rong|u@|u|g| @end|ng |rom gm@||@com (Luigi Marongiu)
+Date: Tue, 14 Jul 2020 13:57:01 +0200
+Subject: [R-sig-Debian] How to install libisl.so.19 on chromebook?
+In-Reply-To: <24333.38715.248355.512502@rob.eddelbuettel.com>
+References: <CAMk+s2Tk6vyx72oCBpRdUOEgC3ke3a+QrQDU+bScqqBju_wRzg@mail.gmail.com>
+ <24333.36602.71449.486488@rob.eddelbuettel.com>
+ <CAMk+s2T2a-SPU5PkCGOgSQHKbmqmVGQE7GngucsJjDWewmhCSw@mail.gmail.com>
+ <24333.38715.248355.512502@rob.eddelbuettel.com>
+Message-ID: <CAMk+s2RSSCPSOndZdG6mcQC+9TMmjFPzgEaoego-78T2yeoKHA@mail.gmail.com>
+
+I don't know about the configuration. I installed R using the standard
+protocol for Chromebook
+http://blog.sellorm.com/2018/12/20/installing-r-and-rstudio-on-a-chromebook/
+the rest, it was done by the system itself...
+
+On Tue, Jul 14, 2020 at 1:30 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+>
+> There is something wrong with your system / setup I did not notice first:
+>
+> On 14 July 2020 at 13:08, Luigi Marongiu wrote:
+> | Thank you, it looks like I have already libisl:
+> | ```
+> | apt search libisl
+> | Sorting... Done
+> | Full Text Search... Done
+> | libisl-dbg/oldstable 0.18-1 amd64
+> |   manipulating sets and relations of integer points bounded by linear
+> | constraints
+> |
+> | libisl-dev/oldstable 0.18-1 amd64
+> |   manipulating sets and relations of integer points bounded by linear
+> | constraints
+> |
+> | libisl15/oldstable,now 0.18-1 amd64 [installed,automatic]
+> |   manipulating sets and relations of integer points bounded by linear
+> | constraints
+> |
+> | libisl19/now 0.19-1 amd64 [installed,local]
+> |   manipulating sets and relations of integer points bounded by linear
+> | constraints
+> | ```
+> | thus the problem must be with the installation step: I should tell the
+> | compiler to look for libisl19 instead of  libisl.so.19...
+> |
+> | On Tue, Jul 14, 2020 at 12:54 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+> | >
+> | >
+> | > On 14 July 2020 at 12:26, Luigi Marongiu wrote:
+> | > | I am trying to install minpack.lm on R 3.3.3 (Debian version) on a
+> | > | Chromebook. But I get this error:
+> | > | ```
+> | > | > install.packages("minpack.lm")
+> | > | Installing package into ?/home/marongiuluigi/R/x86_64-pc-linux-gnu-library/3.3?
+> | > | (as ?lib? is unspecified)
+> | > | trying URL 'https://cran.rstudio.com/src/contrib/minpack.lm_1.2-1.tar.gz'
+> | > | Content type 'application/x-gzip' length 43029 bytes (42 KB)
+> | > | ==================================================
+> | > | downloaded 42 KB
+> | > |
+> | > | * installing *source* package ?minpack.lm? ...
+> | > | ** package ?minpack.lm? successfully unpacked and MD5 sums checked
+> | > | ** libs
+> | > | gfortran   -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-3.3.3=.
+> | > | -fstack-protector-strong  -c chkder.f -o chkder.o
+> | > | /usr/local/libexec/gcc/x86_64-cros-linux-gnu/8.3.0/f951: error while
+>
+> Why is gfortran calling into /usr/local?
+>
+> You are outside of the package management system here.  Can you not use the
+> package gfortran (and gcc, g++, ...) because ...
+>
+> | > | loading shared libraries: libisl.so.19: cannot open shared object
+> | > | file: No such file or directory
+> | > | /usr/lib/R/etc/Makeconf:155: recipe for target 'chkder.o' failed
+>
+> ... you are trying the packaged R.
+>
+> Dirk
+>
+> | > | make: *** [chkder.o] Error 1
+> | > | ERROR: compilation failed for package ?minpack.lm?
+> | > | * removing ?/home/marongiuluigi/R/x86_64-pc-linux-gnu-library/3.3/minpack.lm?
+> | > | Warning in install.packages :
+> | > |   installation of package ?minpack.lm? had non-zero exit status
+> | > | ```
+> | > | I tried to install  libisl.so.19 but:
+> | > | ```
+> | > | $ sudo apt-get install libisl.so.19
+> | > | Reading package lists... Done
+> | > | Building dependency tree
+> | > | Reading state information... Done
+> | > | E: Unable to locate package libisl.so.19
+> | > | E: Couldn't find any package by glob 'libisl.so.19'
+> | > | E: Couldn't find any package by regex 'libisl.so.19'
+> | > | ```
+> | > | I downloaded libisl.so.19 for debian, but where shall I place it?
+> | > | Is there an easier way to install this library?
+> | > | Thank you
+> | >
+> | > That is not the correct package name as it is a _file name_.
+> | >
+> | > Use eg
+> | >
+> | >  https://packages.debian.org/
+> | >
+> | > to search (go to Search the contents of packages) or search directly via
+> | >
+> | >  apt search libisl
+> | >
+> | > which will lead you to packages
+> | >
+> | >  libisl-dev
+> | >  libisl22           # on the release I run on Ubuntu right now
+> | >
+> | > with a major name reflecting the current release. For an older version I find
+> | > the package search above useful, there are other pages too.
+> | >
+> | > Hope this helps,  Dirk
+> | >
+> | > --
+> | > https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+> |
+> |
+> |
+> | --
+> | Best regards,
+> | Luigi
+>
+> --
+> https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+
+-- 
+Best regards,
+Luigi
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Tue Jul 14 14:24:33 2020
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Tue, 14 Jul 2020 14:24:33 +0200
+Subject: [R-sig-Debian] How to install libisl.so.19 on chromebook?
+In-Reply-To: <CAMk+s2RSSCPSOndZdG6mcQC+9TMmjFPzgEaoego-78T2yeoKHA@mail.gmail.com>
+References: <CAMk+s2Tk6vyx72oCBpRdUOEgC3ke3a+QrQDU+bScqqBju_wRzg@mail.gmail.com>
+ <24333.38715.248355.512502@rob.eddelbuettel.com>
+ <CAMk+s2RSSCPSOndZdG6mcQC+9TMmjFPzgEaoego-78T2yeoKHA@mail.gmail.com>
+Message-ID: <2140868.CNdAbqC5B4@ryz>
+
+Am Dienstag, 14. Juli 2020, 13:57:01 CEST schrieb Luigi Marongiu:
+> I don't know about the configuration. I installed R using the standard
+> protocol for Chromebook
+> http://blog.sellorm.com/2018/12/20/installing-r-and-rstudio-on-a-chromebook/
+
+Hi Luigi,
+
+I would not call this a standard protocol. I would say, it is a 1.5 year old 
+blog telling you how to use a beta feature (at the time of writing) of 
+ChromeOS to install R and RStudio on ChromeOS.
+
+This would have been interesting to know the last time you had a question for 
+this mailing list. On 27 May you mentioned that you are using this line
+
+  deb http://cloud.r-project.org/bin/linux/debian buster-cran40/
+
+In the blog, it is suggested that the Linux distribution that the Chromebook 
+runs is Debian stretch. If your Chrombook runs Debian stretch, you need to use 
+a backport for stretch, not for buster. However, I am currently not providing 
+R 4 packages for stretch, as I do not run stretch systems any more.
+
+What is the output of lsb_release -a on your system?
+
+Johannes
+
+
+> the rest, it was done by the system itself...
+> 
+> On Tue, Jul 14, 2020 at 1:30 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+> > There is something wrong with your system / setup I did not notice first:
+> > 
+> > On 14 July 2020 at 13:08, Luigi Marongiu wrote:
+> > | Thank you, it looks like I have already libisl:
+> > | ```
+> > | apt search libisl
+> > | Sorting... Done
+> > | Full Text Search... Done
+> > | libisl-dbg/oldstable 0.18-1 amd64
+> > | 
+> > |   manipulating sets and relations of integer points bounded by linear
+> > | 
+> > | constraints
+> > | 
+> > | libisl-dev/oldstable 0.18-1 amd64
+> > | 
+> > |   manipulating sets and relations of integer points bounded by linear
+> > | 
+> > | constraints
+> > | 
+> > | libisl15/oldstable,now 0.18-1 amd64 [installed,automatic]
+> > | 
+> > |   manipulating sets and relations of integer points bounded by linear
+> > | 
+> > | constraints
+> > | 
+> > | libisl19/now 0.19-1 amd64 [installed,local]
+> > | 
+> > |   manipulating sets and relations of integer points bounded by linear
+> > | 
+> > | constraints
+> > | ```
+> > | thus the problem must be with the installation step: I should tell the
+> > | compiler to look for libisl19 instead of  libisl.so.19...
+> > | 
+> > | On Tue, Jul 14, 2020 at 12:54 PM Dirk Eddelbuettel <edd at debian.org> 
+wrote:
+> > | > On 14 July 2020 at 12:26, Luigi Marongiu wrote:
+> > | > | I am trying to install minpack.lm on R 3.3.3 (Debian version) on a
+> > | > | Chromebook. But I get this error:
+> > | > | ```
+> > | > | 
+> > | > | > install.packages("minpack.lm")
+> > | > | 
+> > | > | Installing package into
+> > | > | ?/home/marongiuluigi/R/x86_64-pc-linux-gnu-library/3.3? (as ?lib?
+> > | > | is unspecified)
+> > | > | trying URL
+> > | > | 'https://cran.rstudio.com/src/contrib/minpack.lm_1.2-1.tar.gz'
+> > | > | Content type 'application/x-gzip' length 43029 bytes (42 KB)
+> > | > | ==================================================
+> > | > | downloaded 42 KB
+> > | > | 
+> > | > | * installing *source* package ?minpack.lm? ...
+> > | > | ** package ?minpack.lm? successfully unpacked and MD5 sums checked
+> > | > | ** libs
+> > | > | gfortran   -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-3.3.3=.
+> > | > | -fstack-protector-strong  -c chkder.f -o chkder.o
+> > | > | /usr/local/libexec/gcc/x86_64-cros-linux-gnu/8.3.0/f951: error while
+> > 
+> > Why is gfortran calling into /usr/local?
+> > 
+> > You are outside of the package management system here.  Can you not use
+> > the
+> > package gfortran (and gcc, g++, ...) because ...
+> > 
+> > | > | loading shared libraries: libisl.so.19: cannot open shared object
+> > | > | file: No such file or directory
+> > | > | /usr/lib/R/etc/Makeconf:155: recipe for target 'chkder.o' failed
+> > 
+> > ... you are trying the packaged R.
+> > 
+> > Dirk
+> > 
+> > | > | make: *** [chkder.o] Error 1
+> > | > | ERROR: compilation failed for package ?minpack.lm?
+> > | > | * removing
+> > | > | ?/home/marongiuluigi/R/x86_64-pc-linux-gnu-library/3.3/minpack.lm?> 
+| > | 
+> > | > | Warning in install.packages :
+> > | > |   installation of package ?minpack.lm? had non-zero exit status
+> > | > | 
+> > | > | ```
+> > | > | I tried to install  libisl.so.19 but:
+> > | > | ```
+> > | > | $ sudo apt-get install libisl.so.19
+> > | > | Reading package lists... Done
+> > | > | Building dependency tree
+> > | > | Reading state information... Done
+> > | > | E: Unable to locate package libisl.so.19
+> > | > | E: Couldn't find any package by glob 'libisl.so.19'
+> > | > | E: Couldn't find any package by regex 'libisl.so.19'
+> > | > | ```
+> > | > | I downloaded libisl.so.19 for debian, but where shall I place it?
+> > | > | Is there an easier way to install this library?
+> > | > | Thank you
+> > | > 
+> > | > That is not the correct package name as it is a _file name_.
+> > | > 
+> > | > Use eg
+> > | > 
+> > | >  https://packages.debian.org/
+> > | > 
+> > | > to search (go to Search the contents of packages) or search directly
+> > | > via
+> > | > 
+> > | >  apt search libisl
+> > | > 
+> > | > which will lead you to packages
+> > | > 
+> > | >  libisl-dev
+> > | >  libisl22           # on the release I run on Ubuntu right now
+> > | > 
+> > | > with a major name reflecting the current release. For an older version
+> > | > I find the package search above useful, there are other pages too.
+> > | > 
+> > | > Hope this helps,  Dirk
+> > | > 
+> > | > --
+> > | > https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+> > | 
+> > | --
+> > | Best regards,
+> > | Luigi
+> > 
+> > --
+> > https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From gor@n@bro@trom @end|ng |rom umu@@e  Wed Jul 15 13:24:37 2020
+From: gor@n@bro@trom @end|ng |rom umu@@e (=?UTF-8?Q?G=c3=b6ran_Brostr=c3=b6m?=)
+Date: Wed, 15 Jul 2020 13:24:37 +0200
+Subject: [R-sig-Debian] Openblas?
+Message-ID: <587c40d4-e27f-dd60-eb49-c0bc200171ae@umu.se>
+
+Hello,
+
+I thought that I should try openblas when building a CRAN package 
+containing lots of old (twentieth century) C-code with frequent calls to 
+blas and lapack routines. I have the following options on my Ubuntu 
+20.04 machine:
+
+    Selection    Path                           Priority   Status
+------------------------------------------------------------
+* 0            openblas-pthread/libblas.so.3   100      auto mode
+   1            blas/libblas.so.3               10      manual mode
+   2            openblas-openmp/libblas.so.3    95      manual mode
+   3            openblas-pthread/libblas.so.3   100     manual mode
+
+I tried all four alternatives by timing one particular function call and 
+got quite surprising (to me) results:
+
+Selection        user   system elapsed
+0               3.279    1.839   1.900
+1               0.899    0.052   0.953
+2             158.948    3.661  20.915
+3               3.277    1.894   1.908
+
+Comments on that? To me it seems clear that openblas (0, 2, 3) has 
+nothing to offer me, as my C code stands now. Is the problem that 
+openblas uses C versions of blas? I am using the Fortran version via
+
+F77_CALL(name)
+
+I tried adding
+
+PKG_CFLAGS = $(SHLIB_OPENMP_CFLAGS)
+PKG_LIBS = $(SHLIB_OPENMP_CFLAGS)
+
+to src/Makevars, but then I got
+
+...undefined symbol: dsytri_
+
+when compiling.
+
+G?ran
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jul 15 14:36:11 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 15 Jul 2020 07:36:11 -0500
+Subject: [R-sig-Debian] Openblas?
+In-Reply-To: <587c40d4-e27f-dd60-eb49-c0bc200171ae@umu.se>
+References: <587c40d4-e27f-dd60-eb49-c0bc200171ae@umu.se>
+Message-ID: <24334.63547.147901.993925@rob.eddelbuettel.com>
+
+
+G?ran,
+
+This is not an easy email to reply to because it _contains nothing
+reproducible_.
+
+On 15 July 2020 at 13:24, G?ran Brostr?m wrote:
+| Hello,
+| 
+| I thought that I should try openblas when building a CRAN package 
+| containing lots of old (twentieth century) C-code with frequent calls to 
+| blas and lapack routines. I have the following options on my Ubuntu 
+| 20.04 machine:
+| 
+|     Selection    Path                           Priority   Status
+| ------------------------------------------------------------
+| * 0            openblas-pthread/libblas.so.3   100      auto mode
+|    1            blas/libblas.so.3               10      manual mode
+|    2            openblas-openmp/libblas.so.3    95      manual mode
+|    3            openblas-pthread/libblas.so.3   100     manual mode
+| 
+| I tried all four alternatives by timing one particular function call and 
+| got quite surprising (to me) results:
+| 
+| Selection        user   system elapsed
+| 0               3.279    1.839   1.900
+| 1               0.899    0.052   0.953
+| 2             158.948    3.661  20.915
+| 3               3.277    1.894   1.908
+| 
+| Comments on that?
+
+How could I comment?  I do not know what code you ran.
+
+| To me it seems clear that openblas (0, 2, 3) has 
+| nothing to offer me, as my C code stands now. Is the problem that 
+| openblas uses C versions of blas? I am using the Fortran version via
+| 
+| F77_CALL(name)
+| 
+| I tried adding
+| 
+| PKG_CFLAGS = $(SHLIB_OPENMP_CFLAGS)
+| PKG_LIBS = $(SHLIB_OPENMP_CFLAGS)
+
+This is missing LAPACK and BLAS so ...
+| 
+| to src/Makevars, but then I got
+| 
+| ...undefined symbol: dsytri_
+
+... so get a _linker error_ about missing symbols.
+ 
+| when compiling.
+
+You meant linking, not compiling.
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From p@u|teetor @end|ng |rom y@hoo@com  Wed Jul 15 16:03:21 2020
+From: p@u|teetor @end|ng |rom y@hoo@com (Paul Teetor)
+Date: Wed, 15 Jul 2020 14:03:21 +0000 (UTC)
+Subject: [R-sig-Debian] R 4.0 for ARM processors
+References: <1193986236.1754650.1594821801862.ref@mail.yahoo.com>
+Message-ID: <1193986236.1754650.1594821801862@mail.yahoo.com>
+
+Dear R-SIG-Debian folks,
+
+I seem to be chasing my tail, despite having a simple goal:
+
+- Install R 4.0.2
+- On Ubuntu 20.04
+- For an ARM processor (not Intel/AMD).
+
+Can someone please suggest a Debian/Ubuntu repository of the required packages (e.g., r-base-core) built for ARM? I can't seem to find one.
+
+(I can find the r-base-core package for R 3.6.3, but not R 4.0.2, built for ARM.)
+
+If there is no such Debian/Ubuntu repository, what would you recommend? Build R 4.0 for ARM from source? Use the cool 'rocker' images for R 4.0? Something else?
+
+Thank you so much for your advice. I must be misunderstanding something. I figured this would be a slam-dunk because (1) R 4.0 is the latest release, and (2) Ubuntu 20.04 is an LTS release, and (3) ARM is a supported architecture, or so I thought.
+
+Paul
+
+PS - Yes, the ARM processors in question are a Raspberry Pi cluster. Don't snicker. Hey, it's got 16 cores, 16 GB RAM total, and a
+terabyte of space. And it's paid for, no monthly fee.
+
+
+Paul Teetor, Elgin, IL USA
+
+
+From gor@n@bro@trom @end|ng |rom umu@@e  Wed Jul 15 16:13:41 2020
+From: gor@n@bro@trom @end|ng |rom umu@@e (=?UTF-8?Q?G=c3=b6ran_Brostr=c3=b6m?=)
+Date: Wed, 15 Jul 2020 16:13:41 +0200
+Subject: [R-sig-Debian] Openblas?
+In-Reply-To: <24334.63547.147901.993925@rob.eddelbuettel.com>
+References: <587c40d4-e27f-dd60-eb49-c0bc200171ae@umu.se>
+ <24334.63547.147901.993925@rob.eddelbuettel.com>
+Message-ID: <c0839f85-3474-ebd5-08b6-7066435d3d4b@umu.se>
+
+On 2020-07-15 14:36, Dirk Eddelbuettel wrote:
+> 
+> G?ran,
+> 
+> This is not an easy email to reply to because it _contains nothing
+> reproducible_.
+
+Thanks Dirk,
+
+Sorry about that, but my real question was (see below): "Is the problem 
+that openblas uses C versions of blas?" That is, do I need to change
+
+F77_CALL(name)(...);
+
+to
+
+cblas_name(...);
+
+everywhere? And if so, is this really a good idea with old code?
+
+I'll try to extract a reproducible example from the package (eha) where 
+I run it.
+
+G?ran
+
+> 
+> On 15 July 2020 at 13:24, G?ran Brostr?m wrote:
+> | Hello,
+> |
+> | I thought that I should try openblas when building a CRAN package
+> | containing lots of old (twentieth century) C-code with frequent calls to
+> | blas and lapack routines. I have the following options on my Ubuntu
+> | 20.04 machine:
+> |
+> |     Selection    Path                           Priority   Status
+> | ------------------------------------------------------------
+> | * 0            openblas-pthread/libblas.so.3   100      auto mode
+> |    1            blas/libblas.so.3               10      manual mode
+> |    2            openblas-openmp/libblas.so.3    95      manual mode
+> |    3            openblas-pthread/libblas.so.3   100     manual mode
+> |
+> | I tried all four alternatives by timing one particular function call and
+> | got quite surprising (to me) results:
+> |
+> | Selection        user   system elapsed
+> | 0               3.279    1.839   1.900
+> | 1               0.899    0.052   0.953
+> | 2             158.948    3.661  20.915
+> | 3               3.277    1.894   1.908
+> |
+> | Comments on that?
+> 
+> How could I comment?  I do not know what code you ran.
+> 
+> | To me it seems clear that openblas (0, 2, 3) has
+> | nothing to offer me, as my C code stands now. Is the problem that
+> | openblas uses C versions of blas? I am using the Fortran version via
+> |
+> | F77_CALL(name)
+> |
+> | I tried adding
+> |
+> | PKG_CFLAGS = $(SHLIB_OPENMP_CFLAGS)
+> | PKG_LIBS = $(SHLIB_OPENMP_CFLAGS)
+> 
+> This is missing LAPACK and BLAS so ...
+> |
+> | to src/Makevars, but then I got
+> |
+> | ...undefined symbol: dsytri_
+> 
+> ... so get a _linker error_ about missing symbols.
+>   
+> | when compiling.
+> 
+> You meant linking, not compiling.
+> 
+> Dirk
+>
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jul 15 16:26:23 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 15 Jul 2020 09:26:23 -0500
+Subject: [R-sig-Debian] R 4.0 for ARM processors
+In-Reply-To: <1193986236.1754650.1594821801862@mail.yahoo.com>
+References: <1193986236.1754650.1594821801862.ref@mail.yahoo.com>
+ <1193986236.1754650.1594821801862@mail.yahoo.com>
+Message-ID: <24335.4623.610656.933784@rob.eddelbuettel.com>
+
+
+On 15 July 2020 at 14:03, Paul Teetor wrote:
+| Dear R-SIG-Debian folks,
+| 
+| I seem to be chasing my tail, despite having a simple goal:
+| 
+| - Install R 4.0.2
+| - On Ubuntu 20.04
+| - For an ARM processor (not Intel/AMD).
+| 
+| Can someone please suggest a Debian/Ubuntu repository of the required packages (e.g., r-base-core) built for ARM? I can't seem to find one.
+| 
+| (I can find the r-base-core package for R 3.6.3, but not R 4.0.2, built for ARM.)
+| 
+| If there is no such Debian/Ubuntu repository, what would you recommend? Build R 4.0 for ARM from source? Use the cool 'rocker' images for R 4.0? Something else?
+| 
+| Thank you so much for your advice. I must be misunderstanding something. I figured this would be a slam-dunk because (1) R 4.0 is the latest release, and (2) Ubuntu 20.04 is an LTS release, and (3) ARM is a supported architecture, or so I thought.
+| 
+| Paul
+| 
+| PS - Yes, the ARM processors in question are a Raspberry Pi cluster. Don't snicker. Hey, it's got 16 cores, 16 GB RAM total, and a
+| terabyte of space. And it's paid for, no monthly fee.
+
+When I look at the build pages for my packages, eg this one for r-base
+
+   https://buildd.debian.org/status/package.php?p=r-base
+
+I see three (3) different arm labels: arm64, armel, armhf. I have no idea
+what the Pi uses, and never looked closely, but I am at least vaguely aware
+that there are apparently entire _dedicated_ distros and installers based on
+the Debian builds.  Raspian is one name that comes to mind.  Did you try that?
+
+Also, one second of Googling leads to: https://ubuntu.com/download/server/arm
+
+Good luck, keep us posted -- other architectures/platforms can be fun.
+
+Dirk
+(who just installed 20.04 on his daughters "retired / thought dead under a
+large cup of coffee spilled" macbook air)
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jul 15 16:32:54 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 15 Jul 2020 09:32:54 -0500
+Subject: [R-sig-Debian] Openblas?
+In-Reply-To: <c0839f85-3474-ebd5-08b6-7066435d3d4b@umu.se>
+References: <587c40d4-e27f-dd60-eb49-c0bc200171ae@umu.se>
+ <24334.63547.147901.993925@rob.eddelbuettel.com>
+ <c0839f85-3474-ebd5-08b6-7066435d3d4b@umu.se>
+Message-ID: <24335.5014.469195.665899@rob.eddelbuettel.com>
+
+
+On 15 July 2020 at 16:13, G?ran Brostr?m wrote:
+| On 2020-07-15 14:36, Dirk Eddelbuettel wrote:
+| > 
+| > G?ran,
+| > 
+| > This is not an easy email to reply to because it _contains nothing
+| > reproducible_.
+| 
+| Thanks Dirk,
+| 
+| Sorry about that, but my real question was (see below): "Is the problem 
+| that openblas uses C versions of blas?" That is, do I need to change
+| 
+| F77_CALL(name)(...);
+| 
+| to
+| 
+| cblas_name(...);
+| 
+| everywhere? And if so, is this really a good idea with old code?
+
+I don't think so. At the end of the day it comes from "higher up" (say,
+crossprod()) and is just passed down.
+
+Remember, at the end it's all assembler :)
+
+| I'll try to extract a reproducible example from the package (eha) where 
+| I run it.
+
++1
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From p@u|teetor @end|ng |rom y@hoo@com  Wed Jul 15 18:35:13 2020
+From: p@u|teetor @end|ng |rom y@hoo@com (Paul Teetor)
+Date: Wed, 15 Jul 2020 16:35:13 +0000 (UTC)
+Subject: [R-sig-Debian] R 4.0 for ARM processors
+In-Reply-To: <24335.4623.610656.933784@rob.eddelbuettel.com>
+References: <1193986236.1754650.1594821801862.ref@mail.yahoo.com>
+ <1193986236.1754650.1594821801862@mail.yahoo.com>
+ <24335.4623.610656.933784@rob.eddelbuettel.com>
+Message-ID: <1878876117.1831966.1594830913165@mail.yahoo.com>
+
+Thank you very much, Dirk. That nudge solved the problem, of course. I am embarrassed. I was so fixated on Ubuntu repositories that I neglected to check the Debian 'testing' world!
+
+Regarding the RPi: The RPi 4 uses the 'arm64' architecture, the full 64-bit one. I stopped using dedicated distros, such as Raspian, when Ubuntu went all-in on RPi support, which happened in their newest release focal (20). The dedicated distros often have an unhelpful attitude -- e.g., "you should use *this* package, not *that* package" -- that doesn't work for me.
+
+Paul Teetor, Elgin, IL USA
+http://quantdevel.com/public
+
+
+
+
+
+
+On Wednesday, July 15, 2020, 09:26:27 AM CDT, Dirk Eddelbuettel <edd at debian.org> wrote: 
+
+
+
+
+
+
+On 15 July 2020 at 14:03, Paul Teetor wrote:
+| Dear R-SIG-Debian folks,
+| 
+| I seem to be chasing my tail, despite having a simple goal:
+| 
+| - Install R 4.0.2
+| - On Ubuntu 20.04
+| - For an ARM processor (not Intel/AMD).
+| 
+| Can someone please suggest a Debian/Ubuntu repository of the required packages (e.g., r-base-core) built for ARM? I can't seem to find one.
+| 
+| (I can find the r-base-core package for R 3.6.3, but not R 4.0.2, built for ARM.)
+| 
+| If there is no such Debian/Ubuntu repository, what would you recommend? Build R 4.0 for ARM from source? Use the cool 'rocker' images for R 4.0? Something else?
+| 
+| Thank you so much for your advice. I must be misunderstanding something. I figured this would be a slam-dunk because (1) R 4.0 is the latest release, and (2) Ubuntu 20.04 is an LTS release, and (3) ARM is a supported architecture, or so I thought.
+| 
+| Paul
+| 
+| PS - Yes, the ARM processors in question are a Raspberry Pi cluster. Don't snicker. Hey, it's got 16 cores, 16 GB RAM total, and a
+| terabyte of space. And it's paid for, no monthly fee.
+
+
+When I look at the build pages for my packages, eg this one for r-base
+
+? https://buildd.debian.org/status/package.php?p=r-base
+
+I see three (3) different arm labels: arm64, armel, armhf. I have no idea
+what the Pi uses, and never looked closely, but I am at least vaguely aware
+that there are apparently entire _dedicated_ distros and installers based on
+the Debian builds.? Raspian is one name that comes to mind.? Did you try that?
+
+Also, one second of Googling leads to: https://ubuntu.com/download/server/arm
+
+Good luck, keep us posted -- other architectures/platforms can be fun.
+
+Dirk
+(who just installed 20.04 on his daughters "retired / thought dead under a
+large cup of coffee spilled" macbook air)
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jul 15 18:51:58 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 15 Jul 2020 11:51:58 -0500
+Subject: [R-sig-Debian] R 4.0 for ARM processors
+In-Reply-To: <1878876117.1831966.1594830913165@mail.yahoo.com>
+References: <1193986236.1754650.1594821801862.ref@mail.yahoo.com>
+ <1193986236.1754650.1594821801862@mail.yahoo.com>
+ <24335.4623.610656.933784@rob.eddelbuettel.com>
+ <1878876117.1831966.1594830913165@mail.yahoo.com>
+Message-ID: <24335.13358.787413.480965@rob.eddelbuettel.com>
+
+
+On 15 July 2020 at 16:35, Paul Teetor wrote:
+| Thank you very much, Dirk. That nudge solved the problem, of course. I am embarrassed. I was so fixated on Ubuntu repositories that I neglected to check the Debian 'testing' world!
+| 
+| Regarding the RPi: The RPi 4 uses the 'arm64' architecture, the full 64-bit one. I stopped using dedicated distros, such as Raspian, when Ubuntu went all-in on RPi support, which happened in their newest release focal (20). The dedicated distros often have an unhelpful attitude -- e.g., "you should use *this* package, not *that* package" -- that doesn't work for me.
+
+I am confused by these two paragraphs. Are you planning to use Debian
+'testing' on you Raspberry Pi, or Ubuntu 'focal' aka 20.04?
+
+And out of curiousity, is that a hosted machine?  Typically these are
+toy-sized and usually at home.
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From p@u|teetor @end|ng |rom y@hoo@com  Wed Jul 15 21:44:19 2020
+From: p@u|teetor @end|ng |rom y@hoo@com (Paul Teetor)
+Date: Wed, 15 Jul 2020 19:44:19 +0000 (UTC)
+Subject: [R-sig-Debian] R 4.0 for ARM processors
+In-Reply-To: <24335.13358.787413.480965@rob.eddelbuettel.com>
+References: <1193986236.1754650.1594821801862.ref@mail.yahoo.com>
+ <1193986236.1754650.1594821801862@mail.yahoo.com>
+ <24335.4623.610656.933784@rob.eddelbuettel.com>
+ <1878876117.1831966.1594830913165@mail.yahoo.com>
+ <24335.13358.787413.480965@rob.eddelbuettel.com>
+Message-ID: <1166682013.1930723.1594842259806@mail.yahoo.com>
+
+Hmmmm. Perhaps I'm using the wrong terminology. My logic is: (1) I am running Ubuntu focal on the cluster. (2) Ubuntu focal is built on Debian bullseye but (3) Debian bullseye is not yet the stable release; it is the 'testing' release; hence (4) I will pull the r-base-core package from the 'testing' version of Debian. And, in fact, I found r-base-core for 4.0.2 in the bullseye distribution. Does that all make sense?
+
+My RPi cluster sits on the file cabinet next to my desk, all four boards. Yes, you could argue that it's merely a toy.... but it's bigger and cheaper than the AWS box that currently hosts my web site, RStudio server, and Shiny server!
+
+For the truly curious, you can view my RPi cluster here:?https://photos.app.goo.gl/kALwoYCVxJ32VgxEA
+
+Thanks again, Dirk. Your contributions to Debian and Ubuntu are foundational for my computing platforms.
+
+Paul Teetor, Elgin, IL USA
+http://quantdevel.com/public
+
+
+
+
+
+
+On Wednesday, July 15, 2020, 11:52:03 AM CDT, Dirk Eddelbuettel <edd at debian.org> wrote: 
+
+
+
+
+
+
+On 15 July 2020 at 16:35, Paul Teetor wrote:
+| Thank you very much, Dirk. That nudge solved the problem, of course. I am embarrassed. I was so fixated on Ubuntu repositories that I neglected to check the Debian 'testing' world!
+| 
+| Regarding the RPi: The RPi 4 uses the 'arm64' architecture, the full 64-bit one. I stopped using dedicated distros, such as Raspian, when Ubuntu went all-in on RPi support, which happened in their newest release focal (20). The dedicated distros often have an unhelpful attitude -- e.g., "you should use *this* package, not *that* package" -- that doesn't work for me.
+
+I am confused by these two paragraphs. Are you planning to use Debian
+'testing' on you Raspberry Pi, or Ubuntu 'focal' aka 20.04?
+
+And out of curiousity, is that a hosted machine?? Typically these are
+toy-sized and usually at home.
+
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From gor@n@bro@trom @end|ng |rom umu@@e  Wed Jul 15 22:00:20 2020
+From: gor@n@bro@trom @end|ng |rom umu@@e (=?UTF-8?Q?G=c3=b6ran_Brostr=c3=b6m?=)
+Date: Wed, 15 Jul 2020 22:00:20 +0200
+Subject: [R-sig-Debian] Openblas?
+In-Reply-To: <24335.5014.469195.665899@rob.eddelbuettel.com>
+References: <587c40d4-e27f-dd60-eb49-c0bc200171ae@umu.se>
+ <24334.63547.147901.993925@rob.eddelbuettel.com>
+ <c0839f85-3474-ebd5-08b6-7066435d3d4b@umu.se>
+ <24335.5014.469195.665899@rob.eddelbuettel.com>
+Message-ID: <f99a2437-b857-358b-d409-987f52ba785a@umu.se>
+
+Here is the reproducible example (very educational ...):
+----------------------------------------------------------
+$ wget http://ehar.se/data/reex_0.1.1.tar.gz
+$ R CMD INSTALL reex_0.1.1.tar.gz
+
+{with "status = 1: blas/libblas.so.3, and lapack..}
+$ R
+
+ > library("reex")
+ > system.time(res <- coxfunk(beta = 1, X = X, rs = rs, what = 2))
+#   user  system elapsed
+#  0.093   0.000   0.093
+
+ > q()
+
+{Change to "status 2; openmp/libblas.so.3", and lapack..}
+
+$ R
+ > library(reex)
+ > system.time(res <- coxfunk(beta = 1, X = X, rs = rs, what = 2))
+#   user  system elapsed
+# 72.050   1.006   6.123
+ >
+ > system.time(res <- coxfunk(beta = 1, X = X, rs = rs, what = 1))
+#   user  system elapsed
+#  0.088   0.000   0.088
+-----------------------------------------------------------
+Comment:
+## what = 1 calculates loglik and score, what = 2 in addition hessian
+## "Extra" code when what = 2:
+
+if (*what >= 2){ /* Second derivatives: */
+     F77_CALL(dsyr)(&up, p, (wsc + i),
+               (x + (*p) * i), &ione,
+	      sumd2score, p FCONE);
+}
+
+
+and
+
+if (*what >= 2){
+     alpha = -alpha;
+     F77_CALL(daxpy)(&p2, &alpha, sumd2score, &ione,
+		    d2loglik, &ione);
+     alpha = -alpha / sumscore;
+     F77_CALL(dsyr)(&up, p, &alpha, sumdscore, &ione,
+		   d2loglik, p FCONE);
+}
+
+Full C and R code in package.
+
+G?ran
+
+On 2020-07-15 16:32, Dirk Eddelbuettel wrote:
+> 
+> On 15 July 2020 at 16:13, G?ran Brostr?m wrote:
+> | On 2020-07-15 14:36, Dirk Eddelbuettel wrote:
+> | >
+> | > G?ran,
+> | >
+> | > This is not an easy email to reply to because it _contains nothing
+> | > reproducible_.
+> |
+> | Thanks Dirk,
+> |
+> | Sorry about that, but my real question was (see below): "Is the problem
+> | that openblas uses C versions of blas?" That is, do I need to change
+> |
+> | F77_CALL(name)(...);
+> |
+> | to
+> |
+> | cblas_name(...);
+> |
+> | everywhere? And if so, is this really a good idea with old code?
+> 
+> I don't think so. At the end of the day it comes from "higher up" (say,
+> crossprod()) and is just passed down.
+> 
+> Remember, at the end it's all assembler :)
+> 
+> | I'll try to extract a reproducible example from the package (eha) where
+> | I run it.
+> 
+> +1
+> 
+> Dirk
+>
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jul 15 22:12:08 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 15 Jul 2020 15:12:08 -0500
+Subject: [R-sig-Debian] R 4.0 for ARM processors
+In-Reply-To: <1166682013.1930723.1594842259806@mail.yahoo.com>
+References: <1193986236.1754650.1594821801862.ref@mail.yahoo.com>
+ <1193986236.1754650.1594821801862@mail.yahoo.com>
+ <24335.4623.610656.933784@rob.eddelbuettel.com>
+ <1878876117.1831966.1594830913165@mail.yahoo.com>
+ <24335.13358.787413.480965@rob.eddelbuettel.com>
+ <1166682013.1930723.1594842259806@mail.yahoo.com>
+Message-ID: <24335.25368.140972.582861@rob.eddelbuettel.com>
+
+
+On 15 July 2020 at 19:44, Paul Teetor wrote:
+| Hmmmm. Perhaps I'm using the wrong terminology. My logic is: (1) I am running Ubuntu focal on the cluster.
+
+I am with you so far.
+
+| (2) Ubuntu focal is built on Debian bullseye but
+
+Not really. Ubuntu does their own thing, and their own snapshots.
+
+There is no relationship to Debian _stable_ releases.  They take sources from
+Debian unstable and then do their thing.  Which sometimes is minor variation,
+often no change, but sometimes a lot more (i.e. snaps, different boot stuff,
+different window manager, fonts, branding, software store, alliances with
+third parties, paid-for patent technology (they always included mp3 players).
+
+In short, I think you started from the wrong gate here.
+
+| (3) Debian bullseye is not yet the stable release; it is the 'testing' release; hence (4) I will pull the r-base-core package from the 'testing' version of Debian. And, in fact, I found r-base-core for 4.0.2 in the bullseye distribution. Does that all make sense?
+
+Given (2) you more or less land in a bad spot with (3) and (4).
+ 
+| My RPi cluster sits on the file cabinet next to my desk, all four boards. Yes, you could argue that it's merely a toy.... but it's bigger and cheaper than the AWS box that currently hosts my web site, RStudio server, and Shiny server!
+
+Got it. Missed the cluster part earlier and then confused myself looking for
+arm64 16core machines. There aren't any :)
+ 
+| For the truly curious, you can view my RPi cluster here:?https://photos.app.goo.gl/kALwoYCVxJ32VgxEA
+
+Neat :)  Very geek chic! 
+ 
+| Thanks again, Dirk. Your contributions to Debian and Ubuntu are foundational for my computing platforms.
+
+You're too kind.
+
+Cheers, Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From @@m@hhh1 @end|ng |rom gm@||@com  Wed Jul 15 22:16:03 2020
+From: @@m@hhh1 @end|ng |rom gm@||@com (Sam H)
+Date: Wed, 15 Jul 2020 16:16:03 -0400
+Subject: [R-sig-Debian] read.csv fails in R console in Ubuntu terminal but
+ works in RStudio after R 3.6.3 upgrade to R 4.0.2
+Message-ID: <CAEtT+h2YNZKOEoKZr+Vjr1kkaxb8FKCDHGvYFUJyqU9i3nk44g@mail.gmail.com>
+
+Hi,
+
+I am trying to download some data using read.csv and it works perfectly in
+RStudio and fails in the R console in the terminal in Ubuntu 18.04 after
+upgrading from R 3.6.3 to 4.0.2. Before upgrading this worked in the R
+console in the terminal also without any issues.
+
+Why would that be? How to fix this?
+
+Below please find R code output and sessionInfo().
+
+*Works in RStudio*
+
+> read.csv("https://old.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=1&render=download", header=TRUE, as.is=TRUE, na="n/a")
+    Symbol                                                Name
+LastSale MarketCap IPOyear
+1      TXG                                  10x Genomics, Inc.
+87.4400     $8.6B    2019
+2       YI                                           111, Inc.
+6.4800  $533.69M    2018
+3      PIH              1347 Property Insurance Holdings, Inc.
+4.5350   $27.52M    2014
+ sessionInfo()
+R version 4.0.2 (2020-06-22)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.4 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+LC_PAPER=en_US.UTF-8       LC_NAME=C
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C
+LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base
+
+loaded via a namespace (and not attached):
+[1] compiler_4.0.2 tools_4.0.2
+
+*Fails in R console in terminal*
+
+    > read.csv("https://old.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=1&render=download",
+header=TRUE, as.is=TRUE, na="n/a")
+Error in file(file, "rt") :
+  cannot open the connection to
+'https://old.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=1&render=download'
+In addition: Warning message:
+In file(file, "rt") :
+  URL 'https://old.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=1&render=download':
+status was 'Failure when receiving data from the peer'
+> traceback()
+3: file(file, "rt")
+2: read.table(file = file, header = header, sep = sep, quote = quote,
+       dec = dec, fill = fill, comment.char = comment.char, ...)
+1: read.csv("https://old.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=1&render=download",
+       header = TRUE, as.is = TRUE, na = "n/a")
+>  sessionInfo()
+R version 4.0.2 (2020-06-22)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.4 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base
+
+loaded via a namespace (and not attached):
+[1] compiler_4.0.2
+>
+
+I also asked this question here
+https://stackoverflow.com/questions/62898008/why-read-csv-fails-in-r-console-in-ubuntu-terminal-but-works-in-rstudio-after-r
+.
+Since there was no answer on stackoverflow I sent this question also to
+R-Help where I was advised to better ask this question on r-sig-debian.
+
+Best regards,
+Sam
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jul 15 22:35:24 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 15 Jul 2020 15:35:24 -0500
+Subject: [R-sig-Debian] 
+ read.csv fails in R console in Ubuntu terminal but
+ works in RStudio after R 3.6.3 upgrade to R 4.0.2
+In-Reply-To: <CAEtT+h2YNZKOEoKZr+Vjr1kkaxb8FKCDHGvYFUJyqU9i3nk44g@mail.gmail.com>
+References: <CAEtT+h2YNZKOEoKZr+Vjr1kkaxb8FKCDHGvYFUJyqU9i3nk44g@mail.gmail.com>
+Message-ID: <24335.26764.855700.18050@rob.eddelbuettel.com>
+
+
+On 15 July 2020 at 16:16, Sam H wrote:
+| I am trying to download some data using read.csv and it works perfectly in
+| RStudio and fails in the R console in the terminal in Ubuntu 18.04 after
+| upgrading from R 3.6.3 to 4.0.2. Before upgrading this worked in the R
+| console in the terminal also without any issues.
+| 
+| Why would that be? How to fix this?
+| 
+| Below please find R code output and sessionInfo().
+| 
+| *Works in RStudio*
+| 
+| > read.csv("https://old.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=1&render=download", header=TRUE, as.is=TRUE, na="n/a")
+
+Ok, let's stop right here.  First off, for good debugging it helps to separate
+
+ - downloading a file via R from
+ - reading a file
+ - maybe varying the arguments you give there
+
+In my case this got easier. I clicked on the link (in Ubuntu 20.04) and it
+downloaded it. From there few problems. `read.csv()` just reads it:
+
+edd at rob:~/Downloads$ Rscript -e 'data.table::fread("companylist.csv", header=TRUE)'
+      Symbol                                   Name LastSale MarketCap IPOyear            Sector                                                     industry                       Summary Quote V9
+   1:    TXG                     10x Genomics, Inc.    88.91    $8.75B    2019     Capital Goods             Biotechnology: Laboratory Analytical Instruments   https://old.nasdaq.com/symbol/txg NA
+   2:     YI                              111, Inc.     6.64  $546.87M    2018       Health Care                                     Medical/Nursing Services    https://old.nasdaq.com/symbol/yi NA
+   3:    PIH 1347 Property Insurance Holdings, Inc.    4.528   $27.48M    2014           Finance                                   Property-Casualty Insurers   https://old.nasdaq.com/symbol/pih NA
+   4:  PIHPP 1347 Property Insurance Holdings, Inc.  24.8631       n/a     n/a           Finance                                   Property-Casualty Insurers https://old.nasdaq.com/symbol/pihpp NA
+   5:   TURN               180 Degree Capital Corp.     1.67   $51.97M     n/a           Finance                                   Finance/Investors Services  https://old.nasdaq.com/symbol/turn NA
+  ---                                                                                                                                                                                               
+3622:     ZS                          Zscaler, Inc.   122.43   $15.98B    2018        Technology                                                 EDP Services    https://old.nasdaq.com/symbol/zs NA
+3623:   ZUMZ                            Zumiez Inc.    25.55  $649.76M    2005 Consumer Services                               Clothing/Shoe/Accessory Stores  https://old.nasdaq.com/symbol/zumz NA
+3624:   ZYNE          Zynerba Pharmaceuticals, Inc.     3.41   $85.08M    2015       Health Care                                        Major Pharmaceuticals  https://old.nasdaq.com/symbol/zyne NA
+3625:   ZYXI                            Zynex, Inc.    26.22  $870.31M     n/a       Health Care Biotechnology: Electromedical & Electrotherapeutic Apparatus  https://old.nasdaq.com/symbol/zyxi NA
+3626:   ZNGA                             Zynga Inc.     9.82   $10.54B    2011        Technology                                                 EDP Services  https://old.nasdaq.com/symbol/znga NA
+edd at rob:~/Downloads$
+
+For kicks, same with data.table:
+
+edd at rob:~/Downloads$ Rscript -e 'str(read.csv("companylist.csv"))'
+'data.frame':   3626 obs. of  9 variables:
+ $ Symbol       : chr  "TXG" "YI" "PIH" "PIHPP" ...
+ $ Name         : chr  "10x Genomics, Inc." "111, Inc." "1347 Property Insurance Holdings, Inc." "1347 Property Insurance Holdings, Inc." ...
+ $ LastSale     : chr  "88.91" "6.64" "4.528" "24.8631" ...
+ $ MarketCap    : chr  "$8.75B" "$546.87M" "$27.48M" "n/a" ...
+ $ IPOyear      : chr  "2019" "2018" "2014" "n/a" ...
+ $ Sector       : chr  "Capital Goods" "Health Care" "Finance" "Finance" ...
+ $ industry     : chr  "Biotechnology: Laboratory Analytical Instruments" "Medical/Nursing Services" "Property-Casualty Insurers" "Property-Casualty Insurers" ...
+ $ Summary.Quote: chr  "https://old.nasdaq.com/symbol/txg" "https://old.nasdaq.com/symbol/yi" "https://old.nasdaq.com/symbol/pih" "https://old.nasdaq.com/symbol/pihpp" ...
+ $ X            : logi  NA NA NA NA NA NA ...
+edd at rob:~/Downloads$ 
+
+So in short, if you have a problem, it is not likely coming from the Ubuntu
+binary for R 4.0.2 which I am running here.
+
+Maybe start by downloading the file?  You could have firewall or other
+issues. We can't tell. And we can't reproduce the issue.
+
+Good luck,  Dirk
+ 
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From dw|n@em|u@ @end|ng |rom comc@@t@net  Thu Jul 16 04:15:02 2020
+From: dw|n@em|u@ @end|ng |rom comc@@t@net (David Winsemius)
+Date: Wed, 15 Jul 2020 19:15:02 -0700
+Subject: [R-sig-Debian] 
+ read.csv fails in R console in Ubuntu terminal but
+ works in RStudio after R 3.6.3 upgrade to R 4.0.2
+In-Reply-To: <24335.26764.855700.18050@rob.eddelbuettel.com>
+References: <CAEtT+h2YNZKOEoKZr+Vjr1kkaxb8FKCDHGvYFUJyqU9i3nk44g@mail.gmail.com>
+ <24335.26764.855700.18050@rob.eddelbuettel.com>
+Message-ID: <5c85747f-85da-1065-664d-ade0b5762b9a@comcast.net>
+
+
+On 7/15/20 1:35 PM, Dirk Eddelbuettel wrote:
+> On 15 July 2020 at 16:16, Sam H wrote:
+> | I am trying to download some data using read.csv and it works perfectly in
+> | RStudio and fails in the R console in the terminal in Ubuntu 18.04 after
+> | upgrading from R 3.6.3 to 4.0.2. Before upgrading this worked in the R
+> | console in the terminal also without any issues.
+> |
+> | Why would that be? How to fix this?
+> |
+> | Below please find R code output and sessionInfo().
+> |
+> | *Works in RStudio*
+> |
+> | > read.csv("https://old.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=1&render=download", header=TRUE, as.is=TRUE, na="n/a")
+>
+> Ok, let's stop right here.  First off, for good debugging it helps to separate
+>
+>   - downloading a file via R from
+>   - reading a file
+>   - maybe varying the arguments you give there
+>
+> In my case this got easier. I clicked on the link (in Ubuntu 20.04) and it
+> downloaded it. From there few problems. `read.csv()` just reads it:
+
+
+In fact one can use the fread approach directly, rather than first using 
+your system or your browser to download the copy:
+
+
+z <- 
+data.table::fread("https://old.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=1&render=download", 
+header=TRUE)
+ ?Downloaded 486840 bytes...>
+ > str(z)
+Classes ?data.table? and 'data.frame':??? 3631 obs. of? 9 variables:
+ ?$ Symbol?????? : chr? "TXG" "YI" "PIH" "PIHPP" ...
+ ?$ Name???????? : chr? "10x Genomics, Inc." "111, Inc." "1347 Property 
+Insurance Holdings, Inc." "1347 Property Insurance Holdings, Inc." ...
+ ?$ LastSale???? : chr? "90.93" "6.31" "4.528" "24.35" ...
+ ?$ MarketCap??? : chr? "$8.94B" "$519.69M" "$27.48M" "n/a" ...
+ ?$ IPOyear????? : chr? "2019" "2018" "2014" "n/a" ...
+ ?$ Sector?????? : chr? "Capital Goods" "Health Care" "Finance" 
+"Finance" ...
+ ?$ industry???? : chr? "Biotechnology: Laboratory Analytical 
+Instruments" "Medical/Nursing Services" "Property-Casualty Insurers" 
+"Property-Casualty Insurers" ...
+ ?$ Summary Quote: chr? "https://old.nasdaq.com/symbol/txg" 
+"https://old.nasdaq.com/symbol/yi" "https://old.nasdaq.com/symbol/pih" 
+"https://old.nasdaq.com/symbol/pihpp" ...
+ ?$ V9?????????? : logi? NA NA NA NA NA NA ...
+ ?- attr(*, ".internal.selfref")=<externalptr>
+
+
+I had earlier experienced the hanging of the original example in Ubuntu 
+18.04 using R 3.6.1. I get teh same result in either a Terminal hosted R 
+session or an Rstudio R session.
+
+(It does leave hanging the question of why `read.csv` is failing.)
+
+-- 
+
+David.
+
+>
+> edd at rob:~/Downloads$ Rscript -e 'data.table::fread("companylist.csv", header=TRUE)'
+>        Symbol                                   Name LastSale MarketCap IPOyear            Sector                                                     industry                       Summary Quote V9
+>     1:    TXG                     10x Genomics, Inc.    88.91    $8.75B    2019     Capital Goods             Biotechnology: Laboratory Analytical Instruments   https://old.nasdaq.com/symbol/txg NA
+>     2:     YI                              111, Inc.     6.64  $546.87M    2018       Health Care                                     Medical/Nursing Services    https://old.nasdaq.com/symbol/yi NA
+>     3:    PIH 1347 Property Insurance Holdings, Inc.    4.528   $27.48M    2014           Finance                                   Property-Casualty Insurers   https://old.nasdaq.com/symbol/pih NA
+>     4:  PIHPP 1347 Property Insurance Holdings, Inc.  24.8631       n/a     n/a           Finance                                   Property-Casualty Insurers https://old.nasdaq.com/symbol/pihpp NA
+>     5:   TURN               180 Degree Capital Corp.     1.67   $51.97M     n/a           Finance                                   Finance/Investors Services  https://old.nasdaq.com/symbol/turn NA
+>    ---
+> 3622:     ZS                          Zscaler, Inc.   122.43   $15.98B    2018        Technology                                                 EDP Services    https://old.nasdaq.com/symbol/zs NA
+> 3623:   ZUMZ                            Zumiez Inc.    25.55  $649.76M    2005 Consumer Services                               Clothing/Shoe/Accessory Stores  https://old.nasdaq.com/symbol/zumz NA
+> 3624:   ZYNE          Zynerba Pharmaceuticals, Inc.     3.41   $85.08M    2015       Health Care                                        Major Pharmaceuticals  https://old.nasdaq.com/symbol/zyne NA
+> 3625:   ZYXI                            Zynex, Inc.    26.22  $870.31M     n/a       Health Care Biotechnology: Electromedical & Electrotherapeutic Apparatus  https://old.nasdaq.com/symbol/zyxi NA
+> 3626:   ZNGA                             Zynga Inc.     9.82   $10.54B    2011        Technology                                                 EDP Services  https://old.nasdaq.com/symbol/znga NA
+> edd at rob:~/Downloads$
+>
+> For kicks, same with data.table:
+>
+> edd at rob:~/Downloads$ Rscript -e 'str(read.csv("companylist.csv"))'
+> 'data.frame':   3626 obs. of  9 variables:
+>   $ Symbol       : chr  "TXG" "YI" "PIH" "PIHPP" ...
+>   $ Name         : chr  "10x Genomics, Inc." "111, Inc." "1347 Property Insurance Holdings, Inc." "1347 Property Insurance Holdings, Inc." ...
+>   $ LastSale     : chr  "88.91" "6.64" "4.528" "24.8631" ...
+>   $ MarketCap    : chr  "$8.75B" "$546.87M" "$27.48M" "n/a" ...
+>   $ IPOyear      : chr  "2019" "2018" "2014" "n/a" ...
+>   $ Sector       : chr  "Capital Goods" "Health Care" "Finance" "Finance" ...
+>   $ industry     : chr  "Biotechnology: Laboratory Analytical Instruments" "Medical/Nursing Services" "Property-Casualty Insurers" "Property-Casualty Insurers" ...
+>   $ Summary.Quote: chr  "https://old.nasdaq.com/symbol/txg" "https://old.nasdaq.com/symbol/yi" "https://old.nasdaq.com/symbol/pih" "https://old.nasdaq.com/symbol/pihpp" ...
+>   $ X            : logi  NA NA NA NA NA NA ...
+> edd at rob:~/Downloads$
+>
+> So in short, if you have a problem, it is not likely coming from the Ubuntu
+> binary for R 4.0.2 which I am running here.
+>
+> Maybe start by downloading the file?  You could have firewall or other
+> issues. We can't tell. And we can't reproduce the issue.
+>
+> Good luck,  Dirk
+>
+
+
+From edd @end|ng |rom deb|@n@org  Thu Jul 16 05:33:56 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 15 Jul 2020 22:33:56 -0500
+Subject: [R-sig-Debian] 
+ read.csv fails in R console in Ubuntu terminal but
+ works in RStudio after R 3.6.3 upgrade to R 4.0.2
+In-Reply-To: <5c85747f-85da-1065-664d-ade0b5762b9a@comcast.net>
+References: <CAEtT+h2YNZKOEoKZr+Vjr1kkaxb8FKCDHGvYFUJyqU9i3nk44g@mail.gmail.com>
+ <24335.26764.855700.18050@rob.eddelbuettel.com>
+ <5c85747f-85da-1065-664d-ade0b5762b9a@comcast.net>
+Message-ID: <24335.51876.64279.57716@rob.eddelbuettel.com>
+
+
+On 15 July 2020 at 19:15, David Winsemius wrote:
+| (It does leave hanging the question of why `read.csv` is failing.)
+
+If I had to guess: due to the dark magic behind download.file() and the
+numerous different ways it could use (see the help page, it is truly
+impressive!) some of which involve `libcurl` (i.e. the C library from the
+curl project), some involve `curl` (the package for R), some involve `wget`
+(the binary), some involve internal code -- plus all that can cross with the
+SSL libraries use by curl and whatnot.
+
+Which is why my post suggested to separate the _download_ from the _file
+read_ aspect.
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Thu Jul 16 08:44:59 2020
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Thu, 16 Jul 2020 08:44:59 +0200
+Subject: [R-sig-Debian] R 4.0 for ARM processors
+In-Reply-To: <24335.25368.140972.582861@rob.eddelbuettel.com>
+References: <1193986236.1754650.1594821801862.ref@mail.yahoo.com>
+ <1166682013.1930723.1594842259806@mail.yahoo.com>
+ <24335.25368.140972.582861@rob.eddelbuettel.com>
+Message-ID: <1681984.CuVgGv4Ktq@ryz>
+
+Am Mittwoch, 15. Juli 2020, 22:12:08 CEST schrieb Dirk Eddelbuettel:
+> On 15 July 2020 at 19:44, Paul Teetor wrote:
+> | Hmmmm. Perhaps I'm using the wrong terminology. My logic is: (1) I am
+> | running Ubuntu focal on the cluster.
+> I am with you so far.
+> 
+> | (2) Ubuntu focal is built on Debian bullseye but
+> 
+> Not really. Ubuntu does their own thing, and their own snapshots.
+> 
+> There is no relationship to Debian _stable_ releases.  They take sources
+> from Debian unstable and then do their thing.  Which sometimes is minor
+> variation, often no change, but sometimes a lot more (i.e. snaps, different
+> boot stuff, different window manager, fonts, branding, software store,
+> alliances with third parties, paid-for patent technology (they always
+> included mp3 players).
+> 
+> In short, I think you started from the wrong gate here.
+
+I think it would be preferable to add to your /etc/apt/sources.list
+
+  deb-src https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/
+
+to get access to the source packages for R 4.0.2, and then do
+
+  sudo apt update
+  sudo apt build-dep r-base
+
+and
+
+  sudo apt source -b r-base
+
+to build these on your arm cluster for your architecture. Of course you will 
+need to rebuild after R releases to keep up to date. 
+
+Johannes
+
+
+From p@tr|ce@k|ener @end|ng |rom |nmode||@@com  Thu Jul 16 09:05:48 2020
+From: p@tr|ce@k|ener @end|ng |rom |nmode||@@com (Patrice Kiener)
+Date: Thu, 16 Jul 2020 09:05:48 +0200
+Subject: [R-sig-Debian] R 4.0 for ARM processors
+Message-ID: <35dbb800-44e6-fa33-cd5c-34a8ce194770@inmodelia.com>
+
+
+2 years ago at one Meetup in Paris, Marc Girondot, professor at 
+University Paris-Saclay, presented his cluster built with 12 Odroid 
+(equivalent to Rapsberry Pi). The stack was almost the same size than 
+your picture as there was no fan and a narrower distance between each 
+PCB card. There were many more cables. For a total cost of less than 
+1000 ? and an electrical consumption reduced by a factor of 7, he got 
+the same calculation capabilities than the most expensive Intel i7 
+processor. He used an Arch Linux distribution and Spark to distribute 
+the load to every processor and then centralize the results to one 
+processor equipped with a keyboard, a mouse, a screen and a hard disk.
+
+https://www.meetup.com/fr-FR/rparis/events/252405360/
+https://www.minimachines.net/actu/avec-lodroid-c2-hardkernel-tient-un-vrai-concurrent-a-la-rasperry-pi-3-38411
+https://max2.ese.u-psud.fr/epc/conservation/index.html
+https://www.ese.universite-paris-saclay.fr/en/team-members/marc-girondot/
+
+
+Patrice
+
+
+ >> My RPi cluster sits on the file cabinet next to my desk, all four 
+boards. Yes, you could argue that it's merely a toy.... but it's bigger 
+and cheaper than the AWS box that currently hosts my web site, RStudio 
+server, and Shiny server!
+
+ > Got it. Missed the cluster part earlier and then confused myself 
+looking for
+arm64 16core machines. There aren't any :)
+
+ >> For the truly curious, you can view my RPi cluster here: 
+https://photos.app.goo.gl/kALwoYCVxJ32VgxEA
+
+ > Neat :)? Very geek chic!
+
+
+Patrice
+
+
+
+	[[alternative HTML version deleted]]
+
+
+From p@u|teetor @end|ng |rom y@hoo@com  Thu Jul 16 14:04:04 2020
+From: p@u|teetor @end|ng |rom y@hoo@com (Paul Teetor)
+Date: Thu, 16 Jul 2020 12:04:04 +0000 (UTC)
+Subject: [R-sig-Debian] R 4.0 for ARM processors
+In-Reply-To: <35dbb800-44e6-fa33-cd5c-34a8ce194770@inmodelia.com>
+References: <35dbb800-44e6-fa33-cd5c-34a8ce194770@inmodelia.com>
+Message-ID: <1349024262.2194050.1594901044229@mail.yahoo.com>
+
+@Johannes - Thank you for your suggestion. I see the wisdom in it. I like having pre-built binaries because I'm lazy; but in this case, being lazy is causing too much work.
+
+@Patrice - Thanks for sharing the story and those links. It seems the?Odroid is like the RPi 3. The newer RPi 4 has (up to) 4 GB of memory, so I hope I won't need 12 boards! (PS - It's pretty cool that someone made a midi sequencer from their Odroid. I never thought of using my RPi that way.)
+
+Paul Teetor, Elgin, IL USA
+http://quantdevel.com/public
+
+
+On Thursday, July 16, 2020, 02:06:11 AM CDT, Patrice Kiener <patrice.kiener at inmodelia.com> wrote: 
+
+
+2 years ago at one Meetup in Paris, Marc Girondot, professor at 
+University Paris-Saclay, presented his cluster built with 12 Odroid 
+(equivalent to Rapsberry Pi). The stack was almost the same size than 
+your picture as there was no fan and a narrower distance between each 
+PCB card. There were many more cables. For a total cost of less than 
+1000 ? and an electrical consumption reduced by a factor of 7, he got 
+the same calculation capabilities than the most expensive Intel i7 
+processor. He used an Arch Linux distribution and Spark to distribute 
+the load to every processor and then centralize the results to one 
+processor equipped with a keyboard, a mouse, a screen and a hard disk.
+
+https://www.meetup.com/fr-FR/rparis/events/252405360/
+https://www.minimachines.net/actu/avec-lodroid-c2-hardkernel-tient-un-vrai-concurrent-a-la-rasperry-pi-3-38411
+https://max2.ese.u-psud.fr/epc/conservation/index.html
+https://www.ese.universite-paris-saclay.fr/en/team-members/marc-girondot/
+
+
+Patrice
+
+
+>> My RPi cluster sits on the file cabinet next to my desk, all four 
+boards. Yes, you could argue that it's merely a toy.... but it's bigger 
+and cheaper than the AWS box that currently hosts my web site, RStudio 
+server, and Shiny server!
+
+> Got it. Missed the cluster part earlier and then confused myself 
+looking for
+arm64 16core machines. There aren't any :)
+
+>> For the truly curious, you can view my RPi cluster here: 
+https://photos.app.goo.gl/kALwoYCVxJ32VgxEA
+
+> Neat :)? Very geek chic!
+
+
+Patrice
+
+
+
+??? [[alternative HTML version deleted]]
+
+_______________________________________________
+R-SIG-Debian mailing list
+R-SIG-Debian at r-project.org
+https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From @@m@hhh1 @end|ng |rom gm@||@com  Sun Jul 19 03:43:12 2020
+From: @@m@hhh1 @end|ng |rom gm@||@com (Sam H)
+Date: Sun, 19 Jul 2020 03:43:12 +0200
+Subject: [R-sig-Debian] 
+ read.csv fails in R console in Ubuntu terminal but
+ works in RStudio after R 3.6.3 upgrade to R 4.0.2
+In-Reply-To: <24335.51876.64279.57716@rob.eddelbuettel.com>
+References: <CAEtT+h2YNZKOEoKZr+Vjr1kkaxb8FKCDHGvYFUJyqU9i3nk44g@mail.gmail.com>
+ <24335.26764.855700.18050@rob.eddelbuettel.com>
+ <5c85747f-85da-1065-664d-ade0b5762b9a@comcast.net>
+ <24335.51876.64279.57716@rob.eddelbuettel.com>
+Message-ID: <CAEtT+h1kq=3aXDPGMDGnmHLWK_nn7rLbKjL8ALry8JLOR7Z3XA@mail.gmail.com>
+
+This issue was now solved in TTR::stockSymbols() by package author
+https://github.com/joshuaulrich/TTR/commit/98dec2b5aa68c3cee750397c7d11b164895e0140
+
+Thanks for all the help and ideas.
+
+Best,
+Sam
+
+On Thu, Jul 16, 2020, 05:33 Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> On 15 July 2020 at 19:15, David Winsemius wrote:
+> | (It does leave hanging the question of why `read.csv` is failing.)
+>
+> If I had to guess: due to the dark magic behind download.file() and the
+> numerous different ways it could use (see the help page, it is truly
+> impressive!) some of which involve `libcurl` (i.e. the C library from the
+> curl project), some involve `curl` (the package for R), some involve `wget`
+> (the binary), some involve internal code -- plus all that can cross with
+> the
+> SSL libraries use by curl and whatnot.
+>
+> Which is why my post suggested to separate the _download_ from the _file
+> read_ aspect.
+>
+> Dirk
+>
+> --
+> https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+	[[alternative HTML version deleted]]
+
+
+From er|nm@hodge@@ @end|ng |rom gm@||@com  Tue Jul 21 23:26:50 2020
+From: er|nm@hodge@@ @end|ng |rom gm@||@com (Erin Hodgess)
+Date: Tue, 21 Jul 2020 15:26:50 -0600
+Subject: [R-sig-Debian] a WSL question with allocation problems
+Message-ID: <CACxE24n=J0BQbovKCFW1gXMKgO8Bc-R3ZPDRZO1wWFP9JPwd6w@mail.gmail.com>
+
+Hello!
+
+Hope everyone is staying well.
+
+I?m not sure if this is the right list for this question, but here goes.
+
+I am using the new experimental WSL on my Windows laptop.  It was going
+well until yesterday.   I?m using Ubuntu 20.04.  I am starting to get ?
+error: cannot allocate vector of size 1.3 gb?.  I have 32 gb of RAM.  I
+tried using ?unlimit -v 1600000000?, not working.
+
+Has anyone else had trouble with this, please? I?m thinking that it might
+be because of the newness of the WSL platform.
+
+Thanks,
+Erin
+Erin Hodgess, PhD
+mailto: erinm.hodgess at gmail.com
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Tue Jul 21 23:57:49 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 21 Jul 2020 16:57:49 -0500
+Subject: [R-sig-Debian] a WSL question with allocation problems
+In-Reply-To: <CACxE24n=J0BQbovKCFW1gXMKgO8Bc-R3ZPDRZO1wWFP9JPwd6w@mail.gmail.com>
+References: <CACxE24n=J0BQbovKCFW1gXMKgO8Bc-R3ZPDRZO1wWFP9JPwd6w@mail.gmail.com>
+Message-ID: <24343.25821.490014.544605@rob.eddelbuettel.com>
+
+
+Erin,
+
+Please don't cross-post.
+
+Pick one list, stick with it for that question.
+
+Don't spray multiple lists.
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From er|nm@hodge@@ @end|ng |rom gm@||@com  Tue Jul 21 23:59:29 2020
+From: er|nm@hodge@@ @end|ng |rom gm@||@com (Erin Hodgess)
+Date: Tue, 21 Jul 2020 15:59:29 -0600
+Subject: [R-sig-Debian] a WSL question with allocation problems
+In-Reply-To: <24343.25821.490014.544605@rob.eddelbuettel.com>
+References: <CACxE24n=J0BQbovKCFW1gXMKgO8Bc-R3ZPDRZO1wWFP9JPwd6w@mail.gmail.com>
+ <24343.25821.490014.544605@rob.eddelbuettel.com>
+Message-ID: <CACxE24nGcho8SEJqWJ+mg31qxhm96OX_9pAaXeimq9WuzKXgPA@mail.gmail.com>
+
+Sorry. The first one didn?t appear.  Thought I had the wrong address.
+
+
+
+On Tue, Jul 21, 2020 at 3:57 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> Erin,
+>
+> Please don't cross-post.
+>
+> Pick one list, stick with it for that question.
+>
+> Don't spray multiple lists.
+>
+> Dirk
+>
+> --
+> https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+-- 
+Erin Hodgess, PhD
+mailto: erinm.hodgess at gmail.com
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jul 22 00:36:35 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 21 Jul 2020 17:36:35 -0500
+Subject: [R-sig-Debian] a WSL question with allocation problems
+In-Reply-To: <CACxE24nGcho8SEJqWJ+mg31qxhm96OX_9pAaXeimq9WuzKXgPA@mail.gmail.com>
+References: <CACxE24n=J0BQbovKCFW1gXMKgO8Bc-R3ZPDRZO1wWFP9JPwd6w@mail.gmail.com>
+ <24343.25821.490014.544605@rob.eddelbuettel.com>
+ <CACxE24nGcho8SEJqWJ+mg31qxhm96OX_9pAaXeimq9WuzKXgPA@mail.gmail.com>
+Message-ID: <24343.28147.127883.906816@rob.eddelbuettel.com>
+
+
+On 21 July 2020 at 15:59, Erin Hodgess wrote:
+| Sorry. The first one didn?t appear.  Thought I had the wrong address.
+
+Wrong:
+
+  r-help 
+  https://stat.ethz.ch/pipermail/r-help/2020-July/467890.html
+  Tue Jul 21 17:30:42 CEST 2020
+ 
+  r-sig-debian 
+  https://stat.ethz.ch/pipermail/r-sig-debian/2020-July/003241.html
+  Tue Jul 21 23:26:50 CEST 2020
+
+Not getting an answer within minutes on a (pardon my French here: fairly
+poor) question without reproducible code does not mean it "didn't appear".
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+

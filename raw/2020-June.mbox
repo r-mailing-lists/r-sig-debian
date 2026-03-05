@@ -1,0 +1,1845 @@
+From mcom@s m@iii@g oii im@@udg@edu  Thu Jun  4 14:43:34 2020
+From: mcom@s m@iii@g oii im@@udg@edu (mcom@s m@iii@g oii im@@udg@edu)
+Date: Thu, 04 Jun 2020 14:43:34 +0200
+Subject: [R-sig-Debian] mclust package installation is preparing for lazy
+	loading and	never finishes
+Message-ID: <20200604144334.tse3azuyiocgk8c4@mailima.udg.edu>
+
+Hi,
+
+After loading R 4.0.0 on Ubuntu 20.04.
+
+     R version 4.0.0 (2020-04-24) -- "Arbor Day"
+     Copyright (C) 2020 The R Foundation for Statistical Computing
+     Platform: x86_64-pc-linux-gnu (64-bit)
+
+     R is free software and comes with ABSOLUTELY NO WARRANTY.
+     You are welcome to redistribute it under certain conditions.
+     Type 'license()' or 'licence()' for distribution details.
+
+     Natural language support but running in an English locale
+
+     R is a collaborative project with many contributors.
+     Type 'contributors()' for more information and
+     'citation()' on how to cite R or R packages in publications.
+
+     Type 'demo()' for some demos, 'help()' for on-line help, or
+     'help.start()' for an HTML browser interface to help.
+     Type 'q()' to quit R.
+
+and with the following session information:
+
+     > sessionInfo()
+     R version 4.0.0 (2020-04-24)
+     Platform: x86_64-pc-linux-gnu (64-bit)
+     Running under: Ubuntu 20.04 LTS
+
+     Matrix products: default
+     BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+     LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3
+
+     locale:
+     [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+     [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+     [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+     [7] LC_PAPER=en_US.UTF-8       LC_NAME=C
+     [9] LC_ADDRESS=C               LC_TELEPHONE=C
+     [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+
+     attached base packages:
+     [1] stats     graphics  grDevices utils     datasets  methods   base
+
+     loaded via a namespace (and not attached):
+     [1] compiler_4.0.0
+
+I try to install package `mclust`. R gets stuck when preparing for  
+lazy loading:
+
+     > install.packages('mclust')
+     Installing package into ?/home/marc/R/x86_64-pc-linux-gnu-library/4.0?
+     (as ?lib? is unspecified)
+     trying URL 'https://cloud.r-project.org/src/contrib/mclust_5.4.6.tar.gz'
+     Content type 'application/x-gzip' length 2877519 bytes (2.7 MB)
+     ==================================================
+     downloaded 2.7 MB
+
+     * installing *source* package ?mclust? ...
+     ** package ?mclust? successfully unpacked and MD5 sums checked
+     ** using staged installation
+     ** libs
+     gfortran -fno-optimize-sibling-calls  -fpic  -g -O2
+-fdebug-prefix-map=/build/r-base-Do_dS_/r-base-4.0.0=.  
+-fstack-protector-strong  -c
+dmvnorm.f -o dmvnorm.o
+     gcc -std=gnu99 -I"/usr/share/R/include" -DNDEBUG      -fpic  -g -O2
+-fdebug-prefix-map=/build/r-base-Do_dS_/r-base-4.0.0=.  
+-fstack-protector-strong -Wformat
+-Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c init.c  
+-o init.o
+     gfortran -fno-optimize-sibling-calls  -fpic  -g -O2
+-fdebug-prefix-map=/build/r-base-Do_dS_/r-base-4.0.0=.  
+-fstack-protector-strong  -c
+mclust.f -o mclust.o
+     gfortran -fno-optimize-sibling-calls  -fpic  -g -O2
+-fdebug-prefix-map=/build/r-base-Do_dS_/r-base-4.0.0=.  
+-fstack-protector-strong  -c
+mclustaddson.f -o mclustaddson.o
+     gcc -std=gnu99 -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions  
+-Wl,-z,relro -o
+mclust.so dmvnorm.o init.o mclust.o mclustaddson.o -llapack -lblas  
+-lgfortran -lm
+-lquadmath -lgfortran -lm -lquadmath -L/usr/lib/R/lib -lR
+     installing to
+/home/marc/R/x86_64-pc-linux-gnu-library/4.0/00LOCK-mclust/00new/mclust/libs
+     ** R
+     ** data
+     *** moving datasets to lazyload DB
+     ** inst
+     ** byte-compile and prepare package for lazy loading
+
+I have wait for all night, but the installation is still stuck at the  
+same point. Does
+anybody know how to solve this?
+
+I have installed different packages with no problems. Here a complete  
+list of packages
+already installed at my library directory:
+
+     marc at hera:~/R/x86_64-pc-linux-gnu-library/4.0$ ls
+     askpass     DEoptimR   generics     later       pkgbuild        
+readxl       tibble
+     assertthat  desc       ggplot2      lazyeval    pkgconfig       
+rematch      tictoc
+     backports   deSolve    glue         lifecycle   pkgload         
+remotes      tidyr
+     base64enc   digest     gridExtra    lspline     plotly          
+reprex       tidyselect
+     BH          diptest    gtable       lubridate   plyr            
+reshape2     tidyverse
+     blob        dplyr      gtools       magrittr    praise          
+rlang        tinytex
+     broom       egg        haven        markdown    prettyunits     
+rmarkdown    utf8
+     callr       ellipsis   hexbin       mime        processx        
+robustbase   uuid
+     cellranger  evaluate   highr        modelr      progress        
+rprojroot    vctrs
+     cli         fansi      hms          modeltools  promises       rstudioapi
+viridisLite
+     clipr       farver     htmltools    mstate      ps              
+rvest        webshot
+     coda.base   flexmix    htmlwidgets  muhaz       purrr           
+scales       whisker
+     colorspace  flexsurv   httr         munsell     qpdf            
+selectr      withr
+     crayon      flextable  isoband      mvtnorm     quadprog        
+spatial      xfun
+     crosstalk   forcats    jsonlite     nlme        R6              
+stringi      xml2
+     curl        foreign    kableExtra   officer     RColorBrewer    
+stringr      yaml
+     data.table  fs         kernlab      openssl     Rcpp            
+sys          zip
+     DBI         gdata      knitr        pdftools    RcppArmadillo  systemfonts
+     dbplyr      gdtools    labeling     pillar      readr          testthat
+
+
+From m@rutter @end|ng |rom gm@||@com  Thu Jun  4 15:06:34 2020
+From: m@rutter @end|ng |rom gm@||@com (Michael Rutter)
+Date: Thu, 4 Jun 2020 09:06:34 -0400
+Subject: [R-sig-Debian] 
+ mclust package installation is preparing for lazy
+ loading and never finishes
+In-Reply-To: <20200604144334.tse3azuyiocgk8c4@mailima.udg.edu>
+References: <20200604144334.tse3azuyiocgk8c4@mailima.udg.edu>
+Message-ID: <c0a7c551-2652-a28a-fdbd-94eefc87cc5f@gmail.com>
+
+
+
+On 6/4/20 8:43 AM, mcomas at ima.udg.edu wrote:
+> Hi,
+> 
+> After loading R 4.0.0 on Ubuntu 20.04.
+> 
+>  ??? R version 4.0.0 (2020-04-24) -- "Arbor Day"
+>  ??? Copyright (C) 2020 The R Foundation for Statistical Computing
+>  ??? Platform: x86_64-pc-linux-gnu (64-bit)
+> 
+>  ??? R is free software and comes with ABSOLUTELY NO WARRANTY.
+>  ??? You are welcome to redistribute it under certain conditions.
+>  ??? Type 'license()' or 'licence()' for distribution details.
+> 
+>  ??? Natural language support but running in an English locale
+> 
+>  ??? R is a collaborative project with many contributors.
+>  ??? Type 'contributors()' for more information and
+>  ??? 'citation()' on how to cite R or R packages in publications.
+> 
+>  ??? Type 'demo()' for some demos, 'help()' for on-line help, or
+>  ??? 'help.start()' for an HTML browser interface to help.
+>  ??? Type 'q()' to quit R.
+> 
+> and with the following session information:
+> 
+>  ??? > sessionInfo()
+>  ??? R version 4.0.0 (2020-04-24)
+>  ??? Platform: x86_64-pc-linux-gnu (64-bit)
+>  ??? Running under: Ubuntu 20.04 LTS
+> 
+>  ??? Matrix products: default
+>  ??? BLAS:?? /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+>  ??? LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3
+> 
+>  ??? locale:
+>  ??? [1] LC_CTYPE=en_US.UTF-8?????? LC_NUMERIC=C
+>  ??? [3] LC_TIME=en_US.UTF-8??????? LC_COLLATE=en_US.UTF-8
+>  ??? [5] LC_MONETARY=en_US.UTF-8??? LC_MESSAGES=en_US.UTF-8
+>  ??? [7] LC_PAPER=en_US.UTF-8?????? LC_NAME=C
+>  ??? [9] LC_ADDRESS=C?????????????? LC_TELEPHONE=C
+>  ??? [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+> 
+>  ??? attached base packages:
+>  ??? [1] stats???? graphics? grDevices utils???? datasets? methods?? base
+> 
+>  ??? loaded via a namespace (and not attached):
+>  ??? [1] compiler_4.0.0
+> 
+> I try to install package `mclust`. R gets stuck when preparing for lazy 
+> loading:
+> 
+>  ??? > install.packages('mclust')
+>  ??? Installing package into ?/home/marc/R/x86_64-pc-linux-gnu-library/4.0?
+>  ??? (as ?lib? is unspecified)
+>  ??? trying URL 
+> 'https://cloud.r-project.org/src/contrib/mclust_5.4.6.tar.gz'
+>  ??? Content type 'application/x-gzip' length 2877519 bytes (2.7 MB)
+>  ??? ==================================================
+>  ??? downloaded 2.7 MB
+> 
+>  ??? * installing *source* package ?mclust? ...
+>  ??? ** package ?mclust? successfully unpacked and MD5 sums checked
+>  ??? ** using staged installation
+>  ??? ** libs
+>  ??? gfortran -fno-optimize-sibling-calls? -fpic? -g -O2
+> -fdebug-prefix-map=/build/r-base-Do_dS_/r-base-4.0.0=. 
+> -fstack-protector-strong? -c
+> dmvnorm.f -o dmvnorm.o
+>  ??? gcc -std=gnu99 -I"/usr/share/R/include" -DNDEBUG????? -fpic? -g -O2
+> -fdebug-prefix-map=/build/r-base-Do_dS_/r-base-4.0.0=. 
+> -fstack-protector-strong -Wformat
+> -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g? -c init.c -o 
+> init.o
+>  ??? gfortran -fno-optimize-sibling-calls? -fpic? -g -O2
+> -fdebug-prefix-map=/build/r-base-Do_dS_/r-base-4.0.0=. 
+> -fstack-protector-strong? -c
+> mclust.f -o mclust.o
+>  ??? gfortran -fno-optimize-sibling-calls? -fpic? -g -O2
+> -fdebug-prefix-map=/build/r-base-Do_dS_/r-base-4.0.0=. 
+> -fstack-protector-strong? -c
+> mclustaddson.f -o mclustaddson.o
+>  ??? gcc -std=gnu99 -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions 
+> -Wl,-z,relro -o
+> mclust.so dmvnorm.o init.o mclust.o mclustaddson.o -llapack -lblas 
+> -lgfortran -lm
+> -lquadmath -lgfortran -lm -lquadmath -L/usr/lib/R/lib -lR
+>  ??? installing to
+> /home/marc/R/x86_64-pc-linux-gnu-library/4.0/00LOCK-mclust/00new/mclust/libs 
+> 
+>  ??? ** R
+>  ??? ** data
+>  ??? *** moving datasets to lazyload DB
+>  ??? ** inst
+>  ??? ** byte-compile and prepare package for lazy loading
+> 
+> I have wait for all night, but the installation is still stuck at the 
+> same point. Does
+> anybody know how to solve this?
+> 
+
+It does build, as the c2d4u4.0 PPA 
+(https://launchpad.net/~c2d4u.team/+archive/ubuntu/c2d4u4.0+) has the 
+package.  So one option is to install the package from there.
+
+If you upgraded to R 4.0 from 3.5, make sure you re-install all your old 
+packages against 4.0.  You can look over the buildlog (if you have a 
+launchpad account) for mclust on c2d4u4.0 here:
+
+https://launchpad.net/~c2d4u.team/+archive/ubuntu/c2d4u4.0+/+build/19271073/+files/buildlog_ubuntu-focal-amd64.mclust_5.4.6-1cran1.2004.0_BUILDING.txt.gz
+
+That might give you some ideas where the hang-up is.  I suspect this is 
+unique to the combination of packages you have installed on your machine.
+
+Michael
+
+
+From edd @end|ng |rom deb|@n@org  Thu Jun  4 15:49:48 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Thu, 4 Jun 2020 08:49:48 -0500
+Subject: [R-sig-Debian] mclust package installation is preparing for
+	lazy	loading and	never finishes
+In-Reply-To: <20200604144334.tse3azuyiocgk8c4@mailima.udg.edu>
+References: <20200604144334.tse3azuyiocgk8c4@mailima.udg.edu>
+Message-ID: <24280.64508.545114.71555@rob.eddelbuettel.com>
+
+
+Well there is a known issue stemming from the libopenblas0-pthread package on
+Ubuntu 20.04.  A fix is forthcoming. This issue has manifested itself via
+other packages too -- as soon as something calls into lapack/blas an infinite
+loop or lock starts.
+
+In the meantime you could try another BLAS package.
+
+Of course, it could be something else altogether too...
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@rk@v@nder|oo @end|ng |rom gm@||@com  Fri Jun  5 00:31:34 2020
+From: m@rk@v@nder|oo @end|ng |rom gm@||@com (Mark van der Loo)
+Date: Fri, 5 Jun 2020 00:31:34 +0200
+Subject: [R-sig-Debian] installation problem for R 4.0 on Debian buster
+Message-ID: <CAOKDuOgc9wobXBwsgFbA+gZWnY0NpmpJm4d3qQTVtYRSN99Jag@mail.gmail.com>
+
+Hi all,
+
+I just spun up a fresh Debian Buster instance, then I added:
+
+deb http://cloud.r-project.org/bin/linux/debian buster-cran40/
+
+to /etc/apt/sources.list. I also ran the apt-key command as described here:
+https://cran.r-project.org/bin/linux/debian/#secure-apt
+
+So far so good, now when I do the following, I get no joy:
+
+$ sudo apt-get install r-base
+
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+Some packages could not be installed. This may mean that you have
+requested an impossible situation or if you are using the unstable
+distribution that some required packages have not yet been created
+or been moved out of Incoming.
+The following information may help to resolve the situation:
+
+The following packages have unmet dependencies:
+ r-base : Depends: r-recommended (= 4.0.0-1~bustercran.0) but it is not
+going to be installed
+E: Unable to correct problems, you have held broken packages.
+
+
+However, when I use the buster-cran-35 deb line, all works fine. So there
+seems to be something going on with buster-cran-40. Is this correct, or am
+I missing something?
+
+Thanks,
+Mark
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Fri Jun  5 02:39:35 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Thu, 4 Jun 2020 19:39:35 -0500
+Subject: [R-sig-Debian] installation problem for R 4.0 on Debian buster
+In-Reply-To: <CAOKDuOgc9wobXBwsgFbA+gZWnY0NpmpJm4d3qQTVtYRSN99Jag@mail.gmail.com>
+References: <CAOKDuOgc9wobXBwsgFbA+gZWnY0NpmpJm4d3qQTVtYRSN99Jag@mail.gmail.com>
+Message-ID: <24281.37959.349646.871242@rob.eddelbuettel.com>
+
+
+On 5 June 2020 at 00:31, Mark van der Loo wrote:
+| Hi all,
+| 
+| I just spun up a fresh Debian Buster instance, then I added:
+| 
+| deb http://cloud.r-project.org/bin/linux/debian buster-cran40/
+| 
+| to /etc/apt/sources.list. I also ran the apt-key command as described here:
+| https://cran.r-project.org/bin/linux/debian/#secure-apt
+| 
+| So far so good, now when I do the following, I get no joy:
+| 
+| $ sudo apt-get install r-base
+| 
+| Reading package lists... Done
+| Building dependency tree
+| Reading state information... Done
+| Some packages could not be installed. This may mean that you have
+| requested an impossible situation or if you are using the unstable
+| distribution that some required packages have not yet been created
+| or been moved out of Incoming.
+| The following information may help to resolve the situation:
+| 
+| The following packages have unmet dependencies:
+|  r-base : Depends: r-recommended (= 4.0.0-1~bustercran.0) but it is not
+| going to be installed
+| E: Unable to correct problems, you have held broken packages.
+| 
+| 
+| However, when I use the buster-cran-35 deb line, all works fine. So there
+| seems to be something going on with buster-cran-40. Is this correct, or am
+| I missing something?
+
+You run one command to install r-base. It tells that it wants to (but can't)
+install r-recommended.
+
+To have the system tell you more and why, add r-recommended:
+
+  $ sudo apt-get install r-base r-recommended
+
+Keep adding packages while it complains. After maybe five or so steps you
+should. It is often because _one_ of the libraries brought in by the 'new'
+package conflict. That can happen with backports.  (And it is one of the
+reasons I like 'testing' better but hey personal tastes and preferences
+cannot be debated...)
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Fri Jun  5 08:52:52 2020
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Fri, 05 Jun 2020 08:52:52 +0200
+Subject: [R-sig-Debian] installation problem for R 4.0 on Debian buster
+In-Reply-To: <CAOKDuOgc9wobXBwsgFbA+gZWnY0NpmpJm4d3qQTVtYRSN99Jag@mail.gmail.com>
+References: <CAOKDuOgc9wobXBwsgFbA+gZWnY0NpmpJm4d3qQTVtYRSN99Jag@mail.gmail.com>
+Message-ID: <6292755.APeaVkmKLq@ryz>
+
+Hi Mark,
+
+Am Freitag, 5. Juni 2020, 00:31:34 CEST schrieb Mark van der Loo:
+> Hi all,
+> 
+> I just spun up a fresh Debian Buster instance, then I added:
+> 
+> deb http://cloud.r-project.org/bin/linux/debian buster-cran40/
+> 
+> to /etc/apt/sources.list. I also ran the apt-key command as described here:
+> https://cran.r-project.org/bin/linux/debian/#secure-apt
+> 
+> So far so good, 
+
+OK, then you need to keep reading. Instead of simply installing R 4.0.0 you 
+need to remove the packages depending on r-api-35 as detailed in
+
+https://cran.r-project.org/bin/linux/debian/#debian-bullseye-testing
+
+The reason is that the backported r-cran-* packages have a lower version 
+number than the r-cran-* packages in the Debian archive, but the packages in 
+the Debian archive depend on r-api-35 while the new backport provides r-
+api-40.
+
+Also, you will need to rebuild all locally installed packages as detailed on 
+the CRAN Debian page.
+
+Greetings,
+
+Johannes 
+
+> now when I do the following, I get no joy:
+> 
+> $ sudo apt-get install r-base
+> 
+> Reading package lists... Done
+> Building dependency tree
+> Reading state information... Done
+> Some packages could not be installed. This may mean that you have
+> requested an impossible situation or if you are using the unstable
+> distribution that some required packages have not yet been created
+> or been moved out of Incoming.
+> The following information may help to resolve the situation:
+> 
+> The following packages have unmet dependencies:
+>  r-base : Depends: r-recommended (= 4.0.0-1~bustercran.0) but it is not
+> going to be installed
+> E: Unable to correct problems, you have held broken packages.
+> 
+> 
+> However, when I use the buster-cran-35 deb line, all works fine. So there
+> seems to be something going on with buster-cran-40. Is this correct, or am
+> I missing something?
+> 
+> Thanks,
+> Mark
+> 
+> 	[[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From edd @end|ng |rom deb|@n@org  Fri Jun  5 20:04:48 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Fri, 5 Jun 2020 13:04:48 -0500
+Subject: [R-sig-Debian] installation problem for R 4.0 on Debian buster
+In-Reply-To: <6292755.APeaVkmKLq@ryz>
+References: <CAOKDuOgc9wobXBwsgFbA+gZWnY0NpmpJm4d3qQTVtYRSN99Jag@mail.gmail.com>
+ <6292755.APeaVkmKLq@ryz>
+Message-ID: <24282.35136.143986.101557@rob.eddelbuettel.com>
+
+
+On 5 June 2020 at 08:52, Johannes Ranke wrote:
+| Hi Mark,
+| 
+| Am Freitag, 5. Juni 2020, 00:31:34 CEST schrieb Mark van der Loo:
+| > Hi all,
+| > 
+| > I just spun up a fresh Debian Buster instance, then I added:
+| > 
+| > deb http://cloud.r-project.org/bin/linux/debian buster-cran40/
+| > 
+| > to /etc/apt/sources.list. I also ran the apt-key command as described here:
+| > https://cran.r-project.org/bin/linux/debian/#secure-apt
+| > 
+| > So far so good, 
+| 
+| OK, then you need to keep reading. Instead of simply installing R 4.0.0 you 
+| need to remove the packages depending on r-api-35 as detailed in
+| 
+| https://cran.r-project.org/bin/linux/debian/#debian-bullseye-testing
+| 
+| The reason is that the backported r-cran-* packages have a lower version 
+| number than the r-cran-* packages in the Debian archive, but the packages in 
+| the Debian archive depend on r-api-35 while the new backport provides r-
+| api-40.
+
+That sounds ... suboptimal. And I am not sure I understand why that would be.
+Can you explain?  Are they behind a version?  If so, why?
+
+Also, apt-pinning can help here.  You can give a repo a higher-than-default
+priority. Maybe that would be applicable here?
+
+Dirk
+ 
+| Also, you will need to rebuild all locally installed packages as detailed on 
+| the CRAN Debian page.
+| 
+| Greetings,
+| 
+| Johannes 
+| 
+| > now when I do the following, I get no joy:
+| > 
+| > $ sudo apt-get install r-base
+| > 
+| > Reading package lists... Done
+| > Building dependency tree
+| > Reading state information... Done
+| > Some packages could not be installed. This may mean that you have
+| > requested an impossible situation or if you are using the unstable
+| > distribution that some required packages have not yet been created
+| > or been moved out of Incoming.
+| > The following information may help to resolve the situation:
+| > 
+| > The following packages have unmet dependencies:
+| >  r-base : Depends: r-recommended (= 4.0.0-1~bustercran.0) but it is not
+| > going to be installed
+| > E: Unable to correct problems, you have held broken packages.
+| > 
+| > 
+| > However, when I use the buster-cran-35 deb line, all works fine. So there
+| > seems to be something going on with buster-cran-40. Is this correct, or am
+| > I missing something?
+| > 
+| > Thanks,
+| > Mark
+| > 
+| > 	[[alternative HTML version deleted]]
+| > 
+| > _______________________________________________
+| > R-SIG-Debian mailing list
+| > R-SIG-Debian at r-project.org
+| > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @end|ng |rom deb|@n@org  Fri Jun  5 20:07:22 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Fri, 5 Jun 2020 13:07:22 -0500
+Subject: [R-sig-Debian] installation problem for R 4.0 on Debian buster
+In-Reply-To: <6292755.APeaVkmKLq@ryz>
+References: <CAOKDuOgc9wobXBwsgFbA+gZWnY0NpmpJm4d3qQTVtYRSN99Jag@mail.gmail.com>
+ <6292755.APeaVkmKLq@ryz>
+Message-ID: <24282.35290.776470.684581@rob.eddelbuettel.com>
+
+
+Johannes,
+
+Also, the page is an edit behind. The Debian transition for R 4.0.0 ended;
+and the R package 4.0.0-3 is in testing as are all packages using r-api-4.0.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Sat Jun  6 00:53:44 2020
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Sat, 06 Jun 2020 00:53:44 +0200
+Subject: [R-sig-Debian] installation problem for R 4.0 on Debian buster
+In-Reply-To: <24282.35290.776470.684581@rob.eddelbuettel.com>
+References: <CAOKDuOgc9wobXBwsgFbA+gZWnY0NpmpJm4d3qQTVtYRSN99Jag@mail.gmail.com>
+ <6292755.APeaVkmKLq@ryz> <24282.35290.776470.684581@rob.eddelbuettel.com>
+Message-ID: <3425234.rRFuuvq3fv@ryz>
+
+Hey Dirk,
+
+Am Freitag, 5. Juni 2020, 20:07:22 CEST schrieb Dirk Eddelbuettel:
+> Johannes,
+> 
+> Also, the page is an edit behind. The Debian transition for R 4.0.0 ended;
+> and the R package 4.0.0-3 is in testing as are all packages using r-api-4.0.
+
+yes, absolutely, thanks for the hint! The backport of R 4.0.0 for bullseye is 
+not needed any more. I just updated the page, so it will by synced to CRAN 
+soon.
+
+Cheers,
+
+Johannes
+
+> 
+> Dirk
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Sat Jun  6 01:25:26 2020
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Sat, 06 Jun 2020 01:25:26 +0200
+Subject: [R-sig-Debian] installation problem for R 4.0 on Debian buster
+In-Reply-To: <24282.35136.143986.101557@rob.eddelbuettel.com>
+References: <CAOKDuOgc9wobXBwsgFbA+gZWnY0NpmpJm4d3qQTVtYRSN99Jag@mail.gmail.com>
+ <6292755.APeaVkmKLq@ryz> <24282.35136.143986.101557@rob.eddelbuettel.com>
+Message-ID: <3325211.O0940iYgdH@ryz>
+
+Am Freitag, 5. Juni 2020, 20:04:48 CEST schrieb Dirk Eddelbuettel:
+> On 5 June 2020 at 08:52, Johannes Ranke wrote:
+> | Hi Mark,
+> | 
+> | Am Freitag, 5. Juni 2020, 00:31:34 CEST schrieb Mark van der Loo:
+> | > Hi all,
+> | > 
+> | > I just spun up a fresh Debian Buster instance, then I added:
+> | > 
+> | > deb http://cloud.r-project.org/bin/linux/debian buster-cran40/
+> | > 
+> | > to /etc/apt/sources.list. I also ran the apt-key command as described
+> | > here:
+> | > https://cran.r-project.org/bin/linux/debian/#secure-apt
+> | > 
+> | > So far so good,
+> | 
+> | OK, then you need to keep reading. Instead of simply installing R 4.0.0
+> | you
+> | need to remove the packages depending on r-api-35 as detailed in
+
+Sorry Mark, it was me who did not read as much as I should - you are on a 
+fresh buster system, so no need to remove r-api-35 packages...
+
+Also, I think I have run into the same problem (r-recommended uninstallable) 
+when checking the situation on buster in a chroot.
+
+> | https://cran.r-project.org/bin/linux/debian/#debian-bullseye-testing
+> | 
+> | The reason is that the backported r-cran-* packages have a lower version
+> | number than the r-cran-* packages in the Debian archive, but the packages
+> | in the Debian archive depend on r-api-35 while the new backport provides
+> | r- api-40.
+> 
+> That sounds ... suboptimal. And I am not sure I understand why that would
+> be. Can you explain?  Are they behind a version?  If so, why?
+
+OK, for buster I updated the backports of the recommended packages. I think 
+things are fine now (pending CRAN syncs), i.e. the backport to buster including 
+the recommended packages should be installable using
+
+apt install -t buster-cran40 r-base
+
+If you have buster packages depending on r-api-35 installed, these will be 
+removed by the above command (just tested in my buster chroot).
+
+Cheers,
+
+Johannes
+
+> Also, apt-pinning can help here.  You can give a repo a higher-than-default
+> priority. Maybe that would be applicable here?
+> 
+> Dirk
+> 
+> | Also, you will need to rebuild all locally installed packages as detailed
+> | on the CRAN Debian page.
+> | 
+> | Greetings,
+> | 
+> | Johannes
+> | 
+> | > now when I do the following, I get no joy:
+> | > 
+> | > $ sudo apt-get install r-base
+> | > 
+> | > Reading package lists... Done
+> | > Building dependency tree
+> | > Reading state information... Done
+> | > Some packages could not be installed. This may mean that you have
+> | > requested an impossible situation or if you are using the unstable
+> | > distribution that some required packages have not yet been created
+> | > or been moved out of Incoming.
+> | > The following information may help to resolve the situation:
+> | > 
+> | > The following packages have unmet dependencies:
+> | >  r-base : Depends: r-recommended (= 4.0.0-1~bustercran.0) but it is not
+> | > 
+> | > going to be installed
+> | > E: Unable to correct problems, you have held broken packages.
+> | > 
+> | > 
+> | > However, when I use the buster-cran-35 deb line, all works fine. So
+> | > there
+> | > seems to be something going on with buster-cran-40. Is this correct, or
+> | > am
+> | > I missing something?
+> | > 
+> | > Thanks,
+> | > Mark
+> | > 
+> | > 	[[alternative HTML version deleted]]
+> | > 
+> | > _______________________________________________
+> | > R-SIG-Debian mailing list
+> | > R-SIG-Debian at r-project.org
+> | > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> | 
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From m@rk@v@nder|oo @end|ng |rom gm@||@com  Sat Jun  6 14:50:36 2020
+From: m@rk@v@nder|oo @end|ng |rom gm@||@com (Mark van der Loo)
+Date: Sat, 6 Jun 2020 14:50:36 +0200
+Subject: [R-sig-Debian] installation problem for R 4.0 on Debian buster
+In-Reply-To: <3325211.O0940iYgdH@ryz>
+References: <CAOKDuOgc9wobXBwsgFbA+gZWnY0NpmpJm4d3qQTVtYRSN99Jag@mail.gmail.com>
+ <6292755.APeaVkmKLq@ryz> <24282.35136.143986.101557@rob.eddelbuettel.com>
+ <3325211.O0940iYgdH@ryz>
+Message-ID: <CAOKDuOgFan8qe8xPkroHSXQz_Ogghi2z08yP=1w9prJ0xHECyA@mail.gmail.com>
+
+Johannes, Dirk,
+
+thanks for keeping discussing this. I can confirm it works now. Thank you
+for the solution.
+
+> Sorry Mark, it was me who did not read as much as I should - you are on a
+> fresh buster system, so no need to remove r-api-35 packages...
+
+Absolutely no problem. I'm happy it's solved. In case ppl are curious why I
+use Buster: it's the latest Debian currently offered by my cloud provider.
+
+Cheers,
+Mark
+
+
+
+
+On Sat, Jun 6, 2020 at 1:25 AM Johannes Ranke <johannes.ranke at jrwb.de>
+wrote:
+
+> Am Freitag, 5. Juni 2020, 20:04:48 CEST schrieb Dirk Eddelbuettel:
+> > On 5 June 2020 at 08:52, Johannes Ranke wrote:
+> > | Hi Mark,
+> > |
+> > | Am Freitag, 5. Juni 2020, 00:31:34 CEST schrieb Mark van der Loo:
+> > | > Hi all,
+> > | >
+> > | > I just spun up a fresh Debian Buster instance, then I added:
+> > | >
+> > | > deb http://cloud.r-project.org/bin/linux/debian buster-cran40/
+> > | >
+> > | > to /etc/apt/sources.list. I also ran the apt-key command as described
+> > | > here:
+> > | > https://cran.r-project.org/bin/linux/debian/#secure-apt
+> > | >
+> > | > So far so good,
+> > |
+> > | OK, then you need to keep reading. Instead of simply installing R 4.0.0
+> > | you
+> > | need to remove the packages depending on r-api-35 as detailed in
+>
+> Sorry Mark, it was me who did not read as much as I should - you are on a
+> fresh buster system, so no need to remove r-api-35 packages...
+>
+> Also, I think I have run into the same problem (r-recommended
+> uninstallable)
+> when checking the situation on buster in a chroot.
+>
+> > | https://cran.r-project.org/bin/linux/debian/#debian-bullseye-testing
+> > |
+> > | The reason is that the backported r-cran-* packages have a lower
+> version
+> > | number than the r-cran-* packages in the Debian archive, but the
+> packages
+> > | in the Debian archive depend on r-api-35 while the new backport
+> provides
+> > | r- api-40.
+> >
+> > That sounds ... suboptimal. And I am not sure I understand why that would
+> > be. Can you explain?  Are they behind a version?  If so, why?
+>
+> OK, for buster I updated the backports of the recommended packages. I
+> think
+> things are fine now (pending CRAN syncs), i.e. the backport to buster
+> including
+> the recommended packages should be installable using
+>
+> apt install -t buster-cran40 r-base
+>
+> If you have buster packages depending on r-api-35 installed, these will be
+> removed by the above command (just tested in my buster chroot).
+>
+> Cheers,
+>
+> Johannes
+>
+> > Also, apt-pinning can help here.  You can give a repo a
+> higher-than-default
+> > priority. Maybe that would be applicable here?
+> >
+> > Dirk
+> >
+> > | Also, you will need to rebuild all locally installed packages as
+> detailed
+> > | on the CRAN Debian page.
+> > |
+> > | Greetings,
+> > |
+> > | Johannes
+> > |
+> > | > now when I do the following, I get no joy:
+> > | >
+> > | > $ sudo apt-get install r-base
+> > | >
+> > | > Reading package lists... Done
+> > | > Building dependency tree
+> > | > Reading state information... Done
+> > | > Some packages could not be installed. This may mean that you have
+> > | > requested an impossible situation or if you are using the unstable
+> > | > distribution that some required packages have not yet been created
+> > | > or been moved out of Incoming.
+> > | > The following information may help to resolve the situation:
+> > | >
+> > | > The following packages have unmet dependencies:
+> > | >  r-base : Depends: r-recommended (= 4.0.0-1~bustercran.0) but it is
+> not
+> > | >
+> > | > going to be installed
+> > | > E: Unable to correct problems, you have held broken packages.
+> > | >
+> > | >
+> > | > However, when I use the buster-cran-35 deb line, all works fine. So
+> > | > there
+> > | > seems to be something going on with buster-cran-40. Is this correct,
+> or
+> > | > am
+> > | > I missing something?
+> > | >
+> > | > Thanks,
+> > | > Mark
+> > | >
+> > | >   [[alternative HTML version deleted]]
+> > | >
+> > | > _______________________________________________
+> > | > R-SIG-Debian mailing list
+> > | > R-SIG-Debian at r-project.org
+> > | > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> > |
+> > | _______________________________________________
+> > | R-SIG-Debian mailing list
+> > | R-SIG-Debian at r-project.org
+> > | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+>
+>
+>
+
+	[[alternative HTML version deleted]]
+
+
+From m@rong|u@|u|g| @end|ng |rom gm@||@com  Mon Jun 15 14:33:32 2020
+From: m@rong|u@|u|g| @end|ng |rom gm@||@com (Luigi Marongiu)
+Date: Mon, 15 Jun 2020 14:33:32 +0200
+Subject: [R-sig-Debian] Rstudio is stuck on chromebook
+Message-ID: <CAMk+s2TRLK-1JqJhLUUwdkUinpqCNZpObnr97EvMhPgrA3xwkw@mail.gmail.com>
+
+Hello
+I have installed R version 3.3.3 (2017-03-06) and downloaded
+rstudio-1.3.959-amd64.deb. I installed it with the right click but
+when I launch it, the icon have the wait ring and it sticks there.
+Same thing if I install with `dpkg -i`.
+What could be wrong and how can I install Rstudio?
+-- 
+Best regards,
+Luigi
+
+
+From umbre||@hou@e @end|ng |rom gm@||@com  Mon Jun 22 19:04:00 2020
+From: umbre||@hou@e @end|ng |rom gm@||@com (Dave Lange)
+Date: Mon, 22 Jun 2020 13:04:00 -0400
+Subject: [R-sig-Debian] Docker build issue
+Message-ID: <CAPAqZ4NeN9hPo2bxinM3xAP4-LT5Jh0ieEyCJAF9QZsG+Yzd5w@mail.gmail.com>
+
+Count me as a docker newbie building a debian python and R mytools
+container. My first post. This was working a couple of weeks ago. My last
+successful build was a R 4.01 release when the R:base docker hub project
+used to list a number of base images and I used sections of a posted docker
+file in that area. Then the install directions at Cran:R listed buster:4.01
+instructions that I also added to my docker file. I decided to delete my
+container and refresh over the weekend and my R install has been throwing
+fits ever since. It looks like the cran:r and docker hub sites have
+changed. It looks like a file in the debian buster-cran40 repository still
+has a label for debian unstable.
+
+Looking for answers!
+
+Dave Lange
+Kenmore, WA
+
+last steps of the build log:
+## Get:5 http://cloud.r-project.org/bin/linux/debian buster-cran40/
+InRelease [4363 B]
+## Get:6 http://deb.debian.org/debian buster/main amd64 Packages [7905 kB]
+## Get:7 http://deb.debian.org/debian buster-updates/main amd64 Packages
+[7868 B]
+## Get:8 http://cloud.r-project.org/bin/linux/debian buster-cran40/
+Packages [37.8 kB]
+## Fetched 8398 kB in 3s (3116 kB/s)
+## Reading package lists...
+## Reading package lists...
+
+The docker build command throws this error in red:
+E: The value 'unstable' is invalid for APT::Default-Release as such a
+release is not available in the sources
+
+My dockerfile:
+>From python:3
+
+## Python docker commands not shown and not throwing errors
+
+RUN apt-get update \
+&& apt-get install -y --no-install-recommends \
+ed \
+less \
+locales \
+vim-tiny \
+wget \
+ca-certificates \
+fonts-texgyre \
+&& rm -rf /var/lib/apt/lists/*
+
+RUN echo "deb http://cloud.r-project.org/bin/linux/debian buster-cran40/" >
+/etc/apt/sources.list
+##        && echo 'APT::Default-Release "stable";' >
+/etc/apt/apt.conf.d/default
+
+ENV R_BASE_VERSION 4.0.1
+
+## Now install R and littler, and create a link for littler in
+/usr/local/bin
+RUN apt-get update \
+&& apt-get install -t buster-cran40 r-base \
+  && install.r docopt \
+&& rm -rf /tmp/downloaded_packages/ /tmp/*.rds \
+&& rm -rf /var/lib/apt/lists/*
+
+CMD python
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon Jun 22 19:12:10 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 22 Jun 2020 12:12:10 -0500
+Subject: [R-sig-Debian] Rstudio is stuck on chromebook
+In-Reply-To: <CAMk+s2TRLK-1JqJhLUUwdkUinpqCNZpObnr97EvMhPgrA3xwkw@mail.gmail.com>
+References: <CAMk+s2TRLK-1JqJhLUUwdkUinpqCNZpObnr97EvMhPgrA3xwkw@mail.gmail.com>
+Message-ID: <24304.58986.777641.849548@rob.eddelbuettel.com>
+
+
+On 15 June 2020 at 14:33, Luigi Marongiu wrote:
+| I have installed R version 3.3.3 (2017-03-06) and downloaded
+| rstudio-1.3.959-amd64.deb. I installed it with the right click but
+| when I launch it, the icon have the wait ring and it sticks there.
+| Same thing if I install with `dpkg -i`.
+| What could be wrong and how can I install Rstudio?
+
+Did you by chance install an Intel x86 binary on an arm-based chromebook?
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @end|ng |rom deb|@n@org  Mon Jun 22 19:15:56 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 22 Jun 2020 12:15:56 -0500
+Subject: [R-sig-Debian] Docker build issue
+In-Reply-To: <CAPAqZ4NeN9hPo2bxinM3xAP4-LT5Jh0ieEyCJAF9QZsG+Yzd5w@mail.gmail.com>
+References: <CAPAqZ4NeN9hPo2bxinM3xAP4-LT5Jh0ieEyCJAF9QZsG+Yzd5w@mail.gmail.com>
+Message-ID: <24304.59212.766578.608454@rob.eddelbuettel.com>
+
+
+Dave,
+
+That's partial information for so hard to work with. One nice aspects about
+Docker is that if something complex fails, you can try something simpler. You
+appear to have made some assumptions here as to whether you could pile our
+instructions top on an existing python3 container---and "that depends". Your
+error messages indicate 'buster' as a release, which is not what I use in for
+the Rocker r-base container.  So you can't just copy and paste. You could
+however look at Johannes backport to buster, add its repo into to your Docker
+setup and build that.  And you can test that step by step.  Good luck!
+
+Cheers, Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Mon Jun 22 19:37:32 2020
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Mon, 22 Jun 2020 19:37:32 +0200
+Subject: [R-sig-Debian] Docker build issue
+In-Reply-To: <24304.59212.766578.608454@rob.eddelbuettel.com>
+References: <CAPAqZ4NeN9hPo2bxinM3xAP4-LT5Jh0ieEyCJAF9QZsG+Yzd5w@mail.gmail.com>
+ <24304.59212.766578.608454@rob.eddelbuettel.com>
+Message-ID: <45519637.4roHkjjGg4@ryz>
+
+Hi Dave and Dirk,
+
+sorry, I do not understand half of this, as I do not use docker myself. Buf if 
+Dirk does not use Debian buster as the basis for his Rocker container, then 
+you should probably not try to install the backport to buster. Shouldn't these 
+docker containers be there to avoid the need to install R?
+
+Johannes
+
+Am Montag, 22. Juni 2020, 19:15:56 CEST schrieb Dirk Eddelbuettel:
+> Dave,
+> 
+> That's partial information for so hard to work with. One nice aspects about
+> Docker is that if something complex fails, you can try something simpler.
+> You appear to have made some assumptions here as to whether you could pile
+> our instructions top on an existing python3 container---and "that depends".
+> Your error messages indicate 'buster' as a release, which is not what I use
+> in for the Rocker r-base container.  So you can't just copy and paste. You
+> could however look at Johannes backport to buster, add its repo into to
+> your Docker setup and build that.  And you can test that step by step. 
+> Good luck!
+> 
+> Cheers, Dirk
+
+
+From edd @end|ng |rom deb|@n@org  Mon Jun 22 20:06:18 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 22 Jun 2020 13:06:18 -0500
+Subject: [R-sig-Debian] Docker build issue
+In-Reply-To: <45519637.4roHkjjGg4@ryz>
+References: <CAPAqZ4NeN9hPo2bxinM3xAP4-LT5Jh0ieEyCJAF9QZsG+Yzd5w@mail.gmail.com>
+ <24304.59212.766578.608454@rob.eddelbuettel.com>
+ <45519637.4roHkjjGg4@ryz>
+Message-ID: <24304.62234.338033.287747@rob.eddelbuettel.com>
+
+
+On 22 June 2020 at 19:37, Johannes Ranke wrote:
+| sorry, I do not understand half of this, as I do not use docker myself. Buf if 
+| Dirk does not use Debian buster as the basis for his Rocker container, then 
+| you should probably not try to install the backport to buster. Shouldn't these 
+| docker containers be there to avoid the need to install R?
+
+That is what they do, and do well! After I update Debian's R to 4.0.2 this
+morning, I also updated the (base) Rocker container giving you R 4.0.2 easily.
+
+The error, if any, and as I see it, is with Dave who assumed one can blindly
+mix distros, releases and whatnot.  He appears to have started from buster and
+then copied and pasted my Dockerfile "recipe" which a) assumes testing and b)
+allows itself to pull brandew R (as today) from unstable.
+
+This is getting off topic here. In essence Dave just needs a patient Docker
+tutor.  Sadly I don't have time for that right now -- sorry!
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Mon Jun 22 20:10:04 2020
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Mon, 22 Jun 2020 20:10:04 +0200
+Subject: [R-sig-Debian] Docker build issue
+In-Reply-To: <24304.62234.338033.287747@rob.eddelbuettel.com>
+References: <CAPAqZ4NeN9hPo2bxinM3xAP4-LT5Jh0ieEyCJAF9QZsG+Yzd5w@mail.gmail.com>
+ <45519637.4roHkjjGg4@ryz> <24304.62234.338033.287747@rob.eddelbuettel.com>
+Message-ID: <2471610.vbpE7BqsR6@ryz>
+
+Am Montag, 22. Juni 2020, 20:06:18 CEST schrieb Dirk Eddelbuettel:
+> On 22 June 2020 at 19:37, Johannes Ranke wrote:
+> | sorry, I do not understand half of this, as I do not use docker myself.
+...
+> 
+> This is getting off topic here. In essence Dave just needs a patient Docker
+> tutor.  
+
+or maybe using conventional installations may be less complex, ironically...
+
+Johannes
+
+> Sadly I don't have time for that right now -- sorry!
+
+
+> 
+> Dirk
+
+
+From umbre||@hou@e @end|ng |rom gm@||@com  Mon Jun 22 20:21:56 2020
+From: umbre||@hou@e @end|ng |rom gm@||@com (Dave Lange)
+Date: Mon, 22 Jun 2020 11:21:56 -0700
+Subject: [R-sig-Debian] Docker build issue
+In-Reply-To: <45519637.4roHkjjGg4@ryz>
+References: <CAPAqZ4NeN9hPo2bxinM3xAP4-LT5Jh0ieEyCJAF9QZsG+Yzd5w@mail.gmail.com>
+ <24304.59212.766578.608454@rob.eddelbuettel.com> <45519637.4roHkjjGg4@ryz>
+Message-ID: <CAPAqZ4OFANCUxrM2bdpSn7NTiSUft+KNXKvYkbhWC9DXWgTmxQ@mail.gmail.com>
+
+My base is python with R being installed.
+Thanks to Dirk's message I found an error message saying debian unstable
+has been added a number of times to my etc/apt/sources.list file.
+Now I'm trying to find that file and get it edited back to "normal".
+
+Dave
+
+On Mon, Jun 22, 2020 at 10:37 AM Johannes Ranke <johannes.ranke at jrwb.de>
+wrote:
+
+> Hi Dave and Dirk,
+>
+> sorry, I do not understand half of this, as I do not use docker myself.
+> Buf if
+> Dirk does not use Debian buster as the basis for his Rocker container,
+> then
+> you should probably not try to install the backport to buster. Shouldn't
+> these
+> docker containers be there to avoid the need to install R?
+>
+> Johannes
+>
+> Am Montag, 22. Juni 2020, 19:15:56 CEST schrieb Dirk Eddelbuettel:
+> > Dave,
+> >
+> > That's partial information for so hard to work with. One nice aspects
+> about
+> > Docker is that if something complex fails, you can try something simpler.
+> > You appear to have made some assumptions here as to whether you could
+> pile
+> > our instructions top on an existing python3 container---and "that
+> depends".
+> > Your error messages indicate 'buster' as a release, which is not what I
+> use
+> > in for the Rocker r-base container.  So you can't just copy and paste.
+> You
+> > could however look at Johannes backport to buster, add its repo into to
+> > your Docker setup and build that.  And you can test that step by step.
+> > Good luck!
+> >
+> > Cheers, Dirk
+>
+>
+>
+>
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon Jun 22 20:34:30 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 22 Jun 2020 13:34:30 -0500
+Subject: [R-sig-Debian] Docker build issue
+In-Reply-To: <2471610.vbpE7BqsR6@ryz>
+References: <CAPAqZ4NeN9hPo2bxinM3xAP4-LT5Jh0ieEyCJAF9QZsG+Yzd5w@mail.gmail.com>
+ <45519637.4roHkjjGg4@ryz>
+ <24304.62234.338033.287747@rob.eddelbuettel.com>
+ <2471610.vbpE7BqsR6@ryz>
+Message-ID: <24304.63926.753327.658685@rob.eddelbuettel.com>
+
+
+On 22 June 2020 at 20:10, Johannes Ranke wrote:
+| or maybe using conventional installations may be less complex, ironically...
+
+Well now, given that you just told us in the previous email
+
+   as I do not use docker myself
+
+allow me to add "very unironically" that such clean room installation tests
+are among the things actually _best_ done in Docker which is why e.g. just
+about every Continuous Integration service uses it.  Anyway....
+
+Base installation combined with Docker for localized clean room testing makes
+a lot of things _easier_ rather than harder.  Both can be used in isolation,
+or together.  
+
+Cheers,  Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From umbre||@hou@e @end|ng |rom gm@||@com  Thu Jun 25 00:15:17 2020
+From: umbre||@hou@e @end|ng |rom gm@||@com (Dave Lange)
+Date: Wed, 24 Jun 2020 15:15:17 -0700
+Subject: [R-sig-Debian] Update on docker Python:3 and adding R:4.x
+Message-ID: <CAPAqZ4NT3MVwfAy=5i3=iUqxX8AN0WRnqxfGxA_yg1uB6cHvcA@mail.gmail.com>
+
+ I continue to receive an error installing R via dockerfile on a buster
+image python:3.
+E: The value 'buster-cran40' is invalid for APT::Default-Release as such a
+release is not available in the sources
+
+My starting point is the debian buster based Python:3 image adding a couple
+of python specific configurations and then using the commands in the R
+project documentation for installing R on Buster. I got slightly different
+answers when I used apt versus apt-get. There were warnings about
+unverified sources solved by a reference to the certificate key.
+
+It turns out building the python container and commenting the R commands
+out allowed me to manually step through my dockerfile lines. Its repeatable
+that the R install fails with the error above when in the dockerfile.
+Running the commands manually allows the installation to finish
+successfully.  I sense that docker is multithreaded and hits the "use
+buster-cran40" before it defines buster-cran40. Manually stepping through
+the commands keeps the preferred order. At this point I'm happy with a
+repeatable process.
+
+It sounds like I have been re-inventing the wheel, which has been
+educational for me. If someone wants to change my starting point to
+something that already has stable/latest production for debian, Python3 and
+R4 and will be updated for the future I would appreciate the head start.
+
+Thanks for the volunteer support I have received here.
+Dave Lange
+Kenmore, WA
+
+	[[alternative HTML version deleted]]
+
+
+From umbre||@hou@e @end|ng |rom gm@||@com  Thu Jun 25 00:31:53 2020
+From: umbre||@hou@e @end|ng |rom gm@||@com (Dave Lange)
+Date: Wed, 24 Jun 2020 15:31:53 -0700
+Subject: [R-sig-Debian] Update on docker Python:3 and adding R:4.x
+In-Reply-To: <CAH1Hw-jPjRUuz5uv+q2fxjm5Ew+7YaNwAXvreib-QC6c1q-Czg@mail.gmail.com>
+References: <CAPAqZ4NT3MVwfAy=5i3=iUqxX8AN0WRnqxfGxA_yg1uB6cHvcA@mail.gmail.com>
+ <CAH1Hw-jPjRUuz5uv+q2fxjm5Ew+7YaNwAXvreib-QC6c1q-Czg@mail.gmail.com>
+Message-ID: <CAPAqZ4Nz-C5_0Yps_vaCvxbz18ppW=moQQTLM+5P4dbsA6uYUg@mail.gmail.com>
+
+I want to build a couple of containers by function instead of replicating
+even slim images for every single package. My current base image provides
+an updated debian and python3 image.
+
+Dave Lange
+Kenmore, WA
+
+On Wed, Jun 24, 2020 at 3:18 PM Sean Southard <sean.m.southard at gmail.com>
+wrote:
+
+> Dave is there a specific reason you want to install both in one container?
+>
+> It is somewhat antithetical to the purpose of docker if you don't have a
+> direct need.
+>
+> Also, it sounds like you are making your own python base image when you
+> probably want to use a lightweight python image instead and just add layers
+> to the image.
+>
+> But I totally get it if your intent is to learn or you want to build one
+> just for some specific application or for fun.
+>
+>
+>
+> On Wed, Jun 24, 2020 at 4:15 PM Dave Lange <umbrellahouse at gmail.com>
+> wrote:
+>
+>>  I continue to receive an error installing R via dockerfile on a buster
+>> image python:3.
+>> E: The value 'buster-cran40' is invalid for APT::Default-Release as such a
+>> release is not available in the sources
+>>
+>> My starting point is the debian buster based Python:3 image adding a
+>> couple
+>> of python specific configurations and then using the commands in the R
+>> project documentation for installing R on Buster. I got slightly different
+>> answers when I used apt versus apt-get. There were warnings about
+>> unverified sources solved by a reference to the certificate key.
+>>
+>> It turns out building the python container and commenting the R commands
+>> out allowed me to manually step through my dockerfile lines. Its
+>> repeatable
+>> that the R install fails with the error above when in the dockerfile.
+>> Running the commands manually allows the installation to finish
+>> successfully.  I sense that docker is multithreaded and hits the "use
+>> buster-cran40" before it defines buster-cran40. Manually stepping through
+>> the commands keeps the preferred order. At this point I'm happy with a
+>> repeatable process.
+>>
+>> It sounds like I have been re-inventing the wheel, which has been
+>> educational for me. If someone wants to change my starting point to
+>> something that already has stable/latest production for debian, Python3
+>> and
+>> R4 and will be updated for the future I would appreciate the head start.
+>>
+>> Thanks for the volunteer support I have received here.
+>> Dave Lange
+>> Kenmore, WA
+>>
+>>         [[alternative HTML version deleted]]
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+>
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Thu Jun 25 01:38:02 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 24 Jun 2020 18:38:02 -0500
+Subject: [R-sig-Debian] Update on docker Python:3 and adding R:4.x
+In-Reply-To: <CAPAqZ4NT3MVwfAy=5i3=iUqxX8AN0WRnqxfGxA_yg1uB6cHvcA@mail.gmail.com>
+References: <CAPAqZ4NT3MVwfAy=5i3=iUqxX8AN0WRnqxfGxA_yg1uB6cHvcA@mail.gmail.com>
+Message-ID: <24307.58330.846430.125989@rob.eddelbuettel.com>
+
+
+On 24 June 2020 at 15:15, Dave Lange wrote:
+|  I continue to receive an error installing R via dockerfile on a buster
+| image python:3.
+| E: The value 'buster-cran40' is invalid for APT::Default-Release as such a
+| release is not available in the sources
+
+Do you have the Dockerfile in public repo we can look at?
+
+| My starting point is the debian buster based Python:3 image adding a couple
+
+This is an R list so please tell us more about Python:3. What it is based on?
+
+Hypothetically, could you just start from debian:buster, add python3 and then
+add the buster-cran40 repo by Johannes?
+
+| of python specific configurations and then using the commands in the R
+| project documentation for installing R on Buster. I got slightly different
+| answers when I used apt versus apt-get. There were warnings about
+| unverified sources solved by a reference to the certificate key.
+
+You generally must install a key to validate a repository. This could even be
+your error.
+
+In any event, this is all "academic". Maybe bring us the famous "MCVE": a
+minimally complete verifiable example. Otherwise we have simply no idea what
+you may be doing.
+
+| It turns out building the python container and commenting the R commands
+| out allowed me to manually step through my dockerfile lines. Its repeatable
+| that the R install fails with the error above when in the dockerfile.
+| Running the commands manually allows the installation to finish
+| successfully.  I sense that docker is multithreaded and hits the "use
+| buster-cran40" before it defines buster-cran40. Manually stepping through
+
+I doubt that. Docker is very carefully "layered". Each RUN command results in
+one layer on filesystem. You can build them one by one. There is no
+concurrency as each subsequent RUN needs / depends upon previous ones.
+
+| the commands keeps the preferred order. At this point I'm happy with a
+| repeatable process.
+| 
+| It sounds like I have been re-inventing the wheel, which has been
+| educational for me. If someone wants to change my starting point to
+| something that already has stable/latest production for debian, Python3 and
+| R4 and will be updated for the future I would appreciate the head start.
+
+Should be easy. Look at the variety of Dockerfiles is maintain inside the
+Rocker Project -- while most are based on Debian's testing release you can
+still look at them (though note that some are also Ubuntu based)
+
+You could start at  https://github.com/rocker-org/rocker  but also look at
+other repositories in the same org at GH.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From umbre||@hou@e @end|ng |rom gm@||@com  Thu Jun 25 04:52:37 2020
+From: umbre||@hou@e @end|ng |rom gm@||@com (Dave Lange)
+Date: Wed, 24 Jun 2020 19:52:37 -0700
+Subject: [R-sig-Debian] Update on docker Python:3 and adding R:4.x
+In-Reply-To: <24307.58330.846430.125989@rob.eddelbuettel.com>
+References: <CAPAqZ4NT3MVwfAy=5i3=iUqxX8AN0WRnqxfGxA_yg1uB6cHvcA@mail.gmail.com>
+ <24307.58330.846430.125989@rob.eddelbuettel.com>
+Message-ID: <CAPAqZ4Nkv-7TWSrhXnx2tESJ4UYgwL2MCHCn5O12BsZCJRArAQ@mail.gmail.com>
+
+My dockerfile:
+
+FROM python:3
+
+WORKDIR /usr/src/app
+
+COPY requirements.txt ./
+COPY languageserver-master ./
+COPY radian-master ./
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+EXPOSE 8080
+
+RUN apt-key adv --keyserver keys.gnupg.net --recv-key
+'E19F5F87128899B192B1A2C2AD5F960A256A04AF'
+RUN echo "deb http://cloud.r-project.org/bin/linux/debian buster-cran40/"
+>> /etc/apt/sources.list
+
+RUN apt update \
+&& apt-get install -y --no-install-recommends \
+ca-certificates \
+wget \
+&& rm -rf /var/lib/apt/lists/*
+
+## Now install R
+## RUN apt install -t buster-cran40 r-base
+
+## CMD ["R"]
+CMD python
+
+On Wed, Jun 24, 2020 at 4:38 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> On 24 June 2020 at 15:15, Dave Lange wrote:
+> |  I continue to receive an error installing R via dockerfile on a buster
+> | image python:3.
+> | E: The value 'buster-cran40' is invalid for APT::Default-Release as such
+> a
+> | release is not available in the sources
+>
+> Do you have the Dockerfile in public repo we can look at?
+>
+> | My starting point is the debian buster based Python:3 image adding a
+> couple
+>
+> This is an R list so please tell us more about Python:3. What it is based
+> on?
+>
+> Hypothetically, could you just start from debian:buster, add python3 and
+> then
+> add the buster-cran40 repo by Johannes?
+>
+> | of python specific configurations and then using the commands in the R
+> | project documentation for installing R on Buster. I got slightly
+> different
+> | answers when I used apt versus apt-get. There were warnings about
+> | unverified sources solved by a reference to the certificate key.
+>
+> You generally must install a key to validate a repository. This could even
+> be
+> your error.
+>
+> In any event, this is all "academic". Maybe bring us the famous "MCVE": a
+> minimally complete verifiable example. Otherwise we have simply no idea
+> what
+> you may be doing.
+>
+> | It turns out building the python container and commenting the R commands
+> | out allowed me to manually step through my dockerfile lines. Its
+> repeatable
+> | that the R install fails with the error above when in the dockerfile.
+> | Running the commands manually allows the installation to finish
+> | successfully.  I sense that docker is multithreaded and hits the "use
+> | buster-cran40" before it defines buster-cran40. Manually stepping through
+>
+> I doubt that. Docker is very carefully "layered". Each RUN command results
+> in
+> one layer on filesystem. You can build them one by one. There is no
+> concurrency as each subsequent RUN needs / depends upon previous ones.
+>
+> | the commands keeps the preferred order. At this point I'm happy with a
+> | repeatable process.
+> |
+> | It sounds like I have been re-inventing the wheel, which has been
+> | educational for me. If someone wants to change my starting point to
+> | something that already has stable/latest production for debian, Python3
+> and
+> | R4 and will be updated for the future I would appreciate the head start.
+>
+> Should be easy. Look at the variety of Dockerfiles is maintain inside the
+> Rocker Project -- while most are based on Debian's testing release you can
+> still look at them (though note that some are also Ubuntu based)
+>
+> You could start at  https://github.com/rocker-org/rocker  but also look at
+> other repositories in the same org at GH.
+>
+> Dirk
+>
+> --
+> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Thu Jun 25 05:54:03 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 24 Jun 2020 22:54:03 -0500
+Subject: [R-sig-Debian] Update on docker Python:3 and adding R:4.x
+In-Reply-To: <CAPAqZ4Nkv-7TWSrhXnx2tESJ4UYgwL2MCHCn5O12BsZCJRArAQ@mail.gmail.com>
+References: <CAPAqZ4NT3MVwfAy=5i3=iUqxX8AN0WRnqxfGxA_yg1uB6cHvcA@mail.gmail.com>
+ <24307.58330.846430.125989@rob.eddelbuettel.com>
+ <CAPAqZ4Nkv-7TWSrhXnx2tESJ4UYgwL2MCHCn5O12BsZCJRArAQ@mail.gmail.com>
+Message-ID: <24308.8155.907704.350661@rob.eddelbuettel.com>
+
+
+On 24 June 2020 at 19:52, Dave Lange wrote:
+| ## Now install R
+| ## RUN apt install -t buster-cran40 r-base
+
+It's just a guess but something I noticed working with one of my Dockerfiles
+is that the above does not work too well -- I think due to the independence
+of the 'layers' from each RUN command which I mentioned earlier. So when you
+I run apt install, I now always update first so maybe try
+
+   RUN apt update && apt install -y r-base
+
+instead.  (I also removed the -t buster-cran40 as the 'highest version should
+win'. That may or may not work. Adjust as needed.)
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Thu Jun 25 08:46:08 2020
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Thu, 25 Jun 2020 08:46:08 +0200
+Subject: [R-sig-Debian] Update on docker Python:3 and adding R:4.x
+In-Reply-To: <CAPAqZ4Nkv-7TWSrhXnx2tESJ4UYgwL2MCHCn5O12BsZCJRArAQ@mail.gmail.com>
+References: <CAPAqZ4NT3MVwfAy=5i3=iUqxX8AN0WRnqxfGxA_yg1uB6cHvcA@mail.gmail.com>
+ <24307.58330.846430.125989@rob.eddelbuettel.com>
+ <CAPAqZ4Nkv-7TWSrhXnx2tESJ4UYgwL2MCHCn5O12BsZCJRArAQ@mail.gmail.com>
+Message-ID: <2678164.aCkdBdey3W@ryz>
+
+Am Donnerstag, 25. Juni 2020, 04:52:37 CEST schrieb Dave Lange:
+> My dockerfile:
+> 
+...
+
+> RUN apt update \
+> && apt-get install -y --no-install-recommends \
+> ca-certificates \
+> wget \
+> && rm -rf /var/lib/apt/lists/*
+
+Any reason why you remove the contents of /var/lib/apt/lists? On my system, 
+this directory holds PGP signed information about each repository, so this may 
+well be the reason why later buster-cran40 is said not to be available in the 
+sources.
+
+Johannes
+
+> 
+> ## Now install R
+> ## RUN apt install -t buster-cran40 r-base
+> 
+> ## CMD ["R"]
+> CMD python
+> 
+> On Wed, Jun 24, 2020 at 4:38 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+> > On 24 June 2020 at 15:15, Dave Lange wrote:
+> > |  I continue to receive an error installing R via dockerfile on a buster
+> > | 
+> > | image python:3.
+> > | E: The value 'buster-cran40' is invalid for APT::Default-Release as such
+> > 
+> > a
+> > 
+> > | release is not available in the sources
+> > 
+> > Do you have the Dockerfile in public repo we can look at?
+> > 
+> > | My starting point is the debian buster based Python:3 image adding a
+> > 
+> > couple
+> > 
+> > This is an R list so please tell us more about Python:3. What it is based
+> > on?
+> > 
+> > Hypothetically, could you just start from debian:buster, add python3 and
+> > then
+> > add the buster-cran40 repo by Johannes?
+> > 
+> > | of python specific configurations and then using the commands in the R
+> > | project documentation for installing R on Buster. I got slightly
+> > 
+> > different
+> > 
+> > | answers when I used apt versus apt-get. There were warnings about
+> > | unverified sources solved by a reference to the certificate key.
+> > 
+> > You generally must install a key to validate a repository. This could even
+> > be
+> > your error.
+> > 
+> > In any event, this is all "academic". Maybe bring us the famous "MCVE": a
+> > minimally complete verifiable example. Otherwise we have simply no idea
+> > what
+> > you may be doing.
+> > 
+> > | It turns out building the python container and commenting the R commands
+> > | out allowed me to manually step through my dockerfile lines. Its
+> > 
+> > repeatable
+> > 
+> > | that the R install fails with the error above when in the dockerfile.
+> > | Running the commands manually allows the installation to finish
+> > | successfully.  I sense that docker is multithreaded and hits the "use
+> > | buster-cran40" before it defines buster-cran40. Manually stepping
+> > | through
+> > 
+> > I doubt that. Docker is very carefully "layered". Each RUN command results
+> > in
+> > one layer on filesystem. You can build them one by one. There is no
+> > concurrency as each subsequent RUN needs / depends upon previous ones.
+> > 
+> > | the commands keeps the preferred order. At this point I'm happy with a
+> > | repeatable process.
+> > | 
+> > | It sounds like I have been re-inventing the wheel, which has been
+> > | educational for me. If someone wants to change my starting point to
+> > | something that already has stable/latest production for debian, Python3
+> > 
+> > and
+> > 
+> > | R4 and will be updated for the future I would appreciate the head start.
+> > 
+> > Should be easy. Look at the variety of Dockerfiles is maintain inside the
+> > Rocker Project -- while most are based on Debian's testing release you can
+> > still look at them (though note that some are also Ubuntu based)
+> > 
+> > You could start at  https://github.com/rocker-org/rocker  but also look at
+> > other repositories in the same org at GH.
+> > 
+> > Dirk
+> > 
+> > --
+> > http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+> 
+> 	[[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Thu Jun 25 08:50:41 2020
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Thu, 25 Jun 2020 08:50:41 +0200
+Subject: [R-sig-Debian] Update on docker Python:3 and adding R:4.x
+In-Reply-To: <24308.8155.907704.350661@rob.eddelbuettel.com>
+References: <CAPAqZ4NT3MVwfAy=5i3=iUqxX8AN0WRnqxfGxA_yg1uB6cHvcA@mail.gmail.com>
+ <CAPAqZ4Nkv-7TWSrhXnx2tESJ4UYgwL2MCHCn5O12BsZCJRArAQ@mail.gmail.com>
+ <24308.8155.907704.350661@rob.eddelbuettel.com>
+Message-ID: <4484619.4NXh1ulYB1@ryz>
+
+Am Donnerstag, 25. Juni 2020, 05:54:03 CEST schrieb Dirk Eddelbuettel:
+> 
+>    RUN apt update && apt install -y r-base
+> 
+> instead.  (I also removed the -t buster-cran40 as the 'highest version
+> should win'. That may or may not work. Adjust as needed.)
+
+Removing -t buster-cran40 only installs R 4.0.x if there are no packages left 
+on the system that depend on the lower r-api-35. Therefore this should be OK 
+for a docker image which does not come with R.
+
+Johannes
+
+
+From umbre||@hou@e @end|ng |rom gm@||@com  Sat Jun 27 21:26:07 2020
+From: umbre||@hou@e @end|ng |rom gm@||@com (Dave Lange)
+Date: Sat, 27 Jun 2020 12:26:07 -0700
+Subject: [R-sig-Debian] Update on docker Python:3 and adding R:4.x
+In-Reply-To: <2678164.aCkdBdey3W@ryz>
+References: <CAPAqZ4NT3MVwfAy=5i3=iUqxX8AN0WRnqxfGxA_yg1uB6cHvcA@mail.gmail.com>
+ <24307.58330.846430.125989@rob.eddelbuettel.com>
+ <CAPAqZ4Nkv-7TWSrhXnx2tESJ4UYgwL2MCHCn5O12BsZCJRArAQ@mail.gmail.com>
+ <2678164.aCkdBdey3W@ryz>
+Message-ID: <CAPAqZ4O6UQG6ZapCHotLBgdgwH0Gw2N=C8piiQyueftv2cusSw@mail.gmail.com>
+
+Thanks for all the feedback these comments will all go in my dockerfile for
+my next attempt.
+
+Dave
+
+On Wed, Jun 24, 2020 at 11:46 PM Johannes Ranke <johannes.ranke at jrwb.de>
+wrote:
+
+> Am Donnerstag, 25. Juni 2020, 04:52:37 CEST schrieb Dave Lange:
+> > My dockerfile:
+> >
+> ...
+>
+> > RUN apt update \
+> > && apt-get install -y --no-install-recommends \
+> > ca-certificates \
+> > wget \
+> > && rm -rf /var/lib/apt/lists/*
+>
+> Any reason why you remove the contents of /var/lib/apt/lists? On my
+> system,
+> this directory holds PGP signed information about each repository, so this
+> may
+> well be the reason why later buster-cran40 is said not to be available in
+> the
+> sources.
+>
+> Johannes
+>
+> >
+> > ## Now install R
+> > ## RUN apt install -t buster-cran40 r-base
+> >
+> > ## CMD ["R"]
+> > CMD python
+> >
+> > On Wed, Jun 24, 2020 at 4:38 PM Dirk Eddelbuettel <edd at debian.org>
+> wrote:
+> > > On 24 June 2020 at 15:15, Dave Lange wrote:
+> > > |  I continue to receive an error installing R via dockerfile on a
+> buster
+> > > |
+> > > | image python:3.
+> > > | E: The value 'buster-cran40' is invalid for APT::Default-Release as
+> such
+> > >
+> > > a
+> > >
+> > > | release is not available in the sources
+> > >
+> > > Do you have the Dockerfile in public repo we can look at?
+> > >
+> > > | My starting point is the debian buster based Python:3 image adding a
+> > >
+> > > couple
+> > >
+> > > This is an R list so please tell us more about Python:3. What it is
+> based
+> > > on?
+> > >
+> > > Hypothetically, could you just start from debian:buster, add python3
+> and
+> > > then
+> > > add the buster-cran40 repo by Johannes?
+> > >
+> > > | of python specific configurations and then using the commands in the
+> R
+> > > | project documentation for installing R on Buster. I got slightly
+> > >
+> > > different
+> > >
+> > > | answers when I used apt versus apt-get. There were warnings about
+> > > | unverified sources solved by a reference to the certificate key.
+> > >
+> > > You generally must install a key to validate a repository. This could
+> even
+> > > be
+> > > your error.
+> > >
+> > > In any event, this is all "academic". Maybe bring us the famous
+> "MCVE": a
+> > > minimally complete verifiable example. Otherwise we have simply no idea
+> > > what
+> > > you may be doing.
+> > >
+> > > | It turns out building the python container and commenting the R
+> commands
+> > > | out allowed me to manually step through my dockerfile lines. Its
+> > >
+> > > repeatable
+> > >
+> > > | that the R install fails with the error above when in the dockerfile.
+> > > | Running the commands manually allows the installation to finish
+> > > | successfully.  I sense that docker is multithreaded and hits the "use
+> > > | buster-cran40" before it defines buster-cran40. Manually stepping
+> > > | through
+> > >
+> > > I doubt that. Docker is very carefully "layered". Each RUN command
+> results
+> > > in
+> > > one layer on filesystem. You can build them one by one. There is no
+> > > concurrency as each subsequent RUN needs / depends upon previous ones.
+> > >
+> > > | the commands keeps the preferred order. At this point I'm happy with
+> a
+> > > | repeatable process.
+> > > |
+> > > | It sounds like I have been re-inventing the wheel, which has been
+> > > | educational for me. If someone wants to change my starting point to
+> > > | something that already has stable/latest production for debian,
+> Python3
+> > >
+> > > and
+> > >
+> > > | R4 and will be updated for the future I would appreciate the head
+> start.
+> > >
+> > > Should be easy. Look at the variety of Dockerfiles is maintain inside
+> the
+> > > Rocker Project -- while most are based on Debian's testing release you
+> can
+> > > still look at them (though note that some are also Ubuntu based)
+> > >
+> > > You could start at  https://github.com/rocker-org/rocker  but also
+> look at
+> > > other repositories in the same org at GH.
+> > >
+> > > Dirk
+> > >
+> > > --
+> > > http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+> >
+> >       [[alternative HTML version deleted]]
+> >
+> > _______________________________________________
+> > R-SIG-Debian mailing list
+> > R-SIG-Debian at r-project.org
+> > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+>
+>
+>
+
+	[[alternative HTML version deleted]]
+
+

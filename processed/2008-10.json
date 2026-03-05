@@ -1,0 +1,1236 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2008-10",
+  "messages": [
+    {
+      "id": "msg-18689384cf0c",
+      "message_id": "<48E5232F.9010106@unh.edu>",
+      "from_name": "J.H.Gove",
+      "from_email_hash": "0fd5c041598400540f919e236b890a06976f31b7deea95698b8c124aa97e155b",
+      "date": "2008-10-02T15:38:23-04:00",
+      "subject": "[R-sig-Debian] KernSmooth not loading in R 2.7.2",
+      "subject_clean": "KernSmooth not loading in R 2.7.2",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "I just upgraded to R 2.7.2 (from 2.7.1) this morning (Ubuntu amd64 \nplatform). Shortly afterwards, I ran into a problem loading the odesolve \nlibrary, it could not find libRblas.so. I was able to fix this by \nrebuilding odesolve. Now, KernSmooth gives me the same problem...\n\nR> library(KernSmooth)\nError in dyn.load(file, DLLpath = DLLpath, ...) :\n unable to load shared library \n'/usr/lib/R/library/KernSmooth/libs/KernSmooth.so':\n libRblas.so: cannot open shared object file: No such file or directory\nError: package/namespace load failed for 'KernSmooth'\n\nand (note the \"not found\" below)...\n\nldd /usr/lib/R/library/KernSmooth/libs/KernSmooth.so\n   linux-vdso.so.1 =>  (0x00007fff3a5fe000)\n   libRblas.so => not found\n   libgfortran.so.2 => /usr/lib/libgfortran.so.2 (0x00007fb132100000)\n   libm.so.6 => /lib/libm.so.6 (0x00007fb131e7e000)\n   libR.so => /usr/lib/R/lib/libR.so (0x00007fb13195e000)\n   libc.so.6 => /lib/libc.so.6 (0x00007fb1315fc000)\n   libblas.so.3gf => /usr/lib/libblas.so.3gf (0x00007fb131381000)\n   libreadline.so.5 => /lib/libreadline.so.5 (0x00007fb131141000)\n   libpcre.so.3 => /usr/lib/libpcre.so.3 (0x00007fb130f1b000)\n   libz.so.1 => /usr/lib/libz.so.1 (0x00007fb130d03000)\n   libdl.so.2 => /lib/libdl.so.2 (0x00007fb130aff000)\n   /lib64/ld-linux-x86-64.so.2 (0x00007fb1325d8000)\n   libncurses.so.5 => /lib/libncurses.so.5 (0x00007fb1308c4000)\n\nIf I do ldd on odesolve, the libRblas.so line has  been replaced by...\n\n   libblas.so.3 => /usr/lib/libblas.so.3 (0x00007fc518ed6000)\n\nEvidently R 2.7.2 has replaced libRblas.so with libblas.so?\n\nThe problem is that I installed odesolve myself, and so could simply \nrebuild it. But KernSmooth comes in the r-recommended packages (which I \nalso updated this morning), and is found in /usr/lib/R/library, so I \ndon't want to do an install.packages() on it and have it in two places \n(i.e., in /usr/local/lib/R/site-library as well). All of the other \npackages I tried loading in r-recommended worked fine. I assume that \nKernSmooth needs to be rebuilt and repackaged into r-recommended?\n\nThank you in advance.\n\nBest regards,\n\nJeff",
+      "body_snippet": "I just upgraded to R 2.7.2 (from 2.7.1) this morning (Ubuntu amd64 \nplatform). Shortly afterwards, I ran into a problem loading the odesolve \nlibrary, it could not find libRblas.so. I was able to fix ",
+      "thread_id": "thread-18689384cf0c",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-99dba9f22a87",
+      "message_id": "<48E553E1.8030505@psu.edu>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "bd1396b991d78727494403026cbf79f8837f468d360f36623deeff192b510eb4",
+      "date": "2008-10-02T19:06:09-04:00",
+      "subject": "[R-sig-Debian] KernSmooth not loading in R 2.7.2",
+      "subject_clean": "KernSmooth not loading in R 2.7.2",
+      "in_reply_to": "<48E5232F.9010106@unh.edu>",
+      "references": [
+        "<48E5232F.9010106@unh.edu>"
+      ],
+      "body_plain": "Jeff,\n\nFound the problem.  We needed to rebuild KernSmooth against the new \nversion of R (2.7.2), which uses the blas libraries.  I have uploaded \nthe new package, but it could take a few hours before it hits the mirrors.\n\nIf you need the new package ASAP, I can send it via email.\n\nSorry for the inconvenience,\nMichael\n\nJ.H.Gove wrote:\n> I just upgraded to R 2.7.2 (from 2.7.1) this morning (Ubuntu amd64 \n> platform). Shortly afterwards, I ran into a problem loading the odesolve \n> library, it could not find libRblas.so. I was able to fix this by \n> rebuilding odesolve. Now, KernSmooth gives me the same problem...\n> \n> R> library(KernSmooth)\n> Error in dyn.load(file, DLLpath = DLLpath, ...) :\n> unable to load shared library \n> '/usr/lib/R/library/KernSmooth/libs/KernSmooth.so':\n> libRblas.so: cannot open shared object file: No such file or directory\n> Error: package/namespace load failed for 'KernSmooth'\n> \n> and (note the \"not found\" below)...\n> \n> ldd /usr/lib/R/library/KernSmooth/libs/KernSmooth.so\n>   linux-vdso.so.1 =>  (0x00007fff3a5fe000)\n>   libRblas.so => not found\n>   libgfortran.so.2 => /usr/lib/libgfortran.so.2 (0x00007fb132100000)\n>   libm.so.6 => /lib/libm.so.6 (0x00007fb131e7e000)\n>   libR.so => /usr/lib/R/lib/libR.so (0x00007fb13195e000)\n>   libc.so.6 => /lib/libc.so.6 (0x00007fb1315fc000)\n>   libblas.so.3gf => /usr/lib/libblas.so.3gf (0x00007fb131381000)\n>   libreadline.so.5 => /lib/libreadline.so.5 (0x00007fb131141000)\n>   libpcre.so.3 => /usr/lib/libpcre.so.3 (0x00007fb130f1b000)\n>   libz.so.1 => /usr/lib/libz.so.1 (0x00007fb130d03000)\n>   libdl.so.2 => /lib/libdl.so.2 (0x00007fb130aff000)\n>   /lib64/ld-linux-x86-64.so.2 (0x00007fb1325d8000)\n>   libncurses.so.5 => /lib/libncurses.so.5 (0x00007fb1308c4000)\n> \n> If I do ldd on odesolve, the libRblas.so line has  been replaced by...\n> \n>   libblas.so.3 => /usr/lib/libblas.so.3 (0x00007fc518ed6000)\n> \n> Evidently R 2.7.2 has replaced libRblas.so with libblas.so?\n> \n> The problem is that I installed odesolve myself, and so could simply \n> rebuild it. But KernSmooth comes in the r-recommended packages (which I \n> also updated this morning), and is found in /usr/lib/R/library, so I \n> don't want to do an install.packages() on it and have it in two places \n> (i.e., in /usr/local/lib/R/site-library as well). All of the other \n> packages I tried loading in r-recommended worked fine. I assume that \n> KernSmooth needs to be rebuilt and repackaged into r-recommended?\n> \n> Thank you in advance.\n> \n> Best regards,\n> \n> Jeff\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \nDr. Michael A. Rutter\nSchool of Science\nPenn State Erie, The Behrend College\nStation Road\nErie, PA 16563\nhttp://math.bd.psu.edu/faculty/rutter",
+      "body_snippet": "Jeff,\n\nFound the problem.  We needed to rebuild KernSmooth against the new \nversion of R (2.7.2), which uses the blas libraries.  I have uploaded \nthe new package, but it could take a few hours before",
+      "thread_id": "thread-18689384cf0c",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-15129d60f3be",
+      "message_id": "<48EA1D1A.4000304@umh.ac.be>",
+      "from_name": "Philippe Grosjean",
+      "from_email_hash": "59ba6d77954f91c1a4c44c37f8744ecd38bec50e93323a77f525e96f2cf31206",
+      "date": "2008-10-06T16:13:46+02:00",
+      "subject": "[R-sig-Debian] R 2.7.2 and Ubuntu  / tcltk issues",
+      "subject_clean": "R 2.7.2 and Ubuntu  / tcltk issues",
+      "in_reply_to": "<18666.5989.943146.88730@ron.nulle.part>",
+      "references": [
+        "<18666.5989.943146.88730@ron.nulle.part>"
+      ],
+      "body_plain": "Hello,\n\nI have another problem:\n\nFailed to fetch \nhttp://cran.at.r-project.org/bin/linux/ubuntu/gutsy/r-cran-lattice_0.17-15-1gutsy0_i386.deb\n   Size mismatch\n\n(I tried several times)\n\nBest,\n\nPhilippe\n..............................................<?}))><........\n  ) ) ) ) )\n( ( ( ( (    Prof. Philippe Grosjean\n  ) ) ) ) )\n( ( ( ( (    Numerical Ecology of Aquatic Systems\n  ) ) ) ) )   Mons-Hainaut University, Belgium\n( ( ( ( (\n..............................................................\n\nDirk Eddelbuettel wrote:\n> Philippe,\n> \n> Thanks for the bug report to r-help. In the future, please consider\n> r-sig-debian which is much more on topic and much more likely to be read\n> attentively by the three of us.\n> \n> Vincent/Michael,\n> \n> Could you have a look?  'library(tclrk)' does fail for me too at work (using\n> 2.7.2. on ubunut) but I am currently using the Cygwin X11 connection and\n> having all sorts of issues with that.  We did test this post tlc/tk 8.5\n> switch as I recall all/some of us commenting on how much prettier the new 8.5\n> 'themed' widgets look. I did run at least one or two demos().\n> \n> Also, I tossed up 2.8.0 beta as of today into Debian unstable before I left\n> for work. I don't think you need to release that to Ubuntu yet, but you may\n> just want to build once or twice before Oct 20 so that we get all surprises\n> out of the way. Or so the theory goes...\n> \n> Cheers, Dirk\n>",
+      "body_snippet": "Hello,\n\nI have another problem:\n\nFailed to fetch \nhttp://cran.at.r-project.org/bin/linux/ubuntu/gutsy/r-cran-lattice_0.17-15-1gutsy0_i386.deb\n   Size mismatch\n\n(I tried several times)\n\nBest,\n\nPhilippe",
+      "thread_id": "thread-15129d60f3be",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-bab086f08b1d",
+      "message_id": "<9EBEDE69-8314-42C6-9AF2-C03D9A28F55D@act.ulaval.ca>",
+      "from_name": "Vincent Goulet",
+      "from_email_hash": "e1091a7ef24172cab8ff1701d0e6c2c555c786b66d61ed102070f87705da8ffd",
+      "date": "2008-10-06T15:32:41-04:00",
+      "subject": "[R-sig-Debian] R 2.7.2 and Ubuntu  / tcltk issues",
+      "subject_clean": "R 2.7.2 and Ubuntu  / tcltk issues",
+      "in_reply_to": "<48EA1D1A.4000304@umh.ac.be>",
+      "references": [
+        "<18666.5989.943146.88730@ron.nulle.part>",
+        "<48EA1D1A.4000304@umh.ac.be>"
+      ],
+      "body_plain": "Le lun. 6 oct. ? 10:13, Philippe Grosjean a ?crit :\n\n> Hello,\n>\n> I have another problem:\n>\n> Failed to fetch http://cran.at.r-project.org/bin/linux/ubuntu/gutsy/r-cran-lattice_0.17-15-1gutsy0_i386.deb\n>  Size mismatch\n>\n> (I tried several times)\n\nAnd I clicked on the link above and it worked. The file is on the main  \nCRAN archive, so perhaps try with another mirror. It installed  \ncorrectly for me using the canadian mirror.\n\nVincent\n\n>\n>\n> Best,\n>\n> Philippe\n> ..............................................<?}))><........\n> ) ) ) ) )\n> ( ( ( ( (    Prof. Philippe Grosjean\n> ) ) ) ) )\n> ( ( ( ( (    Numerical Ecology of Aquatic Systems\n> ) ) ) ) )   Mons-Hainaut University, Belgium\n> ( ( ( ( (\n> ..............................................................\n>\n> Dirk Eddelbuettel wrote:\n>> Philippe,\n>> Thanks for the bug report to r-help. In the future, please consider\n>> r-sig-debian which is much more on topic and much more likely to be  \n>> read\n>> attentively by the three of us.\n>> Vincent/Michael,\n>> Could you have a look?  'library(tclrk)' does fail for me too at  \n>> work (using\n>> 2.7.2. on ubunut) but I am currently using the Cygwin X11  \n>> connection and\n>> having all sorts of issues with that.  We did test this post tlc/tk  \n>> 8.5\n>> switch as I recall all/some of us commenting on how much prettier  \n>> the new 8.5\n>> 'themed' widgets look. I did run at least one or two demos().\n>> Also, I tossed up 2.8.0 beta as of today into Debian unstable  \n>> before I left\n>> for work. I don't think you need to release that to Ubuntu yet, but  \n>> you may\n>> just want to build once or twice before Oct 20 so that we get all  \n>> surprises\n>> out of the way. Or so the theory goes...\n>> Cheers, Dirk",
+      "body_snippet": "Le lun. 6 oct. ? 10:13, Philippe Grosjean a ?crit :\n\n> Hello,\n>\n> I have another problem:\n>\n> Failed to fetch http://cran.at.r-project.org/bin/linux/ubuntu/gutsy/r-cran-lattice_0.17-15-1gutsy0_i386.de",
+      "thread_id": "thread-15129d60f3be",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-d610310f4e30",
+      "message_id": "<59B86224-0DB1-4EEE-82A1-7AA8718783A8@act.ulaval.ca>",
+      "from_name": "Vincent Goulet",
+      "from_email_hash": "e1091a7ef24172cab8ff1701d0e6c2c555c786b66d61ed102070f87705da8ffd",
+      "date": "2008-10-06T15:34:54-04:00",
+      "subject": "[R-sig-Debian] R 2.7.2 and Ubuntu  / tcltk issues",
+      "subject_clean": "R 2.7.2 and Ubuntu  / tcltk issues",
+      "in_reply_to": "<48EA21B8.1040608@psu.edu>",
+      "references": [
+        "<18666.5989.943146.88730@ron.nulle.part>",
+        "<48EA21B8.1040608@psu.edu>"
+      ],
+      "body_plain": "Le lun. 6 oct. ? 10:33, Michael Rutter a ?crit :\n\n> Philippe,\n>\n> The solution (I hope) to your problem is to enable the hardy- \n> backports in your package manager.\n\nJust to confirm and clarify (since Philippe is on Gutsy, not Hardy).\n\nIndeed, R 2.7.2 on Gutsy depends on Tcl/Tk 8.5 that is obtained from  \nthe backports repositories.\n\n> For instructions on how to do that,\n> check this link:\n>\n> https://help.ubuntu.com/community/UbuntuBackports\n>\n> If that doesn't solve the problem, we will investigate further.  We  \n> mention this on the ubuntu cran pages, but we may need to highlight  \n> that portion of the instructions.\n\nI added a note to this effect. The new README is on its way to CRAN now.\n\nVincent\n\n>\n>\n> As for your recent lattice problem, not sure what is causing that.  \n> Maybe Vincent has some insight.\n>\n> Hope this helps,\n> Michael\n>\n> Dirk Eddelbuettel wrote:\n>> Philippe,\n>> Thanks for the bug report to r-help. In the future, please consider\n>> r-sig-debian which is much more on topic and much more likely to be  \n>> read\n>> attentively by the three of us.\n>> Vincent/Michael,\n>> Could you have a look?  'library(tclrk)' does fail for me too at  \n>> work (using\n>> 2.7.2. on ubunut) but I am currently using the Cygwin X11  \n>> connection and\n>> having all sorts of issues with that.  We did test this post tlc/tk  \n>> 8.5\n>> switch as I recall all/some of us commenting on how much prettier  \n>> the new 8.5\n>> 'themed' widgets look. I did run at least one or two demos().\n>> Also, I tossed up 2.8.0 beta as of today into Debian unstable  \n>> before I left\n>> for work. I don't think you need to release that to Ubuntu yet, but  \n>> you may\n>> just want to build once or twice before Oct 20 so that we get all  \n>> surprises\n>> out of the way. Or so the theory goes...\n>> Cheers, Dirk\n>\n> -- \n> Dr. Michael A. Rutter\n> School of Science\n> Penn State Erie, The Behrend College\n> Station Road\n> Erie, PA 16563\n> http://math.bd.psu.edu/faculty/rutter",
+      "body_snippet": "Le lun. 6 oct. ? 10:33, Michael Rutter a ?crit :\n\n> Philippe,\n>\n> The solution (I hope) to your problem is to enable the hardy- \n> backports in your package manager.\n\nJust to confirm and clarify (sinc",
+      "thread_id": "thread-d610310f4e30",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-1b1c4611dcc8",
+      "message_id": "<48EA6AA3.20609@umh.ac.be>",
+      "from_name": "Philippe Grosjean",
+      "from_email_hash": "59ba6d77954f91c1a4c44c37f8744ecd38bec50e93323a77f525e96f2cf31206",
+      "date": "2008-10-06T21:44:35+02:00",
+      "subject": "[R-sig-Debian] R 2.7.2 and Ubuntu  / tcltk issues",
+      "subject_clean": "R 2.7.2 and Ubuntu  / tcltk issues",
+      "in_reply_to": "<59B86224-0DB1-4EEE-82A1-7AA8718783A8@act.ulaval.ca>",
+      "references": [
+        "<18666.5989.943146.88730@ron.nulle.part>",
+        "<48EA21B8.1040608@psu.edu>",
+        "<59B86224-0DB1-4EEE-82A1-7AA8718783A8@act.ulaval.ca>"
+      ],
+      "body_plain": "Thank you. I preferred to upgrade to Hardy. Note that I had to eliminate \ntcl8.5 (the upgrade left the old version) and then to make:\n\nsudo apt-get update\nsudo apt-get install tcl8.5\nsudo apt-get install tcl8.5-dev  <- this one is apprently required, and!\nsudo apt-get install r-base\nsudo apt-get install r-base-dev\nsudo apt-get install r-base-html\n\nand then, R running well with tcl/tk 8.5.\nMany thanks for your help.\n\nPhilippe\n\n\nVincent Goulet wrote:\n> Le lun. 6 oct. ? 10:33, Michael Rutter a ?crit :\n> \n>> Philippe,\n>>\n>> The solution (I hope) to your problem is to enable the hardy-backports \n>> in your package manager.\n> \n> Just to confirm and clarify (since Philippe is on Gutsy, not Hardy).\n> \n> Indeed, R 2.7.2 on Gutsy depends on Tcl/Tk 8.5 that is obtained from the \n> backports repositories.\n> \n>> For instructions on how to do that,\n>> check this link:\n>>\n>> https://help.ubuntu.com/community/UbuntuBackports\n>>\n>> If that doesn't solve the problem, we will investigate further.  We \n>> mention this on the ubuntu cran pages, but we may need to highlight \n>> that portion of the instructions.\n> \n> I added a note to this effect. The new README is on its way to CRAN now.\n> \n> Vincent\n> \n>>\n>>\n>> As for your recent lattice problem, not sure what is causing that. \n>> Maybe Vincent has some insight.\n>>\n>> Hope this helps,\n>> Michael\n>>\n>> Dirk Eddelbuettel wrote:\n>>> Philippe,\n>>> Thanks for the bug report to r-help. In the future, please consider\n>>> r-sig-debian which is much more on topic and much more likely to be read\n>>> attentively by the three of us.\n>>> Vincent/Michael,\n>>> Could you have a look?  'library(tclrk)' does fail for me too at work \n>>> (using\n>>> 2.7.2. on ubunut) but I am currently using the Cygwin X11 connection and\n>>> having all sorts of issues with that.  We did test this post tlc/tk 8.5\n>>> switch as I recall all/some of us commenting on how much prettier the \n>>> new 8.5\n>>> 'themed' widgets look. I did run at least one or two demos().\n>>> Also, I tossed up 2.8.0 beta as of today into Debian unstable before \n>>> I left\n>>> for work. I don't think you need to release that to Ubuntu yet, but \n>>> you may\n>>> just want to build once or twice before Oct 20 so that we get all \n>>> surprises\n>>> out of the way. Or so the theory goes...\n>>> Cheers, Dirk\n>>\n>> -- \n>> Dr. Michael A. Rutter\n>> School of Science\n>> Penn State Erie, The Behrend College\n>> Station Road\n>> Erie, PA 16563\n>> http://math.bd.psu.edu/faculty/rutter\n> \n>",
+      "body_snippet": "Thank you. I preferred to upgrade to Hardy. Note that I had to eliminate \ntcl8.5 (the upgrade left the old version) and then to make:\n\nsudo apt-get update\nsudo apt-get install tcl8.5\nsudo apt-get inst",
+      "thread_id": "thread-d610310f4e30",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-223ec65590d7",
+      "message_id": "<7acc7a990810071055l55ebcd35qc7e9dbec2624d723@mail.gmail.com>",
+      "from_name": "Erin Hodgess",
+      "from_email_hash": "b26e9c7bfb605fed8b617b744d8476ab90f8218ca2710a5f80794303575b1adc",
+      "date": "2008-10-07T12:55:19-05:00",
+      "subject": "[R-sig-Debian] [R-sig-debian] compiling from source",
+      "subject_clean": "compiling from source",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi  R Debian People:\n\nI am aware that there are binaries for R for Debian.\n\nIs it ever necessary to compile from source, or should I just leave\nwell enough alone, please (high probability)?\n\nthanks,\nErin\n\n\n\n-- \nErin Hodgess\nAssociate Professor\nDepartment of Computer and Mathematical Sciences\nUniversity of Houston - Downtown\nmailto: erinm.hodgess at gmail.com",
+      "body_snippet": "Hi  R Debian People:\n\nI am aware that there are binaries for R for Debian.\n\nIs it ever necessary to compile from source, or should I just leave\nwell enough alone, please (high probability)?\n\nthanks,\nE",
+      "thread_id": "thread-223ec65590d7",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-4fa7b01f9660",
+      "message_id": "<871vystg93.fsf@patagonia.sebmags.homelinux.org>",
+      "from_name": "Sebastian P. Luque",
+      "from_email_hash": "2cd4815ed8883e0c35c16bacf1be9d88d662c4a9f03492384d48d7b9ac92a1d5",
+      "date": "2008-10-07T13:24:56-05:00",
+      "subject": "[R-sig-Debian] [R-sig-debian] compiling from source",
+      "subject_clean": "compiling from source",
+      "in_reply_to": null,
+      "references": [
+        "<7acc7a990810071055l55ebcd35qc7e9dbec2624d723@mail.gmail.com>"
+      ],
+      "body_plain": "On Tue, 7 Oct 2008 12:55:19 -0500,\n\"Erin Hodgess\" <erinm.hodgess at gmail.com> wrote:\n\n> Hi R Debian People: I am aware that there are binaries for R for\n> Debian.\n\n> Is it ever necessary to compile from source, or should I just leave\n> well enough alone, please (high probability)?\n\n\nDepends on how quickly you want the latest R and what Debian branch\nyou're using.  If you're using sid (\"unstable\"), i.e. you want to live\non Debian's bleeding edge (closest to upstream), updating very\nfrequently, and deal with \"issues\" from time to time, then I'd just use\nthe Debian packages (the maintainer, Dirk Eddelbuettel, keeps them\nbarely hours behind the upstream releases).  If you're using other\nDebian branches, but still want to use the latest R, options get more\ncomplicated.  I know it can be a pain, but it helps in the long run to\ncarefully read the Debian documents like the material in the\ndebian-reference-en package and http://www.debian.org/doc/ to make sure\nyou're doing what you want.\n\n\n-- \nSeb",
+      "body_snippet": "On Tue, 7 Oct 2008 12:55:19 -0500,\n\"Erin Hodgess\" <erinm.hodgess at gmail.com> wrote:\n\n> Hi R Debian People: I am aware that there are binaries for R for\n> Debian.\n\n> Is it ever necessary to compile f",
+      "thread_id": "thread-223ec65590d7",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-43d13a386d18",
+      "message_id": "<0B7C8D37-82EF-4ACC-9A00-5ADBFE83D71D@act.ulaval.ca>",
+      "from_name": "Vincent Goulet",
+      "from_email_hash": "e1091a7ef24172cab8ff1701d0e6c2c555c786b66d61ed102070f87705da8ffd",
+      "date": "2008-10-07T14:44:23-04:00",
+      "subject": "[R-sig-Debian] [R-sig-debian] compiling from source",
+      "subject_clean": "compiling from source",
+      "in_reply_to": "<871vystg93.fsf@patagonia.sebmags.homelinux.org>",
+      "references": [
+        "<7acc7a990810071055l55ebcd35qc7e9dbec2624d723@mail.gmail.com>",
+        "<871vystg93.fsf@patagonia.sebmags.homelinux.org>"
+      ],
+      "body_plain": "Le mar. 7 oct. ? 14:24, Sebastian P. Luque a ?crit :\n\n> On Tue, 7 Oct 2008 12:55:19 -0500,\n> \"Erin Hodgess\" <erinm.hodgess at gmail.com> wrote:\n>\n>> Hi R Debian People: I am aware that there are binaries for R for\n>> Debian.\n>\n>> Is it ever necessary to compile from source, or should I just leave\n>> well enough alone, please (high probability)?\n>\n>\n> Depends on how quickly you want the latest R and what Debian branch\n> you're using.  If you're using sid (\"unstable\"), i.e. you want to live\n> on Debian's bleeding edge (closest to upstream), updating very\n> frequently, and deal with \"issues\" from time to time, then I'd just  \n> use\n> the Debian packages (the maintainer, Dirk Eddelbuettel, keeps them\n> barely hours behind the upstream releases).  If you're using other\n> Debian branches, but still want to use the latest R, options get more\n> complicated.\n\nI'd beg to differ, here. The \"unstable\" packages usually migrate to  \n\"testing\" after the latency period of ten days. As for \"stable\", the  \nbinary packages are available from CRAN; see\n\n\thttp://cran.r-project.org/bin/linux/debian\n\nVincent\n\n> I know it can be a pain, but it helps in the long run to\n> carefully read the Debian documents like the material in the\n> debian-reference-en package and http://www.debian.org/doc/ to make  \n> sure\n> you're doing what you want.\n>\n>\n> -- \n> Seb\n>\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "Le mar. 7 oct. ? 14:24, Sebastian P. Luque a ?crit :\n\n> On Tue, 7 Oct 2008 12:55:19 -0500,\n> \"Erin Hodgess\" <erinm.hodgess at gmail.com> wrote:\n>\n>> Hi R Debian People: I am aware that there are binar",
+      "thread_id": "thread-223ec65590d7",
+      "thread_depth": 2,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-ebc35edc7de4",
+      "message_id": "<87wsgkrznx.fsf@patagonia.sebmags.homelinux.org>",
+      "from_name": "Sebastian P. Luque",
+      "from_email_hash": "2cd4815ed8883e0c35c16bacf1be9d88d662c4a9f03492384d48d7b9ac92a1d5",
+      "date": "2008-10-07T14:08:34-05:00",
+      "subject": "[R-sig-Debian] [R-sig-debian] compiling from source",
+      "subject_clean": "compiling from source",
+      "in_reply_to": null,
+      "references": [
+        "<7acc7a990810071055l55ebcd35qc7e9dbec2624d723@mail.gmail.com>",
+        "<871vystg93.fsf@patagonia.sebmags.homelinux.org>",
+        "<0B7C8D37-82EF-4ACC-9A00-5ADBFE83D71D@act.ulaval.ca>"
+      ],
+      "body_plain": "On Tue, 7 Oct 2008 14:44:23 -0400,\nVincent Goulet <vincent.goulet at act.ulaval.ca> wrote:\n\n[...]\n\n> I'd beg to differ, here. The \"unstable\" packages usually migrate to\n> \"testing\" after the latency period of ten days. As for \"stable\", the\n> binary packages are available from CRAN; see\n\nBut what if you're in testing and want to use the unstable packages, for\nwhatever reason?  That requires careful use of apt.  Alternatively, one\nmight decide to take the hard route and compile latest R source, making\nsure all the proper versions development packages are installed.  That's\nwhat I meant by \"complicated\".  Am I mistaken?\n\n\n-- \nSeb",
+      "body_snippet": "On Tue, 7 Oct 2008 14:44:23 -0400,\nVincent Goulet <vincent.goulet at act.ulaval.ca> wrote:\n\n[...]\n\n> I'd beg to differ, here. The \"unstable\" packages usually migrate to\n> \"testing\" after the latency p",
+      "thread_id": "thread-223ec65590d7",
+      "thread_depth": 3,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-b97c50fff2e2",
+      "message_id": "<18667.47274.202448.713005@ron.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2008-10-07T14:29:46-05:00",
+      "subject": "[R-sig-Debian] [R-sig-debian] compiling from source",
+      "subject_clean": "compiling from source",
+      "in_reply_to": "<0B7C8D37-82EF-4ACC-9A00-5ADBFE83D71D@act.ulaval.ca>",
+      "references": [
+        "<7acc7a990810071055l55ebcd35qc7e9dbec2624d723@mail.gmail.com>",
+        "<871vystg93.fsf@patagonia.sebmags.homelinux.org>",
+        "<0B7C8D37-82EF-4ACC-9A00-5ADBFE83D71D@act.ulaval.ca>"
+      ],
+      "body_plain": "On 7 October 2008 at 14:44, Vincent Goulet wrote:\n| \n| Le mar. 7 oct. ? 14:24, Sebastian P. Luque a ?crit :\n| \n| > On Tue, 7 Oct 2008 12:55:19 -0500,\n| > \"Erin Hodgess\" <erinm.hodgess at gmail.com> wrote:\n| >\n| >> Hi R Debian People: I am aware that there are binaries for R for\n| >> Debian.\n| >\n| >> Is it ever necessary to compile from source, or should I just leave\n| >> well enough alone, please (high probability)?\n| >\n| >\n| > Depends on how quickly you want the latest R and what Debian branch\n| > you're using.  If you're using sid (\"unstable\"), i.e. you want to live\n| > on Debian's bleeding edge (closest to upstream), updating very\n| > frequently, and deal with \"issues\" from time to time, then I'd just  \n| > use\n| > the Debian packages (the maintainer, Dirk Eddelbuettel, keeps them\n| > barely hours behind the upstream releases).  If you're using other\n| > Debian branches, but still want to use the latest R, options get more\n| > complicated.\n| \n| I'd beg to differ, here. The \"unstable\" packages usually migrate to  \n| \"testing\" after the latency period of ten days. As for \"stable\", the  \n\nUnless Debian is 'about to release' which can take a while. In that case, you\ncan (more often than not) _install and use_ binaries from 'unstable' on\ntesting (and the exception happens when the core libs and compilers differ,\nusually not for long).  That's advanced topic under the heading 'apt\npinning'; googeling for that term should reveal a few HOWTOs. For what it is\nworth, that is what I do at home on Debian.\n\n| binary packages are available from CRAN; see\n| \n| \thttp://cran.r-project.org/bin/linux/debian\n\nExactly. And the ones from stable should also run on testing.  \n\nSo to get back on topic re Erin's question. My take:   \n\n\tNo, in general it is not worth rebuilding locally.\n\nI.e. I am also using an Ubuntu box which gets new packages typically within a\nday thanks to Vincent and Michael.\n\nThat said, we could do with a new (or at least backup) Debian volunteer given\nthat Johannes has moved on from Bremen.  Experience with pbuilder helpful,\nbut the crack crew is happy to teach that too. Some experience with Debian\ntools definitely helps.\n\nDirk\n\n-- \nThree out of two people have difficulties with fractions.",
+      "body_snippet": "On 7 October 2008 at 14:44, Vincent Goulet wrote:\n| \n| Le mar. 7 oct. ? 14:24, Sebastian P. Luque a ?crit :\n| \n| > On Tue, 7 Oct 2008 12:55:19 -0500,\n| > \"Erin Hodgess\" <erinm.hodgess at gmail.com> wr",
+      "thread_id": "thread-223ec65590d7",
+      "thread_depth": 3,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-59bcb5c25837",
+      "message_id": "<64ac70450810091436g37947a2bs715f087800251df5@mail.gmail.com>",
+      "from_name": "Josh Harmsen",
+      "from_email_hash": "b9475bd24e9fe71194d36a54a79a8bdf1b52c808383ee3eced50ddb29645f782",
+      "date": "2008-10-09T14:36:14-07:00",
+      "subject": "[R-sig-Debian] Hardy 64 bit and Package Support",
+      "subject_clean": "Hardy 64 bit and Package Support",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi All,\n\nNot a new R user, but new to R with Linux, specifically Ubuntu Hardy\nHeron 8.04 64bit.\n\nI have had success installing common packages using the typical R\ninterface (in Linux), but have had problems installing less common\npackages like (rgdal) and (RSAGA) that are not loaded with R.  I'm\nwondering if there are any tricks to these libraries that won't\ninstall, from reading the errors it looks like I need to\nadd/edit/create some directories?\n\nI get this error when I try to install (rgdal)\n\n> install.packages()\n--- Please select a CRAN mirror for use in this session ---\nLoading Tcl/Tk interface ... done\nWarning in install.packages() :\n  argument 'lib' is missing: using\n'/home/josh/R/x86_64-pc-linux-gnu-library/2.7'\ntrying URL 'http://cran.cnr.Berkeley.edu/src/contrib/rgdal_0.5-26.tar.gz'\nContent type 'application/x-gzip' length 4430424 bytes (4.2 Mb)\nopened URL\n==================================================\ndownloaded 4.2 Mb\n\n* Installing *source* package 'rgdal' ...\ngdal-config: gdal-config\n./configure: line 1311: gdal-config: command not found\n\nThe gdal-config script distributed with GDAL could not be found.\nIf you have not installed the GDAL libraries, you can\ndownload the source from  http://www.gdal.org/\nIf you have installed the GDAL libraries, then make sure that\ngdal-config is in your path. Try typing gdal-config at a\nshell prompt and see if it runs. If not, use:\n --configure-args='--with-gdal-config=/usr/local/bin/gdal-config' echo\nwith appropriate values for your installation.\n\nERROR: configuration failed for package 'rgdal'\n** Removing '/home/josh/R/x86_64-pc-linux-gnu-library/2.7/rgdal'\n** Restoring previous '/home/josh/R/x86_64-pc-linux-gnu-library/2.7/rgdal'\n\nThe downloaded packages are in\n\t/tmp/RtmplzwwUl/downloaded_packages\nWarning message:\nIn install.packages() :\n  installation of package 'rgdal' had non-zero exit status\n> update.packages(lib.loc = \"/usr/local/lib/R/site-library\")\n> install.packages(rgdal)\nError in install.packages(rgdal) : object \"rgdal\" not found\n\n\nThanks,\n\nJosh",
+      "body_snippet": "Hi All,\n\nNot a new R user, but new to R with Linux, specifically Ubuntu Hardy\nHeron 8.04 64bit.\n\nI have had success installing common packages using the typical R\ninterface (in Linux), but have had pr",
+      "thread_id": "thread-59bcb5c25837",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-5e56769fd495",
+      "message_id": "<48EE8E59.1020404@psu.edu>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "bd1396b991d78727494403026cbf79f8837f468d360f36623deeff192b510eb4",
+      "date": "2008-10-09T19:06:01-04:00",
+      "subject": "[R-sig-Debian] Hardy 64 bit and Package Support",
+      "subject_clean": "Hardy 64 bit and Package Support",
+      "in_reply_to": "<64ac70450810091436g37947a2bs715f087800251df5@mail.gmail.com>",
+      "references": [
+        "<64ac70450810091436g37947a2bs715f087800251df5@mail.gmail.com>"
+      ],
+      "body_plain": "Josh,\n\nYou have stumbled on the \"so many R packages, no way we can turn them \nall into Ubuntu packages\" problem.  In general, you should be able to \ncompile packages with the install.packages commands.  However, some \npackages utilize other libraries that are not needed by the core R \nprogram.  In your case, it is the GDAL library.\n\nThe solution to this problem is the following line:\n\n > ./configure: line 1311: gdal-config: command not found\n\nThe trick is to find what Ubuntu package contains that file.  A useful \nwebsite is http://packages.ubuntu.com/.  On that page there is a \"Search \nthe contents of packages\" section, and putting in gdal-config reveals \nthat the needed package is libgdal1-dev.  A 'sudo apt-get install \nlibgdal1-dev' will download about 20 mb worth of ubuntu packages, but \nyou should now be able to install the rgdal package (at least I was \nable).  Note, you will need to start a fresh R session to install the \nrgdal package after updating hardy.\n\nHope this helps,\nMichael\n\nJosh Harmsen wrote:\n> Hi All,\n> \n> Not a new R user, but new to R with Linux, specifically Ubuntu Hardy\n> Heron 8.04 64bit.\n> \n> I have had success installing common packages using the typical R\n> interface (in Linux), but have had problems installing less common\n> packages like (rgdal) and (RSAGA) that are not loaded with R.  I'm\n> wondering if there are any tricks to these libraries that won't\n> install, from reading the errors it looks like I need to\n> add/edit/create some directories?\n> \n> I get this error when I try to install (rgdal)\n> \n>> install.packages()\n> --- Please select a CRAN mirror for use in this session ---\n> Loading Tcl/Tk interface ... done\n> Warning in install.packages() :\n>   argument 'lib' is missing: using\n> '/home/josh/R/x86_64-pc-linux-gnu-library/2.7'\n> trying URL 'http://cran.cnr.Berkeley.edu/src/contrib/rgdal_0.5-26.tar.gz'\n> Content type 'application/x-gzip' length 4430424 bytes (4.2 Mb)\n> opened URL\n> ==================================================\n> downloaded 4.2 Mb\n> \n> * Installing *source* package 'rgdal' ...\n> gdal-config: gdal-config\n> ./configure: line 1311: gdal-config: command not found\n> \n> The gdal-config script distributed with GDAL could not be found.\n> If you have not installed the GDAL libraries, you can\n> download the source from  http://www.gdal.org/\n> If you have installed the GDAL libraries, then make sure that\n> gdal-config is in your path. Try typing gdal-config at a\n> shell prompt and see if it runs. If not, use:\n>  --configure-args='--with-gdal-config=/usr/local/bin/gdal-config' echo\n> with appropriate values for your installation.\n> \n> ERROR: configuration failed for package 'rgdal'\n> ** Removing '/home/josh/R/x86_64-pc-linux-gnu-library/2.7/rgdal'\n> ** Restoring previous '/home/josh/R/x86_64-pc-linux-gnu-library/2.7/rgdal'\n> \n> The downloaded packages are in\n> \t/tmp/RtmplzwwUl/downloaded_packages\n> Warning message:\n> In install.packages() :\n>   installation of package 'rgdal' had non-zero exit status\n>> update.packages(lib.loc = \"/usr/local/lib/R/site-library\")\n>> install.packages(rgdal)\n> Error in install.packages(rgdal) : object \"rgdal\" not found\n> \n> \n> Thanks,\n> \n> Josh\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \nDr. Michael A. Rutter\nSchool of Science\nPenn State Erie, The Behrend College\nStation Road\nErie, PA 16563\nhttp://math.bd.psu.edu/faculty/rutter",
+      "body_snippet": "Josh,\n\nYou have stumbled on the \"so many R packages, no way we can turn them \nall into Ubuntu packages\" problem.  In general, you should be able to \ncompile packages with the install.packages commands",
+      "thread_id": "thread-59bcb5c25837",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-2eff819180d0",
+      "message_id": "<64ac70450810101313m2238d12kff12b07a37bb26d0@mail.gmail.com>",
+      "from_name": "Josh Harmsen",
+      "from_email_hash": "b9475bd24e9fe71194d36a54a79a8bdf1b52c808383ee3eced50ddb29645f782",
+      "date": "2008-10-10T13:13:55-07:00",
+      "subject": "[R-sig-Debian] how to convert source code in windows package for linux (ubuntu)",
+      "subject_clean": "how to convert source code in windows package for linux (ubuntu)",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi All,\n\nI was wondering if anyone here as successfully converted a package for\nwindows to one that will work in Linux?\n\nWhat are the necessary steps if you have the source code?\n\nThanks,\n\nJosh",
+      "body_snippet": "Hi All,\n\nI was wondering if anyone here as successfully converted a package for\nwindows to one that will work in Linux?\n\nWhat are the necessary steps if you have the source code?\n\nThanks,\n\nJosh",
+      "thread_id": "thread-2eff819180d0",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-8dcd2413e3d2",
+      "message_id": "<40e66e0b0810101405l68369070vb16a962c14a62633@mail.gmail.com>",
+      "from_name": "Douglas Bates",
+      "from_email_hash": "c908588836123be177df15f4b3132be3a2b4b95c4eaeddcc72b433a3981bb1b3",
+      "date": "2008-10-10T16:05:38-05:00",
+      "subject": "[R-sig-Debian] how to convert source code in windows package for linux (ubuntu)",
+      "subject_clean": "how to convert source code in windows package for linux (ubuntu)",
+      "in_reply_to": "<64ac70450810101313m2238d12kff12b07a37bb26d0@mail.gmail.com>",
+      "references": [
+        "<64ac70450810101313m2238d12kff12b07a37bb26d0@mail.gmail.com>"
+      ],
+      "body_plain": "On Fri, Oct 10, 2008 at 3:13 PM, Josh Harmsen <josh.harmsen at gmail.com> wrote:\n> Hi All,\n\n> I was wondering if anyone here as successfully converted a package for\n> windows to one that will work in Linux?\n\n> What are the necessary steps if you have the source code?\n\nIf you have compiled code in the package I don't think it can be done.\n If you don't have compiled code then it can be done but it would be\nsomewhat awkward.  Essentially you would need to recreate the source\npackage from the installed package.\n\nWhy would you want to do this?  If you can start from the source\npackage the process is quite trivial.  Is there a reason that you\nwould have access to the Windows package but not the source package?",
+      "body_snippet": "On Fri, Oct 10, 2008 at 3:13 PM, Josh Harmsen <josh.harmsen at gmail.com> wrote:\n> Hi All,\n\n> I was wondering if anyone here as successfully converted a package for\n> windows to one that will work in ",
+      "thread_id": "thread-2eff819180d0",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-6a3a99a49d29",
+      "message_id": "<64ac70450810101542n12ad6f00o7e9bf4a7b32cd930@mail.gmail.com>",
+      "from_name": "Josh Harmsen",
+      "from_email_hash": "b9475bd24e9fe71194d36a54a79a8bdf1b52c808383ee3eced50ddb29645f782",
+      "date": "2008-10-10T15:42:45-07:00",
+      "subject": "[R-sig-Debian] how to convert source code in windows package for linux (ubuntu)",
+      "subject_clean": "how to convert source code in windows package for linux (ubuntu)",
+      "in_reply_to": "<40e66e0b0810101405l68369070vb16a962c14a62633@mail.gmail.com>",
+      "references": [
+        "<64ac70450810101313m2238d12kff12b07a37bb26d0@mail.gmail.com>",
+        "<40e66e0b0810101405l68369070vb16a962c14a62633@mail.gmail.com>"
+      ],
+      "body_plain": "The package is RSAGA http://cran.r-project.org/web/packages/RSAGA/index.html\n\nCRAN does have the package source available, which is what I want to\nget to work in R on a Ubuntu Hardy 64bit.  If the process is trivial\ncould you guide me through it or point me to a resource that explains\nit?\n\nMany Thanks!\n\nJosh\n\nOn Fri, Oct 10, 2008 at 2:05 PM, Douglas Bates <bates at stat.wisc.edu> wrote:\n> On Fri, Oct 10, 2008 at 3:13 PM, Josh Harmsen <josh.harmsen at gmail.com> wrote:\n>> Hi All,\n>\n>> I was wondering if anyone here as successfully converted a package for\n>> windows to one that will work in Linux?\n>\n>> What are the necessary steps if you have the source code?\n>\n> If you have compiled code in the package I don't think it can be done.\n>  If you don't have compiled code then it can be done but it would be\n> somewhat awkward.  Essentially you would need to recreate the source\n> package from the installed package.\n>\n> Why would you want to do this?  If you can start from the source\n> package the process is quite trivial.  Is there a reason that you\n> would have access to the Windows package but not the source package?\n>",
+      "body_snippet": "The package is RSAGA http://cran.r-project.org/web/packages/RSAGA/index.html\n\nCRAN does have the package source available, which is what I want to\nget to work in R on a Ubuntu Hardy 64bit.  If the pro",
+      "thread_id": "thread-2eff819180d0",
+      "thread_depth": 2,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-194647db95ad",
+      "message_id": "<18672.1591.259733.461950@ron.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2008-10-10T20:49:43-05:00",
+      "subject": "[R-sig-Debian] how to convert source code in windows package\tfor linux (ubuntu)",
+      "subject_clean": "how to convert source code in windows package\tfor linux (ubuntu)",
+      "in_reply_to": "<64ac70450810101542n12ad6f00o7e9bf4a7b32cd930@mail.gmail.com>",
+      "references": [
+        "<64ac70450810101313m2238d12kff12b07a37bb26d0@mail.gmail.com>",
+        "<40e66e0b0810101405l68369070vb16a962c14a62633@mail.gmail.com>",
+        "<64ac70450810101542n12ad6f00o7e9bf4a7b32cd930@mail.gmail.com>"
+      ],
+      "body_plain": "On 10 October 2008 at 15:42, Josh Harmsen wrote:\n| The package is RSAGA http://cran.r-project.org/web/packages/RSAGA/index.html\n| \n| CRAN does have the package source available, which is what I want to\n| get to work in R on a Ubuntu Hardy 64bit.  If the process is trivial\n| could you guide me through it or point me to a resource that explains\n| it?\n\nNot knowing anything about the particular details of this package I'd refer\nyou to what the package author clearly states in the DESCRIPTION info for the\npackage that is available at the URL you provide that:\n\n\tSystemRequirements: \tWindows, SAGA (>=2.0.2)\n\nTo make that even more plain, RSAGA depends \n\n\ta) on SAGA (do you have that on Ubuntu amd64 ?),  and \n\n\tb) on Windows.  \n\nYou are, in other words, out of luck.  \n\nLook into virtualbox, a rather nice virtualization package included in Ubuntu\nin the 'open source edition' and look into installing a Windows session\ninside your Ubuntu system. You can share folders etc pp.  Maybe that can help\nyou.\n\nDirk\n\n-- \nThree out of two people have difficulties with fractions.",
+      "body_snippet": "On 10 October 2008 at 15:42, Josh Harmsen wrote:\n| The package is RSAGA http://cran.r-project.org/web/packages/RSAGA/index.html\n| \n| CRAN does have the package source available, which is what I want t",
+      "thread_id": "thread-2eff819180d0",
+      "thread_depth": 3,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-1ce1dc3a74ba",
+      "message_id": "<64ac70450810111030q231445a4k78939b3034a69828@mail.gmail.com>",
+      "from_name": "Josh Harmsen",
+      "from_email_hash": "b9475bd24e9fe71194d36a54a79a8bdf1b52c808383ee3eced50ddb29645f782",
+      "date": "2008-10-11T10:30:12-07:00",
+      "subject": "[R-sig-Debian] how to convert source code in windows package for linux (ubuntu)",
+      "subject_clean": "how to convert source code in windows package for linux (ubuntu)",
+      "in_reply_to": "<48F05730.7010202@uni-muenster.de>",
+      "references": [
+        "<64ac70450810101313m2238d12kff12b07a37bb26d0@mail.gmail.com>",
+        "<40e66e0b0810101405l68369070vb16a962c14a62633@mail.gmail.com>",
+        "<64ac70450810101542n12ad6f00o7e9bf4a7b32cd930@mail.gmail.com>",
+        "<18672.1591.259733.461950@ron.nulle.part>",
+        "<48F05730.7010202@uni-muenster.de>"
+      ],
+      "body_plain": "I've actually already had correspondence with the author, he thought\nit was possible to do, but asked me to find out what would be needed\nto get it in a Linux environment and I was going to get back to him.\nSAGA actually compiles nicely in Linux (the gui and cmd) and I have\nsuccessfully done this, so that should not be the issue.\n\nHere is what we have:\nR Source package for RSAGA (and author cced!)\nWindows Binary for RSAGA (no use to us)\nSAGA compiles for Ubuntu Hardy with no problems\n\nSo with this, what are the necessary steps?\n\nThanks,\n\nJosh\n\nOn Sat, Oct 11, 2008 at 12:35 AM, Edzer Pebesma\n<edzer.pebesma at uni-muenster.de> wrote:\n> The other option I would recommend is to contact the package author (Cc:),\n> and ask what he thinks would be needed to port RSAGA to linux. I'm not sure\n> about this, but I believe he or someone else once mentioned that SAGA (to\n> which RSAGA interfaces) has a command line interface that is only available\n> on the windows platform. If that is the case, SAGA would be the project to\n> push first to get this running under linux.\n> --\n> Edzer\n>\n> Dirk Eddelbuettel wrote:\n>>\n>> On 10 October 2008 at 15:42, Josh Harmsen wrote:\n>> | The package is RSAGA\n>> http://cran.r-project.org/web/packages/RSAGA/index.html\n>> | | CRAN does have the package source available, which is what I want to\n>> | get to work in R on a Ubuntu Hardy 64bit.  If the process is trivial\n>> | could you guide me through it or point me to a resource that explains\n>> | it?\n>>\n>> Not knowing anything about the particular details of this package I'd\n>> refer\n>> you to what the package author clearly states in the DESCRIPTION info for\n>> the\n>> package that is available at the URL you provide that:\n>>\n>>        SystemRequirements:     Windows, SAGA (>=2.0.2)\n>>\n>> To make that even more plain, RSAGA depends\n>>        a) on SAGA (do you have that on Ubuntu amd64 ?),  and\n>>        b) on Windows.\n>> You are, in other words, out of luck.\n>> Look into virtualbox, a rather nice virtualization package included in\n>> Ubuntu\n>> in the 'open source edition' and look into installing a Windows session\n>> inside your Ubuntu system. You can share folders etc pp.  Maybe that can\n>> help\n>> you.\n>>\n>> Dirk\n>>\n>>\n>\n> --\n> Edzer Pebesma\n> Institute for Geoinformatics (ifgi), University of M?nster,\n> Weseler Stra?e 253, 48151 M?nster, Germany.  Phone: +49 251\n> 8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de/\n> http://www.springer.com/978-0-387-78170-9\n>\n>",
+      "body_snippet": "I've actually already had correspondence with the author, he thought\nit was possible to do, but asked me to find out what would be needed\nto get it in a Linux environment and I was going to get back t",
+      "thread_id": "thread-1ce1dc3a74ba",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-143bf0704581",
+      "message_id": "<18673.690.147966.373068@ron.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2008-10-11T14:46:58-05:00",
+      "subject": "[R-sig-Debian] how to convert source code in windows package for linux (ubuntu)",
+      "subject_clean": "how to convert source code in windows package for linux (ubuntu)",
+      "in_reply_to": "<48F0EC95.1040400@uni-muenster.de>",
+      "references": [
+        "<64ac70450810101313m2238d12kff12b07a37bb26d0@mail.gmail.com>",
+        "<40e66e0b0810101405l68369070vb16a962c14a62633@mail.gmail.com>",
+        "<64ac70450810101542n12ad6f00o7e9bf4a7b32cd930@mail.gmail.com>",
+        "<18672.1591.259733.461950@ron.nulle.part>",
+        "<48F05730.7010202@uni-muenster.de>",
+        "<64ac70450810111030q231445a4k78939b3034a69828@mail.gmail.com>",
+        "<48F0EC95.1040400@uni-muenster.de>"
+      ],
+      "body_plain": "On 11 October 2008 at 20:12, Edzer J. Pebesma wrote:\n| something like\n| \n| R CMD INSTALL RSAGA_version_x.y.tar.gz\n| \n| possibly preceded with a \"sudo\", so that it becomes installed \n| system-wide. And then see if it works!\n\nYup, and if it doesn't, try to debug where maybe Windows-specific commands or\nsettings are used.  It should be easy to overcome this -- many R packages do.\n\nDirk\n\n| --\n| Edzer\n| \n| Josh Harmsen wrote:\n| > I've actually already had correspondence with the author, he thought\n| > it was possible to do, but asked me to find out what would be needed\n| > to get it in a Linux environment and I was going to get back to him.\n| > SAGA actually compiles nicely in Linux (the gui and cmd) and I have\n| > successfully done this, so that should not be the issue.\n| >\n| > Here is what we have:\n| > R Source package for RSAGA (and author cced!)\n| > Windows Binary for RSAGA (no use to us)\n| > SAGA compiles for Ubuntu Hardy with no problems\n| >\n| > So with this, what are the necessary steps?\n| >\n| > Thanks,\n| >\n| > Josh\n| >\n| > On Sat, Oct 11, 2008 at 12:35 AM, Edzer Pebesma\n| > <edzer.pebesma at uni-muenster.de> wrote:\n| >   \n| >> The other option I would recommend is to contact the package author (Cc:),\n| >> and ask what he thinks would be needed to port RSAGA to linux. I'm not sure\n| >> about this, but I believe he or someone else once mentioned that SAGA (to\n| >> which RSAGA interfaces) has a command line interface that is only available\n| >> on the windows platform. If that is the case, SAGA would be the project to\n| >> push first to get this running under linux.\n| >> --\n| >> Edzer\n| >>\n| >> Dirk Eddelbuettel wrote:\n| >>     \n| >>> On 10 October 2008 at 15:42, Josh Harmsen wrote:\n| >>> | The package is RSAGA\n| >>> http://cran.r-project.org/web/packages/RSAGA/index.html\n| >>> | | CRAN does have the package source available, which is what I want to\n| >>> | get to work in R on a Ubuntu Hardy 64bit.  If the process is trivial\n| >>> | could you guide me through it or point me to a resource that explains\n| >>> | it?\n| >>>\n| >>> Not knowing anything about the particular details of this package I'd\n| >>> refer\n| >>> you to what the package author clearly states in the DESCRIPTION info for\n| >>> the\n| >>> package that is available at the URL you provide that:\n| >>>\n| >>>        SystemRequirements:     Windows, SAGA (>=2.0.2)\n| >>>\n| >>> To make that even more plain, RSAGA depends\n| >>>        a) on SAGA (do you have that on Ubuntu amd64 ?),  and\n| >>>        b) on Windows.\n| >>> You are, in other words, out of luck.\n| >>> Look into virtualbox, a rather nice virtualization package included in\n| >>> Ubuntu\n| >>> in the 'open source edition' and look into installing a Windows session\n| >>> inside your Ubuntu system. You can share folders etc pp.  Maybe that can\n| >>> help\n| >>> you.\n| >>>\n| >>> Dirk\n| >>>\n| >>>\n| >>>       \n| >> --\n| >> Edzer Pebesma\n| >> Institute for Geoinformatics (ifgi), University of M?nster,\n| >> Weseler Stra?e 253, 48151 M?nster, Germany.  Phone: +49 251\n| >> 8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de/\n| >> http://www.springer.com/978-0-387-78170-9\n| >>\n| >>\n| >>     \n| \n\n-- \nThree out of two people have difficulties with fractions.",
+      "body_snippet": "On 11 October 2008 at 20:12, Edzer J. Pebesma wrote:\n| something like\n| \n| R CMD INSTALL RSAGA_version_x.y.tar.gz\n| \n| possibly preceded with a \"sudo\", so that it becomes installed \n| system-wide. And",
+      "thread_id": "thread-143bf0704581",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-b712b5bc1de9",
+      "message_id": "<72e8303a0810131237o74295dc9v4c85778eecb709d3@mail.gmail.com>",
+      "from_name": "Dale Steele",
+      "from_email_hash": "1469f27bb70baca2eac4cf9ee8308901cdd083158a48cd83839dff2338d5a4c1",
+      "date": "2008-10-13T15:37:01-04:00",
+      "subject": "[R-sig-Debian] building R with goto BLAS on Ubuntu 8.04",
+      "subject_clean": "building R with goto BLAS on Ubuntu 8.04",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "I have successfully built R version 2.8.0 RC (2008-10-13 r46702) from\nsubversion director on Ubuntu 8.04.  I would like to build a version\nwhich uses goto BLAS.\n\nThus far, I've downloaded the academic version of goto blas and run\nthe quickbuild command on my system:\n\n     ./quickbuild.32bit\n\nThis command is successful creates a file:\n\n     libgoto_baniasp-r1.26.so\n\nI'm a little vague on how to proceed.  Thanks.  --Dale",
+      "body_snippet": "I have successfully built R version 2.8.0 RC (2008-10-13 r46702) from\nsubversion director on Ubuntu 8.04.  I would like to build a version\nwhich uses goto BLAS.\n\nThus far, I've downloaded the academic",
+      "thread_id": "thread-b712b5bc1de9",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-d9225c8a8ea1",
+      "message_id": "<1223941142.4796.5.camel@sib-sblomber01d.sib.uq.edu.au>",
+      "from_name": "Simon Blomberg",
+      "from_email_hash": "6c7dda090419d9b6565b77a5e8c6e7e842cd8a8eeed9e19fcec3fce096932e07",
+      "date": "2008-10-14T09:39:02+10:00",
+      "subject": "[R-sig-Debian] problem with update.packages",
+      "subject_clean": "problem with update.packages",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi, is anyone else getting this error? Could this be a bug?:\n\n> update.packages(ask=FALSE)\nError in read.dcf(pkgpath, fields = fields) : \n  Line starting 'unix; ...' is malformed!\n\n> sessionInfo()\nR version 2.8.0 RC (2008-10-12 r46696) \nx86_64-pc-linux-gnu \n\nlocale:\nLC_CTYPE=en_AU.UTF-8;LC_NUMERIC=C;LC_TIME=en_AU.UTF-8;LC_COLLATE=en_AU.UTF-8;LC_MONETARY=C;LC_MESSAGES=en_AU.UTF-8;LC_PAPER=en_AU.UTF-8;LC_NAME=C;LC_ADDRESS=C;LC_TELEPHONE=C;LC_MEASUREMENT=en_AU.UTF-8;LC_IDENTIFICATION=C\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods\nbase     \n\nloaded via a namespace (and not attached):\n[1] tools_2.8.0\n>\n\nSimon.\n-- \nSimon Blomberg, BSc (Hons), PhD, MAppStat. \nLecturer and Consultant Statistician \nFaculty of Biological and Chemical Sciences \nThe University of Queensland \nSt. Lucia Queensland 4072 \nAustralia\nRoom 320 Goddard Building (8)\nT: +61 7 3365 2506\nhttp://www.uq.edu.au/~uqsblomb\nemail: S.Blomberg1_at_uq.edu.au\n\nPolicies:\n1.  I will NOT analyse your data for you.\n2.  Your deadline is your problem.\n\nThe combination of some data and an aching desire for \nan answer does not ensure that a reasonable answer can \nbe extracted from a given body of data. - John Tukey.",
+      "body_snippet": "Hi, is anyone else getting this error? Could this be a bug?:\n\n> update.packages(ask=FALSE)\nError in read.dcf(pkgpath, fields = fields) : \n  Line starting 'unix; ...' is malformed!\n\n> sessionInfo()\nR v",
+      "thread_id": "thread-d9225c8a8ea1",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-d64c972959e5",
+      "message_id": "<18675.59284.745679.665652@ron.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2008-10-13T19:28:04-05:00",
+      "subject": "[R-sig-Debian] building R with goto BLAS on Ubuntu 8.04",
+      "subject_clean": "building R with goto BLAS on Ubuntu 8.04",
+      "in_reply_to": "<72e8303a0810131237o74295dc9v4c85778eecb709d3@mail.gmail.com>",
+      "references": [
+        "<72e8303a0810131237o74295dc9v4c85778eecb709d3@mail.gmail.com>"
+      ],
+      "body_plain": "On 13 October 2008 at 15:37, Dale Steele wrote:\n| I have successfully built R version 2.8.0 RC (2008-10-13 r46702) from\n| subversion director on Ubuntu 8.04.  I would like to build a version\n| which uses goto BLAS.\n| \n| Thus far, I've downloaded the academic version of goto blas and run\n| the quickbuild command on my system:\n| \n|      ./quickbuild.32bit\n| \n| This command is successful creates a file:\n| \n|      libgoto_baniasp-r1.26.so\n| \n| I'm a little vague on how to proceed.  Thanks.  --Dale\n\nAs you know, Goto is not in Debian due to its non-free nature, so I do not\nknow how many of are in position to help you there _with Debian-specific\nadvice_. \n\nI would suggest to study the relevant section in the R Admin manual that\ncovers this.  It may be as simple as install / soft-linking your\nlibgoto_baniasp-r1.26.so as libblas.so in /usr/local/lib (or some other\nplace) and ensuring that ld.so looks there before it looks in the usual\nplaces. But as I haven't tried this myself, take this with a grain of salt.\n\nGood luck,  Dirk\n\n-- \nThree out of two people have difficulties with fractions.",
+      "body_snippet": "On 13 October 2008 at 15:37, Dale Steele wrote:\n| I have successfully built R version 2.8.0 RC (2008-10-13 r46702) from\n| subversion director on Ubuntu 8.04.  I would like to build a version\n| which u",
+      "thread_id": "thread-b712b5bc1de9",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-de62681a2c99",
+      "message_id": "<18675.59846.831146.777619@ron.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2008-10-13T19:37:26-05:00",
+      "subject": "[R-sig-Debian] problem with update.packages",
+      "subject_clean": "problem with update.packages",
+      "in_reply_to": "<1223941142.4796.5.camel@sib-sblomber01d.sib.uq.edu.au>",
+      "references": [
+        "<1223941142.4796.5.camel@sib-sblomber01d.sib.uq.edu.au>"
+      ],
+      "body_plain": "On 14 October 2008 at 09:39, Simon Blomberg wrote:\n| Hi, is anyone else getting this error? Could this be a bug?:\n| \n| > update.packages(ask=FALSE)\n| Error in read.dcf(pkgpath, fields = fields) : \n|   Line starting 'unix; ...' is malformed!\n| \n| > sessionInfo()\n| R version 2.8.0 RC (2008-10-12 r46696) \n| x86_64-pc-linux-gnu \n\nConfirmed in plain R using the same package built this morning from last\nnight's tarball from Denmark:  Running update.packages() yields:\n\n> update.packages()\n--- Please select a CRAN mirror for use in this session ---\nLoading Tcl/Tk interface ... done\nError in read.dcf(pkgpath, fields = fields) :\n  Line starting 'unix; ...' is malformed!\n\n\nOTOH I don't have a problem running my 'update.r' script (included in littler as\n/usr/share/doc/littler/examples/update.r) which just downloaded / upgraded\nten packages. It is equivalent to calling \n\n> repos <- \"http://cran.r-project.org\"\n> lib.loc <- \"/usr/local/lib/R/site-library\"\n> update.packages(repos=repos, ask=FALSE, lib.loc=lib.loc)\n\nand that sequence also works in plain R.  Could someone please dig into\nupdate.packages() ? \n\nDirk \n\n-- \nThree out of two people have difficulties with fractions.",
+      "body_snippet": "On 14 October 2008 at 09:39, Simon Blomberg wrote:\n| Hi, is anyone else getting this error? Could this be a bug?:\n| \n| > update.packages(ask=FALSE)\n| Error in read.dcf(pkgpath, fields = fields) : \n|  ",
+      "thread_id": "thread-d9225c8a8ea1",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-9f7bb97c60ce",
+      "message_id": "<48F3F1A7.4040607@psu.edu>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "bd1396b991d78727494403026cbf79f8837f468d360f36623deeff192b510eb4",
+      "date": "2008-10-13T21:11:03-04:00",
+      "subject": "[R-sig-Debian] problem with update.packages",
+      "subject_clean": "problem with update.packages",
+      "in_reply_to": "<18675.59846.831146.777619@ron.nulle.part>",
+      "references": [
+        "<1223941142.4796.5.camel@sib-sblomber01d.sib.uq.edu.au>",
+        "<18675.59846.831146.777619@ron.nulle.part>"
+      ],
+      "body_plain": "Dirk Eddelbuettel wrote:\n> On 14 October 2008 at 09:39, Simon Blomberg wrote:\n> | Hi, is anyone else getting this error? Could this be a bug?:\n> | \n> | > update.packages(ask=FALSE)\n> | Error in read.dcf(pkgpath, fields = fields) : \n> |   Line starting 'unix; ...' is malformed!\n> | \n> | > sessionInfo()\n> | R version 2.8.0 RC (2008-10-12 r46696) \n> | x86_64-pc-linux-gnu \n> \n> Confirmed in plain R using the same package built this morning from last\n> night's tarball from Denmark:  Running update.packages() yields:\n> \n>> update.packages()\n> --- Please select a CRAN mirror for use in this session ---\n> Loading Tcl/Tk interface ... done\n> Error in read.dcf(pkgpath, fields = fields) :\n>   Line starting 'unix; ...' is malformed!\n\nJust built hardy amd64 packages, and I do not receive this error message \nand was able to update packages with no issues.  It was R version 2.8.0 \nRC (2008-10-12 r46696).  Not sure what I have done differently, just \nused the same scripts we have been using to build ubuntu packages.\n\nMichael\n-- \nDr. Michael A. Rutter\nSchool of Science\nPenn State Erie, The Behrend College\nStation Road\nErie, PA 16563\nhttp://math.bd.psu.edu/faculty/rutter",
+      "body_snippet": "Dirk Eddelbuettel wrote:\n> On 14 October 2008 at 09:39, Simon Blomberg wrote:\n> | Hi, is anyone else getting this error? Could this be a bug?:\n> | \n> | > update.packages(ask=FALSE)\n> | Error in read.d",
+      "thread_id": "thread-d9225c8a8ea1",
+      "thread_depth": 2,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-0f4d61568d5e",
+      "message_id": "<87bpxom0jl.fsf@patagonia.sebmags.homelinux.org>",
+      "from_name": "Sebastian P. Luque",
+      "from_email_hash": "2cd4815ed8883e0c35c16bacf1be9d88d662c4a9f03492384d48d7b9ac92a1d5",
+      "date": "2008-10-13T20:24:14-05:00",
+      "subject": "[R-sig-Debian] problem with update.packages",
+      "subject_clean": "problem with update.packages",
+      "in_reply_to": null,
+      "references": [
+        "<1223941142.4796.5.camel@sib-sblomber01d.sib.uq.edu.au>"
+      ],
+      "body_plain": "On Tue, 14 Oct 2008 09:39:02 +1000,\nSimon Blomberg <s.blomberg1 at uq.edu.au> wrote:\n\n> Hi, is anyone else getting this error? Could this be a bug?:\n\n[...]\n\nNo problems here with my local library (to avoid collisions with the\nDebian proper packages in my site wide library):\n\n---<---------------cut here---------------start-------------->---\nR> update.packages(\"/usr/local/lib/R/site-library\", ask=FALSE)\nR> sessionInfo()\nR version 2.8.0 RC (2008-10-12 r46696)\nx86_64-pc-linux-gnu\n\nlocale:\nLC_CTYPE=en_CA.UTF-8;LC_NUMERIC=C;LC_TIME=en_CA.UTF-8;LC_COLLATE=en_CA.UTF-8;LC_MONETARY=C;LC_MESSAGES=en_CA.UTF-8;LC_PAPER=en_CA.UTF-8;LC_NAME=C;LC_ADDRESS=C;LC_TELEPHONE=C;LC_MEASUREMENT=en_CA.UTF-8;LC_IDENTIFICATION=C\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base\n\nother attached packages:\n[1] lattice_0.17-15\n\nloaded via a namespace (and not attached):\n[1] grid_2.8.0  tools_2.8.0\n---<---------------cut here---------------end---------------->---\n\n\n\nCheers,\n\n-- \nSeb",
+      "body_snippet": "On Tue, 14 Oct 2008 09:39:02 +1000,\nSimon Blomberg <s.blomberg1 at uq.edu.au> wrote:\n\n> Hi, is anyone else getting this error? Could this be a bug?:\n\n[...]\n\nNo problems here with my local library (to ",
+      "thread_id": "thread-d9225c8a8ea1",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-84146d5c3ad2",
+      "message_id": "<18676.36929.70542.752650@ron.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2008-10-14T07:27:45-05:00",
+      "subject": "[R-sig-Debian] [Rd]  problem with update.packages (PR#13161)",
+      "subject_clean": "problem with update.packages (PR#13161)",
+      "in_reply_to": "<alpine.LFD.2.00.0810141237240.27368@gannet.stats.ox.ac.uk>",
+      "references": [
+        "<20081014004005.F12F2282EF48@mail.pubhealth.ku.dk>",
+        "<48F44CE8.3080409@biostat.ku.dk>",
+        "<alpine.LFD.2.00.0810140845150.20953@gannet.stats.ox.ac.uk>",
+        "<18676.33731.948767.124281@ron.nulle.part>",
+        "<alpine.LFD.2.00.0810141237240.27368@gannet.stats.ox.ac.uk>"
+      ],
+      "body_plain": "On 14 October 2008 at 12:38, Prof Brian Ripley wrote:\n| The error is on installed.packages(): you have a faulty package installed.\n\nConfirmed. That explains why my update.r from littler worked as it looked\nonly at /usr/local/lib/R/.  Being more explicit about lib.loc I get:\n\n> update.packages(repos=\"http://cran.r-project.org\", lib.loc=\"/usr/lib/R/site-library\")\nError in read.dcf(pkgpath, fields = fields) : \n  Line starting 'unix; ...' is malformed!\n> update.packages(repos=\"http://cran.r-project.org\", lib.loc=\"/usr/lib/R/library\")\nboot :\n Version 1.2-33 installed in /usr/lib/R/library \n Version 1.2-34 available at http://cran.r-project.org\nUpdate (y/N/c)?  n\n[...]\n> \n\nBut how do I find out which package this is, and why did R 2.7.2 didn't fall\nover?\n\nDirk\n\n| \n| On Tue, 14 Oct 2008, Dirk Eddelbuettel wrote:\n| \n| >\n| > On 14 October 2008 at 10:09, Prof Brian Ripley wrote:\n| > | On Tue, 14 Oct 2008, Peter Dalgaard wrote:\n| > |\n| > | > edd at debian.org wrote:\n| > | >> On 14 October 2008 at 09:39, Simon Blomberg wrote:\n| > | >> | Hi, is anyone else getting this error? Could this be a bug?:\n| > | >> | | > update.packages(ask=FALSE)\n| > | >> | Error in read.dcf(pkgpath, fields = fields) : |   Line starting 'unix;\n| > | >> ...' is malformed!\n| > | >> | | > sessionInfo()\n| > | >> | R version 2.8.0 RC (2008-10-12 r46696) | x86_64-pc-linux-gnu\n| > | >> Confirmed in plain R using the same package built this morning from last\n| > | >> night's tarball from Denmark:  Running update.packages() yields:\n| > | >>\n| > | >>> update.packages()\n| > | >> --- Please select a CRAN mirror for use in this session ---\n| > | >> Loading Tcl/Tk interface ... done\n| > | >> Error in read.dcf(pkgpath, fields = fields) :\n| > | >>   Line starting 'unix; ...' is malformed!\n| > | >>\n| > | >>\n| > | >> OTOH I don't have a problem running my 'update.r' script (included in\n| > | >> littler as\n| > | >> /usr/share/doc/littler/examples/update.r) which just downloaded / upgraded\n| > | >> ten packages. It is equivalent to calling\n| > | >>> repos <- \"http://cran.r-project.org\"\n| > | >>> lib.loc <- \"/usr/local/lib/R/site-library\"\n| > | >>> update.packages(repos=repos, ask=FALSE, lib.loc=lib.loc)\n| > | >>\n| > | >> and that sequence also works in plain R.  Could someone please dig into\n| > | >> update.packages() ?\n| > | >> Dirk\n| > | >\n| > | > Hmm, some of us are wary of running update.packages() in non-production\n| > | > versions. Is the problem perhaps originating in getCRANmirors() or\n| > | > chooseCRANmirror()?\n| > |\n| > | (Neither of those read DCF files: my expectation is that this is\n| > | available.packages() reading a DCF file downloaded from a CRAN mirror.)\n| > |\n| > | I do use update.packages() daily on pre-2.8.0 and I have not seen a\n| > | problem.  (I keep a separate package installation for test versions.)\n| > |\n| > | Can we please have some useful debugging info, e.g. the result of\n| > | traceback() and which CRAN mirror is being used?  I suspect a problem with\n| > | downloading PACKAGES.gz resulting in a corrupt file (possibly because it\n| > | was corrupt on the mirror).\n| >\n| > Quite possible. This is a fresh failure picking the 'US (MI)' mirror:\n| >\n| >> update.packages()\n| > --- Please select a CRAN mirror for use in this session ---\n| > Loading Tcl/Tk interface ... done\n| > Error in read.dcf(pkgpath, fields = fields) :\n| >  Line starting 'unix; ...' is malformed!\n| >> traceback()\n| > 6: read.dcf(pkgpath, fields = fields)\n| > 5: .readPkgDesc(lib, fields)\n| > 4: installed.packages(lib.loc = lib.loc)\n| > 3: NROW(instPkgs)\n| > 2: old.packages(lib.loc = lib.loc, contriburl = contriburl, method = method,\n| >       available = available, checkBuilt = checkBuilt)\n| > 1: update.packages()\n| >>\n| >\n| > But if I then re-run chooseCRANmirror() and pick Austria, it still fails:\n| >\n| >> chooseCRANmirror()\n| >> update.packages()\n| > Error in read.dcf(pkgpath, fields = fields) :\n| >  Line starting 'unix; ...' is malformed!\n| >>\n| >\n| > yielding the same traceback.\n| >\n| > Dirk\n| >\n| > -- \n| > Three out of two people have difficulties with fractions.\n| >\n| \n| -- \n| Brian D. Ripley,                  ripley at stats.ox.ac.uk\n| Professor of Applied Statistics,  http://www.stats.ox.ac.uk/~ripley/\n| University of Oxford,             Tel:  +44 1865 272861 (self)\n| 1 South Parks Road,                     +44 1865 272866 (PA)\n| Oxford OX1 3TG, UK                Fax:  +44 1865 272595\n\n-- \nThree out of two people have difficulties with fractions.",
+      "body_snippet": "On 14 October 2008 at 12:38, Prof Brian Ripley wrote:\n| The error is on installed.packages(): you have a faulty package installed.\n\nConfirmed. That explains why my update.r from littler worked as it l",
+      "thread_id": "thread-84146d5c3ad2",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-b070128d8abd",
+      "message_id": "<18676.37695.179569.496596@ron.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2008-10-14T07:40:31-05:00",
+      "subject": "[R-sig-Debian] [Rd]  problem with update.packages (PR#13161)",
+      "subject_clean": "problem with update.packages (PR#13161)",
+      "in_reply_to": "<18676.36929.70542.752650@ron.nulle.part>",
+      "references": [
+        "<20081014004005.F12F2282EF48@mail.pubhealth.ku.dk>",
+        "<48F44CE8.3080409@biostat.ku.dk>",
+        "<alpine.LFD.2.00.0810140845150.20953@gannet.stats.ox.ac.uk>",
+        "<18676.33731.948767.124281@ron.nulle.part>",
+        "<alpine.LFD.2.00.0810141237240.27368@gannet.stats.ox.ac.uk>",
+        "<18676.36929.70542.752650@ron.nulle.part>"
+      ],
+      "body_plain": "On 14 October 2008 at 07:27, Dirk Eddelbuettel wrote:\n| \n| On 14 October 2008 at 12:38, Prof Brian Ripley wrote:\n| | The error is on installed.packages(): you have a faulty package installed.\n| \n| Confirmed. That explains why my update.r from littler worked as it looked\n| only at /usr/local/lib/R/.  Being more explicit about lib.loc I get:\n| \n| > update.packages(repos=\"http://cran.r-project.org\", lib.loc=\"/usr/lib/R/site-library\")\n| Error in read.dcf(pkgpath, fields = fields) : \n|   Line starting 'unix; ...' is malformed!\n| > update.packages(repos=\"http://cran.r-project.org\", lib.loc=\"/usr/lib/R/library\")\n| boot :\n|  Version 1.2-33 installed in /usr/lib/R/library \n|  Version 1.2-34 available at http://cran.r-project.org\n| Update (y/N/c)?  n\n| [...]\n| > \n| \n| But how do I find out which package this is, and why did R 2.7.2 didn't fall\n| over?\n\nFound it -- it was the non-CRAN package 'sg' for the Shogun toolbox.\n\nSoeren: There is a bug the in the DESCRIPTION file of shogun-r version\n0.6.3-1: It needs to keep this on one line:\n\n\tBuilt: 2.7.1; i486-pc-linux-gnu; > .Platform[1]\n\tunix;\n\nor else R's internal updates fail on R 2.8.0 onwards as reported by Simon on\nr-sig-debian yesterday.\n\nR-Core: Please close the bug report on R's side, and thanks as always to BDR\nfor being spot-on in the analysis.\n\nDirk\n \n| Dirk\n| \n| | \n| | On Tue, 14 Oct 2008, Dirk Eddelbuettel wrote:\n| | \n| | >\n| | > On 14 October 2008 at 10:09, Prof Brian Ripley wrote:\n| | > | On Tue, 14 Oct 2008, Peter Dalgaard wrote:\n| | > |\n| | > | > edd at debian.org wrote:\n| | > | >> On 14 October 2008 at 09:39, Simon Blomberg wrote:\n| | > | >> | Hi, is anyone else getting this error? Could this be a bug?:\n| | > | >> | | > update.packages(ask=FALSE)\n| | > | >> | Error in read.dcf(pkgpath, fields = fields) : |   Line starting 'unix;\n| | > | >> ...' is malformed!\n| | > | >> | | > sessionInfo()\n| | > | >> | R version 2.8.0 RC (2008-10-12 r46696) | x86_64-pc-linux-gnu\n| | > | >> Confirmed in plain R using the same package built this morning from last\n| | > | >> night's tarball from Denmark:  Running update.packages() yields:\n| | > | >>\n| | > | >>> update.packages()\n| | > | >> --- Please select a CRAN mirror for use in this session ---\n| | > | >> Loading Tcl/Tk interface ... done\n| | > | >> Error in read.dcf(pkgpath, fields = fields) :\n| | > | >>   Line starting 'unix; ...' is malformed!\n| | > | >>\n| | > | >>\n| | > | >> OTOH I don't have a problem running my 'update.r' script (included in\n| | > | >> littler as\n| | > | >> /usr/share/doc/littler/examples/update.r) which just downloaded / upgraded\n| | > | >> ten packages. It is equivalent to calling\n| | > | >>> repos <- \"http://cran.r-project.org\"\n| | > | >>> lib.loc <- \"/usr/local/lib/R/site-library\"\n| | > | >>> update.packages(repos=repos, ask=FALSE, lib.loc=lib.loc)\n| | > | >>\n| | > | >> and that sequence also works in plain R.  Could someone please dig into\n| | > | >> update.packages() ?\n| | > | >> Dirk\n| | > | >\n| | > | > Hmm, some of us are wary of running update.packages() in non-production\n| | > | > versions. Is the problem perhaps originating in getCRANmirors() or\n| | > | > chooseCRANmirror()?\n| | > |\n| | > | (Neither of those read DCF files: my expectation is that this is\n| | > | available.packages() reading a DCF file downloaded from a CRAN mirror.)\n| | > |\n| | > | I do use update.packages() daily on pre-2.8.0 and I have not seen a\n| | > | problem.  (I keep a separate package installation for test versions.)\n| | > |\n| | > | Can we please have some useful debugging info, e.g. the result of\n| | > | traceback() and which CRAN mirror is being used?  I suspect a problem with\n| | > | downloading PACKAGES.gz resulting in a corrupt file (possibly because it\n| | > | was corrupt on the mirror).\n| | >\n| | > Quite possible. This is a fresh failure picking the 'US (MI)' mirror:\n| | >\n| | >> update.packages()\n| | > --- Please select a CRAN mirror for use in this session ---\n| | > Loading Tcl/Tk interface ... done\n| | > Error in read.dcf(pkgpath, fields = fields) :\n| | >  Line starting 'unix; ...' is malformed!\n| | >> traceback()\n| | > 6: read.dcf(pkgpath, fields = fields)\n| | > 5: .readPkgDesc(lib, fields)\n| | > 4: installed.packages(lib.loc = lib.loc)\n| | > 3: NROW(instPkgs)\n| | > 2: old.packages(lib.loc = lib.loc, contriburl = contriburl, method = method,\n| | >       available = available, checkBuilt = checkBuilt)\n| | > 1: update.packages()\n| | >>\n| | >\n| | > But if I then re-run chooseCRANmirror() and pick Austria, it still fails:\n| | >\n| | >> chooseCRANmirror()\n| | >> update.packages()\n| | > Error in read.dcf(pkgpath, fields = fields) :\n| | >  Line starting 'unix; ...' is malformed!\n| | >>\n| | >\n| | > yielding the same traceback.\n| | >\n| | > Dirk\n| | >\n| | > -- \n| | > Three out of two people have difficulties with fractions.\n| | >\n| | \n| | -- \n| | Brian D. Ripley,                  ripley at stats.ox.ac.uk\n| | Professor of Applied Statistics,  http://www.stats.ox.ac.uk/~ripley/\n| | University of Oxford,             Tel:  +44 1865 272861 (self)\n| | 1 South Parks Road,                     +44 1865 272866 (PA)\n| | Oxford OX1 3TG, UK                Fax:  +44 1865 272595\n| \n| -- \n| Three out of two people have difficulties with fractions.\n\n-- \nThree out of two people have difficulties with fractions.",
+      "body_snippet": "On 14 October 2008 at 07:27, Dirk Eddelbuettel wrote:\n| \n| On 14 October 2008 at 12:38, Prof Brian Ripley wrote:\n| | The error is on installed.packages(): you have a faulty package installed.\n| \n| Con",
+      "thread_id": "thread-84146d5c3ad2",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-628a53f09e70",
+      "message_id": "<64ac70450810141104o2624b5fcv5f68ebe8398e4a28@mail.gmail.com>",
+      "from_name": "Josh Harmsen",
+      "from_email_hash": "b9475bd24e9fe71194d36a54a79a8bdf1b52c808383ee3eced50ddb29645f782",
+      "date": "2008-10-14T11:04:31-07:00",
+      "subject": "[R-sig-Debian] how to convert source code in windows package for linux (ubuntu)",
+      "subject_clean": "how to convert source code in windows package for linux (ubuntu)",
+      "in_reply_to": "<18673.690.147966.373068@ron.nulle.part>",
+      "references": [
+        "<64ac70450810101313m2238d12kff12b07a37bb26d0@mail.gmail.com>",
+        "<40e66e0b0810101405l68369070vb16a962c14a62633@mail.gmail.com>",
+        "<64ac70450810101542n12ad6f00o7e9bf4a7b32cd930@mail.gmail.com>",
+        "<18672.1591.259733.461950@ron.nulle.part>",
+        "<48F05730.7010202@uni-muenster.de>",
+        "<64ac70450810111030q231445a4k78939b3034a69828@mail.gmail.com>",
+        "<48F0EC95.1040400@uni-muenster.de>",
+        "<18673.690.147966.373068@ron.nulle.part>"
+      ],
+      "body_plain": "Hi All,\n\nFirst off thanks to everyone for help on this, this is a great\ncommunity.  Currently R has been tied up on my Linux machine and I\ndon't think it will be free for a couple more days.  I'll let everyone\nknow if I can get this to work, so stay tuned!\n\nCheers,\n\nJosh\n\nOn Sat, Oct 11, 2008 at 12:46 PM, Dirk Eddelbuettel <edd at debian.org> wrote:\n>\n> On 11 October 2008 at 20:12, Edzer J. Pebesma wrote:\n> | something like\n> |\n> | R CMD INSTALL RSAGA_version_x.y.tar.gz\n> |\n> | possibly preceded with a \"sudo\", so that it becomes installed\n> | system-wide. And then see if it works!\n>\n> Yup, and if it doesn't, try to debug where maybe Windows-specific commands or\n> settings are used.  It should be easy to overcome this -- many R packages do.\n>\n> Dirk\n>\n> | --\n> | Edzer\n> |\n> | Josh Harmsen wrote:\n> | > I've actually already had correspondence with the author, he thought\n> | > it was possible to do, but asked me to find out what would be needed\n> | > to get it in a Linux environment and I was going to get back to him.\n> | > SAGA actually compiles nicely in Linux (the gui and cmd) and I have\n> | > successfully done this, so that should not be the issue.\n> | >\n> | > Here is what we have:\n> | > R Source package for RSAGA (and author cced!)\n> | > Windows Binary for RSAGA (no use to us)\n> | > SAGA compiles for Ubuntu Hardy with no problems\n> | >\n> | > So with this, what are the necessary steps?\n> | >\n> | > Thanks,\n> | >\n> | > Josh\n> | >\n> | > On Sat, Oct 11, 2008 at 12:35 AM, Edzer Pebesma\n> | > <edzer.pebesma at uni-muenster.de> wrote:\n> | >\n> | >> The other option I would recommend is to contact the package author (Cc:),\n> | >> and ask what he thinks would be needed to port RSAGA to linux. I'm not sure\n> | >> about this, but I believe he or someone else once mentioned that SAGA (to\n> | >> which RSAGA interfaces) has a command line interface that is only available\n> | >> on the windows platform. If that is the case, SAGA would be the project to\n> | >> push first to get this running under linux.\n> | >> --\n> | >> Edzer\n> | >>\n> | >> Dirk Eddelbuettel wrote:\n> | >>\n> | >>> On 10 October 2008 at 15:42, Josh Harmsen wrote:\n> | >>> | The package is RSAGA\n> | >>> http://cran.r-project.org/web/packages/RSAGA/index.html\n> | >>> | | CRAN does have the package source available, which is what I want to\n> | >>> | get to work in R on a Ubuntu Hardy 64bit.  If the process is trivial\n> | >>> | could you guide me through it or point me to a resource that explains\n> | >>> | it?\n> | >>>\n> | >>> Not knowing anything about the particular details of this package I'd\n> | >>> refer\n> | >>> you to what the package author clearly states in the DESCRIPTION info for\n> | >>> the\n> | >>> package that is available at the URL you provide that:\n> | >>>\n> | >>>        SystemRequirements:     Windows, SAGA (>=2.0.2)\n> | >>>\n> | >>> To make that even more plain, RSAGA depends\n> | >>>        a) on SAGA (do you have that on Ubuntu amd64 ?),  and\n> | >>>        b) on Windows.\n> | >>> You are, in other words, out of luck.\n> | >>> Look into virtualbox, a rather nice virtualization package included in\n> | >>> Ubuntu\n> | >>> in the 'open source edition' and look into installing a Windows session\n> | >>> inside your Ubuntu system. You can share folders etc pp.  Maybe that can\n> | >>> help\n> | >>> you.\n> | >>>\n> | >>> Dirk\n> | >>>\n> | >>>\n> | >>>\n> | >> --\n> | >> Edzer Pebesma\n> | >> Institute for Geoinformatics (ifgi), University of M?nster,\n> | >> Weseler Stra?e 253, 48151 M?nster, Germany.  Phone: +49 251\n> | >> 8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de/\n> | >> http://www.springer.com/978-0-387-78170-9\n> | >>\n> | >>\n> | >>\n> |\n>\n> --\n> Three out of two people have difficulties with fractions.\n>",
+      "body_snippet": "Hi All,\n\nFirst off thanks to everyone for help on this, this is a great\ncommunity.  Currently R has been tied up on my Linux machine and I\ndon't think it will be free for a couple more days.  I'll let",
+      "thread_id": "thread-143bf0704581",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-62743f4036de",
+      "message_id": "<48FFBD9B.5040309@blackmesacapital.com>",
+      "from_name": "Lars Hansen",
+      "from_email_hash": "4044c1a60e59b67bb96a18e01cf58be3c117f372ecabac5485da3255eb94a8bd",
+      "date": "2008-10-22T17:56:11-06:00",
+      "subject": "[R-sig-Debian] Problem with 2.8.0.-1hardy1",
+      "subject_clean": "Problem with 2.8.0.-1hardy1",
+      "in_reply_to": "<64ac70450810141104o2624b5fcv5f68ebe8398e4a28@mail.gmail.com>",
+      "references": [
+        "<64ac70450810101313m2238d12kff12b07a37bb26d0@mail.gmail.com>",
+        "<40e66e0b0810101405l68369070vb16a962c14a62633@mail.gmail.com>",
+        "<64ac70450810101542n12ad6f00o7e9bf4a7b32cd930@mail.gmail.com>",
+        "<18672.1591.259733.461950@ron.nulle.part>",
+        "<48F05730.7010202@uni-muenster.de>",
+        "<64ac70450810111030q231445a4k78939b3034a69828@mail.gmail.com>",
+        "<48F0EC95.1040400@uni-muenster.de>",
+        "<18673.690.147966.373068@ron.nulle.part>",
+        "<64ac70450810141104o2624b5fcv5f68ebe8398e4a28@mail.gmail.com>"
+      ],
+      "body_plain": "Hi,\n\nI just noticed that R 2.8.0 showed up as an update in Adept Updater. \nUnfortunately, it does not let me install it. It says r-base-dev and \nr-recommended are upgradable, but if I request the upgrade, it says \n\"BREAK (upgrade)\" in red letters in Requested column.\n\nI use Ubuntu 8.04 and have http://cran.mtu.edu/bin/linux/ubuntu in my \nrepo list.\n\nThanks,\nLars",
+      "body_snippet": "Hi,\n\nI just noticed that R 2.8.0 showed up as an update in Adept Updater. \nUnfortunately, it does not let me install it. It says r-base-dev and \nr-recommended are upgradable, but if I request the upgr",
+      "thread_id": "thread-143bf0704581",
+      "thread_depth": 2,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-b1a39cd170b4",
+      "message_id": "<48FFC2D6.6070609@psu.edu>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "bd1396b991d78727494403026cbf79f8837f468d360f36623deeff192b510eb4",
+      "date": "2008-10-22T20:18:30-04:00",
+      "subject": "[R-sig-Debian] Problem with 2.8.0.-1hardy1",
+      "subject_clean": "Problem with 2.8.0.-1hardy1",
+      "in_reply_to": "<48FFBD9B.5040309@blackmesacapital.com>",
+      "references": [
+        "<64ac70450810101313m2238d12kff12b07a37bb26d0@mail.gmail.com>",
+        "<40e66e0b0810101405l68369070vb16a962c14a62633@mail.gmail.com>",
+        "<64ac70450810101542n12ad6f00o7e9bf4a7b32cd930@mail.gmail.com>",
+        "<18672.1591.259733.461950@ron.nulle.part>",
+        "<48F05730.7010202@uni-muenster.de>",
+        "<64ac70450810111030q231445a4k78939b3034a69828@mail.gmail.com>",
+        "<48F0EC95.1040400@uni-muenster.de>",
+        "<18673.690.147966.373068@ron.nulle.part>",
+        "<64ac70450810141104o2624b5fcv5f68ebe8398e4a28@mail.gmail.com>",
+        "<48FFBD9B.5040309@blackmesacapital.com>"
+      ],
+      "body_plain": "Lars,\n\nIf you are using the amd64 build, all will be fine in about 12 hours. \nSlight delay in uploading the updates, but they should be synced soon.\n\nIf you are running i386 builds, then we have different issues.\n\nMichael\n\nLars Hansen wrote:\n> Hi,\n> \n> I just noticed that R 2.8.0 showed up as an update in Adept Updater. \n> Unfortunately, it does not let me install it. It says r-base-dev and \n> r-recommended are upgradable, but if I request the upgrade, it says \n> \"BREAK (upgrade)\" in red letters in Requested column.\n> \n> I use Ubuntu 8.04 and have http://cran.mtu.edu/bin/linux/ubuntu in my \n> repo list.\n> \n> Thanks,\n> Lars\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \nDr. Michael A. Rutter\nSchool of Science\nPenn State Erie, The Behrend College\nStation Road\nErie, PA 16563\nhttp://math.bd.psu.edu/faculty/rutter",
+      "body_snippet": "Lars,\n\nIf you are using the amd64 build, all will be fine in about 12 hours. \nSlight delay in uploading the updates, but they should be synced soon.\n\nIf you are running i386 builds, then we have diffe",
+      "thread_id": "thread-143bf0704581",
+      "thread_depth": 3,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-39ebe1f2b87f",
+      "message_id": "<7acc7a990810222236o3e114e6qfe81ee793bae9206@mail.gmail.com>",
+      "from_name": "Erin Hodgess",
+      "from_email_hash": "b26e9c7bfb605fed8b617b744d8476ab90f8218ca2710a5f80794303575b1adc",
+      "date": "2008-10-23T00:36:33-05:00",
+      "subject": "[R-sig-Debian] [R-sig-debian] dumb debian question",
+      "subject_clean": "dumb debian question",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi all!\n\nI have installed Debian on a partition of my desktop.  When I first\ninstalled it, I got the Debian logo, with the appropriate icons.  Now\nwhen I go into Debian, I just get a command line.\n\nWhat should I do to get to the regular screen, please?\n\nThanks,\nErin\n\n\n-- \nErin Hodgess\nAssociate Professor\nDepartment of Computer and Mathematical Sciences\nUniversity of Houston - Downtown\nmailto: erinm.hodgess at gmail.com",
+      "body_snippet": "Hi all!\n\nI have installed Debian on a partition of my desktop.  When I first\ninstalled it, I got the Debian logo, with the appropriate icons.  Now\nwhen I go into Debian, I just get a command line.\n\nWh",
+      "thread_id": "thread-39ebe1f2b87f",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-fcb1adfbd66e",
+      "message_id": "<4900877F.5020700@gmail.com>",
+      "from_name": "Christopher David Desjardins",
+      "from_email_hash": "146ae132847e3399f655f426f7dad2d8f2dc715b2899e844ca310438e7e769b9",
+      "date": "2008-10-23T09:17:35-05:00",
+      "subject": "[R-sig-Debian] [R-sig-debian] dumb debian question",
+      "subject_clean": "dumb debian question",
+      "in_reply_to": "<7acc7a990810222236o3e114e6qfe81ee793bae9206@mail.gmail.com>",
+      "references": [
+        "<7acc7a990810222236o3e114e6qfe81ee793bae9206@mail.gmail.com>"
+      ],
+      "body_plain": "Hi Erin,\nI am a little confused about your question.  Is it about needing to run \nR from a terminal?  Or is the question that your computer isn't booting \nin to X but just a command prompt?  If it's the former, R doesn't have a \nGUI unless you install something like Rkward or you run R through emacs \n(install ess as for this).  There's other options as well.  Also, I \ndon't believe that GNOME or KDE in debian will add an R menu entry, \nperhaps the debian menu does?  Anyways you can always launch R by typing \nR in a terminal.\n\nIf this isn't your question and it's about not being able to load X \n(perhaps just typing something like startx would work and examing your \nlog files) then that's a different question and I didn't really answer \nit.  If your window manager or desktop manager doesn't load then you \nhave some problem with X.\nCheers,\nChris\n\nOn 10/23/2008 12:36 AM, Erin Hodgess wrote:\n> Hi all!\n>\n> I have installed Debian on a partition of my desktop.  When I first\n> installed it, I got the Debian logo, with the appropriate icons.  Now\n> when I go into Debian, I just get a command line.\n>\n> What should I do to get to the regular screen, please?\n>\n> Thanks,\n> Erin\n>\n>\n>",
+      "body_snippet": "Hi Erin,\nI am a little confused about your question.  Is it about needing to run \nR from a terminal?  Or is the question that your computer isn't booting \nin to X but just a command prompt?  If it's t",
+      "thread_id": "thread-39ebe1f2b87f",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-e10712f8d2a5",
+      "message_id": "<58eb85080810230742w11ed8194p6805f1672ca7237b@mail.gmail.com>",
+      "from_name": "Tomas Radivoyevitch",
+      "from_email_hash": "26e9cdaa8e41a12c013019ff4fac374ea9fd9302360fa655017d357e3de42127",
+      "date": "2008-10-23T10:42:00-04:00",
+      "subject": "[R-sig-Debian] [R-sig-debian] dumb debian question",
+      "subject_clean": "dumb debian question",
+      "in_reply_to": "<4900877F.5020700@gmail.com>",
+      "references": [
+        "<7acc7a990810222236o3e114e6qfe81ee793bae9206@mail.gmail.com>",
+        "<4900877F.5020700@gmail.com>"
+      ],
+      "body_plain": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20081023/24e67701/attachment.pl>",
+      "body_snippet": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20081023/24e67701/attachment.pl>",
+      "thread_id": "thread-39ebe1f2b87f",
+      "thread_depth": 2,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-8ffff3edfa53",
+      "message_id": "<20081027154532.GA7188@localdomain>",
+      "from_name": "Johannes Ranke",
+      "from_email_hash": "8d7dc9cf8d248719dcd9a94c124dab5545d72861321d11f36ce7fddb3c609524",
+      "date": "2008-10-27T16:45:32+01:00",
+      "subject": "[R-sig-Debian] R 2.8.0 for Debian etch",
+      "subject_clean": "R 2.8.0 for Debian etch",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Dear all,\n\nIt is my pleasure to announce the immediate availability of R 2.8.0\nfor the current Debian stable release on CRAN. Source packages and\nbinaries for i386 and amd64 are at your disposal.\n\nI also updated the README to include a short howto for using R 2.8.0 from\nunstable on testing (lenny), which is currently frozen. This currently pulls\nthe current pcre from unstable, next to the current R packages.\n\nBy removing references to Rdevices.h, I was able to provide updated packages\nof rkward 0.4.9a (i386 and amd64) and python-rpy (currently i386 only, amd64\nwill probably follow soon) as well. As usual, the latest recommended packages\nare updated, as well as littler and RODBC.\n\nPlease report any problems you might encounter to this list.\n\nKind regards,\n\nJohannes Ranke\n\n-- \nAlumnus of the University of Bremen\nhttp://www.uft.uni-bremen.de/chemie/ranke               jranke at uni-bremen.de",
+      "body_snippet": "Dear all,\n\nIt is my pleasure to announce the immediate availability of R 2.8.0\nfor the current Debian stable release on CRAN. Source packages and\nbinaries for i386 and amd64 are at your disposal.\n\nI a",
+      "thread_id": "thread-8ffff3edfa53",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-41918eb7a02a",
+      "message_id": "<3f1cfd830810271228y1194bef2v7c1966dc101fcd25@mail.gmail.com>",
+      "from_name": "Arnaud Battistella",
+      "from_email_hash": "165b4cf497cdd0820cd01006bae38a039040c4a2df54aedc8c8b7bd24ca2ef8a",
+      "date": "2008-10-27T20:28:07+01:00",
+      "subject": "[R-sig-Debian] r-cran-vars?",
+      "subject_clean": "r-cran-vars?",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20081027/c2b0c0f7/attachment.pl>",
+      "body_snippet": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20081027/c2b0c0f7/attachment.pl>",
+      "thread_id": "thread-41918eb7a02a",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-b39a4b2a3e04",
+      "message_id": "<1225136885.3823.5.camel@debian.Belkin>",
+      "from_name": "Christopher David Desjardins",
+      "from_email_hash": "146ae132847e3399f655f426f7dad2d8f2dc715b2899e844ca310438e7e769b9",
+      "date": "2008-10-27T14:48:05-05:00",
+      "subject": "[R-sig-Debian] r-cran-vars?",
+      "subject_clean": "r-cran-vars?",
+      "in_reply_to": "<3f1cfd830810271228y1194bef2v7c1966dc101fcd25@mail.gmail.com>",
+      "references": [
+        "<3f1cfd830810271228y1194bef2v7c1966dc101fcd25@mail.gmail.com>"
+      ],
+      "body_plain": "You could use install.packages().  What I usually do is download the\ntarball of interest from CRAN and as root run \n\nR CMD INSTALL foo.tar.gz\n\nThis will by default install to /usr/local/lib/R/site-library\n\nThen you can call it in R with library(foo)\n\nI believe you can specify where you want to install it to with the -l\noption.  ?Install for more details.\n\nCheers,\nChris\n\n\nOn Mon, 2008-10-27 at 20:28 +0100, Arnaud Battistella wrote:\n> Hi,\n> I was wondering what is the recommended way to install the \"vars\" package in\n> debian. And for that matter, how do you usually install R packages not\n> included in debian? I guess I could simply use install.packages() but I'm\n> afraid of ending up with several versions of the same package which could be\n> bad I guess... Any recommendation on how to go with this?\n> Thanks in advance for your help,\n> A.\n> \n> \t[[alternative HTML version deleted]]\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "You could use install.packages().  What I usually do is download the\ntarball of interest from CRAN and as root run \n\nR CMD INSTALL foo.tar.gz\n\nThis will by default install to /usr/local/lib/R/site-lib",
+      "thread_id": "thread-41918eb7a02a",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-84b03335e19a",
+      "message_id": "<18694.25232.972768.2142@ron.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2008-10-27T19:53:36-05:00",
+      "subject": "[R-sig-Debian] r-cran-vars?",
+      "subject_clean": "r-cran-vars?",
+      "in_reply_to": "<1225136885.3823.5.camel@debian.Belkin>",
+      "references": [
+        "<3f1cfd830810271228y1194bef2v7c1966dc101fcd25@mail.gmail.com>",
+        "<1225136885.3823.5.camel@debian.Belkin>"
+      ],
+      "body_plain": "On 27 October 2008 at 14:48, Christopher David Desjardins wrote:\n| You could use install.packages().  What I usually do is download the\n| tarball of interest from CRAN and as root run \n| \n| R CMD INSTALL foo.tar.gz\n\nCorrect, even though you have the manual download. And if you do 'sudo\napt-get install litter' you get r with examples below /usr/share.\n\nSo I usuall just do\n\n   $ sudo install.r foo\n\nwhich finds, downloads and installs foo from CRAN.  I set my default repo in\n~/.Rprofile.  \n\nLikewise we also have update.r in littler.  You need to copy, link or alias\nthese from /usr/share/doc/littler/examples to somewhere in your path,\ne.g. ~/bin (which you'd need to add to $PATH) or /usr/local/bin.\n \n| This will by default install to /usr/local/lib/R/site-library\n| \n| Then you can call it in R with library(foo)\n| \n| I believe you can specify where you want to install it to with the -l\n| option.  ?Install for more details.\n\nCorrect.\n\n| On Mon, 2008-10-27 at 20:28 +0100, Arnaud Battistella wrote:\n| > Hi,\n| > I was wondering what is the recommended way to install the \"vars\" package in\n| > debian. And for that matter, how do you usually install R packages not\n| > included in debian? I guess I could simply use install.packages() but I'm\n| > afraid of ending up with several versions of the same package which could be\n| > bad I guess...\n\nYears ago we made the choice set for you at the end of /etc/R/Renviron :  by\nhaving R_LIBS_SITE point to three different directories, we can separate\n\n- R's recommended packages via r-cran-* in /usr/lib/R/library \n- Other R packages installed via Debian's r-cran-* in /usr/lib/R/site-library\n- Everything else via install.packages() into /usr/local/lib/R/site-library\n\nYou can still add more for campus-wide package, personal libraries, ... in\nother directories if you wish, but you can also 'just use' this\ndefaults. Works for most of us :)\n\nDirk\n\n-- \nThree out of two people have difficulties with fractions.",
+      "body_snippet": "On 27 October 2008 at 14:48, Christopher David Desjardins wrote:\n| You could use install.packages().  What I usually do is download the\n| tarball of interest from CRAN and as root run \n| \n| R CMD INST",
+      "thread_id": "thread-41918eb7a02a",
+      "thread_depth": 2,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-956a44a54e87",
+      "message_id": "<429A2CE7-30BA-426A-A07D-D5E43A71259A@act.ulaval.ca>",
+      "from_name": "Vincent Goulet",
+      "from_email_hash": "e1091a7ef24172cab8ff1701d0e6c2c555c786b66d61ed102070f87705da8ffd",
+      "date": "2008-10-27T21:21:48-04:00",
+      "subject": "[R-sig-Debian] r-cran-vars?",
+      "subject_clean": "r-cran-vars?",
+      "in_reply_to": "<3f1cfd830810271228y1194bef2v7c1966dc101fcd25@mail.gmail.com>",
+      "references": [
+        "<3f1cfd830810271228y1194bef2v7c1966dc101fcd25@mail.gmail.com>"
+      ],
+      "body_plain": "Le lun. 27 oct. ? 15:28, Arnaud Battistella a ?crit :\n\n> Hi,\n> I was wondering what is the recommended way to install the \"vars\"  \n> package in\n> debian. And for that matter, how do you usually install R packages not\n> included in debian? I guess I could simply use install.packages()  \n> but I'm\n> afraid of ending up with several versions of the same package which  \n> could be\n> bad I guess... Any recommendation on how to go with this?\n\nI'd recommend installing these packages with install.packages() into  \nyour home directory -- unless you're a site administrator of course.  \nLook at the ADMINISTRATION AND MAINTENANCE OF R PACKAGES section of  \nthe Ubuntu or Debian README on CRAN (near the end) for a simple way to  \nautomate all this:\n\n\thttp://cran.r-project.org/bin/linux/debian/\n\thttp://cran.r-project.org/bin/linux/ubuntu/\n\nHTH   Vincent\n\n>\n> Thanks in advance for your help,\n> A.\n>\n> \t[[alternative HTML version deleted]]\n>\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "Le lun. 27 oct. ? 15:28, Arnaud Battistella a ?crit :\n\n> Hi,\n> I was wondering what is the recommended way to install the \"vars\"  \n> package in\n> debian. And for that matter, how do you usually instal",
+      "thread_id": "thread-41918eb7a02a",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-275f052eec34",
+      "message_id": "<18694.28079.575647.702828@ron.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2008-10-27T20:41:03-05:00",
+      "subject": "[R-sig-Debian] r-cran-vars?",
+      "subject_clean": "r-cran-vars?",
+      "in_reply_to": "<18694.25232.972768.2142@ron.nulle.part>",
+      "references": [
+        "<3f1cfd830810271228y1194bef2v7c1966dc101fcd25@mail.gmail.com>",
+        "<1225136885.3823.5.camel@debian.Belkin>",
+        "<18694.25232.972768.2142@ron.nulle.part>"
+      ],
+      "body_plain": "On 27 October 2008 at 19:53, Dirk Eddelbuettel wrote:\n| \n| On 27 October 2008 at 14:48, Christopher David Desjardins wrote:\n| | You could use install.packages().  What I usually do is download the\n| | tarball of interest from CRAN and as root run \n| | \n| | R CMD INSTALL foo.tar.gz\n| \n| Correct, even though you have the manual download. And if you do 'sudo\n| apt-get install litter' you get r with examples below /usr/share.\n\nSorry, that should have been\n       \n          $ sudo apt-get install littler \t  \n\nwith an 'l', not litter.\n\nDirk\n\n\n-- \nThree out of two people have difficulties with fractions.",
+      "body_snippet": "On 27 October 2008 at 19:53, Dirk Eddelbuettel wrote:\n| \n| On 27 October 2008 at 14:48, Christopher David Desjardins wrote:\n| | You could use install.packages().  What I usually do is download the\n| |",
+      "thread_id": "thread-41918eb7a02a",
+      "thread_depth": 3,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-af653d62b20d",
+      "message_id": "<49067A31.4050002@gmail.com>",
+      "from_name": "Arnaud Battistella",
+      "from_email_hash": "165b4cf497cdd0820cd01006bae38a039040c4a2df54aedc8c8b7bd24ca2ef8a",
+      "date": "2008-10-28T03:34:25+01:00",
+      "subject": "[R-sig-Debian] r-cran-vars?",
+      "subject_clean": "r-cran-vars?",
+      "in_reply_to": "<18694.28079.575647.702828@ron.nulle.part>",
+      "references": [
+        "<3f1cfd830810271228y1194bef2v7c1966dc101fcd25@mail.gmail.com>",
+        "<1225136885.3823.5.camel@debian.Belkin>",
+        "<18694.25232.972768.2142@ron.nulle.part>",
+        "<18694.28079.575647.702828@ron.nulle.part>"
+      ],
+      "body_plain": "Thanks a lot for your help! Just one last thing: how can we make sure \nnot to have duplicate version of packages (Debian & CRAN) and how bad \ncan this be?\nArnaud\n\nDirk Eddelbuettel wrote:\n> On 27 October 2008 at 19:53, Dirk Eddelbuettel wrote:\n> | \n> | On 27 October 2008 at 14:48, Christopher David Desjardins wrote:\n> | | You could use install.packages().  What I usually do is download the\n> | | tarball of interest from CRAN and as root run \n> | | \n> | | R CMD INSTALL foo.tar.gz\n> | \n> | Correct, even though you have the manual download. And if you do 'sudo\n> | apt-get install litter' you get r with examples below /usr/share.\n>\n> Sorry, that should have been\n>        \n>           $ sudo apt-get install littler \t  \n>\n> with an 'l', not litter.\n>\n> Dirk\n>\n>\n>",
+      "body_snippet": "Thanks a lot for your help! Just one last thing: how can we make sure \nnot to have duplicate version of packages (Debian & CRAN) and how bad \ncan this be?\nArnaud\n\nDirk Eddelbuettel wrote:\n> On 27 Octo",
+      "thread_id": "thread-41918eb7a02a",
+      "thread_depth": 4,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-12be3e803057",
+      "message_id": "<18694.33451.310931.983316@ron.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2008-10-27T22:10:35-05:00",
+      "subject": "[R-sig-Debian] r-cran-vars?",
+      "subject_clean": "r-cran-vars?",
+      "in_reply_to": "<49067A31.4050002@gmail.com>",
+      "references": [
+        "<3f1cfd830810271228y1194bef2v7c1966dc101fcd25@mail.gmail.com>",
+        "<1225136885.3823.5.camel@debian.Belkin>",
+        "<18694.25232.972768.2142@ron.nulle.part>",
+        "<18694.28079.575647.702828@ron.nulle.part>",
+        "<49067A31.4050002@gmail.com>"
+      ],
+      "body_plain": "On 28 October 2008 at 03:34, Arnaud Battistella wrote:\n| Thanks a lot for your help! Just one last thing: how can we make sure \n| not to have duplicate version of packages (Debian & CRAN) and how bad \n| can this be?\n\nThat's two last things if my counting is right :)\n\na) We cannot avoid as the two `package systems' for R and Debian do not know\n   about each other.  Just run\n   \t library()\n   in an R session and see. It simply runs down the list in R_SITE_LIBS and\n   checks all directories to generate the list of avoidable packages.\n\nb) No issue at all.  Worst case is probably that a package that is older\n   _may_ get found if the search abort on the first hit. I am not sure if\n   that is in fact the case though.\n\nIntegrating some Debian knowledge into install.packages() and\nupdate.packages() would make for a nice project.  Anyone interested ?\n\nDirk\n\n-- \nThree out of two people have difficulties with fractions.",
+      "body_snippet": "On 28 October 2008 at 03:34, Arnaud Battistella wrote:\n| Thanks a lot for your help! Just one last thing: how can we make sure \n| not to have duplicate version of packages (Debian & CRAN) and how bad ",
+      "thread_id": "thread-41918eb7a02a",
+      "thread_depth": 5,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-35363041a15f",
+      "message_id": "<18694.34893.355745.545251@ron.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2008-10-27T22:34:37-05:00",
+      "subject": "[R-sig-Debian] r-cran-vars?",
+      "subject_clean": "r-cran-vars?",
+      "in_reply_to": "<18694.33451.310931.983316@ron.nulle.part>",
+      "references": [
+        "<3f1cfd830810271228y1194bef2v7c1966dc101fcd25@mail.gmail.com>",
+        "<1225136885.3823.5.camel@debian.Belkin>",
+        "<18694.25232.972768.2142@ron.nulle.part>",
+        "<18694.28079.575647.702828@ron.nulle.part>",
+        "<49067A31.4050002@gmail.com>",
+        "<18694.33451.310931.983316@ron.nulle.part>"
+      ],
+      "body_plain": "On 27 October 2008 at 22:10, Dirk Eddelbuettel wrote:\n| \n| On 28 October 2008 at 03:34, Arnaud Battistella wrote:\n| | Thanks a lot for your help! Just one last thing: how can we make sure \n| | not to have duplicate version of packages (Debian & CRAN) and how bad \n| | can this be?\n| \n| That's two last things if my counting is right :)\n| \n| a) We cannot avoid as the two `package systems' for R and Debian do not know\n|    about each other.  Just run\n|    \t library()\n|    in an R session and see. It simply runs down the list in R_SITE_LIBS and\n|    checks all directories to generate the list of avoidable packages.\n\nThat should have been:   'list of available packages.'.  Sorry.\n\n| b) No issue at all.  Worst case is probably that a package that is older\n|    _may_ get found if the search abort on the first hit. I am not sure if\n|    that is in fact the case though.\n| \n| Integrating some Debian knowledge into install.packages() and\n| update.packages() would make for a nice project.  Anyone interested ?\n\nDirk\n\n-- \nThree out of two people have difficulties with fractions.",
+      "body_snippet": "On 27 October 2008 at 22:10, Dirk Eddelbuettel wrote:\n| \n| On 28 October 2008 at 03:34, Arnaud Battistella wrote:\n| | Thanks a lot for your help! Just one last thing: how can we make sure \n| | not to ",
+      "thread_id": "thread-41918eb7a02a",
+      "thread_depth": 6,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-b23bdc0d705a",
+      "message_id": "<1225214927.6548.11.camel@leibniz>",
+      "from_name": "Fritz Scholz",
+      "from_email_hash": "faffc00ff710b82404fc2259ab131519848c0fc3f4d8155b7b8d268fa2dcae95",
+      "date": "2008-10-28T10:28:46-07:00",
+      "subject": "[R-sig-Debian] Help in R",
+      "subject_clean": "Help in R",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "I have R 2.8.0 installed on Ubuntu 8.04. It seems to run fine,\nexcept for the html help interface. \n\nI get help OK when doing ?mean on the command line, for example, \nbut when I do help.start() and try to get help for mean it gives me\nan error message:\nFirefox can't find the file\nat /tmp/RtmpwVDJYQ/.R/library/base/html/mean.html\n\nor in a new session\n\nFirefox can't find the file\nat /tmp/RtmpJklKkT/.R/library/base/html/mean.html.\n\n\nAfter invoking the above ?mean again on the command line\nit also produces an error message\n\n> ?mean\nError in\nprint.help_files_with_topic(\"/usr/lib/R/library/base/html/mean.html\") : \n  No HTML help for 'mean' is available:\ncorresponding file is missing\n\n\nThe directory /usr/lib/R/library/base/html\nappears to be completely empty.\n\nCan someone help me fix this problem? Did I miss something\nduring the installation of? By the way, the same problem \noccurred during an earlier R 2.6.2 version.\n\nFritz Scholz",
+      "body_snippet": "I have R 2.8.0 installed on Ubuntu 8.04. It seems to run fine,\nexcept for the html help interface. \n\nI get help OK when doing ?mean on the command line, for example, \nbut when I do help.start() and tr",
+      "thread_id": "thread-b23bdc0d705a",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-c1dde50d4afd",
+      "message_id": "<49075107.5090001@psu.edu>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "bd1396b991d78727494403026cbf79f8837f468d360f36623deeff192b510eb4",
+      "date": "2008-10-28T13:51:03-04:00",
+      "subject": "[R-sig-Debian] Help in R",
+      "subject_clean": "Help in R",
+      "in_reply_to": "<1225214927.6548.11.camel@leibniz>",
+      "references": [
+        "<1225214927.6548.11.camel@leibniz>"
+      ],
+      "body_plain": "Fritz,\n\nDo you have the r-base-html package installed?  That package contains \nthe html help files.\n\nMichael\n\nFritz Scholz wrote:\n> I have R 2.8.0 installed on Ubuntu 8.04. It seems to run fine,\n> except for the html help interface. \n> \n> I get help OK when doing ?mean on the command line, for example, \n> but when I do help.start() and try to get help for mean it gives me\n> an error message:\n> Firefox can't find the file\n> at /tmp/RtmpwVDJYQ/.R/library/base/html/mean.html\n> \n> or in a new session\n> \n> Firefox can't find the file\n> at /tmp/RtmpJklKkT/.R/library/base/html/mean.html.\n> \n> \n> After invoking the above ?mean again on the command line\n> it also produces an error message\n> \n>> ?mean\n> Error in\n> print.help_files_with_topic(\"/usr/lib/R/library/base/html/mean.html\") : \n>   No HTML help for 'mean' is available:\n> corresponding file is missing\n> \n> \n> The directory /usr/lib/R/library/base/html\n> appears to be completely empty.\n> \n> Can someone help me fix this problem? Did I miss something\n> during the installation of? By the way, the same problem \n> occurred during an earlier R 2.6.2 version.\n> \n> Fritz Scholz\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \nDr. Michael A. Rutter\nSchool of Science\nPenn State Erie, The Behrend College\nStation Road\nErie, PA 16563\nhttp://math.bd.psu.edu/faculty/rutter",
+      "body_snippet": "Fritz,\n\nDo you have the r-base-html package installed?  That package contains \nthe html help files.\n\nMichael\n\nFritz Scholz wrote:\n> I have R 2.8.0 installed on Ubuntu 8.04. It seems to run fine,\n> exc",
+      "thread_id": "thread-b23bdc0d705a",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-21bb3a955690",
+      "message_id": "<18695.20984.474717.451264@ron.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2008-10-28T12:55:04-05:00",
+      "subject": "[R-sig-Debian] Help in R",
+      "subject_clean": "Help in R",
+      "in_reply_to": "<1225214927.6548.11.camel@leibniz>",
+      "references": [
+        "<1225214927.6548.11.camel@leibniz>"
+      ],
+      "body_plain": "On 28 October 2008 at 10:28, Fritz Scholz wrote:\n| I have R 2.8.0 installed on Ubuntu 8.04. It seems to run fine,\n| except for the html help interface. \n| \n| I get help OK when doing ?mean on the command line, for example, \n| but when I do help.start() and try to get help for mean it gives me\n| an error message:\n| Firefox can't find the file\n| at /tmp/RtmpwVDJYQ/.R/library/base/html/mean.html\n| \n| or in a new session\n| \n| Firefox can't find the file\n| at /tmp/RtmpJklKkT/.R/library/base/html/mean.html.\n| \n| \n| After invoking the above ?mean again on the command line\n| it also produces an error message\n| \n| > ?mean\n| Error in\n| print.help_files_with_topic(\"/usr/lib/R/library/base/html/mean.html\") : \n|   No HTML help for 'mean' is available:\n| corresponding file is missing\n| \n| \n| The directory /usr/lib/R/library/base/html\n| appears to be completely empty.\n| \n| Can someone help me fix this problem? Did I miss something\n| during the installation of? By the way, the same problem \n| occurred during an earlier R 2.6.2 version.\n\nI'd conjecture that you need\n\n\tsudo apt-get install r-base-html\n\nand you may want r-doc-html for the manuals while you're at it.\n\nDirk\n\n-- \nThree out of two people have difficulties with fractions.",
+      "body_snippet": "On 28 October 2008 at 10:28, Fritz Scholz wrote:\n| I have R 2.8.0 installed on Ubuntu 8.04. It seems to run fine,\n| except for the html help interface. \n| \n| I get help OK when doing ?mean on the comm",
+      "thread_id": "thread-b23bdc0d705a",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-9ff91bb9dcd0",
+      "message_id": "<Zen-1KusnX-0003SL-F6@smarthost01.mail.zen.net.uk>",
+      "from_name": "Michael Dewey",
+      "from_email_hash": "322e71ea84e79afdb1d951edbe529ecadf30fc1a304e1f09387273954d7ba960",
+      "date": "2008-10-28T17:55:46Z",
+      "subject": "[R-sig-Debian] Moving from 2.7.1 to 2.8.0, advice on removing old version",
+      "subject_clean": "Moving from 2.7.1 to 2.8.0, advice on removing old version",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "I have been using R under Windows for some while but 2.7.1 was the \nfirst version I succeeded in installing on my Asus EEE PC (thanks to \nhelp gained from list members). Now I would like to move to 2.8.0 but \nI have limited disc space so I would like to know whether it would be \nbetter to use apt-get remove to remove the old version first or if I \njust install the new one whether it overwrites the old one. Or is \nthere something better in apt-get I should use?\n\n\nMichael Dewey\nhttp://www.aghmed.fsnet.co.uk",
+      "body_snippet": "I have been using R under Windows for some while but 2.7.1 was the \nfirst version I succeeded in installing on my Asus EEE PC (thanks to \nhelp gained from list members). Now I would like to move to 2.",
+      "thread_id": "thread-9ff91bb9dcd0",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-e03962520af8",
+      "message_id": "<49075670.6030700@psu.edu>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "bd1396b991d78727494403026cbf79f8837f468d360f36623deeff192b510eb4",
+      "date": "2008-10-28T14:14:08-04:00",
+      "subject": "[R-sig-Debian] Moving from 2.7.1 to 2.8.0, advice on removing old version",
+      "subject_clean": "Moving from 2.7.1 to 2.8.0, advice on removing old version",
+      "in_reply_to": "<Zen-1KusnX-0003SL-F6@smarthost01.mail.zen.net.uk>",
+      "references": [
+        "<Zen-1KusnX-0003SL-F6@smarthost01.mail.zen.net.uk>"
+      ],
+      "body_plain": "Michael,\n\nI have no problem using the following on my eee pc to get the latest \nversion of R:\n\nsudo apt-get update\nsudo apt-get upgrade\nsudo apt-get clean\n\nThe last command \"apt-get clean\" removes any package files that are \nbeing stored in the local repository.  If it needs those packages again, \napt will just download them.  You may want to run clean first, to clear \nup some disk space.\n\nOr you can just use synaptic or other gui front end for apt.  In \nsynaptic, under Settings -> Preferences there is a \"Files\" tab which \ncontains a delete cached package files button, which will also free up \ndisk space.  On the eee pc, you may want to select the \"Delete \ndownloaded package after installation button.\"  This will save some space.\n\nHope this helps,\nMichael\n\nMichael Dewey wrote:\n> I have been using R under Windows for some while but 2.7.1 was the first \n> version I succeeded in installing on my Asus EEE PC (thanks to help \n> gained from list members). Now I would like to move to 2.8.0 but I have \n> limited disc space so I would like to know whether it would be better to \n> use apt-get remove to remove the old version first or if I just install \n> the new one whether it overwrites the old one. Or is there something \n> better in apt-get I should use?\n> \n> \n> Michael Dewey\n> http://www.aghmed.fsnet.co.uk\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \nDr. Michael A. Rutter\nSchool of Science\nPenn State Erie, The Behrend College\nStation Road\nErie, PA 16563\nhttp://math.bd.psu.edu/faculty/rutter",
+      "body_snippet": "Michael,\n\nI have no problem using the following on my eee pc to get the latest \nversion of R:\n\nsudo apt-get update\nsudo apt-get upgrade\nsudo apt-get clean\n\nThe last command \"apt-get clean\" removes any",
+      "thread_id": "thread-9ff91bb9dcd0",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-ed930ee0121d",
+      "message_id": "<7acc7a990810281628k19c0f89ay1cc42a439bb588f6@mail.gmail.com>",
+      "from_name": "Erin Hodgess",
+      "from_email_hash": "b26e9c7bfb605fed8b617b744d8476ab90f8218ca2710a5f80794303575b1adc",
+      "date": "2008-10-28T17:28:47-06:00",
+      "subject": "[R-sig-Debian] [R sig debian] Using PAPI",
+      "subject_clean": "[R sig debian] Using PAPI",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Dear R Debian People:\n\nShould we be using PAPI in our C and Fortran code, please?\n\nthanks,\nErin\nPS If so, could you recommend a good place to find installation\ninstructions please?\n\n\n-- \nErin Hodgess\nAssociate Professor\nDepartment of Computer and Mathematical Sciences\nUniversity of Houston - Downtown\nmailto: erinm.hodgess at gmail.com",
+      "body_snippet": "Dear R Debian People:\n\nShould we be using PAPI in our C and Fortran code, please?\n\nthanks,\nErin\nPS If so, could you recommend a good place to find installation\ninstructions please?\n\n\n-- \nErin Hodgess\n",
+      "thread_id": "thread-ed930ee0121d",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-286435664936",
+      "message_id": "<200810291032.12369.robert.king@newcastle.edu.au>",
+      "from_name": "Robert King",
+      "from_email_hash": "977f9e141c16738e9fca2ec229e485608137fda9bceac8d7534fb4f22a5f57c2",
+      "date": "2008-10-29T10:32:12+11:00",
+      "subject": "[R-sig-Debian] R 2.8.0 for Debian etch",
+      "subject_clean": "R 2.8.0 for Debian etch",
+      "in_reply_to": "<20081027154532.GA7188@localdomain>",
+      "references": [
+        "<20081027154532.GA7188@localdomain>"
+      ],
+      "body_plain": "Dear Johannes,\n\nThanks for packaging this.\n\nOne minor (probable) bug, the /etc/R/Renviron.ucf-dist\ncontains the line\n\nR_LIBS_USER=${R_LIBS_USER-'~/R/x86_64-pc-linux-gnu-library/2.7'}\n\nShould that be 2.8 now?\n\nThanks,\nRobert.\n\nOn Tuesday 28 October 2008 2:45, Johannes Ranke wrote:\n> Dear all,\n>\n> It is my pleasure to announce the immediate availability of R 2.8.0\n> for the current Debian stable release on CRAN. Source packages and\n> binaries for i386 and amd64 are at your disposal.\n>\n> I also updated the README to include a short howto for using R 2.8.0 from\n> unstable on testing (lenny), which is currently frozen. This currently\n> pulls the current pcre from unstable, next to the current R packages.\n>\n> By removing references to Rdevices.h, I was able to provide updated\n> packages of rkward 0.4.9a (i386 and amd64) and python-rpy (currently i386\n> only, amd64 will probably follow soon) as well. As usual, the latest\n> recommended packages are updated, as well as littler and RODBC.\n>\n> Please report any problems you might encounter to this list.\n>\n> Kind regards,\n>\n> Johannes Ranke\n\n-- \nRobert King, Statistics, School of Mathematical & Physical Sciences,\nUniversity of Newcastle, Australia (CRICOS Provider Number: 00109J)\nRoom V133  ph +61 2 4921 5548\nRobert.King at newcastle.edu.au   http://tolstoy.newcastle.edu.au/~rking/\n\n \"It might be in the basement,         \n I'll go upstairs and check ..\" Escher",
+      "body_snippet": "Dear Johannes,\n\nThanks for packaging this.\n\nOne minor (probable) bug, the /etc/R/Renviron.ucf-dist\ncontains the line\n\nR_LIBS_USER=${R_LIBS_USER-'~/R/x86_64-pc-linux-gnu-library/2.7'}\n\nShould that be 2",
+      "thread_id": "thread-8ffff3edfa53",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-38b5a5f1cadc",
+      "message_id": "<20081029223849.GA15104@localdomain>",
+      "from_name": "Johannes Ranke",
+      "from_email_hash": "8d7dc9cf8d248719dcd9a94c124dab5545d72861321d11f36ce7fddb3c609524",
+      "date": "2008-10-29T23:38:49+01:00",
+      "subject": "[R-sig-Debian] [R sig debian] Using PAPI",
+      "subject_clean": "[R sig debian] Using PAPI",
+      "in_reply_to": "<7acc7a990810281628k19c0f89ay1cc42a439bb588f6@mail.gmail.com>",
+      "references": [
+        "<7acc7a990810281628k19c0f89ay1cc42a439bb588f6@mail.gmail.com>"
+      ],
+      "body_plain": "Hi Erin,\n\nAre you aware that you posted to the r-sig-debian mailing list, dealing\nwith Debian related issues of using R?\n\nGreetings,\n\nJohannes\n\n* Erin Hodgess <erinm.hodgess at gmail.com> [081029 09:50]:\n> Dear R Debian People:\n> \n> Should we be using PAPI in our C and Fortran code, please?\n> \n> thanks,\n> Erin\n> PS If so, could you recommend a good place to find installation\n> instructions please?\n> \n> \n> -- \n> Erin Hodgess\n> Associate Professor\n> Department of Computer and Mathematical Sciences\n> University of Houston - Downtown\n> mailto: erinm.hodgess at gmail.com\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \nDr. Johannes Ranke                 jranke at uni-bremen.de",
+      "body_snippet": "Hi Erin,\n\nAre you aware that you posted to the r-sig-debian mailing list, dealing\nwith Debian related issues of using R?\n\nGreetings,\n\nJohannes\n\n* Erin Hodgess <erinm.hodgess at gmail.com> [081029 09:5",
+      "thread_id": "thread-ed930ee0121d",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-d943668904da",
+      "message_id": "<XFMail.081029231656.Ted.Harding@manchester.ac.uk>",
+      "from_name": "(Ted Harding)",
+      "from_email_hash": "732c758e9feeff72ea2b71e18c1dedb4be8d49d147309523b3eabf36fa464cb8",
+      "date": "2008-10-29T23:16:56Z",
+      "subject": "[R-sig-Debian] Auto-upgrade to R-2.8.0-1 in Etch",
+      "subject_clean": "Auto-upgrade to R-2.8.0-1 in Etch",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi Folks,\nMy Debian 4.0 Etch (installed Sep 2007, R version 2.7.1 (2008-06-23)\ninstalled at the same time from a Debian repo) has just flashed\nup that I can update as follows, using the update manager:\n\nr-base-core    New version: 2.8.0-1~etch-cran.0\nr-base-html    New version: 2.8.0-1~etch-cran.0\nr-base-latex   New version: 2.8.0-1~etch-cran.0\nr-cran-boot    New version: 1.2.34-1~etch-cran.0\nr-cran-cluster New version: 1.11.11-1~etch-cran.0\nr-cran-codetools New version: 0.2-1-2~etch-cran.0\nr-cran-foreign New version: 0.8.29-1~etch-cran.0\nr-cran-kernsmooth New version: 2.22.22-1~etch-cran.0\nr-cran-lattice New version: 0.17-15-1~etch-cran.0\nr-cran-mgcv    New version: 1.4-1-1~etch-cran.0\nr-cran-nlme    New version: 3.1.89-1~etch-cran.0\nr-cran-rpart   New version: 3.1.42-1~etch-cran.0\nr-cran-survival New version: 2.34-1-1~etch-cran.0\nr-cran-vr      New version: 7.2.44-1~etch-cran.0\nr-recommended  New version: 2.8.0-1~etch-cran.0\n\nClearly these are major replacements for the existing installations,\nand I'm still too inexperienced with Debian to feel sure of what\nmight happen if I just tell the update-mananger[*] to go ahead!\n[*] gksu /usr/bin/update-manager\n\nAre there any known gotchas up there? And, if it should happen that\nsomething goes wrong, can I revert to my current installation\nstraightforwardly?\n\nAnd are there precautions I should take to (a) avoid clashes,\n(b) make sure that things should be safe?\n\nAnd, assuming it seems to go well, are there checks or post-update\nadministration that I should undertake afterwards?\n\nWith thanks, and aoplogies for mu inexperience with this (Debian)\ndistribution.\nTed.\n\n--------------------------------------------------------------------\nE-Mail: (Ted Harding) <Ted.Harding at manchester.ac.uk>\nFax-to-email: +44 (0)870 094 0861\nDate: 29-Oct-08                                       Time: 23:16:53\n------------------------------ XFMail ------------------------------",
+      "body_snippet": "Hi Folks,\nMy Debian 4.0 Etch (installed Sep 2007, R version 2.7.1 (2008-06-23)\ninstalled at the same time from a Debian repo) has just flashed\nup that I can update as follows, using the update manager",
+      "thread_id": "thread-d943668904da",
+      "thread_depth": 0,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-781607b7b2a8",
+      "message_id": "<87vdvb6jif.fsf@blackbart.sedgenet>",
+      "from_name": "tyler",
+      "from_email_hash": "5175000895736522a94b46846e1b695cdc12921b61083ab626f75efaaf595f24",
+      "date": "2008-10-29T20:58:48-03:00",
+      "subject": "[R-sig-Debian] Auto-upgrade to R-2.8.0-1 in Etch",
+      "subject_clean": "Auto-upgrade to R-2.8.0-1 in Etch",
+      "in_reply_to": null,
+      "references": [
+        "<XFMail.081029231656.Ted.Harding@manchester.ac.uk>"
+      ],
+      "body_plain": "(Ted Harding) <Ted.Harding at manchester.ac.uk> writes:\n\n> Hi Folks,\n> My Debian 4.0 Etch (installed Sep 2007, R version 2.7.1 (2008-06-23)\n> installed at the same time from a Debian repo) has just flashed\n> up that I can update \n>\n> Are there any known gotchas up there? And, if it should happen that\n> something goes wrong, can I revert to my current installation\n> straightforwardly?\n\nAs a general rule, I update to the latest r packages as soon as they're\nready, without problems. If you're really nervous about it, wait a few\nmore days and see if any of the bolder users report problems to this\nlist.\n\nCheers,\n\nTyler\n-- \nFriends don't let friends send Word documents\n\nhttp://www.nothingisreal.com/dfki/no-word",
+      "body_snippet": "(Ted Harding) <Ted.Harding at manchester.ac.uk> writes:\n\n> Hi Folks,\n> My Debian 4.0 Etch (installed Sep 2007, R version 2.7.1 (2008-06-23)\n> installed at the same time from a Debian repo) has just fl",
+      "thread_id": "thread-d943668904da",
+      "thread_depth": 1,
+      "month": "2008-10"
+    },
+    {
+      "id": "msg-574e7e6c08ba",
+      "message_id": "<20081030195850.GB14498@localdomain>",
+      "from_name": "Johannes Ranke",
+      "from_email_hash": "8d7dc9cf8d248719dcd9a94c124dab5545d72861321d11f36ce7fddb3c609524",
+      "date": "2008-10-30T20:58:50+01:00",
+      "subject": "[R-sig-Debian] Auto-upgrade to R-2.8.0-1 in Etch",
+      "subject_clean": "Auto-upgrade to R-2.8.0-1 in Etch",
+      "in_reply_to": "<87vdvb6jif.fsf@blackbart.sedgenet>",
+      "references": [
+        "<XFMail.081029231656.Ted.Harding@manchester.ac.uk>",
+        "<87vdvb6jif.fsf@blackbart.sedgenet>"
+      ],
+      "body_plain": "Hi Ted,\n\n* tyler <tyler.smith at mail.mcgill.ca> [081030 10:40]:\n> (Ted Harding) <Ted.Harding at manchester.ac.uk> writes:\n> \n> > Hi Folks,\n> > My Debian 4.0 Etch (installed Sep 2007, R version 2.7.1 (2008-06-23)\n> > installed at the same time from a Debian repo) has just flashed\n\nR 2.7.1 was installed on etch from \"a Debian repo\"? Since the candidate\npackages you listed are the packages I just published on CRAN, you seem to have\na CRAN mirror in your /etc/apt/sources.list, so I strongly suspect that your R\n2.7.1 is from CRAN as well.\n\n> > up that I can update \n> >\n> > Are there any known gotchas up there? And, if it should happen that\n> > something goes wrong, can I revert to my current installation\n> > straightforwardly?\n> \n> As a general rule, I update to the latest r packages as soon as they're\n> ready, without problems. If you're really nervous about it, wait a few\n> more days and see if any of the bolder users report problems to this\n> list.\n\nI am also used to upgrading to each new version - changes in R can be seen from\nthe News files from R 2.7.2 and R 2.8.0, and the packages usually only add or\nimprove features. If you should run into problems, I have the old R 2.7.1\npackages in a subversion archive, so I could supply them to you in case the\nneed arises, so you have the option to downgrade.\n\nIn case you don't want any change at all, just get rid of the CRAN entry\nin your /etc/apt/sources.list.\n\nJohannes\n\n> \n> Cheers,\n> \n> Tyler\n> -- \n> Friends don't let friends send Word documents\n> \n> http://www.nothingisreal.com/dfki/no-word\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \nDr. Johannes Ranke                 jranke at uni-bremen.de",
+      "body_snippet": "Hi Ted,\n\n* tyler <tyler.smith at mail.mcgill.ca> [081030 10:40]:\n> (Ted Harding) <Ted.Harding at manchester.ac.uk> writes:\n> \n> > Hi Folks,\n> > My Debian 4.0 Etch (installed Sep 2007, R version 2.7.1 ",
+      "thread_id": "thread-d943668904da",
+      "thread_depth": 2,
+      "month": "2008-10"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-18689384cf0c",
+      "subject": "KernSmooth not loading in R 2.7.2",
+      "message_count": 2,
+      "participants": [
+        "J.H.Gove",
+        "Michael Rutter"
+      ],
+      "started": "2008-10-02T15:38:23-04:00",
+      "last_reply": "2008-10-02T19:06:09-04:00",
+      "root_message_id": "msg-18689384cf0c"
+    },
+    {
+      "id": "thread-d610310f4e30",
+      "subject": "R 2.7.2 and Ubuntu  / tcltk issues",
+      "message_count": 2,
+      "participants": [
+        "Philippe Grosjean",
+        "Vincent Goulet"
+      ],
+      "started": "2008-10-06T15:34:54-04:00",
+      "last_reply": "2008-10-06T21:44:35+02:00",
+      "root_message_id": "msg-d610310f4e30"
+    },
+    {
+      "id": "thread-15129d60f3be",
+      "subject": "R 2.7.2 and Ubuntu  / tcltk issues",
+      "message_count": 2,
+      "participants": [
+        "Philippe Grosjean",
+        "Vincent Goulet"
+      ],
+      "started": "2008-10-06T16:13:46+02:00",
+      "last_reply": "2008-10-06T15:32:41-04:00",
+      "root_message_id": "msg-15129d60f3be"
+    },
+    {
+      "id": "thread-223ec65590d7",
+      "subject": "compiling from source",
+      "message_count": 5,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Erin Hodgess",
+        "Sebastian P. Luque",
+        "Vincent Goulet"
+      ],
+      "started": "2008-10-07T12:55:19-05:00",
+      "last_reply": "2008-10-07T14:29:46-05:00",
+      "root_message_id": "msg-223ec65590d7"
+    },
+    {
+      "id": "thread-59bcb5c25837",
+      "subject": "Hardy 64 bit and Package Support",
+      "message_count": 2,
+      "participants": [
+        "Josh Harmsen",
+        "Michael Rutter"
+      ],
+      "started": "2008-10-09T14:36:14-07:00",
+      "last_reply": "2008-10-09T19:06:01-04:00",
+      "root_message_id": "msg-59bcb5c25837"
+    },
+    {
+      "id": "thread-2eff819180d0",
+      "subject": "how to convert source code in windows package for linux (ubuntu)",
+      "message_count": 4,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Douglas Bates",
+        "Josh Harmsen"
+      ],
+      "started": "2008-10-10T13:13:55-07:00",
+      "last_reply": "2008-10-10T20:49:43-05:00",
+      "root_message_id": "msg-2eff819180d0"
+    },
+    {
+      "id": "thread-1ce1dc3a74ba",
+      "subject": "how to convert source code in windows package for linux (ubuntu)",
+      "message_count": 1,
+      "participants": [
+        "Josh Harmsen"
+      ],
+      "started": "2008-10-11T10:30:12-07:00",
+      "last_reply": "2008-10-11T10:30:12-07:00",
+      "root_message_id": "msg-1ce1dc3a74ba"
+    },
+    {
+      "id": "thread-143bf0704581",
+      "subject": "how to convert source code in windows package for linux (ubuntu)",
+      "message_count": 4,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Josh Harmsen",
+        "Lars Hansen",
+        "Michael Rutter"
+      ],
+      "started": "2008-10-11T14:46:58-05:00",
+      "last_reply": "2008-10-22T20:18:30-04:00",
+      "root_message_id": "msg-143bf0704581"
+    },
+    {
+      "id": "thread-b712b5bc1de9",
+      "subject": "building R with goto BLAS on Ubuntu 8.04",
+      "message_count": 2,
+      "participants": [
+        "Dale Steele",
+        "Dirk Eddelbuettel"
+      ],
+      "started": "2008-10-13T15:37:01-04:00",
+      "last_reply": "2008-10-13T19:28:04-05:00",
+      "root_message_id": "msg-b712b5bc1de9"
+    },
+    {
+      "id": "thread-84146d5c3ad2",
+      "subject": "problem with update.packages (PR#13161)",
+      "message_count": 2,
+      "participants": [
+        "Dirk Eddelbuettel"
+      ],
+      "started": "2008-10-14T07:27:45-05:00",
+      "last_reply": "2008-10-14T07:40:31-05:00",
+      "root_message_id": "msg-84146d5c3ad2"
+    },
+    {
+      "id": "thread-d9225c8a8ea1",
+      "subject": "problem with update.packages",
+      "message_count": 4,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Michael Rutter",
+        "Sebastian P. Luque",
+        "Simon Blomberg"
+      ],
+      "started": "2008-10-14T09:39:02+10:00",
+      "last_reply": "2008-10-13T20:24:14-05:00",
+      "root_message_id": "msg-d9225c8a8ea1"
+    },
+    {
+      "id": "thread-39ebe1f2b87f",
+      "subject": "dumb debian question",
+      "message_count": 3,
+      "participants": [
+        "Christopher David Desjardins",
+        "Erin Hodgess",
+        "Tomas Radivoyevitch"
+      ],
+      "started": "2008-10-23T00:36:33-05:00",
+      "last_reply": "2008-10-23T10:42:00-04:00",
+      "root_message_id": "msg-39ebe1f2b87f"
+    },
+    {
+      "id": "thread-8ffff3edfa53",
+      "subject": "R 2.8.0 for Debian etch",
+      "message_count": 2,
+      "participants": [
+        "Johannes Ranke",
+        "Robert King"
+      ],
+      "started": "2008-10-27T16:45:32+01:00",
+      "last_reply": "2008-10-29T10:32:12+11:00",
+      "root_message_id": "msg-8ffff3edfa53"
+    },
+    {
+      "id": "thread-41918eb7a02a",
+      "subject": "r-cran-vars?",
+      "message_count": 8,
+      "participants": [
+        "Arnaud Battistella",
+        "Christopher David Desjardins",
+        "Dirk Eddelbuettel",
+        "Vincent Goulet"
+      ],
+      "started": "2008-10-27T20:28:07+01:00",
+      "last_reply": "2008-10-27T22:34:37-05:00",
+      "root_message_id": "msg-41918eb7a02a"
+    },
+    {
+      "id": "thread-b23bdc0d705a",
+      "subject": "Help in R",
+      "message_count": 3,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Fritz Scholz",
+        "Michael Rutter"
+      ],
+      "started": "2008-10-28T10:28:46-07:00",
+      "last_reply": "2008-10-28T12:55:04-05:00",
+      "root_message_id": "msg-b23bdc0d705a"
+    },
+    {
+      "id": "thread-ed930ee0121d",
+      "subject": "[R sig debian] Using PAPI",
+      "message_count": 2,
+      "participants": [
+        "Erin Hodgess",
+        "Johannes Ranke"
+      ],
+      "started": "2008-10-28T17:28:47-06:00",
+      "last_reply": "2008-10-29T23:38:49+01:00",
+      "root_message_id": "msg-ed930ee0121d"
+    },
+    {
+      "id": "thread-9ff91bb9dcd0",
+      "subject": "Moving from 2.7.1 to 2.8.0, advice on removing old version",
+      "message_count": 2,
+      "participants": [
+        "Michael Dewey",
+        "Michael Rutter"
+      ],
+      "started": "2008-10-28T17:55:46+00:00",
+      "last_reply": "2008-10-28T14:14:08-04:00",
+      "root_message_id": "msg-9ff91bb9dcd0"
+    },
+    {
+      "id": "thread-d943668904da",
+      "subject": "Auto-upgrade to R-2.8.0-1 in Etch",
+      "message_count": 3,
+      "participants": [
+        "(Ted Harding)",
+        "Johannes Ranke",
+        "tyler"
+      ],
+      "started": "2008-10-29T23:16:56+00:00",
+      "last_reply": "2008-10-30T20:58:50+01:00",
+      "root_message_id": "msg-d943668904da"
+    }
+  ]
+}

@@ -1,0 +1,4441 @@
+From judson0423 at gmail.com  Sat Oct  3 21:04:47 2009
+From: judson0423 at gmail.com (Judson)
+Date: Sat, 3 Oct 2009 15:04:47 -0400
+Subject: [R-sig-Debian] Graphics Device; locator function
+Message-ID: <75f11af0910031204x6dd5f8ebh3ff5e3993fa19e73@mail.gmail.com>
+
+Hi, haven't been here for a while, but everyone one was always so
+helpful I thought I would ask you another really basic question.
+
+I'm running R2.9.1 in Ubuntu8.04 on a netbook (maxed out on memory etc
+so I don't think that's a problem - wth it's a Dell Mini 9" with that
+lpia non-architecture you told me about).
+
+Anyway, some of the graphics functions/parameters are causing
+unresolved computation.  Wasn't sure what to do but I've noticed that
+closing the graphics device causes the R routine to stop at least.
+
+The most recent example is the locator function (but may have caused
+the same thing a day or two ago with abline
+
+I did a help lookup on "locator" and the response tells me that
+"locator is supported only on devices such as 'X11', 'windows', and
+'quartz'".
+
+My device is "R Graphics: Device 2" which gives me no way to "right
+click", etc. for Properties.
+
+I failed to tell you that I'm running R in Emacs 22 (X11) in the ESS
+Buffer.  I'm not very good at it but I'm trying.  Thanks for your
+thoughts.
+
+Judson
+
+
+From edd at debian.org  Sat Oct  3 21:24:50 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 3 Oct 2009 14:24:50 -0500
+Subject: [R-sig-Debian] Graphics Device; locator function
+In-Reply-To: <75f11af0910031204x6dd5f8ebh3ff5e3993fa19e73@mail.gmail.com>
+References: <75f11af0910031204x6dd5f8ebh3ff5e3993fa19e73@mail.gmail.com>
+Message-ID: <19143.42242.984711.139011@ron.nulle.part>
+
+
+On 3 October 2009 at 15:04, Judson wrote:
+| Hi, haven't been here for a while, but everyone one was always so
+| helpful I thought I would ask you another really basic question.
+| 
+| I'm running R2.9.1 in Ubuntu8.04 on a netbook (maxed out on memory etc
+| so I don't think that's a problem - wth it's a Dell Mini 9" with that
+| lpia non-architecture you told me about).
+| 
+| Anyway, some of the graphics functions/parameters are causing
+| unresolved computation.  Wasn't sure what to do but I've noticed that
+| closing the graphics device causes the R routine to stop at least.
+| 
+| The most recent example is the locator function (but may have caused
+| the same thing a day or two ago with abline
+| 
+| I did a help lookup on "locator" and the response tells me that
+| "locator is supported only on devices such as 'X11', 'windows', and
+| 'quartz'".
+
+X11 is what is what you probably have.  See 
+
+    options("device")
+
+and 
+
+    help(options) 
+
+which shows
+
+-----------------------------------------------------------------------------
+Options set in package grDevices:
+
+     These will be set when package 'grDevices' (or its name space) is
+     loaded if not already set.
+
+     'device': a character string giving the name of a function, or the
+          function object itself, which when called creates a new
+          graphics device of the default type for that session.  The
+          value of this option defaults to the normal screen device
+          (e.g., 'X11', 'windows' or 'quartz') for an interactive
+          session, and 'pdf' in batch use or if a screen is not
+          available.  If set to the name of a device, the device is
+          looked for first from the global environment (that is down
+          the usual search path) and then in the 'grDevices' namespace.
+
+          The default values in interactive and non-interactive
+          sessions are configurable via environment variables
+          'R_INTERACTIVE_DEVICE' and 'R_DEFAULT_DEVICE' respectively.
+
+-----------------------------------------------------------------------------
+
+| My device is "R Graphics: Device 2" which gives me no way to "right
+| click", etc. for Properties.
+
+Device 2 simply is a count of your devices.
+
+locator() is a little tricky to use, and I suspect you simply didn't
+"finish". I haven't used it in a while but AFAICR you need to click on the
+mouse in a particular sequence.
+
+Dirk
+ 
+| I failed to tell you that I'm running R in Emacs 22 (X11) in the ESS
+| Buffer.  I'm not very good at it but I'm trying.  Thanks for your
+| thoughts.
+| 
+| Judson
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From dbrion1 at yahoo.fr  Sun Oct  4 15:40:23 2009
+From: dbrion1 at yahoo.fr (denis brion)
+Date: Sun, 4 Oct 2009 06:40:23 -0700 (PDT)
+Subject: [R-sig-Debian] Graphics Device; locator function
+In-Reply-To: <19143.42242.984711.139011@ron.nulle.part>
+Message-ID: <410321.4563.qm@web23805.mail.ird.yahoo.com>
+
+I believe I remember "locator" finishes with a right click;
+And, it is out of topic, but "net""books" may have a very small screen : before drawing, I usually configure my screen with "X11(height=10)" which explicitly opens the graphical device and gives a screen which is fully seeable.
+ 
+--- En date de?: Sam 3.10.09, Dirk Eddelbuettel <edd at debian.org> a ?crit?:
+
+> De: Dirk Eddelbuettel <edd at debian.org>
+> Objet: Re: [R-sig-Debian] Graphics Device; locator function
+> ?: "Judson" <judson0423 at gmail.com>
+> Cc: r-sig-debian at r-project.org
+> Date: Samedi 3 Octobre 2009, 21h24
+> 
+> On 3 October 2009 at 15:04, Judson wrote:
+> | Hi, haven't been here for a while, but everyone one was
+> always so
+> | helpful I thought I would ask you another really basic
+> question.
+> | 
+> | I'm running R2.9.1 in Ubuntu8.04 on a netbook (maxed out
+> on memory etc
+> | so I don't think that's a problem - wth it's a Dell Mini
+> 9" with that
+> | lpia non-architecture you told me about).
+> | 
+> | Anyway, some of the graphics functions/parameters are
+> causing
+> | unresolved computation.? Wasn't sure what to do but
+> I've noticed that
+> | closing the graphics device causes the R routine to stop
+> at least.
+> | 
+> | The most recent example is the locator function (but may
+> have caused
+> | the same thing a day or two ago with abline
+> | 
+> | I did a help lookup on "locator" and the response tells
+> me that
+> | "locator is supported only on devices such as 'X11',
+> 'windows', and
+> | 'quartz'".
+> 
+> X11 is what is what you probably have.? See 
+> 
+> ? ? options("device")
+> 
+> and 
+> 
+> ? ? help(options) 
+> 
+> which shows
+> 
+> -----------------------------------------------------------------------------
+> Options set in package grDevices:
+> 
+> ? ???These will be set when package
+> 'grDevices' (or its name space) is
+> ? ???loaded if not already set.
+> 
+> ? ???'device': a character string
+> giving the name of a function, or the
+> ? ? ? ? ? function object itself,
+> which when called creates a new
+> ? ? ? ? ? graphics device of the
+> default type for that session.? The
+> ? ? ? ? ? value of this option
+> defaults to the normal screen device
+> ? ? ? ? ? (e.g., 'X11', 'windows'
+> or 'quartz') for an interactive
+> ? ? ? ? ? session, and 'pdf' in
+> batch use or if a screen is not
+> ? ? ? ? ? available.? If set
+> to the name of a device, the device is
+> ? ? ? ? ? looked for first from
+> the global environment (that is down
+> ? ? ? ? ? the usual search path)
+> and then in the 'grDevices' namespace.
+> 
+> ? ? ? ? ? The default values in
+> interactive and non-interactive
+> ? ? ? ? ? sessions are
+> configurable via environment variables
+> ? ? ? ? ? 'R_INTERACTIVE_DEVICE'
+> and 'R_DEFAULT_DEVICE' respectively.
+> 
+> -----------------------------------------------------------------------------
+> 
+> | My device is "R Graphics: Device 2" which gives me no way
+> to "right
+> | click", etc. for Properties.
+> 
+> Device 2 simply is a count of your devices.
+> 
+> locator() is a little tricky to use, and I suspect you
+> simply didn't
+> "finish". I haven't used it in a while but AFAICR you need
+> to click on the
+> mouse in a particular sequence.
+> 
+> Dirk
+>  
+> | I failed to tell you that I'm running R in Emacs 22 (X11)
+> in the ESS
+> | Buffer.? I'm not very good at it but I'm
+> trying.? Thanks for your
+> | thoughts.
+> | 
+> | Judson
+> | 
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+> -- 
+> Three out of two people have difficulties with fractions.
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+
+
+
+
+
+From tramir at hotmail.com  Sun Oct  4 15:54:29 2009
+From: tramir at hotmail.com (Mircea Trandafir)
+Date: Sun, 4 Oct 2009 09:54:29 -0400
+Subject: [R-sig-Debian] error installing/compiling kernlab
+Message-ID: <BAY109-W3C1C10981AD02A04E4C43DED00@phx.gbl>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20091004/bb330ad6/attachment.pl>
+
+From edd at debian.org  Sun Oct  4 16:29:15 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 4 Oct 2009 09:29:15 -0500
+Subject: [R-sig-Debian] error installing/compiling kernlab
+In-Reply-To: <BAY109-W3C1C10981AD02A04E4C43DED00@phx.gbl>
+References: <BAY109-W3C1C10981AD02A04E4C43DED00@phx.gbl>
+Message-ID: <19144.45371.235064.854691@ron.nulle.part>
+
+
+On 4 October 2009 at 09:54, Mircea Trandafir wrote:
+| 
+| Hi everybody,
+| 
+| 
+| 
+| I'm using R on a 64-bit Ubuntu 9.04 (Jaunty). I prefer to install R
+| packages from source, even if they are available in Synaptic. The
+| problem is that I can't install/compile kernlab. Everything works fine
+| until it gets to the lazy loading part:
+| 
+| 
+| 
+| ** preparing package for lazy loading
+| 
+| Creating a new generic function for "terms" in "kernlab"
+| 
+| Creating a new generic function for "fitted" in "kernlab"
+| 
+| Creating a new generic function for "coef" in "kernlab"
+| 
+| Error in conformMethod(signature, mnames, fnames, f, fdef, definition)
+| : 
+| 
+|   In method for function "size": formal arguments omitted in the method
+| definition cannot be in the signature (obj = "specc")
+| 
+| Error : unable to load R code in package 'kernlab'
+| 
+| ERROR : lazy loading failed for the package ?kernlab?
+| 
+| 
+| 
+| 
+| Does anybody have any idea what might cause this? And, more
+| importantly, how I can move forward?
+
+Works fine here (and 'install.r' is from the 'littler' package and I just
+create a symlink for it so that I can quickly install packages from the
+command-line):
+
+
+edd at ron:~$ install.r kernlab
+trying URL 'http://cran.us.r-project.org/src/contrib/kernlab_0.9-8.tar.gz'
+Content type 'application/x-gzip' length 1262166 bytes (1.2 Mb)           
+opened URL                                                                
+==================================================                        
+downloaded 1.2 Mb                                                         
+
+* Installing *source* package ???kernlab??? ...
+** libs                                    
+g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c brweight.cpp -o brweight.o
+g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c ctable.cpp -o ctable.o    
+g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c cweight.cpp -o cweight.o  
+gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dbreakpt.c -o dbreakpt.o
+gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dcauchy.c -o dcauchy.o  
+gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dgpnrm.c -o dgpnrm.o    
+gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dgpstep.c -o dgpstep.o  
+gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dprecond.c -o dprecond.o
+gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dprsrch.c -o dprsrch.o  
+gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dspcg.c -o dspcg.o      
+gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dtron.c -o dtron.o      
+gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dtrpcg.c -o dtrpcg.o    
+dtrpcg.c: In function ???dtrpcg???:                                                                 
+dtrpcg.c:157: warning: value computed is not used                                               
+gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dtrqsol.c -o dtrqsol.o  
+g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c esa.cpp -o esa.o                   
+In file included from wmsufsort.h:46,                                                           
+                 from esa.cpp:68:                                                               
+msufsort.h: In member function ???void MSufSort::ShowProgress()???:                                 
+msufsort.h:907: warning: unused variable ???p???                                                    
+esa.cpp: In constructor ???ESA::ESA(const UInt32&, SYMBOL*, int)???:                                
+esa.cpp:114: warning: comparison between signed and unsigned integer expressions                
+g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c expdecayweight.cpp -o expdecayweight.o
+g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c inductionsort.cpp -o inductionsort.o  
+g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c kspectrumweight.cpp -o kspectrumweight.o
+g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c lcp.cpp -o lcp.o                        
+gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c misc.c -o misc.o             
+g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c msufsort.cpp -o msufsort.o              
+In file included from msufsort.cpp:28:                                                               
+msufsort.h: In member function ???void MSufSort::ShowProgress()???:                                      
+msufsort.h:907: warning: unused variable ???p???                                                         
+gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c solvebqp.c -o solvebqp.o     
+gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c stringk.c -o stringk.o       
+g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c stringkernel.cpp -o stringkernel.o      
+stringkernel.cpp: In function ???SEXPREC* stringtv(SEXPREC*, SEXPREC*, SEXPREC*, SEXPREC*, SEXPREC*, SEXPREC*, SEXPREC*)???:
+stringkernel.cpp:506: warning: comparison between signed and unsigned integer expressions                               
+stringkernel.cpp:513: warning: comparison between signed and unsigned integer expressions                               
+g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c svm.cpp -o svm.o                                           
+g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c wkasailcp.cpp -o wkasailcp.o                               
+g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c wmsufsort.cpp -o wmsufsort.o                               
+In file included from wmsufsort.h:46,                                                                                   
+                 from wmsufsort.cpp:48:                                                                                 
+msufsort.h: In member function ???void MSufSort::ShowProgress()???:                                                         
+msufsort.h:907: warning: unused variable ???p???                                                                            
+g++ -shared -o kernlab.so brweight.o ctable.o cweight.o dbreakpt.o dcauchy.o dgpnrm.o dgpstep.o dprecond.o dprsrch.o dspcg.o dtron.o dtrpcg.o dtrqsol.o esa.o expdecayweight.o inductionsort.o kspectrumweight.o lcp.o misc.o msufsort.o solvebqp.o stringk.o stringkernel.o svm.o wkasailcp.o wmsufsort.o -lblas -lgfortran -lm -llapack -L/usr/lib/R/lib -lR
+** R
+** data
+** inst
+** preparing package for lazy loading
+Creating a new generic function for "terms" in "kernlab"   
+Creating a new generic function for "fitted" in "kernlab"  
+Creating a new generic function for "coef" in "kernlab"    
+Creating a new generic function for "predict" in "kernlab" 
+Creating a new generic function for "plot" in "kernlab"    
+** help                                                    
+*** installing help indices                                
+ >>> Building/Updating help pages for package 'kernlab'    
+     Formats: text html latex example                      
+  as.kernelMatrix                   text    html    latex   example
+  couple                            text    html    latex   example
+  csi-class                         text    html    latex   example
+  csi                               text    html    latex   example
+  dots                              text    html    latex   example
+  gausspr-class                     text    html    latex   example
+  gausspr                           text    html    latex   example
+  inchol-class                      text    html    latex   example
+  inchol                            text    html    latex   example
+  income                            text    html    latex
+  inlearn                           text    html    latex   example
+  ipop-class                        text    html    latex   example
+  ipop                              text    html    latex   example
+  kcca-class                        text    html    latex   example
+  kcca                              text    html    latex   example
+  kernel-class                      text    html    latex   example
+  kernelMatrix                      text    html    latex   example
+  kfa-class                         text    html    latex   example
+  kfa                               text    html    latex   example
+  kha-class                         text    html    latex   example
+  kha                               text    html    latex   example
+  kkmeans                           text    html    latex   example
+  kmmd-class                        text    html    latex   example
+  kmmd                              text    html    latex   example
+  kpca-class                        text    html    latex   example
+  kpca                              text    html    latex   example
+  kqr-class                         text    html    latex   example
+  kqr                               text    html    latex   example
+  ksvm-class                        text    html    latex   example
+  ksvm                              text    html    latex   example
+  lssvm-class                       text    html    latex   example
+  lssvm                             text    html    latex   example
+  musk                              text    html    latex   example
+  onlearn-class                     text    html    latex   example
+  onlearn                           text    html    latex   example
+  plot                              text    html    latex   example
+  prc-class                         text    html    latex
+  predict.gausspr                   text    html    latex   example
+  predict.kqr                       text    html    latex   example
+  predict.ksvm                      text    html    latex   example
+  promotergene                      text    html    latex   example
+  ranking-class                     text    html    latex   example
+  ranking                           text    html    latex   example
+  reuters                           text    html    latex
+  rvm-class                         text    html    latex   example
+  rvm                               text    html    latex   example
+  sigest                            text    html    latex   example
+  spam                              text    html    latex
+  specc-class                       text    html    latex   example
+  specc                             text    html    latex   example
+  spirals                           text    html    latex   example
+  stringdot                         text    html    latex   example
+  ticdata                           text    html    latex
+  vm-class                          text    html    latex
+** building package indices ...
+* DONE (kernlab)
+
+The downloaded packages are in
+        ???/tmp/downloaded_packages???
+edd at ron:~$
+
+That's on i386 but if you insist I could try on one of the amd64 machines at
+work.  
+
+What version of R are you running?
+
+Dirk
+
+
+| Thanks,
+| 
+| Mircea
+| 
+| 
+| 
+|  		 	   		  
+| 	[[alternative HTML version deleted]]
+| 
+| 
+| ----------------------------------------------------------------------
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From tramir at hotmail.com  Sun Oct  4 16:43:09 2009
+From: tramir at hotmail.com (Mircea Trandafir)
+Date: Sun, 4 Oct 2009 10:43:09 -0400
+Subject: [R-sig-Debian] error installing/compiling kernlab
+Message-ID: <BAY109-W52812B32F6C49CAF23E34FDED00@phx.gbl>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20091004/1fca4884/attachment.pl>
+
+From info at aghmed.fsnet.co.uk  Sun Oct  4 16:50:04 2009
+From: info at aghmed.fsnet.co.uk (Michael Dewey)
+Date: Sun, 04 Oct 2009 15:50:04 +0100
+Subject: [R-sig-Debian] Graphics Device; locator function
+In-Reply-To: <410321.4563.qm@web23805.mail.ird.yahoo.com>
+References: <19143.42242.984711.139011@ron.nulle.part>
+	<410321.4563.qm@web23805.mail.ird.yahoo.com>
+Message-ID: <Zen-1MuSPf-0008P1-8L@smarthost02.mail.zen.net.uk>
+
+At 14:40 04/10/2009, denis brion wrote:
+
+>I believe I remember "locator" finishes with a right click;
+>And, it is out of topic, but "net""books" may 
+>have a very small screen : before drawing, I 
+>usually configure my screen with 
+>"X11(height=10)" which explicitly opens the 
+>graphical device and gives a screen which is fully seeable.
+
+Somewhere on one of the R lists, someone 
+suggested (sorry not to be more specific)
+
+setHook(packageEvent("grDevices", "onLoad"),
+    function(...) grDevices::X11.options(width = 4, height = 4, pointsize = 8)
+)
+
+in your .Rprofile for use on the Asus EEE
+I imagine with judicious choices of width and 
+height it would work as well on other systems. It certainly works for me
+
+>
+>--- En date de : Sam 3.10.09, Dirk Eddelbuettel <edd at debian.org> a ?crit :
+>
+> > De: Dirk Eddelbuettel <edd at debian.org>
+> > Objet: Re: [R-sig-Debian] Graphics Device; locator function
+> > ?: "Judson" <judson0423 at gmail.com>
+> > Cc: r-sig-debian at r-project.org
+> > Date: Samedi 3 Octobre 2009, 21h24
+> >
+> > On 3 October 2009 at 15:04, Judson wrote:
+> > | Hi, haven't been here for a while, but everyone one was
+> > always so
+> > | helpful I thought I would ask you another really basic
+> > question.
+> > |
+> > | I'm running R2.9.1 in Ubuntu8.04 on a netbook (maxed out
+> > on memory etc
+> > | so I don't think that's a problem - wth it's a Dell Mini
+> > 9" with that
+> > | lpia non-architecture you told me about).
+> > |
+> > | Anyway, some of the graphics functions/parameters are
+> > causing
+> > | unresolved computation.  Wasn't sure what to do but
+> > I've noticed that
+> > | closing the graphics device causes the R routine to stop
+> > at least.
+> > |
+> > | The most recent example is the locator function (but may
+> > have caused
+> > | the same thing a day or two ago with abline
+> > |
+> > | I did a help lookup on "locator" and the response tells
+> > me that
+> > | "locator is supported only on devices such as 'X11',
+> > 'windows', and
+> > | 'quartz'".
+> >
+> > X11 is what is what you probably have.  See
+> >
+> >     options("device")
+> >
+> > and
+> >
+> >     help(options)
+> >
+> > which shows
+> >
+> > 
+> -----------------------------------------------------------------------------
+> > Options set in package grDevices:
+> >
+> >      These will be set when package
+> > 'grDevices' (or its name space) is
+> >      loaded if not already set.
+> >
+> >      'device': a character string
+> > giving the name of a function, or the
+> >           function object itself,
+> > which when called creates a new
+> >           graphics device of the
+> > default type for that session.  The
+> >           value of this option
+> > defaults to the normal screen device
+> >           (e.g., 'X11', 'windows'
+> > or 'quartz') for an interactive
+> >           session, and 'pdf' in
+> > batch use or if a screen is not
+> >           available.  If set
+> > to the name of a device, the device is
+> >           looked for first from
+> > the global environment (that is down
+> >           the usual search path)
+> > and then in the 'grDevices' namespace.
+> >
+> >           The default values in
+> > interactive and non-interactive
+> >           sessions are
+> > configurable via environment variables
+> >           'R_INTERACTIVE_DEVICE'
+> > and 'R_DEFAULT_DEVICE' respectively.
+> >
+> > 
+> -----------------------------------------------------------------------------
+> >
+> > | My device is "R Graphics: Device 2" which gives me no way
+> > to "right
+> > | click", etc. for Properties.
+> >
+> > Device 2 simply is a count of your devices.
+> >
+> > locator() is a little tricky to use, and I suspect you
+> > simply didn't
+> > "finish". I haven't used it in a while but AFAICR you need
+> > to click on the
+> > mouse in a particular sequence.
+> >
+> > Dirk
+> >
+> > | I failed to tell you that I'm running R in Emacs 22 (X11)
+> > in the ESS
+> > | Buffer.  I'm not very good at it but I'm
+> > trying.  Thanks for your
+> > | thoughts.
+> > |
+> > | Judson
+> > |
+> > | _______________________________________________
+> > | R-SIG-Debian mailing list
+> > | R-SIG-Debian at r-project.org
+> > | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> >
+> > --
+> > Three out of two people have difficulties with fractions.
+> >
+> > _______________________________________________
+> > R-SIG-Debian mailing list
+> > R-SIG-Debian at r-project.org
+> > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> >
+>
+>
+>
+>
+>_______________________________________________
+>R-SIG-Debian mailing list
+>R-SIG-Debian at r-project.org
+>https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+Michael Dewey
+http://www.aghmed.fsnet.co.uk
+
+
+From maechler at stat.math.ethz.ch  Mon Oct  5 09:52:49 2009
+From: maechler at stat.math.ethz.ch (Martin Maechler)
+Date: Mon, 5 Oct 2009 09:52:49 +0200
+Subject: [R-sig-Debian] REvolution R sneaking inside Ubuntu ???
+In-Reply-To: <200910042340.45009.andy.choens@gmail.com>
+References: <200910042340.45009.andy.choens@gmail.com>
+Message-ID: <19145.42449.787663.718216@lynne.math.ethz.ch>
+
+Read this on R-help,
+subject  "[R] Ubuntu, Revolutions, R".
+
+I can hardly believe it's true and at the moment suspect
+that Andrew has a very unusual '/etc/apt/sources.list' or
+(an analogoue of that)
+
+Any qualified comments, 
+Dirk Eddelbuettel, Vincent Goulet, ??
+
+Martin
+
+
+>>>>> "AC" == Andrew Choens <andy.choens at gmail.com>
+>>>>>     on Sun, 4 Oct 2009 23:40:44 -0400 writes:
+
+    AC> For those who don't follow Ubuntu development carefully,
+    AC> the first Beta for the next Ubuntu was recently
+    AC> released, so I took my home system and upgraded to help
+    AC> out with filing bugs, etc.
+
+    AC> Just to be clear, I am not looking for help with the
+    AC> upgrade process. I've had R, and a few miscellaneous
+    AC> CRAN packages installed on this computer for years.
+    AC> Today, when I loaded an R session I had developed before
+    AC> the upgrade, I saw something new in my R "welcome
+    AC> message".
+
+    >> 
+    >> R version 2.9.2 (2009-08-24)
+    >> Copyright (C) 2009 The R Foundation for Statistical Computing
+    >> ISBN 3-900051-07-0
+    >> 
+    >> R is free software and comes with ABSOLUTELY NO WARRANTY.
+    >> You are welcome to redistribute it under certain conditions.
+    >> Type 'license()' or 'licence()' for distribution details.
+    >> 
+    >> R is a collaborative project with many contributors.
+    >> Type 'contributors()' for more information and
+    >> 'citation()' on how to cite R or R packages in publications.
+    >> 
+    >> 
+    >> This is REvolution R version 3.0.0:
+    >> the optimized distribution of R from REvolution Computing.
+    >> REvolution R enhancements Copyright (C) REvolution Computing, Inc.
+    >> 
+    >> Checking for REvolution MKL:
+    >> - REvolution R enhancements not installed.
+    >> For improved performance and other extensions: apt-get install revolution-r
+
+    AC> The last part, about this being the "enhanced" version of R was . . . 
+    AC> unexpected.  I have heard of this company before and now I've spent some time 
+    AC> on their website. Looking at my installation, Ubuntu did not install any of 
+    AC> the REvolution Computing components, although R now basically thows a warning 
+    AC> every time I start it.
+
+    AC> My question(s) for the community is this (pick any question(s) you like to 
+    AC> answer: 
+    AC>   Should I install the REvolution Computing packages? 
+    AC>   Do these packages really make R faster? 
+    AC>   Are these packages stable? 
+    AC>   What are your experiences with REvolution Computing software?
+
+    AC> I am interested in hearing from members of the community, REvolution Computing 
+    AC> employees/supporters (although please ID yourself as such) and most anyone 
+    AC> else. I can see what they say on their website, but I'm interested in getting 
+    AC> other opinions too.
+
+    AC> Thanks!
+
+    AC> ______________________________________________
+    AC> R-help at r-project.org mailing list
+    AC> https://stat.ethz.ch/mailman/listinfo/r-help
+    AC> PLEASE do read the posting guide http://www.R-project.org/posting-guide.html
+    AC> and provide commented, minimal, self-contained, reproducible code.
+
+
+From edd at debian.org  Mon Oct  5 15:39:30 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 5 Oct 2009 08:39:30 -0500
+Subject: [R-sig-Debian] error installing/compiling kernlab
+In-Reply-To: <BAY109-W52812B32F6C49CAF23E34FDED00@phx.gbl>
+References: <BAY109-W52812B32F6C49CAF23E34FDED00@phx.gbl>
+Message-ID: <19145.63250.722148.574846@ron.nulle.part>
+
+
+On 4 October 2009 at 10:43, Mircea Trandafir wrote:
+| Thanks for the reply. I am using R version 2.9.2 (2009-08-24). I used to 
+| run it on a 32bit machine and everything worked fine. It's only after I 
+| switched to 64bit that I had this problem. Maybe it's something about 
+| 64bit vs 32bit? So it'd be great if you could check if it works on a 
+| 64bit machine.
+
+It works just the same on amd64 on my Ubuntu 9.04.  I suspect that you may
+have either a) an problem with one of the packages loaded by kernlab or
+b) an RData file that is loaded that gets in the way and provides a size()
+method that triggers the error
+
+   In method for function "size": formal arguments omitted in the method
+   definition cannot be in the signature (obj = "specc")
+
+you reported.
+
+In short, the error is not reproducible on either amd64 or i386 with current
+R installations, and I double kernlab or R are at fault.
+
+Hope this helps, Dirk
+
+
+| 
+| Thanks again,
+| Mircea
+| 
+| Dirk Eddelbuettel said the following on 2009-10-04 10:29:
+| > On 4 October 2009 at 09:54, Mircea Trandafir wrote:
+| > | 
+| > | Hi everybody,
+| > | 
+| > | 
+| > | 
+| > | I'm using R on a 64-bit Ubuntu 9.04 (Jaunty). I prefer to install R
+| > | packages from source, even if they are available in Synaptic. The
+| > | problem is that I can't install/compile kernlab. Everything works fine
+| > | until it gets to the lazy loading part:
+| > | 
+| > | 
+| > | 
+| > | ** preparing package for lazy loading
+| > | 
+| > | Creating a new generic function for "terms" in "kernlab"
+| > | 
+| > | Creating a new generic function for "fitted" in "kernlab"
+| > | 
+| > | Creating a new generic function for "coef" in "kernlab"
+| > | 
+| > | Error in conformMethod(signature, mnames, fnames, f, fdef, definition)
+| > | : 
+| > | 
+| > |   In method for function "size": formal arguments omitted in the method
+| > | definition cannot be in the signature (obj = "specc")
+| > | 
+| > | Error : unable to load R code in package 'kernlab'
+| > | 
+| > | ERROR : lazy loading failed for the package ?kernlab?
+| > | 
+| > | 
+| > | 
+| > | 
+| > | Does anybody have any idea what might cause this? And, more
+| > | importantly, how I can move forward?
+| >
+| > Works fine here (and 'install.r' is from the 'littler' package and I just
+| > create a symlink for it so that I can quickly install packages from the
+| > command-line):
+| >
+| >
+| > edd at ron:~$ install.r kernlab
+| > trying URL 'http://cran.us.r-project.org/src/contrib/kernlab_0.9-8.tar.gz'
+| > Content type 'application/x-gzip' length 1262166 bytes (1.2 Mb)           
+| > opened URL                                                                
+| > ==================================================                        
+| > downloaded 1.2 Mb                                                         
+| >
+| > * Installing *source* package ?kernlab? ...
+| > ** libs                                    
+| > g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c brweight.cpp -o brweight.o
+| > g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c ctable.cpp -o ctable.o    
+| > g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c cweight.cpp -o cweight.o  
+| > gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dbreakpt.c -o dbreakpt.o
+| > gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dcauchy.c -o dcauchy.o  
+| > gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dgpnrm.c -o dgpnrm.o    
+| > gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dgpstep.c -o dgpstep.o  
+| > gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dprecond.c -o dprecond.o
+| > gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dprsrch.c -o dprsrch.o  
+| > gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dspcg.c -o dspcg.o      
+| > gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dtron.c -o dtron.o      
+| > gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dtrpcg.c -o dtrpcg.o    
+| > dtrpcg.c: In function ?dtrpcg?:                                                                 
+| > dtrpcg.c:157: warning: value computed is not used                                               
+| > gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c dtrqsol.c -o dtrqsol.o  
+| > g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c esa.cpp -o esa.o                   
+| > In file included from wmsufsort.h:46,                                                           
+| >                  from esa.cpp:68:                                                               
+| > msufsort.h: In member function ?void MSufSort::ShowProgress()?:                                 
+| > msufsort.h:907: warning: unused variable ?p?                                                    
+| > esa.cpp: In constructor ?ESA::ESA(const UInt32&, SYMBOL*, int)?:                                
+| > esa.cpp:114: warning: comparison between signed and unsigned integer expressions                
+| > g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c expdecayweight.cpp -o expdecayweight.o
+| > g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c inductionsort.cpp -o inductionsort.o  
+| > g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c kspectrumweight.cpp -o kspectrumweight.o
+| > g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c lcp.cpp -o lcp.o                        
+| > gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c misc.c -o misc.o             
+| > g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c msufsort.cpp -o msufsort.o              
+| > In file included from msufsort.cpp:28:                                                               
+| > msufsort.h: In member function ?void MSufSort::ShowProgress()?:                                      
+| > msufsort.h:907: warning: unused variable ?p?                                                         
+| > gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c solvebqp.c -o solvebqp.o     
+| > gcc -std=gnu99 -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c stringk.c -o stringk.o       
+| > g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c stringkernel.cpp -o stringkernel.o      
+| > stringkernel.cpp: In function ?SEXPREC* stringtv(SEXPREC*, SEXPREC*, SEXPREC*, SEXPREC*, SEXPREC*, SEXPREC*, SEXPREC*)?:
+| > stringkernel.cpp:506: warning: comparison between signed and unsigned integer expressions                               
+| > stringkernel.cpp:513: warning: comparison between signed and unsigned integer expressions                               
+| > g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c svm.cpp -o svm.o                                           
+| > g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c wkasailcp.cpp -o wkasailcp.o                               
+| > g++ -I/usr/share/R/include      -fpic  -g -O3 -Wall -pipe -c wmsufsort.cpp -o wmsufsort.o                               
+| > In file included from wmsufsort.h:46,                                                                                   
+| >                  from wmsufsort.cpp:48:                                                                                 
+| > msufsort.h: In member function ?void MSufSort::ShowProgress()?:                                                         
+| > msufsort.h:907: warning: unused variable ?p?                                                                            
+| > g++ -shared -o kernlab.so brweight.o ctable.o cweight.o dbreakpt.o dcauchy.o dgpnrm.o dgpstep.o dprecond.o dprsrch.o dspcg.o dtron.o dtrpcg.o dtrqsol.o esa.o expdecayweight.o inductionsort.o kspectrumweight.o lcp.o misc.o msufsort.o solvebqp.o stringk.o stringkernel.o svm.o wkasailcp.o wmsufsort.o -lblas -lgfortran -lm -llapack -L/usr/lib/R/lib -lR
+| > ** R
+| > ** data
+| > ** inst
+| > ** preparing package for lazy loading
+| > Creating a new generic function for "terms" in "kernlab"   
+| > Creating a new generic function for "fitted" in "kernlab"  
+| > Creating a new generic function for "coef" in "kernlab"    
+| > Creating a new generic function for "predict" in "kernlab" 
+| > Creating a new generic function for "plot" in "kernlab"    
+| > ** help                                                    
+| > *** installing help indices                                
+| > >>> Building/Updating help pages for package 'kernlab'    
+| >      Formats: text html latex example                      
+| >   as.kernelMatrix                   text    html    latex   example
+| >   couple                            text    html    latex   example
+| >   csi-class                         text    html    latex   example
+| >   csi                               text    html    latex   example
+| >   dots                              text    html    latex   example
+| >   gausspr-class                     text    html    latex   example
+| >   gausspr                           text    html    latex   example
+| >   inchol-class                      text    html    latex   example
+| >   inchol                            text    html    latex   example
+| >   income                            text    html    latex
+| >   inlearn                           text    html    latex   example
+| >   ipop-class                        text    html    latex   example
+| >   ipop                              text    html    latex   example
+| >   kcca-class                        text    html    latex   example
+| >   kcca                              text    html    latex   example
+| >   kernel-class                      text    html    latex   example
+| >   kernelMatrix                      text    html    latex   example
+| >   kfa-class                         text    html    latex   example
+| >   kfa                               text    html    latex   example
+| >   kha-class                         text    html    latex   example
+| >   kha                               text    html    latex   example
+| >   kkmeans                           text    html    latex   example
+| >   kmmd-class                        text    html    latex   example
+| >   kmmd                              text    html    latex   example
+| >   kpca-class                        text    html    latex   example
+| >   kpca                              text    html    latex   example
+| >   kqr-class                         text    html    latex   example
+| >   kqr                               text    html    latex   example
+| >   ksvm-class                        text    html    latex   example
+| >   ksvm                              text    html    latex   example
+| >   lssvm-class                       text    html    latex   example
+| >   lssvm                             text    html    latex   example
+| >   musk                              text    html    latex   example
+| >   onlearn-class                     text    html    latex   example
+| >   onlearn                           text    html    latex   example
+| >   plot                              text    html    latex   example
+| >   prc-class                         text    html    latex
+| >   predict.gausspr                   text    html    latex   example
+| >   predict.kqr                       text    html    latex   example
+| >   predict.ksvm                      text    html    latex   example
+| >   promotergene                      text    html    latex   example
+| >   ranking-class                     text    html    latex   example
+| >   ranking                           text    html    latex   example
+| >   reuters                           text    html    latex
+| >   rvm-class                         text    html    latex   example
+| >   rvm                               text    html    latex   example
+| >   sigest                            text    html    latex   example
+| >   spam                              text    html    latex
+| >   specc-class                       text    html    latex   example
+| >   specc                             text    html    latex   example
+| >   spirals                           text    html    latex   example
+| >   stringdot                         text    html    latex   example
+| >   ticdata                           text    html    latex
+| >   vm-class                          text    html    latex
+| > ** building package indices ...
+| > * DONE (kernlab)
+| >
+| > The downloaded packages are in
+| >         ?/tmp/downloaded_packages?
+| > edd at ron:~$
+| >
+| > That's on i386 but if you insist I could try on one of the amd64 machines at
+| > work.  
+| >
+| > What version of R are you running?
+| >
+| > Dirk
+| >
+| >
+| > | Thanks,
+| > | 
+| > | Mircea
+| > | 
+| > | 
+| > | 
+| > |  		 	   		  
+| > | 	[[alternative HTML version deleted]]
+| > | 
+| > | 
+| > | ----------------------------------------------------------------------
+| > | _______________________________________________
+| > | R-SIG-Debian mailing list
+| > | R-SIG-Debian at r-project.org
+| > | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| >
+| >   
+| 
+|  		 	   		  
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From tramir at hotmail.com  Mon Oct  5 16:17:53 2009
+From: tramir at hotmail.com (Mircea Trandafir)
+Date: Mon, 5 Oct 2009 10:17:53 -0400
+Subject: [R-sig-Debian] error installing/compiling kernlab
+Message-ID: <BAY109-W103F86BB6BDCCF3C56E4F3DECF0@phx.gbl>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20091005/e6aeed0b/attachment.pl>
+
+From edd at debian.org  Mon Oct  5 16:28:12 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 5 Oct 2009 09:28:12 -0500
+Subject: [R-sig-Debian] REvolution R sneaking inside Ubuntu ???
+In-Reply-To: <19145.42449.787663.718216@lynne.math.ethz.ch>
+References: <200910042340.45009.andy.choens@gmail.com>
+	<19145.42449.787663.718216@lynne.math.ethz.ch>
+Message-ID: <19146.636.38477.513513@ron.nulle.part>
+
+
+On 5 October 2009 at 09:52, Martin Maechler wrote:
+| Read this on R-help,
+| subject  "[R] Ubuntu, Revolutions, R".
+| 
+| I can hardly believe it's true and at the moment suspect
+| that Andrew has a very unusual '/etc/apt/sources.list' or
+| (an analogoue of that)
+| 
+| Any qualified comments, 
+| Dirk Eddelbuettel, Vincent Goulet, ??
+
+Please see the follow-up by David Smith on r-help.  
+
+In short: Canonical and REvolution have cooperated to provide an enhanced R
+version in the upcoming Ubuntu release due out at the end of October. It
+offers both the Intel MKL (the fastest BLAS available thanks to extensive
+code optimization and, where possible, multithreaded operations) and the
+REvolution 'iterators', 'foreach', 'doMC', 'doSNOW' packages that make
+parallel execution easier (either via Simon's multicore or via snow).
+
+Nothing is taken away from R, and the only visible change is the message from
+/etc/R/Rprofile.site which can be commented-out rather easily. It can also be
+suppressed by using one ot the standard options --silent, --slave or --quiet.
+
+As you asked: I have provided technical assistance via the packaging and the
+integration into the Ubuntu release.  I have also tested this fairly
+rigorously on amd64 and i386 machines.  Lastly, the 'R-for-Ubuntu-via-CRAN'
+process that is handled by Vincent and Michael is completely separate from
+this and continues to be a straight port of my Debian package.
+
+If you have any questions, I'd be happy to take them off-line. I look forward
+to your comments once your Ubuntu installation has upgraded to Ubuntu 9.10.
+
+Regards, Dirk
+
+ 
+| Martin
+| 
+| 
+| >>>>> "AC" == Andrew Choens <andy.choens at gmail.com>
+| >>>>>     on Sun, 4 Oct 2009 23:40:44 -0400 writes:
+| 
+|     AC> For those who don't follow Ubuntu development carefully,
+|     AC> the first Beta for the next Ubuntu was recently
+|     AC> released, so I took my home system and upgraded to help
+|     AC> out with filing bugs, etc.
+| 
+|     AC> Just to be clear, I am not looking for help with the
+|     AC> upgrade process. I've had R, and a few miscellaneous
+|     AC> CRAN packages installed on this computer for years.
+|     AC> Today, when I loaded an R session I had developed before
+|     AC> the upgrade, I saw something new in my R "welcome
+|     AC> message".
+| 
+|     >> 
+|     >> R version 2.9.2 (2009-08-24)
+|     >> Copyright (C) 2009 The R Foundation for Statistical Computing
+|     >> ISBN 3-900051-07-0
+|     >> 
+|     >> R is free software and comes with ABSOLUTELY NO WARRANTY.
+|     >> You are welcome to redistribute it under certain conditions.
+|     >> Type 'license()' or 'licence()' for distribution details.
+|     >> 
+|     >> R is a collaborative project with many contributors.
+|     >> Type 'contributors()' for more information and
+|     >> 'citation()' on how to cite R or R packages in publications.
+|     >> 
+|     >> 
+|     >> This is REvolution R version 3.0.0:
+|     >> the optimized distribution of R from REvolution Computing.
+|     >> REvolution R enhancements Copyright (C) REvolution Computing, Inc.
+|     >> 
+|     >> Checking for REvolution MKL:
+|     >> - REvolution R enhancements not installed.
+|     >> For improved performance and other extensions: apt-get install revolution-r
+| 
+|     AC> The last part, about this being the "enhanced" version of R was . . . 
+|     AC> unexpected.  I have heard of this company before and now I've spent some time 
+|     AC> on their website. Looking at my installation, Ubuntu did not install any of 
+|     AC> the REvolution Computing components, although R now basically thows a warning 
+|     AC> every time I start it.
+| 
+|     AC> My question(s) for the community is this (pick any question(s) you like to 
+|     AC> answer: 
+|     AC>   Should I install the REvolution Computing packages? 
+|     AC>   Do these packages really make R faster? 
+|     AC>   Are these packages stable? 
+|     AC>   What are your experiences with REvolution Computing software?
+| 
+|     AC> I am interested in hearing from members of the community, REvolution Computing 
+|     AC> employees/supporters (although please ID yourself as such) and most anyone 
+|     AC> else. I can see what they say on their website, but I'm interested in getting 
+|     AC> other opinions too.
+| 
+|     AC> Thanks!
+| 
+|     AC> ______________________________________________
+|     AC> R-help at r-project.org mailing list
+|     AC> https://stat.ethz.ch/mailman/listinfo/r-help
+|     AC> PLEASE do read the posting guide http://www.R-project.org/posting-guide.html
+|     AC> and provide commented, minimal, self-contained, reproducible code.
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From ogbos.okike at gmail.com  Mon Oct  5 16:40:11 2009
+From: ogbos.okike at gmail.com (ogbos okike)
+Date: Mon, 5 Oct 2009 16:40:11 +0200
+Subject: [R-sig-Debian] 'convert'
+Message-ID: <43b418580910050740n1134b86cuff173efb48f69c7a@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20091005/e8bff243/attachment.pl>
+
+From mar36 at psu.edu  Mon Oct  5 16:45:11 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 05 Oct 2009 10:45:11 -0400
+Subject: [R-sig-Debian] 'convert'
+In-Reply-To: <43b418580910050740n1134b86cuff173efb48f69c7a@mail.gmail.com>
+References: <43b418580910050740n1134b86cuff173efb48f69c7a@mail.gmail.com>
+Message-ID: <4ACA0677.4030106@psu.edu>
+
+Ogbos,
+
+You need to make sure to install the ImageMagick packages.  When you 
+find that a previously used command or program is not installed, I 
+suggest going here:
+
+http://packages.ubuntu.com/
+
+And use the "Search the contents of packages" option to find the command 
+you are looking for.  "convert" is in ImageMagick.
+
+Michael
+
+ogbos okike wrote:
+> Hi there,
+> I used the function 'convert' to convert files from one form to the order
+> (png to pdf, jpg etc) before I install Ubuntus. However, the function
+> apparently disappeared after the installation.
+> I am a new student and would be pleased if somebody could tell me how to
+> wiggle out.
+> Thanks for your help
+> Ogbos
+> 
+> 	[[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From maechler at stat.math.ethz.ch  Mon Oct  5 17:15:13 2009
+From: maechler at stat.math.ethz.ch (Martin Maechler)
+Date: Mon, 5 Oct 2009 17:15:13 +0200
+Subject: [R-sig-Debian] REvolution R sneaking inside Ubuntu ???
+In-Reply-To: <19146.636.38477.513513@ron.nulle.part>
+References: <200910042340.45009.andy.choens@gmail.com>
+	<19145.42449.787663.718216@lynne.math.ethz.ch>
+	<19146.636.38477.513513@ron.nulle.part>
+Message-ID: <3f1d2410910050815q632daf61r2b0dca460f9f0ddd@mail.gmail.com>
+
+Thanks a lot, Dirk, for the clarifications and background info!!
+Martin
+
+On Mon, Oct 5, 2009 at 16:28, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> On 5 October 2009 at 09:52, Martin Maechler wrote:
+> | Read this on R-help,
+> | subject ?"[R] Ubuntu, Revolutions, R".
+> |
+> | I can hardly believe it's true and at the moment suspect
+> | that Andrew has a very unusual '/etc/apt/sources.list' or
+> | (an analogoue of that)
+> |
+> | Any qualified comments,
+> | Dirk Eddelbuettel, Vincent Goulet, ??
+>
+> Please see the follow-up by David Smith on r-help.
+>
+> In short: Canonical and REvolution have cooperated to provide an enhanced R
+> version in the upcoming Ubuntu release due out at the end of October. It
+> offers both the Intel MKL (the fastest BLAS available thanks to extensive
+> code optimization and, where possible, multithreaded operations) and the
+> REvolution 'iterators', 'foreach', 'doMC', 'doSNOW' packages that make
+> parallel execution easier (either via Simon's multicore or via snow).
+>
+> Nothing is taken away from R, and the only visible change is the message from
+> /etc/R/Rprofile.site which can be commented-out rather easily. It can also be
+> suppressed by using one ot the standard options --silent, --slave or --quiet.
+>
+> As you asked: I have provided technical assistance via the packaging and the
+> integration into the Ubuntu release. ?I have also tested this fairly
+> rigorously on amd64 and i386 machines. ?Lastly, the 'R-for-Ubuntu-via-CRAN'
+> process that is handled by Vincent and Michael is completely separate from
+> this and continues to be a straight port of my Debian package.
+>
+> If you have any questions, I'd be happy to take them off-line. I look forward
+> to your comments once your Ubuntu installation has upgraded to Ubuntu 9.10.
+>
+> Regards, Dirk
+>
+>
+> | Martin
+> |
+> |
+> | >>>>> "AC" == Andrew Choens <andy.choens at gmail.com>
+> | >>>>> ? ? on Sun, 4 Oct 2009 23:40:44 -0400 writes:
+> |
+> | ? ? AC> For those who don't follow Ubuntu development carefully,
+> | ? ? AC> the first Beta for the next Ubuntu was recently
+> | ? ? AC> released, so I took my home system and upgraded to help
+> | ? ? AC> out with filing bugs, etc.
+> |
+> | ? ? AC> Just to be clear, I am not looking for help with the
+> | ? ? AC> upgrade process. I've had R, and a few miscellaneous
+> | ? ? AC> CRAN packages installed on this computer for years.
+> | ? ? AC> Today, when I loaded an R session I had developed before
+> | ? ? AC> the upgrade, I saw something new in my R "welcome
+> | ? ? AC> message".
+> |
+> | ? ? >>
+> | ? ? >> R version 2.9.2 (2009-08-24)
+> | ? ? >> Copyright (C) 2009 The R Foundation for Statistical Computing
+> | ? ? >> ISBN 3-900051-07-0
+> | ? ? >>
+> | ? ? >> R is free software and comes with ABSOLUTELY NO WARRANTY.
+> | ? ? >> You are welcome to redistribute it under certain conditions.
+> | ? ? >> Type 'license()' or 'licence()' for distribution details.
+> | ? ? >>
+> | ? ? >> R is a collaborative project with many contributors.
+> | ? ? >> Type 'contributors()' for more information and
+> | ? ? >> 'citation()' on how to cite R or R packages in publications.
+> | ? ? >>
+> | ? ? >>
+> | ? ? >> This is REvolution R version 3.0.0:
+> | ? ? >> the optimized distribution of R from REvolution Computing.
+> | ? ? >> REvolution R enhancements Copyright (C) REvolution Computing, Inc.
+> | ? ? >>
+> | ? ? >> Checking for REvolution MKL:
+> | ? ? >> - REvolution R enhancements not installed.
+> | ? ? >> For improved performance and other extensions: apt-get install revolution-r
+> |
+> | ? ? AC> The last part, about this being the "enhanced" version of R was . . .
+> | ? ? AC> unexpected. ?I have heard of this company before and now I've spent some time
+> | ? ? AC> on their website. Looking at my installation, Ubuntu did not install any of
+> | ? ? AC> the REvolution Computing components, although R now basically thows a warning
+> | ? ? AC> every time I start it.
+> |
+> | ? ? AC> My question(s) for the community is this (pick any question(s) you like to
+> | ? ? AC> answer:
+> | ? ? AC> ? Should I install the REvolution Computing packages?
+> | ? ? AC> ? Do these packages really make R faster?
+> | ? ? AC> ? Are these packages stable?
+> | ? ? AC> ? What are your experiences with REvolution Computing software?
+> |
+> | ? ? AC> I am interested in hearing from members of the community, REvolution Computing
+> | ? ? AC> employees/supporters (although please ID yourself as such) and most anyone
+> | ? ? AC> else. I can see what they say on their website, but I'm interested in getting
+> | ? ? AC> other opinions too.
+> |
+> | ? ? AC> Thanks!
+> |
+> | ? ? AC> ______________________________________________
+> | ? ? AC> R-help at r-project.org mailing list
+> | ? ? AC> https://stat.ethz.ch/mailman/listinfo/r-help
+> | ? ? AC> PLEASE do read the posting guide http://www.R-project.org/posting-guide.html
+> | ? ? AC> and provide commented, minimal, self-contained, reproducible code.
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+> --
+> Three out of two people have difficulties with fractions.
+>
+> _______________________________________________
+> R-core list: https://stat.ethz.ch/mailman/listinfo/r-core
+>
+>
+
+
+From spluque at gmail.com  Tue Oct  6 23:23:15 2009
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Tue, 06 Oct 2009 16:23:15 -0500
+Subject: [R-sig-Debian] vignette() failure
+Message-ID: <871vlgz070.fsf@kolob.sebmags.homelinux.org>
+
+Hi,
+
+I can't pinpoint exactly since what R version I first noticed this
+error, but are others seeing this?
+
+R> vignette("grid")
+R> sh: : command not found
+
+instead of having the vignette displayed in the proper viewer?  This is
+with:
+
+R> sessionInfo()
+R version 2.9.2 (2009-08-24) 
+x86_64-pc-linux-gnu 
+
+locale:
+LC_CTYPE=en_CA.UTF-8;LC_NUMERIC=C;LC_TIME=en_CA.UTF-8;LC_COLLATE=en_CA.UTF-8;LC_MONETARY=C;LC_MESSAGES=en_CA.UTF-8;LC_PAPER=en_CA.UTF-8;LC_NAME=C;LC_ADDRESS=C;LC_TELEPHONE=C;LC_MEASUREMENT=en_CA.UTF-8;LC_IDENTIFICATION=C
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] slmisc_0.7.2    lattice_0.17-26
+
+loaded via a namespace (and not attached):
+[1] grid_2.9.2  tools_2.9.2
+
+Cheers,
+-- 
+Seb
+
+
+From edd at debian.org  Tue Oct  6 23:38:06 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 6 Oct 2009 16:38:06 -0500
+Subject: [R-sig-Debian] vignette() failure
+In-Reply-To: <871vlgz070.fsf@kolob.sebmags.homelinux.org>
+References: <871vlgz070.fsf@kolob.sebmags.homelinux.org>
+Message-ID: <19147.47294.167223.162418@ron.nulle.part>
+
+
+On 6 October 2009 at 16:23, Sebastian P. Luque wrote:
+| Hi,
+| 
+| I can't pinpoint exactly since what R version I first noticed this
+| error, but are others seeing this?
+| 
+| R> vignette("grid")
+| R> sh: : command not found
+
+It's a bug. If I look at /etc/R/Renviron I see
+
+## Default PDF viewer
+R_PDFVIEWER=${R_PDFVIEWER-''}
+
+and that should not be empty. My bad -- will fix.
+
+Until new packages come and fix it, do something like this in ~/.Rprofile:
+
+options("pdfviewer"="kpdf")
+      
+substituting whichever viewer you like best.
+
+Dirk
+
+ 
+| instead of having the vignette displayed in the proper viewer?  This is
+| with:
+| 
+| R> sessionInfo()
+| R version 2.9.2 (2009-08-24) 
+| x86_64-pc-linux-gnu 
+| 
+| locale:
+| LC_CTYPE=en_CA.UTF-8;LC_NUMERIC=C;LC_TIME=en_CA.UTF-8;LC_COLLATE=en_CA.UTF-8;LC_MONETARY=C;LC_MESSAGES=en_CA.UTF-8;LC_PAPER=en_CA.UTF-8;LC_NAME=C;LC_ADDRESS=C;LC_TELEPHONE=C;LC_MEASUREMENT=en_CA.UTF-8;LC_IDENTIFICATION=C
+| 
+| attached base packages:
+| [1] stats     graphics  grDevices utils     datasets  methods   base     
+| 
+| other attached packages:
+| [1] slmisc_0.7.2    lattice_0.17-26
+| 
+| loaded via a namespace (and not attached):
+| [1] grid_2.9.2  tools_2.9.2
+| 
+| Cheers,
+| -- 
+| Seb
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From caoanroad4800 at gmail.com  Fri Oct  9 13:36:02 2009
+From: caoanroad4800 at gmail.com (Yanyuan Zhu)
+Date: Fri, 9 Oct 2009 19:36:02 +0800
+Subject: [R-sig-Debian] Fwd: I can not install DAAG package . help
+In-Reply-To: <7b6ac3d30910080127t26ede9ebrc13f3f76297793d6@mail.gmail.com>
+References: <7b6ac3d30910080127t26ede9ebrc13f3f76297793d6@mail.gmail.com>
+Message-ID: <7b6ac3d30910090436k6c2b507dh996e368ec6011fa2@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20091009/e2085b61/attachment.pl>
+
+From mar36 at psu.edu  Fri Oct  9 17:37:15 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Fri, 09 Oct 2009 11:37:15 -0400
+Subject: [R-sig-Debian] Fwd: I can not install DAAG package . help
+In-Reply-To: <7b6ac3d30910090436k6c2b507dh996e368ec6011fa2@mail.gmail.com>
+References: <7b6ac3d30910080127t26ede9ebrc13f3f76297793d6@mail.gmail.com>
+	<7b6ac3d30910090436k6c2b507dh996e368ec6011fa2@mail.gmail.com>
+Message-ID: <4ACF58AB.5020207@psu.edu>
+
+Yanyaun,
+
+I was unable to recreate this error, as DAAG installed fine for me.  I 
+would suggest that you remove the randomForest package (remove.packages 
+command), then try to install DAAG.  At least try to install 
+randomForest by itself and see if that generates and error.
+
+Hope this helps,
+Michael
+
+Yanyuan Zhu wrote:
+> Dear all:
+> 
+> 
+> I use R on my Ubuntu 9.04 laptop, which was installed by "aptitude install"
+> way
+> Now i'm learning a book of R which needs "MASS" and "DAAG" installed.
+> So i followed the instructions:
+> 
+>> install.packages("MASS")
+>> library("MASS")
+> 
+> MASS works fine.
+> 
+> But DAAG doesn't. Anyone who could help would be appreciated a lot !
+> 
+> Below are my error outpus :
+> 
+>> install.packages("DAAG")
+> Warning in install.packages("DAAG") :
+>   argument 'lib' is missing: using
+> '/home/simon/R/i486-pc-linux-gnu-library/2.9'
+> --- Please select a CRAN mirror for use in this session ---
+> Loading Tcl/Tk interface ... done
+> also installing the dependency ???randomForest???
+> 
+> trying URL '
+> http://ftp.ctex.org/mirrors/CRAN/src/contrib/randomForest_4.5-30.tar.gz'
+> Content type 'application/x-gzip' length 70247 bytes (68 Kb)
+> opened URL
+> ==================================================
+> downloaded 68 Kb
+> 
+> trying URL 'http://ftp.ctex.org/mirrors/CRAN/src/contrib/DAAG_1.00.tar.gz'
+> Content type 'application/x-gzip' length 2172778 bytes (2.1 Mb)
+> opened URL
+> ==================================================
+> downloaded 2.1 Mb
+> 
+> 
+>  Warning: you have multiple copies of the following packages:
+> Error: could not find function "installed.packages"
+> Execution halted
+> 
+>  Warning: you have multiple copies of the following packages:
+> Error: could not find function "installed.packages"
+> Execution halted
+> 
+> The downloaded packages are in
+>     ???/tmp/Rtmp7w4WPA/downloaded_packages???
+> Warning messages:
+> 1: In install.packages("DAAG") :
+>   installation of package 'randomForest' had non-zero exit status
+> 2: In install.packages("DAAG") :
+>   installation of package 'DAAG' had non-zero exit status
+> 
+>> library(DAAG)
+> Error in library(DAAG) : there is no package called 'DAAG'
+> 
+> 
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From caoanroad4800 at gmail.com  Fri Oct  9 18:14:41 2009
+From: caoanroad4800 at gmail.com (Yanyuan Zhu)
+Date: Sat, 10 Oct 2009 00:14:41 +0800
+Subject: [R-sig-Debian] Fwd: I can not install DAAG package . help
+In-Reply-To: <4ACF58AB.5020207@psu.edu>
+References: <7b6ac3d30910080127t26ede9ebrc13f3f76297793d6@mail.gmail.com>
+	<7b6ac3d30910090436k6c2b507dh996e368ec6011fa2@mail.gmail.com>
+	<4ACF58AB.5020207@psu.edu>
+Message-ID: <7b6ac3d30910090914t6a12b50cy38f20499e51a3d7f@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20091010/0d64b496/attachment.pl>
+
+From bates at stat.wisc.edu  Mon Oct 19 20:41:58 2009
+From: bates at stat.wisc.edu (Douglas Bates)
+Date: Mon, 19 Oct 2009 13:41:58 -0500
+Subject: [R-sig-Debian] [OT] LaTeX peculiarities in Ubuntu 9.10 beta
+Message-ID: <40e66e0b0910191141m24697122nb662c416d1c168e2@mail.gmail.com>
+
+I am running the beta test version of Ubuntu 9.10, x86_64 on a machine
+and encountered some peculiarities in LaTeX called through
+
+R-devel CMD texi2pdf file.tex
+
+The tilde character in the input, which should produce a non-breaking
+space, is now being rendered as a tilde.  Does anyone know where I
+could begin exploring for explanations and/or workarounds?
+
+
+From edd at debian.org  Mon Oct 19 20:58:47 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 19 Oct 2009 13:58:47 -0500
+Subject: [R-sig-Debian] [OT] LaTeX peculiarities in Ubuntu 9.10 beta
+In-Reply-To: <40e66e0b0910191141m24697122nb662c416d1c168e2@mail.gmail.com>
+References: <40e66e0b0910191141m24697122nb662c416d1c168e2@mail.gmail.com>
+Message-ID: <19164.46823.508890.172854@ron.nulle.part>
+
+
+On 19 October 2009 at 13:41, Douglas Bates wrote:
+| I am running the beta test version of Ubuntu 9.10, x86_64 on a machine
+| and encountered some peculiarities in LaTeX called through
+| 
+| R-devel CMD texi2pdf file.tex
+| 
+| The tilde character in the input, which should produce a non-breaking
+| space, is now being rendered as a tilde.  Does anyone know where I
+| could begin exploring for explanations and/or workarounds?
+
+With Kurt and myself.  :-)
+
+We had a years-long buglet where R builds "broke" latexing for alpha/beta/rc
+releases such as the one I made this morning. Here, I use a scheme such as
+R-2.9.10~20091019 in both the package version and the build directory as dpkg
+sorts this lower than plain old R-2.9.10 and the final releases will cleanly
+replace the alpha/beta/rc variants.  However, this then broke the texinfo-to-pdf
+conversion as texinfo et al choked over the ~ in the directory name.  So all
+alpha/beta/rc build has essentially no pdf manuals.
+
+I think the last thing I heard from Kurt on this a few months back was that
+the 'feature' you observed had appeared. I am a little fuzzy on the details
+but maybe Kurt can fill in.
+
+But FWIW latex'ing this
+
+  \documentclass[12pt]{article}
+
+  \begin{document}
+
+  Here are two~words separated by a tilde.
+
+  \end{document}
+
+does not show a tilde in the pdf that resulted on Debian testing, with the
+packages below.  Maybe an Ubuntu bug report is needed?  My two machines with
+9.10 beta are currently unreachable for me.
+
+Dirk
+
+edd at ron:~> COLUMNS=74 dpkg -l | grep texlive
+ii  texlive-base   2007.dfsg.2-4  TeX Live: Essential programs and files
+ii  texlive-base-b 2007.dfsg.2-7  TeX Live: Essential binaries
+ii  texlive-common 2007.dfsg.2-4  TeX Live: Base component
+ii  texlive-doc-ba 2007.dfsg.2-2  TeX Live: Base documentation
+ii  texlive-extra- 2007.dfsg.2-7  TeX Live: TeX auxiliary programs
+ii  texlive-fonts- 2007.dfsg.2-4  TeX Live: Recommended fonts
+ii  texlive-generi 2007.dfsg.17-2 TeX Live: Miscellaneous extra generic macros
+ii  texlive-generi 2007.dfsg.2-4  TeX Live: Miscellaneous generic macros
+ii  texlive-latex- 2007.dfsg.2-4  TeX Live: Basic LaTeX packages
+ii  texlive-latex- 2007.dfsg.17-2 TeX Live: LaTeX supplementary packages
+ii  texlive-latex- 2007.dfsg.2-4  TeX Live: LaTeX recommended packages
+ii  texlive-pictur 2007.dfsg.2-4  TeX Live: Packages for drawings graphics
+ii  texlive-scienc 2007.dfsg.17-2 TeX Live: Typesetting for natural and comput
+edd at ron:~> 
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From mar36 at psu.edu  Mon Oct 19 21:14:27 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 19 Oct 2009 15:14:27 -0400
+Subject: [R-sig-Debian] [OT] LaTeX peculiarities in Ubuntu 9.10 beta
+In-Reply-To: <40e66e0b0910191141m24697122nb662c416d1c168e2@mail.gmail.com>
+References: <40e66e0b0910191141m24697122nb662c416d1c168e2@mail.gmail.com>
+Message-ID: <4ADCBA93.20100@psu.edu>
+
+Doug,
+
+I am not quite sure is this answers your question, but...
+
+If you look at the 'build-r-base.sh' script that Vincent Goulet wrote to 
+build the Ubunutu packages 
+(https://vgoulet.act.ulaval.ca/svn/R/cran-ubuntu/build-r-base.sh), the 
+following was added:
+
+# Change any ~ in the name of the build directory for a - to avoid a
+# bug in texi2dvi.
+if [ -d r-base-*~* ]
+then
+     dir=`ls -d r-base-*~*`
+     mv $dir `echo $dir | sed y/~/-/`
+fi
+
+Our other option was to ask a large man in a nice suit to see if he 
+could convince Dirk that putting tildes in the titles of his R beta 
+packages was a bad idea.
+
+This has been reported, and it claims to have been fixed.
+
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=495577
+
+Michael
+
+Douglas Bates wrote:
+> I am running the beta test version of Ubuntu 9.10, x86_64 on a machine
+> and encountered some peculiarities in LaTeX called through
+> 
+> R-devel CMD texi2pdf file.tex
+> 
+> The tilde character in the input, which should produce a non-breaking
+> space, is now being rendered as a tilde.  Does anyone know where I
+> could begin exploring for explanations and/or workarounds?
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From bates at stat.wisc.edu  Mon Oct 19 21:45:36 2009
+From: bates at stat.wisc.edu (Douglas Bates)
+Date: Mon, 19 Oct 2009 14:45:36 -0500
+Subject: [R-sig-Debian] [OT] LaTeX peculiarities in Ubuntu 9.10 beta
+In-Reply-To: <19164.47801.546827.194411@fangorn.hornik.net>
+References: <40e66e0b0910191141m24697122nb662c416d1c168e2@mail.gmail.com>
+	<19164.46823.508890.172854@ron.nulle.part>
+	<19164.47801.546827.194411@fangorn.hornik.net>
+Message-ID: <40e66e0b0910191245i57293ce6g348a89a5bfb55674@mail.gmail.com>
+
+On Mon, Oct 19, 2009 at 2:15 PM, Kurt Hornik <Kurt.Hornik at wu.ac.at> wrote:
+>>>>>> Dirk Eddelbuettel writes:
+>
+>> On 19 October 2009 at 13:41, Douglas Bates wrote:
+>> | I am running the beta test version of Ubuntu 9.10, x86_64 on a machine
+>> | and encountered some peculiarities in LaTeX called through
+>> |
+>> | R-devel CMD texi2pdf file.tex
+>> |
+>> | The tilde character in the input, which should produce a non-breaking
+>> | space, is now being rendered as a tilde. ?Does anyone know where I
+>> | could begin exploring for explanations and/or workarounds?
+>
+>> With Kurt and myself. ?:-)
+>
+> Actually, I recently talked to Karl Berry about this, and he will modify
+> upstream so that the tilde magic only gets performed for texinfo
+> sources. ?(He did not apply the patch to upstream yet, though.)
+
+So the temporary workaround is not to use texi2pdf but instead use pdflatex?
+
+>
+> Best
+> -k
+>
+>> We had a years-long buglet where R builds "broke" latexing for alpha/beta/rc
+>> releases such as the one I made this morning. Here, I use a scheme such as
+>> R-2.9.10~20091019 in both the package version and the build directory as dpkg
+>> sorts this lower than plain old R-2.9.10 and the final releases will cleanly
+>> replace the alpha/beta/rc variants. ?However, this then broke the texinfo-to-pdf
+>> conversion as texinfo et al choked over the ~ in the directory name. ?So all
+>> alpha/beta/rc build has essentially no pdf manuals.
+>
+>> I think the last thing I heard from Kurt on this a few months back was that
+>> the 'feature' you observed had appeared. I am a little fuzzy on the details
+>> but maybe Kurt can fill in.
+>
+>> But FWIW latex'ing this
+>
+>> ? \documentclass[12pt]{article}
+>
+>> ? \begin{document}
+>
+>> ? Here are two~words separated by a tilde.
+>
+>> ? \end{document}
+>
+>> does not show a tilde in the pdf that resulted on Debian testing, with the
+>> packages below. ?Maybe an Ubuntu bug report is needed? ?My two machines with
+>> 9.10 beta are currently unreachable for me.
+>
+>> Dirk
+>
+>> edd at ron:~> COLUMNS=74 dpkg -l | grep texlive
+>> ii ?texlive-base ? 2007.dfsg.2-4 ?TeX Live: Essential programs and files
+>> ii ?texlive-base-b 2007.dfsg.2-7 ?TeX Live: Essential binaries
+>> ii ?texlive-common 2007.dfsg.2-4 ?TeX Live: Base component
+>> ii ?texlive-doc-ba 2007.dfsg.2-2 ?TeX Live: Base documentation
+>> ii ?texlive-extra- 2007.dfsg.2-7 ?TeX Live: TeX auxiliary programs
+>> ii ?texlive-fonts- 2007.dfsg.2-4 ?TeX Live: Recommended fonts
+>> ii ?texlive-generi 2007.dfsg.17-2 TeX Live: Miscellaneous extra generic macros
+>> ii ?texlive-generi 2007.dfsg.2-4 ?TeX Live: Miscellaneous generic macros
+>> ii ?texlive-latex- 2007.dfsg.2-4 ?TeX Live: Basic LaTeX packages
+>> ii ?texlive-latex- 2007.dfsg.17-2 TeX Live: LaTeX supplementary packages
+>> ii ?texlive-latex- 2007.dfsg.2-4 ?TeX Live: LaTeX recommended packages
+>> ii ?texlive-pictur 2007.dfsg.2-4 ?TeX Live: Packages for drawings graphics
+>> ii ?texlive-scienc 2007.dfsg.17-2 TeX Live: Typesetting for natural and comput
+>> edd at ron:~>
+>
+>> --
+>> Three out of two people have difficulties with fractions.
+>
+>
+
+
+From bates at stat.wisc.edu  Mon Oct 19 21:51:11 2009
+From: bates at stat.wisc.edu (Douglas Bates)
+Date: Mon, 19 Oct 2009 14:51:11 -0500
+Subject: [R-sig-Debian] [OT] LaTeX peculiarities in Ubuntu 9.10 beta
+In-Reply-To: <4ADCBA93.20100@psu.edu>
+References: <40e66e0b0910191141m24697122nb662c416d1c168e2@mail.gmail.com>
+	<4ADCBA93.20100@psu.edu>
+Message-ID: <40e66e0b0910191251o66c305efq9412cdb1ded9a899@mail.gmail.com>
+
+On Mon, Oct 19, 2009 at 2:14 PM, Michael Rutter <mar36 at psu.edu> wrote:
+> Doug,
+>
+> I am not quite sure is this answers your question, but...
+>
+> If you look at the 'build-r-base.sh' script that Vincent Goulet wrote to
+> build the Ubunutu packages
+> (https://vgoulet.act.ulaval.ca/svn/R/cran-ubuntu/build-r-base.sh), the
+> following was added:
+>
+> # Change any ~ in the name of the build directory for a - to avoid a
+> # bug in texi2dvi.
+> if [ -d r-base-*~* ]
+> then
+> ? ?dir=`ls -d r-base-*~*`
+> ? ?mv $dir `echo $dir | sed y/~/-/`
+> fi
+>
+> Our other option was to ask a large man in a nice suit to see if he could
+> convince Dirk that putting tildes in the titles of his R beta packages was a
+> bad idea.
+
+Not sure that would work - Dirk can run fast and for long distances.
+
+Actually it was tildes in the LaTeX or Sweave sources, not in the
+directory names, that was the immediate problem for me.
+> This has been reported, and it claims to have been fixed.
+>
+> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=495577
+>
+> Michael
+>
+> Douglas Bates wrote:
+>>
+>> I am running the beta test version of Ubuntu 9.10, x86_64 on a machine
+>> and encountered some peculiarities in LaTeX called through
+>>
+>> R-devel CMD texi2pdf file.tex
+>>
+>> The tilde character in the input, which should produce a non-breaking
+>> space, is now being rendered as a tilde. ?Does anyone know where I
+>> could begin exploring for explanations and/or workarounds?
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+> --
+> Dr. Michael A. Rutter
+> School of Science
+> Penn State Erie, The Behrend College
+> Station Road
+> Erie, PA 16563
+> http://math.bd.psu.edu/faculty/rutter
+>
+
+
+From edd at debian.org  Mon Oct 19 21:59:33 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 19 Oct 2009 14:59:33 -0500
+Subject: [R-sig-Debian] [OT] LaTeX peculiarities in Ubuntu 9.10 beta
+In-Reply-To: <40e66e0b0910191245i57293ce6g348a89a5bfb55674@mail.gmail.com>
+References: <40e66e0b0910191141m24697122nb662c416d1c168e2@mail.gmail.com>
+	<19164.46823.508890.172854@ron.nulle.part>
+	<19164.47801.546827.194411@fangorn.hornik.net>
+	<40e66e0b0910191245i57293ce6g348a89a5bfb55674@mail.gmail.com>
+Message-ID: <19164.50469.360542.891385@ron.nulle.part>
+
+
+On 19 October 2009 at 14:45, Douglas Bates wrote:
+| On Mon, Oct 19, 2009 at 2:15 PM, Kurt Hornik <Kurt.Hornik at wu.ac.at> wrote:
+| >>>>>> Dirk Eddelbuettel writes:
+| >
+| >> On 19 October 2009 at 13:41, Douglas Bates wrote:
+| >> | I am running the beta test version of Ubuntu 9.10, x86_64 on a machine
+| >> | and encountered some peculiarities in LaTeX called through
+| >> |
+| >> | R-devel CMD texi2pdf file.tex
+| >> |
+| >> | The tilde character in the input, which should produce a non-breaking
+| >> | space, is now being rendered as a tilde. ?Does anyone know where I
+| >> | could begin exploring for explanations and/or workarounds?
+| >
+| >> With Kurt and myself. ?:-)
+| >
+| > Actually, I recently talked to Karl Berry about this, and he will modify
+| > upstream so that the tilde magic only gets performed for texinfo
+| > sources. ?(He did not apply the patch to upstream yet, though.)
+| 
+| So the temporary workaround is not to use texi2pdf but instead use pdflatex?
+
+Ah yes, indeed -- that never become part of my workflow. If I use texi2pdf, I
+also see the bug on Debian testing.  If you switch to pdflatex you may well be
+good on Ubuntu 9.10 as pdflatex is what works for me on Debian.
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From spluque at gmail.com  Thu Oct 22 19:25:44 2009
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Thu, 22 Oct 2009 12:25:44 -0500
+Subject: [R-sig-Debian] r-cran-lattice build
+Message-ID: <87iqe7s5lz.fsf@kolob.sebmags.homelinux.org>
+
+Hi,
+
+After the latest update of r-cran-* packages in sid, I'm getting the
+following message on startup:
+
+During startup - Warning message:
+package 'lattice' was built under R version 2.9.2 and help may not work correctly 
+
+I haven't found anything wrong with the package's functionality so far
+though.
+
+---<--------------------cut here---------------start------------------->---
+R> sessionInfo()
+R version 2.10.0 RC (2009-10-18 r50160) 
+x86_64-pc-linux-gnu 
+
+locale:
+ [1] LC_CTYPE=en_CA.UTF-8       LC_NUMERIC=C               LC_TIME=en_CA.UTF-8        LC_COLLATE=en_CA.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_CA.UTF-8    LC_PAPER=en_CA.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=en_CA.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] slmisc_0.7.2    lattice_0.17-26
+
+loaded via a namespace (and not attached):
+[1] grid_2.10.0
+---<--------------------cut here---------------end--------------------->---
+
+
+Cheers,
+
+-- 
+Seb
+
+
+From edd at debian.org  Thu Oct 22 22:03:35 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 22 Oct 2009 15:03:35 -0500
+Subject: [R-sig-Debian] r-cran-lattice build
+In-Reply-To: <87iqe7s5lz.fsf@kolob.sebmags.homelinux.org>
+References: <87iqe7s5lz.fsf@kolob.sebmags.homelinux.org>
+Message-ID: <19168.47767.852804.551375@ron.nulle.part>
+
+
+Hi Seb,
+
+On 22 October 2009 at 12:25, Sebastian P. Luque wrote:
+| Hi,
+| 
+| After the latest update of r-cran-* packages in sid, I'm getting the
+| following message on startup:
+| 
+| During startup - Warning message:
+| package 'lattice' was built under R version 2.9.2 and help may not work correctly 
+| 
+| I haven't found anything wrong with the package's functionality so far
+| though.
+| 
+| ---<--------------------cut here---------------start------------------->---
+| R> sessionInfo()
+| R version 2.10.0 RC (2009-10-18 r50160) 
+| x86_64-pc-linux-gnu 
+| 
+| locale:
+|  [1] LC_CTYPE=en_CA.UTF-8       LC_NUMERIC=C               LC_TIME=en_CA.UTF-8        LC_COLLATE=en_CA.UTF-8    
+|  [5] LC_MONETARY=C              LC_MESSAGES=en_CA.UTF-8    LC_PAPER=en_CA.UTF-8       LC_NAME=C                 
+|  [9] LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=en_CA.UTF-8 LC_IDENTIFICATION=C       
+| 
+| attached base packages:
+| [1] stats     graphics  grDevices utils     datasets  methods   base     
+| 
+| other attached packages:
+| [1] slmisc_0.7.2    lattice_0.17-26
+| 
+| loaded via a namespace (and not attached):
+| [1] grid_2.10.0
+| ---<--------------------cut here---------------end--------------------->---
+
+Please see the NEWS file for R 2.10.0 (currently at release-candidate in
+unstable).
+
+By the time R 2.10.0 hits unstable -- no earlier than release on October 26
+plus 10 days in unstable -- we hope to have re-built all 100+ r-cran-*
+packages under R 2.10.0 so this very warning will not appear.  But it is a
+bit of work, that are only about four us maintaining these 100+ packages.
+
+Cheers, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From ogbos.okike at gmail.com  Tue Oct 27 13:19:09 2009
+From: ogbos.okike at gmail.com (ogbos okike)
+Date: Tue, 27 Oct 2009 14:19:09 +0200
+Subject: [R-sig-Debian] Update Manager
+Message-ID: <43b418580910270519t6f536bb2mff776964302f1956@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20091027/b50e6b35/attachment.pl>
+
+From myotisone at gmail.com  Fri Oct 30 08:07:02 2009
+From: myotisone at gmail.com (Graham Smith)
+Date: Fri, 30 Oct 2009 07:07:02 +0000
+Subject: [R-sig-Debian] Rattle - libglade not found
+Message-ID: <2c75873c0910300007o5773e77cgb9f1db94be00fd9f@mail.gmail.com>
+
+I have just installed rattle on Ubntu 9.04, and R  2.8.1 and get an
+error message when I try to run it.
+
+> library(rattle)
+> rattle()
+Error in rattle() :
+  The RGtk2 package did not find libglade installed. Please install it.
+
+I have installed libglade2-dev  through synaptic, and following
+suggestion from an earlier thread re-installed RGtk2 using
+install.packages, and through synaptic.
+
+Can anyone offer some help - you may realise that I am not that
+familiar with Linux/Ubuntu.
+
+Many thanks,
+
+Graham
+
+P.S. I have cross posted this on the Ubuntu forum, before remembering
+this forum existed.
+
+
+From p.leo at uq.edu.au  Fri Oct 30 09:03:41 2009
+From: p.leo at uq.edu.au (Paul Leo)
+Date: Fri, 30 Oct 2009 18:03:41 +1000
+Subject: [R-sig-Debian] Rattle - libglade not found
+In-Reply-To: <2c75873c0910300007o5773e77cgb9f1db94be00fd9f@mail.gmail.com>
+References: <2c75873c0910300007o5773e77cgb9f1db94be00fd9f@mail.gmail.com>
+Message-ID: <1256889821.7620.112.camel@BIOINFORM01-ubuntu>
+
+That a very outdated version of R, current is R2.10
+
+I just installed r2.10 and used
+setRepositories() # choose CRAN
+install.packages() # choose rattle
+...
+** preparing package for lazy loading
+Loading required package: XML
+Warning: package 'XML' was built under R version 2.7.1 and help may not
+work correctly
+** help
+*** installing help indices
+** building package indices ...
+* DONE (rattle)
+
+... ignored warnings:
+
+library(rattle)
+rattle() # launched a gui interface that seems to work 
+
+> sessionInfo()
+R version 2.10.0 (2009-10-26) 
+x86_64-pc-linux-gnu 
+
+locale:
+ [1] LC_CTYPE=en_AU.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_AU.UTF-8        LC_COLLATE=en_AU.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_AU.UTF-8   
+ [7] LC_PAPER=en_AU.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods
+base     
+
+other attached packages:
+[1] RGtk2_2.12.5-3 rattle_2.5.1   pmml_1.2.19    XML_1.95-3    
+
+loaded via a namespace (and not attached):
+[1] tcltk_2.10.0 tools_2.10.0
+
+so perhaps a new intall and check those "attached packages listed above"
+I have ubuntu 8.1 so you may need to check those library versions
+
+
+-----Original Message-----
+From: Graham Smith <myotisone at gmail.com>
+To: r-sig-debian at r-project.org
+Subject: [R-sig-Debian] Rattle - libglade not found
+Date: Fri, 30 Oct 2009 07:07:02 +0000
+
+I have just installed rattle on Ubntu 9.04, and R  2.8.1 and get an
+error message when I try to run it.
+
+> library(rattle)
+> rattle()
+Error in rattle() :
+  The RGtk2 package did not find libglade installed. Please install it.
+
+I have installed libglade2-dev  through synaptic, and following
+suggestion from an earlier thread re-installed RGtk2 using
+install.packages, and through synaptic.
+
+Can anyone offer some help - you may realise that I am not that
+familiar with Linux/Ubuntu.
+
+Many thanks,
+
+Graham
+
+P.S. I have cross posted this on the Ubuntu forum, before remembering
+this forum existed.
+
+_______________________________________________
+R-SIG-Debian mailing list
+R-SIG-Debian at r-project.org
+https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+-- 
+Dr Paul Leo
+Bioinformatician
+Diamantina Institute for Cancer, Immunology and Metabolic Medicine
+University of Queensland
+--------------------------------------------------------------------------------------
+Research Wing, Bldg 1
+Princess Alexandria Hospital 
+Woolloongabba, QLD, 4102
+Tel: +61 7 3240 7740  Mob: 041 303 8691  Fax: +61 7 3240 5946
+Email: p.leo at uq.edu.au   Web: http://www.di.uq.edu.au
+
+
+From r.m.krug at gmail.com  Fri Oct 30 12:25:48 2009
+From: r.m.krug at gmail.com (Rainer M Krug)
+Date: Fri, 30 Oct 2009 13:25:48 +0200
+Subject: [R-sig-Debian] Ubuntu packages compiled with 2.9
+Message-ID: <fb7c7e870910300425w4cafaffbi4fbb658a15c27477@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20091030/38b5aaac/attachment.pl>
+
+From edd at debian.org  Fri Oct 30 12:33:25 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 30 Oct 2009 06:33:25 -0500
+Subject: [R-sig-Debian] Ubuntu packages compiled with 2.9
+In-Reply-To: <fb7c7e870910300425w4cafaffbi4fbb658a15c27477@mail.gmail.com>
+References: <fb7c7e870910300425w4cafaffbi4fbb658a15c27477@mail.gmail.com>
+Message-ID: <19178.52997.827876.718794@ron.nulle.part>
+
+
+On 30 October 2009 at 13:25, Rainer M Krug wrote:
+| Hi
+| 
+| I upgraded to R 2.10.0, and I encounter a problem with some packages on R,
+| installed via apt-get..
+| 
+| They are still compiled by 2.9 and give me an warning when I load the
+| packages. Will these packages be recompiled with R 2.10, or should I rather
+| switch to self-compiling?
+
+For the Debian packages I am trying to get all maintainers to rebuild their
+packages.   I can't speak for Ubuntu but it may require waiting for the next
+release or switching to local packages.
+
+Notice, though, that this is just a warning. The help() system may be
+affected, but functionality of the package should not be affected.
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From r.m.krug at gmail.com  Fri Oct 30 12:39:03 2009
+From: r.m.krug at gmail.com (Rainer M Krug)
+Date: Fri, 30 Oct 2009 13:39:03 +0200
+Subject: [R-sig-Debian] Ubuntu packages compiled with 2.9
+In-Reply-To: <19178.52997.827876.718794@ron.nulle.part>
+References: <fb7c7e870910300425w4cafaffbi4fbb658a15c27477@mail.gmail.com>
+	<19178.52997.827876.718794@ron.nulle.part>
+Message-ID: <fb7c7e870910300439j605bd3a8x870c5a601acea6bd@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20091030/332e27c4/attachment.pl>
+
+From myotisone at gmail.com  Fri Oct 30 14:53:37 2009
+From: myotisone at gmail.com (Graham Smith)
+Date: Fri, 30 Oct 2009 13:53:37 +0000
+Subject: [R-sig-Debian] Rattle - libglade not found
+In-Reply-To: <1256889821.7620.112.camel@BIOINFORM01-ubuntu>
+References: <2c75873c0910300007o5773e77cgb9f1db94be00fd9f@mail.gmail.com>
+	<1256889821.7620.112.camel@BIOINFORM01-ubuntu>
+Message-ID: <2c75873c0910300653p5054eee5t72aa3f3b58158d57@mail.gmail.com>
+
+Paul,
+
+Thanks, 2.8.1 is the most up to date in the Ubuntu Repository, so that
+is the one I am using with Ubuntu. As a novice Ubuntu user I have been
+given the impression that it is best to stick with the version via
+synaptic/ubuntu repository BUT i agree this could well be a version
+incompatibility issue as rattle isn't available from the Ubuntu
+repository and installed directly from CRAN.
+
+Maybe I need to uninstall the Ubuntu repository version and install
+the latest from CRAN. I admit I find this what to install from where a
+bit confusing.
+
+Graham
+
+
+
+
+
+2009/10/30 Paul Leo <p.leo at uq.edu.au>:
+> That a very outdated version of R, current is R2.10
+>
+> I just installed r2.10 and used
+> setRepositories() # choose CRAN
+> install.packages() # choose rattle
+> ...
+> ** preparing package for lazy loading
+> Loading required package: XML
+> Warning: package 'XML' was built under R version 2.7.1 and help may not
+> work correctly
+> ** help
+> *** installing help indices
+> ** building package indices ...
+> * DONE (rattle)
+>
+> ... ignored warnings:
+>
+> library(rattle)
+> rattle() # launched a gui interface that seems to work
+>
+>> sessionInfo()
+> R version 2.10.0 (2009-10-26)
+> x86_64-pc-linux-gnu
+>
+> locale:
+> ?[1] LC_CTYPE=en_AU.UTF-8 ? ? ? LC_NUMERIC=C
+> ?[3] LC_TIME=en_AU.UTF-8 ? ? ? ?LC_COLLATE=en_AU.UTF-8
+> ?[5] LC_MONETARY=C ? ? ? ? ? ? ?LC_MESSAGES=en_AU.UTF-8
+> ?[7] LC_PAPER=en_AU.UTF-8 ? ? ? LC_NAME=C
+> ?[9] LC_ADDRESS=C ? ? ? ? ? ? ? LC_TELEPHONE=C
+> [11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C
+>
+> attached base packages:
+> [1] stats ? ? graphics ?grDevices utils ? ? datasets ?methods
+> base
+>
+> other attached packages:
+> [1] RGtk2_2.12.5-3 rattle_2.5.1 ? pmml_1.2.19 ? ?XML_1.95-3
+>
+> loaded via a namespace (and not attached):
+> [1] tcltk_2.10.0 tools_2.10.0
+>
+> so perhaps a new intall and check those "attached packages listed above"
+> I have ubuntu 8.1 so you may need to check those library versions
+>
+>
+> -----Original Message-----
+> From: Graham Smith <myotisone at gmail.com>
+> To: r-sig-debian at r-project.org
+> Subject: [R-sig-Debian] Rattle - libglade not found
+> Date: Fri, 30 Oct 2009 07:07:02 +0000
+>
+> I have just installed rattle on Ubntu 9.04, and R ?2.8.1 and get an
+> error message when I try to run it.
+>
+>> library(rattle)
+>> rattle()
+> Error in rattle() :
+> ?The RGtk2 package did not find libglade installed. Please install it.
+>
+> I have installed libglade2-dev ?through synaptic, and following
+> suggestion from an earlier thread re-installed RGtk2 using
+> install.packages, and through synaptic.
+>
+> Can anyone offer some help - you may realise that I am not that
+> familiar with Linux/Ubuntu.
+>
+> Many thanks,
+>
+> Graham
+>
+> P.S. I have cross posted this on the Ubuntu forum, before remembering
+> this forum existed.
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> --
+> Dr Paul Leo
+> Bioinformatician
+> Diamantina Institute for Cancer, Immunology and Metabolic Medicine
+> University of Queensland
+> --------------------------------------------------------------------------------------
+> Research Wing, Bldg 1
+> Princess Alexandria Hospital
+> Woolloongabba, QLD, 4102
+> Tel: +61 7 3240 7740 ?Mob: 041 303 8691 ?Fax: +61 7 3240 5946
+> Email: p.leo at uq.edu.au ? Web: http://www.di.uq.edu.au
+>
+>
+
+
+From mar36 at psu.edu  Fri Oct 30 15:23:39 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Fri, 30 Oct 2009 10:23:39 -0400
+Subject: [R-sig-Debian] Rattle - libglade not found
+In-Reply-To: <2c75873c0910300653p5054eee5t72aa3f3b58158d57@mail.gmail.com>
+References: <2c75873c0910300007o5773e77cgb9f1db94be00fd9f@mail.gmail.com>	<1256889821.7620.112.camel@BIOINFORM01-ubuntu>
+	<2c75873c0910300653p5054eee5t72aa3f3b58158d57@mail.gmail.com>
+Message-ID: <4AEAF6EB.7010308@psu.edu>
+
+Graham,
+
+The instructions for adding the CRAN repositories are here:
+
+http://cran.r-project.org/bin/linux/ubuntu/
+
+But let me expand on them a little.  This is assuming you have sudo 
+rights.  If you do not, forward this email to your administrator.
+
+In a terminal, enter
+
+sudo gedit /etc/apt/sources.list
+
+At the very end of this file, add the following two lines:
+
+## CRAN
+
+deb http://cran.ms.unimelb.edu.au/bin/linux/ubuntu <http://%3Cmy.favorite.cran.mirror%3E/bin/linux/ubuntu> jaunty/
+
+
+Save and close the editor.  Then in the terminal run these lines:
+
+gpg --keyserver subkeys.pgp.net --recv-key E2A11821
+gpg -a --export E2A11821 | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install r-base
+
+
+This will authenticate the code, remove the old R and install the newest 
+version.
+
+For a program like R in which there is constant development and bug 
+fixes (but not many), it is a good idea to use the most recent version 
+from CRAN.
+
+Michael
+
+
+
+Graham Smith wrote:
+> Paul,
+>
+> Thanks, 2.8.1 is the most up to date in the Ubuntu Repository, so that
+> is the one I am using with Ubuntu. As a novice Ubuntu user I have been
+> given the impression that it is best to stick with the version via
+> synaptic/ubuntu repository BUT i agree this could well be a version
+> incompatibility issue as rattle isn't available from the Ubuntu
+> repository and installed directly from CRAN.
+>
+> Maybe I need to uninstall the Ubuntu repository version and install
+> the latest from CRAN. I admit I find this what to install from where a
+> bit confusing.
+>
+> Graham
+>
+>
+>
+>
+>
+> 2009/10/30 Paul Leo <p.leo at uq.edu.au>:
+>   
+>> That a very outdated version of R, current is R2.10
+>>
+>> I just installed r2.10 and used
+>> setRepositories() # choose CRAN
+>> install.packages() # choose rattle
+>> ...
+>> ** preparing package for lazy loading
+>> Loading required package: XML
+>> Warning: package 'XML' was built under R version 2.7.1 and help may not
+>> work correctly
+>> ** help
+>> *** installing help indices
+>> ** building package indices ...
+>> * DONE (rattle)
+>>
+>> ... ignored warnings:
+>>
+>> library(rattle)
+>> rattle() # launched a gui interface that seems to work
+>>
+>>     
+>>> sessionInfo()
+>>>       
+>> R version 2.10.0 (2009-10-26)
+>> x86_64-pc-linux-gnu
+>>
+>> locale:
+>>  [1] LC_CTYPE=en_AU.UTF-8       LC_NUMERIC=C
+>>  [3] LC_TIME=en_AU.UTF-8        LC_COLLATE=en_AU.UTF-8
+>>  [5] LC_MONETARY=C              LC_MESSAGES=en_AU.UTF-8
+>>  [7] LC_PAPER=en_AU.UTF-8       LC_NAME=C
+>>  [9] LC_ADDRESS=C               LC_TELEPHONE=C
+>> [11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C
+>>
+>> attached base packages:
+>> [1] stats     graphics  grDevices utils     datasets  methods
+>> base
+>>
+>> other attached packages:
+>> [1] RGtk2_2.12.5-3 rattle_2.5.1   pmml_1.2.19    XML_1.95-3
+>>
+>> loaded via a namespace (and not attached):
+>> [1] tcltk_2.10.0 tools_2.10.0
+>>
+>> so perhaps a new intall and check those "attached packages listed above"
+>> I have ubuntu 8.1 so you may need to check those library versions
+>>
+>>
+>> -----Original Message-----
+>> From: Graham Smith <myotisone at gmail.com>
+>> To: r-sig-debian at r-project.org
+>> Subject: [R-sig-Debian] Rattle - libglade not found
+>> Date: Fri, 30 Oct 2009 07:07:02 +0000
+>>
+>> I have just installed rattle on Ubntu 9.04, and R  2.8.1 and get an
+>> error message when I try to run it.
+>>
+>>     
+>>> library(rattle)
+>>> rattle()
+>>>       
+>> Error in rattle() :
+>>  The RGtk2 package did not find libglade installed. Please install it.
+>>
+>> I have installed libglade2-dev  through synaptic, and following
+>> suggestion from an earlier thread re-installed RGtk2 using
+>> install.packages, and through synaptic.
+>>
+>> Can anyone offer some help - you may realise that I am not that
+>> familiar with Linux/Ubuntu.
+>>
+>> Many thanks,
+>>
+>> Graham
+>>
+>> P.S. I have cross posted this on the Ubuntu forum, before remembering
+>> this forum existed.
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>> --
+>> Dr Paul Leo
+>> Bioinformatician
+>> Diamantina Institute for Cancer, Immunology and Metabolic Medicine
+>> University of Queensland
+>> --------------------------------------------------------------------------------------
+>> Research Wing, Bldg 1
+>> Princess Alexandria Hospital
+>> Woolloongabba, QLD, 4102
+>> Tel: +61 7 3240 7740  Mob: 041 303 8691  Fax: +61 7 3240 5946
+>> Email: p.leo at uq.edu.au   Web: http://www.di.uq.edu.au
+>>
+>>
+>>     
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From Vincent.Goulet at act.ulaval.ca  Fri Oct 30 16:19:32 2009
+From: Vincent.Goulet at act.ulaval.ca (Vincent Goulet)
+Date: Fri, 30 Oct 2009 11:19:32 -0400
+Subject: [R-sig-Debian] Ubuntu packages compiled with 2.9
+In-Reply-To: <fb7c7e870910300425w4cafaffbi4fbb658a15c27477@mail.gmail.com>
+References: <fb7c7e870910300425w4cafaffbi4fbb658a15c27477@mail.gmail.com>
+Message-ID: <9B955669-08BE-47F7-8F7C-677D4A2B2819@act.ulaval.ca>
+
+Rainer,
+
+Can you be more specific as to which packages and on which platform?  
+Not all packages need recompilation and I don't keep track those who  
+do and those who don't.
+
+Thanks,
+
+
+Vincent Goulet, Ph.D.
+Full Professor
+?cole d'actuariat
+Universit? Laval, Qu?bec
+vincent.goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+
+Le ven. 30 oct. ? 07:25, Rainer M Krug a ?crit :
+
+> Hi
+>
+> I upgraded to R 2.10.0, and I encounter a problem with some packages  
+> on R,
+> installed via apt-get..
+>
+> They are still compiled by 2.9 and give me an warning when I load the
+> packages. Will these packages be recompiled with R 2.10, or should I  
+> rather
+> switch to self-compiling?
+>
+> Cheers,
+>
+> Rainer
+>
+> -- 
+> Rainer M. Krug, PhD (Conservation Ecology, SUN), MSc (Conservation  
+> Biology,
+> UCT), Dipl. Phys. (Germany)
+>
+> Centre of Excellence for Invasion Biology
+> Natural Sciences Building
+> Office Suite 2039
+> Stellenbosch University
+> Main Campus, Merriman Avenue
+> Stellenbosch
+> South Africa
+>
+> Cell:           +27 - (0)83 9479 042
+> Fax:            +27 - (0)86 516 2782
+> Fax:            +49 - (0)721 151 334 888
+> email:          Rainer at krugs.de
+>
+> Skype:          RMkrug
+> Google:         R.M.Krug at gmail.com
+>
+> 	[[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From myotisone at gmail.com  Fri Oct 30 16:34:54 2009
+From: myotisone at gmail.com (Graham Smith)
+Date: Fri, 30 Oct 2009 15:34:54 +0000
+Subject: [R-sig-Debian] Rattle - libglade not found
+In-Reply-To: <4AEAF6EB.7010308@psu.edu>
+References: <2c75873c0910300007o5773e77cgb9f1db94be00fd9f@mail.gmail.com>
+	<1256889821.7620.112.camel@BIOINFORM01-ubuntu>
+	<2c75873c0910300653p5054eee5t72aa3f3b58158d57@mail.gmail.com>
+	<4AEAF6EB.7010308@psu.edu>
+Message-ID: <2c75873c0910300834t557da714l87b3ea96ea941788@mail.gmail.com>
+
+Michael,
+
+Thanks for this, I have added CRAN like this before, during one of
+many other attempts with Linux, but if If I add your code as suggested
+or add the repository via synaptic, I get a 404 error
+
+W: Failed to fetch
+http://cran.ms.unimelb.edu.au/bin/linux/ubuntu/dists/<http://<my.favorite.cran.mirror>/bin/linux/ubuntu>/jaunty//binary-i386/Packages
+ 404 Not Found
+
+I have also tried the UK and Netherlands mirrors as well, but both of
+these also give a 404 error.
+
+I assume I am doing something stupid.
+
+Graham
+
+
+
+
+2009/10/30 Michael Rutter <mar36 at psu.edu>:
+> Graham,
+>
+> The instructions for adding the CRAN repositories are here:
+>
+> http://cran.r-project.org/bin/linux/ubuntu/
+>
+> But let me expand on them a little. ?This is assuming you have sudo rights.
+> ?If you do not, forward this email to your administrator.
+>
+> In a terminal, enter
+>
+> sudo gedit /etc/apt/sources.list
+>
+> At the very end of this file, add the following two lines:
+>
+> ## CRAN
+>
+> deb http://cran.ms.unimelb.edu.au/bin/linux/ubuntu
+> <http://%3Cmy.favorite.cran.mirror%3E/bin/linux/ubuntu> jaunty/
+>
+>
+> Save and close the editor. ?Then in the terminal run these lines:
+>
+> gpg --keyserver subkeys.pgp.net --recv-key E2A11821
+> gpg -a --export E2A11821 | sudo apt-key add -
+> sudo apt-get update
+> sudo apt-get install r-base
+>
+>
+> This will authenticate the code, remove the old R and install the newest
+> version.
+>
+> For a program like R in which there is constant development and bug fixes
+> (but not many), it is a good idea to use the most recent version from CRAN.
+>
+> Michael
+>
+>
+>
+> Graham Smith wrote:
+>>
+>> Paul,
+>>
+>> Thanks, 2.8.1 is the most up to date in the Ubuntu Repository, so that
+>> is the one I am using with Ubuntu. As a novice Ubuntu user I have been
+>> given the impression that it is best to stick with the version via
+>> synaptic/ubuntu repository BUT i agree this could well be a version
+>> incompatibility issue as rattle isn't available from the Ubuntu
+>> repository and installed directly from CRAN.
+>>
+>> Maybe I need to uninstall the Ubuntu repository version and install
+>> the latest from CRAN. I admit I find this what to install from where a
+>> bit confusing.
+>>
+>> Graham
+>>
+>>
+>>
+>>
+>>
+>> 2009/10/30 Paul Leo <p.leo at uq.edu.au>:
+>>
+>>>
+>>> That a very outdated version of R, current is R2.10
+>>>
+>>> I just installed r2.10 and used
+>>> setRepositories() # choose CRAN
+>>> install.packages() # choose rattle
+>>> ...
+>>> ** preparing package for lazy loading
+>>> Loading required package: XML
+>>> Warning: package 'XML' was built under R version 2.7.1 and help may not
+>>> work correctly
+>>> ** help
+>>> *** installing help indices
+>>> ** building package indices ...
+>>> * DONE (rattle)
+>>>
+>>> ... ignored warnings:
+>>>
+>>> library(rattle)
+>>> rattle() # launched a gui interface that seems to work
+>>>
+>>>
+>>>>
+>>>> sessionInfo()
+>>>>
+>>>
+>>> R version 2.10.0 (2009-10-26)
+>>> x86_64-pc-linux-gnu
+>>>
+>>> locale:
+>>> ?[1] LC_CTYPE=en_AU.UTF-8 ? ? ? LC_NUMERIC=C
+>>> ?[3] LC_TIME=en_AU.UTF-8 ? ? ? ?LC_COLLATE=en_AU.UTF-8
+>>> ?[5] LC_MONETARY=C ? ? ? ? ? ? ?LC_MESSAGES=en_AU.UTF-8
+>>> ?[7] LC_PAPER=en_AU.UTF-8 ? ? ? LC_NAME=C
+>>> ?[9] LC_ADDRESS=C ? ? ? ? ? ? ? LC_TELEPHONE=C
+>>> [11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C
+>>>
+>>> attached base packages:
+>>> [1] stats ? ? graphics ?grDevices utils ? ? datasets ?methods
+>>> base
+>>>
+>>> other attached packages:
+>>> [1] RGtk2_2.12.5-3 rattle_2.5.1 ? pmml_1.2.19 ? ?XML_1.95-3
+>>>
+>>> loaded via a namespace (and not attached):
+>>> [1] tcltk_2.10.0 tools_2.10.0
+>>>
+>>> so perhaps a new intall and check those "attached packages listed above"
+>>> I have ubuntu 8.1 so you may need to check those library versions
+>>>
+>>>
+>>> -----Original Message-----
+>>> From: Graham Smith <myotisone at gmail.com>
+>>> To: r-sig-debian at r-project.org
+>>> Subject: [R-sig-Debian] Rattle - libglade not found
+>>> Date: Fri, 30 Oct 2009 07:07:02 +0000
+>>>
+>>> I have just installed rattle on Ubntu 9.04, and R ?2.8.1 and get an
+>>> error message when I try to run it.
+>>>
+>>>
+>>>>
+>>>> library(rattle)
+>>>> rattle()
+>>>>
+>>>
+>>> Error in rattle() :
+>>> ?The RGtk2 package did not find libglade installed. Please install it.
+>>>
+>>> I have installed libglade2-dev ?through synaptic, and following
+>>> suggestion from an earlier thread re-installed RGtk2 using
+>>> install.packages, and through synaptic.
+>>>
+>>> Can anyone offer some help - you may realise that I am not that
+>>> familiar with Linux/Ubuntu.
+>>>
+>>> Many thanks,
+>>>
+>>> Graham
+>>>
+>>> P.S. I have cross posted this on the Ubuntu forum, before remembering
+>>> this forum existed.
+>>>
+>>> _______________________________________________
+>>> R-SIG-Debian mailing list
+>>> R-SIG-Debian at r-project.org
+>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>> --
+>>> Dr Paul Leo
+>>> Bioinformatician
+>>> Diamantina Institute for Cancer, Immunology and Metabolic Medicine
+>>> University of Queensland
+>>>
+>>> --------------------------------------------------------------------------------------
+>>> Research Wing, Bldg 1
+>>> Princess Alexandria Hospital
+>>> Woolloongabba, QLD, 4102
+>>> Tel: +61 7 3240 7740 ?Mob: 041 303 8691 ?Fax: +61 7 3240 5946
+>>> Email: p.leo at uq.edu.au ? Web: http://www.di.uq.edu.au
+>>>
+>>>
+>>>
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+>
+>
+
+
+From mar36 at psu.edu  Fri Oct 30 16:41:30 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Fri, 30 Oct 2009 11:41:30 -0400
+Subject: [R-sig-Debian] Rattle - libglade not found
+In-Reply-To: <2c75873c0910300834t557da714l87b3ea96ea941788@mail.gmail.com>
+References: <2c75873c0910300007o5773e77cgb9f1db94be00fd9f@mail.gmail.com>	
+	<1256889821.7620.112.camel@BIOINFORM01-ubuntu>	
+	<2c75873c0910300653p5054eee5t72aa3f3b58158d57@mail.gmail.com>	
+	<4AEAF6EB.7010308@psu.edu>
+	<2c75873c0910300834t557da714l87b3ea96ea941788@mail.gmail.com>
+Message-ID: <4AEB092A.2020702@psu.edu>
+
+Graham,
+
+It appears that the mail client I was using added some extra stuff.  It 
+should be:
+
+deb http://cran.ms.unimelb.edu.au/bin/linux/ubuntu jaunty/
+
+Just tested this line in my sources.list and it came back fine.
+
+Michael
+
+Graham Smith wrote:
+> Michael,
+> 
+> Thanks for this, I have added CRAN like this before, during one of
+> many other attempts with Linux, but if If I add your code as suggested
+> or add the repository via synaptic, I get a 404 error
+> 
+> W: Failed to fetch
+> http://cran.ms.unimelb.edu.au/bin/linux/ubuntu/dists/<http://<my.favorite.cran.mirror>/bin/linux/ubuntu>/jaunty//binary-i386/Packages
+>  404 Not Found
+> 
+> I have also tried the UK and Netherlands mirrors as well, but both of
+> these also give a 404 error.
+> 
+> I assume I am doing something stupid.
+> 
+> Graham
+> 
+> 
+> 
+> 
+> 2009/10/30 Michael Rutter <mar36 at psu.edu>:
+>> Graham,
+>>
+>> The instructions for adding the CRAN repositories are here:
+>>
+>> http://cran.r-project.org/bin/linux/ubuntu/
+>>
+>> But let me expand on them a little.  This is assuming you have sudo rights.
+>>  If you do not, forward this email to your administrator.
+>>
+>> In a terminal, enter
+>>
+>> sudo gedit /etc/apt/sources.list
+>>
+>> At the very end of this file, add the following two lines:
+>>
+>> ## CRAN
+>>
+>> deb http://cran.ms.unimelb.edu.au/bin/linux/ubuntu
+>> <http://%3Cmy.favorite.cran.mirror%3E/bin/linux/ubuntu> jaunty/
+>>
+>>
+>> Save and close the editor.  Then in the terminal run these lines:
+>>
+>> gpg --keyserver subkeys.pgp.net --recv-key E2A11821
+>> gpg -a --export E2A11821 | sudo apt-key add -
+>> sudo apt-get update
+>> sudo apt-get install r-base
+>>
+>>
+>> This will authenticate the code, remove the old R and install the newest
+>> version.
+>>
+>> For a program like R in which there is constant development and bug fixes
+>> (but not many), it is a good idea to use the most recent version from CRAN.
+>>
+>> Michael
+>>
+>>
+>>
+>> Graham Smith wrote:
+>>> Paul,
+>>>
+>>> Thanks, 2.8.1 is the most up to date in the Ubuntu Repository, so that
+>>> is the one I am using with Ubuntu. As a novice Ubuntu user I have been
+>>> given the impression that it is best to stick with the version via
+>>> synaptic/ubuntu repository BUT i agree this could well be a version
+>>> incompatibility issue as rattle isn't available from the Ubuntu
+>>> repository and installed directly from CRAN.
+>>>
+>>> Maybe I need to uninstall the Ubuntu repository version and install
+>>> the latest from CRAN. I admit I find this what to install from where a
+>>> bit confusing.
+>>>
+>>> Graham
+>>>
+>>>
+>>>
+>>>
+>>>
+>>> 2009/10/30 Paul Leo <p.leo at uq.edu.au>:
+>>>
+>>>> That a very outdated version of R, current is R2.10
+>>>>
+>>>> I just installed r2.10 and used
+>>>> setRepositories() # choose CRAN
+>>>> install.packages() # choose rattle
+>>>> ...
+>>>> ** preparing package for lazy loading
+>>>> Loading required package: XML
+>>>> Warning: package 'XML' was built under R version 2.7.1 and help may not
+>>>> work correctly
+>>>> ** help
+>>>> *** installing help indices
+>>>> ** building package indices ...
+>>>> * DONE (rattle)
+>>>>
+>>>> ... ignored warnings:
+>>>>
+>>>> library(rattle)
+>>>> rattle() # launched a gui interface that seems to work
+>>>>
+>>>>
+>>>>> sessionInfo()
+>>>>>
+>>>> R version 2.10.0 (2009-10-26)
+>>>> x86_64-pc-linux-gnu
+>>>>
+>>>> locale:
+>>>>  [1] LC_CTYPE=en_AU.UTF-8       LC_NUMERIC=C
+>>>>  [3] LC_TIME=en_AU.UTF-8        LC_COLLATE=en_AU.UTF-8
+>>>>  [5] LC_MONETARY=C              LC_MESSAGES=en_AU.UTF-8
+>>>>  [7] LC_PAPER=en_AU.UTF-8       LC_NAME=C
+>>>>  [9] LC_ADDRESS=C               LC_TELEPHONE=C
+>>>> [11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C
+>>>>
+>>>> attached base packages:
+>>>> [1] stats     graphics  grDevices utils     datasets  methods
+>>>> base
+>>>>
+>>>> other attached packages:
+>>>> [1] RGtk2_2.12.5-3 rattle_2.5.1   pmml_1.2.19    XML_1.95-3
+>>>>
+>>>> loaded via a namespace (and not attached):
+>>>> [1] tcltk_2.10.0 tools_2.10.0
+>>>>
+>>>> so perhaps a new intall and check those "attached packages listed above"
+>>>> I have ubuntu 8.1 so you may need to check those library versions
+>>>>
+>>>>
+>>>> -----Original Message-----
+>>>> From: Graham Smith <myotisone at gmail.com>
+>>>> To: r-sig-debian at r-project.org
+>>>> Subject: [R-sig-Debian] Rattle - libglade not found
+>>>> Date: Fri, 30 Oct 2009 07:07:02 +0000
+>>>>
+>>>> I have just installed rattle on Ubntu 9.04, and R  2.8.1 and get an
+>>>> error message when I try to run it.
+>>>>
+>>>>
+>>>>> library(rattle)
+>>>>> rattle()
+>>>>>
+>>>> Error in rattle() :
+>>>>  The RGtk2 package did not find libglade installed. Please install it.
+>>>>
+>>>> I have installed libglade2-dev  through synaptic, and following
+>>>> suggestion from an earlier thread re-installed RGtk2 using
+>>>> install.packages, and through synaptic.
+>>>>
+>>>> Can anyone offer some help - you may realise that I am not that
+>>>> familiar with Linux/Ubuntu.
+>>>>
+>>>> Many thanks,
+>>>>
+>>>> Graham
+>>>>
+>>>> P.S. I have cross posted this on the Ubuntu forum, before remembering
+>>>> this forum existed.
+>>>>
+>>>> _______________________________________________
+>>>> R-SIG-Debian mailing list
+>>>> R-SIG-Debian at r-project.org
+>>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>>> --
+>>>> Dr Paul Leo
+>>>> Bioinformatician
+>>>> Diamantina Institute for Cancer, Immunology and Metabolic Medicine
+>>>> University of Queensland
+>>>>
+>>>> --------------------------------------------------------------------------------------
+>>>> Research Wing, Bldg 1
+>>>> Princess Alexandria Hospital
+>>>> Woolloongabba, QLD, 4102
+>>>> Tel: +61 7 3240 7740  Mob: 041 303 8691  Fax: +61 7 3240 5946
+>>>> Email: p.leo at uq.edu.au   Web: http://www.di.uq.edu.au
+>>>>
+>>>>
+>>>>
+>>> _______________________________________________
+>>> R-SIG-Debian mailing list
+>>> R-SIG-Debian at r-project.org
+>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>>
+>>
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From myotisone at gmail.com  Fri Oct 30 16:49:19 2009
+From: myotisone at gmail.com (Graham Smith)
+Date: Fri, 30 Oct 2009 15:49:19 +0000
+Subject: [R-sig-Debian] Rattle - libglade not found
+In-Reply-To: <4AEB092A.2020702@psu.edu>
+References: <2c75873c0910300007o5773e77cgb9f1db94be00fd9f@mail.gmail.com>
+	<1256889821.7620.112.camel@BIOINFORM01-ubuntu>
+	<2c75873c0910300653p5054eee5t72aa3f3b58158d57@mail.gmail.com>
+	<4AEAF6EB.7010308@psu.edu>
+	<2c75873c0910300834t557da714l87b3ea96ea941788@mail.gmail.com>
+	<4AEB092A.2020702@psu.edu>
+Message-ID: <2c75873c0910300849m6e76fccehdcd717dd8636dd19@mail.gmail.com>
+
+Michael,
+
+Thanks, I did think it looked a bit strange compared to the other
+entries. Update is now downloading, so we will see how I get on.
+
+Graham
+
+2009/10/30 Michael Rutter <mar36 at psu.edu>:
+> Graham,
+>
+> It appears that the mail client I was using added some extra stuff. ?It
+> should be:
+>
+> deb http://cran.ms.unimelb.edu.au/bin/linux/ubuntu jaunty/
+>
+> Just tested this line in my sources.list and it came back fine.
+>
+> Michael
+>
+> Graham Smith wrote:
+>>
+>> Michael,
+>>
+>> Thanks for this, I have added CRAN like this before, during one of
+>> many other attempts with Linux, but if If I add your code as suggested
+>> or add the repository via synaptic, I get a 404 error
+>>
+>> W: Failed to fetch
+>>
+>> http://cran.ms.unimelb.edu.au/bin/linux/ubuntu/dists/<http://<my.favorite.cran.mirror>/bin/linux/ubuntu>/jaunty//binary-i386/Packages
+>> ?404 Not Found
+>>
+>> I have also tried the UK and Netherlands mirrors as well, but both of
+>> these also give a 404 error.
+>>
+>> I assume I am doing something stupid.
+>>
+>> Graham
+>>
+>>
+>>
+>>
+>> 2009/10/30 Michael Rutter <mar36 at psu.edu>:
+>>>
+>>> Graham,
+>>>
+>>> The instructions for adding the CRAN repositories are here:
+>>>
+>>> http://cran.r-project.org/bin/linux/ubuntu/
+>>>
+>>> But let me expand on them a little. ?This is assuming you have sudo
+>>> rights.
+>>> ?If you do not, forward this email to your administrator.
+>>>
+>>> In a terminal, enter
+>>>
+>>> sudo gedit /etc/apt/sources.list
+>>>
+>>> At the very end of this file, add the following two lines:
+>>>
+>>> ## CRAN
+>>>
+>>> deb http://cran.ms.unimelb.edu.au/bin/linux/ubuntu
+>>> <http://%3Cmy.favorite.cran.mirror%3E/bin/linux/ubuntu> jaunty/
+>>>
+>>>
+>>> Save and close the editor. ?Then in the terminal run these lines:
+>>>
+>>> gpg --keyserver subkeys.pgp.net --recv-key E2A11821
+>>> gpg -a --export E2A11821 | sudo apt-key add -
+>>> sudo apt-get update
+>>> sudo apt-get install r-base
+>>>
+>>>
+>>> This will authenticate the code, remove the old R and install the newest
+>>> version.
+>>>
+>>> For a program like R in which there is constant development and bug fixes
+>>> (but not many), it is a good idea to use the most recent version from
+>>> CRAN.
+>>>
+>>> Michael
+>>>
+>>>
+>>>
+>>> Graham Smith wrote:
+>>>>
+>>>> Paul,
+>>>>
+>>>> Thanks, 2.8.1 is the most up to date in the Ubuntu Repository, so that
+>>>> is the one I am using with Ubuntu. As a novice Ubuntu user I have been
+>>>> given the impression that it is best to stick with the version via
+>>>> synaptic/ubuntu repository BUT i agree this could well be a version
+>>>> incompatibility issue as rattle isn't available from the Ubuntu
+>>>> repository and installed directly from CRAN.
+>>>>
+>>>> Maybe I need to uninstall the Ubuntu repository version and install
+>>>> the latest from CRAN. I admit I find this what to install from where a
+>>>> bit confusing.
+>>>>
+>>>> Graham
+>>>>
+>>>>
+>>>>
+>>>>
+>>>>
+>>>> 2009/10/30 Paul Leo <p.leo at uq.edu.au>:
+>>>>
+>>>>> That a very outdated version of R, current is R2.10
+>>>>>
+>>>>> I just installed r2.10 and used
+>>>>> setRepositories() # choose CRAN
+>>>>> install.packages() # choose rattle
+>>>>> ...
+>>>>> ** preparing package for lazy loading
+>>>>> Loading required package: XML
+>>>>> Warning: package 'XML' was built under R version 2.7.1 and help may not
+>>>>> work correctly
+>>>>> ** help
+>>>>> *** installing help indices
+>>>>> ** building package indices ...
+>>>>> * DONE (rattle)
+>>>>>
+>>>>> ... ignored warnings:
+>>>>>
+>>>>> library(rattle)
+>>>>> rattle() # launched a gui interface that seems to work
+>>>>>
+>>>>>
+>>>>>> sessionInfo()
+>>>>>>
+>>>>> R version 2.10.0 (2009-10-26)
+>>>>> x86_64-pc-linux-gnu
+>>>>>
+>>>>> locale:
+>>>>> ?[1] LC_CTYPE=en_AU.UTF-8 ? ? ? LC_NUMERIC=C
+>>>>> ?[3] LC_TIME=en_AU.UTF-8 ? ? ? ?LC_COLLATE=en_AU.UTF-8
+>>>>> ?[5] LC_MONETARY=C ? ? ? ? ? ? ?LC_MESSAGES=en_AU.UTF-8
+>>>>> ?[7] LC_PAPER=en_AU.UTF-8 ? ? ? LC_NAME=C
+>>>>> ?[9] LC_ADDRESS=C ? ? ? ? ? ? ? LC_TELEPHONE=C
+>>>>> [11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C
+>>>>>
+>>>>> attached base packages:
+>>>>> [1] stats ? ? graphics ?grDevices utils ? ? datasets ?methods
+>>>>> base
+>>>>>
+>>>>> other attached packages:
+>>>>> [1] RGtk2_2.12.5-3 rattle_2.5.1 ? pmml_1.2.19 ? ?XML_1.95-3
+>>>>>
+>>>>> loaded via a namespace (and not attached):
+>>>>> [1] tcltk_2.10.0 tools_2.10.0
+>>>>>
+>>>>> so perhaps a new intall and check those "attached packages listed
+>>>>> above"
+>>>>> I have ubuntu 8.1 so you may need to check those library versions
+>>>>>
+>>>>>
+>>>>> -----Original Message-----
+>>>>> From: Graham Smith <myotisone at gmail.com>
+>>>>> To: r-sig-debian at r-project.org
+>>>>> Subject: [R-sig-Debian] Rattle - libglade not found
+>>>>> Date: Fri, 30 Oct 2009 07:07:02 +0000
+>>>>>
+>>>>> I have just installed rattle on Ubntu 9.04, and R ?2.8.1 and get an
+>>>>> error message when I try to run it.
+>>>>>
+>>>>>
+>>>>>> library(rattle)
+>>>>>> rattle()
+>>>>>>
+>>>>> Error in rattle() :
+>>>>> ?The RGtk2 package did not find libglade installed. Please install it.
+>>>>>
+>>>>> I have installed libglade2-dev ?through synaptic, and following
+>>>>> suggestion from an earlier thread re-installed RGtk2 using
+>>>>> install.packages, and through synaptic.
+>>>>>
+>>>>> Can anyone offer some help - you may realise that I am not that
+>>>>> familiar with Linux/Ubuntu.
+>>>>>
+>>>>> Many thanks,
+>>>>>
+>>>>> Graham
+>>>>>
+>>>>> P.S. I have cross posted this on the Ubuntu forum, before remembering
+>>>>> this forum existed.
+>>>>>
+>>>>> _______________________________________________
+>>>>> R-SIG-Debian mailing list
+>>>>> R-SIG-Debian at r-project.org
+>>>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>>>> --
+>>>>> Dr Paul Leo
+>>>>> Bioinformatician
+>>>>> Diamantina Institute for Cancer, Immunology and Metabolic Medicine
+>>>>> University of Queensland
+>>>>>
+>>>>>
+>>>>> --------------------------------------------------------------------------------------
+>>>>> Research Wing, Bldg 1
+>>>>> Princess Alexandria Hospital
+>>>>> Woolloongabba, QLD, 4102
+>>>>> Tel: +61 7 3240 7740 ?Mob: 041 303 8691 ?Fax: +61 7 3240 5946
+>>>>> Email: p.leo at uq.edu.au ? Web: http://www.di.uq.edu.au
+>>>>>
+>>>>>
+>>>>>
+>>>> _______________________________________________
+>>>> R-SIG-Debian mailing list
+>>>> R-SIG-Debian at r-project.org
+>>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>>>
+>>>
+>
+> --
+> Dr. Michael A. Rutter
+> School of Science
+> Penn State Erie, The Behrend College
+> Station Road
+> Erie, PA 16563
+> http://math.bd.psu.edu/faculty/rutter
+>
+
+
+From myotisone at gmail.com  Fri Oct 30 17:12:21 2009
+From: myotisone at gmail.com (Graham Smith)
+Date: Fri, 30 Oct 2009 16:12:21 +0000
+Subject: [R-sig-Debian] Rattle - libglade not found
+In-Reply-To: <2c75873c0910300849m6e76fccehdcd717dd8636dd19@mail.gmail.com>
+References: <2c75873c0910300007o5773e77cgb9f1db94be00fd9f@mail.gmail.com>
+	<1256889821.7620.112.camel@BIOINFORM01-ubuntu>
+	<2c75873c0910300653p5054eee5t72aa3f3b58158d57@mail.gmail.com>
+	<4AEAF6EB.7010308@psu.edu>
+	<2c75873c0910300834t557da714l87b3ea96ea941788@mail.gmail.com>
+	<4AEB092A.2020702@psu.edu>
+	<2c75873c0910300849m6e76fccehdcd717dd8636dd19@mail.gmail.com>
+Message-ID: <2c75873c0910300912l7fe23506q90f59671db995968@mail.gmail.com>
+
+The ghost of my previous attempt to install rattle lives on in .RData
+and is preventing me opening R :-)
+
+Error in loadNamespace(name) : there is no package called 'rattle'
+Fatal error: unable to restore saved data in .RData
+
+R auto exits at that point
+
+See  below for full message
+
+So I'm afraid I could do with a bit more help.
+
+Thanks,
+
+Graham
+
+
+
+=======================
+
+graham at T42-laptop:~$ R
+
+R version 2.10.0 (2009-10-26)
+Copyright (C) 2009 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+Error in loadNamespace(name) : there is no package called 'rattle'
+Fatal error: unable to restore saved data in .RData
+
+=====================================================
+
+2009/10/30 Graham Smith <myotisone at gmail.com>:
+> Michael,
+>
+> Thanks, I did think it looked a bit strange compared to the other
+> entries. Update is now downloading, so we will see how I get on.
+>
+> Graham
+>
+> 2009/10/30 Michael Rutter <mar36 at psu.edu>:
+>> Graham,
+>>
+>> It appears that the mail client I was using added some extra stuff. ?It
+>> should be:
+>>
+>> deb http://cran.ms.unimelb.edu.au/bin/linux/ubuntu jaunty/
+>>
+>> Just tested this line in my sources.list and it came back fine.
+>>
+>> Michael
+>>
+>> Graham Smith wrote:
+>>>
+>>> Michael,
+>>>
+>>> Thanks for this, I have added CRAN like this before, during one of
+>>> many other attempts with Linux, but if If I add your code as suggested
+>>> or add the repository via synaptic, I get a 404 error
+>>>
+>>> W: Failed to fetch
+>>>
+>>> http://cran.ms.unimelb.edu.au/bin/linux/ubuntu/dists/<http://<my.favorite.cran.mirror>/bin/linux/ubuntu>/jaunty//binary-i386/Packages
+>>> ?404 Not Found
+>>>
+>>> I have also tried the UK and Netherlands mirrors as well, but both of
+>>> these also give a 404 error.
+>>>
+>>> I assume I am doing something stupid.
+>>>
+>>> Graham
+>>>
+>>>
+>>>
+>>>
+>>> 2009/10/30 Michael Rutter <mar36 at psu.edu>:
+>>>>
+>>>> Graham,
+>>>>
+>>>> The instructions for adding the CRAN repositories are here:
+>>>>
+>>>> http://cran.r-project.org/bin/linux/ubuntu/
+>>>>
+>>>> But let me expand on them a little. ?This is assuming you have sudo
+>>>> rights.
+>>>> ?If you do not, forward this email to your administrator.
+>>>>
+>>>> In a terminal, enter
+>>>>
+>>>> sudo gedit /etc/apt/sources.list
+>>>>
+>>>> At the very end of this file, add the following two lines:
+>>>>
+>>>> ## CRAN
+>>>>
+>>>> deb http://cran.ms.unimelb.edu.au/bin/linux/ubuntu
+>>>> <http://%3Cmy.favorite.cran.mirror%3E/bin/linux/ubuntu> jaunty/
+>>>>
+>>>>
+>>>> Save and close the editor. ?Then in the terminal run these lines:
+>>>>
+>>>> gpg --keyserver subkeys.pgp.net --recv-key E2A11821
+>>>> gpg -a --export E2A11821 | sudo apt-key add -
+>>>> sudo apt-get update
+>>>> sudo apt-get install r-base
+>>>>
+>>>>
+>>>> This will authenticate the code, remove the old R and install the newest
+>>>> version.
+>>>>
+>>>> For a program like R in which there is constant development and bug fixes
+>>>> (but not many), it is a good idea to use the most recent version from
+>>>> CRAN.
+>>>>
+>>>> Michael
+>>>>
+>>>>
+>>>>
+>>>> Graham Smith wrote:
+>>>>>
+>>>>> Paul,
+>>>>>
+>>>>> Thanks, 2.8.1 is the most up to date in the Ubuntu Repository, so that
+>>>>> is the one I am using with Ubuntu. As a novice Ubuntu user I have been
+>>>>> given the impression that it is best to stick with the version via
+>>>>> synaptic/ubuntu repository BUT i agree this could well be a version
+>>>>> incompatibility issue as rattle isn't available from the Ubuntu
+>>>>> repository and installed directly from CRAN.
+>>>>>
+>>>>> Maybe I need to uninstall the Ubuntu repository version and install
+>>>>> the latest from CRAN. I admit I find this what to install from where a
+>>>>> bit confusing.
+>>>>>
+>>>>> Graham
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>> 2009/10/30 Paul Leo <p.leo at uq.edu.au>:
+>>>>>
+>>>>>> That a very outdated version of R, current is R2.10
+>>>>>>
+>>>>>> I just installed r2.10 and used
+>>>>>> setRepositories() # choose CRAN
+>>>>>> install.packages() # choose rattle
+>>>>>> ...
+>>>>>> ** preparing package for lazy loading
+>>>>>> Loading required package: XML
+>>>>>> Warning: package 'XML' was built under R version 2.7.1 and help may not
+>>>>>> work correctly
+>>>>>> ** help
+>>>>>> *** installing help indices
+>>>>>> ** building package indices ...
+>>>>>> * DONE (rattle)
+>>>>>>
+>>>>>> ... ignored warnings:
+>>>>>>
+>>>>>> library(rattle)
+>>>>>> rattle() # launched a gui interface that seems to work
+>>>>>>
+>>>>>>
+>>>>>>> sessionInfo()
+>>>>>>>
+>>>>>> R version 2.10.0 (2009-10-26)
+>>>>>> x86_64-pc-linux-gnu
+>>>>>>
+>>>>>> locale:
+>>>>>> ?[1] LC_CTYPE=en_AU.UTF-8 ? ? ? LC_NUMERIC=C
+>>>>>> ?[3] LC_TIME=en_AU.UTF-8 ? ? ? ?LC_COLLATE=en_AU.UTF-8
+>>>>>> ?[5] LC_MONETARY=C ? ? ? ? ? ? ?LC_MESSAGES=en_AU.UTF-8
+>>>>>> ?[7] LC_PAPER=en_AU.UTF-8 ? ? ? LC_NAME=C
+>>>>>> ?[9] LC_ADDRESS=C ? ? ? ? ? ? ? LC_TELEPHONE=C
+>>>>>> [11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C
+>>>>>>
+>>>>>> attached base packages:
+>>>>>> [1] stats ? ? graphics ?grDevices utils ? ? datasets ?methods
+>>>>>> base
+>>>>>>
+>>>>>> other attached packages:
+>>>>>> [1] RGtk2_2.12.5-3 rattle_2.5.1 ? pmml_1.2.19 ? ?XML_1.95-3
+>>>>>>
+>>>>>> loaded via a namespace (and not attached):
+>>>>>> [1] tcltk_2.10.0 tools_2.10.0
+>>>>>>
+>>>>>> so perhaps a new intall and check those "attached packages listed
+>>>>>> above"
+>>>>>> I have ubuntu 8.1 so you may need to check those library versions
+>>>>>>
+>>>>>>
+>>>>>> -----Original Message-----
+>>>>>> From: Graham Smith <myotisone at gmail.com>
+>>>>>> To: r-sig-debian at r-project.org
+>>>>>> Subject: [R-sig-Debian] Rattle - libglade not found
+>>>>>> Date: Fri, 30 Oct 2009 07:07:02 +0000
+>>>>>>
+>>>>>> I have just installed rattle on Ubntu 9.04, and R ?2.8.1 and get an
+>>>>>> error message when I try to run it.
+>>>>>>
+>>>>>>
+>>>>>>> library(rattle)
+>>>>>>> rattle()
+>>>>>>>
+>>>>>> Error in rattle() :
+>>>>>> ?The RGtk2 package did not find libglade installed. Please install it.
+>>>>>>
+>>>>>> I have installed libglade2-dev ?through synaptic, and following
+>>>>>> suggestion from an earlier thread re-installed RGtk2 using
+>>>>>> install.packages, and through synaptic.
+>>>>>>
+>>>>>> Can anyone offer some help - you may realise that I am not that
+>>>>>> familiar with Linux/Ubuntu.
+>>>>>>
+>>>>>> Many thanks,
+>>>>>>
+>>>>>> Graham
+>>>>>>
+>>>>>> P.S. I have cross posted this on the Ubuntu forum, before remembering
+>>>>>> this forum existed.
+>>>>>>
+>>>>>> _______________________________________________
+>>>>>> R-SIG-Debian mailing list
+>>>>>> R-SIG-Debian at r-project.org
+>>>>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>>>>> --
+>>>>>> Dr Paul Leo
+>>>>>> Bioinformatician
+>>>>>> Diamantina Institute for Cancer, Immunology and Metabolic Medicine
+>>>>>> University of Queensland
+>>>>>>
+>>>>>>
+>>>>>> --------------------------------------------------------------------------------------
+>>>>>> Research Wing, Bldg 1
+>>>>>> Princess Alexandria Hospital
+>>>>>> Woolloongabba, QLD, 4102
+>>>>>> Tel: +61 7 3240 7740 ?Mob: 041 303 8691 ?Fax: +61 7 3240 5946
+>>>>>> Email: p.leo at uq.edu.au ? Web: http://www.di.uq.edu.au
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>> _______________________________________________
+>>>>> R-SIG-Debian mailing list
+>>>>> R-SIG-Debian at r-project.org
+>>>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>>>>
+>>>>
+>>
+>> --
+>> Dr. Michael A. Rutter
+>> School of Science
+>> Penn State Erie, The Behrend College
+>> Station Road
+>> Erie, PA 16563
+>> http://math.bd.psu.edu/faculty/rutter
+>>
+>
+
+
+From myotisone at gmail.com  Fri Oct 30 17:44:15 2009
+From: myotisone at gmail.com (Graham Smith)
+Date: Fri, 30 Oct 2009 16:44:15 +0000
+Subject: [R-sig-Debian] Rattle - libglade not found
+In-Reply-To: <2c75873c0910300912l7fe23506q90f59671db995968@mail.gmail.com>
+References: <2c75873c0910300007o5773e77cgb9f1db94be00fd9f@mail.gmail.com>
+	<1256889821.7620.112.camel@BIOINFORM01-ubuntu>
+	<2c75873c0910300653p5054eee5t72aa3f3b58158d57@mail.gmail.com>
+	<4AEAF6EB.7010308@psu.edu>
+	<2c75873c0910300834t557da714l87b3ea96ea941788@mail.gmail.com>
+	<4AEB092A.2020702@psu.edu>
+	<2c75873c0910300849m6e76fccehdcd717dd8636dd19@mail.gmail.com>
+	<2c75873c0910300912l7fe23506q90f59671db995968@mail.gmail.com>
+Message-ID: <2c75873c0910300944q67b7cdc3m5c1d800b5cd86503@mail.gmail.com>
+
+OK,
+
+I have renamed .RData and this has allowed R to run.  I thought R
+might have created a new default .RData file, but it hasn't.
+
+Can I just delete this .RData file and let R sort itself out?
+
+Graham
+
+2009/10/30 Graham Smith <myotisone at gmail.com>:
+> The ghost of my previous attempt to install rattle lives on in .RData
+> and is preventing me opening R :-)
+>
+> Error in loadNamespace(name) : there is no package called 'rattle'
+> Fatal error: unable to restore saved data in .RData
+>
+> R auto exits at that point
+>
+> See ?below for full message
+>
+> So I'm afraid I could do with a bit more help.
+>
+> Thanks,
+>
+> Graham
+>
+>
+>
+> =======================
+>
+> graham at T42-laptop:~$ R
+>
+> R version 2.10.0 (2009-10-26)
+> Copyright (C) 2009 The R Foundation for Statistical Computing
+> ISBN 3-900051-07-0
+>
+> R is free software and comes with ABSOLUTELY NO WARRANTY.
+> You are welcome to redistribute it under certain conditions.
+> Type 'license()' or 'licence()' for distribution details.
+>
+> ?Natural language support but running in an English locale
+>
+> R is a collaborative project with many contributors.
+> Type 'contributors()' for more information and
+> 'citation()' on how to cite R or R packages in publications.
+>
+> Type 'demo()' for some demos, 'help()' for on-line help, or
+> 'help.start()' for an HTML browser interface to help.
+> Type 'q()' to quit R.
+>
+> Error in loadNamespace(name) : there is no package called 'rattle'
+> Fatal error: unable to restore saved data in .RData
+>
+> =====================================================
+>
+> 2009/10/30 Graham Smith <myotisone at gmail.com>:
+>> Michael,
+>>
+>> Thanks, I did think it looked a bit strange compared to the other
+>> entries. Update is now downloading, so we will see how I get on.
+>>
+>> Graham
+>>
+>> 2009/10/30 Michael Rutter <mar36 at psu.edu>:
+>>> Graham,
+>>>
+>>> It appears that the mail client I was using added some extra stuff. ?It
+>>> should be:
+>>>
+>>> deb http://cran.ms.unimelb.edu.au/bin/linux/ubuntu jaunty/
+>>>
+>>> Just tested this line in my sources.list and it came back fine.
+>>>
+>>> Michael
+>>>
+>>> Graham Smith wrote:
+>>>>
+>>>> Michael,
+>>>>
+>>>> Thanks for this, I have added CRAN like this before, during one of
+>>>> many other attempts with Linux, but if If I add your code as suggested
+>>>> or add the repository via synaptic, I get a 404 error
+>>>>
+>>>> W: Failed to fetch
+>>>>
+>>>> http://cran.ms.unimelb.edu.au/bin/linux/ubuntu/dists/<http://<my.favorite.cran.mirror>/bin/linux/ubuntu>/jaunty//binary-i386/Packages
+>>>> ?404 Not Found
+>>>>
+>>>> I have also tried the UK and Netherlands mirrors as well, but both of
+>>>> these also give a 404 error.
+>>>>
+>>>> I assume I am doing something stupid.
+>>>>
+>>>> Graham
+>>>>
+>>>>
+>>>>
+>>>>
+>>>> 2009/10/30 Michael Rutter <mar36 at psu.edu>:
+>>>>>
+>>>>> Graham,
+>>>>>
+>>>>> The instructions for adding the CRAN repositories are here:
+>>>>>
+>>>>> http://cran.r-project.org/bin/linux/ubuntu/
+>>>>>
+>>>>> But let me expand on them a little. ?This is assuming you have sudo
+>>>>> rights.
+>>>>> ?If you do not, forward this email to your administrator.
+>>>>>
+>>>>> In a terminal, enter
+>>>>>
+>>>>> sudo gedit /etc/apt/sources.list
+>>>>>
+>>>>> At the very end of this file, add the following two lines:
+>>>>>
+>>>>> ## CRAN
+>>>>>
+>>>>> deb http://cran.ms.unimelb.edu.au/bin/linux/ubuntu
+>>>>> <http://%3Cmy.favorite.cran.mirror%3E/bin/linux/ubuntu> jaunty/
+>>>>>
+>>>>>
+>>>>> Save and close the editor. ?Then in the terminal run these lines:
+>>>>>
+>>>>> gpg --keyserver subkeys.pgp.net --recv-key E2A11821
+>>>>> gpg -a --export E2A11821 | sudo apt-key add -
+>>>>> sudo apt-get update
+>>>>> sudo apt-get install r-base
+>>>>>
+>>>>>
+>>>>> This will authenticate the code, remove the old R and install the newest
+>>>>> version.
+>>>>>
+>>>>> For a program like R in which there is constant development and bug fixes
+>>>>> (but not many), it is a good idea to use the most recent version from
+>>>>> CRAN.
+>>>>>
+>>>>> Michael
+>>>>>
+>>>>>
+>>>>>
+>>>>> Graham Smith wrote:
+>>>>>>
+>>>>>> Paul,
+>>>>>>
+>>>>>> Thanks, 2.8.1 is the most up to date in the Ubuntu Repository, so that
+>>>>>> is the one I am using with Ubuntu. As a novice Ubuntu user I have been
+>>>>>> given the impression that it is best to stick with the version via
+>>>>>> synaptic/ubuntu repository BUT i agree this could well be a version
+>>>>>> incompatibility issue as rattle isn't available from the Ubuntu
+>>>>>> repository and installed directly from CRAN.
+>>>>>>
+>>>>>> Maybe I need to uninstall the Ubuntu repository version and install
+>>>>>> the latest from CRAN. I admit I find this what to install from where a
+>>>>>> bit confusing.
+>>>>>>
+>>>>>> Graham
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>> 2009/10/30 Paul Leo <p.leo at uq.edu.au>:
+>>>>>>
+>>>>>>> That a very outdated version of R, current is R2.10
+>>>>>>>
+>>>>>>> I just installed r2.10 and used
+>>>>>>> setRepositories() # choose CRAN
+>>>>>>> install.packages() # choose rattle
+>>>>>>> ...
+>>>>>>> ** preparing package for lazy loading
+>>>>>>> Loading required package: XML
+>>>>>>> Warning: package 'XML' was built under R version 2.7.1 and help may not
+>>>>>>> work correctly
+>>>>>>> ** help
+>>>>>>> *** installing help indices
+>>>>>>> ** building package indices ...
+>>>>>>> * DONE (rattle)
+>>>>>>>
+>>>>>>> ... ignored warnings:
+>>>>>>>
+>>>>>>> library(rattle)
+>>>>>>> rattle() # launched a gui interface that seems to work
+>>>>>>>
+>>>>>>>
+>>>>>>>> sessionInfo()
+>>>>>>>>
+>>>>>>> R version 2.10.0 (2009-10-26)
+>>>>>>> x86_64-pc-linux-gnu
+>>>>>>>
+>>>>>>> locale:
+>>>>>>> ?[1] LC_CTYPE=en_AU.UTF-8 ? ? ? LC_NUMERIC=C
+>>>>>>> ?[3] LC_TIME=en_AU.UTF-8 ? ? ? ?LC_COLLATE=en_AU.UTF-8
+>>>>>>> ?[5] LC_MONETARY=C ? ? ? ? ? ? ?LC_MESSAGES=en_AU.UTF-8
+>>>>>>> ?[7] LC_PAPER=en_AU.UTF-8 ? ? ? LC_NAME=C
+>>>>>>> ?[9] LC_ADDRESS=C ? ? ? ? ? ? ? LC_TELEPHONE=C
+>>>>>>> [11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C
+>>>>>>>
+>>>>>>> attached base packages:
+>>>>>>> [1] stats ? ? graphics ?grDevices utils ? ? datasets ?methods
+>>>>>>> base
+>>>>>>>
+>>>>>>> other attached packages:
+>>>>>>> [1] RGtk2_2.12.5-3 rattle_2.5.1 ? pmml_1.2.19 ? ?XML_1.95-3
+>>>>>>>
+>>>>>>> loaded via a namespace (and not attached):
+>>>>>>> [1] tcltk_2.10.0 tools_2.10.0
+>>>>>>>
+>>>>>>> so perhaps a new intall and check those "attached packages listed
+>>>>>>> above"
+>>>>>>> I have ubuntu 8.1 so you may need to check those library versions
+>>>>>>>
+>>>>>>>
+>>>>>>> -----Original Message-----
+>>>>>>> From: Graham Smith <myotisone at gmail.com>
+>>>>>>> To: r-sig-debian at r-project.org
+>>>>>>> Subject: [R-sig-Debian] Rattle - libglade not found
+>>>>>>> Date: Fri, 30 Oct 2009 07:07:02 +0000
+>>>>>>>
+>>>>>>> I have just installed rattle on Ubntu 9.04, and R ?2.8.1 and get an
+>>>>>>> error message when I try to run it.
+>>>>>>>
+>>>>>>>
+>>>>>>>> library(rattle)
+>>>>>>>> rattle()
+>>>>>>>>
+>>>>>>> Error in rattle() :
+>>>>>>> ?The RGtk2 package did not find libglade installed. Please install it.
+>>>>>>>
+>>>>>>> I have installed libglade2-dev ?through synaptic, and following
+>>>>>>> suggestion from an earlier thread re-installed RGtk2 using
+>>>>>>> install.packages, and through synaptic.
+>>>>>>>
+>>>>>>> Can anyone offer some help - you may realise that I am not that
+>>>>>>> familiar with Linux/Ubuntu.
+>>>>>>>
+>>>>>>> Many thanks,
+>>>>>>>
+>>>>>>> Graham
+>>>>>>>
+>>>>>>> P.S. I have cross posted this on the Ubuntu forum, before remembering
+>>>>>>> this forum existed.
+>>>>>>>
+>>>>>>> _______________________________________________
+>>>>>>> R-SIG-Debian mailing list
+>>>>>>> R-SIG-Debian at r-project.org
+>>>>>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>>>>>> --
+>>>>>>> Dr Paul Leo
+>>>>>>> Bioinformatician
+>>>>>>> Diamantina Institute for Cancer, Immunology and Metabolic Medicine
+>>>>>>> University of Queensland
+>>>>>>>
+>>>>>>>
+>>>>>>> --------------------------------------------------------------------------------------
+>>>>>>> Research Wing, Bldg 1
+>>>>>>> Princess Alexandria Hospital
+>>>>>>> Woolloongabba, QLD, 4102
+>>>>>>> Tel: +61 7 3240 7740 ?Mob: 041 303 8691 ?Fax: +61 7 3240 5946
+>>>>>>> Email: p.leo at uq.edu.au ? Web: http://www.di.uq.edu.au
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>> _______________________________________________
+>>>>>> R-SIG-Debian mailing list
+>>>>>> R-SIG-Debian at r-project.org
+>>>>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>>>>>
+>>>>>
+>>>
+>>> --
+>>> Dr. Michael A. Rutter
+>>> School of Science
+>>> Penn State Erie, The Behrend College
+>>> Station Road
+>>> Erie, PA 16563
+>>> http://math.bd.psu.edu/faculty/rutter
+>>>
+>>
+>
+
+
+From mar36 at psu.edu  Fri Oct 30 18:33:21 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Fri, 30 Oct 2009 13:33:21 -0400
+Subject: [R-sig-Debian] Rattle - libglade not found
+In-Reply-To: <2c75873c0910300944q67b7cdc3m5c1d800b5cd86503@mail.gmail.com>
+References: <2c75873c0910300007o5773e77cgb9f1db94be00fd9f@mail.gmail.com>	<1256889821.7620.112.camel@BIOINFORM01-ubuntu>	<2c75873c0910300653p5054eee5t72aa3f3b58158d57@mail.gmail.com>	<4AEAF6EB.7010308@psu.edu>	<2c75873c0910300834t557da714l87b3ea96ea941788@mail.gmail.com>	<4AEB092A.2020702@psu.edu>	<2c75873c0910300849m6e76fccehdcd717dd8636dd19@mail.gmail.com>	<2c75873c0910300912l7fe23506q90f59671db995968@mail.gmail.com>
+	<2c75873c0910300944q67b7cdc3m5c1d800b5cd86503@mail.gmail.com>
+Message-ID: <4AEB2361.3090007@psu.edu>
+
+Deleting .RData is not a problem.  In Linux, when ever you launch R it 
+looks at the current directory for an .RData file.  This file can be 
+created when you q() R (it asks if you want to save workspace).  If you 
+say yes, .RData is created with all of the information from the current 
+session.  If you delete it, it is the same as answering no to the q() 
+question.
+
+Michael
+
+Graham Smith wrote:
+> OK,
+> 
+> I have renamed .RData and this has allowed R to run.  I thought R
+> might have created a new default .RData file, but it hasn't.
+> 
+> Can I just delete this .RData file and let R sort itself out?
+> 
+> Graham
+> 
+> 2009/10/30 Graham Smith <myotisone at gmail.com>:
+>> The ghost of my previous attempt to install rattle lives on in .RData
+>> and is preventing me opening R :-)
+>>
+>> Error in loadNamespace(name) : there is no package called 'rattle'
+>> Fatal error: unable to restore saved data in .RData
+>>
+>> R auto exits at that point
+>>
+>> See  below for full message
+>>
+>> So I'm afraid I could do with a bit more help.
+>>
+>> Thanks,
+>>
+>> Graham
+>>
+>>
+>>
+>> =======================
+>>
+>> graham at T42-laptop:~$ R
+>>
+>> R version 2.10.0 (2009-10-26)
+>> Copyright (C) 2009 The R Foundation for Statistical Computing
+>> ISBN 3-900051-07-0
+>>
+>> R is free software and comes with ABSOLUTELY NO WARRANTY.
+>> You are welcome to redistribute it under certain conditions.
+>> Type 'license()' or 'licence()' for distribution details.
+>>
+>>  Natural language support but running in an English locale
+>>
+>> R is a collaborative project with many contributors.
+>> Type 'contributors()' for more information and
+>> 'citation()' on how to cite R or R packages in publications.
+>>
+>> Type 'demo()' for some demos, 'help()' for on-line help, or
+>> 'help.start()' for an HTML browser interface to help.
+>> Type 'q()' to quit R.
+>>
+>> Error in loadNamespace(name) : there is no package called 'rattle'
+>> Fatal error: unable to restore saved data in .RData
+>>
+>> =====================================================
+>>
+>> 2009/10/30 Graham Smith <myotisone at gmail.com>:
+>>> Michael,
+>>>
+>>> Thanks, I did think it looked a bit strange compared to the other
+>>> entries. Update is now downloading, so we will see how I get on.
+>>>
+>>> Graham
+>>>
+>>> 2009/10/30 Michael Rutter <mar36 at psu.edu>:
+>>>> Graham,
+>>>>
+>>>> It appears that the mail client I was using added some extra stuff.  It
+>>>> should be:
+>>>>
+>>>> deb http://cran.ms.unimelb.edu.au/bin/linux/ubuntu jaunty/
+>>>>
+>>>> Just tested this line in my sources.list and it came back fine.
+>>>>
+>>>> Michael
+>>>>
+>>>> Graham Smith wrote:
+>>>>> Michael,
+>>>>>
+>>>>> Thanks for this, I have added CRAN like this before, during one of
+>>>>> many other attempts with Linux, but if If I add your code as suggested
+>>>>> or add the repository via synaptic, I get a 404 error
+>>>>>
+>>>>> W: Failed to fetch
+>>>>>
+>>>>> http://cran.ms.unimelb.edu.au/bin/linux/ubuntu/dists/<http://<my.favorite.cran.mirror>/bin/linux/ubuntu>/jaunty//binary-i386/Packages
+>>>>>  404 Not Found
+>>>>>
+>>>>> I have also tried the UK and Netherlands mirrors as well, but both of
+>>>>> these also give a 404 error.
+>>>>>
+>>>>> I assume I am doing something stupid.
+>>>>>
+>>>>> Graham
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>> 2009/10/30 Michael Rutter <mar36 at psu.edu>:
+>>>>>> Graham,
+>>>>>>
+>>>>>> The instructions for adding the CRAN repositories are here:
+>>>>>>
+>>>>>> http://cran.r-project.org/bin/linux/ubuntu/
+>>>>>>
+>>>>>> But let me expand on them a little.  This is assuming you have sudo
+>>>>>> rights.
+>>>>>>  If you do not, forward this email to your administrator.
+>>>>>>
+>>>>>> In a terminal, enter
+>>>>>>
+>>>>>> sudo gedit /etc/apt/sources.list
+>>>>>>
+>>>>>> At the very end of this file, add the following two lines:
+>>>>>>
+>>>>>> ## CRAN
+>>>>>>
+>>>>>> deb http://cran.ms.unimelb.edu.au/bin/linux/ubuntu
+>>>>>> <http://%3Cmy.favorite.cran.mirror%3E/bin/linux/ubuntu> jaunty/
+>>>>>>
+>>>>>>
+>>>>>> Save and close the editor.  Then in the terminal run these lines:
+>>>>>>
+>>>>>> gpg --keyserver subkeys.pgp.net --recv-key E2A11821
+>>>>>> gpg -a --export E2A11821 | sudo apt-key add -
+>>>>>> sudo apt-get update
+>>>>>> sudo apt-get install r-base
+>>>>>>
+>>>>>>
+>>>>>> This will authenticate the code, remove the old R and install the newest
+>>>>>> version.
+>>>>>>
+>>>>>> For a program like R in which there is constant development and bug fixes
+>>>>>> (but not many), it is a good idea to use the most recent version from
+>>>>>> CRAN.
+>>>>>>
+>>>>>> Michael
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>> Graham Smith wrote:
+>>>>>>> Paul,
+>>>>>>>
+>>>>>>> Thanks, 2.8.1 is the most up to date in the Ubuntu Repository, so that
+>>>>>>> is the one I am using with Ubuntu. As a novice Ubuntu user I have been
+>>>>>>> given the impression that it is best to stick with the version via
+>>>>>>> synaptic/ubuntu repository BUT i agree this could well be a version
+>>>>>>> incompatibility issue as rattle isn't available from the Ubuntu
+>>>>>>> repository and installed directly from CRAN.
+>>>>>>>
+>>>>>>> Maybe I need to uninstall the Ubuntu repository version and install
+>>>>>>> the latest from CRAN. I admit I find this what to install from where a
+>>>>>>> bit confusing.
+>>>>>>>
+>>>>>>> Graham
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>> 2009/10/30 Paul Leo <p.leo at uq.edu.au>:
+>>>>>>>
+>>>>>>>> That a very outdated version of R, current is R2.10
+>>>>>>>>
+>>>>>>>> I just installed r2.10 and used
+>>>>>>>> setRepositories() # choose CRAN
+>>>>>>>> install.packages() # choose rattle
+>>>>>>>> ...
+>>>>>>>> ** preparing package for lazy loading
+>>>>>>>> Loading required package: XML
+>>>>>>>> Warning: package 'XML' was built under R version 2.7.1 and help may not
+>>>>>>>> work correctly
+>>>>>>>> ** help
+>>>>>>>> *** installing help indices
+>>>>>>>> ** building package indices ...
+>>>>>>>> * DONE (rattle)
+>>>>>>>>
+>>>>>>>> ... ignored warnings:
+>>>>>>>>
+>>>>>>>> library(rattle)
+>>>>>>>> rattle() # launched a gui interface that seems to work
+>>>>>>>>
+>>>>>>>>
+>>>>>>>>> sessionInfo()
+>>>>>>>>>
+>>>>>>>> R version 2.10.0 (2009-10-26)
+>>>>>>>> x86_64-pc-linux-gnu
+>>>>>>>>
+>>>>>>>> locale:
+>>>>>>>>  [1] LC_CTYPE=en_AU.UTF-8       LC_NUMERIC=C
+>>>>>>>>  [3] LC_TIME=en_AU.UTF-8        LC_COLLATE=en_AU.UTF-8
+>>>>>>>>  [5] LC_MONETARY=C              LC_MESSAGES=en_AU.UTF-8
+>>>>>>>>  [7] LC_PAPER=en_AU.UTF-8       LC_NAME=C
+>>>>>>>>  [9] LC_ADDRESS=C               LC_TELEPHONE=C
+>>>>>>>> [11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C
+>>>>>>>>
+>>>>>>>> attached base packages:
+>>>>>>>> [1] stats     graphics  grDevices utils     datasets  methods
+>>>>>>>> base
+>>>>>>>>
+>>>>>>>> other attached packages:
+>>>>>>>> [1] RGtk2_2.12.5-3 rattle_2.5.1   pmml_1.2.19    XML_1.95-3
+>>>>>>>>
+>>>>>>>> loaded via a namespace (and not attached):
+>>>>>>>> [1] tcltk_2.10.0 tools_2.10.0
+>>>>>>>>
+>>>>>>>> so perhaps a new intall and check those "attached packages listed
+>>>>>>>> above"
+>>>>>>>> I have ubuntu 8.1 so you may need to check those library versions
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> -----Original Message-----
+>>>>>>>> From: Graham Smith <myotisone at gmail.com>
+>>>>>>>> To: r-sig-debian at r-project.org
+>>>>>>>> Subject: [R-sig-Debian] Rattle - libglade not found
+>>>>>>>> Date: Fri, 30 Oct 2009 07:07:02 +0000
+>>>>>>>>
+>>>>>>>> I have just installed rattle on Ubntu 9.04, and R  2.8.1 and get an
+>>>>>>>> error message when I try to run it.
+>>>>>>>>
+>>>>>>>>
+>>>>>>>>> library(rattle)
+>>>>>>>>> rattle()
+>>>>>>>>>
+>>>>>>>> Error in rattle() :
+>>>>>>>>  The RGtk2 package did not find libglade installed. Please install it.
+>>>>>>>>
+>>>>>>>> I have installed libglade2-dev  through synaptic, and following
+>>>>>>>> suggestion from an earlier thread re-installed RGtk2 using
+>>>>>>>> install.packages, and through synaptic.
+>>>>>>>>
+>>>>>>>> Can anyone offer some help - you may realise that I am not that
+>>>>>>>> familiar with Linux/Ubuntu.
+>>>>>>>>
+>>>>>>>> Many thanks,
+>>>>>>>>
+>>>>>>>> Graham
+>>>>>>>>
+>>>>>>>> P.S. I have cross posted this on the Ubuntu forum, before remembering
+>>>>>>>> this forum existed.
+>>>>>>>>
+>>>>>>>> _______________________________________________
+>>>>>>>> R-SIG-Debian mailing list
+>>>>>>>> R-SIG-Debian at r-project.org
+>>>>>>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>>>>>>> --
+>>>>>>>> Dr Paul Leo
+>>>>>>>> Bioinformatician
+>>>>>>>> Diamantina Institute for Cancer, Immunology and Metabolic Medicine
+>>>>>>>> University of Queensland
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> --------------------------------------------------------------------------------------
+>>>>>>>> Research Wing, Bldg 1
+>>>>>>>> Princess Alexandria Hospital
+>>>>>>>> Woolloongabba, QLD, 4102
+>>>>>>>> Tel: +61 7 3240 7740  Mob: 041 303 8691  Fax: +61 7 3240 5946
+>>>>>>>> Email: p.leo at uq.edu.au   Web: http://www.di.uq.edu.au
+>>>>>>>>
+>>>>>>>>
+>>>>>>>>
+>>>>>>> _______________________________________________
+>>>>>>> R-SIG-Debian mailing list
+>>>>>>> R-SIG-Debian at r-project.org
+>>>>>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>>>>>>
+>>>> --
+>>>> Dr. Michael A. Rutter
+>>>> School of Science
+>>>> Penn State Erie, The Behrend College
+>>>> Station Road
+>>>> Erie, PA 16563
+>>>> http://math.bd.psu.edu/faculty/rutter
+>>>>
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From myotisone at gmail.com  Fri Oct 30 18:48:44 2009
+From: myotisone at gmail.com (Graham Smith)
+Date: Fri, 30 Oct 2009 17:48:44 +0000
+Subject: [R-sig-Debian] Rattle - libglade not found
+In-Reply-To: <4AEB2361.3090007@psu.edu>
+References: <2c75873c0910300007o5773e77cgb9f1db94be00fd9f@mail.gmail.com>
+	<1256889821.7620.112.camel@BIOINFORM01-ubuntu>
+	<2c75873c0910300653p5054eee5t72aa3f3b58158d57@mail.gmail.com>
+	<4AEAF6EB.7010308@psu.edu>
+	<2c75873c0910300834t557da714l87b3ea96ea941788@mail.gmail.com>
+	<4AEB092A.2020702@psu.edu>
+	<2c75873c0910300849m6e76fccehdcd717dd8636dd19@mail.gmail.com>
+	<2c75873c0910300912l7fe23506q90f59671db995968@mail.gmail.com>
+	<2c75873c0910300944q67b7cdc3m5c1d800b5cd86503@mail.gmail.com>
+	<4AEB2361.3090007@psu.edu>
+Message-ID: <2c75873c0910301048o44ad53acs397a7b75975f0273@mail.gmail.com>
+
+Thanks again,
+
+I assumed this was probably the case, but nice to check before doing
+something silly.
+
+Graham
+
+2009/10/30 Michael Rutter <mar36 at psu.edu>:
+> Deleting .RData is not a problem. ?In Linux, when ever you launch R it looks
+> at the current directory for an .RData file. ?This file can be created when
+> you q() R (it asks if you want to save workspace). ?If you say yes, .RData
+> is created with all of the information from the current session. ?If you
+> delete it, it is the same as answering no to the q() question.
+>
+> Michael
+>
+> Graham Smith wrote:
+>>
+>> OK,
+>>
+>> I have renamed .RData and this has allowed R to run. ?I thought R
+>> might have created a new default .RData file, but it hasn't.
+>>
+>> Can I just delete this .RData file and let R sort itself out?
+>>
+>> Graham
+>>
+>> 2009/10/30 Graham Smith <myotisone at gmail.com>:
+>>>
+>>> The ghost of my previous attempt to install rattle lives on in .RData
+>>> and is preventing me opening R :-)
+>>>
+>>> Error in loadNamespace(name) : there is no package called 'rattle'
+>>> Fatal error: unable to restore saved data in .RData
+>>>
+>>> R auto exits at that point
+>>>
+>>> See ?below for full message
+>>>
+>>> So I'm afraid I could do with a bit more help.
+>>>
+>>> Thanks,
+>>>
+>>> Graham
+>>>
+>>>
+>>>
+>>> =======================
+>>>
+>>> graham at T42-laptop:~$ R
+>>>
+>>> R version 2.10.0 (2009-10-26)
+>>> Copyright (C) 2009 The R Foundation for Statistical Computing
+>>> ISBN 3-900051-07-0
+>>>
+>>> R is free software and comes with ABSOLUTELY NO WARRANTY.
+>>> You are welcome to redistribute it under certain conditions.
+>>> Type 'license()' or 'licence()' for distribution details.
+>>>
+>>> ?Natural language support but running in an English locale
+>>>
+>>> R is a collaborative project with many contributors.
+>>> Type 'contributors()' for more information and
+>>> 'citation()' on how to cite R or R packages in publications.
+>>>
+>>> Type 'demo()' for some demos, 'help()' for on-line help, or
+>>> 'help.start()' for an HTML browser interface to help.
+>>> Type 'q()' to quit R.
+>>>
+>>> Error in loadNamespace(name) : there is no package called 'rattle'
+>>> Fatal error: unable to restore saved data in .RData
+>>>
+>>> =====================================================
+>>>
+>>> 2009/10/30 Graham Smith <myotisone at gmail.com>:
+>>>>
+>>>> Michael,
+>>>>
+>>>> Thanks, I did think it looked a bit strange compared to the other
+>>>> entries. Update is now downloading, so we will see how I get on.
+>>>>
+>>>> Graham
+>>>>
+>>>> 2009/10/30 Michael Rutter <mar36 at psu.edu>:
+>>>>>
+>>>>> Graham,
+>>>>>
+>>>>> It appears that the mail client I was using added some extra stuff. ?It
+>>>>> should be:
+>>>>>
+>>>>> deb http://cran.ms.unimelb.edu.au/bin/linux/ubuntu jaunty/
+>>>>>
+>>>>> Just tested this line in my sources.list and it came back fine.
+>>>>>
+>>>>> Michael
+>>>>>
+>>>>> Graham Smith wrote:
+>>>>>>
+>>>>>> Michael,
+>>>>>>
+>>>>>> Thanks for this, I have added CRAN like this before, during one of
+>>>>>> many other attempts with Linux, but if If I add your code as suggested
+>>>>>> or add the repository via synaptic, I get a 404 error
+>>>>>>
+>>>>>> W: Failed to fetch
+>>>>>>
+>>>>>>
+>>>>>> http://cran.ms.unimelb.edu.au/bin/linux/ubuntu/dists/<http://<my.favorite.cran.mirror>/bin/linux/ubuntu>/jaunty//binary-i386/Packages
+>>>>>> ?404 Not Found
+>>>>>>
+>>>>>> I have also tried the UK and Netherlands mirrors as well, but both of
+>>>>>> these also give a 404 error.
+>>>>>>
+>>>>>> I assume I am doing something stupid.
+>>>>>>
+>>>>>> Graham
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>> 2009/10/30 Michael Rutter <mar36 at psu.edu>:
+>>>>>>>
+>>>>>>> Graham,
+>>>>>>>
+>>>>>>> The instructions for adding the CRAN repositories are here:
+>>>>>>>
+>>>>>>> http://cran.r-project.org/bin/linux/ubuntu/
+>>>>>>>
+>>>>>>> But let me expand on them a little. ?This is assuming you have sudo
+>>>>>>> rights.
+>>>>>>> ?If you do not, forward this email to your administrator.
+>>>>>>>
+>>>>>>> In a terminal, enter
+>>>>>>>
+>>>>>>> sudo gedit /etc/apt/sources.list
+>>>>>>>
+>>>>>>> At the very end of this file, add the following two lines:
+>>>>>>>
+>>>>>>> ## CRAN
+>>>>>>>
+>>>>>>> deb http://cran.ms.unimelb.edu.au/bin/linux/ubuntu
+>>>>>>> <http://%3Cmy.favorite.cran.mirror%3E/bin/linux/ubuntu> jaunty/
+>>>>>>>
+>>>>>>>
+>>>>>>> Save and close the editor. ?Then in the terminal run these lines:
+>>>>>>>
+>>>>>>> gpg --keyserver subkeys.pgp.net --recv-key E2A11821
+>>>>>>> gpg -a --export E2A11821 | sudo apt-key add -
+>>>>>>> sudo apt-get update
+>>>>>>> sudo apt-get install r-base
+>>>>>>>
+>>>>>>>
+>>>>>>> This will authenticate the code, remove the old R and install the
+>>>>>>> newest
+>>>>>>> version.
+>>>>>>>
+>>>>>>> For a program like R in which there is constant development and bug
+>>>>>>> fixes
+>>>>>>> (but not many), it is a good idea to use the most recent version from
+>>>>>>> CRAN.
+>>>>>>>
+>>>>>>> Michael
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>> Graham Smith wrote:
+>>>>>>>>
+>>>>>>>> Paul,
+>>>>>>>>
+>>>>>>>> Thanks, 2.8.1 is the most up to date in the Ubuntu Repository, so
+>>>>>>>> that
+>>>>>>>> is the one I am using with Ubuntu. As a novice Ubuntu user I have
+>>>>>>>> been
+>>>>>>>> given the impression that it is best to stick with the version via
+>>>>>>>> synaptic/ubuntu repository BUT i agree this could well be a version
+>>>>>>>> incompatibility issue as rattle isn't available from the Ubuntu
+>>>>>>>> repository and installed directly from CRAN.
+>>>>>>>>
+>>>>>>>> Maybe I need to uninstall the Ubuntu repository version and install
+>>>>>>>> the latest from CRAN. I admit I find this what to install from where
+>>>>>>>> a
+>>>>>>>> bit confusing.
+>>>>>>>>
+>>>>>>>> Graham
+>>>>>>>>
+>>>>>>>>
+>>>>>>>>
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> 2009/10/30 Paul Leo <p.leo at uq.edu.au>:
+>>>>>>>>
+>>>>>>>>> That a very outdated version of R, current is R2.10
+>>>>>>>>>
+>>>>>>>>> I just installed r2.10 and used
+>>>>>>>>> setRepositories() # choose CRAN
+>>>>>>>>> install.packages() # choose rattle
+>>>>>>>>> ...
+>>>>>>>>> ** preparing package for lazy loading
+>>>>>>>>> Loading required package: XML
+>>>>>>>>> Warning: package 'XML' was built under R version 2.7.1 and help may
+>>>>>>>>> not
+>>>>>>>>> work correctly
+>>>>>>>>> ** help
+>>>>>>>>> *** installing help indices
+>>>>>>>>> ** building package indices ...
+>>>>>>>>> * DONE (rattle)
+>>>>>>>>>
+>>>>>>>>> ... ignored warnings:
+>>>>>>>>>
+>>>>>>>>> library(rattle)
+>>>>>>>>> rattle() # launched a gui interface that seems to work
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>>> sessionInfo()
+>>>>>>>>>>
+>>>>>>>>> R version 2.10.0 (2009-10-26)
+>>>>>>>>> x86_64-pc-linux-gnu
+>>>>>>>>>
+>>>>>>>>> locale:
+>>>>>>>>> ?[1] LC_CTYPE=en_AU.UTF-8 ? ? ? LC_NUMERIC=C
+>>>>>>>>> ?[3] LC_TIME=en_AU.UTF-8 ? ? ? ?LC_COLLATE=en_AU.UTF-8
+>>>>>>>>> ?[5] LC_MONETARY=C ? ? ? ? ? ? ?LC_MESSAGES=en_AU.UTF-8
+>>>>>>>>> ?[7] LC_PAPER=en_AU.UTF-8 ? ? ? LC_NAME=C
+>>>>>>>>> ?[9] LC_ADDRESS=C ? ? ? ? ? ? ? LC_TELEPHONE=C
+>>>>>>>>> [11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C
+>>>>>>>>>
+>>>>>>>>> attached base packages:
+>>>>>>>>> [1] stats ? ? graphics ?grDevices utils ? ? datasets ?methods
+>>>>>>>>> base
+>>>>>>>>>
+>>>>>>>>> other attached packages:
+>>>>>>>>> [1] RGtk2_2.12.5-3 rattle_2.5.1 ? pmml_1.2.19 ? ?XML_1.95-3
+>>>>>>>>>
+>>>>>>>>> loaded via a namespace (and not attached):
+>>>>>>>>> [1] tcltk_2.10.0 tools_2.10.0
+>>>>>>>>>
+>>>>>>>>> so perhaps a new intall and check those "attached packages listed
+>>>>>>>>> above"
+>>>>>>>>> I have ubuntu 8.1 so you may need to check those library versions
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>> -----Original Message-----
+>>>>>>>>> From: Graham Smith <myotisone at gmail.com>
+>>>>>>>>> To: r-sig-debian at r-project.org
+>>>>>>>>> Subject: [R-sig-Debian] Rattle - libglade not found
+>>>>>>>>> Date: Fri, 30 Oct 2009 07:07:02 +0000
+>>>>>>>>>
+>>>>>>>>> I have just installed rattle on Ubntu 9.04, and R ?2.8.1 and get an
+>>>>>>>>> error message when I try to run it.
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>>> library(rattle)
+>>>>>>>>>> rattle()
+>>>>>>>>>>
+>>>>>>>>> Error in rattle() :
+>>>>>>>>> ?The RGtk2 package did not find libglade installed. Please install
+>>>>>>>>> it.
+>>>>>>>>>
+>>>>>>>>> I have installed libglade2-dev ?through synaptic, and following
+>>>>>>>>> suggestion from an earlier thread re-installed RGtk2 using
+>>>>>>>>> install.packages, and through synaptic.
+>>>>>>>>>
+>>>>>>>>> Can anyone offer some help - you may realise that I am not that
+>>>>>>>>> familiar with Linux/Ubuntu.
+>>>>>>>>>
+>>>>>>>>> Many thanks,
+>>>>>>>>>
+>>>>>>>>> Graham
+>>>>>>>>>
+>>>>>>>>> P.S. I have cross posted this on the Ubuntu forum, before
+>>>>>>>>> remembering
+>>>>>>>>> this forum existed.
+>>>>>>>>>
+>>>>>>>>> _______________________________________________
+>>>>>>>>> R-SIG-Debian mailing list
+>>>>>>>>> R-SIG-Debian at r-project.org
+>>>>>>>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>>>>>>>> --
+>>>>>>>>> Dr Paul Leo
+>>>>>>>>> Bioinformatician
+>>>>>>>>> Diamantina Institute for Cancer, Immunology and Metabolic Medicine
+>>>>>>>>> University of Queensland
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>> --------------------------------------------------------------------------------------
+>>>>>>>>> Research Wing, Bldg 1
+>>>>>>>>> Princess Alexandria Hospital
+>>>>>>>>> Woolloongabba, QLD, 4102
+>>>>>>>>> Tel: +61 7 3240 7740 ?Mob: 041 303 8691 ?Fax: +61 7 3240 5946
+>>>>>>>>> Email: p.leo at uq.edu.au ? Web: http://www.di.uq.edu.au
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>> _______________________________________________
+>>>>>>>> R-SIG-Debian mailing list
+>>>>>>>> R-SIG-Debian at r-project.org
+>>>>>>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>>>>>>>
+>>>>> --
+>>>>> Dr. Michael A. Rutter
+>>>>> School of Science
+>>>>> Penn State Erie, The Behrend College
+>>>>> Station Road
+>>>>> Erie, PA 16563
+>>>>> http://math.bd.psu.edu/faculty/rutter
+>>>>>
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+> --
+> Dr. Michael A. Rutter
+> School of Science
+> Penn State Erie, The Behrend College
+> Station Road
+> Erie, PA 16563
+> http://math.bd.psu.edu/faculty/rutter
+>
+
+
+From r.m.krug at gmail.com  Sat Oct 31 11:45:37 2009
+From: r.m.krug at gmail.com (Rainer M Krug)
+Date: Sat, 31 Oct 2009 12:45:37 +0200
+Subject: [R-sig-Debian] Ubuntu packages compiled with 2.9
+In-Reply-To: <9B955669-08BE-47F7-8F7C-677D4A2B2819@act.ulaval.ca>
+References: <fb7c7e870910300425w4cafaffbi4fbb658a15c27477@mail.gmail.com>
+	<9B955669-08BE-47F7-8F7C-677D4A2B2819@act.ulaval.ca>
+Message-ID: <fb7c7e870910310345r2578d230j790fbc2e290e977@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20091031/245fdb03/attachment.pl>
+
+From r.m.krug at gmail.com  Sat Oct 31 11:46:22 2009
+From: r.m.krug at gmail.com (Rainer M Krug)
+Date: Sat, 31 Oct 2009 12:46:22 +0200
+Subject: [R-sig-Debian] Ubuntu packages compiled with 2.9
+In-Reply-To: <fb7c7e870910310345r2578d230j790fbc2e290e977@mail.gmail.com>
+References: <fb7c7e870910300425w4cafaffbi4fbb658a15c27477@mail.gmail.com>
+	<9B955669-08BE-47F7-8F7C-677D4A2B2819@act.ulaval.ca>
+	<fb7c7e870910310345r2578d230j790fbc2e290e977@mail.gmail.com>
+Message-ID: <fb7c7e870910310346h6d22c660w5fd2707fcb48affc@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20091031/51b5d2da/attachment.pl>
+
+From Vincent.Goulet at act.ulaval.ca  Sat Oct 31 17:39:54 2009
+From: Vincent.Goulet at act.ulaval.ca (Vincent Goulet)
+Date: Sat, 31 Oct 2009 12:39:54 -0400
+Subject: [R-sig-Debian] Ubuntu packages compiled with 2.9
+In-Reply-To: <fb7c7e870910310345r2578d230j790fbc2e290e977@mail.gmail.com>
+References: <fb7c7e870910300425w4cafaffbi4fbb658a15c27477@mail.gmail.com>
+	<9B955669-08BE-47F7-8F7C-677D4A2B2819@act.ulaval.ca>
+	<fb7c7e870910310345r2578d230j790fbc2e290e977@mail.gmail.com>
+Message-ID: <B32B2F5D-7672-415B-9D0D-B4391FDFA3CD@act.ulaval.ca>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20091031/d5c6799a/attachment.pl>
+

@@ -1,0 +1,1332 @@
+From friendly at yorku.ca  Tue Feb  1 16:56:05 2011
+From: friendly at yorku.ca (Michael Friendly)
+Date: Tue, 01 Feb 2011 10:56:05 -0500
+Subject: [R-sig-Debian] updating r-cran- packages on a new Ubuntu lucid
+ system
+In-Reply-To: <19782.60892.371112.728996@max.nulle.part>
+References: <4D45BC68.4090303@yorku.ca>	<4D45C867.7010906@psu.edu>	<4D45F984.3040101@yorku.ca>	<19782.8491.471921.651192@max.nulle.part>	<4D46C178.1010804@yorku.ca>
+	<19782.60892.371112.728996@max.nulle.part>
+Message-ID: <4D482D15.3080400@yorku.ca>
+
+On 1/31/2011 12:14 PM, Dirk Eddelbuettel wrote:
+> On 31 January 2011 at 09:04, Michael Friendly wrote:
+> | I'm not any further ahead in trying to update vcd from 1.2-7 to 1.2-9.
+> | How can I resolve this?
+>
+> If what you're doing doesn't work, do something else.   The .deb package are
+> convenient.  They can't all be recent because, well, a distro has release
+> schedules.
+>
+OK:   I used (as sudo)
+install.packages("vcd"),
+and it seemed to work;  however old.packages() still reports vcd at 
+1.2-7.  Why is that?
+
+ > library(vcd)
+Loading required package: MASS
+Loading required package: grid
+Loading required package: colorspace
+ > sessionInfo()
+R version 2.12.1 (2010-12-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+  ...
+attached base packages:
+[1] grid      stats     graphics  grDevices utils     datasets  methods
+[8] base
+
+other attached packages:
+[1] vcd_1.2-9        colorspace_1.0-1 MASS_7.3-9
+
+loaded via a namespace (and not attached):
+[1] tools_2.12.1
+ > old.packages()
+     Package LibPath                   Installed Built    ReposVer
+rgl "rgl"   "/usr/lib/R/site-library" "0.89"    "2.10.1" "0.92.798"
+vcd "vcd"   "/usr/lib/R/site-library" "1.2-7"   "2.9.2"  "1.2-9"
+     Repository
+rgl "http://probability.ca/cran/src/contrib"
+vcd "http://probability.ca/cran/src/contrib"
+
+In addition, some follow up questions, unanswered by reading 
+/bin/linux/ubuntu/README.  I'm persisting
+in this because I'm setting up a new system, and want to insure that I 
+don't create maintenance problems
+down the road.
+
+(a) At present, I have access to this machine only via a remote terminal 
+window; no X11.  Is there any way
+to install a package like r-cran-rgl that seems to require X11?
+
+(b) It seems to be recommended to maintain the distinction between 
+r-cran-* packages, which I should install
+  as root via apt-get and non-r-cran packages, which I should install in 
+R_LIBS_USER = "~/lib/R/library" as my normal user.
+  Is this correct?
+  I'm the only R user on this machine, so it seems simpler to install 
+*all* packages as root and let them go into
+/usr/local/lib/R/site-library.
+
+     Q: will this cause any problems with apt-get upgrade finding 
+non-cran-r packages there?
+
+Alternatively, if I try to install non-cran packages via 
+install.packages() as my normal user,
+
+     Q: How to distinguish, in R, r-cran from non-r-cran packages?
+     Q: How to handle dependencies, where a non-cran package requires an 
+r-cran one?
+
+e.g., in Windows, I would just run the following to install a bunch of 
+(non-cran) packages, and be done with it.
+
+mypkgs <- c("vcdExtra", "HistData", "candisc", "tableplot", "Guerry", 
+"heplots")
+
+otherpkgs <-c("ca", "catspec", "coin", "corrgram", "gmodels", "gnm", 
+"reshape",
+"ggplot2", "plyr", "sem")
+
+allpkgs <- union(mypkgs, otherpkgs)
+
+# install the above, along with any dependencies
+install.packages(allpkgs, dependencies=TRUE)
+# update any recently modified packages
+update.packages()
+
+
+
+
+-- 
+Michael Friendly     Email: friendly AT yorku DOT ca
+Professor, Psychology Dept.
+York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+4700 Keele Street    Web:   http://www.datavis.ca
+Toronto, ONT  M3J 1P3 CANADA
+
+
+From edd at debian.org  Wed Feb  2 05:35:32 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 1 Feb 2011 22:35:32 -0600
+Subject: [R-sig-Debian] updating r-cran- packages on a new Ubuntu lucid
+ system
+In-Reply-To: <4D482D15.3080400@yorku.ca>
+References: <4D45BC68.4090303@yorku.ca> <4D45C867.7010906@psu.edu>
+	<4D45F984.3040101@yorku.ca>
+	<19782.8491.471921.651192@max.nulle.part>
+	<4D46C178.1010804@yorku.ca>
+	<19782.60892.371112.728996@max.nulle.part>
+	<4D482D15.3080400@yorku.ca>
+Message-ID: <19784.57108.609850.770903@max.nulle.part>
+
+
+On 1 February 2011 at 10:56, Michael Friendly wrote:
+| On 1/31/2011 12:14 PM, Dirk Eddelbuettel wrote:
+| > On 31 January 2011 at 09:04, Michael Friendly wrote:
+| > | I'm not any further ahead in trying to update vcd from 1.2-7 to 1.2-9.
+| > | How can I resolve this?
+| >
+| > If what you're doing doesn't work, do something else.   The .deb package are
+| > convenient.  They can't all be recent because, well, a distro has release
+| > schedules.
+| >
+| OK:   I used (as sudo)
+| install.packages("vcd"),
+| and it seemed to work;  however old.packages() still reports vcd at 
+| 1.2-7.  Why is that?
+
+You supplied no information that would enable us to tell you.
+
+What does '.libPaths()' show?
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From friendly at yorku.ca  Wed Feb  2 14:48:12 2011
+From: friendly at yorku.ca (Michael Friendly)
+Date: Wed, 02 Feb 2011 08:48:12 -0500
+Subject: [R-sig-Debian] updating r-cran- packages on a new Ubuntu lucid
+ system
+In-Reply-To: <19784.57108.609850.770903@max.nulle.part>
+References: <4D45BC68.4090303@yorku.ca>	<4D45C867.7010906@psu.edu>	<4D45F984.3040101@yorku.ca>	<19782.8491.471921.651192@max.nulle.part>	<4D46C178.1010804@yorku.ca>	<19782.60892.371112.728996@max.nulle.part>	<4D482D15.3080400@yorku.ca>
+	<19784.57108.609850.770903@max.nulle.part>
+Message-ID: <4D49609C.3090507@yorku.ca>
+
+On 2/1/2011 11:35 PM, Dirk Eddelbuettel wrote:
+> On 1 February 2011 at 10:56, Michael Friendly wrote:
+> | On 1/31/2011 12:14 PM, Dirk Eddelbuettel wrote:
+> |>  On 31 January 2011 at 09:04, Michael Friendly wrote:
+> |>  | I'm not any further ahead in trying to update vcd from 1.2-7 to 1.2-9.
+> |>  | How can I resolve this?
+> | OK:   I used (as sudo)
+> | install.packages("vcd"),
+> | and it seemed to work;  however old.packages() still reports vcd at
+> | 1.2-7.  Why is that?
+>
+> You supplied no information that would enable us to tell you.
+>
+> What does '.libPaths()' show?
+>
+Sorry about that:
+
+ > .libPaths()
+[1] "/home/friendly/lib/R/library"  "/usr/local/lib/R/site-library"
+[3] "/usr/lib/R/site-library"       "/usr/lib/R/library"
+[5] "/usr/lib64/R/library"
+ > old.packages()
+     Package LibPath                   Installed Built    ReposVer
+rgl "rgl"   "/usr/lib/R/site-library" "0.89"    "2.10.1" "0.92.798"
+vcd "vcd"   "/usr/lib/R/site-library" "1.2-7"   "2.9.2"  "1.2-9"
+     Repository
+rgl "http://probability.ca/cran/src/contrib"
+vcd "http://probability.ca/cran/src/contrib"
+ > library(vcd)
+Loading required package: MASS
+Loading required package: grid
+Loading required package: colorspace
+ > sessionInfo()
+R version 2.12.1 (2010-12-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+...
+attached base packages:
+[1] grid      stats     graphics  grDevices utils     datasets  methods
+[8] base
+
+other attached packages:
+[1] vcd_1.2-9        colorspace_1.0-1 MASS_7.3-9
+
+loaded via a namespace (and not attached):
+[1] tools_2.12.1
+
+So, apparently from sudo R, install.packages("vcd") installed to 
+/usr/local/lib/R/site-library,
+but old.packages() only finds the copy installed by apt-get install 
+r-cran-vcd in
+/usr/lib/R/site-library.
+According to the docs, old.packages() *should* search through all known 
+trees in .libPaths
+
+
+labtest: ~ % ll /usr/local/lib/R/site-library
+total 12
+drwxr-sr-x 8 root staff 4096 2011-01-30 13:01 colorspace
+-rw-r--r-- 1 root staff 1179 2011-01-30 13:01 R.css
+drwxr-sr-x 9 root staff 4096 2011-01-31 13:00 vcd
+
+
+-- 
+Michael Friendly     Email: friendly AT yorku DOT ca
+Professor, Psychology Dept.
+York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+4700 Keele Street    Web:   http://www.datavis.ca
+Toronto, ONT  M3J 1P3 CANADA
+
+
+From edd at debian.org  Wed Feb  2 14:55:13 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 2 Feb 2011 07:55:13 -0600
+Subject: [R-sig-Debian] updating r-cran- packages on a new Ubuntu lucid
+ system
+In-Reply-To: <4D49609C.3090507@yorku.ca>
+References: <4D45BC68.4090303@yorku.ca> <4D45C867.7010906@psu.edu>
+	<4D45F984.3040101@yorku.ca>
+	<19782.8491.471921.651192@max.nulle.part>
+	<4D46C178.1010804@yorku.ca>
+	<19782.60892.371112.728996@max.nulle.part>
+	<4D482D15.3080400@yorku.ca>
+	<19784.57108.609850.770903@max.nulle.part>
+	<4D49609C.3090507@yorku.ca>
+Message-ID: <19785.25153.76513.607633@max.nulle.part>
+
+
+On 2 February 2011 at 08:48, Michael Friendly wrote:
+| On 2/1/2011 11:35 PM, Dirk Eddelbuettel wrote:
+| > On 1 February 2011 at 10:56, Michael Friendly wrote:
+| > | On 1/31/2011 12:14 PM, Dirk Eddelbuettel wrote:
+| > |>  On 31 January 2011 at 09:04, Michael Friendly wrote:
+| > |>  | I'm not any further ahead in trying to update vcd from 1.2-7 to 1.2-9.
+| > |>  | How can I resolve this?
+| > | OK:   I used (as sudo)
+| > | install.packages("vcd"),
+| > | and it seemed to work;  however old.packages() still reports vcd at
+| > | 1.2-7.  Why is that?
+| >
+| > You supplied no information that would enable us to tell you.
+| >
+| > What does '.libPaths()' show?
+| >
+| Sorry about that:
+| 
+|  > .libPaths()
+| [1] "/home/friendly/lib/R/library"  "/usr/local/lib/R/site-library"
+| [3] "/usr/lib/R/site-library"       "/usr/lib/R/library"
+| [5] "/usr/lib64/R/library"
+
+Ok, so you have a local per-user library entry. That should not block things,
+
+However, it is the standard setup and not what I personally do, but that
+shouldn't matter all that match.
+
+|  > old.packages()
+|      Package LibPath                   Installed Built    ReposVer
+| rgl "rgl"   "/usr/lib/R/site-library" "0.89"    "2.10.1" "0.92.798"
+| vcd "vcd"   "/usr/lib/R/site-library" "1.2-7"   "2.9.2"  "1.2-9"
+|      Repository
+| rgl "http://probability.ca/cran/src/contrib"
+| vcd "http://probability.ca/cran/src/contrib"
+|  > library(vcd)
+| Loading required package: MASS
+| Loading required package: grid
+| Loading required package: colorspace
+|  > sessionInfo()
+| R version 2.12.1 (2010-12-16)
+| Platform: x86_64-pc-linux-gnu (64-bit)
+| 
+| ...
+| attached base packages:
+| [1] grid      stats     graphics  grDevices utils     datasets  methods
+| [8] base
+| 
+| other attached packages:
+| [1] vcd_1.2-9        colorspace_1.0-1 MASS_7.3-9
+| 
+| loaded via a namespace (and not attached):
+| [1] tools_2.12.1
+| 
+| So, apparently from sudo R, install.packages("vcd") installed to 
+| /usr/local/lib/R/site-library,
+| but old.packages() only finds the copy installed by apt-get install 
+| r-cran-vcd in
+| /usr/lib/R/site-library.
+| According to the docs, old.packages() *should* search through all known 
+| trees in .libPaths
+
+I would try to identify which version of which library in which location you
+think gets in your way, and then remove that.
+
+If something was installed using apt / dpkg / aptitude / ... (ie in
+/usr/lib/R or /usr/lib64/R [ which is the same ] then use that tool to remove
+it. 
+
+Then try installing _by specifying a target directory_.  I sent you two
+scripts that help me; you can use R commands too of course by do specify a
+target directory, make sure you have your build dependies set etc pp.
+
+Good luck.
+
+Dirk, snowed-in
+ 
+| labtest: ~ % ll /usr/local/lib/R/site-library
+| total 12
+| drwxr-sr-x 8 root staff 4096 2011-01-30 13:01 colorspace
+| -rw-r--r-- 1 root staff 1179 2011-01-30 13:01 R.css
+| drwxr-sr-x 9 root staff 4096 2011-01-31 13:00 vcd
+| 
+| 
+| -- 
+| Michael Friendly     Email: friendly AT yorku DOT ca
+| Professor, Psychology Dept.
+| York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+| 4700 Keele Street    Web:   http://www.datavis.ca
+| Toronto, ONT  M3J 1P3 CANADA
+| 
+| 
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From bates at stat.wisc.edu  Mon Feb  7 22:12:59 2011
+From: bates at stat.wisc.edu (Douglas Bates)
+Date: Mon, 7 Feb 2011 15:12:59 -0600
+Subject: [R-sig-Debian] Difference in the BLAS_LIBS definition on Ubuntu
+	packages
+Message-ID: <AANLkTin4iC-B4DkbEitQtzrKL1h01kRAvitt-7C7eFFE@mail.gmail.com>
+
+A while back I posted to this group that I was having difficulty
+compiling packages that used BLAS and Lapack on an Ubuntu 32-bit
+system.  I looked a little further into the issue and discovered that
+the /usr/lib/R/etc/Makeconf files are different on the 32-bit and
+64-bit Ubuntu packages
+
+maverick/r-base-core_2.12.1-1maverick0_i386.deb
+
+and the corresponding 64-bit version.  The Make variable BLAS_LIBS is
+defined as -lblas on the 64-bit system
+
+$ egrep BLAS /etc/R/Makeconf
+BLAS_LIBS = -lblas
+
+but on the 32-bit system it is defined as -lf77blas -latlas
+
+
+From mar36 at psu.edu  Tue Feb  8 00:20:36 2011
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 07 Feb 2011 18:20:36 -0500
+Subject: [R-sig-Debian] Difference in the BLAS_LIBS definition on Ubuntu
+ packages
+In-Reply-To: <AANLkTin4iC-B4DkbEitQtzrKL1h01kRAvitt-7C7eFFE@mail.gmail.com>
+References: <AANLkTin4iC-B4DkbEitQtzrKL1h01kRAvitt-7C7eFFE@mail.gmail.com>
+Message-ID: <4D507E44.7080701@psu.edu>
+
+
+
+On 02/07/2011 04:12 PM, Douglas Bates wrote:
+> A while back I posted to this group that I was having difficulty
+> compiling packages that used BLAS and Lapack on an Ubuntu 32-bit
+> system.  I looked a little further into the issue and discovered that
+> the /usr/lib/R/etc/Makeconf files are different on the 32-bit and
+> 64-bit Ubuntu packages
+> 
+> maverick/r-base-core_2.12.1-1maverick0_i386.deb
+> 
+> and the corresponding 64-bit version.  The Make variable BLAS_LIBS is
+> defined as -lblas on the 64-bit system
+> 
+> $ egrep BLAS /etc/R/Makeconf
+> BLAS_LIBS = -lblas
+> 
+> but on the 32-bit system it is defined as -lf77blas -latlas
+
+Doug,
+
+Thanks for finding that.  Checking with some other builds (Debian.
+mainly),  it appears that the amd64 version is correct with:
+
+BLAS_LIBS = -lblas
+
+Due to the loss of a server, we are in a temporary holding pattern in
+terms of updating the Ubuntu packages on CRAN.  That should be corrected
+soon.  However, if you are interested in getting a i386 version without
+"-lf77blas -latlas", you can use my Launchpad PPA:
+
+https://launchpad.net/~marutter/+archive/rrutter
+
+Michael
+
+
+From mar36 at psu.edu  Thu Feb 17 03:00:36 2011
+From: mar36 at psu.edu (Michael Rutter)
+Date: Wed, 16 Feb 2011 21:00:36 -0500
+Subject: [R-sig-Debian] Ubuntu binaries on CRAN
+Message-ID: <4D5C8144.3020604@psu.edu>
+
+Users of R and Ubuntu,
+
+Due to the loss of a server, I have taken over the building of both the
+i386 and amd64 binaries of R for Ubuntu.  Those builds are now being
+mirrored to the CRAN servers.  A few things have changed.
+
+1.  The packages are now signed by me, not Vincent Goulet.  You will
+have to add my key (E084DAB9) with apt-key.  See
+http://cran.r-project.org/bin/linux/ubuntu/ for more detailed instructions.
+
+2.  We will no longer be supporting rkward via CRAN.  You can find the
+latest stable rkward builds as well as daily rkward builds at
+https://launchpad.net/~rkward-devel.
+
+3.  I am moving the build scripts that Vincent created and that used to
+be available on the CRAN page to Launchpad.  I will proved links when
+that move is complete.
+
+4.  The packages found on CRAN are mirrored from a Launchpad PPA that I
+have created.  You can find the PPA at
+https://launchpad.net/~marutter/+archive/rrutter.  There are some
+additional packages available, such as JAGS and coda.  More packages
+will hopefully be made available in the future at the PPA.
+
+Thanks to Vincent Goulet for helping me transfer the building process
+from his servers to mine, as well as Stefan Theussl for getting things
+synced up to CRAN.  Thanks to Dirk for updating some of the Debian
+packages, thus forcing me to get the system back on line.
+
+If there are any issues, please let me know.
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From valentin at capia.no  Mon Feb 21 11:15:54 2011
+From: valentin at capia.no (Valentin Constantinescu)
+Date: Mon, 21 Feb 2011 11:15:54 +0100
+Subject: [R-sig-Debian] R upgrade from 2.7.1
+Message-ID: <AANLkTimzEBXUkQm1-XN0cMLhDs5wXHmh6nQ_VXQ1rtMC@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20110221/44f57661/attachment.pl>
+
+From valentin at capia.no  Mon Feb 21 13:14:45 2011
+From: valentin at capia.no (Valentin Constantinescu)
+Date: Mon, 21 Feb 2011 13:14:45 +0100
+Subject: [R-sig-Debian] RE :  R upgrade from 2.7.1
+In-Reply-To: <AANLkTik=yLB0CLQYV6zv7qhVZVRPcjXsjzt+0v14D4X5@mail.gmail.com>
+References: <AANLkTimzEBXUkQm1-XN0cMLhDs5wXHmh6nQ_VXQ1rtMC@mail.gmail.com>
+	<AF0D9156E840F44199E99B329097B4EC9020505869@BVMBX2.univ-lyon1.fr>
+	<AANLkTik=yLB0CLQYV6zv7qhVZVRPcjXsjzt+0v14D4X5@mail.gmail.com>
+Message-ID: <AANLkTinbUFucP+sh2CZkTd97BAz9BUQEHtsgrQKxpnRJ@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20110221/4f5f8e1f/attachment.pl>
+
+From valentin at capia.no  Mon Feb 21 13:30:24 2011
+From: valentin at capia.no (Valentin Constantinescu)
+Date: Mon, 21 Feb 2011 13:30:24 +0100
+Subject: [R-sig-Debian] RE :  R upgrade from 2.7.1
+In-Reply-To: <AANLkTinbUFucP+sh2CZkTd97BAz9BUQEHtsgrQKxpnRJ@mail.gmail.com>
+References: <AANLkTimzEBXUkQm1-XN0cMLhDs5wXHmh6nQ_VXQ1rtMC@mail.gmail.com>
+	<AF0D9156E840F44199E99B329097B4EC9020505869@BVMBX2.univ-lyon1.fr>
+	<AANLkTik=yLB0CLQYV6zv7qhVZVRPcjXsjzt+0v14D4X5@mail.gmail.com>
+	<AANLkTinbUFucP+sh2CZkTd97BAz9BUQEHtsgrQKxpnRJ@mail.gmail.com>
+Message-ID: <AANLkTin7fZ-MYjfDpZD7uX=k9_Nun8asuv=xm4yVG5Ec@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20110221/4d13affb/attachment.pl>
+
+From fahim.md at gmail.com  Mon Feb 21 13:50:00 2011
+From: fahim.md at gmail.com (Fahim M)
+Date: Mon, 21 Feb 2011 07:50:00 -0500
+Subject: [R-sig-Debian] RE : R upgrade from 2.7.1
+In-Reply-To: <AANLkTin7fZ-MYjfDpZD7uX=k9_Nun8asuv=xm4yVG5Ec@mail.gmail.com>
+References: <AANLkTimzEBXUkQm1-XN0cMLhDs5wXHmh6nQ_VXQ1rtMC@mail.gmail.com>
+	<AF0D9156E840F44199E99B329097B4EC9020505869@BVMBX2.univ-lyon1.fr>
+	<AANLkTik=yLB0CLQYV6zv7qhVZVRPcjXsjzt+0v14D4X5@mail.gmail.com>
+	<AANLkTinbUFucP+sh2CZkTd97BAz9BUQEHtsgrQKxpnRJ@mail.gmail.com>
+	<AANLkTin7fZ-MYjfDpZD7uX=k9_Nun8asuv=xm4yVG5Ec@mail.gmail.com>
+Message-ID: <AANLkTikVhq=fNStYi+Mvz1LZYmdLKTs0CiKwf4Naike1@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20110221/6d4880cc/attachment.pl>
+
+From jranke at uni-bremen.de  Mon Feb 21 13:52:52 2011
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 21 Feb 2011 13:52:52 +0100
+Subject: [R-sig-Debian] RE :  R upgrade from 2.7.1
+In-Reply-To: <AANLkTin7fZ-MYjfDpZD7uX=k9_Nun8asuv=xm4yVG5Ec@mail.gmail.com>
+References: <AANLkTimzEBXUkQm1-XN0cMLhDs5wXHmh6nQ_VXQ1rtMC@mail.gmail.com>
+	<AANLkTinbUFucP+sh2CZkTd97BAz9BUQEHtsgrQKxpnRJ@mail.gmail.com>
+	<AANLkTin7fZ-MYjfDpZD7uX=k9_Nun8asuv=xm4yVG5Ec@mail.gmail.com>
+Message-ID: <201102211352.52991.jranke@uni-bremen.de>
+
+Valentin,
+
+Please check your file /etc/apt/sources.list. It seems you did not succeed to 
+add a line for the CRAN repository there. As written in the README, there 
+needs to be a line like
+
+	deb http://cran.r-project.org/bin/linux/debian lenny/
+
+This is for the master mirror, in order to distribute the load, it would be 
+preferable if you could exchange http://cran.r-project.org with one of the 
+mirror sites.
+
+Kind regards,
+
+Johannes
+
+Am Montag, 21. Februar 2011, um 13:30:24 schrieb Valentin Constantinescu:
+> I do:
+> => apt-get clean
+> => apt-get update
+> => apt-cache policy r-base
+> 
+> and still get the 2.7.1.
+> 
+> r-base:
+>   Installed: (none)
+>   Candidate: 2.7.1-1+lenny1
+>   Version table:
+>      2.7.1-1+lenny1 0
+>         500 http://mirrors.nl.kernel.org lenny/main Packages
+> 
+> On 21 February 2011 13:14, Valentin Constantinescu <valentin at capia.no>wrote:
+> > Nobody?
+> > Even after removing, when reinstalling is just installs again the 2.7.1.
+> > Sticky #%^@!
+> > This is a nightmare...
+> > 
+> > On 21 February 2011 11:28, Valentin Constantinescu 
+<valentin at capia.no>wrote:
+> >> ??
+> >> I've just done that is not working. as I just said.
+> >> 
+> >> 
+> >> On 21 February 2011 11:24, BONENFANT Christophe <
+> >> 
+> >> Christophe.Bonenfant at univ-lyon1.fr> wrote:
+> >>> Hi Valentin,
+> >>> 
+> >>> You should use CRAN repository to get the lastest R version. See this
+> >>> help page from CRAN:
+> >>> 
+> >>> http://cran.r-project.org/bin/linux/debian/
+> >>> 
+> >>> Cheers
+> >>> 
+> >>> Christophe
+> >>> 
+> >>> ________________________________________
+> >>> De : r-sig-debian-bounces at r-project.org [
+> >>> r-sig-debian-bounces at r-project.org] de la part de Valentin
+> >>> Constantinescu [valentin at capia.no]
+> >>> Date d'envoi : lundi 21 f?vrier 2011 11:15
+> >>> ? : r-sig-debian at r-project.org
+> >>> Objet : [R-sig-Debian] R upgrade from 2.7.1
+> >>> 
+> >>> My R version is 2.7.1 (on Debian) and some packages are asking for >
+> >>> 2.10.
+> >>> 
+> >>> I've done all things from
+> >>> http://cran.r-project.org/bin/linux/debian/but to no success.
+> >>> Apt-get upgrade is doing nothing.
+> >>> 
+> >>> server:/etc/R# apt-cache policy r-base-core
+> >>> 
+> >>> r-base-core:
+> >>>  Installed: 2.7.1-1+lenny1
+> >>>  Candidate: 2.7.1-1+lenny1
+> >>>  Version table:
+> >>>  *** 2.7.1-1+lenny1 0
+> >>>  
+> >>>        500 http://mirrors.nl.kernel.org lenny/main Packages
+> >>>        100 /var/lib/dpkg/status
+> >>> 
+> >>> I gusss my problem is similar with the one in this thread, but I dont
+> >>> understand what was the resolution here:
+> >>> https://stat.ethz.ch/pipermail/r-sig-debian/2010-May/001199.html.
+> >>> Only a full remove and reinstall will fix the issue?
+> >>> 
+> >>> Thanks
+> >>> --
+> >>> Valentin Constantinescu
+> >>> (+47) 90 594 749
+> >>> 
+> >>>         [[alternative HTML version deleted]]
+> >>> 
+> >>> _______________________________________________
+> >>> R-SIG-Debian mailing list
+> >>> R-SIG-Debian at r-project.org
+> >>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> >> 
+> >> --
+> >> Valentin Constantinescu
+> >> (+47) 90 594 749
+> > 
+> > --
+> > Valentin Constantinescu
+> > (+47) 90 594 749
+
+
+From valentin at capia.no  Mon Feb 21 14:00:56 2011
+From: valentin at capia.no (Valentin Constantinescu)
+Date: Mon, 21 Feb 2011 14:00:56 +0100
+Subject: [R-sig-Debian] RE : R upgrade from 2.7.1
+In-Reply-To: <AANLkTikVhq=fNStYi+Mvz1LZYmdLKTs0CiKwf4Naike1@mail.gmail.com>
+References: <AANLkTimzEBXUkQm1-XN0cMLhDs5wXHmh6nQ_VXQ1rtMC@mail.gmail.com>
+	<AF0D9156E840F44199E99B329097B4EC9020505869@BVMBX2.univ-lyon1.fr>
+	<AANLkTik=yLB0CLQYV6zv7qhVZVRPcjXsjzt+0v14D4X5@mail.gmail.com>
+	<AANLkTinbUFucP+sh2CZkTd97BAz9BUQEHtsgrQKxpnRJ@mail.gmail.com>
+	<AANLkTin7fZ-MYjfDpZD7uX=k9_Nun8asuv=xm4yVG5Ec@mail.gmail.com>
+	<AANLkTikVhq=fNStYi+Mvz1LZYmdLKTs0CiKwf4Naike1@mail.gmail.com>
+Message-ID: <AANLkTinmqWtMJboo17HJEyxD-SkCeSix3DTLYqXqQyn0@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20110221/0e5bb8ce/attachment.pl>
+
+From jranke at uni-bremen.de  Mon Feb 21 14:03:41 2011
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 21 Feb 2011 14:03:41 +0100
+Subject: [R-sig-Debian] RE :  R upgrade from 2.7.1
+In-Reply-To: <201102211352.52991.jranke@uni-bremen.de>
+References: <AANLkTimzEBXUkQm1-XN0cMLhDs5wXHmh6nQ_VXQ1rtMC@mail.gmail.com>
+	<AANLkTin7fZ-MYjfDpZD7uX=k9_Nun8asuv=xm4yVG5Ec@mail.gmail.com>
+	<201102211352.52991.jranke@uni-bremen.de>
+Message-ID: <201102211403.41581.jranke@uni-bremen.de>
+
+Hi again,
+
+I need to correct myself: the line should read
+
+	deb http://cran.r-project.org/bin/linux/debian lenny-cran/
+
+It is these little things that matter in the end. It seems that the 
+description is really still to complicated in the README?
+
+Kind regards,
+
+Johannes
+ 
+> This is for the master mirror, in order to distribute the load, it would be
+> preferable if you could exchange http://cran.r-project.org with one of the
+> mirror sites.
+> 
+> Kind regards,
+> 
+> Johannes
+> 
+> Am Montag, 21. Februar 2011, um 13:30:24 schrieb Valentin Constantinescu:
+> > I do:
+> > => apt-get clean
+> > => apt-get update
+> > => apt-cache policy r-base
+> > 
+> > and still get the 2.7.1.
+> > 
+> > r-base:
+> >   Installed: (none)
+> >   Candidate: 2.7.1-1+lenny1
+> >   
+> >   Version table:
+> >      2.7.1-1+lenny1 0
+> >      
+> >         500 http://mirrors.nl.kernel.org lenny/main Packages
+> > 
+> > On 21 February 2011 13:14, Valentin Constantinescu 
+<valentin at capia.no>wrote:
+> > > Nobody?
+> > > Even after removing, when reinstalling is just installs again the
+> > > 2.7.1. Sticky #%^@!
+> > > This is a nightmare...
+> > > 
+> > > On 21 February 2011 11:28, Valentin Constantinescu
+> 
+> <valentin at capia.no>wrote:
+> > >> ??
+> > >> I've just done that is not working. as I just said.
+> > >> 
+> > >> 
+> > >> On 21 February 2011 11:24, BONENFANT Christophe <
+> > >> 
+> > >> Christophe.Bonenfant at univ-lyon1.fr> wrote:
+> > >>> Hi Valentin,
+> > >>> 
+> > >>> You should use CRAN repository to get the lastest R version. See this
+> > >>> help page from CRAN:
+> > >>> 
+> > >>> http://cran.r-project.org/bin/linux/debian/
+> > >>> 
+> > >>> Cheers
+> > >>> 
+> > >>> Christophe
+> > >>> 
+> > >>> ________________________________________
+> > >>> De : r-sig-debian-bounces at r-project.org [
+> > >>> r-sig-debian-bounces at r-project.org] de la part de Valentin
+> > >>> Constantinescu [valentin at capia.no]
+> > >>> Date d'envoi : lundi 21 f?vrier 2011 11:15
+> > >>> ? : r-sig-debian at r-project.org
+> > >>> Objet : [R-sig-Debian] R upgrade from 2.7.1
+> > >>> 
+> > >>> My R version is 2.7.1 (on Debian) and some packages are asking for >
+> > >>> 2.10.
+> > >>> 
+> > >>> I've done all things from
+> > >>> http://cran.r-project.org/bin/linux/debian/but to no success.
+> > >>> Apt-get upgrade is doing nothing.
+> > >>> 
+> > >>> server:/etc/R# apt-cache policy r-base-core
+> > >>> 
+> > >>> r-base-core:
+> > >>>  Installed: 2.7.1-1+lenny1
+> > >>>  Candidate: 2.7.1-1+lenny1
+> > >>>  Version table:
+> > >>>  *** 2.7.1-1+lenny1 0
+> > >>>  
+> > >>>        500 http://mirrors.nl.kernel.org lenny/main Packages
+> > >>>        100 /var/lib/dpkg/status
+> > >>> 
+> > >>> I gusss my problem is similar with the one in this thread, but I dont
+> > >>> understand what was the resolution here:
+> > >>> https://stat.ethz.ch/pipermail/r-sig-debian/2010-May/001199.html.
+> > >>> Only a full remove and reinstall will fix the issue?
+> > >>> 
+> > >>> Thanks
+> > >>> --
+> > >>> Valentin Constantinescu
+> > >>> (+47) 90 594 749
+> > >>> 
+> > >>>         [[alternative HTML version deleted]]
+> > >>> 
+> > >>> _______________________________________________
+> > >>> R-SIG-Debian mailing list
+> > >>> R-SIG-Debian at r-project.org
+> > >>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> > >> 
+> > >> --
+> > >> Valentin Constantinescu
+> > >> (+47) 90 594 749
+> > > 
+> > > --
+> > > Valentin Constantinescu
+> > > (+47) 90 594 749
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From dksdks at gmail.com  Sat Feb 26 03:47:31 2011
+From: dksdks at gmail.com (dks)
+Date: Fri, 25 Feb 2011 21:47:31 -0500
+Subject: [R-sig-Debian] GotoBLAS2 breaks lapack
+In-Reply-To: <AANLkTin8AB1NcXZUL=HZhb0B7X0fCQoUgUquEMu58JAs@mail.gmail.com>
+References: <AANLkTin8AB1NcXZUL=HZhb0B7X0fCQoUgUquEMu58JAs@mail.gmail.com>
+Message-ID: <AANLkTimGN+nhc_T_QMvik+tGkSNXv-==dw2Fs7v1ju50@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20110225/7af1633a/attachment.pl>
+
+From edd at debian.org  Sat Feb 26 04:13:32 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 25 Feb 2011 21:13:32 -0600
+Subject: [R-sig-Debian] GotoBLAS2 breaks lapack
+In-Reply-To: <AANLkTimGN+nhc_T_QMvik+tGkSNXv-==dw2Fs7v1ju50@mail.gmail.com>
+References: <AANLkTin8AB1NcXZUL=HZhb0B7X0fCQoUgUquEMu58JAs@mail.gmail.com>
+	<AANLkTimGN+nhc_T_QMvik+tGkSNXv-==dw2Fs7v1ju50@mail.gmail.com>
+Message-ID: <19816.28636.384337.220666@max.nulle.part>
+
+
+On 25 February 2011 at 21:47, dks wrote:
+| I'm relatively new to R on Ubuntu (moving from Windows), and I'm trying to
+| get GotoBLAS2 working.  I installed (from a CRAN mirror) the pre-built
+| binaries of R (which, as far as I know, is compiled as a shared library) on
+| Ubuntu 10.10 using
+| apt-get install r-base r-base-dev
+
+Good.
+ 
+| I successfully built GotoBLAS2 from source, copied the library to /usr/lib
+| and created s symbolic link from libblas.so.3gf to point to the new
+| GotoBLAS2 library.
+
+You did that wrong.  This isn't easy stuff (as understanding how the plug &
+play of all the BLAS / LAPACK alternatives is implemented is non-trivial),
+but forcing it isn't the right approach.  Below you mention my gcbd
+paper/package. In it, I use a rather awesome 'gotoblas2-helper' package which
+_automates_ creating a deb from the gotoblas2 sources.
+
+I suspect your problem comes from the fact that you only took half of what
+GotoBlas can give.  If I look at the deb created from the helper:
+
+edd at max:~/atlas$ dpkg -c /var/spool/gotoblas2-helper/archive/gotoblas2_1.13-1_amd64.deb |grep lib
+drwxr-xr-x root/root         0 2010-07-05 18:57 ./usr/lib/
+drwxr-xr-x root/root         0 2010-07-05 19:00 ./usr/lib/gotoblas2/
+-rw-r--r-- root/root  10445138 2010-07-05 19:00 ./usr/lib/gotoblas2/libblas.a
+-rw-r--r-- root/root   8672978 2010-07-05 19:00 ./usr/lib/gotoblas2/liblapack.a
+-rw-r--r-- root/root   5491025 2010-07-05 19:00 ./usr/lib/gotoblas2/libblas.so.3gf.0
+-rw-r--r-- root/root   7427273 2010-07-05 19:00 ./usr/lib/gotoblas2/liblapack.so.3gf.0
+edd at max:~/atlas$ 
+
+you see that I got libblas.so and liblapack.so.
+
+So your crashes / lack of lapack success may well be due to Goto assuming its
+own lapack, but not getting it.
+
+Dirk
+
+ 
+| I think the symbolic links and everything are set up correctly, because the
+| BLAS itself works: I'm using Dirk Eddelbuettel's gbcd package to benchmark
+| the difference, and I can still run the matrix multiplication benchmarks (I
+| guess crossprod doesn't depend on lapack?), and I'm getting a 15x speedup
+| over the default BLAS with 8 cores used.  The problem, though, is that when
+| I try to run anything that depends on lapack--like qr()--I get the
+| following:
+| 
+| Error in qr.default(a, LAPACK = TRUE) : lapack routines cannot be loaded
+| In addition: Warning message:
+| In qr.default(a, LAPACK = TRUE) :
+|   unable to load shared object '/usr/lib64/R/modules//lapack.so':
+|   /usr/lib/liblapack.so.3gf: undefined symbol: ATL_chemv
+| 
+| If I delete the symbolic link to GotoBLAS2 and stick the default BLAS back
+| in there, everything works fine, and it finds lapack once again.  I guess I
+| don't understand the relationship between BLAS and lapack well enough to
+| figure out what's happening, because I don't understand how replacing the
+| BLAS breaks lapack, and yet the new BLAS still works!  Nothing I've found
+| online suggests that I need to rebuild lapack to go with GotoBLAS2--I
+| thought that it should just use the system-wide version.
+| 
+| I've read everything in the R-sig-Debian archives on this, and the
+| suggestion always seems to be to use the precompiled binaries rather than
+| building R locally, but I've already done that.
+| 
+| Any help would be much appreciated.
+| 
+| Thanks,
+| Dan
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From dksdks at gmail.com  Sat Feb 26 19:07:13 2011
+From: dksdks at gmail.com (dks)
+Date: Sat, 26 Feb 2011 13:07:13 -0500
+Subject: [R-sig-Debian] GotoBLAS2 breaks lapack
+Message-ID: <AANLkTik+6t8hx=pKWPV-g2Y5mZr6zExbCjZ5jQn8sd2C@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20110226/47e65355/attachment.pl>
+
+From edd at debian.org  Sat Feb 26 21:16:43 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 26 Feb 2011 14:16:43 -0600
+Subject: [R-sig-Debian] GotoBLAS2 breaks lapack
+In-Reply-To: <AANLkTik+6t8hx=pKWPV-g2Y5mZr6zExbCjZ5jQn8sd2C@mail.gmail.com>
+References: <AANLkTik+6t8hx=pKWPV-g2Y5mZr6zExbCjZ5jQn8sd2C@mail.gmail.com>
+Message-ID: <19817.24491.180700.906426@max.nulle.part>
+
+
+On 26 February 2011 at 13:07, dks wrote:
+| Thanks a lot for this, which led me to my solution.  (I'm including all this
+| in case others run into this problem.)
+| 
+| It turns out that, by default GotoBLAS2 builds a single shared library that
+| includes both BLAS and Lapack, rather than producing two separate libraries,
+| which is what Debian/Ubuntu wants.  One of the things that gotoblas2-helper
+| does is to separate the single shared library into separate BLAS and Lapack
+| libraries, which is why the deb you showed looks as it does.
+| 
+| I had looked at gotoblas2-helper before, but I saw that it was built before
+| GotoBLAS adopted the BSD license (when it still required login/password to
+| download source), and so I didn't think it would still work or get the new
+| version, but I was wrong on both counts.  It worked great and installed
+| GotoBLAS2 system-wide.  For others looking at this, full instructions are on
+| the poster linked from the gbcd paper:
+| http://prs.ism.ac.jp/~nakama/debian/SC09-poster.pdf
+| 
+| You still have to get a login/password from TACC (
+| http://www.tacc.utexas.edu/?id=402) and set that and the architecture target
+| (e.g., "NEHALEM") in the site.conf file, and gotoblas2-helper does the
+| rest.  I wasn't able to get the public key to download for the ISM
+| repository, but as long as you're willing to install it unverified, it
+| should work fine.
+
+Excellent!  I remember I had to make one or two trivial changes in the
+debian/* files but maybe that has been fixed or no longer matters on newer
+Ubuntu releases.
+
+Glad to hear you have it working.
+ 
+| (Finally, a bad hack around this is to symbolically link both libblas and
+| liblapack to point to the single GotoBLAS2 library; it works for R, but I
+| have no idea what bad consequences might ultimately result.  There are a lot
+| of web guides out there for installing GotoBLAS2 in Ubuntu, and they all
+| suggest this strategy of forcing symbolic links, so I'm including this here
+| in case people google around, so they find the better approach above.)
+
+Yup. We always hope that good information eventually drowns out bad
+information. 
+
+Dirk
+ 
+| 
+| 
+| 
+| | I successfully built GotoBLAS2 from source, copied the library to /usr/lib
+| > | and created s symbolic link from libblas.so.3gf to point to the new
+| > | GotoBLAS2 library.
+| >
+| > You did that wrong.  This isn't easy stuff (as understanding how the plug &
+| > play of all the BLAS / LAPACK alternatives is implemented is non-trivial),
+| > but forcing it isn't the right approach.  Below you mention my gcbd
+| > paper/package. In it, I use a rather awesome 'gotoblas2-helper' package
+| > which
+| > _automates_ creating a deb from the gotoblas2 sources.
+| >
+| > I suspect your problem comes from the fact that you only took half of what
+| > GotoBlas can give.  If I look at the deb created from the helper:
+| >
+| > edd at max:~/atlas$ dpkg -c
+| > /var/spool/gotoblas2-helper/archive/gotoblas2_1.13-1_amd64.deb |grep lib
+| > drwxr-xr-x root/root         0 2010-07-05 18:57 ./usr/lib/
+| > drwxr-xr-x root/root         0 2010-07-05 19:00 ./usr/lib/gotoblas2/
+| > -rw-r--r-- root/root  10445138 2010-07-05 19:00
+| > ./usr/lib/gotoblas2/libblas.a
+| > -rw-r--r-- root/root   8672978 2010-07-05 19:00
+| > ./usr/lib/gotoblas2/liblapack.a
+| > -rw-r--r-- root/root   5491025 2010-07-05 19:00
+| > ./usr/lib/gotoblas2/libblas.so.3gf.0
+| > -rw-r--r-- root/root   7427273 2010-07-05 19:00
+| > ./usr/lib/gotoblas2/liblapack.so.3gf.0
+| > edd at max:~/atlas$
+| >
+| > you see that I got libblas.so and liblapack.so.
+| >
+| > So your crashes / lack of lapack success may well be due to Goto assuming
+| > its
+| > own lapack, but not getting it.
+| >
+| > Dirk
+| >
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From edd at debian.org  Sat Feb 26 21:29:59 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 26 Feb 2011 14:29:59 -0600
+Subject: [R-sig-Debian] GotoBLAS2 breaks lapack
+In-Reply-To: <19817.24491.180700.906426@max.nulle.part>
+References: <AANLkTik+6t8hx=pKWPV-g2Y5mZr6zExbCjZ5jQn8sd2C@mail.gmail.com>
+	<19817.24491.180700.906426@max.nulle.part>
+Message-ID: <19817.25287.402189.943681@max.nulle.part>
+
+
+On 26 February 2011 at 14:16, Dirk Eddelbuettel wrote:
+| 
+| On 26 February 2011 at 13:07, dks wrote:
+| | Thanks a lot for this, which led me to my solution.  (I'm including all this
+| | in case others run into this problem.)
+| | 
+| | It turns out that, by default GotoBLAS2 builds a single shared library that
+| | includes both BLAS and Lapack, rather than producing two separate libraries,
+| | which is what Debian/Ubuntu wants.  One of the things that gotoblas2-helper
+| | does is to separate the single shared library into separate BLAS and Lapack
+| | libraries, which is why the deb you showed looks as it does.
+| | 
+| | I had looked at gotoblas2-helper before, but I saw that it was built before
+| | GotoBLAS adopted the BSD license (when it still required login/password to
+| | download source), and so I didn't think it would still work or get the new
+| | version, but I was wrong on both counts.  It worked great and installed
+| | GotoBLAS2 system-wide.  For others looking at this, full instructions are on
+| | the poster linked from the gbcd paper:
+| | http://prs.ism.ac.jp/~nakama/debian/SC09-poster.pdf
+| | 
+| | You still have to get a login/password from TACC (
+| | http://www.tacc.utexas.edu/?id=402) and set that and the architecture target
+| | (e.g., "NEHALEM") in the site.conf file, and gotoblas2-helper does the
+| | rest.  I wasn't able to get the public key to download for the ISM
+| | repository, but as long as you're willing to install it unverified, it
+| | should work fine.
+| 
+| Excellent!  I remember I had to make one or two trivial changes in the
+| debian/* files but maybe that has been fixed or no longer matters on newer
+| Ubuntu releases.
+| 
+| Glad to hear you have it working.
+|  
+| | (Finally, a bad hack around this is to symbolically link both libblas and
+| | liblapack to point to the single GotoBLAS2 library; it works for R, but I
+| | have no idea what bad consequences might ultimately result.  There are a lot
+| | of web guides out there for installing GotoBLAS2 in Ubuntu, and they all
+| | suggest this strategy of forcing symbolic links, so I'm including this here
+| | in case people google around, so they find the better approach above.)
+| 
+| Yup. We always hope that good information eventually drowns out bad
+| information. 
+
+One last follow-up.  Debian's Atlas maintainer has started to work in the
+OpenGoto packaging.  There will be proper Goto packages now that the license
+is better, but it may take a while. It took years to get Atlas packaged
+'right' so don;t expect anything too soon.  The gotoblas2-helper package is
+still useful for the 'here and now'.
+
+Dirk
+ 
+| Dirk
+|  
+| | 
+| | 
+| | 
+| | | I successfully built GotoBLAS2 from source, copied the library to /usr/lib
+| | > | and created s symbolic link from libblas.so.3gf to point to the new
+| | > | GotoBLAS2 library.
+| | >
+| | > You did that wrong.  This isn't easy stuff (as understanding how the plug &
+| | > play of all the BLAS / LAPACK alternatives is implemented is non-trivial),
+| | > but forcing it isn't the right approach.  Below you mention my gcbd
+| | > paper/package. In it, I use a rather awesome 'gotoblas2-helper' package
+| | > which
+| | > _automates_ creating a deb from the gotoblas2 sources.
+| | >
+| | > I suspect your problem comes from the fact that you only took half of what
+| | > GotoBlas can give.  If I look at the deb created from the helper:
+| | >
+| | > edd at max:~/atlas$ dpkg -c
+| | > /var/spool/gotoblas2-helper/archive/gotoblas2_1.13-1_amd64.deb |grep lib
+| | > drwxr-xr-x root/root         0 2010-07-05 18:57 ./usr/lib/
+| | > drwxr-xr-x root/root         0 2010-07-05 19:00 ./usr/lib/gotoblas2/
+| | > -rw-r--r-- root/root  10445138 2010-07-05 19:00
+| | > ./usr/lib/gotoblas2/libblas.a
+| | > -rw-r--r-- root/root   8672978 2010-07-05 19:00
+| | > ./usr/lib/gotoblas2/liblapack.a
+| | > -rw-r--r-- root/root   5491025 2010-07-05 19:00
+| | > ./usr/lib/gotoblas2/libblas.so.3gf.0
+| | > -rw-r--r-- root/root   7427273 2010-07-05 19:00
+| | > ./usr/lib/gotoblas2/liblapack.so.3gf.0
+| | > edd at max:~/atlas$
+| | >
+| | > you see that I got libblas.so and liblapack.so.
+| | >
+| | > So your crashes / lack of lapack success may well be due to Goto assuming
+| | > its
+| | > own lapack, but not getting it.
+| | >
+| | > Dirk
+| | >
+| | 
+| | 	[[alternative HTML version deleted]]
+| | 
+| | _______________________________________________
+| | R-SIG-Debian mailing list
+| | R-SIG-Debian at r-project.org
+| | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| 
+| -- 
+| Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From edd at debian.org  Sun Feb 27 22:34:20 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 27 Feb 2011 15:34:20 -0600
+Subject: [R-sig-Debian] Stale cran.us.r-project.org ?
+Message-ID: <19818.50012.120759.171717@max.nulle.part>
+
+
+apt-get updates kept getting errors / failure for cran.us.r-project.org so I
+finally switched it to cran.r-project.org and am now getting updates for two
+Ubuntu machines.  Anybody else seeing this?
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From mar36 at psu.edu  Mon Feb 28 01:46:11 2011
+From: mar36 at psu.edu (Michael Rutter)
+Date: Sun, 27 Feb 2011 19:46:11 -0500
+Subject: [R-sig-Debian] Stale cran.us.r-project.org ?
+In-Reply-To: <19818.50012.120759.171717@max.nulle.part>
+References: <19818.50012.120759.171717@max.nulle.part>
+Message-ID: <4D6AF053.7030504@psu.edu>
+
+On 02/27/2011 04:34 PM, Dirk Eddelbuettel wrote:
+> 
+> apt-get updates kept getting errors / failure for cran.us.r-project.org so I
+> finally switched it to cran.r-project.org and am now getting updates for two
+> Ubuntu machines.  Anybody else seeing this?
+> 
+> Dirk
+> 
+
+Dirk,
+
+The only problem I've had recently was due to the change in gpg key for
+the builds on CRAN, which is slightly ironic since the new key is mine.
+  I had to reset keys on my chroot jails when Debain squeeze came out as
+well.  That does not seem to be the problem for you, however, since it
+worked when you changed mirrors.
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From pauljohn32 at gmail.com  Mon Feb 28 04:54:26 2011
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Sun, 27 Feb 2011 21:54:26 -0600
+Subject: [R-sig-Debian] GotoBLAS2 breaks lapack
+In-Reply-To: <19816.28636.384337.220666@max.nulle.part>
+References: <AANLkTin8AB1NcXZUL=HZhb0B7X0fCQoUgUquEMu58JAs@mail.gmail.com>
+	<AANLkTimGN+nhc_T_QMvik+tGkSNXv-==dw2Fs7v1ju50@mail.gmail.com>
+	<19816.28636.384337.220666@max.nulle.part>
+Message-ID: <AANLkTinc=_7RXH-CAYEDurJNAR2-4zJ0Dm+WJ0Y--2Vo@mail.gmail.com>
+
+On Fri, Feb 25, 2011 at 9:13 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> On 25 February 2011 at 21:47, dks wrote:
+> edd at max:~/atlas$ dpkg -c /var/spool/gotoblas2-helper/archive/gotoblas2_1.13-1_amd64.deb |grep lib
+> drwxr-xr-x root/root ? ? ? ? 0 2010-07-05 18:57 ./usr/lib/
+> drwxr-xr-x root/root ? ? ? ? 0 2010-07-05 19:00 ./usr/lib/gotoblas2/
+> -rw-r--r-- root/root ?10445138 2010-07-05 19:00 ./usr/lib/gotoblas2/libblas.a
+> -rw-r--r-- root/root ? 8672978 2010-07-05 19:00 ./usr/lib/gotoblas2/liblapack.a
+> -rw-r--r-- root/root ? 5491025 2010-07-05 19:00 ./usr/lib/gotoblas2/libblas.so.3gf.0
+> -rw-r--r-- root/root ? 7427273 2010-07-05 19:00 ./usr/lib/gotoblas2/liblapack.so.3gf.0
+> edd at max:~/atlas$
+>
+> you see that I got libblas.so and liblapack.so.
+>
+> So your crashes / lack of lapack success may well be due to Goto assuming its
+> own lapack, but not getting it.
+>
+> Dirk
+>
+
+Hello, Dirk
+
+I know my students will ask me, so I'm asking you...
+
+Suppose the administrator has the Atlas blas installed, as well as the
+revolution-mkl, and then also the GOTOblas.  How does R--as you
+package it--select which one to use?
+
+Following the R Install and Admin manual,  Section A.3.1, I've built R
+with shared blas and then created the symbolic links to choose among
+the alternative BLAS.
+
+I mean, if a person has GOTOblas installed as you describe above, and
+revolution-mkl is installed, giving this:
+
+revolution-mkl :
+
+/usr/lib/R/lib/libblas.so.3gf
+/usr/lib/R/lib/libguide.so
+/usr/lib/R/lib/liblapack.so.3gf
+/usr/lib/R/lib/libblas.so
+/usr/lib/R/lib/liblapack.so
+
+
+Atlas gives this same-looking stuff, but in a different location:
+
+/usr/lib/atlas-base/libatlas.so.3gf.0
+/usr/lib/atlas-base/libcblas.so.3gf.0
+/usr/lib/atlas-base/libf77blas.so.3gf.0
+/usr/lib/atlas-base/liblapack_atlas.so.3gf.0
+/usr/lib/atlas-base/atlas
+/usr/lib/atlas-base/atlas/libblas.so.3gf.0
+/usr/lib/atlas-base/atlas/liblapack.so.3gf.0
+/usr/lib/atlas-base/libatlas.so.3gf
+/usr/lib/atlas-base/libcblas.so.3gf
+/usr/lib/atlas-base/libf77blas.so.3gf
+/usr/lib/atlas-base/liblapack_atlas.so.3gf
+/usr/lib/atlas-base/atlas/libblas.so.3gf
+/usr/lib/atlas-base/atlas/liblapack.so.3gf
+
+To select among those, it seems necessary to go along with the R
+Install &Admin manual and fiddle some symbolic links:
+
+$ rm /usr/lib/R/lib/libblas.so
+
+and
+
+$ ln -sf /usr/lib/gotoblas2/libblas.so.3gf.0 /usr/lib/R/lib/libblas.so
+
+Hence, I don't understand the OP's point about all of those Ubuntu
+guides which advise him to use symbolic links.  How can you get along
+without them?
+
+Hm. I guess we could fiddle around in /etc/alternatives with deb
+packaging.  But that's same as fiddling sym links.
+
+pj
+
+-- 
+Paul E. Johnson
+Professor, Political Science
+1541 Lilac Lane, Room 504
+University of Kansas
+
+
+From edd at debian.org  Mon Feb 28 05:16:56 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 27 Feb 2011 22:16:56 -0600
+Subject: [R-sig-Debian] GotoBLAS2 breaks lapack
+In-Reply-To: <AANLkTinc=_7RXH-CAYEDurJNAR2-4zJ0Dm+WJ0Y--2Vo@mail.gmail.com>
+References: <AANLkTin8AB1NcXZUL=HZhb0B7X0fCQoUgUquEMu58JAs@mail.gmail.com>
+	<AANLkTimGN+nhc_T_QMvik+tGkSNXv-==dw2Fs7v1ju50@mail.gmail.com>
+	<19816.28636.384337.220666@max.nulle.part>
+	<AANLkTinc=_7RXH-CAYEDurJNAR2-4zJ0Dm+WJ0Y--2Vo@mail.gmail.com>
+Message-ID: <19819.8632.53128.577329@max.nulle.part>
+
+
+Hi Paul,
+
+On 27 February 2011 at 21:54, Paul Johnson wrote:
+| Suppose the administrator has the Atlas blas installed, as well as the
+| revolution-mkl, and then also the GOTOblas.  How does R--as you
+| package it--select which one to use?
+
+These two or three distinct issues:
+
+i)   The package system has a mechanism to express and honour preferences,
+     that is how Atlas is chose in case it as well as reference Blas are
+     installed. Same for the different 'vi' commands from vim, nvi, ... or
+     emacsen
+
+ii)  MKL is different as Revo made it appear in a directory only R uses.
+     So different mechanism.
+
+iii) Goto is not formally packaged and part of the distro. I think the helper
+     package is so good that is does the preferences scheme too but I'd have
+     to check. For my gcbd project I scripted it such that exactly one is
+     present. 
+
+| Following the R Install and Admin manual,  Section A.3.1, I've built R
+
+That has *nothing* to do or say on Debian package and hence no bearing on
+your question.  
+
+You need to decide in which backyard you are playing and then pick the right
+guidebook.  Randomly mixing leads to odds results, like the errors that lead
+to this thread and which we fixes by getting back on a more standard path.
+
+As for your question what dynamic library is used: ask ldd(1). That's what it
+is there for.
+
+| Hence, I don't understand the OP's point about all of those Ubuntu
+| guides which advise him to use symbolic links.  How can you get along
+| without them?
+
+You may want to study the gotoblas2-helper package as well as the supporting
+documentation in the packaging guides.
+ 
+| Hm. I guess we could fiddle around in /etc/alternatives with deb
+| packaging.  But that's same as fiddling sym links.
+
+No, please don't. I rarely advocate random fiddling with symlinks.
+
+Hth, Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+

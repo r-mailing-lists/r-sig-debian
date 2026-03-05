@@ -1,0 +1,140 @@
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Thu Aug  1 08:49:58 2019
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Thu, 01 Aug 2019 08:49:58 +0200
+Subject: [R-sig-Debian] 3.6 on debian stretch
+In-Reply-To: <CACwCsY7PggYpoPNLvFtbw0ciFErGZuuq664_XAGTGr1rE-GV_w@mail.gmail.com>
+References: <CACwCsY7PggYpoPNLvFtbw0ciFErGZuuq664_XAGTGr1rE-GV_w@mail.gmail.com>
+Message-ID: <1633338.f7jCTC8NRC@ryz>
+
+Dear Larry,
+
+yes, because of various factors the r-cran-* packages from the stable and 
+especially the oldstable distribution are often not compatible with the 
+backported r-base packages provided on CRAN. At current, buster is not 
+affected, but your case shows that using stretch gives this problem.
+
+In principle it would be nice to have a repo containing all the r-cran-* and 
+r-bioc-* packages recompiled for these backports. Such a repository does exist 
+for Ubuntu as far as I know (I don't use it). For Debian, such a repository 
+currently does not exist.
+
+In your situation, I think the easiest solution is to simply install caret and 
+ggplot2 from within R.
+
+Personally, I like the install.r and update.r scripts available from Dirks 
+littler package. They make it possible to conveniently install and update R 
+packages from source using the command line, if you have the scripts in your 
+PATH.
+
+Kind regards,
+
+Johannes
+
+Am Mittwoch, 31. Juli 2019, 21:41:14 CEST schrieb Larry Martell:
+> I need to run 3.6 on debian stretch - I followed the instructions here:
+> 
+> https://cran.r-project.org/bin/linux/debian/
+> 
+> and I was able to install it. But 2 packages I need,  r-cran-caret and
+> r-cran-ggplot2 will not install:
+> 
+> # apt-get install r-cran-ggplot2
+> Reading package lists... Done
+> Building dependency tree
+> Reading state information... Done
+> Some packages could not be installed. This may mean that you have
+> requested an impossible situation or if you are using the unstable
+> distribution that some required packages have not yet been created
+> or been moved out of Incoming.
+> The following information may help to resolve the situation:
+> 
+> The following packages have unmet dependencies:
+>  r-cran-ggplot2 : Depends: r-api-3
+>                   Depends: r-cran-digest but it is not going to be installed
+> Depends: r-cran-gtable (>= 0.1.1) but it is not
+> going to be installed
+>                   Depends: r-cran-plyr (>= 1.7.1) but it is not going
+> to be installed
+>                   Depends: r-cran-reshape2 but it is not going to be
+> installed Depends: r-cran-scales (>= 0.4.1) but it is not
+> going to be installed
+>                   Depends: r-cran-tibble but it is not going to be installed
+> Depends: r-cran-lazyeval but it is not going to be installed E: Unable to
+> correct problems, you have held broken packages.
+> 
+> Is there a way to get these 2 packages for my environment?
+> 
+> Thanks!
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From jeroenoom@ @end|ng |rom gm@||@com  Thu Aug  1 19:24:10 2019
+From: jeroenoom@ @end|ng |rom gm@||@com (Jeroen Ooms)
+Date: Thu, 1 Aug 2019 19:24:10 +0200
+Subject: [R-sig-Debian] c2d4u3.5 packages not working in R 3.5 anymore
+Message-ID: <CABFfbXudkq2dUZULyLsSoWH2oa0ad28+rpEUmEW3=o4FYJgdfg@mail.gmail.com>
+
+Travis users are reporting a lot of these errors when testing packages on R 3.5:
+
+  Error: package or namespace load failed for ?....? in rbind(info,
+getNamespaceInfo(env, "S3methods")):
+
+This problem seems to happen when a c2d4u package was compiled with R
+3.6 and is loaded in R 3.5. The problem does not appear when using the
+same r-cran-xyz package on R 3.6. I'm not entirely sure what the root
+cause is but I think it has to do with a new feature in R 3.6 (from
+the NEWS file):
+
+  S3method() directives in ?NAMESPACE? can now also be used to perform
+delayed S3 method registration.
+
+Maybe c2d4u3.5 packages should be compiled with R 3.5 instead of R
+3.6? I think backward compatibility not a problem.
+
+
+From edd @end|ng |rom deb|@n@org  Thu Aug  1 20:50:24 2019
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Thu, 1 Aug 2019 13:50:24 -0500
+Subject: [R-sig-Debian] c2d4u3.5 packages not working in R 3.5 anymore
+In-Reply-To: <CABFfbXudkq2dUZULyLsSoWH2oa0ad28+rpEUmEW3=o4FYJgdfg@mail.gmail.com>
+References: <CABFfbXudkq2dUZULyLsSoWH2oa0ad28+rpEUmEW3=o4FYJgdfg@mail.gmail.com>
+Message-ID: <23875.13424.765836.973480@rob.eddelbuettel.com>
+
+
+On 1 August 2019 at 19:24, Jeroen Ooms wrote:
+| Travis users are reporting a lot of these errors when testing packages on R 3.5:
+| 
+|   Error: package or namespace load failed for ?....? in rbind(info,
+| getNamespaceInfo(env, "S3methods")):
+| 
+| This problem seems to happen when a c2d4u package was compiled with R
+| 3.6 and is loaded in R 3.5. The problem does not appear when using the
+| same r-cran-xyz package on R 3.6. I'm not entirely sure what the root
+| cause is but I think it has to do with a new feature in R 3.6 (from
+| the NEWS file):
+| 
+|   S3method() directives in ?NAMESPACE? can now also be used to perform
+| delayed S3 method registration.
+| 
+| Maybe c2d4u3.5 packages should be compiled with R 3.5 instead of R
+| 3.6? I think backward compatibility not a problem.
+
+'3.5' is an API label.
+
+So users should just upgrade. There is no reason to stick with R 3.5.*.
+
+Not speaking for Michael, but I don't think aims to supply over 4,000
+packages for multiple Ubuntu release _and_ multiple R versions.   In short,
+when you opt into the PPAs, you also opt into the corresponding _current_ R
+release.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+

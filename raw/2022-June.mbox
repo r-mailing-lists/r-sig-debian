@@ -1,0 +1,939 @@
+From je@@e @end|ng |rom voxpop|@b@@com  Mon Jun 13 18:19:41 2022
+From: je@@e @end|ng |rom voxpop|@b@@com (Jesse McMullen-Crummey)
+Date: Mon, 13 Jun 2022 12:19:41 -0400
+Subject: [R-sig-Debian] Trying to install r-stan without using rocker
+Message-ID: <D8C16656-4CA9-4C2D-8893-8446DE9F9927@voxpoplabs.com>
+
+Hi All,
+
+   I found your mailing list via a stack overflow mention.  I?m currently on my second full day of trying to build a docker container to use as an AWS lambda fcn and am feeling pretty stuck - I was hoping someone here could help.  It needs to support python+R+rstan.
+
+
+I currently construct the docker image from a python/debian base image.  I can get R working fine, but when I try to run an r-stan script within the lambda function I get a ?there is no package called Stan?, despite a good 5 minutes of the image build being dedicated to the download of rstan.  Am looking for advice here on how to proceed.  My current dockerfile follows?
+
+################
+FROM python:3.8-slim-bullseye
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+ENV LC_ALL=C.UTF-8
+ENV LANG=en_US.UTF-8
+ENV TZ=:/etc/localtime
+ENV PATH=/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin
+ENV LD_LIBRARY_PATH=/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib
+ENV LAMBDA_TASK_ROOT=/var/task
+ENV LAMBDA_RUNTIME_DIR=/var/runtime
+
+# Define custom function directory
+ARG FUNCTION_DIR="/var/task"
+WORKDIR ${FUNCTION_DIR}
+
+# Install aws-lambda-cpp build dependencies + r
+RUN apt-get update && \
+  apt-get install -y \
+  g++ \
+  make \
+  cmake \
+  unzip \
+  libcurl4-openssl-dev \
+  r-base 
+
+COPY requirements.txt  .
+COPY irt_dim_red.R .
+COPY . .
+
+#install the python requirements
+RUN pip install -r requirements.txt
+
+COPY scripts/install_stan.R install_stan.R
+
+RUN Rscript "install_stan.R"
+RUN R -e "install.packages('stringr')"
+RUN R -e "install.packages('gtools')"
+RUN R -e "install.packages('tidyr')"
+
+# Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
+ENTRYPOINT [ "/usr/local/bin/python", "-m", "awslambdaric" ]
+CMD [ "main.handler"]
+Where the script install_rstan.R is:
+
+# Following instructions from
+# https://github.com/stan-dev/rstan/wiki/Installing-RStan-on-Linux
+
+print("Running install_stan.R")
+
+## Creating /home/rstudio/.R/Makevars
+
+dotR <- file.path(Sys.getenv("HOME"), ".R")
+if (!file.exists(dotR)) dir.create(dotR)
+M <- file.path(dotR, "Makevars")
+if (!file.exists(M)) file.create(M)
+cat("\nCXX14FLAGS=-O3 -march=native -mtune=native -fPIC",
+    "CXX14=clang++",
+    file = M, sep = "\n", append = TRUE)
+
+## Installing rstan
+
+install.packages("rstan", dependencies=TRUE, type = "source")
+
+Any help would be massively appreciated.
+
+Jesse
+
+
+?
+
+
+Jesse McMullen-Crummey, PhD (he/him)
+Data Engineer
+
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon Jun 13 18:36:23 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 13 Jun 2022 11:36:23 -0500
+Subject: [R-sig-Debian] Trying to install r-stan without using rocker
+In-Reply-To: <D8C16656-4CA9-4C2D-8893-8446DE9F9927@voxpoplabs.com>
+References: <D8C16656-4CA9-4C2D-8893-8446DE9F9927@voxpoplabs.com>
+Message-ID: <25255.26503.788196.464372@rob.eddelbuettel.com>
+
+
+Jesse,
+
+On 13 June 2022 at 12:19, Jesse McMullen-Crummey wrote:
+| Hi All,
+| 
+|    I found your mailing list via a stack overflow mention.  I?m currently on my second full day of trying to build a docker container to use as an AWS lambda fcn and am feeling pretty stuck - I was hoping someone here could help.  It needs to support python+R+rstan.
+
+If something does not work, I usually backtrack.
+
+You start from python:3.8-slim-bullseye. That is your right. But this is a
+Debian-and-R mailing list, so we may not have started from there.
+
+I maintain and curate several sets of Rocker containers building either on
+ - plain Debian as our rocker/r-base which is also the official r-base
+ - Ubuntu because I can then use Ubuntu binaries as from c2d4u or now also r2u
+
+If I were, I'd the same. With either base set you should get to 'apt install r-cran-rstan'
+easily, and adding your other package is easy. (If you look at work I worked
+on recently via its site https://eddelbuettel.github.io/r2u/ you will see
+that staring from eg eddelbuettel/r2u:22.04 you can run a single
+   Rscript -e 'install.packages(c("rstan", "stringr", "gtools", "tidyr"))' 
+without issues giving your the R side to which you can then add your Python
+requirements. I usually try that first interactively in the same Docker
+container.
+
+If all that fails, maybe you want to emphasize Python first and use Anaconda
+via mamba. Some folks had good luck with that (but don't mix and match, only
+tears result from that).  We cannot help with *conda here.
+
+Dirk
+
+
+| I currently construct the docker image from a python/debian base image.  I can get R working fine, but when I try to run an r-stan script within the lambda function I get a ?there is no package called Stan?, despite a good 5 minutes of the image build being dedicated to the download of rstan.  Am looking for advice here on how to proceed.  My current dockerfile follows?
+| 
+| ################
+| FROM python:3.8-slim-bullseye
+| 
+| ENV DEBIAN_FRONTEND=noninteractive
+| 
+| ENV LC_ALL=C.UTF-8
+| ENV LANG=en_US.UTF-8
+| ENV TZ=:/etc/localtime
+| ENV PATH=/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin
+| ENV LD_LIBRARY_PATH=/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib
+| ENV LAMBDA_TASK_ROOT=/var/task
+| ENV LAMBDA_RUNTIME_DIR=/var/runtime
+| 
+| # Define custom function directory
+| ARG FUNCTION_DIR="/var/task"
+| WORKDIR ${FUNCTION_DIR}
+| 
+| # Install aws-lambda-cpp build dependencies + r
+| RUN apt-get update && \
+|   apt-get install -y \
+|   g++ \
+|   make \
+|   cmake \
+|   unzip \
+|   libcurl4-openssl-dev \
+|   r-base 
+| 
+| COPY requirements.txt  .
+| COPY irt_dim_red.R .
+| COPY . .
+| 
+| #install the python requirements
+| RUN pip install -r requirements.txt
+| 
+| COPY scripts/install_stan.R install_stan.R
+| 
+| RUN Rscript "install_stan.R"
+| RUN R -e "install.packages('stringr')"
+| RUN R -e "install.packages('gtools')"
+| RUN R -e "install.packages('tidyr')"
+| 
+| # Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
+| ENTRYPOINT [ "/usr/local/bin/python", "-m", "awslambdaric" ]
+| CMD [ "main.handler"]
+| Where the script install_rstan.R is:
+| 
+| # Following instructions from
+| # https://github.com/stan-dev/rstan/wiki/Installing-RStan-on-Linux
+| 
+| print("Running install_stan.R")
+| 
+| ## Creating /home/rstudio/.R/Makevars
+| 
+| dotR <- file.path(Sys.getenv("HOME"), ".R")
+| if (!file.exists(dotR)) dir.create(dotR)
+| M <- file.path(dotR, "Makevars")
+| if (!file.exists(M)) file.create(M)
+| cat("\nCXX14FLAGS=-O3 -march=native -mtune=native -fPIC",
+|     "CXX14=clang++",
+|     file = M, sep = "\n", append = TRUE)
+| 
+| ## Installing rstan
+| 
+| install.packages("rstan", dependencies=TRUE, type = "source")
+| 
+| Any help would be massively appreciated.
+| 
+| Jesse
+| 
+| 
+| ?
+| 
+| 
+| Jesse McMullen-Crummey, PhD (he/him)
+| Data Engineer
+| 
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From je@@e @end|ng |rom voxpop|@b@@com  Mon Jun 13 20:25:35 2022
+From: je@@e @end|ng |rom voxpop|@b@@com (Jesse McMullen-Crummey)
+Date: Mon, 13 Jun 2022 14:25:35 -0400
+Subject: [R-sig-Debian] Trying to install r-stan without using rocker
+In-Reply-To: <25255.26503.788196.464372@rob.eddelbuettel.com>
+References: <D8C16656-4CA9-4C2D-8893-8446DE9F9927@voxpoplabs.com>
+ <25255.26503.788196.464372@rob.eddelbuettel.com>
+Message-ID: <712657D5-2BD1-4C9B-A6F5-8E3AB9788505@voxpoplabs.com>
+
+Hi All,
+
+I?ve followed Dirk?s advice and am now starting from:
+
+FROM eddelbuettel/r2u:22.04
+While installing rstan using
+RUN Rscript -e 'install.packages(c("rstan", "stringr", "gtools", "tidyr"))'
+
+I can now get my lambda function running, but it throws an error when opening my Stan model, namely: 
+"C++ compiler not found on system.?
+
+I would have thought that it would be part of this base image.
+
+Any thoughts would be appreciated.
+
+Jesse
+
+
+un 13, 2022, at 12:36 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+> 
+> 
+> Jesse,
+> 
+> On 13 June 2022 at 12:19, Jesse McMullen-Crummey wrote:
+> | Hi All,
+> | 
+> |    I found your mailing list via a stack overflow mention.  I?m currently on my second full day of trying to build a docker container to use as an AWS lambda fcn and am feeling pretty stuck - I was hoping someone here could help.  It needs to support python+R+rstan.
+> 
+> If something does not work, I usually backtrack.
+> 
+> You start from python:3.8-slim-bullseye. That is your right. But this is a
+> Debian-and-R mailing list, so we may not have started from there.
+> 
+> I maintain and curate several sets of Rocker containers building either on
+> - plain Debian as our rocker/r-base which is also the official r-base
+> - Ubuntu because I can then use Ubuntu binaries as from c2d4u or now also r2u
+> 
+> If I were, I'd the same. With either base set you should get to 'apt install r-cran-rstan'
+> easily, and adding your other package is easy. (If you look at work I worked
+> on recently via its site https://eddelbuettel.github.io/r2u/ you will see
+> that staring from eg eddelbuettel/r2u:22.04 you can run a single
+>   Rscript -e 'install.packages(c("rstan", "stringr", "gtools", "tidyr"))' 
+> without issues giving your the R side to which you can then add your Python
+> requirements. I usually try that first interactively in the same Docker
+> container.
+> 
+> If all that fails, maybe you want to emphasize Python first and use Anaconda
+> via mamba. Some folks had good luck with that (but don't mix and match, only
+> tears result from that).  We cannot help with *conda here.
+> 
+> Dirk
+> 
+> 
+> | I currently construct the docker image from a python/debian base image.  I can get R working fine, but when I try to run an r-stan script within the lambda function I get a ?there is no package called Stan?, despite a good 5 minutes of the image build being dedicated to the download of rstan.  Am looking for advice here on how to proceed.  My current dockerfile follows?
+> | 
+> | ################
+> | FROM python:3.8-slim-bullseye
+> | 
+> | ENV DEBIAN_FRONTEND=noninteractive
+> | 
+> | ENV LC_ALL=C.UTF-8
+> | ENV LANG=en_US.UTF-8
+> | ENV TZ=:/etc/localtime
+> | ENV PATH=/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin
+> | ENV LD_LIBRARY_PATH=/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib
+> | ENV LAMBDA_TASK_ROOT=/var/task
+> | ENV LAMBDA_RUNTIME_DIR=/var/runtime
+> | 
+> | # Define custom function directory
+> | ARG FUNCTION_DIR="/var/task"
+> | WORKDIR ${FUNCTION_DIR}
+> | 
+> | # Install aws-lambda-cpp build dependencies + r
+> | RUN apt-get update && \
+> |   apt-get install -y \
+> |   g++ \
+> |   make \
+> |   cmake \
+> |   unzip \
+> |   libcurl4-openssl-dev \
+> |   r-base 
+> | 
+> | COPY requirements.txt  .
+> | COPY irt_dim_red.R .
+> | COPY . .
+> | 
+> | #install the python requirements
+> | RUN pip install -r requirements.txt
+> | 
+> | COPY scripts/install_stan.R install_stan.R
+> | 
+> | RUN Rscript "install_stan.R"
+> | RUN R -e "install.packages('stringr')"
+> | RUN R -e "install.packages('gtools')"
+> | RUN R -e "install.packages('tidyr')"
+> | 
+> | # Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
+> | ENTRYPOINT [ "/usr/local/bin/python", "-m", "awslambdaric" ]
+> | CMD [ "main.handler"]
+> | Where the script install_rstan.R is:
+> | 
+> | # Following instructions from
+> | # https://github.com/stan-dev/rstan/wiki/Installing-RStan-on-Linux
+> | 
+> | print("Running install_stan.R")
+> | 
+> | ## Creating /home/rstudio/.R/Makevars
+> | 
+> | dotR <- file.path(Sys.getenv("HOME"), ".R")
+> | if (!file.exists(dotR)) dir.create(dotR)
+> | M <- file.path(dotR, "Makevars")
+> | if (!file.exists(M)) file.create(M)
+> | cat("\nCXX14FLAGS=-O3 -march=native -mtune=native -fPIC",
+> |     "CXX14=clang++",
+> |     file = M, sep = "\n", append = TRUE)
+> | 
+> | ## Installing rstan
+> | 
+> | install.packages("rstan", dependencies=TRUE, type = "source")
+> | 
+> | Any help would be massively appreciated.
+> | 
+> | Jesse
+> | 
+> | 
+> | ?
+> | 
+> | 
+> | Jesse McMullen-Crummey, PhD (he/him)
+> | Data Engineer
+> | 
+> | 
+> | 	[[alternative HTML version deleted]]
+> | 
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+> -- 
+> dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon Jun 13 20:36:31 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 13 Jun 2022 13:36:31 -0500
+Subject: [R-sig-Debian] Trying to install r-stan without using rocker
+In-Reply-To: <712657D5-2BD1-4C9B-A6F5-8E3AB9788505@voxpoplabs.com>
+References: <D8C16656-4CA9-4C2D-8893-8446DE9F9927@voxpoplabs.com>
+ <25255.26503.788196.464372@rob.eddelbuettel.com>
+ <712657D5-2BD1-4C9B-A6F5-8E3AB9788505@voxpoplabs.com>
+Message-ID: <25255.33711.934423.636090@rob.eddelbuettel.com>
+
+
+On 13 June 2022 at 14:25, Jesse McMullen-Crummey wrote:
+| Hi All,
+| 
+| I?ve followed Dirk?s advice and am now starting from:
+| 
+| FROM eddelbuettel/r2u:22.04
+| While installing rstan using
+| RUN Rscript -e 'install.packages(c("rstan", "stringr", "gtools", "tidyr"))'
+
+(BTW I would actually use
+
+   RUN install.r rstan stringr gtools tidyr
+
+which is more idiomatic _for me_ using littler, but equivalent <wink> )
+
+| I can now get my lambda function running,
+
+Nice!
+
+| but it throws an error when opening my Stan model, namely: 
+| "C++ compiler not found on system.?
+| 
+| I would have thought that it would be part of this base image.
+
+Indeed. That r2u image has g++-11.
+
+So (r)stan may be configured differently / may have seen / expected a
+different compiler?  I would check its docs. You should be able to square
+that. 
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From t|ghe @end|ng |rom br@nde|@@edu  Mon Jun 13 22:01:40 2022
+From: t|ghe @end|ng |rom br@nde|@@edu (Elizabeth Tighe)
+Date: Mon, 13 Jun 2022 16:01:40 -0400
+Subject: [R-sig-Debian] Trying to install r-stan without using rocker
+In-Reply-To: <25255.33711.934423.636090@rob.eddelbuettel.com>
+References: <D8C16656-4CA9-4C2D-8893-8446DE9F9927@voxpoplabs.com>
+ <25255.26503.788196.464372@rob.eddelbuettel.com>
+ <712657D5-2BD1-4C9B-A6F5-8E3AB9788505@voxpoplabs.com>
+ <25255.33711.934423.636090@rob.eddelbuettel.com>
+Message-ID: <1cbe4d61-d6e7-a1d1-692a-41d8b92a0d44@brandeis.edu>
+
+
+I'm not an expert, but I do use rstan on Ubuntu.
+
+The install instructions here:
+
+https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
+
+include info on configuring the C++ Toolchain with a link for 
+configuring on linux here:
+
+ ?https://github.com/stan-dev/rstan/wiki/Configuring-C-Toolchain-for-Linux
+
+in case this helps ...
+
+Best,
+Liz Tighe
+
+On 6/13/2022 2:36 PM, Dirk Eddelbuettel wrote:
+> On 13 June 2022 at 14:25, Jesse McMullen-Crummey wrote:
+> | Hi All,
+> |
+> | I?ve followed Dirk?s advice and am now starting from:
+> |
+> | FROM eddelbuettel/r2u:22.04
+> | While installing rstan using
+> | RUN Rscript -e 'install.packages(c("rstan", "stringr", "gtools", "tidyr"))'
+>
+> (BTW I would actually use
+>
+>     RUN install.r rstan stringr gtools tidyr
+>
+> which is more idiomatic _for me_ using littler, but equivalent <wink> )
+>
+> | I can now get my lambda function running,
+>
+> Nice!
+>
+> | but it throws an error when opening my Stan model, namely:
+> | "C++ compiler not found on system.?
+> |
+> | I would have thought that it would be part of this base image.
+>
+> Indeed. That r2u image has g++-11.
+>
+> So (r)stan may be configured differently / may have seen / expected a
+> different compiler?  I would check its docs. You should be able to square
+> that.
+>
+> Dirk
+>
+
+
+From je@@e @end|ng |rom voxpop|@b@@com  Mon Jun 13 22:23:31 2022
+From: je@@e @end|ng |rom voxpop|@b@@com (Jesse McMullen-Crummey)
+Date: Mon, 13 Jun 2022 16:23:31 -0400
+Subject: [R-sig-Debian] Trying to install r-stan without using rocker
+In-Reply-To: <1cbe4d61-d6e7-a1d1-692a-41d8b92a0d44@brandeis.edu>
+References: <D8C16656-4CA9-4C2D-8893-8446DE9F9927@voxpoplabs.com>
+ <25255.26503.788196.464372@rob.eddelbuettel.com>
+ <712657D5-2BD1-4C9B-A6F5-8E3AB9788505@voxpoplabs.com>
+ <25255.33711.934423.636090@rob.eddelbuettel.com>
+ <1cbe4d61-d6e7-a1d1-692a-41d8b92a0d44@brandeis.edu>
+Message-ID: <97630422-1003-428F-BFFD-C2FB27B40028@voxpoplabs.com>
+
+
+Thanks Liz.
+
+I had that toolchain running as an install_stan.R script.  I ended up reverting to 20.04 and installing build-essential as well.  One of those seems to have done the trick!
+
+Thanks!
+
+Jesse
+
+> On Jun 13, 2022, at 4:01 PM, Elizabeth Tighe <tighe at brandeis.edu> wrote:
+> 
+> 
+> I'm not an expert, but I do use rstan on Ubuntu.
+> 
+> The install instructions here:
+> 
+> https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started <https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started>
+> 
+> include info on configuring the C++ Toolchain with a link for configuring on linux here:
+> 
+> https://github.com/stan-dev/rstan/wiki/Configuring-C-Toolchain-for-Linux <https://github.com/stan-dev/rstan/wiki/Configuring-C-Toolchain-for-Linux>
+> 
+> in case this helps ...
+> 
+> Best,
+> Liz Tighe
+> 
+> On 6/13/2022 2:36 PM, Dirk Eddelbuettel wrote:
+>> On 13 June 2022 at 14:25, Jesse McMullen-Crummey wrote:
+>> | Hi All,
+>> |
+>> | I?ve followed Dirk?s advice and am now starting from:
+>> |
+>> | FROM eddelbuettel/r2u:22.04
+>> | While installing rstan using
+>> | RUN Rscript -e 'install.packages(c("rstan", "stringr", "gtools", "tidyr"))'
+>> 
+>> (BTW I would actually use
+>> 
+>> RUN install.r rstan stringr gtools tidyr
+>> 
+>> which is more idiomatic _for me_ using littler, but equivalent <wink> )
+>> 
+>> | I can now get my lambda function running,
+>> 
+>> Nice!
+>> 
+>> | but it throws an error when opening my Stan model, namely:
+>> | "C++ compiler not found on system.?
+>> |
+>> | I would have thought that it would be part of this base image.
+>> 
+>> Indeed. That r2u image has g++-11.
+>> 
+>> So (r)stan may be configured differently / may have seen / expected a
+>> different compiler? I would check its docs. You should be able to square
+>> that.
+>> 
+>> Dirk
+>> 
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org <mailto:R-SIG-Debian at r-project.org>
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian <https://stat.ethz.ch/mailman/listinfo/r-sig-debian>
+
+	[[alternative HTML version deleted]]
+
+
+From chr|@ho|d @end|ng |rom p@yctc@org  Fri Jun 17 10:18:10 2022
+From: chr|@ho|d @end|ng |rom p@yctc@org (Chris Evans)
+Date: Fri, 17 Jun 2022 08:18:10 +0000 (UTC)
+Subject: [R-sig-Debian] How to open an access mdb using the rodbc package
+ under Ubuntu 22.04
+Message-ID: <1490044091.542847.1655453890300.JavaMail.zimbra@psyctc.org>
+
+I know Ubuntu isn't Debian but I hope that this list will have the expertise I need. I have scoured for answers 
+on the web but they either seem to assume one has ODBCConfig, which doesn't seem to be available for 
+Unbuntu 20.04 or 22.04, or they simply don't give me explanations I understand (and many are quite old). 
+
+I want to open a moderately large (830Mb) and moderately complex Access mdb database into R (4.2.0 (2022-04-22)) 
+I'm running it under Ubuntu 22.04 and have pulled in and compiled unixODBC and have this from odbcinst -j
+
+unixODBC 2.3.11 
+DRIVERS............: /etc/odbcinst.ini 
+SYSTEM DATA SOURCES: /etc/odbc.ini 
+FILE DATA SOURCES..: /etc/ODBCDataSources 
+USER DATA SOURCES..: /root/.odbc.ini 
+SQLULEN Size.......: 8 
+SQLLEN Size........: 8 
+SQLSETPOSIROW Size.: 8
+
+and this in /etc/odbcinst.ini
+
+PostgreSQL ANSI]
+Description=PostgreSQL ODBC driver (ANSI version)
+Driver=psqlodbca.so
+Setup=libodbcpsqlS.so
+Debug=0
+CommLog=1
+UsageCount=1
+
+[PostgreSQL Unicode]
+Description=PostgreSQL ODBC driver (Unicode version)
+Driver=psqlodbcw.so
+Setup=libodbcpsqlS.so
+Debug=0
+CommLog=1
+UsageCount=1
+
+(That's unchanged from the installation.)
+
+And I seem to have install postgres:
+
+chris at Clevo1:/media/chris/Clevo_SSD2/Music$ sudo su - postgres
+[sudo] password for chris: 
+postgres at Clevo1:~$ psql
+psql (14.3 (Ubuntu 14.3-0ubuntu0.22.04.1))
+Type "help" for help.
+
+postgres=# 
+
+I am pretty sure that I need to create a file that contains the instructions unixODBC needs/uses
+to make the mdb file available to RODBC, something along the lines of (from the odbcConnect help
+page):
+
+channel <- odbcConnect("test", uid="ripley", pwd="secret")
+
+where I think I would replace "test" with the name of that file I have to create that maps
+together EOS.mdb (my mdb file) and the unixODBC driver and I suspect that I would replace 
+"ripley" with "chris" and "secret" with the postgres password for chris.
+
+If I'm correct, it's how to create that mapping file (is it called a DSN file?) that I need
+to know.  However I have a nasty feeling that I may need more than that, e.g. more work on
+unixODBC configuration and/or postgres configuration.
+
+If I have failed to find a resource that explains this, do point me to it!
+
+Thanks in advance,
+
+Chris
+
+-- 
+Chris Evans (he/him) <chris at psyctc.org> 
+Visiting Professor, UDLA, Quito, Ecuador & Honorary Professor, University of Roehampton, London, UK.
+Work web site: https://www.psyctc.org/psyctc/ 
+CORE site:     https://www.coresystemtrust.org.uk/
+Personal site: https://www.psyctc.org/pelerinage2016/
+OMbook:        https://ombook.psyctc.org/book/
+
+
+From kry|ov@r00t @end|ng |rom gm@||@com  Fri Jun 17 10:41:14 2022
+From: kry|ov@r00t @end|ng |rom gm@||@com (Ivan Krylov)
+Date: Fri, 17 Jun 2022 11:41:14 +0300
+Subject: [R-sig-Debian] 
+ How to open an access mdb using the rodbc package under Ubuntu 22.04
+In-Reply-To: <1490044091.542847.1655453890300.JavaMail.zimbra@psyctc.org>
+References: <1490044091.542847.1655453890300.JavaMail.zimbra@psyctc.org>
+Message-ID: <20220617114114.19be81c8@Tarkus>
+
+On Fri, 17 Jun 2022 08:18:10 +0000 (UTC)
+Chris Evans <chrishold at psyctc.org> wrote:
+
+> I want to open a moderately large (830Mb) and moderately complex
+> Access mdb database into R (4.2.0 (2022-04-22)) I'm running it under
+> Ubuntu 22.04 and have pulled in and compiled unixODBC
+
+ODBC needs an Access driver in order to work with Access databases. A
+cursory web search gave me this commercial product:
+https://www.easysoft.com/products/data_access/odbc-access-driver/index.html
+
+There's also mdbtools <https://github.com/mdbtools/mdbtools>, which
+also seems to offer an ODBC driver. It might also be able to let you
+convert the Access database for a different SQL engine.
+
+-- 
+Best regards,
+Ivan
+
+
+From chr|@ho|d @end|ng |rom p@yctc@org  Fri Jun 17 12:01:28 2022
+From: chr|@ho|d @end|ng |rom p@yctc@org (Chris Evans)
+Date: Fri, 17 Jun 2022 10:01:28 +0000 (UTC)
+Subject: [R-sig-Debian] 
+ How to open an access mdb using the rodbc package under Ubuntu 22.04
+In-Reply-To: <20220617114114.19be81c8@Tarkus>
+References: <1490044091.542847.1655453890300.JavaMail.zimbra@psyctc.org>
+ <20220617114114.19be81c8@Tarkus>
+Message-ID: <673448075.692210.1655460088164.JavaMail.zimbra@psyctc.org>
+
+Thanks Ivan: in passing, I've found your many inputs here and on r-help wonderful: thank you.
+
+----- Original Message -----
+> From: "Ivan Krylov" <krylov.r00t at gmail.com>
+> To: "Chris Evans" <chrishold at psyctc.org>
+> Cc: "r-sig-debian" <r-sig-debian at r-project.org>
+> Sent: Friday, 17 June, 2022 10:41:14
+> Subject: Re: [R-sig-Debian] How to open an access mdb using the rodbc package under Ubuntu 22.04
+
+> On Fri, 17 Jun 2022 08:18:10 +0000 (UTC)
+> Chris Evans <chrishold at psyctc.org> wrote:
+> 
+>> I want to open a moderately large (830Mb) and moderately complex
+>> Access mdb database into R (4.2.0 (2022-04-22)) I'm running it under
+>> Ubuntu 22.04 and have pulled in and compiled unixODBC
+> 
+> ODBC needs an Access driver in order to work with Access databases. A
+> cursory web search gave me this commercial product:
+> https://www.easysoft.com/products/data_access/odbc-access-driver/index.html
+
+Ah, perhaps I should have said that I try to avoid proprietary s'ware if possible
+and ?899 is out of my range by well perhaps ?890!  I could use their 15 day free
+offer I guess but I'd prefer to find, and document somewhere, a FLOSS solution 
+that goes all the way from having R on Ubuntu to having the RODBC connection work.
+I am finding bits of that pipeline explained but not all ...
+
+> 
+> There's also mdbtools <https://github.com/mdbtools/mdbtools>, which
+> also seems to offer an ODBC driver. It might also be able to let you
+> convert the Access database for a different SQL engine.
+
+OK but I didn't see anything there about how I would get RODBC to use that to
+connect to the mdb file. 
+
+Sorry if I'm being stupid, not for want of searching or trying!
+
+If I can find a FLOSS way of doing it, I _will_ document it at https://www.psyctc.org/Rblog/
+for others who may find this challenging as I have.
+
+Any further advice or pointers out there?!  TIA!
+
+Chris
+
+> 
+> --
+> Best regards,
+> Ivan
+
+-- 
+Chris Evans (he/him) <chris at psyctc.org> 
+Visiting Professor, UDLA, Quito, Ecuador & Honorary Professor, University of Roehampton, London, UK.
+Work web site: https://www.psyctc.org/psyctc/ 
+CORE site:     https://www.coresystemtrust.org.uk/
+Personal site: https://www.psyctc.org/pelerinage2016/
+OMbook:        https://ombook.psyctc.org/book/
+
+
+From kry|ov@r00t @end|ng |rom gm@||@com  Fri Jun 17 12:48:56 2022
+From: kry|ov@r00t @end|ng |rom gm@||@com (Ivan Krylov)
+Date: Fri, 17 Jun 2022 13:48:56 +0300
+Subject: [R-sig-Debian] 
+ How to open an access mdb using the rodbc package under Ubuntu 22.04
+In-Reply-To: <673448075.692210.1655460088164.JavaMail.zimbra@psyctc.org>
+References: <1490044091.542847.1655453890300.JavaMail.zimbra@psyctc.org>
+ <20220617114114.19be81c8@Tarkus>
+ <673448075.692210.1655460088164.JavaMail.zimbra@psyctc.org>
+Message-ID: <20220617134856.2925e414@arachnoid>
+
+? Fri, 17 Jun 2022 10:01:28 +0000 (UTC)
+Chris Evans <chrishold at psyctc.org> ?????:
+
+> Thanks Ivan: in passing, I've found your many inputs here and on
+> r-help wonderful: thank you.
+
+Glad I was able to help!
+
+> OK but I didn't see anything there about how I would get RODBC to use
+> that to connect to the mdb file. 
+
+Admittedly, it's not well documented (and the INSTALL file that the
+README promises to contain more information is missing). I've never
+used ODBC myself, so a lot of what follows is guesswork.
+
+Searching for mdbtools in Debian archive, I find the odbc-mdbtools
+package, which contains the driver. Once it's installed, you need to
+list the driver in the odbcinst.ini file:
+
+[MDB]
+Description=Access database (Unicode)
+Driver=libmdbodbcW.so
+
+...and list the database in ~/.odbc.ini:
+
+[EOS]
+Description=EOS database
+Driver=MDB
+Database=/path/to/file.mdb
+
+(If I'm reading [1] correctly, the parameter specifying the path to the
+mdb file is called "Database".)
+
+The odbcinst [2] tool might be able to help you add the sections, but
+its man page looks somewhat obscure. There might be some magic in the
+Debian packages that automatically lists the driver (but not the
+database) in the relevant configuration files.
+
+After the sections are present, RODBC::odbcConnect('EOS') should be
+able to open the database, or at least provide an error message that
+would hopefully shine some light on the problem.
+
+Or maybe it's enough to list the driver in ~/.odbc.ini and then provide
+the path to the database in the connection string?
+
+[MDB]
+Description=Access database (Unicode)
+Driver=libmdbodbcW.so
+
+channel <- odbcDriverConnect('DSN=MDB;Database=/path/to/file.mdb')
+
+You might also have to pass the DBMSEncoding="UCS-2" argument to the
+ODBC connection functions to let R know the encoding that the database
+engine uses. Or use the other driver file (which is supposed to use
+ANSI) and specify a single-byte encoding. (CP-1252?)
+
+-- 
+Best regards,
+Ivan
+
+[1]
+https://github.com/mdbtools/mdbtools/blob/dev/src/odbc/getproperties.c
+
+[2]
+https://manpages.debian.org/bullseye/odbcinst/odbcinst.1.en.html
+
+
+From edd @end|ng |rom deb|@n@org  Fri Jun 17 13:39:59 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Fri, 17 Jun 2022 06:39:59 -0500
+Subject: [R-sig-Debian] 
+ How to open an access mdb using the rodbc package under Ubuntu 22.04
+In-Reply-To: <20220617134856.2925e414@arachnoid>
+References: <1490044091.542847.1655453890300.JavaMail.zimbra@psyctc.org>
+ <20220617114114.19be81c8@Tarkus>
+ <673448075.692210.1655460088164.JavaMail.zimbra@psyctc.org>
+ <20220617134856.2925e414@arachnoid>
+Message-ID: <25260.26639.386308.495868@rob.eddelbuettel.com>
+
+
+Postscriptum: We absolutely don't mind helping here, use on Ubuntu is *very
+much* on charter for r-sig-deb (which is, loosely, for help with any
+.deb-based OS and R).
+
+However, the question really had little to do with the OS and a lot with 'how
+do I do OBDC' which Ivan answered admirably. Next time, though, remember that
+there is r-sig-db focussed on _R and databases_.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From chr|@ho|d @end|ng |rom p@yctc@org  Fri Jun 17 16:44:37 2022
+From: chr|@ho|d @end|ng |rom p@yctc@org (Chris Evans)
+Date: Fri, 17 Jun 2022 14:44:37 +0000 (UTC)
+Subject: [R-sig-Debian] 
+ How to open an access mdb using the rodbc package under Ubuntu 22.04
+In-Reply-To: <25260.26639.386308.495868@rob.eddelbuettel.com>
+References: <1490044091.542847.1655453890300.JavaMail.zimbra@psyctc.org>
+ <20220617114114.19be81c8@Tarkus>
+ <673448075.692210.1655460088164.JavaMail.zimbra@psyctc.org>
+ <20220617134856.2925e414@arachnoid>
+ <25260.26639.386308.495868@rob.eddelbuettel.com>
+Message-ID: <2084838363.1116301.1655477077119.JavaMail.zimbra@psyctc.org>
+
+
+
+----- Original Message -----
+> From: "Dirk Eddelbuettel" <edd at debian.org>
+> To: "Ivan Krylov" <krylov.r00t at gmail.com>
+> Cc: "Chris Evans" <chrishold at psyctc.org>, "r-sig-debian" <r-sig-debian at r-project.org>
+> Sent: Friday, 17 June, 2022 13:39:59
+> Subject: Re: [R-sig-Debian] How to open an access mdb using the rodbc package under Ubuntu 22.04
+
+> Postscriptum: We absolutely don't mind helping here, use on Ubuntu is *very
+> much* on charter for r-sig-deb (which is, loosely, for help with any
+> .deb-based OS and R).
+
+OK
+ 
+> However, the question really had little to do with the OS and a lot with 'how
+> do I do OBDC' which Ivan answered admirably. Next time, though, remember that
+> there is r-sig-db focussed on _R and databases_.
+
+Archives show nothing there since Q3 2020 and nothing from it showed up in any of
+my searching.
+
+I'm sorry if I'm battering the wrong list but my experience has been that things about databases
+can be very specific to the OS.
+
+I don't want to batter more as that's clearly not what you want but for the record here, neither
+of Ivan's suggestions (gratefully received) work.
+
+The odbc.ini, which appears to open a connection but shows no tables.  However, I know the tables are in the
+file, for instance mdb-tables command from the mdbtools package shows the tables there and I have the paths
+and permissions correct, I've checked.
+
+Nor does the direct connection idea:
+
+channel <- odbcDriverConnect('DSN=MDB;Database=EOS.mdb')
+
+work.  That gives me:
+
+Warning messages:
+1: In odbcDriverConnect("DSN=MDB;Database=EOS.mdb") :
+  [RODBC] ERROR: state IM002, code 0, message [unixODBC][Driver Manager]Data source name not found and no default driver specified
+2: In odbcDriverConnect("DSN=MDB;Database=EOS.mdb") :
+  ODBC connection failed
+
+(bit more than a warning to my mind!)
+
+Having spent quite a lot of hours on this, admittedly some of them reminding myself how postgres/psql 
+and SQL commands work I am going to retire hurt (!)  Tomorrow I will swallow my FLOSS preferences and 
+and remind myself how do this using the RODBC package in R in Windoze and gone through the M$ hoops 
+to get the pertinent ODBC driver installed there.  Then I'll pull everything into R, and use save.image() 
+there and come back to Linux and go forward after a load()!
+
+I'm just surprised there isn't a more easily accessed and documented way to do this in Linux.
+
+If anyone is confident of an answer (and I appreciate Ivan making it very clear this is not his arena but still 
+helping and don't want to abuse him more!), then I'd be grateful to take up advice off list.
+
+
+> 
+> Dirk
+> 
+> --
+> dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+-- 
+Chris Evans (he/him) <chris at psyctc.org> 
+Visiting Professor, UDLA, Quito, Ecuador & Honorary Professor, University of Roehampton, London, UK.
+Work web site: https://www.psyctc.org/psyctc/ 
+CORE site:     https://www.coresystemtrust.org.uk/
+Personal site: https://www.psyctc.org/pelerinage2016/
+OMbook:        https://ombook.psyctc.org/book/
+
+

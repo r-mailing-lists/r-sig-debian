@@ -1,0 +1,101 @@
+From @ven@k|e|m@nn @end|ng |rom un|bw@de  Mon Dec  1 17:48:41 2025
+From: @ven@k|e|m@nn @end|ng |rom un|bw@de (Sven Kielmann)
+Date: Mon, 1 Dec 2025 17:48:41 +0100
+Subject: [R-sig-Debian] missing r-cran-lattice for noble-cran40
+Message-ID: <5d56043a-ac46-490a-96a1-cecf261b84c5@unibw.de>
+
+Hi,
+
+while installing R 4.5.2 according to the instructions at 
+https://cran.r-project.org/bin/linux/ubuntu/fullREADME.html on a machine 
+running 24.04 LTS (noble), I noticed that there is no package available 
+for r-cran-lattice in the noble-cran40. So, the r-cran-lattice package 
+from the Ubuntu universe is used here, but this is compiled for Ubuntu's 
+version (based on 4.3.3).
+
+There is an r-cran-lattice package for 20.04 and 22.04, and according to 
+the instructions mentioned above, r-cran-lattice is one of the packages 
+that should be offered via the CRAN repository.
+
+Is it intentional that the lattice-package for noble is not offered via 
+the CRAN repository?
+
+
+Thanks!
+
+Sven
+
+
+
+
+From edd @end|ng |rom deb|@n@org  Mon Dec  1 18:32:35 2025
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 1 Dec 2025 11:32:35 -0600
+Subject: [R-sig-Debian] missing r-cran-lattice for noble-cran40
+In-Reply-To: <5d56043a-ac46-490a-96a1-cecf261b84c5@unibw.de>
+References: <5d56043a-ac46-490a-96a1-cecf261b84c5@unibw.de>
+Message-ID: <26925.53555.971572.10633@paul.eddelbuettel.com>
+
+
+On 1 December 2025 at 17:48, Sven Kielmann via R-SIG-Debian wrote:
+| while installing R 4.5.2 according to the instructions at 
+| https://cran.r-project.org/bin/linux/ubuntu/fullREADME.html on a machine 
+| running 24.04 LTS (noble), I noticed that there is no package available 
+| for r-cran-lattice in the noble-cran40. So, the r-cran-lattice package 
+| from the Ubuntu universe is used here, but this is compiled for Ubuntu's 
+| version (based on 4.3.3).
+| 
+| There is an r-cran-lattice package for 20.04 and 22.04, and according to 
+| the instructions mentioned above, r-cran-lattice is one of the packages 
+| that should be offered via the CRAN repository.
+| 
+| Is it intentional that the lattice-package for noble is not offered via 
+| the CRAN repository?
+
+It looks like an oversight (see below), and I am sure Michael will look into
+this when he has a moment.
+
+But the next paragraph: you can get lattice, along with 23k other CRAN
+packages, from r2u in pretty much the same way -- along with all of CRAN.
+
+
+ edd at paul:~$ docker run --rm -ti rocker/r2u:24.04
+root at ebb827661b0f:/# apt update -qqq
+root at ebb827661b0f:/# apt-cache policy r-cran-lattice  
+r-cran-lattice:
+  Installed: 0.22-7-1.ca2404.1
+  Candidate: 0.22-7-1.ca2404.1
+  Version table:
+ *** 0.22-7-1.ca2404.1 700
+        700 https://r2u.stat.illinois.edu/ubuntu noble/main amd64 Packages
+        100 /var/lib/dpkg/status
+     0.22-5-1build1 500
+        500 http://archive.ubuntu.com/ubuntu noble/universe amd64 Packages
+root at ebb827661b0f:/# apt-cache policy r-cran-mass     
+r-cran-mass:
+  Installed: 7.3-65-1.ca2404.1
+  Candidate: 7.3-65-1.ca2404.1
+  Version table:
+ *** 7.3-65-1.ca2404.1 700
+        700 https://r2u.stat.illinois.edu/ubuntu noble/main amd64 Packages
+        100 /var/lib/dpkg/status
+     7.3-65-1.2404.0 500
+        500 https://cloud.r-project.org/bin/linux/ubuntu noble-cran40/ Packages
+     7.3-64-1.2404.0 500
+        500 https://cloud.r-project.org/bin/linux/ubuntu noble-cran40/ Packages
+     7.3-61-1.2404.0 500
+        500 https://cloud.r-project.org/bin/linux/ubuntu noble-cran40/ Packages
+     7.3-60.0.1-1 500
+        500 http://archive.ubuntu.com/ubuntu noble/universe amd64 Packages
+root at ebb827661b0f:/# 
+
+
+This shows lattice is not at CRAN as a binary, but MASS is. Both are of
+course also in their current version at r2u.
+
+Hope this helps, Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+

@@ -1,0 +1,599 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2013-06",
+  "messages": [
+    {
+      "id": "msg-b884b303bade",
+      "message_id": "<CAAdktEzH7Qysx+bUjQRrh-QFg3ZqUnmBJUVxDsEP_tGkf0h-gQ@mail.gmail.com>",
+      "from_name": "Giuseppe Pagnoni",
+      "from_email_hash": "02ee7cc6fff88ab5e67c96cba1b58fcbccf8cb1398e4a45d8cfc9fbbce3cf868",
+      "date": "2013-06-07T11:01:41+02:00",
+      "subject": "[R-sig-Debian] Function nlme::lme in Ubuntu (but not Win or OS X): \"Non-positive definite approximate variance-covariance\"",
+      "subject_clean": "Function nlme::lme in Ubuntu (but not Win or OS X): \"Non-positive definite approximate variance-covariance\"",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130607/d4832762/attachment.pl>",
+      "body_snippet": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130607/d4832762/attachment.pl>",
+      "thread_id": "thread-b884b303bade",
+      "thread_depth": 0,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-5c3be364772f",
+      "message_id": "<20913.51572.243973.205014@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2013-06-07T06:52:20-05:00",
+      "subject": "[R-sig-Debian] Function nlme::lme in Ubuntu (but not Win or OS X): \"Non-positive definite approximate variance-covariance\"",
+      "subject_clean": "Function nlme::lme in Ubuntu (but not Win or OS X): \"Non-positive definite approximate variance-covariance\"",
+      "in_reply_to": "<CAAdktEzH7Qysx+bUjQRrh-QFg3ZqUnmBJUVxDsEP_tGkf0h-gQ@mail.gmail.com>",
+      "references": [
+        "<CAAdktEzH7Qysx+bUjQRrh-QFg3ZqUnmBJUVxDsEP_tGkf0h-gQ@mail.gmail.com>"
+      ],
+      "body_plain": "On 7 June 2013 at 11:01, Giuseppe Pagnoni wrote:\n| Dear all,\n| \n| I am estimating a mixed-model in Ubuntu Raring (13.04? amd64), with the\n| code:\n| \n| fm0 <- lme(rt ~ run + group * stim * cond,\n|                  random=list(\n|                    subj=pdSymm(~ 1 + run),\n|                    subj=pdSymm(~ 0 + stim)),\n|                  data=mydat1)\n| \n| When I check the approximate variance-covariance matrix, I get:\n| \n| > fm0$apVar\n| [1] \"Non-positive definite approximate variance-covariance\"\n\nThis comes from the BLAS / LAPACK libraries which you can switch in Debian /\nUbuntu.  Eg I (currently) have both defaults and openblas installed:\n\nedd at max:~$ COLUMNS=72 dpkg -l | grep -i \"blas\\|lapack\"\nii  libblas-dev    1.2.20110419 amd64        Basic Linear Algebra Subroutines \nii  libblas-test   1.2.20110419 amd64        Basic Linear Algebra Subroutines \nii  libblas3       1.2.20110419 amd64        Basic Linear Algebra Reference im\nii  libblas3gf     1.2.20110419 all          Transitional package for libblas\nii  liblapack-dev  3.4.2-1~exp3 amd64        Library of linear algebra routine\nii  liblapack-pic  3.4.2-1~exp3 amd64        Library of linear algebra routine\nii  liblapack3     3.4.2-1~exp3 amd64        Library of linear algebra routine\nii  liblapack3gf   3.4.2-1~exp3 all          Transitional package for liblapac\nii  libopenblas-ba 0.2.6-1~exp1 amd64        Optimized BLAS (linear algebra) l\nii  libopenblas-de 0.2.6-1~exp1 amd64        Optimized BLAS (linear algebra) l\nedd at max:~$ \n\nThe virtual package libblas is provided by the reference blas, atlas\n(\"tuned\") and openblas (multicore); similar for lapack.\n\nedd at max:~$ apt-cache search libblas\nlibblas-dev - Basic Linear Algebra Subroutines 3, static library\nlibblas-doc - Basic Linear Algebra Subroutines 3, documentation\nlibblas3 - Basic Linear Algebra Reference implementations, shared library\nlibatlas-base-dev - Automatically Tuned Linear Algebra Software, generic static\nlibatlas3-base - Automatically Tuned Linear Algebra Software, generic shared\nlibblas-test - Basic Linear Algebra Subroutines 3, testing programs\nlibblas3gf - Transitional package for libblas\nlibopenblas-base - Optimized BLAS (linear algebra) library based on GotoBLAS2\nlibopenblas-dev - Optimized BLAS (linear algebra) library based on GotoBLAS2\nedd at max:~$ \n\nTry installing another package and see if that matters.  \n\nThe Windows and OS X versions of R will have used its internally packaged\n(not tuned, not multicore) BLAS/LAPACK. This can be changed there too; see\nthe R Admin+Inst manual.\n\nDirk\n \n| *However*, if I do the same on a Windows or a Mac OS X machine, I get:\n| \n| > fm0$apVar\n|                reStruct.subj1 reStruct.subj2 reStruct.subj3 reStruct.subj1\n| reStruct.subj1   1.952757e-01   3.130089e-01   5.766955e-01  -0.1034862377\n| reStruct.subj2   3.130089e-01   5.703211e-01   9.864047e-01  -0.1937902915\n| reStruct.subj3   5.766955e-01   9.864047e-01   1.861434e+00  -0.3303689957\n| reStruct.subj1  -1.034862e-01  -1.937903e-01  -3.303690e-01   0.0941652375\n| reStruct.subj2  -3.464557e-03  -5.933008e-03  -1.102904e-02   0.0163847582\n| reStruct.subj3  -6.826057e-01  -1.186231e+00  -2.122872e+00   0.3705613715\n| lSigma          -2.058254e-06  -4.764783e-06   1.653583e-05  -0.0000146693\n|                reStruct.subj2 reStruct.subj3        lSigma\n| reStruct.subj1  -3.464557e-03  -6.826057e-01 -2.058254e-06\n| reStruct.subj2  -5.933008e-03  -1.186231e+00 -4.764783e-06\n| reStruct.subj3  -1.102904e-02  -2.122872e+00  1.653583e-05\n| reStruct.subj1   1.638476e-02   3.705614e-01 -1.466930e-05\n| reStruct.subj2   1.931738e-02  -2.020354e-02 -1.925015e-05\n| reStruct.subj3  -2.020354e-02   2.825301e+00  2.967063e-05\n| lSigma          -1.925015e-05   2.967063e-05  6.299813e-05\n| attr(,\"Pars\")\n| reStruct.subj1 reStruct.subj2 reStruct.subj3 reStruct.subj1 reStruct.subj2\n|       4.570267       4.299735       1.282732       4.859346       3.206102\n| reStruct.subj3         lSigma\n|      -2.631377       5.308304\n| attr(,\"natural\")\n| [1] TRUE\n| \n| \n| I am unable to figure out the reason why I get such a difference in the\n| output: all the machines are running the latest version of R (3.0.1) and\n| nlme package (3.1-109) as of today (updated from the CRAN master site).\n| \n| Many thanks in advance for any suggestions,\n| \n| best\n| \n| -- \n| Giuseppe Pagnoni\n| Dip. Scienze Biomediche, Metaboliche e Neuroscienze\n| Sezione Fisiologia e Neuroscienze\n| Univ. di Modena e Reggio Emilia\n| Via Campi 287\n| I-41125 Modena, Italy\n| Tel: +39-059-205-5742\n| Fax: +39-059-205-5363\n| \n| \t[[alternative HTML version deleted]]\n| \n| \n| ----------------------------------------------------------------------\n| _______________________________________________\n| R-SIG-Debian mailing list\n| R-SIG-Debian at r-project.org\n| https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \nDirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com",
+      "body_snippet": "On 7 June 2013 at 11:01, Giuseppe Pagnoni wrote:\n| Dear all,\n| \n| I am estimating a mixed-model in Ubuntu Raring (13.04? amd64), with the\n| code:\n| \n| fm0 <- lme(rt ~ run + group * stim * cond,\n|     ",
+      "thread_id": "thread-b884b303bade",
+      "thread_depth": 1,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-932a5a9fb0e5",
+      "message_id": "<1147C698-69E0-4379-BAEF-8D080EAA2646@gmail.com>",
+      "from_name": "Giuseppe Pagnoni",
+      "from_email_hash": "02ee7cc6fff88ab5e67c96cba1b58fcbccf8cb1398e4a45d8cfc9fbbce3cf868",
+      "date": "2013-06-07T15:50:59+02:00",
+      "subject": "[R-sig-Debian] Function nlme::lme in Ubuntu (but not Win or OS X): \"Non-positive definite approximate variance-covariance\"",
+      "subject_clean": "Function nlme::lme in Ubuntu (but not Win or OS X): \"Non-positive definite approximate variance-covariance\"",
+      "in_reply_to": "<20913.51572.243973.205014@max.nulle.part>",
+      "references": [
+        "<CAAdktEzH7Qysx+bUjQRrh-QFg3ZqUnmBJUVxDsEP_tGkf0h-gQ@mail.gmail.com>",
+        "<20913.51572.243973.205014@max.nulle.part>"
+      ],
+      "body_plain": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130607/5e036670/attachment.pl>",
+      "body_snippet": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130607/5e036670/attachment.pl>",
+      "thread_id": "thread-b884b303bade",
+      "thread_depth": 2,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-eda914a2af74",
+      "message_id": "<51B8D7D1.7000802@psu.edu>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "bd1396b991d78727494403026cbf79f8837f468d360f36623deeff192b510eb4",
+      "date": "2013-06-12T16:19:29-04:00",
+      "subject": "[R-sig-Debian] cran2deb4ubuntu Updated for R 3.0.1 and Ubuntu 13.04",
+      "subject_clean": "cran2deb4ubuntu Updated for R 3.0.1 and Ubuntu 13.04",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "It has taken a long time, but cran2deb4ubuntu has been updated for R \n3.0.1.  Over 1000 R packages are available as .deb files (with \ndependencies) for Ubuntu 13.04 (raring), 12.10 (quantal) and 12.04 \n(precise).\n\nThese packages can be found at the [c2d4u \nPPA](https://launchpad.net/~marutter/+archive/c2d4u).  Instructions on \nhow to install the PPA can be found on this webpage.\n\nHopefully, I have updated every package.  If one has slipped through the \ncracks, please let me know via mail.  The package list is based on the \nthe CRAN Task Views, so if a package you use is missing, the best way to \nget it into c2d4u is to get it added to an appropriate Task View.\n\nMichael\n-- \nDr. Michael A. Rutter\nSchool of Science\nPenn State Erie, The Behrend College\n4205 College Drive\nErie, PA 16563\nhttp://math.bd.psu.edu/faculty/rutter\nmar36 at psu.edu",
+      "body_snippet": "It has taken a long time, but cran2deb4ubuntu has been updated for R \n3.0.1.  Over 1000 R packages are available as .deb files (with \ndependencies) for Ubuntu 13.04 (raring), 12.10 (quantal) and 12.04",
+      "thread_id": "thread-eda914a2af74",
+      "thread_depth": 0,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-9df7b7f4611c",
+      "message_id": "<CACmKiDxSvzg9+yCZ9NV5jFaYS1=5KcrM_oKtxVJLzsMzh8gcnQ@mail.gmail.com>",
+      "from_name": "John Blischak",
+      "from_email_hash": "794b48bc684418417fff8b0d685f16365df0aadcf0c917bf8fecacf034fcd821",
+      "date": "2013-06-13T14:41:59-05:00",
+      "subject": "[R-sig-Debian] Cannot install XML package with R 3.0 and Ubuntu 12.04",
+      "subject_clean": "Cannot install XML package with R 3.0 and Ubuntu 12.04",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130613/73cefb74/attachment.pl>",
+      "body_snippet": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130613/73cefb74/attachment.pl>",
+      "thread_id": "thread-9df7b7f4611c",
+      "thread_depth": 0,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-3e52d087936c",
+      "message_id": "<51BA2EC4.20601@psu.edu>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "bd1396b991d78727494403026cbf79f8837f468d360f36623deeff192b510eb4",
+      "date": "2013-06-13T16:42:44-04:00",
+      "subject": "[R-sig-Debian] Cannot install XML package with R 3.0 and Ubuntu 12.04",
+      "subject_clean": "Cannot install XML package with R 3.0 and Ubuntu 12.04",
+      "in_reply_to": "<CACmKiDxSvzg9+yCZ9NV5jFaYS1=5KcrM_oKtxVJLzsMzh8gcnQ@mail.gmail.com>",
+      "references": [
+        "<CACmKiDxSvzg9+yCZ9NV5jFaYS1=5KcrM_oKtxVJLzsMzh8gcnQ@mail.gmail.com>"
+      ],
+      "body_plain": "On 06/13/2013 03:41 PM, John Blischak wrote:\n> Hi,\n>\n> I am unable to install the R package XML using R 3.0.1 on Ubuntu 12.04 LTS\n> (64-bit). After the installation failed using install.packages, I followed\n> previous directions for installing R packages on Ubuntu\n> (R-SIG-Debian<http://grokbase.com/t/r/r-sig-debian/127nwwez27/package-xml-does-not-load-in-r-2-15-1>,\n> StackOverflow<http://stackoverflow.com/questions/7765429/unable-to-install-r-package-in-ubuntu-11-04>)\n> by running sudo apt-get install r-cran-xml. However, this is not usable\n> with R 3.0, and update.packages(oldpkgs = 'XML') failed as well. Lastly, it\n> is not available on the RutteR\n> PPA<https://launchpad.net/~marutter/+archive/rrutter/+index?batch=75&direction=backwards&start=600>\n> .\n>\n> Is there a way to solve this? Thanks in advance!\n>\n> John\n>\n\n\nJohn,\n\nIn about two hours (around 6:30 EDT), r-cran-xml should be available on \nc2d4u, my bigger PPA of R packages.  Here is the link: \nhttps://launchpad.net/~marutter/+archive/c2d4u.\n\nFor some reason, xml was one of the packages that didn't get updated in \nin the move to R 3.0. I have updated the new packages and they will take \nabout two hours to build.\n\nHope that helps,\nMichael\n\n\n\n-- \nDr. Michael A. Rutter\nSchool of Science\nPenn State Erie, The Behrend College\n4205 College Drive\nErie, PA 16563\nhttp://math.bd.psu.edu/faculty/rutter\nmar36 at psu.edu",
+      "body_snippet": "On 06/13/2013 03:41 PM, John Blischak wrote:\n> Hi,\n>\n> I am unable to install the R package XML using R 3.0.1 on Ubuntu 12.04 LTS\n> (64-bit). After the installation failed using install.packages, I fo",
+      "thread_id": "thread-9df7b7f4611c",
+      "thread_depth": 1,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-883f6bdfa8f6",
+      "message_id": "<CAPRP4-c=V8HGoAmACohLHj3BvFkMox+NqyB-8y-zbYbS06-zzQ@mail.gmail.com>",
+      "from_name": "Martin Maechler",
+      "from_email_hash": "c2c86f22f78a4ecfe6d0e6b4e2be505a3f5beb0470ea88c903688ac536018a98",
+      "date": "2013-06-15T11:47:43+02:00",
+      "subject": "[R-sig-Debian] r-cran-rjava (ubuntu 13.04 ?) -- missing dependencies?",
+      "subject_clean": "r-cran-rjava (ubuntu 13.04 ?) -- missing dependencies?",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "I am really no java lover, but for some reason had interested to look\nat an R package that depends on  rJava...\nand when I tried, I was *again* (it is my usual experience for more\nthan 10 years)\nunable to get rJava installed,\nas indeed, also   'R CMD javareconf'  ended  in an error that  jni.h\nwas not found.\n\nI see the issue here,\nhttp://stackoverflow.com/questions/16438073/unable-to-install-rjava-in-r-3-0-in-ubuntu-13-04\n\nincluding the proposed solution\n\n   sudo apt-get install openjdk-7-*\n\nwhich installs 690 MB (!) of stuff (not counting the \"basic openjdk-7\"\ninstalled previously)...\n...\nand indeed solves the problem  {i.e.  'R CMD javareconf'  then succeeds}.\n\n---\nSummary: I think  r-cran-rjava  needs the full (or at least more than now of)\n'openjdk-7-*' in its (debian) dependencies.\n\nMartin",
+      "body_snippet": "I am really no java lover, but for some reason had interested to look\nat an R package that depends on  rJava...\nand when I tried, I was *again* (it is my usual experience for more\nthan 10 years)\nunabl",
+      "thread_id": "thread-883f6bdfa8f6",
+      "thread_depth": 0,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-80b9bb84532e",
+      "message_id": "<20924.21631.764701.502156@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2013-06-15T06:48:15-05:00",
+      "subject": "[R-sig-Debian] Cannot install XML package with R 3.0 and Ubuntu\t12.04",
+      "subject_clean": "Cannot install XML package with R 3.0 and Ubuntu\t12.04",
+      "in_reply_to": "<CACmKiDxSvzg9+yCZ9NV5jFaYS1=5KcrM_oKtxVJLzsMzh8gcnQ@mail.gmail.com>",
+      "references": [
+        "<CACmKiDxSvzg9+yCZ9NV5jFaYS1=5KcrM_oKtxVJLzsMzh8gcnQ@mail.gmail.com>"
+      ],
+      "body_plain": "John,\n\nOn 13 June 2013 at 14:41, John Blischak wrote:\n| I am unable to install the R package XML using R 3.0.1 on Ubuntu 12.04 LTS\n| (64-bit). After the installation failed using install.packages, I followed\n\nYou did not detail this sufficiently, but installation from _source_\npresumably failed because you did not have all the build-dependencies.\n\nIn this case where are pre-build _binary_ exists, you can use the\nmetainformation for the _binary_ package to build the _source_ package:\n\n    sudo apt-get build-dep r-cran-xml\n\n| previous directions for installing R packages on Ubuntu\n| (R-SIG-Debian<http://grokbase.com/t/r/r-sig-debian/127nwwez27/package-xml-does-not-load-in-r-2-15-1>,\n| StackOverflow<http://stackoverflow.com/questions/7765429/unable-to-install-r-package-in-ubuntu-11-04>)\n| by running sudo apt-get install r-cran-xml. However, this is not usable\n| with R 3.0, and update.packages(oldpkgs = 'XML') failed as well. Lastly, it\n| is not available on the RutteR\n| PPA<https://launchpad.net/~marutter/+archive/rrutter/+index?batch=75&direction=backwards&start=600>\n\nAs I understand it, all these were fraught by the 'R packages from 2.15\ncannot run under 3.0 issue'; with the last one being a bug in Michael's setup\nhe has since addressed.\n\nCheers, Dirk\n\n-- \nDirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com",
+      "body_snippet": "John,\n\nOn 13 June 2013 at 14:41, John Blischak wrote:\n| I am unable to install the R package XML using R 3.0.1 on Ubuntu 12.04 LTS\n| (64-bit). After the installation failed using install.packages, I f",
+      "thread_id": "thread-9df7b7f4611c",
+      "thread_depth": 1,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-5e621eb4db71",
+      "message_id": "<20924.22073.957160.777837@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2013-06-15T06:55:37-05:00",
+      "subject": "[R-sig-Debian] r-cran-rjava (ubuntu 13.04 ?) -- missing\tdependencies?",
+      "subject_clean": "r-cran-rjava (ubuntu 13.04 ?) -- missing\tdependencies?",
+      "in_reply_to": "<CAPRP4-c=V8HGoAmACohLHj3BvFkMox+NqyB-8y-zbYbS06-zzQ@mail.gmail.com>",
+      "references": [
+        "<CAPRP4-c=V8HGoAmACohLHj3BvFkMox+NqyB-8y-zbYbS06-zzQ@mail.gmail.com>"
+      ],
+      "body_plain": "Martin,\n\nOn 15 June 2013 at 11:47, Martin Maechler wrote:\n| I am really no java lover, but for some reason had interested to look\n| at an R package that depends on  rJava...\n| and when I tried, I was *again* (it is my usual experience for more\n| than 10 years)\n| unable to get rJava installed,\n| as indeed, also   'R CMD javareconf'  ended  in an error that  jni.h\n| was not found.\n| \n| I see the issue here,\n| http://stackoverflow.com/questions/16438073/unable-to-install-rjava-in-r-3-0-in-ubuntu-13-04\n| \n| including the proposed solution\n| \n|    sudo apt-get install openjdk-7-*\n| \n| which installs 690 MB (!) of stuff (not counting the \"basic openjdk-7\"\n| installed previously)...\n| ...\n| and indeed solves the problem  {i.e.  'R CMD javareconf'  then succeeds}.\n| \n| ---\n| Summary: I think  r-cran-rjava  needs the full (or at least more than now of)\n| 'openjdk-7-*' in its (debian) dependencies.\n\n\"Maybe. Maybe not.\"\n\nThe _binary_ package r-cran-rjava builds with the virtual package\n'default-jdk':  [ lines indented and formatted ]\n\n  edd at max:~$ grep Build-Depends src/debian/CRAN/rJava-0.9-4/debian/control \n  Build-Depends: debhelper (>= 7.0.0), r-base-dev (>= 3.0.0~20130324), cdbs, \\\n  automake, default-jdk [!arm !hppa !kfreebsd-i386 !kfreebsd-amd64 !hurd-i386 !mips]\n  edd at max:~$ \n\nSo in Debian unstable, testing, ... this seems works as the package builds\nand loads.  From the build log I keep:\n\n  The following NEW packages will be installed:\n    autoconf{a} automake{a} autotools-dev{a} ca-certificates{a} \n    [...]\n    libxml2{a} libxrandr2{a} libxtst6{a} m4{a} man-db{a} openjdk-6-jdk{a} \n    openjdk-6-jre{a} openjdk-6-jre-headless{a} openjdk-6-jre-lib{a} \n    openssl{a} po-debconf{a} shared-mime-info{a} tzdata-java{a} \n  0 packages upgraded, 82 newly installed, 0 to remove and 0 not upgraded.\n\nI can see that on Debian openjdk-6-* works.  That makes the packaging\nconsistent with the distro / OS.\n\nWhy Ubuntu needs openjdk-7 I do not know. It is not entirely satisfactory but\nI do not have a better answer.\n\nDirk\n\n-- \nDirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com",
+      "body_snippet": "Martin,\n\nOn 15 June 2013 at 11:47, Martin Maechler wrote:\n| I am really no java lover, but for some reason had interested to look\n| at an R package that depends on  rJava...\n| and when I tried, I was ",
+      "thread_id": "thread-883f6bdfa8f6",
+      "thread_depth": 1,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-c381ff4f4c01",
+      "message_id": "<51BC786D.303@psu.edu>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "bd1396b991d78727494403026cbf79f8837f468d360f36623deeff192b510eb4",
+      "date": "2013-06-15T10:21:33-04:00",
+      "subject": "[R-sig-Debian] r-cran-rjava (ubuntu 13.04 ?) -- missing dependencies?",
+      "subject_clean": "r-cran-rjava (ubuntu 13.04 ?) -- missing dependencies?",
+      "in_reply_to": "<20924.22073.957160.777837@max.nulle.part>",
+      "references": [
+        "<CAPRP4-c=V8HGoAmACohLHj3BvFkMox+NqyB-8y-zbYbS06-zzQ@mail.gmail.com>",
+        "<20924.22073.957160.777837@max.nulle.part>"
+      ],
+      "body_plain": "On 06/15/2013 07:55 AM, Dirk Eddelbuettel wrote:\n>\n> Martin,\n>\n> On 15 June 2013 at 11:47, Martin Maechler wrote:\n> | I am really no java lover, but for some reason had interested to look\n> | at an R package that depends on  rJava...\n> | and when I tried, I was *again* (it is my usual experience for more\n> | than 10 years)\n> | unable to get rJava installed,\n> | as indeed, also   'R CMD javareconf'  ended  in an error that  jni.h\n> | was not found.\n> |\n> | I see the issue here,\n> | http://stackoverflow.com/questions/16438073/unable-to-install-rjava-in-r-3-0-in-ubuntu-13-04\n> |\n> | including the proposed solution\n> |\n> |    sudo apt-get install openjdk-7-*\n> |\n> | which installs 690 MB (!) of stuff (not counting the \"basic openjdk-7\"\n> | installed previously)...\n> | ...\n> | and indeed solves the problem  {i.e.  'R CMD javareconf'  then succeeds}.\n> |\n> | ---\n> | Summary: I think  r-cran-rjava  needs the full (or at least more than now of)\n> | 'openjdk-7-*' in its (debian) dependencies.\n>\n> \"Maybe. Maybe not.\"\n>\n> The _binary_ package r-cran-rjava builds with the virtual package\n> 'default-jdk':  [ lines indented and formatted ]\n>\n>    edd at max:~$ grep Build-Depends src/debian/CRAN/rJava-0.9-4/debian/control\n>    Build-Depends: debhelper (>= 7.0.0), r-base-dev (>= 3.0.0~20130324), cdbs, \\\n>    automake, default-jdk [!arm !hppa !kfreebsd-i386 !kfreebsd-amd64 !hurd-i386 !mips]\n>    edd at max:~$\n>\n> So in Debian unstable, testing, ... this seems works as the package builds\n> and loads.  From the build log I keep:\n>\n>    The following NEW packages will be installed:\n>      autoconf{a} automake{a} autotools-dev{a} ca-certificates{a}\n>      [...]\n>      libxml2{a} libxrandr2{a} libxtst6{a} m4{a} man-db{a} openjdk-6-jdk{a}\n>      openjdk-6-jre{a} openjdk-6-jre-headless{a} openjdk-6-jre-lib{a}\n>      openssl{a} po-debconf{a} shared-mime-info{a} tzdata-java{a}\n>    0 packages upgraded, 82 newly installed, 0 to remove and 0 not upgraded.\n>\n> I can see that on Debian openjdk-6-* works.  That makes the packaging\n> consistent with the distro / OS.\n>\n> Why Ubuntu needs openjdk-7 I do not know. It is not entirely satisfactory but\n> I do not have a better answer.\n>\n> Dirk\n\nThought I had this issue licked on the Ubuntu side of things, but it \nappears I did not.  Regardless, I have played around with the install \ndepends and I THINK things are now working.  I was able to install rJava \nand run it from within R on fresh (virtual) install of Ubuntu 13.04. \nThose rJava packages are available on my RRutter PPA.  If it continues \nto fail to work, please let me know.\n\nWould also like to point out that the r-cran-rjava package available in \nthe Ubuntu repositories is not compatible with R 3.0.1.  You must use \nthe package from RRutter PPA.\n\nMichael\n\n\n\n-- \nDr. Michael A. Rutter\nSchool of Science\nPenn State Erie, The Behrend College\n4205 College Drive\nErie, PA 16563\nhttp://math.bd.psu.edu/faculty/rutter\nmar36 at psu.edu",
+      "body_snippet": "On 06/15/2013 07:55 AM, Dirk Eddelbuettel wrote:\n>\n> Martin,\n>\n> On 15 June 2013 at 11:47, Martin Maechler wrote:\n> | I am really no java lover, but for some reason had interested to look\n> | at an R ",
+      "thread_id": "thread-883f6bdfa8f6",
+      "thread_depth": 2,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-0e52339701c2",
+      "message_id": "<CACmKiDwsj9tXU9tK6uoRqFTjgje=TNWFqD_ROj52qWJchtz=0Q@mail.gmail.com>",
+      "from_name": "John Blischak",
+      "from_email_hash": "794b48bc684418417fff8b0d685f16365df0aadcf0c917bf8fecacf034fcd821",
+      "date": "2013-06-15T13:18:47-05:00",
+      "subject": "[R-sig-Debian] Cannot install XML package with R 3.0 and Ubuntu 12.04",
+      "subject_clean": "Cannot install XML package with R 3.0 and Ubuntu 12.04",
+      "in_reply_to": "<20924.21631.764701.502156@max.nulle.part>",
+      "references": [
+        "<CACmKiDxSvzg9+yCZ9NV5jFaYS1=5KcrM_oKtxVJLzsMzh8gcnQ@mail.gmail.com>",
+        "<20924.21631.764701.502156@max.nulle.part>"
+      ],
+      "body_plain": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130615/02e19bd0/attachment.pl>",
+      "body_snippet": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130615/02e19bd0/attachment.pl>",
+      "thread_id": "thread-9df7b7f4611c",
+      "thread_depth": 2,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-cc75ef46f717",
+      "message_id": "<20924.48112.255850.441413@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2013-06-15T14:09:36-05:00",
+      "subject": "[R-sig-Debian] Cannot install XML package with R 3.0 and Ubuntu 12.04",
+      "subject_clean": "Cannot install XML package with R 3.0 and Ubuntu 12.04",
+      "in_reply_to": "<CACmKiDwsj9tXU9tK6uoRqFTjgje=TNWFqD_ROj52qWJchtz=0Q@mail.gmail.com>",
+      "references": [
+        "<CACmKiDxSvzg9+yCZ9NV5jFaYS1=5KcrM_oKtxVJLzsMzh8gcnQ@mail.gmail.com>",
+        "<20924.21631.764701.502156@max.nulle.part>",
+        "<CACmKiDwsj9tXU9tK6uoRqFTjgje=TNWFqD_ROj52qWJchtz=0Q@mail.gmail.com>"
+      ],
+      "body_plain": "Hi John, \n\nOn 15 June 2013 at 13:18, John Blischak wrote:\n|     | I am unable to install the R package XML using R 3.0.1 on Ubuntu 12.04\n|     LTS\n|     | (64-bit). After the installation failed using install.packages, I\n|     followed\n| \n|     You did not detail this sufficiently, but installation from _source_\n|     presumably failed because you did not have all the build-dependencies.\n| \n|     In this case where are pre-build _binary_ exists, you can use the\n|     metainformation for the _binary_ package to build the _source_ package:\n| \n|     ? ? sudo apt-get build-dep r-cran-xml\n| \n| \n| I apologize for not providing sufficient details. I am new to Ubuntu. Could you\n| please elaborate on how I could have obtained the information on the\n| build-dependencies that would have been helpful for diagnosing the problem??\n\nYou didn't copy and paste your build errors.  Typically, these show\n'configure' failing to find a header file, say, xml.h, which, once you know,\ngives away the issue.   At that point you can often infer that\n\n      if foo.h is missing\n\n      and libfoo is installed\n\n      you may need libfoo-dev to provide the header\n\nThis mostly holds, but it sometimes obscured by adding major release numbers\nto libraries etc.\n\nThe 'getting Ubuntu to give you build-deps' trick is both a bit more advanced\nand particular to the situation where a binary (here: r-cran-xml) exists (but\nwas unuseable for the R 2.15.* vs R 3.0.* issue).\n\n| This was exactly the issue. Michael added the XML package to his PPA and then I\n| was able to install it with sudo apt-get install r-cran-xml.\n\nYep.  These repos are usually pretty reliable.\n\nDirk\n\n-- \nDirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com",
+      "body_snippet": "Hi John, \n\nOn 15 June 2013 at 13:18, John Blischak wrote:\n|     | I am unable to install the R package XML using R 3.0.1 on Ubuntu 12.04\n|     LTS\n|     | (64-bit). After the installation failed using",
+      "thread_id": "thread-9df7b7f4611c",
+      "thread_depth": 3,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-b93b9d5809a5",
+      "message_id": "<CACmKiDxajfE57mvGwO9mCUjcRXGo+YmQU4K2fDQnAAGk5USktA@mail.gmail.com>",
+      "from_name": "John Blischak",
+      "from_email_hash": "794b48bc684418417fff8b0d685f16365df0aadcf0c917bf8fecacf034fcd821",
+      "date": "2013-06-15T14:12:11-05:00",
+      "subject": "[R-sig-Debian] Cannot install XML package with R 3.0 and Ubuntu 12.04",
+      "subject_clean": "Cannot install XML package with R 3.0 and Ubuntu 12.04",
+      "in_reply_to": "<20924.48112.255850.441413@max.nulle.part>",
+      "references": [
+        "<CACmKiDxSvzg9+yCZ9NV5jFaYS1=5KcrM_oKtxVJLzsMzh8gcnQ@mail.gmail.com>",
+        "<20924.21631.764701.502156@max.nulle.part>",
+        "<CACmKiDwsj9tXU9tK6uoRqFTjgje=TNWFqD_ROj52qWJchtz=0Q@mail.gmail.com>",
+        "<20924.48112.255850.441413@max.nulle.part>"
+      ],
+      "body_plain": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130615/a44d539b/attachment.pl>",
+      "body_snippet": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130615/a44d539b/attachment.pl>",
+      "thread_id": "thread-9df7b7f4611c",
+      "thread_depth": 4,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-b04892827e2e",
+      "message_id": "<1372013649.37800.YahooMailNeo@web164506.mail.gq1.yahoo.com>",
+      "from_name": "Martin Gilchrist",
+      "from_email_hash": "0538ed029bd0bb72a6ade1a8d79aafdd606fec3a85ec75c210d5c0f74507c2a6",
+      "date": "2013-06-23T11:54:09-07:00",
+      "subject": "[R-sig-Debian] Ubuntu 12.04 and R 2.15",
+      "subject_clean": "Ubuntu 12.04 and R 2.15",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130623/1871bf02/attachment.pl>",
+      "body_snippet": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130623/1871bf02/attachment.pl>",
+      "thread_id": "thread-b04892827e2e",
+      "thread_depth": 0,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-dee6c68af979",
+      "message_id": "<20935.18504.745299.695329@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2013-06-23T14:11:04-05:00",
+      "subject": "[R-sig-Debian] Ubuntu 12.04 and R 2.15",
+      "subject_clean": "Ubuntu 12.04 and R 2.15",
+      "in_reply_to": "<1372013649.37800.YahooMailNeo@web164506.mail.gq1.yahoo.com>",
+      "references": [
+        "<1372013649.37800.YahooMailNeo@web164506.mail.gq1.yahoo.com>"
+      ],
+      "body_plain": "On 23 June 2013 at 11:54, Martin Gilchrist wrote:\n| I'm not sure this is the location to pose this question.? If not, please let me know.\n\nSure is\n\n| Does anyone know if R 2.15 is can be built for Ubuntu 12.04??( I did attempt a build and it failed to configure due to missing X11 headers/libs. )\n| ?\n| I'm trying to install some R packages that are not available for R 2.14, which is the last supported version available?under Ubuntu 12.04.?? I can update Ubuntu to 12.10 where R 2.15 is available, but Ubuntu 12.04 has been designated to have long term support and I'd like to keep it rather than upgrade to a shorter lifespan version.\n\nPrebuild binaries exist for your convenience. Read the README at\n\n   http://cran.r-project.org/bin/linux/ubuntu/\n\ncarefully.  By default, you will get the newest R version, ie 3.0.1, for your\nchosen distribution -- which can be Ubuntu 12.04 -- but you can also pick an\nolder release by hand if you prefer.\n\nHth, Dirk\n\n-- \nDirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com",
+      "body_snippet": "On 23 June 2013 at 11:54, Martin Gilchrist wrote:\n| I'm not sure this is the location to pose this question.? If not, please let me know.\n\nSure is\n\n| Does anyone know if R 2.15 is can be built for Ubu",
+      "thread_id": "thread-b04892827e2e",
+      "thread_depth": 1,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-1b0c26bd1700",
+      "message_id": "<CAPr7RtXkLwgivedWerY1fQiomURXGRgs501SkJ239Nccz3s9ig@mail.gmail.com>",
+      "from_name": "ivo welch",
+      "from_email_hash": "ef4c39378c57218619b828a80ce244784dd00a6d480a77cf22d23707af2a968f",
+      "date": "2013-06-23T16:14:24-07:00",
+      "subject": "[R-sig-Debian] stock ubuntu raring binary R 3.0.1 and accelerated blas libraries?",
+      "subject_clean": "stock ubuntu raring binary R 3.0.1 and accelerated blas libraries?",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130623/977edd10/attachment.pl>",
+      "body_snippet": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130623/977edd10/attachment.pl>",
+      "thread_id": "thread-1b0c26bd1700",
+      "thread_depth": 0,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-19353897457b",
+      "message_id": "<20935.37219.200384.636798@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2013-06-23T19:22:59-05:00",
+      "subject": "[R-sig-Debian] stock ubuntu raring binary R 3.0.1 and accelerated\tblas libraries?",
+      "subject_clean": "stock ubuntu raring binary R 3.0.1 and accelerated\tblas libraries?",
+      "in_reply_to": "<CAPr7RtXkLwgivedWerY1fQiomURXGRgs501SkJ239Nccz3s9ig@mail.gmail.com>",
+      "references": [
+        "<CAPr7RtXkLwgivedWerY1fQiomURXGRgs501SkJ239Nccz3s9ig@mail.gmail.com>"
+      ],
+      "body_plain": "On 23 June 2013 at 16:14, ivo welch wrote:\n| dear debian-R group:\n| \n| I am using the stock ubuntu binary R 3.0.1 for ubuntu raring but on\n| cinnamon mint olivia 15.\n| \n| I read dirk's gcbd paper from a couple of years ago.  it suggests that\n| stock blas is pretty bad compared to the four main alternatives.   of\n| course, dirk also maintains the binaries for debian/ubuntu R, so he\n| probably knows the answer off hand.\n| \n| I installed libatlas3-base (3.8.4-9ubuntu1)  from the software\n| repositories.  ldd tells me that this is not enough ( ldd\n| /usr/lib/R/bin/exec/R | grep -i atlas).  \n\nIf 'mint' follows what we do on Debian and Ubuntu then you would not see it\nthere directly. On my Ubuntu 13.04 box:\n\nedd at max:~$ ldd /usr/lib/R/bin/exec/R \n        linux-vdso.so.1 =>  (0x00007fffa4fff000)\n        libR.so => /usr/lib/libR.so (0x00007f109c698000)\n        libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f109c47b000)\n        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f109c0b2000)\n        libblas.so.3 => /usr/lib/libblas.so.3 (0x00007f109a6e1000)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f109a3dc000)\n        libreadline.so.6 => /lib/x86_64-linux-gnu/libreadline.so.6 (0x00007f109a199000)\n        libpcre.so.3 => /lib/x86_64-linux-gnu/libpcre.so.3 (0x00007f1099f5a000)\n        liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007f1099d38000)\n        libbz2.so.1.0 => /lib/x86_64-linux-gnu/libbz2.so.1.0 (0x00007f1099b27000)\n        libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f1099910000)\n        librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f1099708000)\n        libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f1099503000)\n        libgomp.so.1 => /usr/lib/x86_64-linux-gnu/libgomp.so.1 (0x00007f10992f4000)\n        /lib64/ld-linux-x86-64.so.2 (0x00007f109cbd0000)\n        libtinfo.so.5 => /lib/x86_64-linux-gnu/libtinfo.so.5 (0x00007f10990cb000)\nedd at max:~$ ls -l /usr/lib/libblas.so.3 /etc/alternatives/libblas.so.3\nlrwxrwxrwx 1 root root 39 Dec  9  2012 /etc/alternatives/libblas.so.3 -> /usr/lib/openblas-base/libopenblas.so.0\nlrwxrwxrwx 1 root root 30 Dec  9  2012 /usr/lib/libblas.so.3 -> /etc/alternatives/libblas.so.3\nedd at max:~$ \n\nYou have to follow the link.  The more relevant file to ldd is this one:\nedd at max:~$ ldd /usr/lib/R/modules/lapack.so \n        linux-vdso.so.1 =>  (0x00007fff3adff000)\n        libR.so => /usr/lib/libR.so (0x00007f087d98d000)\n        liblapack.so.3 => /usr/lib/liblapack.so.3 (0x00007f087cc94000)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f087c98e000)\n        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f087c5c6000)\n        libblas.so.3 => /usr/lib/libblas.so.3 (0x00007f087abf5000)\n        libreadline.so.6 => /lib/x86_64-linux-gnu/libreadline.so.6 (0x00007f087a9b2000)\n        libpcre.so.3 => /lib/x86_64-linux-gnu/libpcre.so.3 (0x00007f087a773000)\n        liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007f087a551000)\n        libbz2.so.1.0 => /lib/x86_64-linux-gnu/libbz2.so.1.0 (0x00007f087a340000)\n        libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f087a129000)\n        librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f0879f21000)\n        libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f0879d1c000)\n        libgomp.so.1 => /usr/lib/x86_64-linux-gnu/libgomp.so.1 (0x00007f0879b0d000)\n        libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f08798f0000)\n        /lib64/ld-linux-x86-64.so.2 (0x00007f087e0cf000)\n        libgfortran.so.3 => /usr/lib/x86_64-linux-gnu/libgfortran.so.3 (0x00007f08795db000)\n        libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f08793c5000)\n        libtinfo.so.5 => /lib/x86_64-linux-gnu/libtinfo.so.5 (0x00007f087919d000)\n        libquadmath.so.0 => /usr/lib/x86_64-linux-gnu/libquadmath.so.0 (0x00007f0878f67000)\nedd at max:~$ ls -l /usr/lib/liblapack.so.3 /etc/alternatives/liblapack.so.3\nlrwxrwxrwx 1 root root 30 Dec  9  2012 /etc/alternatives/liblapack.so.3 -> /usr/lib/lapack/liblapack.so.3\nlrwxrwxrwx 1 root root 32 Dec  9  2012 /usr/lib/liblapack.so.3 -> /etc/alternatives/liblapack.so.3\nedd at max:~$ \n\nAs you can see, I (currently) use OpenBLAS which is multithreaded, rather\nthan Atlas.\n\n| libatlas use is not determined at\n| compile time.  \n\nAbsolutely not as my gbcd paper explains. Or tries to explain, seemingly not\nsuccessfully enough (hey, it is a draft).\n\n| I also redownloaded the 'r-base' binary to check whether it\n| is determined at download time.  this did not make R use atlas, either.\n| \n| so, I wanted to confirm what I think it is: one needs to source compile R\n| to take advantage of the atlas (or any other accelerated) blas library.\n| correct?\n\nAbsolutely not as my gbcd paper explain.\n\nIt is a run-time decision following a standard binary interface allowing the\nvery 'plug and play' comparison that is the whole point behind the gcbd paper.\n \n| (would it make sense to bundle the R binary distribution with atlas?  disk\n| space is no longer an issue nowadays, and this would probably make life\n| better for many users.)\n\nNot for this reason.  Wrong assumptions lead you to the wrong conclusion.\n\nDirk\n \n| regards,\n| \n| /iaw\n| ----\n| Ivo Welch (ivo.welch at gmail.com)\n| ----\n| \n| \t[[alternative HTML version deleted]]\n| \n| _______________________________________________\n| R-SIG-Debian mailing list\n| R-SIG-Debian at r-project.org\n| https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \nDirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com",
+      "body_snippet": "On 23 June 2013 at 16:14, ivo welch wrote:\n| dear debian-R group:\n| \n| I am using the stock ubuntu binary R 3.0.1 for ubuntu raring but on\n| cinnamon mint olivia 15.\n| \n| I read dirk's gcbd paper from",
+      "thread_id": "thread-1b0c26bd1700",
+      "thread_depth": 1,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-9e1a32e15506",
+      "message_id": "<CAPr7RtXdmzN-d4YG0oafb2O1amxWsT5wJ1eCvGpRXb5AEAjK9Q@mail.gmail.com>",
+      "from_name": "ivo welch",
+      "from_email_hash": "09cb47d73175b39b0ee224a462f1599c74f08fe8813c88a79668738d4836df34",
+      "date": "2013-06-23T18:47:53-07:00",
+      "subject": "[R-sig-Debian] stock ubuntu raring binary R 3.0.1 and accelerated blas libraries?",
+      "subject_clean": "stock ubuntu raring binary R 3.0.1 and accelerated blas libraries?",
+      "in_reply_to": "<20935.37219.200384.636798@max.nulle.part>",
+      "references": [
+        "<CAPr7RtXkLwgivedWerY1fQiomURXGRgs501SkJ239Nccz3s9ig@mail.gmail.com>",
+        "<20935.37219.200384.636798@max.nulle.part>"
+      ],
+      "body_plain": "thank you, dirk.  this was a very good explanation--and thank you for\nhaving made the binaries available to us.  mint is based on ubuntu and\nshares its repositories.  it's really the same basic OS, just an\nold-stylish desktop GUI.  to summarize the most critical part of your\nresponse for the google search, the way to check whether atlas is\ninstalled (short of just benchmarking it and seeing the speed up) were\nyour lines\n\n$ ls -l /usr/lib/libblas.so.3 /etc/alternatives/libblas.so.3\nlrwxrwxrwx 1 root 38 Jun 23 18:08 /etc/alternatives/libblas.so.3 ->\n/usr/lib/atlas-base/atlas/libblas.so.3\nlrwxrwxrwx 1 root 30 May 24 10:23 /usr/lib/libblas.so.3 ->\n/etc/alternatives/libblas.so.3\n\nand the first line indeed shows that I am now using libatlas.  grin.\nelegant mechanism, actually, but a little obscure when one does not\nknow it.\n\nthe speedup for me is spectacular.  on simon urbanek's R-benchmark-25,\nmy time goes from 30.3 sec to 9.6 sec on an i7-2660k.  and watching my\nCPU usage with top, this seems to be the single-threaded version of\natlas, too.\n\nis it possible and/or would it make sense to add libatlas as a\ndependency for r-base in the ubuntu .deb package, so that it is\nautomatically installed, too?  novices won't realize how they can\nspeed up R so easily, and experts can easily override it with their\nown choice library.  libatlas can be assumed to be in the ubuntu\nrepository.  would there be a serious drawback that I am not\nrealizing?  this is of course for the general public's sake--I now\nknow how to do this and check this.\n\nregards,\n\n/iaw\n\n----\nIvo Welch (ivo.welch at gmail.com)",
+      "body_snippet": "thank you, dirk.  this was a very good explanation--and thank you for\nhaving made the binaries available to us.  mint is based on ubuntu and\nshares its repositories.  it's really the same basic OS, ju",
+      "thread_id": "thread-1b0c26bd1700",
+      "thread_depth": 2,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-7357d1091c72",
+      "message_id": "<20935.43934.448853.269342@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2013-06-23T21:14:54-05:00",
+      "subject": "[R-sig-Debian] stock ubuntu raring binary R 3.0.1 and accelerated blas libraries?",
+      "subject_clean": "stock ubuntu raring binary R 3.0.1 and accelerated blas libraries?",
+      "in_reply_to": "<CAPr7RtXdmzN-d4YG0oafb2O1amxWsT5wJ1eCvGpRXb5AEAjK9Q@mail.gmail.com>",
+      "references": [
+        "<CAPr7RtXkLwgivedWerY1fQiomURXGRgs501SkJ239Nccz3s9ig@mail.gmail.com>",
+        "<20935.37219.200384.636798@max.nulle.part>",
+        "<CAPr7RtXdmzN-d4YG0oafb2O1amxWsT5wJ1eCvGpRXb5AEAjK9Q@mail.gmail.com>"
+      ],
+      "body_plain": "On 23 June 2013 at 18:47, ivo welch wrote:\n| thank you, dirk.  this was a very good explanation--and thank you for\n| having made the binaries available to us.  mint is based on ubuntu and\n| shares its repositories.  it's really the same basic OS, just an\n| old-stylish desktop GUI.  to summarize the most critical part of your\n\nWhtever floats your boat.  You can install several different desktop\nframeworks at once on stock Ubuntu or Debian -- even my old and tiny netbook\nhas Ubuntu Unity, Kubuntu (KDE), stock Ubuntu Gnome, Lubuntu (LXDE), Xubuntu\n(XFCE) and Cinnamon just for comparison.  Not unlike BLAS libraries ....\n\n| response for the google search, the way to check whether atlas is\n| installed (short of just benchmarking it and seeing the speed up) were\n| your lines\n| \n| $ ls -l /usr/lib/libblas.so.3 /etc/alternatives/libblas.so.3\n| lrwxrwxrwx 1 root 38 Jun 23 18:08 /etc/alternatives/libblas.so.3 ->\n| /usr/lib/atlas-base/atlas/libblas.so.3\n| lrwxrwxrwx 1 root 30 May 24 10:23 /usr/lib/libblas.so.3 ->\n| /etc/alternatives/libblas.so.3\n| \n| and the first line indeed shows that I am now using libatlas.  grin.\n| elegant mechanism, actually, but a little obscure when one does not\n| know it.\n| \n| the speedup for me is spectacular.  on simon urbanek's R-benchmark-25,\n| my time goes from 30.3 sec to 9.6 sec on an i7-2660k.  and watching my\n| CPU usage with top, this seems to be the single-threaded version of\n| atlas, too.\n| \n| is it possible and/or would it make sense to add libatlas as a\n| dependency for r-base in the ubuntu .deb package, so that it is\n| automatically installed, too?  novices won't realize how they can\n\nDid you even look at, say, 'apt-cache show r-base-core | grep Depends:' ?\n\nI seem to have anticipated this very good suggestion a good nine years ago in\n2004, see /usr/share/doc/r-base-core/changelog.Debian.gz :\n\n[...]\n\n  \n  * debian/control: Changed Build-Depends from 'blas-dev (>=1.0-9),lapack-dev'\n     to 'refblas3-dev | atlas3-base-dev, lapack3-dev | atlas3-base-dev'\n  * debian/control: Dito for Depends: for r-base-dev \n  * debian/rules: Set configure arguments for refblas3/atlas3 and \n    lapack3/atlas3, respectively, instead of blas/atlas v2.\n\n -- Dirk Eddelbuettel <edd at debian.org>  Sun, 29 Feb 2004 16:55:55 -0600\n\n[...]\n\nThere are few more entries related to atlas there.\n\nDirk\n\n\n| speed up R so easily, and experts can easily override it with their\n| own choice library.  libatlas can be assumed to be in the ubuntu\n| repository.  would there be a serious drawback that I am not\n| realizing?  this is of course for the general public's sake--I now\n| know how to do this and check this.\n| \n| regards,\n| \n| /iaw\n| \n| ----\n| Ivo Welch (ivo.welch at gmail.com)\n\n-- \nDirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com\n\n\n\n\n-- \nDirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com",
+      "body_snippet": "On 23 June 2013 at 18:47, ivo welch wrote:\n| thank you, dirk.  this was a very good explanation--and thank you for\n| having made the binaries available to us.  mint is based on ubuntu and\n| shares its",
+      "thread_id": "thread-1b0c26bd1700",
+      "thread_depth": 3,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-8cc72128a7a1",
+      "message_id": "<CAPr7RtX56ReU+sZ4fQtGPO_4qArzt7xD2H3bU4twtO1suE_COQ@mail.gmail.com>",
+      "from_name": "ivo welch",
+      "from_email_hash": "09cb47d73175b39b0ee224a462f1599c74f08fe8813c88a79668738d4836df34",
+      "date": "2013-06-23T20:00:38-07:00",
+      "subject": "[R-sig-Debian] stock ubuntu raring binary R 3.0.1 and accelerated blas libraries?",
+      "subject_clean": "stock ubuntu raring binary R 3.0.1 and accelerated blas libraries?",
+      "in_reply_to": "<20935.43934.448853.269342@max.nulle.part>",
+      "references": [
+        "<CAPr7RtXkLwgivedWerY1fQiomURXGRgs501SkJ239Nccz3s9ig@mail.gmail.com>",
+        "<20935.37219.200384.636798@max.nulle.part>",
+        "<CAPr7RtXdmzN-d4YG0oafb2O1amxWsT5wJ1eCvGpRXb5AEAjK9Q@mail.gmail.com>",
+        "<20935.43934.448853.269342@max.nulle.part>"
+      ],
+      "body_plain": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130623/bf134e56/attachment.pl>",
+      "body_snippet": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130623/bf134e56/attachment.pl>",
+      "thread_id": "thread-1b0c26bd1700",
+      "thread_depth": 4,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-42f3fc323349",
+      "message_id": "<20935.47308.742940.803157@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2013-06-23T22:11:08-05:00",
+      "subject": "[R-sig-Debian] stock ubuntu raring binary R 3.0.1 and accelerated blas libraries?",
+      "subject_clean": "stock ubuntu raring binary R 3.0.1 and accelerated blas libraries?",
+      "in_reply_to": "<CAPr7RtX56ReU+sZ4fQtGPO_4qArzt7xD2H3bU4twtO1suE_COQ@mail.gmail.com>",
+      "references": [
+        "<CAPr7RtXkLwgivedWerY1fQiomURXGRgs501SkJ239Nccz3s9ig@mail.gmail.com>",
+        "<20935.37219.200384.636798@max.nulle.part>",
+        "<CAPr7RtXdmzN-d4YG0oafb2O1amxWsT5wJ1eCvGpRXb5AEAjK9Q@mail.gmail.com>",
+        "<20935.43934.448853.269342@max.nulle.part>",
+        "<CAPr7RtX56ReU+sZ4fQtGPO_4qArzt7xD2H3bU4twtO1suE_COQ@mail.gmail.com>"
+      ],
+      "body_plain": "On 23 June 2013 at 20:00, ivo welch wrote:\n| \n| hmm...that's interesting. ?I wonder why atlas did not automatically install on\n| my linux systems then...it did require the manual atlas install for me. ?\n| however incompetent I am here, the average user is probably even more so.\n\nIt is a suggested option, but with a lower priority than the default\nreference blas.  And it's been like that for over a decade.\n\nDirk\n\n-- \nDirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com",
+      "body_snippet": "On 23 June 2013 at 20:00, ivo welch wrote:\n| \n| hmm...that's interesting. ?I wonder why atlas did not automatically install on\n| my linux systems then...it did require the manual atlas install for me.",
+      "thread_id": "thread-1b0c26bd1700",
+      "thread_depth": 5,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-d6f79c9f13c6",
+      "message_id": "<CAPr7RtUN_z_QDc-TFHOtMwsXqajpr7TzA9iJq4mr2HMrZGkR6g@mail.gmail.com>",
+      "from_name": "ivo welch",
+      "from_email_hash": "09cb47d73175b39b0ee224a462f1599c74f08fe8813c88a79668738d4836df34",
+      "date": "2013-06-23T20:34:09-07:00",
+      "subject": "[R-sig-Debian] stock ubuntu raring binary R 3.0.1 and accelerated blas libraries?",
+      "subject_clean": "stock ubuntu raring binary R 3.0.1 and accelerated blas libraries?",
+      "in_reply_to": "<20935.47308.742940.803157@max.nulle.part>",
+      "references": [
+        "<CAPr7RtXkLwgivedWerY1fQiomURXGRgs501SkJ239Nccz3s9ig@mail.gmail.com>",
+        "<20935.37219.200384.636798@max.nulle.part>",
+        "<CAPr7RtXdmzN-d4YG0oafb2O1amxWsT5wJ1eCvGpRXb5AEAjK9Q@mail.gmail.com>",
+        "<20935.43934.448853.269342@max.nulle.part>",
+        "<CAPr7RtX56ReU+sZ4fQtGPO_4qArzt7xD2H3bU4twtO1suE_COQ@mail.gmail.com>",
+        "<20935.47308.742940.803157@max.nulle.part>"
+      ],
+      "body_plain": "ok, then let me rephrase: would it make sense to make atlas a higher\npriority than default blas, even if it has been like this for over a\ndecade?  having atlas as a depend that is overridden is pretty close\nto not having a depend on atlas, at all.\n\n/iaw\n\nOn Sun, Jun 23, 2013 at 8:11 PM, Dirk Eddelbuettel <edd at debian.org> wrote:\n>\n> It is a suggested option, but with a lower priority than the default\n> reference blas.  And it's been like that for over a decade.\n>\n> Dirk\n>\n> --\n> Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com",
+      "body_snippet": "ok, then let me rephrase: would it make sense to make atlas a higher\npriority than default blas, even if it has been like this for over a\ndecade?  having atlas as a depend that is overridden is pretty",
+      "thread_id": "thread-1b0c26bd1700",
+      "thread_depth": 6,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-6775374141a9",
+      "message_id": "<1372045482.46441.YahooMailNeo@web164503.mail.gq1.yahoo.com>",
+      "from_name": "Martin Gilchrist",
+      "from_email_hash": "0538ed029bd0bb72a6ade1a8d79aafdd606fec3a85ec75c210d5c0f74507c2a6",
+      "date": "2013-06-23T20:44:42-07:00",
+      "subject": "[R-sig-Debian] Ubuntu 12.04 and R 2.15",
+      "subject_clean": "Ubuntu 12.04 and R 2.15",
+      "in_reply_to": "<1372013649.37800.YahooMailNeo@web164506.mail.gq1.yahoo.com>",
+      "references": [
+        "<1372013649.37800.YahooMailNeo@web164506.mail.gq1.yahoo.com>"
+      ],
+      "body_plain": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130623/d29d368f/attachment.pl>",
+      "body_snippet": "An embedded and charset-unspecified text was scrubbed...\nName: not available\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130623/d29d368f/attachment.pl>",
+      "thread_id": "thread-b04892827e2e",
+      "thread_depth": 1,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-39946f40aa09",
+      "message_id": "<148CC9C144D99741A1B3DB0D4B15E7383987E770@vEXMB1.clarion.local>",
+      "from_name": "Matthew Brigida",
+      "from_email_hash": "41ad4e3f41f58ec0ac3ec0940c4a6d99cbdcfe025313c136f97e2528f8ed9f4f",
+      "date": "2013-06-24T04:57:30Z",
+      "subject": "[R-sig-Debian] Ubuntu 12.04 and R 2.15",
+      "subject_clean": "Ubuntu 12.04 and R 2.15",
+      "in_reply_to": "<1372045482.46441.YahooMailNeo@web164503.mail.gq1.yahoo.com>",
+      "references": [
+        "<1372013649.37800.YahooMailNeo@web164506.mail.gq1.yahoo.com>",
+        "<1372045482.46441.YahooMailNeo@web164503.mail.gq1.yahoo.com>"
+      ],
+      "body_plain": "As Dirk mentioned by default you should get the latest version of R.  To see add (inserting your mirror):\n\ndeb http://<my.favorite.cran.mirror>/bin/linux/ubuntu precise/\n\nto your /etc/apt/sources.list [don't forge the last 's' in sources] and then\n\n$ sudo apt-get update\n\nThen you can see what version you would install (without actually installing anything) by:\n\n$ apt-get --simulate install r-base\n\n\nMatt \n\n--\nMatthew Brigida\nwww.complete-markets.com\n\n________________________________________\nFrom: r-sig-debian-bounces at r-project.org [r-sig-debian-bounces at r-project.org] on behalf of Martin Gilchrist [gilchrist.martin at yahoo.com]\nSent: Sunday, June 23, 2013 11:44 PM\nTo: r-sig-debian at r-project.org\nSubject: Re: [R-sig-Debian] Ubuntu 12.04 and R 2.15\n\nHi again.  Thanks for the reply.\n\nWhat controls the version of R that I get?\n\nI took a look at the link and it looks like the only thing I have control over is the version of Ubuntu placed in the /etc/apt/source.list  file.\n\nSo does putting quantal in the source.list file force\n\napt-get install r-base r-dev-base\n\nto update R to the version of R related to quantal?\n\nMartin.\n\nBy",
+      "body_snippet": "As Dirk mentioned by default you should get the latest version of R.  To see add (inserting your mirror):\n\ndeb http://<my.favorite.cran.mirror>/bin/linux/ubuntu precise/\n\nto your /etc/apt/sources.list",
+      "thread_id": "thread-b04892827e2e",
+      "thread_depth": 2,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-1d2d7590fe90",
+      "message_id": "<CABrM6w=yNX=Sn47V3hTj+NKFgm-HXBTT12=NcTv+cSqVAwgmAA@mail.gmail.com>",
+      "from_name": "Peng Yu",
+      "from_email_hash": "d29f557843a3d576b0a96b109314cde0fa009dee58320ee3fd9cf16217710518",
+      "date": "2013-06-24T05:03:23-05:00",
+      "subject": "[R-sig-Debian] Where are the package for oneiric",
+      "subject_clean": "Where are the package for oneiric",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi,\n\noneiric was available before. But it disappears now. Could it be added\nback to the repository? Thanks.\n\nhttp://cran.r-project.org/bin/linux/ubuntu/\n\n-- \nRegards,\nPeng",
+      "body_snippet": "Hi,\n\noneiric was available before. But it disappears now. Could it be added\nback to the repository? Thanks.\n\nhttp://cran.r-project.org/bin/linux/ubuntu/\n\n-- \nRegards,\nPeng",
+      "thread_id": "thread-1d2d7590fe90",
+      "thread_depth": 0,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-9eb5dc016e62",
+      "message_id": "<20936.10336.304504.711119@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2013-06-24T06:07:12-05:00",
+      "subject": "[R-sig-Debian] stock ubuntu raring binary R 3.0.1 and accelerated blas libraries?",
+      "subject_clean": "stock ubuntu raring binary R 3.0.1 and accelerated blas libraries?",
+      "in_reply_to": "<CAPr7RtUN_z_QDc-TFHOtMwsXqajpr7TzA9iJq4mr2HMrZGkR6g@mail.gmail.com>",
+      "references": [
+        "<CAPr7RtXkLwgivedWerY1fQiomURXGRgs501SkJ239Nccz3s9ig@mail.gmail.com>",
+        "<20935.37219.200384.636798@max.nulle.part>",
+        "<CAPr7RtXdmzN-d4YG0oafb2O1amxWsT5wJ1eCvGpRXb5AEAjK9Q@mail.gmail.com>",
+        "<20935.43934.448853.269342@max.nulle.part>",
+        "<CAPr7RtX56ReU+sZ4fQtGPO_4qArzt7xD2H3bU4twtO1suE_COQ@mail.gmail.com>",
+        "<20935.47308.742940.803157@max.nulle.part>",
+        "<CAPr7RtUN_z_QDc-TFHOtMwsXqajpr7TzA9iJq4mr2HMrZGkR6g@mail.gmail.com>"
+      ],
+      "body_plain": "On 23 June 2013 at 20:34, ivo welch wrote:\n| ok, then let me rephrase: would it make sense to make atlas a higher\n| priority than default blas, even if it has been like this for over a\n\nThat would be a Debian-wide decision affecting _a lot_ of stake holders.  You\ncould start by asking the maintainer of the atlas package... \n\n| decade?  having atlas as a depend that is overridden is pretty close\n| to not having a depend on atlas, at all.\n\nThe 'default | better' formulation is standard among such 'virtual'\npackages. It among other things allows you to remove the default package.\n\nJust make it a habit to install Atlas (or OpenBLAS) along with R. \n\nDirk\n\n \n| /iaw\n| \n| On Sun, Jun 23, 2013 at 8:11 PM, Dirk Eddelbuettel <edd at debian.org> wrote:\n| >\n| > It is a suggested option, but with a lower priority than the default\n| > reference blas.  And it's been like that for over a decade.\n| >\n| > Dirk\n| >\n| > --\n| > Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com\n\n-- \nDirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com",
+      "body_snippet": "On 23 June 2013 at 20:34, ivo welch wrote:\n| ok, then let me rephrase: would it make sense to make atlas a higher\n| priority than default blas, even if it has been like this for over a\n\nThat would be ",
+      "thread_id": "thread-1b0c26bd1700",
+      "thread_depth": 7,
+      "month": "2013-06"
+    },
+    {
+      "id": "msg-5b3bf1bc26d7",
+      "message_id": "<51C8330B.2020304@psu.edu>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "bd1396b991d78727494403026cbf79f8837f468d360f36623deeff192b510eb4",
+      "date": "2013-06-24T07:52:43-04:00",
+      "subject": "[R-sig-Debian] Ubuntu 12.04 and R 2.15",
+      "subject_clean": "Ubuntu 12.04 and R 2.15",
+      "in_reply_to": "<148CC9C144D99741A1B3DB0D4B15E7383987E770@vEXMB1.clarion.local>",
+      "references": [
+        "<1372013649.37800.YahooMailNeo@web164506.mail.gq1.yahoo.com>",
+        "<1372045482.46441.YahooMailNeo@web164503.mail.gq1.yahoo.com>",
+        "<148CC9C144D99741A1B3DB0D4B15E7383987E770@vEXMB1.clarion.local>"
+      ],
+      "body_plain": "On 06/24/2013 12:57 AM, Matthew Brigida wrote:\n> As Dirk mentioned by default you should get the latest version of R.  To see add (inserting your mirror):\n>\n> deb http://<my.favorite.cran.mirror>/bin/linux/ubuntu precise/\n>\n> to your /etc/apt/sources.list [don't forge the last 's' in sources] and then\n>\n> $ sudo apt-get update\n>\n> Then you can see what version you would install (without actually installing anything) by:\n>\n> $ apt-get --simulate install r-base\n>\n>\n> Matt\n\nOnce you have installed the correct CRAN repository in sources.list, the \ncorrect term for using a particular version of a package is \"pinning.\"\n\nHere are some helpful guides:\n\nhttps://help.ubuntu.com/community/PinningHowto\n\nhttp://askubuntu.com/questions/51124/hold-packages-back-from-updates-without-apt-pin\n\nhttp://askubuntu.com/questions/27063/how-to-hold-a-package-back-from-being-upgraded\n\nSynaptic is very helpful, because it can show you which versions are \navailable to be installed.\n\nMichael\n\n\n\n-- \nDr. Michael A. Rutter\nSchool of Science\nPenn State Erie, The Behrend College\n4205 College Drive\nErie, PA 16563\nhttp://math.bd.psu.edu/faculty/rutter\nmar36 at psu.edu",
+      "body_snippet": "On 06/24/2013 12:57 AM, Matthew Brigida wrote:\n> As Dirk mentioned by default you should get the latest version of R.  To see add (inserting your mirror):\n>\n> deb http://<my.favorite.cran.mirror>/bin/",
+      "thread_id": "thread-b04892827e2e",
+      "thread_depth": 3,
+      "month": "2013-06"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-b884b303bade",
+      "subject": "Function nlme::lme in Ubuntu (but not Win or OS X): \"Non-positive definite approximate variance-covariance\"",
+      "message_count": 3,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Giuseppe Pagnoni"
+      ],
+      "started": "2013-06-07T11:01:41+02:00",
+      "last_reply": "2013-06-07T15:50:59+02:00",
+      "root_message_id": "msg-b884b303bade"
+    },
+    {
+      "id": "thread-eda914a2af74",
+      "subject": "cran2deb4ubuntu Updated for R 3.0.1 and Ubuntu 13.04",
+      "message_count": 1,
+      "participants": [
+        "Michael Rutter"
+      ],
+      "started": "2013-06-12T16:19:29-04:00",
+      "last_reply": "2013-06-12T16:19:29-04:00",
+      "root_message_id": "msg-eda914a2af74"
+    },
+    {
+      "id": "thread-9df7b7f4611c",
+      "subject": "Cannot install XML package with R 3.0 and Ubuntu 12.04",
+      "message_count": 6,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "John Blischak",
+        "Michael Rutter"
+      ],
+      "started": "2013-06-13T14:41:59-05:00",
+      "last_reply": "2013-06-15T14:12:11-05:00",
+      "root_message_id": "msg-9df7b7f4611c"
+    },
+    {
+      "id": "thread-883f6bdfa8f6",
+      "subject": "r-cran-rjava (ubuntu 13.04 ?) -- missing dependencies?",
+      "message_count": 3,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Martin Maechler",
+        "Michael Rutter"
+      ],
+      "started": "2013-06-15T11:47:43+02:00",
+      "last_reply": "2013-06-15T10:21:33-04:00",
+      "root_message_id": "msg-883f6bdfa8f6"
+    },
+    {
+      "id": "thread-b04892827e2e",
+      "subject": "Ubuntu 12.04 and R 2.15",
+      "message_count": 5,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Martin Gilchrist",
+        "Matthew Brigida",
+        "Michael Rutter"
+      ],
+      "started": "2013-06-23T11:54:09-07:00",
+      "last_reply": "2013-06-24T07:52:43-04:00",
+      "root_message_id": "msg-b04892827e2e"
+    },
+    {
+      "id": "thread-1b0c26bd1700",
+      "subject": "stock ubuntu raring binary R 3.0.1 and accelerated blas libraries?",
+      "message_count": 8,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "ivo welch"
+      ],
+      "started": "2013-06-23T16:14:24-07:00",
+      "last_reply": "2013-06-24T06:07:12-05:00",
+      "root_message_id": "msg-1b0c26bd1700"
+    },
+    {
+      "id": "thread-1d2d7590fe90",
+      "subject": "Where are the package for oneiric",
+      "message_count": 1,
+      "participants": [
+        "Peng Yu"
+      ],
+      "started": "2013-06-24T05:03:23-05:00",
+      "last_reply": "2013-06-24T05:03:23-05:00",
+      "root_message_id": "msg-1d2d7590fe90"
+    }
+  ]
+}

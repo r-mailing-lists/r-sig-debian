@@ -1,0 +1,74 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2025-01",
+  "messages": [
+    {
+      "id": "msg-300a439936a2",
+      "message_id": "<b1b0bf35-1eae-4263-93de-0610b62b7b38@orange.fr>",
+      "from_name": "Sylvain Sécherre",
+      "from_email_hash": "b3348f9ec1cd18abb729dc3ae9c0070dbd6cd6aec36ec025862324e2c66665a4",
+      "date": "2025-01-13T19:27:53+01:00",
+      "subject": "[R-sig-Debian] Problem with R package while building KDEStateMachineEditor",
+      "subject_clean": "Problem with R package while building KDEStateMachineEditor",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hello everyone!\n\nI have a big problem that takes me mad since 3 days...\n\nI try to build KDEStateMachineEditor with cmake. This soft includes \nGraphViz, which includes himself SWIG which needs R.\n\nWith cmake, when I configure KDEStateMachineEditor before a generation, \nI am told that the R package is missing:\n\n\"---------------------------------------------------------------------------------\"\n/Checking for module 'R'\n ??? Package 'R', required by 'virtual:world', not found\nsetting -DENABLE_R=OFF/\n\n\"---------------------------------------------------------------------------------\"\n\n... but every necessary R packages seem to be installed on my computer.\n\nI have found the line of the GraphViz's *CMakeList.txt* involved:\n\n\"---------------------------------------------------------------------------------\"\n\n/find_package(SWIG COMPONENTS csharp d go guile java javascript lua \nperl5 php7 python *r* )/\n\n\"---------------------------------------------------------------------------------\"\n\nAfter a look at the cmake doc, it seems that I should have a file like \nFindR.cmake, but there not such a file on my disk. Instead I do have \nthis file : */usr/lib/R/site-library/qtl/contrib/bin/FindRLibs.cmake*\n\nSo, what must I do to solve this problem?\n\nThanks!\n\nSylvain\n\n(France)\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Hello everyone!\n\nI have a big problem that takes me mad since 3 days...\n\nI try to build KDEStateMachineEditor with cmake. This soft includes \nGraphViz, which includes himself SWIG which needs R.\n\nWith",
+      "thread_id": "thread-300a439936a2",
+      "thread_depth": 0,
+      "month": "2025-01"
+    },
+    {
+      "id": "msg-634e7ae316a5",
+      "message_id": "<26501.23850.542863.88950@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2025-01-13T12:36:26-06:00",
+      "subject": "[R-sig-Debian] Problem with R package while building KDEStateMachineEditor",
+      "subject_clean": "Problem with R package while building KDEStateMachineEditor",
+      "in_reply_to": "<b1b0bf35-1eae-4263-93de-0610b62b7b38@orange.fr>",
+      "references": [
+        "<b1b0bf35-1eae-4263-93de-0610b62b7b38@orange.fr>"
+      ],
+      "body_plain": "Hi Sylvain,\n\nThanks for posting here (even if this is more of a CMake than a Debian\nquestion ...).\n\nOn 13 January 2025 at 19:27, Sylvain S?cherre via R-SIG-Debian wrote:\n| Hello everyone!\n| \n| I have a big problem that takes me mad since 3 days...\n| \n| I try to build KDEStateMachineEditor with cmake. This soft includes \n| GraphViz, which includes himself SWIG which needs R.\n| \n| With cmake, when I configure KDEStateMachineEditor before a generation, \n| I am told that the R package is missing:\n| \n| \"---------------------------------------------------------------------------------\"\n| /Checking for module 'R'\n|  ??? Package 'R', required by 'virtual:world', not found\n| setting -DENABLE_R=OFF/\n| \n| \"---------------------------------------------------------------------------------\"\n| \n| ... but every necessary R packages seem to be installed on my computer.\n| \n| I have found the line of the GraphViz's *CMakeList.txt* involved:\n| \n| \"---------------------------------------------------------------------------------\"\n| \n| /find_package(SWIG COMPONENTS csharp d go guile java javascript lua \n| perl5 php7 python *r* )/\n| \n| \"---------------------------------------------------------------------------------\"\n| \n| After a look at the cmake doc, it seems that I should have a file like \n| FindR.cmake, but there not such a file on my disk. Instead I do have \n| this file : */usr/lib/R/site-library/qtl/contrib/bin/FindRLibs.cmake*\n| \n| So, what must I do to solve this problem?\n\nAsk CMake experts?  R itself uses GNU autoconf extensively (and fixed scripts\non Windows).  For the same reason, CMake is not that widely used for R\npackage builds.  However, given that more and more _external_ libraries use\nCMake, you see it used in R packages to provide these external libraries.\n\nNow, R is also not that often embedded [1] which may explain why you don't\nfind many FindR.cmake or FindRLibs.cmake.\n\nThat said, searching at GitHub (a good resource for this!!) find\n\n 285 hits for FindR.cmake:  https://github.com/search?q=FindR.cmake&type=repositories\n  57 hist for FindRLibs.cmake:  https://github.com/search?q=FindRLibs.cmake&type=code\n\nMaybe those can help you?\n\nCheers,  Dirk\n\n\n[1] I wrote a package for that: RInside. It's on CRAN and at my GitHub, but\nagain no CMake apart for an older contributed examples configuration.\n\n| \n| Thanks!\n| \n| Sylvain\n| \n| (France)\n| \n| \t[[alternative HTML version deleted]]\n| \n| _______________________________________________\n| R-SIG-Debian mailing list\n| R-SIG-Debian at r-project.org\n| https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \ndirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "Hi Sylvain,\n\nThanks for posting here (even if this is more of a CMake than a Debian\nquestion ...).\n\nOn 13 January 2025 at 19:27, Sylvain S?cherre via R-SIG-Debian wrote:\n| Hello everyone!\n| \n| I have ",
+      "thread_id": "thread-300a439936a2",
+      "thread_depth": 1,
+      "month": "2025-01"
+    },
+    {
+      "id": "msg-95382b98f166",
+      "message_id": "<20250113232903.07c44409@Tarkus>",
+      "from_name": "Ivan Krylov",
+      "from_email_hash": "d5e69509b1e550954e7dc7df9fde68d8fd4a7973fb076b5d966efe67850be3c9",
+      "date": "2025-01-13T23:29:03+03:00",
+      "subject": "[R-sig-Debian] Problem with R package while building KDEStateMachineEditor",
+      "subject_clean": "Problem with R package while building KDEStateMachineEditor",
+      "in_reply_to": "<b1b0bf35-1eae-4263-93de-0610b62b7b38@orange.fr>",
+      "references": [
+        "<b1b0bf35-1eae-4263-93de-0610b62b7b38@orange.fr>"
+      ],
+      "body_plain": "? Mon, 13 Jan 2025 19:27:53 +0100\nSylvain S?cherre via R-SIG-Debian <r-sig-debian at r-project.org> ?????:\n\n> I try to build KDEStateMachineEditor with cmake. This soft includes \n> GraphViz, which includes himself SWIG which needs R.\n\nJudging by the CMakeLists.txt belonging to GraphViz [*], it should be\npossible to disable its SWIG support by setting -DENABLE_SWIG=OFF.\n\nThe exact check for R is done using pkg-config:\n\n>> if(NOT ENABLE_R STREQUAL \"OFF\")\n>>   if(PkgConfig_FOUND)\n>>     pkg_check_modules(R R)\n\nThe check might be not exactly correct - on my Debian Bookworm\ninstallation, pkg-config libR succeeds, but pkg-config R doesn't - but\nneither of that should be required to compile GraphViz for the purpose\nof rendering state machine graphs for KDStateMachineEditor. And it\nisn't, CMakeLists.txt just shrugs and moves on:\n\n>>   else()\n>>     message(STATUS \"setting -DENABLE_R=OFF\")\n>>     set(ENABLE_R OFF)\n>>   endif()\n\nWe can see this code working in your CMake log:\n\n>  ??? Package 'R', required by 'virtual:world', not found\n> setting -DENABLE_R=OFF\n\nDoes it really fail after that? If not, feel free to ignore this\nmessage. If yes, the problem must be somewhere below.\n\nI've installed libgraphviz-dev and configured the project with\n\ncmake -S . -DKDSME_INTERNAL_GRAPHVIZ=false -B build\n\n...and it seems to have successfully compiled. 'make test' succeeds\ntoo, and I can launch build/bin/kdstatemachineeditor and try things in\nthe user interface.\n\n-- \nBest regards,\nIvan\n\n[*]\nhttps://gitlab.com/graphviz/graphviz/-/blob/main/CMakeLists.txt?ref_type=heads",
+      "body_snippet": "? Mon, 13 Jan 2025 19:27:53 +0100\nSylvain S?cherre via R-SIG-Debian <r-sig-debian at r-project.org> ?????:\n\n> I try to build KDEStateMachineEditor with cmake. This soft includes \n> GraphViz, which inc",
+      "thread_id": "thread-300a439936a2",
+      "thread_depth": 1,
+      "month": "2025-01"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-300a439936a2",
+      "subject": "Problem with R package while building KDEStateMachineEditor",
+      "message_count": 3,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Ivan Krylov",
+        "Sylvain Sécherre"
+      ],
+      "started": "2025-01-13T19:27:53+01:00",
+      "last_reply": "2025-01-13T23:29:03+03:00",
+      "root_message_id": "msg-300a439936a2"
+    }
+  ]
+}

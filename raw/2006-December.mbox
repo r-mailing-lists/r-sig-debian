@@ -1,0 +1,641 @@
+From esharef at gmail.com  Sun Dec 10 03:50:32 2006
+From: esharef at gmail.com (escargot)
+Date: Sat, 9 Dec 2006 21:50:32 -0500
+Subject: [R-sig-Debian] Linking Fortran code to BLAS in Ubuntu
+Message-ID: <897cdbfd0612091850s57f6dfdatfb5910caa6ba32b7@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+Url: https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20061209/7b690560/attachment.pl 
+
+From bates at stat.wisc.edu  Sun Dec 10 04:07:11 2006
+From: bates at stat.wisc.edu (Douglas Bates)
+Date: Sat, 9 Dec 2006 21:07:11 -0600
+Subject: [R-sig-Debian] Linking Fortran code to BLAS in Ubuntu
+In-Reply-To: <897cdbfd0612091850s57f6dfdatfb5910caa6ba32b7@mail.gmail.com>
+References: <897cdbfd0612091850s57f6dfdatfb5910caa6ba32b7@mail.gmail.com>
+Message-ID: <40e66e0b0612091907w12d45e1fg1435fc6cac3b59d2@mail.gmail.com>
+
+The preferred way to specify use of the BLAS libraries is with a
+Makevars file containing the single line
+
+PKG_LIBS=$(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+
+This will work on Ubuntu and on a Mac. It even works on that other
+operating system that many unfortunate souls are forced to use.
+
+On 12/9/06, escargot <esharef at gmail.com> wrote:
+> Hello!
+>
+> I have some Fortran code that uses BLAS calls, and would like to compile it
+> into a shared object to call it from R as per the "Writing R Extensions"
+> manual. What needs to go into the "Makevars" file, so that running the R CMD
+> SHLIB will work in Ubuntu?
+>
+> The code compiles properly on the Mac, with the Makevars line
+>     PKG_CFLAGS=-Wl,-framework -Wl,vecLib
+> but of course that won't work on Ubuntu :-) . Also, if I need to install any
+> packages to make the BLAS work, I'd love to know about it.
+>
+> Thanks!
+> - Emmanuel
+>
+>         [[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From esharef at gmail.com  Sun Dec 10 04:59:20 2006
+From: esharef at gmail.com (escargot)
+Date: Sat, 9 Dec 2006 22:59:20 -0500
+Subject: [R-sig-Debian] Linking Fortran code to BLAS in Ubuntu
+In-Reply-To: <40e66e0b0612091907w12d45e1fg1435fc6cac3b59d2@mail.gmail.com>
+References: <897cdbfd0612091850s57f6dfdatfb5910caa6ba32b7@mail.gmail.com>
+	<40e66e0b0612091907w12d45e1fg1435fc6cac3b59d2@mail.gmail.com>
+Message-ID: <897cdbfd0612091959o473544ddy15d9c040901f3555@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+Url: https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20061209/e2f90bab/attachment.pl 
+
+From friendly at yorku.ca  Mon Dec 11 23:20:09 2006
+From: friendly at yorku.ca (Michael Friendly)
+Date: Mon, 11 Dec 2006 17:20:09 -0500
+Subject: [R-sig-Debian] updating rgl on debian stable
+Message-ID: <457DD999.8090108@yorku.ca>
+
+Running: R Version 2.3.1 (2006-06-01), debian stable
+
+I'm testing an application that uses rgl (installed with apt-get install 
+r-cran-rgl)
+but fails, at least partly because that application uses a more current 
+version.
+There is also a mysterious error msg from Xlib:
+
+ > library(car)
+ > library(rgl)
+ > iris.mod <- lm(cbind(Sepal.Length, Sepal.Width, Petal.Length, 
+Petal.Width) ~
++ Species, data=iris)
+ > source("heplot.R")
+ > source("heplot3d.R")
+ > source("pairs.mlm.R")
+ > heplot3d(iris.mod)
+Xlib:  extension "XFree86-DRI" missing on display ":0.0".
+Error in ellipsoid(gmean, E, radius, col = last(col), label = "Error") :
+        could not find function "asEuclidean"
+ >
+ > capabilities()
+    jpeg      png    tcltk      X11 http/ftp  sockets   libxml     fifo
+    TRUE     TRUE     TRUE     TRUE     TRUE     TRUE     TRUE     TRUE
+  cledit    iconv      NLS
+    TRUE     TRUE     TRUE
+ > sessionInfo()
+Version 2.3.1 (2006-06-01)
+i386-pc-linux-gnu
+
+attached base packages:
+[1] "methods"   "stats"     "graphics"  "grDevices" "utils"     "datasets"
+[7] "base"
+
+other attached packages:
+      rgl       car
+"0.64-13"   "1.2-0"
+
+If I run example(rgl) alone, things sort of work (I get the volcano data 
+displayed),
+but I get the same Xlib: message:
+
+ > example(rgl)
+rgl> example(rgl.surface)
+rgl.sr> data(volcano)
+  ...
+rgl.sr> rgl.clear()
+Xlib:  extension "XFree86-DRI" missing on display ":0.0".
+
+rgl.sr> rgl.surface(x, z, y, color = col)
+
+
+I obtained the most recent source package for rgl and tried to install it
+directly, but this fails.  Any idea what I can do?  How can I tell what X
+component is being looked for?
+
+euclid:/tmp# R CMD INSTALL rgl_0.69.tar.gz
+* Installing *source* package 'rgl' ...
+checking for gcc... gcc
+checking for C compiler default output file name... a.out
+checking whether the C compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables...
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ANSI C... none needed
+checking how to run the C preprocessor... gcc -E
+checking for X... no
+configure: error: X11 not found but required, configure aborted.
+ERROR: configuration failed for package 'rgl'
+** Removing '/usr/local/lib/R/site-library/rgl'
+
+Is this what I need?
+euclid:/tmp# aptitude search xfree86-dri
+p   xfree86-driver-synaptics        - dummy package to upgrade to X.Org 
+new modu
+euclid:/tmp#
+
+
+-- 
+Michael Friendly     Email: friendly at yorku.ca 
+Professor, Psychology Dept.
+York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+4700 Keele Street    http://www.math.yorku.ca/SCS/friendly.html
+Toronto, ONT  M3J 1P3 CANADA
+
+
+From edd at debian.org  Tue Dec 12 03:06:02 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 11 Dec 2006 20:06:02 -0600
+Subject: [R-sig-Debian] updating rgl on debian stable
+In-Reply-To: <457DD999.8090108@yorku.ca>
+References: <457DD999.8090108@yorku.ca>
+Message-ID: <17790.3722.343371.53772@basebud.nulle.part>
+
+
+On 11 December 2006 at 17:20, Michael Friendly wrote:
+| Running: R Version 2.3.1 (2006-06-01), debian stable
+| 
+| I'm testing an application that uses rgl (installed with apt-get install 
+| r-cran-rgl)
+| but fails, at least partly because that application uses a more current 
+| version.
+| There is also a mysterious error msg from Xlib:
+| 
+|  > library(car)
+|  > library(rgl)
+|  > iris.mod <- lm(cbind(Sepal.Length, Sepal.Width, Petal.Length, 
+| Petal.Width) ~
+| + Species, data=iris)
+|  > source("heplot.R")
+|  > source("heplot3d.R")
+|  > source("pairs.mlm.R")
+|  > heplot3d(iris.mod)
+| Xlib:  extension "XFree86-DRI" missing on display ":0.0".
+| Error in ellipsoid(gmean, E, radius, col = last(col), label = "Error") :
+|         could not find function "asEuclidean"
+|  >
+|  > capabilities()
+|     jpeg      png    tcltk      X11 http/ftp  sockets   libxml     fifo
+|     TRUE     TRUE     TRUE     TRUE     TRUE     TRUE     TRUE     TRUE
+|   cledit    iconv      NLS
+|     TRUE     TRUE     TRUE
+|  > sessionInfo()
+| Version 2.3.1 (2006-06-01)
+| i386-pc-linux-gnu
+| 
+| attached base packages:
+| [1] "methods"   "stats"     "graphics"  "grDevices" "utils"     "datasets"
+| [7] "base"
+| 
+| other attached packages:
+|       rgl       car
+| "0.64-13"   "1.2-0"
+| 
+| If I run example(rgl) alone, things sort of work (I get the volcano data 
+| displayed),
+| but I get the same Xlib: message:
+| 
+|  > example(rgl)
+| rgl> example(rgl.surface)
+| rgl.sr> data(volcano)
+|   ...
+| rgl.sr> rgl.clear()
+| Xlib:  extension "XFree86-DRI" missing on display ":0.0".
+| 
+| rgl.sr> rgl.surface(x, z, y, color = col)
+| 
+| 
+| I obtained the most recent source package for rgl and tried to install it
+| directly, but this fails.  Any idea what I can do?  How can I tell what X
+| component is being looked for?
+| 
+| euclid:/tmp# R CMD INSTALL rgl_0.69.tar.gz
+| * Installing *source* package 'rgl' ...
+| checking for gcc... gcc
+| checking for C compiler default output file name... a.out
+| checking whether the C compiler works... yes
+| checking whether we are cross compiling... no
+| checking for suffix of executables...
+| checking for suffix of object files... o
+| checking whether we are using the GNU C compiler... yes
+| checking whether gcc accepts -g... yes
+| checking for gcc option to accept ANSI C... none needed
+| checking how to run the C preprocessor... gcc -E
+| checking for X... no
+| configure: error: X11 not found but required, configure aborted.
+| ERROR: configuration failed for package 'rgl'
+| ** Removing '/usr/local/lib/R/site-library/rgl'
+| 
+| Is this what I need?
+| euclid:/tmp# aptitude search xfree86-dri
+| p   xfree86-driver-synaptics        - dummy package to upgrade to X.Org 
+| new modu
+| euclid:/tmp#
+
+Most likely, you need more. Fortunately, this is easy.  Use apt-get and say
+
+	$ apt-get build-dep r-cran-rgl
+
+which should install the missing the pieces (x11 headers and all that). 
+
+Hth, Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From murdoch at stats.uwo.ca  Mon Dec 11 23:45:27 2006
+From: murdoch at stats.uwo.ca (Duncan Murdoch)
+Date: Mon, 11 Dec 2006 17:45:27 -0500
+Subject: [R-sig-Debian] updating rgl on debian stable
+In-Reply-To: <457DD999.8090108@yorku.ca>
+References: <457DD999.8090108@yorku.ca>
+Message-ID: <457DDF87.7060405@stats.uwo.ca>
+
+On 12/11/2006 5:20 PM, Michael Friendly wrote:
+> Running: R Version 2.3.1 (2006-06-01), debian stable
+> 
+> I'm testing an application that uses rgl (installed with apt-get install 
+> r-cran-rgl)
+> but fails, at least partly because that application uses a more current 
+> version.
+> There is also a mysterious error msg from Xlib:
+> 
+>  > library(car)
+>  > library(rgl)
+>  > iris.mod <- lm(cbind(Sepal.Length, Sepal.Width, Petal.Length, 
+> Petal.Width) ~
+> + Species, data=iris)
+>  > source("heplot.R")
+>  > source("heplot3d.R")
+>  > source("pairs.mlm.R")
+>  > heplot3d(iris.mod)
+> Xlib:  extension "XFree86-DRI" missing on display ":0.0".
+> Error in ellipsoid(gmean, E, radius, col = last(col), label = "Error") :
+>         could not find function "asEuclidean"
+>  >
+>  > capabilities()
+>     jpeg      png    tcltk      X11 http/ftp  sockets   libxml     fifo
+>     TRUE     TRUE     TRUE     TRUE     TRUE     TRUE     TRUE     TRUE
+>   cledit    iconv      NLS
+>     TRUE     TRUE     TRUE
+>  > sessionInfo()
+> Version 2.3.1 (2006-06-01)
+> i386-pc-linux-gnu
+> 
+> attached base packages:
+> [1] "methods"   "stats"     "graphics"  "grDevices" "utils"     "datasets"
+> [7] "base"
+> 
+> other attached packages:
+>       rgl       car
+> "0.64-13"   "1.2-0"
+> 
+> If I run example(rgl) alone, things sort of work (I get the volcano data 
+> displayed),
+> but I get the same Xlib: message:
+> 
+>  > example(rgl)
+> rgl> example(rgl.surface)
+> rgl.sr> data(volcano)
+>   ...
+> rgl.sr> rgl.clear()
+> Xlib:  extension "XFree86-DRI" missing on display ":0.0".
+> 
+> rgl.sr> rgl.surface(x, z, y, color = col)
+> 
+> 
+> I obtained the most recent source package for rgl and tried to install it
+> directly, but this fails.  Any idea what I can do?  How can I tell what X
+> component is being looked for?
+> 
+> euclid:/tmp# R CMD INSTALL rgl_0.69.tar.gz
+> * Installing *source* package 'rgl' ...
+> checking for gcc... gcc
+> checking for C compiler default output file name... a.out
+> checking whether the C compiler works... yes
+> checking whether we are cross compiling... no
+> checking for suffix of executables...
+> checking for suffix of object files... o
+> checking whether we are using the GNU C compiler... yes
+> checking whether gcc accepts -g... yes
+> checking for gcc option to accept ANSI C... none needed
+> checking how to run the C preprocessor... gcc -E
+> checking for X... no
+> configure: error: X11 not found but required, configure aborted.
+> ERROR: configuration failed for package 'rgl'
+> ** Removing '/usr/local/lib/R/site-library/rgl'
+> 
+> Is this what I need?
+> euclid:/tmp# aptitude search xfree86-dri
+> p   xfree86-driver-synaptics        - dummy package to upgrade to X.Org 
+> new modu
+> euclid:/tmp#
+
+Hi Michael.
+
+I'm not very familiar with the rgl setup on *nix.  However, I can tell 
+you that the configure script was built by autoconf, and the test that 
+is failing is this one from configure.ac:
+
+   AC_PATH_X
+   if test x$no_x == xyes ; then
+     AC_MSG_ERROR([X11 not found but required, configure aborted.])
+   fi
+
+Hopefully that means something to you, or to someone else on the list.
+
+There is the usual option for you to supply your own path to X, via
+
+X features:
+   --x-includes=DIR    X include files are in DIR
+   --x-libraries=DIR   X library files are in DIR
+
+but I've no idea what would be appropriate for Debian, and I don't know 
+what the "XFree86-DRI" extension is about.
+
+Duncan Murdoch
+
+
+From friendly at yorku.ca  Tue Dec 12 15:31:27 2006
+From: friendly at yorku.ca (Michael Friendly)
+Date: Tue, 12 Dec 2006 09:31:27 -0500
+Subject: [R-sig-Debian] updating rgl on debian stable
+In-Reply-To: <17790.3722.343371.53772@basebud.nulle.part>
+References: <457DD999.8090108@yorku.ca>
+	<17790.3722.343371.53772@basebud.nulle.part>
+Message-ID: <457EBD3F.1020308@yorku.ca>
+
+Dirk Eddelbuettel wrote:
+
+>On 11 December 2006 at 17:20, Michael Friendly wrote:
+>| Running: R Version 2.3.1 (2006-06-01), debian stable
+>| 
+>| I'm testing an application that uses rgl (installed with apt-get install 
+>| r-cran-rgl)
+>| but fails, at least partly because that application uses a more current 
+>| version.
+>| There is also a mysterious error msg from Xlib:
+>
+>  
+>
+...
+
+>| Is this what I need?
+>| euclid:/tmp# aptitude search xfree86-dri
+>| p   xfree86-driver-synaptics        - dummy package to upgrade to X.Org 
+>| new modu
+>| euclid:/tmp#
+>
+>Most likely, you need more. Fortunately, this is easy.  Use apt-get and say
+>
+>	$ apt-get build-dep r-cran-rgl
+>
+>which should install the missing the pieces (x11 headers and all that). 
+>
+>Hth, Dirk
+>
+>  
+>
+Hmm,  perhaps there is a problem with the package?
+euclid:/tmp# man apt-get
+Reformatting apt-get(8), please wait...
+euclid:/tmp# apt-get build-dep r-cran-rgl
+Reading Package Lists... Done
+Building Dependency Tree... Done
+E: Build-dependencies for r-cran-rgl could not be satisfied.
+
+The dependencies don't give me a clue:
+
+euclid:/tmp# apt-cache depends r-cran-rgl
+r-cran-rgl
+  Depends: r-base-core
+ |Depends: libgl1-mesa-glx
+  Depends: <libgl1>
+    mesag3
+    mesag3+ggi
+    mesag3-glide2
+    libgl1-mesa-glide3
+    libgl1-mesa-glx
+    libgl1-mesa-swx11
+ |Depends: libglu1-mesa
+  Depends: <libglu1>
+    libglu1-mesa
+  Depends: libpng12-0
+euclid:/tmp# apt-cache rdepends r-cran-rgl
+r-cran-rgl
+Reverse Depends:
+  r-cran-rcmdr
+  r-cran-misc3d
+  r-cran-rcmdr
+euclid:/tmp#
+
+
+-- 
+Michael Friendly     Email: friendly at yorku.ca 
+Professor, Psychology Dept.
+York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+4700 Keele Street    http://www.math.yorku.ca/SCS/friendly.html
+Toronto, ONT  M3J 1P3 CANADA
+
+
+From edd at debian.org  Tue Dec 12 21:59:13 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 12 Dec 2006 14:59:13 -0600
+Subject: [R-sig-Debian] updating rgl on debian stable
+In-Reply-To: <457EBD3F.1020308@yorku.ca>
+References: <457DD999.8090108@yorku.ca>
+	<17790.3722.343371.53772@basebud.nulle.part>
+	<457EBD3F.1020308@yorku.ca>
+Message-ID: <17791.6177.429519.797316@basebud.nulle.part>
+
+
+On 12 December 2006 at 09:31, Michael Friendly wrote:
+| Dirk Eddelbuettel wrote:
+| 
+| >On 11 December 2006 at 17:20, Michael Friendly wrote:
+| >| Running: R Version 2.3.1 (2006-06-01), debian stable
+| >| 
+| >| I'm testing an application that uses rgl (installed with apt-get install 
+| >| r-cran-rgl)
+| >| but fails, at least partly because that application uses a more current 
+| >| version.
+| >| There is also a mysterious error msg from Xlib:
+| >
+| >  
+| >
+| ...
+| 
+| >| Is this what I need?
+| >| euclid:/tmp# aptitude search xfree86-dri
+| >| p   xfree86-driver-synaptics        - dummy package to upgrade to X.Org 
+| >| new modu
+| >| euclid:/tmp#
+| >
+| >Most likely, you need more. Fortunately, this is easy.  Use apt-get and say
+| >
+| >	$ apt-get build-dep r-cran-rgl
+| >
+| >which should install the missing the pieces (x11 headers and all that). 
+| >
+| >Hth, Dirk
+| >
+| >  
+| >
+| Hmm,  perhaps there is a problem with the package?
+
+No, but what may be the case that you are overlooking that 
+
+i)   the 'old' package with its depends builds fine on stable, ie on the 
+     matching system 
+
+ii)  the 'current' package builds fine on testing/unstable
+
+iii) you are trying to 'port' the new package to the old system 
+
+So you need to account for changes in Debian's (and the other distros, for
+that matter) switch from XFree86 to X.Org, so some packages got renamed.
+
+One way to go about it is to use the build-depends of the _old_ package as
+you try to build on the _old_ ("stable") system.
+
+I can't tell what you show below which version of r-cran-rgl is driving
+this.  I presume you look at the old one and can't find its Build-Depends: on
+your stable system. 
+
+Hth, Dirk
+
+| euclid:/tmp# man apt-get
+| Reformatting apt-get(8), please wait...
+| euclid:/tmp# apt-get build-dep r-cran-rgl
+| Reading Package Lists... Done
+| Building Dependency Tree... Done
+| E: Build-dependencies for r-cran-rgl could not be satisfied.
+| 
+| The dependencies don't give me a clue:
+| 
+| euclid:/tmp# apt-cache depends r-cran-rgl
+| r-cran-rgl
+|   Depends: r-base-core
+|  |Depends: libgl1-mesa-glx
+|   Depends: <libgl1>
+|     mesag3
+|     mesag3+ggi
+|     mesag3-glide2
+|     libgl1-mesa-glide3
+|     libgl1-mesa-glx
+|     libgl1-mesa-swx11
+|  |Depends: libglu1-mesa
+|   Depends: <libglu1>
+|     libglu1-mesa
+|   Depends: libpng12-0
+| euclid:/tmp# apt-cache rdepends r-cran-rgl
+| r-cran-rgl
+| Reverse Depends:
+|   r-cran-rcmdr
+|   r-cran-misc3d
+|   r-cran-rcmdr
+| euclid:/tmp#
+| 
+| 
+| -- 
+| Michael Friendly     Email: friendly at yorku.ca 
+| Professor, Psychology Dept.
+| York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+| 4700 Keele Street    http://www.math.yorku.ca/SCS/friendly.html
+| Toronto, ONT  M3J 1P3 CANADA
+| 
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From edd at debian.org  Mon Dec 18 18:03:22 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 18 Dec 2006 11:03:22 -0600
+Subject: [R-sig-Debian] R 2.4.1 packages built for unstable and testing
+Message-ID: <17798.51674.194838.628292@basebud.nulle.part>
+
+
+R 2.4.1 was announced earlier, and I uploaded Debian packages to the main
+Debian host from which they should migrate to the mirrors as usual.
+
+With testing frozen for the upcoming Debian 4.0 release, these packages will
+not make it into testing.  It so happens that there is a current bug in one
+of the packages tetex depends upon, so I had to build these R 2.4.1 Debian
+packages on testing as the pbuilder are not functional.  
+
+The side-benefit is that anybody who would want these package on testing can
+be assured that they will work on testing. Well, at least on my box :) 
+
+You can either get them from the unstable mirrors, or (at least for now) from
+my home box at
+
+	http://dirk.eddelbuettel/code/tmp/
+
+This is not apt-get'able, so you'll have to copy them by hand.
+
+Regards, Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From edd at debian.org  Tue Dec 19 05:10:35 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 18 Dec 2006 22:10:35 -0600
+Subject: [R-sig-Debian] R 2.4.1 packages built for unstable and testing
+In-Reply-To: <17798.51674.194838.628292@basebud.nulle.part>
+References: <17798.51674.194838.628292@basebud.nulle.part>
+Message-ID: <17799.26171.64498.2575@basebud.nulle.part>
+
+
+On 18 December 2006 at 11:03, Dirk Eddelbuettel wrote:
+| 
+| R 2.4.1 was announced earlier, and I uploaded Debian packages to the main
+| Debian host from which they should migrate to the mirrors as usual.
+| 
+| With testing frozen for the upcoming Debian 4.0 release, these packages will
+| not make it into testing.  It so happens that there is a current bug in one
+| of the packages tetex depends upon, so I had to build these R 2.4.1 Debian
+| packages on testing as the pbuilder are not functional.  
+| 
+| The side-benefit is that anybody who would want these package on testing can
+| be assured that they will work on testing. Well, at least on my box :) 
+| 
+| You can either get them from the unstable mirrors, or (at least for now) from
+| my home box at
+| 
+| 	http://dirk.eddelbuettel/code/tmp/
+| 
+| This is not apt-get'able, so you'll have to copy them by hand.
+
+And if you use 
+
+ 	http://dirk.eddelbuettel.com/code/tmp/
+
+it may actually work. Sorry about the omitted .com.
+
+Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+

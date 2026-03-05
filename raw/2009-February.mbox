@@ -1,0 +1,878 @@
+From piet at bioinf.nl  Thu Feb  5 12:31:06 2009
+From: piet at bioinf.nl (Piet Plomp)
+Date: Thu, 5 Feb 2009 12:31:06 +0100
+Subject: [R-sig-Debian] plans for lenny-cran? can I help?
+Message-ID: <20090205113106.GA12375@mail.bin>
+
+
+Hi,
+
+I'm running a highschool network with Debian etch and the etch-cran
+"backports" on top of it. Being bio-informatics, the newest R is essential to
+us.
+
+I did some upgrading experiments; switching to ubuntu is not
+an option, neither is fetching the sid debs for r.
+
+When trying to upgrade from etch to lenny with etch-cran packages installed
+things block on etch-cran dependencies.
+
+With the upcoming release of lenny: is anyone planning a lenny-cran? 
+If not, can I help (I've only got amd64/x86_64 systems available)?
+
+I'll need some help setting things up; currenlty I've got one system running
+lenny (without R as you'll have understood) on which I could try to compile R
+packages.
+
+Yours,
+
+Piet Plomp
+
+
+From edd at debian.org  Thu Feb  5 13:37:45 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 5 Feb 2009 06:37:45 -0600
+Subject: [R-sig-Debian] plans for lenny-cran? can I help?
+In-Reply-To: <20090205113106.GA12375@mail.bin>
+References: <20090205113106.GA12375@mail.bin>
+Message-ID: <18826.56729.775393.989431@ron.nulle.part>
+
+
+Hi Piet,
+
+On 5 February 2009 at 12:31, Piet Plomp wrote:
+| I'm running a highschool network with Debian etch and the etch-cran
+| "backports" on top of it. Being bio-informatics, the newest R is essential to
+| us.
+
+Bioinformatics with R at the high-school level? Neat.
+ 
+| I did some upgrading experiments; switching to ubuntu is not
+| an option, neither is fetching the sid debs for r.
+
+Why?  Many of us use 'apt-pinning' with luck.  My box is 'testing' but I
+often install the .deb package I upload into unstable there as well. Works
+like a charm most of time.
+ 
+| When trying to upgrade from etch to lenny with etch-cran packages installed
+| things block on etch-cran dependencies.
+
+Can you provide details?
+ 
+| With the upcoming release of lenny: is anyone planning a lenny-cran? 
+| If not, can I help (I've only got amd64/x86_64 systems available)?
+
+That's what is tyoically done -- a new release and the porters roll forward
+to it too.
+ 
+| I'll need some help setting things up; currenlty I've got one system running
+| lenny (without R as you'll have understood) 
+
+I don't understand either.  Lenny has its own (now dated) R, it has (current)
+R from CRAN (running the stable builds) and it runs the sid build I maintain.
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From piet at bioinf.nl  Fri Feb  6 17:13:54 2009
+From: piet at bioinf.nl (piet at bioinf.nl)
+Date: Fri, 6 Feb 2009 17:13:54 +0100
+Subject: [R-sig-Debian] plans for lenny-cran? can I help?
+In-Reply-To: <18826.56729.775393.989431@ron.nulle.part>
+References: <20090205113106.GA12375@mail.bin>
+	<18826.56729.775393.989431@ron.nulle.part>
+Message-ID: <20090206161354.GA11870@bioinf.nl>
+
+
+Hi Dirk and people on the list,
+
+[ This is an attempt to recreate a message I accidently sent only to Dirk;
+  extended with some recent experiences ]
+
+> Hi Piet,
+> 
+> On 5 February 2009 at 12:31, Piet Plomp wrote:
+> | I'm running a highschool network with Debian etch and the etch-cran
+> | "backports" on top of it. Being bio-informatics, the newest R is essential
+> | to us.
+
+Addition: with lenny almost (14feb) released I do want to upgrade to lenny,
+now or in the weeks to come. 
+We're talking 40 or so systems with 24/7 availability.
+When you're uning etch-cran, updating to lenny is an issue.
+That's where a potential lenny-cran could help.
+
+> 
+> Bioinformatics with R at the high-school level? Neat.
+
+R is used in teaching and to some extent research. The students apply their
+knowledge in their practice year at e.g. a university hospital.
+We are the bioinformatics part a highschool, I mean something like the German
+Hochschule or "university of applied schience".
+I'm the sysadmin running the bioinformatics network.
+
+All systems run etch with etch-cran on top of it. Above, more than 150 R
+packages were compiled locally and offered over nfs.
+
+>  
+> | I did some upgrading experiments; switching to ubuntu is not
+> | an option, neither is fetching the sid debs for r.
+> 
+> Why?  Many of us use 'apt-pinning' with luck.  My box is 'testing' but I
+> often install the .deb package I upload into unstable there as well. Works
+> like a charm most of time.
+>  
+> | When trying to upgrade from etch to lenny with etch-cran packages installed
+> | things block on etch-cran dependencies.
+> 
+> Can you provide details?
+
+Of course. 
+
+Take 1: lenny with etch-cran
+
+First situation: a new system, lenny installed from scratch,
+attempted to install etch-cran packages on top of it.
+This requires libgfortran1 which depends on gcc-4.1-base (4.1.1). Lenny
+provides a newer version of gcc-4.1-base (4.1.2) which is needed by all
+compilers from the Gnu compiler suite. Most of those have newer versions, gpc
+does not (yes we come across pascal program now and then). 
+I solved this by hand installing (dpkg) the etch packages libgfortran1 and
+gcc-4.1-base, not installing gpc, and preventing gcc-4.1-base from upgrading
+to 4.1.2.
+r-base-dev (etch-cran) depends on refblas3-dev or atlas3-base-dev. Importing
+those from etch gave all sorts of trouble I can't reproduce anymore.
+I can upgrade my 150+ non-debian R packages without r-base-dev, so that's not a
+problem. 
+
+Second situation: an existing etch system with etch-cran packages.
+Upgrading Gnu compilers to the 4.3 level and skipping gpc gave the possibility
+to leave libgfortran1 and gcc-4.1-base alone. Again, no r-base-dev.
+
+Take 2: lenny with R packages (and some other) from sid.
+
+This solves the libgfortran1 problem of course. gpc (== 4.1) can be installed;
+gcc-4.1-base upgrade.
+This upgrade needs tcl/tk 8.5 (lenny has 8.4 by default, but provides 8.5) and
+the newer pcre (7.8, lenny has 7.6) suite. Lenny keeps the default tclsh
+pointing to tclsh 8.4, I may need to change that to 8.5. Same for tk.
+python-biopython needs python-tk which needs tk8.4 (or even 8.3) with python
+at 2.5.2 (lenny) level. 
+To make sure the locally compiled extension packages also use tcl/tk8.5,
+I'll try installing tcl/tk8.5-dev but not tcl/tk8.4-dev.
+
+>  
+> | With the upcoming release of lenny: is anyone planning a lenny-cran? 
+
+Addition: as this would make upgrades a lot easier, we're talking numbers here.
+
+> | If not, can I help (I've only got amd64/x86_64 systems available)?
+> 
+> That's what is typically done -- a new release and the porters roll forward
+> to it too.
+>  
+> | I'll need some help setting things up; currently I've got one system
+> | running lenny (without R as you'll have understood) 
+> 
+> I don't understand either.  
+
+The intention of this is: if you need help compiling "lenny-cran" packages,
+I have a lenny system to do it.
+
+> Lenny has its own (now dated) R, it has (current)
+> R from CRAN (running the stable builds) and it runs the sid build I maintain.
+
+In the meantime I upgraded one system to sid's r-* packages. Spent the rest of
+the day recreating our local R extension package repository for use on lenny
+systems. All worked well *given the right *-dev packages of course).
+
+Thank you for maintaining the R deb packages!
+
+> 
+> Dirk
+> 
+> -- 
+> Three out of two people have difficulties with fractions.
+
+Btw, the cran README files (e.g. bin/linux/debian/README{,.html}) are not
+mirrored, at least not to the Utrecht mirror. 
+
+Thanks,
+
+Piet
+
+
+From edd at debian.org  Fri Feb  6 17:47:47 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 6 Feb 2009 10:47:47 -0600
+Subject: [R-sig-Debian] plans for lenny-cran? can I help?
+In-Reply-To: <20090206161354.GA11870@bioinf.nl>
+References: <20090205113106.GA12375@mail.bin>
+	<18826.56729.775393.989431@ron.nulle.part>
+	<20090206161354.GA11870@bioinf.nl>
+Message-ID: <18828.27059.596546.245343@ron.nulle.part>
+
+
+Piet,
+
+I think you need to enable the backport archive as the README suggests. 
+
+IIRC that will help with gfortran and tcl/tk 8.5.  Others run that happily,
+so we should be able to help you.  I actually don't run etch anywhere myself
+so I will defer to others.
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From jranke at uni-bremen.de  Fri Feb  6 21:50:36 2009
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Fri, 6 Feb 2009 21:50:36 +0100
+Subject: [R-sig-Debian] plans for lenny-cran? can I help?
+In-Reply-To: <20090206161354.GA11870@bioinf.nl>
+References: <20090205113106.GA12375@mail.bin>
+	<18826.56729.775393.989431@ron.nulle.part>
+	<20090206161354.GA11870@bioinf.nl>
+Message-ID: <20090206205036.GA6822@localdomain>
+
+Hi Piet,
+
+I do plan to keep doing backports, maybe with the help of Tyler, also
+for lenny. Thanks for your offer to help - maybe you could compile the
+amd64 packages, although I currently use this process to check build
+dependencies (I am not using pbuilder for the initial i386 builds).
+
+Best regards,
+
+Johannes
+
+
+* piet at bioinf.nl <piet at bioinf.nl> [090206 20:20]:
+> 
+> Hi Dirk and people on the list,
+> 
+> [ This is an attempt to recreate a message I accidently sent only to Dirk;
+>   extended with some recent experiences ]
+> 
+> > Hi Piet,
+> > 
+> > On 5 February 2009 at 12:31, Piet Plomp wrote:
+> > | I'm running a highschool network with Debian etch and the etch-cran
+> > | "backports" on top of it. Being bio-informatics, the newest R is essential
+> > | to us.
+> 
+> Addition: with lenny almost (14feb) released I do want to upgrade to lenny,
+> now or in the weeks to come. 
+> We're talking 40 or so systems with 24/7 availability.
+> When you're uning etch-cran, updating to lenny is an issue.
+> That's where a potential lenny-cran could help.
+> 
+> > 
+> > Bioinformatics with R at the high-school level? Neat.
+> 
+> R is used in teaching and to some extent research. The students apply their
+> knowledge in their practice year at e.g. a university hospital.
+> We are the bioinformatics part a highschool, I mean something like the German
+> Hochschule or "university of applied schience".
+> I'm the sysadmin running the bioinformatics network.
+> 
+> All systems run etch with etch-cran on top of it. Above, more than 150 R
+> packages were compiled locally and offered over nfs.
+> 
+> >  
+> > | I did some upgrading experiments; switching to ubuntu is not
+> > | an option, neither is fetching the sid debs for r.
+> > 
+> > Why?  Many of us use 'apt-pinning' with luck.  My box is 'testing' but I
+> > often install the .deb package I upload into unstable there as well. Works
+> > like a charm most of time.
+> >  
+> > | When trying to upgrade from etch to lenny with etch-cran packages installed
+> > | things block on etch-cran dependencies.
+> > 
+> > Can you provide details?
+> 
+> Of course. 
+> 
+> Take 1: lenny with etch-cran
+> 
+> First situation: a new system, lenny installed from scratch,
+> attempted to install etch-cran packages on top of it.
+> This requires libgfortran1 which depends on gcc-4.1-base (4.1.1). Lenny
+> provides a newer version of gcc-4.1-base (4.1.2) which is needed by all
+> compilers from the Gnu compiler suite. Most of those have newer versions, gpc
+> does not (yes we come across pascal program now and then). 
+> I solved this by hand installing (dpkg) the etch packages libgfortran1 and
+> gcc-4.1-base, not installing gpc, and preventing gcc-4.1-base from upgrading
+> to 4.1.2.
+> r-base-dev (etch-cran) depends on refblas3-dev or atlas3-base-dev. Importing
+> those from etch gave all sorts of trouble I can't reproduce anymore.
+> I can upgrade my 150+ non-debian R packages without r-base-dev, so that's not a
+> problem. 
+> 
+> Second situation: an existing etch system with etch-cran packages.
+> Upgrading Gnu compilers to the 4.3 level and skipping gpc gave the possibility
+> to leave libgfortran1 and gcc-4.1-base alone. Again, no r-base-dev.
+> 
+> Take 2: lenny with R packages (and some other) from sid.
+> 
+> This solves the libgfortran1 problem of course. gpc (== 4.1) can be installed;
+> gcc-4.1-base upgrade.
+> This upgrade needs tcl/tk 8.5 (lenny has 8.4 by default, but provides 8.5) and
+> the newer pcre (7.8, lenny has 7.6) suite. Lenny keeps the default tclsh
+> pointing to tclsh 8.4, I may need to change that to 8.5. Same for tk.
+> python-biopython needs python-tk which needs tk8.4 (or even 8.3) with python
+> at 2.5.2 (lenny) level. 
+> To make sure the locally compiled extension packages also use tcl/tk8.5,
+> I'll try installing tcl/tk8.5-dev but not tcl/tk8.4-dev.
+> 
+> >  
+> > | With the upcoming release of lenny: is anyone planning a lenny-cran? 
+> 
+> Addition: as this would make upgrades a lot easier, we're talking numbers here.
+> 
+> > | If not, can I help (I've only got amd64/x86_64 systems available)?
+> > 
+> > That's what is typically done -- a new release and the porters roll forward
+> > to it too.
+> >  
+> > | I'll need some help setting things up; currently I've got one system
+> > | running lenny (without R as you'll have understood) 
+> > 
+> > I don't understand either.  
+> 
+> The intention of this is: if you need help compiling "lenny-cran" packages,
+> I have a lenny system to do it.
+> 
+> > Lenny has its own (now dated) R, it has (current)
+> > R from CRAN (running the stable builds) and it runs the sid build I maintain.
+> 
+> In the meantime I upgraded one system to sid's r-* packages. Spent the rest of
+> the day recreating our local R extension package repository for use on lenny
+> systems. All worked well *given the right *-dev packages of course).
+> 
+> Thank you for maintaining the R deb packages!
+> 
+> > 
+> > Dirk
+> > 
+> > -- 
+> > Three out of two people have difficulties with fractions.
+> 
+> Btw, the cran README files (e.g. bin/linux/debian/README{,.html}) are not
+> mirrored, at least not to the Utrecht mirror. 
+> 
+> Thanks,
+> 
+> Piet
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+
+From piet at bioinf.nl  Sat Feb  7 11:05:20 2009
+From: piet at bioinf.nl (Piet Plomp)
+Date: Sat, 7 Feb 2009 11:05:20 +0100
+Subject: [R-sig-Debian] plans for lenny-cran? can I help?
+In-Reply-To: <20090206205036.GA6822@localdomain>
+References: <20090205113106.GA12375@mail.bin>
+	<18826.56729.775393.989431@ron.nulle.part>
+	<20090206161354.GA11870@bioinf.nl>
+	<20090206205036.GA6822@localdomain>
+Message-ID: <20090207100520.GA16069@mail.bin>
+
+
+Hi Johannes,
+
+Backports for lenny would be very welcome!
+
+I'd love to compile the amd64 packages; I could do the dependency check for
+you, but we need to synchronize the way we build the packages. So I'll need
+some help in setting things up.
+
+One decisions to make: depend on tcl and tk 8.4 (default for lenny) or 8.5
+(available in lenny). I guess 8.5 is ok unless we need wish/tclsh etc itself.
+Lenny's python-tk depends on 8.4.
+
+Best regards,
+
+Piet 
+
+On Fri, Feb 06, 2009 at 09:50:36PM +0100, Johannes Ranke wrote:
+> Hi Piet,
+> 
+> I do plan to keep doing backports, maybe with the help of Tyler, also
+> for lenny. 
+> Thanks for your offer to help - maybe you could compile the
+> amd64 packages, although I currently use this process to check build
+> dependencies (I am not using pbuilder for the initial i386 builds).
+> 
+> Best regards,
+> 
+> Johannes
+> 
+> 
+> * piet at bioinf.nl <piet at bioinf.nl> [090206 20:20]:
+> > 
+> > Hi Dirk and people on the list,
+> > 
+> > [ This is an attempt to recreate a message I accidently sent only to Dirk;
+> >   extended with some recent experiences ]
+> > 
+> > > Hi Piet,
+> > > 
+> > > On 5 February 2009 at 12:31, Piet Plomp wrote:
+> > > | I'm running a highschool network with Debian etch and the etch-cran
+> > > | "backports" on top of it. Being bio-informatics, the newest R is essential
+> > > | to us.
+> > 
+> > Addition: with lenny almost (14feb) released I do want to upgrade to lenny,
+> > now or in the weeks to come. 
+> > We're talking 40 or so systems with 24/7 availability.
+> > When you're uning etch-cran, updating to lenny is an issue.
+> > That's where a potential lenny-cran could help.
+> > 
+> > > 
+> > > Bioinformatics with R at the high-school level? Neat.
+> > 
+> > R is used in teaching and to some extent research. The students apply their
+> > knowledge in their practice year at e.g. a university hospital.
+> > We are the bioinformatics part a highschool, I mean something like the German
+> > Hochschule or "university of applied schience".
+> > I'm the sysadmin running the bioinformatics network.
+> > 
+> > All systems run etch with etch-cran on top of it. Above, more than 150 R
+> > packages were compiled locally and offered over nfs.
+> > 
+> > >  
+> > > | I did some upgrading experiments; switching to ubuntu is not
+> > > | an option, neither is fetching the sid debs for r.
+> > > 
+> > > Why?  Many of us use 'apt-pinning' with luck.  My box is 'testing' but I
+> > > often install the .deb package I upload into unstable there as well. Works
+> > > like a charm most of time.
+> > >  
+> > > | When trying to upgrade from etch to lenny with etch-cran packages installed
+> > > | things block on etch-cran dependencies.
+> > > 
+> > > Can you provide details?
+> > 
+> > Of course. 
+> > 
+> > Take 1: lenny with etch-cran
+> > 
+> > First situation: a new system, lenny installed from scratch,
+> > attempted to install etch-cran packages on top of it.
+> > This requires libgfortran1 which depends on gcc-4.1-base (4.1.1). Lenny
+> > provides a newer version of gcc-4.1-base (4.1.2) which is needed by all
+> > compilers from the Gnu compiler suite. Most of those have newer versions, gpc
+> > does not (yes we come across pascal program now and then). 
+> > I solved this by hand installing (dpkg) the etch packages libgfortran1 and
+> > gcc-4.1-base, not installing gpc, and preventing gcc-4.1-base from upgrading
+> > to 4.1.2.
+> > r-base-dev (etch-cran) depends on refblas3-dev or atlas3-base-dev. Importing
+> > those from etch gave all sorts of trouble I can't reproduce anymore.
+> > I can upgrade my 150+ non-debian R packages without r-base-dev, so that's not a
+> > problem. 
+> > 
+> > Second situation: an existing etch system with etch-cran packages.
+> > Upgrading Gnu compilers to the 4.3 level and skipping gpc gave the possibility
+> > to leave libgfortran1 and gcc-4.1-base alone. Again, no r-base-dev.
+> > 
+> > Take 2: lenny with R packages (and some other) from sid.
+> > 
+> > This solves the libgfortran1 problem of course. gpc (== 4.1) can be installed;
+> > gcc-4.1-base upgrade.
+> > This upgrade needs tcl/tk 8.5 (lenny has 8.4 by default, but provides 8.5) and
+> > the newer pcre (7.8, lenny has 7.6) suite. Lenny keeps the default tclsh
+> > pointing to tclsh 8.4, I may need to change that to 8.5. Same for tk.
+> > python-biopython needs python-tk which needs tk8.4 (or even 8.3) with python
+> > at 2.5.2 (lenny) level. 
+> > To make sure the locally compiled extension packages also use tcl/tk8.5,
+> > I'll try installing tcl/tk8.5-dev but not tcl/tk8.4-dev.
+> > 
+> > >  
+> > > | With the upcoming release of lenny: is anyone planning a lenny-cran? 
+> > 
+> > Addition: as this would make upgrades a lot easier, we're talking numbers here.
+> > 
+> > > | If not, can I help (I've only got amd64/x86_64 systems available)?
+> > > 
+> > > That's what is typically done -- a new release and the porters roll forward
+> > > to it too.
+> > >  
+> > > | I'll need some help setting things up; currently I've got one system
+> > > | running lenny (without R as you'll have understood) 
+> > > 
+> > > I don't understand either.  
+> > 
+> > The intention of this is: if you need help compiling "lenny-cran" packages,
+> > I have a lenny system to do it.
+> > 
+> > > Lenny has its own (now dated) R, it has (current)
+> > > R from CRAN (running the stable builds) and it runs the sid build I maintain.
+> > 
+> > In the meantime I upgraded one system to sid's r-* packages. Spent the rest of
+> > the day recreating our local R extension package repository for use on lenny
+> > systems. All worked well *given the right *-dev packages of course).
+> > 
+> > Thank you for maintaining the R deb packages!
+> > 
+> > > 
+> > > Dirk
+> > > 
+> > > -- 
+> > > Three out of two people have difficulties with fractions.
+> > 
+> > Btw, the cran README files (e.g. bin/linux/debian/README{,.html}) are not
+> > mirrored, at least not to the Utrecht mirror. 
+> > 
+> > Thanks,
+> > 
+> > Piet
+> > 
+> > _______________________________________________
+> > R-SIG-Debian mailing list
+> > R-SIG-Debian at r-project.org
+> > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+> -- 
+> Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+
+From jranke at uni-bremen.de  Thu Feb 12 20:56:46 2009
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Thu, 12 Feb 2009 20:56:46 +0100
+Subject: [R-sig-Debian] plans for lenny-cran? can I help?
+In-Reply-To: <20090207100520.GA16069@mail.bin>
+References: <20090205113106.GA12375@mail.bin>
+	<18826.56729.775393.989431@ron.nulle.part>
+	<20090206161354.GA11870@bioinf.nl>
+	<20090206205036.GA6822@localdomain>
+	<20090207100520.GA16069@mail.bin>
+Message-ID: <20090212195646.GA6181@localdomain>
+
+Hi Piet,
+
+thanks for your input to this. I have no idea, frankly speaking, if tcl
+and tk 8.4 or 8.5 would be the better choice. As upstream (Dirk) uses
+8.5, I would try to stick with it, as it is availabe in lenny, as you
+pointed out. Is your point that if we would need tclsh or wish, this
+would conflict with tcl8.5, as 8.4 is the default on lenny? I am not
+ware that tclsh and wish are being used, are you, Dirk?
+
+Johannes
+
+* Piet Plomp <piet at bioinf.nl> [090208 19:20]:
+> 
+> Hi Johannes,
+> 
+> Backports for lenny would be very welcome!
+> 
+> I'd love to compile the amd64 packages; I could do the dependency check for
+> you, but we need to synchronize the way we build the packages. So I'll need
+> some help in setting things up.
+> 
+> One decisions to make: depend on tcl and tk 8.4 (default for lenny) or 8.5
+> (available in lenny). I guess 8.5 is ok unless we need wish/tclsh etc itself.
+> Lenny's python-tk depends on 8.4.
+> 
+> Best regards,
+> 
+> Piet 
+> 
+> On Fri, Feb 06, 2009 at 09:50:36PM +0100, Johannes Ranke wrote:
+> > Hi Piet,
+> > 
+> > I do plan to keep doing backports, maybe with the help of Tyler, also
+> > for lenny. 
+> > Thanks for your offer to help - maybe you could compile the
+> > amd64 packages, although I currently use this process to check build
+> > dependencies (I am not using pbuilder for the initial i386 builds).
+> > 
+> > Best regards,
+> > 
+> > Johannes
+> > 
+> > 
+> > * piet at bioinf.nl <piet at bioinf.nl> [090206 20:20]:
+> > > 
+> > > Hi Dirk and people on the list,
+> > > 
+> > > [ This is an attempt to recreate a message I accidently sent only to Dirk;
+> > >   extended with some recent experiences ]
+> > > 
+> > > > Hi Piet,
+> > > > 
+> > > > On 5 February 2009 at 12:31, Piet Plomp wrote:
+> > > > | I'm running a highschool network with Debian etch and the etch-cran
+> > > > | "backports" on top of it. Being bio-informatics, the newest R is essential
+> > > > | to us.
+> > > 
+> > > Addition: with lenny almost (14feb) released I do want to upgrade to lenny,
+> > > now or in the weeks to come. 
+> > > We're talking 40 or so systems with 24/7 availability.
+> > > When you're uning etch-cran, updating to lenny is an issue.
+> > > That's where a potential lenny-cran could help.
+> > > 
+> > > > 
+> > > > Bioinformatics with R at the high-school level? Neat.
+> > > 
+> > > R is used in teaching and to some extent research. The students apply their
+> > > knowledge in their practice year at e.g. a university hospital.
+> > > We are the bioinformatics part a highschool, I mean something like the German
+> > > Hochschule or "university of applied schience".
+> > > I'm the sysadmin running the bioinformatics network.
+> > > 
+> > > All systems run etch with etch-cran on top of it. Above, more than 150 R
+> > > packages were compiled locally and offered over nfs.
+> > > 
+> > > >  
+> > > > | I did some upgrading experiments; switching to ubuntu is not
+> > > > | an option, neither is fetching the sid debs for r.
+> > > > 
+> > > > Why?  Many of us use 'apt-pinning' with luck.  My box is 'testing' but I
+> > > > often install the .deb package I upload into unstable there as well. Works
+> > > > like a charm most of time.
+> > > >  
+> > > > | When trying to upgrade from etch to lenny with etch-cran packages installed
+> > > > | things block on etch-cran dependencies.
+> > > > 
+> > > > Can you provide details?
+> > > 
+> > > Of course. 
+> > > 
+> > > Take 1: lenny with etch-cran
+> > > 
+> > > First situation: a new system, lenny installed from scratch,
+> > > attempted to install etch-cran packages on top of it.
+> > > This requires libgfortran1 which depends on gcc-4.1-base (4.1.1). Lenny
+> > > provides a newer version of gcc-4.1-base (4.1.2) which is needed by all
+> > > compilers from the Gnu compiler suite. Most of those have newer versions, gpc
+> > > does not (yes we come across pascal program now and then). 
+> > > I solved this by hand installing (dpkg) the etch packages libgfortran1 and
+> > > gcc-4.1-base, not installing gpc, and preventing gcc-4.1-base from upgrading
+> > > to 4.1.2.
+> > > r-base-dev (etch-cran) depends on refblas3-dev or atlas3-base-dev. Importing
+> > > those from etch gave all sorts of trouble I can't reproduce anymore.
+> > > I can upgrade my 150+ non-debian R packages without r-base-dev, so that's not a
+> > > problem. 
+> > > 
+> > > Second situation: an existing etch system with etch-cran packages.
+> > > Upgrading Gnu compilers to the 4.3 level and skipping gpc gave the possibility
+> > > to leave libgfortran1 and gcc-4.1-base alone. Again, no r-base-dev.
+> > > 
+> > > Take 2: lenny with R packages (and some other) from sid.
+> > > 
+> > > This solves the libgfortran1 problem of course. gpc (== 4.1) can be installed;
+> > > gcc-4.1-base upgrade.
+> > > This upgrade needs tcl/tk 8.5 (lenny has 8.4 by default, but provides 8.5) and
+> > > the newer pcre (7.8, lenny has 7.6) suite. Lenny keeps the default tclsh
+> > > pointing to tclsh 8.4, I may need to change that to 8.5. Same for tk.
+> > > python-biopython needs python-tk which needs tk8.4 (or even 8.3) with python
+> > > at 2.5.2 (lenny) level. 
+> > > To make sure the locally compiled extension packages also use tcl/tk8.5,
+> > > I'll try installing tcl/tk8.5-dev but not tcl/tk8.4-dev.
+> > > 
+> > > >  
+> > > > | With the upcoming release of lenny: is anyone planning a lenny-cran? 
+> > > 
+> > > Addition: as this would make upgrades a lot easier, we're talking numbers here.
+> > > 
+> > > > | If not, can I help (I've only got amd64/x86_64 systems available)?
+> > > > 
+> > > > That's what is typically done -- a new release and the porters roll forward
+> > > > to it too.
+> > > >  
+> > > > | I'll need some help setting things up; currently I've got one system
+> > > > | running lenny (without R as you'll have understood) 
+> > > > 
+> > > > I don't understand either.  
+> > > 
+> > > The intention of this is: if you need help compiling "lenny-cran" packages,
+> > > I have a lenny system to do it.
+> > > 
+> > > > Lenny has its own (now dated) R, it has (current)
+> > > > R from CRAN (running the stable builds) and it runs the sid build I maintain.
+> > > 
+> > > In the meantime I upgraded one system to sid's r-* packages. Spent the rest of
+> > > the day recreating our local R extension package repository for use on lenny
+> > > systems. All worked well *given the right *-dev packages of course).
+> > > 
+> > > Thank you for maintaining the R deb packages!
+> > > 
+> > > > 
+> > > > Dirk
+> > > > 
+> > > > -- 
+> > > > Three out of two people have difficulties with fractions.
+> > > 
+> > > Btw, the cran README files (e.g. bin/linux/debian/README{,.html}) are not
+> > > mirrored, at least not to the Utrecht mirror. 
+> > > 
+> > > Thanks,
+> > > 
+> > > Piet
+> > > 
+> > > _______________________________________________
+> > > R-SIG-Debian mailing list
+> > > R-SIG-Debian at r-project.org
+> > > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> > 
+> > -- 
+> > Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+
+From edd at debian.org  Thu Feb 12 21:15:38 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 12 Feb 2009 14:15:38 -0600
+Subject: [R-sig-Debian] plans for lenny-cran? can I help?
+In-Reply-To: <20090212195646.GA6181@localdomain>
+References: <20090205113106.GA12375@mail.bin>
+	<18826.56729.775393.989431@ron.nulle.part>
+	<20090206161354.GA11870@bioinf.nl>
+	<20090206205036.GA6822@localdomain>
+	<20090207100520.GA16069@mail.bin>
+	<20090212195646.GA6181@localdomain>
+Message-ID: <18836.33642.434105.845188@ron.nulle.part>
+
+
+On 12 February 2009 at 20:56, Johannes Ranke wrote:
+| Hi Piet,
+| 
+| thanks for your input to this. I have no idea, frankly speaking, if tcl
+| and tk 8.4 or 8.5 would be the better choice. As upstream (Dirk) uses
+| 8.5, I would try to stick with it, as it is availabe in lenny, as you
+| pointed out. Is your point that if we would need tclsh or wish, this
+| would conflict with tcl8.5, as 8.4 is the default on lenny? I am not
+| ware that tclsh and wish are being used, are you, Dirk?
+
+The recommended R package tcltk -- still the only truly cross-platform GUI --
+gets to use so-called 'themed' widgets under the 8.5 versions. As these look
+a lot prettier, R Core sort-of suggests upgrading.  As there is no pain and
+some gain in Debian unstable and testing, it (still) seems like the right
+call.
+
+I am not aware of any conflicts within the tcl/tk world, but I am not a heavy
+tcl/tk user. I still use Perl/Tk and other things alongside and everybody
+seems to get along.  Maybe I missed what was upsetting Piet...
+
+Dirk
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From jranke at uni-bremen.de  Mon Feb 16 23:40:19 2009
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 16 Feb 2009 23:40:19 +0100
+Subject: [R-sig-Debian] plans for lenny-cran? can I help?
+In-Reply-To: <20090206161354.GA11870@bioinf.nl>
+References: <20090205113106.GA12375@mail.bin>
+	<18826.56729.775393.989431@ron.nulle.part>
+	<20090206161354.GA11870@bioinf.nl>
+Message-ID: <20090216224019.GA14721@localdomain>
+
+Hi Piet,
+
+sorry for not answering in more detail the last time. Let me make a few
+additions (I cut some stuff from the thread, in order to avoid noise):
+
+> Addition: with lenny almost (14feb) released I do want to upgrade to lenny,
+> now or in the weeks to come. 
+> We're talking 40 or so systems with 24/7 availability.
+> When you're uning etch-cran, updating to lenny is an issue.
+> That's where a potential lenny-cran could help.
+
+I have just set up the chroot to start building lenny-cran. It might
+still take me some time though. In the meantime, I have updated the
+pinning guidance in the README.
+
+> All systems run etch with etch-cran on top of it. Above, more than 150 R
+> packages were compiled locally and offered over nfs.
+
+Great indeed!
+
+> > | When trying to upgrade from etch to lenny with etch-cran packages installed
+> > | things block on etch-cran dependencies.
+> > 
+> > Can you provide details?
+> 
+> Of course. 
+> 
+> Take 1: lenny with etch-cran
+
+As you experienced, this is problematic, as the dependencies in
+etch-cran were tailored to etch.
+ 
+> Take 2: lenny with R packages (and some other) from sid.
+> 
+> This solves the libgfortran1 problem of course. gpc (== 4.1) can be installed;
+> gcc-4.1-base upgrade.
+> This upgrade needs tcl/tk 8.5 (lenny has 8.4 by default, but provides 8.5) and
+> the newer pcre (7.8, lenny has 7.6) suite. Lenny keeps the default tclsh
+> pointing to tclsh 8.4, I may need to change that to 8.5. Same for tk.
+> python-biopython needs python-tk which needs tk8.4 (or even 8.3) with python
+> at 2.5.2 (lenny) level. 
+> To make sure the locally compiled extension packages also use tcl/tk8.5,
+> I'll try installing tcl/tk8.5-dev but not tcl/tk8.4-dev.
+
+On my lenny systems, tcl/tk 8.5 was not pulled by the sid R packages,
+only the pcre from sid. Did you make any progress on the tcl/tk issues?
+ 
+> In the meantime I upgraded one system to sid's r-* packages. Spent the rest of
+> the day recreating our local R extension package repository for use on lenny
+> systems. All worked well *given the right *-dev packages of course).
+
+Is this OK now?
+ 
+> Btw, the cran README files (e.g. bin/linux/debian/README{,.html}) are not
+> mirrored, at least not to the Utrecht mirror. 
+
+I tried a few other mirrors, and they are OK. I suggest contacting the
+admin of the Utrecht mirror, and/or Stefan Theussl
+<stefan.theussl at wu-wien.ac.at> from CRAN.
+
+I hope everything is running well at your end meanwhile,
+
+Johannes
+
+
+From ff809 at ncf.ca  Fri Feb 27 15:19:29 2009
+From: ff809 at ncf.ca (Brian Lunergan)
+Date: Fri, 27 Feb 2009 09:19:29 -0500
+Subject: [R-sig-Debian] Will ctv package work on ubuntu?
+Message-ID: <1235744369.7683.10.camel@brian-home>
+
+Hi ho:
+
+I had used the ctv package on a Windows setup of R and I was wondering
+about Ubuntu. Certainly under Windows it has an easy time of it because
+there is only one library folder to scan for existing packages. Would
+its install.views and update.views functions work in Ubuntu where the
+packages are split up between the library established by R-cran
+downloads from synaptic and the default library used by 'conventional'
+downloads using install.packages?
+
+If it can't handle that distinction between a Windows and a Linux
+situation, is it a package I should remove for now?
+
+Regards...
+-- 
+Brian Lunergan
+Nepean, Ontario
+Canada
+
+

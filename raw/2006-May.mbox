@@ -1,0 +1,1051 @@
+From robert.king at newcastle.edu.au  Tue May  2 19:03:54 2006
+From: robert.king at newcastle.edu.au (Robert King)
+Date: Tue, 02 May 2006 10:03:54 -0700
+Subject: [R-sig-Debian] stable backport apt problem (solved)
+Message-ID: <445790FA.1030701@newcastle.edu.au>
+
+Hello,
+
+I started writing this email to describe a problem, then fixed it, so 
+I'll display my ignorance anyway in case other people have a problem 
+with it.
+
+What happened was that I could get apt-get to upgrade the documentation 
+packages, but not the others.
+
+What I think was the problem was some remaining r-cran-* packages that 
+are now in r-recommended.  These seemed to be blocking the upgrade of 
+r-recommended, and hence r-base-core and thus r-base.
+
+What I did was manually download r-base-core r-base-dev and 
+r-recommended and install the .debs with dpkg.
+
+Once this was done apt-get was able to fix the mess.
+
+Here is some of the output I collected in the process.
+
+This is the result of dpkg -l r-\* after the apt-get upgrade, which kept
+back r-base r-base-dev r-base-core r-recommended
+
+
++++-==============-==============-============================================
+ii  r-base         2.1.0-1        GNU R statistical computing language
+and env
+ii  r-base-core    2.1.0-1        GNU R core of statistical computing
+language
+ii  r-base-dev     2.1.0-1        GNU R installation of auxiliary GNU R
+packag
+ii  r-base-html    2.3.0-0sarge1  GNU R html docs for statistical
+computing sy
+ii  r-base-latex   2.3.0-0sarge1  GNU R LaTeX docs for statistical
+computing s
+
+[ some r-cran-* packages deleted ]
+
+un  r-doc-html     <none>         (no description available)
+un  r-doc-info     <none>         (no description available)
+un  r-doc-pdf      <none>         (no description available)
+ii  r-mathlib      2.1.0-1        GNU R standalone mathematics library
+ii  r-recommended  2.1.0-1        GNU R collection of recommended
+
+This is more sources.list
+
+tolstoy:/etc/apt# cat sources.list
+deb http://ftp.au.debian.org/debian/ stable main contrib non-free
+deb http://ftp.au.debian.org/debian/ testing main contrib non-free
+deb-src http://ftp.au.debian.org/debian/ stable main contrib non-free
+
+deb http://security.debian.org/ stable/updates main contrib non-free
+
+#cran backports
+deb http://cran.au.r-project.org/bin/linux/debian/ stable/
+
+tolstoy:/etc/apt# apt-get install r-base-core=2.3.0-0sarge1
+Reading Package Lists... Done
+Building Dependency Tree... Done
+E: Version '2.3.0-0sarge1' for 'r-base-core' was not found
+
+tolstoy:~# wget
+http://cran.au.r-project.org/bin/linux/debian/stable/r-base-core_2.3.0-0sarge1_i386.deb
+--02:19:54--
+http://cran.au.r-project.org/bin/linux/debian/stable/r-base-core_2.3.0-0sarge1_i386.deb
+            => `r-base-core_2.3.0-0sarge1_i386.deb'
+Resolving proxy.newcastle.edu.au... 134.148.172.1, 134.148.20.65
+Connecting to proxy.newcastle.edu.au[134.148.172.1]:8080... connected.
+Proxy request sent, awaiting response... 200 OK
+Length: 8,315,512 [application/x-debian-package]
+
+100%[====================================>] 8,315,512      1.03M/s
+ETA 00:00
+
+02:20:02 (1.02 MB/s) - `r-base-core_2.3.0-0sarge1_i386.deb' saved
+[8315512/8315512]
+
+tolstoy:~# dpkg -i r-base-core_2.3.0-0sarge1_i386.deb
+(Reading database ... 64541 files and directories currently installed.)
+Preparing to replace r-base-core 2.1.0-1 (using
+r-base-core_2.3.0-0sarge1_i386.deb) ...
+Unpacking replacement r-base-core ...
+Setting up r-base-core (2.3.0-0sarge1) ...
+
+
+From edd at debian.org  Tue May  2 19:58:16 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 2 May 2006 12:58:16 -0500
+Subject: [R-sig-Debian] stable backport apt problem (solved)
+In-Reply-To: <445790FA.1030701@newcastle.edu.au>
+References: <445790FA.1030701@newcastle.edu.au>
+Message-ID: <17495.40376.232288.158543@basebud.nulle.part>
+
+
+Hi Robert,
+
+On 2 May 2006 at 10:03, Robert King wrote:
+| Hello,
+| 
+| I started writing this email to describe a problem, then fixed it, so 
+| I'll display my ignorance anyway in case other people have a problem 
+| with it.
+| 
+| What happened was that I could get apt-get to upgrade the documentation 
+| packages, but not the others.
+| 
+| What I think was the problem was some remaining r-cran-* packages that 
+| are now in r-recommended.  These seemed to be blocking the upgrade of 
+| r-recommended, and hence r-base-core and thus r-base.
+| 
+| What I did was manually download r-base-core r-base-dev and 
+| r-recommended and install the .debs with dpkg.
+
+Hm, sounds like Christian's backported packages need some more finetuning on
+the Depends/Provides/Conflicts.  
+
+The more detail you could supply as to "what was blocked how" would
+presumably help. 
+
+Dirk
+ 
+| Once this was done apt-get was able to fix the mess.
+| 
+| Here is some of the output I collected in the process.
+| 
+| This is the result of dpkg -l r-\* after the apt-get upgrade, which kept
+| back r-base r-base-dev r-base-core r-recommended
+| 
+| 
+| +++-==============-==============-============================================
+| ii  r-base         2.1.0-1        GNU R statistical computing language
+| and env
+| ii  r-base-core    2.1.0-1        GNU R core of statistical computing
+| language
+| ii  r-base-dev     2.1.0-1        GNU R installation of auxiliary GNU R
+| packag
+| ii  r-base-html    2.3.0-0sarge1  GNU R html docs for statistical
+| computing sy
+| ii  r-base-latex   2.3.0-0sarge1  GNU R LaTeX docs for statistical
+| computing s
+| 
+| [ some r-cran-* packages deleted ]
+| 
+| un  r-doc-html     <none>         (no description available)
+| un  r-doc-info     <none>         (no description available)
+| un  r-doc-pdf      <none>         (no description available)
+| ii  r-mathlib      2.1.0-1        GNU R standalone mathematics library
+| ii  r-recommended  2.1.0-1        GNU R collection of recommended
+| 
+| This is more sources.list
+| 
+| tolstoy:/etc/apt# cat sources.list
+| deb http://ftp.au.debian.org/debian/ stable main contrib non-free
+| deb http://ftp.au.debian.org/debian/ testing main contrib non-free
+| deb-src http://ftp.au.debian.org/debian/ stable main contrib non-free
+| 
+| deb http://security.debian.org/ stable/updates main contrib non-free
+| 
+| #cran backports
+| deb http://cran.au.r-project.org/bin/linux/debian/ stable/
+| 
+| tolstoy:/etc/apt# apt-get install r-base-core=2.3.0-0sarge1
+| Reading Package Lists... Done
+| Building Dependency Tree... Done
+| E: Version '2.3.0-0sarge1' for 'r-base-core' was not found
+| 
+| tolstoy:~# wget
+| http://cran.au.r-project.org/bin/linux/debian/stable/r-base-core_2.3.0-0sarge1_i386.deb
+| --02:19:54--
+| http://cran.au.r-project.org/bin/linux/debian/stable/r-base-core_2.3.0-0sarge1_i386.deb
+|             => `r-base-core_2.3.0-0sarge1_i386.deb'
+| Resolving proxy.newcastle.edu.au... 134.148.172.1, 134.148.20.65
+| Connecting to proxy.newcastle.edu.au[134.148.172.1]:8080... connected.
+| Proxy request sent, awaiting response... 200 OK
+| Length: 8,315,512 [application/x-debian-package]
+| 
+| 100%[====================================>] 8,315,512      1.03M/s
+| ETA 00:00
+| 
+| 02:20:02 (1.02 MB/s) - `r-base-core_2.3.0-0sarge1_i386.deb' saved
+| [8315512/8315512]
+| 
+| tolstoy:~# dpkg -i r-base-core_2.3.0-0sarge1_i386.deb
+| (Reading database ... 64541 files and directories currently installed.)
+| Preparing to replace r-base-core 2.1.0-1 (using
+| r-base-core_2.3.0-0sarge1_i386.deb) ...
+| Unpacking replacement r-base-core ...
+| Setting up r-base-core (2.3.0-0sarge1) ...
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From robert.king at newcastle.edu.au  Tue May  2 20:50:34 2006
+From: robert.king at newcastle.edu.au (Robert King)
+Date: Tue, 02 May 2006 11:50:34 -0700
+Subject: [R-sig-Debian] stable backport apt problem (solved)
+In-Reply-To: <17495.40376.232288.158543@basebud.nulle.part>
+References: <445790FA.1030701@newcastle.edu.au>
+	<17495.40376.232288.158543@basebud.nulle.part>
+Message-ID: <4457A9FA.9080104@newcastle.edu.au>
+
+Hi Dirk,
+
+This is my attempt to re-create the problem.  I'm not so sure it is just 
+a dependency problem now.  I think there is possibly an apt problem on 
+my machine, combined with a problem with the dependencies where 
+r-recommended is wanting its old dependencies at the same time as trying 
+to replace them.
+
+I removed all the r-\* packages, removed the backports line from 
+/etc/apt/source.list, installed
+r-base-core r-recommended r-base-dev r-mathlib
+which went OK, then added the backport URL to sources.list again:
+
+tolstoy:/home/king# apt-get upgrade
+Reading Package Lists... Done
+Building Dependency Tree... Done
+The following packages have been kept back:
+   kernel-image-2.6-686 r-base-dev
+0 upgraded, 0 newly installed, 0 to remove and 2 not upgraded.
+
+tolstoy:/home/king# apt-get install r-base-dev
+Reading Package Lists... Done
+Building Dependency Tree... Done
+Some packages could not be installed. This may mean that you have
+requested an impossible situation or if you are using the unstable
+distribution that some required packages have not yet been created
+or been moved out of Incoming.
+
+Since you only requested a single operation it is extremely likely that
+the package is simply not installable and a bug report against
+that package should be filed.
+The following information may help to resolve the situation:
+
+The following packages have unmet dependencies:
+   r-base-dev: Depends: r-base-core (= 2.3.0-0sarge1) but 2.1.0-1 is to 
+be installed
+E: Broken packages
+
+tolstoy:/home/king# apt-get install r-base-core=2.3.0-0sarge1
+Reading Package Lists... Done
+Building Dependency Tree... Done
+E: Version '2.3.0-0sarge1' for 'r-base-core' was not found
+
+tolstoy:/home/king# apt-cache show r-base-core
+shows the following versions of r-base-core available
+
+Version: 2.1.0-1
+Version: 2.2.1-6
+
+Even though 
+/var/lib/apt/lists/cran.au.r-project.org_bin_linux_debian_stable_Packages
+shows version 2.3.0-0sarge1
+and I can download it with wget
+
+tolstoy:/home/king# grep 'Package: r-base-core' /var/lib/apt/lists/*
+/var/lib/apt/lists/cran.au.r-project.org_bin_linux_debian_stable_Packages:Package: 
+r-base-core
+(has Version: 2.3.0-0sarge1)
+/var/lib/apt/lists/ftp.au.debian.org_debian_dists_stable_main_binary-i386_Packages:Package: 
+r-base-core
+(has Version: 2.1.0-1)
+/var/lib/apt/lists/ftp.au.debian.org_debian_dists_testing_main_binary-i386_Packages:Package: 
+r-base-core
+(has Version: 2.2.1-6)
+
+Even if I remove the testing line from the sources.list, apt-cache and 
+apt-get will only see the stable version
+
+Then to the manual-download solution:
+
+# dpkg -i r-base-core_2.3.0-0sarge1_i386.deb
+(Reading database ... 62319 files and directories currently installed.)
+Preparing to replace r-base-core 2.1.0-1 (using 
+.../r-base-core_2.3.0-0sarge1_i386.deb) ...
+Unpacking replacement r-base-core ...
+Setting up r-base-core (2.3.0-0sarge1) ...
+Installing new version of config file /etc/R/Makeconf ...
+
+Configuration file `/etc/R/Renviron'
+  ==> Modified (by you or by a script) since installation.
+  ==> Package distributor has shipped an updated version.
+    What would you like to do about it ?  Your options are:
+     Y or I  : install the package maintainer's version
+     N or O  : keep your currently-installed version
+       D     : show the differences between the versions
+       Z     : background this process to examine the situation
+  The default action is to keep your current version.
+*** Renviron (Y/I/N/O/D/Z) [default=N] ?
+
+# dpkg -i /nfs/r-mathlib_2.3.0-0sarge1_i386.deb
+(Reading database ... 62472 files and directories currently installed.)
+Preparing to replace r-mathlib 2.1.0-1 (using 
+.../r-mathlib_2.3.0-0sarge1_i386.deb) ...
+Unpacking replacement r-mathlib ...
+Setting up r-mathlib (2.3.0-0sarge1) ...
+
+# dpkg -i /nfs/r-recommended_2.3.0-0sarge1_i386.deb
+dpkg: considering removing r-cran-boot in favour of r-recommended ...
+dpkg: no, cannot remove r-cran-boot (--auto-deconfigure will help):
+  r-recommended depends on r-cran-boot (>= 1.2.19)
+   r-cran-boot is to be removed.
+dpkg: regarding .../r-recommended_2.3.0-0sarge1_i386.deb containing 
+r-recommended:
+  r-recommended conflicts with r-cran-boot
+   r-cran-boot (version 1.2.22-1) is installed.
+dpkg: error processing /nfs/r-recommended_2.3.0-0sarge1_i386.deb 
+(--install):
+  conflicting packages - not installing r-recommended
+Errors were encountered while processing:
+  /nfs/r-recommended_2.3.0-0sarge1_i386.deb
+
+Try auto-deconfigure as recommended:
+
+tolstoy:/home/king# dpkg -i --auto-deconfigure 
+/nfs/r-recommended_2.3.0-0sarge1_i386.deb
+dpkg: considering removing r-cran-boot in favour of r-recommended ...
+dpkg: yes, will remove r-cran-boot in favour of r-recommended.
+(Reading database ... 62468 files and directories currently installed.)
+Preparing to replace r-recommended 2.1.0-1 (using 
+.../r-recommended_2.3.0-0sarge1_i386.deb) ...
+De-configuring r-recommended, so that we can remove r-cran-boot ...
+Unpacking replacement r-recommended ...
+Replacing files in old package r-cran-kernsmooth ...
+Replacing files in old package r-cran-vr ...
+Replacing files in old package r-cran-cluster ...
+Replacing files in old package r-cran-foreign ...
+Replacing files in old package r-cran-lattice ...
+Replacing files in old package r-cran-mgcv ...
+Replacing files in old package r-cran-nlme ...
+Replacing files in old package r-cran-rpart ...
+Replacing files in old package r-cran-survival ...
+Ignoring deprecated call to build-help.pl from postinst or postrm script.
+More than one copy of package r-recommended has been unpacked
+  in this run !  Only configuring it once.
+Setting up r-recommended (2.3.0-0sarge1) ...
+
+tolstoy:/home/king# apt-get -f install
+Reading Package Lists... Done
+Building Dependency Tree... Done
+Correcting dependencies... Done
+The following extra packages will be installed:
+   r-base-dev
+The following packages will be REMOVED:
+   r-cran-cluster r-cran-foreign r-cran-kernsmooth r-cran-lattice 
+r-cran-mgcv
+   r-cran-nlme r-cran-rpart r-cran-survival r-cran-vr
+The following packages will be upgraded:
+   r-base-dev
+1 upgraded, 0 newly installed, 9 to remove and 1 not upgraded.
+Need to get 0B/2208B of archives.
+After unpacking 19.0MB disk space will be freed.
+Do you want to continue? [Y/n]
+Removing r-cran-kernsmooth ...
+Ignoring deprecated call to build-help.pl from postinst or postrm script.
+Removing r-cran-mgcv ...
+Ignoring deprecated call to build-help.pl from postinst or postrm script.
+Removing r-cran-vr ...
+Ignoring deprecated call to build-help.pl from postinst or postrm script.
+Removing r-cran-nlme ...
+Ignoring deprecated call to build-help.pl from postinst or postrm script.
+Removing r-cran-lattice ...
+Ignoring deprecated call to build-help.pl from postinst or postrm script.
+Removing r-cran-rpart ...
+Ignoring deprecated call to build-help.pl from postinst or postrm script.
+Removing r-cran-survival ...
+Ignoring deprecated call to build-help.pl from postinst or postrm script.
+(Reading database ... 62787 files and directories currently installed.)
+Preparing to replace r-base-dev 2.1.0-1 (using 
+.../r-base-dev_2.3.0-0sarge1_all.deb) ...
+Unpacking replacement r-base-dev ...
+Setting up r-base-dev (2.3.0-0sarge1) ...
+tolstoy:/home/king# apt-get install r-base
+Reading Package Lists... Done
+Building Dependency Tree... Done
+Suggested packages:
+   ess r-doc-info r-doc-pdf r-doc-html
+Recommended packages:
+   r-base-html r-base-latex
+The following NEW packages will be installed:
+   r-base
+0 upgraded, 1 newly installed, 0 to remove and 1 not upgraded.
+Need to get 0B/22.8kB of archives.
+After unpacking 57.3kB of additional disk space will be used.
+Selecting previously deselected package r-base.
+(Reading database ... 62789 files and directories currently installed.)
+Unpacking r-base (from .../r-base_2.3.0-0sarge1_all.deb) ...
+Setting up r-base (2.3.0-0sarge1) ...
+
+
+Dirk Eddelbuettel wrote:
+> Hi Robert,
+> 
+> On 2 May 2006 at 10:03, Robert King wrote:
+> | Hello,
+> | 
+> | I started writing this email to describe a problem, then fixed it, so 
+> | I'll display my ignorance anyway in case other people have a problem 
+> | with it.
+> | 
+> | What happened was that I could get apt-get to upgrade the documentation 
+> | packages, but not the others.
+> | 
+> | What I think was the problem was some remaining r-cran-* packages that 
+> | are now in r-recommended.  These seemed to be blocking the upgrade of 
+> | r-recommended, and hence r-base-core and thus r-base.
+> | 
+> | What I did was manually download r-base-core r-base-dev and 
+> | r-recommended and install the .debs with dpkg.
+> 
+> Hm, sounds like Christian's backported packages need some more finetuning on
+> the Depends/Provides/Conflicts.  
+> 
+> The more detail you could supply as to "what was blocked how" would
+> presumably help. 
+> 
+> Dirk
+>  
+> | Once this was done apt-get was able to fix the mess.
+> | 
+> | Here is some of the output I collected in the process.
+> | 
+> | This is the result of dpkg -l r-\* after the apt-get upgrade, which kept
+> | back r-base r-base-dev r-base-core r-recommended
+> | 
+> | 
+> | +++-==============-==============-============================================
+> | ii  r-base         2.1.0-1        GNU R statistical computing language
+> | and env
+> | ii  r-base-core    2.1.0-1        GNU R core of statistical computing
+> | language
+> | ii  r-base-dev     2.1.0-1        GNU R installation of auxiliary GNU R
+> | packag
+> | ii  r-base-html    2.3.0-0sarge1  GNU R html docs for statistical
+> | computing sy
+> | ii  r-base-latex   2.3.0-0sarge1  GNU R LaTeX docs for statistical
+> | computing s
+> | 
+> | [ some r-cran-* packages deleted ]
+> | 
+> | un  r-doc-html     <none>         (no description available)
+> | un  r-doc-info     <none>         (no description available)
+> | un  r-doc-pdf      <none>         (no description available)
+> | ii  r-mathlib      2.1.0-1        GNU R standalone mathematics library
+> | ii  r-recommended  2.1.0-1        GNU R collection of recommended
+> | 
+> | This is more sources.list
+> | 
+> | tolstoy:/etc/apt# cat sources.list
+> | deb http://ftp.au.debian.org/debian/ stable main contrib non-free
+> | deb http://ftp.au.debian.org/debian/ testing main contrib non-free
+> | deb-src http://ftp.au.debian.org/debian/ stable main contrib non-free
+> | 
+> | deb http://security.debian.org/ stable/updates main contrib non-free
+> | 
+> | #cran backports
+> | deb http://cran.au.r-project.org/bin/linux/debian/ stable/
+> | 
+> | tolstoy:/etc/apt# apt-get install r-base-core=2.3.0-0sarge1
+> | Reading Package Lists... Done
+> | Building Dependency Tree... Done
+> | E: Version '2.3.0-0sarge1' for 'r-base-core' was not found
+> | 
+> | tolstoy:~# wget
+> | http://cran.au.r-project.org/bin/linux/debian/stable/r-base-core_2.3.0-0sarge1_i386.deb
+> | --02:19:54--
+> | http://cran.au.r-project.org/bin/linux/debian/stable/r-base-core_2.3.0-0sarge1_i386.deb
+> |             => `r-base-core_2.3.0-0sarge1_i386.deb'
+> | Resolving proxy.newcastle.edu.au... 134.148.172.1, 134.148.20.65
+> | Connecting to proxy.newcastle.edu.au[134.148.172.1]:8080... connected.
+> | Proxy request sent, awaiting response... 200 OK
+> | Length: 8,315,512 [application/x-debian-package]
+> | 
+> | 100%[====================================>] 8,315,512      1.03M/s
+> | ETA 00:00
+> | 
+> | 02:20:02 (1.02 MB/s) - `r-base-core_2.3.0-0sarge1_i386.deb' saved
+> | [8315512/8315512]
+> | 
+> | tolstoy:~# dpkg -i r-base-core_2.3.0-0sarge1_i386.deb
+> | (Reading database ... 64541 files and directories currently installed.)
+> | Preparing to replace r-base-core 2.1.0-1 (using
+> | r-base-core_2.3.0-0sarge1_i386.deb) ...
+> | Unpacking replacement r-base-core ...
+> | Setting up r-base-core (2.3.0-0sarge1) ...
+> | 
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From edd at debian.org  Tue May  2 22:19:09 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 2 May 2006 15:19:09 -0500
+Subject: [R-sig-Debian] stable backport apt problem (solved)
+In-Reply-To: <4457A9FA.9080104@newcastle.edu.au>
+References: <445790FA.1030701@newcastle.edu.au>
+	<17495.40376.232288.158543@basebud.nulle.part>
+	<4457A9FA.9080104@newcastle.edu.au>
+Message-ID: <17495.48829.839711.421372@basebud.nulle.part>
+
+
+Robert,
+
+Thanks for the follow-up. Hopefully someone (Christian ?) can pick it up from
+here as I don't use or build these backported packages...
+
+On 2 May 2006 at 11:50, Robert King wrote:
+| Hi Dirk,
+| 
+| This is my attempt to re-create the problem.  I'm not so sure it is just 
+| a dependency problem now.  I think there is possibly an apt problem on 
+| my machine, combined with a problem with the dependencies where 
+| r-recommended is wanting its old dependencies at the same time as trying 
+| to replace them.
+| 
+| I removed all the r-\* packages, removed the backports line from 
+| /etc/apt/source.list, installed
+| r-base-core r-recommended r-base-dev r-mathlib
+| which went OK, then added the backport URL to sources.list again:
+| 
+| tolstoy:/home/king# apt-get upgrade
+| Reading Package Lists... Done
+| Building Dependency Tree... Done
+| The following packages have been kept back:
+|    kernel-image-2.6-686 r-base-dev
+| 0 upgraded, 0 newly installed, 0 to remove and 2 not upgraded.
+
+A little suspicious that r-base-dev is still hanging around...
+
+| tolstoy:/home/king# apt-get install r-base-dev
+| Reading Package Lists... Done
+| Building Dependency Tree... Done
+| Some packages could not be installed. This may mean that you have
+| requested an impossible situation or if you are using the unstable
+| distribution that some required packages have not yet been created
+| or been moved out of Incoming.
+| 
+| Since you only requested a single operation it is extremely likely that
+| the package is simply not installable and a bug report against
+| that package should be filed.
+| The following information may help to resolve the situation:
+| 
+| The following packages have unmet dependencies:
+|    r-base-dev: Depends: r-base-core (= 2.3.0-0sarge1) but 2.1.0-1 is to 
+| be installed
+| E: Broken packages
+
+Could that be related.
+
+| tolstoy:/home/king# apt-get install r-base-core=2.3.0-0sarge1
+| Reading Package Lists... Done
+| Building Dependency Tree... Done
+| E: Version '2.3.0-0sarge1' for 'r-base-core' was not found
+| 
+| tolstoy:/home/king# apt-cache show r-base-core
+| shows the following versions of r-base-core available
+| 
+| Version: 2.1.0-1
+| Version: 2.2.1-6
+| 
+| Even though 
+| /var/lib/apt/lists/cran.au.r-project.org_bin_linux_debian_stable_Packages
+| shows version 2.3.0-0sarge1
+| and I can download it with wget
+
+Try 'apt-cache policy r-base-core' which will tell you what it knows about
+the package and its distributions as well as how it is 'pinned' (ie which
+preferences are expressed in terms of stable vs testing vs ..._
+
+| tolstoy:/home/king# grep 'Package: r-base-core' /var/lib/apt/lists/*
+| /var/lib/apt/lists/cran.au.r-project.org_bin_linux_debian_stable_Packages:Package: 
+| r-base-core
+| (has Version: 2.3.0-0sarge1)
+| /var/lib/apt/lists/ftp.au.debian.org_debian_dists_stable_main_binary-i386_Packages:Package: 
+| r-base-core
+| (has Version: 2.1.0-1)
+| /var/lib/apt/lists/ftp.au.debian.org_debian_dists_testing_main_binary-i386_Packages:Package: 
+| r-base-core
+| (has Version: 2.2.1-6)
+| 
+| Even if I remove the testing line from the sources.list, apt-cache and 
+| apt-get will only see the stable version
+| 
+| Then to the manual-download solution:
+| 
+| # dpkg -i r-base-core_2.3.0-0sarge1_i386.deb
+| (Reading database ... 62319 files and directories currently installed.)
+| Preparing to replace r-base-core 2.1.0-1 (using 
+| .../r-base-core_2.3.0-0sarge1_i386.deb) ...
+| Unpacking replacement r-base-core ...
+| Setting up r-base-core (2.3.0-0sarge1) ...
+| Installing new version of config file /etc/R/Makeconf ...
+| 
+| Configuration file `/etc/R/Renviron'
+|   ==> Modified (by you or by a script) since installation.
+|   ==> Package distributor has shipped an updated version.
+|     What would you like to do about it ?  Your options are:
+|      Y or I  : install the package maintainer's version
+|      N or O  : keep your currently-installed version
+|        D     : show the differences between the versions
+|        Z     : background this process to examine the situation
+|   The default action is to keep your current version.
+| *** Renviron (Y/I/N/O/D/Z) [default=N] ?
+| 
+| # dpkg -i /nfs/r-mathlib_2.3.0-0sarge1_i386.deb
+| (Reading database ... 62472 files and directories currently installed.)
+| Preparing to replace r-mathlib 2.1.0-1 (using 
+| .../r-mathlib_2.3.0-0sarge1_i386.deb) ...
+| Unpacking replacement r-mathlib ...
+| Setting up r-mathlib (2.3.0-0sarge1) ...
+| 
+| # dpkg -i /nfs/r-recommended_2.3.0-0sarge1_i386.deb
+| dpkg: considering removing r-cran-boot in favour of r-recommended ...
+| dpkg: no, cannot remove r-cran-boot (--auto-deconfigure will help):
+|   r-recommended depends on r-cran-boot (>= 1.2.19)
+|    r-cran-boot is to be removed.
+| dpkg: regarding .../r-recommended_2.3.0-0sarge1_i386.deb containing 
+| r-recommended:
+|   r-recommended conflicts with r-cran-boot
+|    r-cran-boot (version 1.2.22-1) is installed.
+| dpkg: error processing /nfs/r-recommended_2.3.0-0sarge1_i386.deb 
+| (--install):
+|   conflicting packages - not installing r-recommended
+| Errors were encountered while processing:
+|   /nfs/r-recommended_2.3.0-0sarge1_i386.deb
+| 
+| Try auto-deconfigure as recommended:
+| 
+| tolstoy:/home/king# dpkg -i --auto-deconfigure 
+| /nfs/r-recommended_2.3.0-0sarge1_i386.deb
+| dpkg: considering removing r-cran-boot in favour of r-recommended ...
+| dpkg: yes, will remove r-cran-boot in favour of r-recommended.
+| (Reading database ... 62468 files and directories currently installed.)
+| Preparing to replace r-recommended 2.1.0-1 (using 
+| .../r-recommended_2.3.0-0sarge1_i386.deb) ...
+| De-configuring r-recommended, so that we can remove r-cran-boot ...
+| Unpacking replacement r-recommended ...
+| Replacing files in old package r-cran-kernsmooth ...
+| Replacing files in old package r-cran-vr ...
+| Replacing files in old package r-cran-cluster ...
+| Replacing files in old package r-cran-foreign ...
+| Replacing files in old package r-cran-lattice ...
+| Replacing files in old package r-cran-mgcv ...
+| Replacing files in old package r-cran-nlme ...
+| Replacing files in old package r-cran-rpart ...
+| Replacing files in old package r-cran-survival ...
+| Ignoring deprecated call to build-help.pl from postinst or postrm script.
+| More than one copy of package r-recommended has been unpacked
+|   in this run !  Only configuring it once.
+| Setting up r-recommended (2.3.0-0sarge1) ...
+| 
+| tolstoy:/home/king# apt-get -f install
+| Reading Package Lists... Done
+| Building Dependency Tree... Done
+| Correcting dependencies... Done
+| The following extra packages will be installed:
+|    r-base-dev
+| The following packages will be REMOVED:
+|    r-cran-cluster r-cran-foreign r-cran-kernsmooth r-cran-lattice 
+| r-cran-mgcv
+|    r-cran-nlme r-cran-rpart r-cran-survival r-cran-vr
+| The following packages will be upgraded:
+|    r-base-dev
+| 1 upgraded, 0 newly installed, 9 to remove and 1 not upgraded.
+| Need to get 0B/2208B of archives.
+| After unpacking 19.0MB disk space will be freed.
+| Do you want to continue? [Y/n]
+| Removing r-cran-kernsmooth ...
+| Ignoring deprecated call to build-help.pl from postinst or postrm script.
+| Removing r-cran-mgcv ...
+| Ignoring deprecated call to build-help.pl from postinst or postrm script.
+| Removing r-cran-vr ...
+| Ignoring deprecated call to build-help.pl from postinst or postrm script.
+| Removing r-cran-nlme ...
+| Ignoring deprecated call to build-help.pl from postinst or postrm script.
+| Removing r-cran-lattice ...
+| Ignoring deprecated call to build-help.pl from postinst or postrm script.
+| Removing r-cran-rpart ...
+| Ignoring deprecated call to build-help.pl from postinst or postrm script.
+| Removing r-cran-survival ...
+| Ignoring deprecated call to build-help.pl from postinst or postrm script.
+| (Reading database ... 62787 files and directories currently installed.)
+| Preparing to replace r-base-dev 2.1.0-1 (using 
+| .../r-base-dev_2.3.0-0sarge1_all.deb) ...
+| Unpacking replacement r-base-dev ...
+| Setting up r-base-dev (2.3.0-0sarge1) ...
+| tolstoy:/home/king# apt-get install r-base
+| Reading Package Lists... Done
+| Building Dependency Tree... Done
+| Suggested packages:
+|    ess r-doc-info r-doc-pdf r-doc-html
+| Recommended packages:
+|    r-base-html r-base-latex
+| The following NEW packages will be installed:
+|    r-base
+| 0 upgraded, 1 newly installed, 0 to remove and 1 not upgraded.
+| Need to get 0B/22.8kB of archives.
+| After unpacking 57.3kB of additional disk space will be used.
+| Selecting previously deselected package r-base.
+| (Reading database ... 62789 files and directories currently installed.)
+| Unpacking r-base (from .../r-base_2.3.0-0sarge1_all.deb) ...
+| Setting up r-base (2.3.0-0sarge1) ...
+| 
+
+Yes, someone will have to work out how the r-recommended 'sumo' package that
+Christian builds can safely remove/upgrade/... the individual packages from
+an older Debian stable installation.
+
+Regards, Dirk
+ 
+| Dirk Eddelbuettel wrote:
+| > Hi Robert,
+| > 
+| > On 2 May 2006 at 10:03, Robert King wrote:
+| > | Hello,
+| > | 
+| > | I started writing this email to describe a problem, then fixed it, so 
+| > | I'll display my ignorance anyway in case other people have a problem 
+| > | with it.
+| > | 
+| > | What happened was that I could get apt-get to upgrade the documentation 
+| > | packages, but not the others.
+| > | 
+| > | What I think was the problem was some remaining r-cran-* packages that 
+| > | are now in r-recommended.  These seemed to be blocking the upgrade of 
+| > | r-recommended, and hence r-base-core and thus r-base.
+| > | 
+| > | What I did was manually download r-base-core r-base-dev and 
+| > | r-recommended and install the .debs with dpkg.
+| > 
+| > Hm, sounds like Christian's backported packages need some more finetuning on
+| > the Depends/Provides/Conflicts.  
+| > 
+| > The more detail you could supply as to "what was blocked how" would
+| > presumably help. 
+| > 
+| > Dirk
+| >  
+| > | Once this was done apt-get was able to fix the mess.
+| > | 
+| > | Here is some of the output I collected in the process.
+| > | 
+| > | This is the result of dpkg -l r-\* after the apt-get upgrade, which kept
+| > | back r-base r-base-dev r-base-core r-recommended
+| > | 
+| > | 
+| > | +++-==============-==============-============================================
+| > | ii  r-base         2.1.0-1        GNU R statistical computing language
+| > | and env
+| > | ii  r-base-core    2.1.0-1        GNU R core of statistical computing
+| > | language
+| > | ii  r-base-dev     2.1.0-1        GNU R installation of auxiliary GNU R
+| > | packag
+| > | ii  r-base-html    2.3.0-0sarge1  GNU R html docs for statistical
+| > | computing sy
+| > | ii  r-base-latex   2.3.0-0sarge1  GNU R LaTeX docs for statistical
+| > | computing s
+| > | 
+| > | [ some r-cran-* packages deleted ]
+| > | 
+| > | un  r-doc-html     <none>         (no description available)
+| > | un  r-doc-info     <none>         (no description available)
+| > | un  r-doc-pdf      <none>         (no description available)
+| > | ii  r-mathlib      2.1.0-1        GNU R standalone mathematics library
+| > | ii  r-recommended  2.1.0-1        GNU R collection of recommended
+| > | 
+| > | This is more sources.list
+| > | 
+| > | tolstoy:/etc/apt# cat sources.list
+| > | deb http://ftp.au.debian.org/debian/ stable main contrib non-free
+| > | deb http://ftp.au.debian.org/debian/ testing main contrib non-free
+| > | deb-src http://ftp.au.debian.org/debian/ stable main contrib non-free
+| > | 
+| > | deb http://security.debian.org/ stable/updates main contrib non-free
+| > | 
+| > | #cran backports
+| > | deb http://cran.au.r-project.org/bin/linux/debian/ stable/
+| > | 
+| > | tolstoy:/etc/apt# apt-get install r-base-core=2.3.0-0sarge1
+| > | Reading Package Lists... Done
+| > | Building Dependency Tree... Done
+| > | E: Version '2.3.0-0sarge1' for 'r-base-core' was not found
+| > | 
+| > | tolstoy:~# wget
+| > | http://cran.au.r-project.org/bin/linux/debian/stable/r-base-core_2.3.0-0sarge1_i386.deb
+| > | --02:19:54--
+| > | http://cran.au.r-project.org/bin/linux/debian/stable/r-base-core_2.3.0-0sarge1_i386.deb
+| > |             => `r-base-core_2.3.0-0sarge1_i386.deb'
+| > | Resolving proxy.newcastle.edu.au... 134.148.172.1, 134.148.20.65
+| > | Connecting to proxy.newcastle.edu.au[134.148.172.1]:8080... connected.
+| > | Proxy request sent, awaiting response... 200 OK
+| > | Length: 8,315,512 [application/x-debian-package]
+| > | 
+| > | 100%[====================================>] 8,315,512      1.03M/s
+| > | ETA 00:00
+| > | 
+| > | 02:20:02 (1.02 MB/s) - `r-base-core_2.3.0-0sarge1_i386.deb' saved
+| > | [8315512/8315512]
+| > | 
+| > | tolstoy:~# dpkg -i r-base-core_2.3.0-0sarge1_i386.deb
+| > | (Reading database ... 64541 files and directories currently installed.)
+| > | Preparing to replace r-base-core 2.1.0-1 (using
+| > | r-base-core_2.3.0-0sarge1_i386.deb) ...
+| > | Unpacking replacement r-base-core ...
+| > | Setting up r-base-core (2.3.0-0sarge1) ...
+| > | 
+| > | _______________________________________________
+| > | R-SIG-Debian mailing list
+| > | R-SIG-Debian at r-project.org
+| > | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| > 
+| 
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From cts at debian.org  Wed May  3 15:29:58 2006
+From: cts at debian.org (Christian T. Steigies)
+Date: Wed, 3 May 2006 15:29:58 +0200
+Subject: [R-sig-Debian] stable backport apt problem (solved)
+In-Reply-To: <17495.48829.839711.421372@basebud.nulle.part>
+References: <445790FA.1030701@newcastle.edu.au>
+	<17495.40376.232288.158543@basebud.nulle.part>
+	<4457A9FA.9080104@newcastle.edu.au>
+	<17495.48829.839711.421372@basebud.nulle.part>
+Message-ID: <20060503132958.GA1353@chumley.earth.sol>
+
+On Tue, May 02, 2006 at 03:19:09PM -0500, Dirk Eddelbuettel wrote:
+> 
+> Robert,
+> 
+> Thanks for the follow-up. Hopefully someone (Christian ?) can pick it up from
+> here as I don't use or build these backported packages...
+> 
+> On 2 May 2006 at 11:50, Robert King wrote:
+> | Hi Dirk,
+> | 
+> | This is my attempt to re-create the problem.  I'm not so sure it is just 
+> | a dependency problem now.  I think there is possibly an apt problem on 
+> | my machine, combined with a problem with the dependencies where 
+> | r-recommended is wanting its old dependencies at the same time as trying 
+> | to replace them.
+
+I tried to follow debian-policy with the provides/replaces/conflicts, but I
+might have gotten it wrong. I now added r-recommended to this list, and it
+seems to work better for me, but maybe you can try again. The version is
+0sarge2 and should appear on your cran mirror soon, but you could try to
+install from my debian page directly.
+
+Christian
+
+
+From robert.king at newcastle.edu.au  Wed May  3 23:13:17 2006
+From: robert.king at newcastle.edu.au (Robert King)
+Date: Wed, 03 May 2006 14:13:17 -0700
+Subject: [R-sig-Debian] stable backport apt problem (solved)
+In-Reply-To: <20060503132958.GA1353@chumley.earth.sol>
+References: <445790FA.1030701@newcastle.edu.au>
+	<17495.40376.232288.158543@basebud.nulle.part>
+	<4457A9FA.9080104@newcastle.edu.au>
+	<17495.48829.839711.421372@basebud.nulle.part>
+	<20060503132958.GA1353@chumley.earth.sol>
+Message-ID: <44591CED.5060203@newcastle.edu.au>
+
+Hi Christian,
+
+This went mostly OK, but failed with a problem with 
+/usr/lib/R/library/grid/R/grid (see extract from output below).
+This was fixed with an apt-get -f install.
+
+
+dpkg: r-cran-cluster: dependency problems, but removing anyway as you 
+request:
+  r-recommended depends on r-cran-cluster (>= 1.9.6-2); however:
+   Package r-cran-cluster is to be removed.
+(Reading database ... 59060 files and directories currently installed.)
+Removing r-cran-cluster ...
+(Reading database ... 58833 files and directories currently installed.)
+Preparing to replace r-recommended 2.1.0-1 (using 
+.../r-recommended_2.3.0-0sarge2_i386.deb) ...
+Unpacking replacement r-recommended ...
+dpkg: error processing 
+/var/cache/apt/archives/r-recommended_2.3.0-0sarge2_i386.deb (--unpack):
+  trying to overwrite `/usr/lib/R/library/grid/R/grid', which is also in 
+package r-base-core
+dpkg-deb: subprocess paste killed by signal (Broken pipe)
+Preparing to replace r-base-core 2.1.0-1 (using 
+.../r-base-core_2.3.0-0sarge2_i386.deb) ...
+Unpacking replacement r-base-core ...
+Errors were encountered while processing:
+  /var/cache/apt/archives/r-recommended_2.3.0-0sarge2_i386.deb
+E: Sub-process /usr/bin/dpkg returned an error code (1)
+
+
+Note that this was on the basis of
+apt-get install r-base=2.3.0-0sarge2
+rather than apt-get upgrade, because I don't understand preferences well 
+enough to get apt to prefer your private
+
+
+
+tolstoy:/home/king# apt-get -s upgrade
+Reading Package Lists... Done
+Building Dependency Tree... Done
+The following packages have been kept back:
+   kernel-image-2.6-686 r-base r-base-core r-recommended
+The following packages will be upgraded:
+   r-mathlib
+1 upgraded, 0 newly installed, 0 to remove and 4 not upgraded.
+Inst r-mathlib [2.1.0-1] (2.3.0-0sarge2 cts:stable)
+Conf r-mathlib (2.3.0-0sarge2 cts:stable)
+
+
+
+Christian T. Steigies wrote:
+> On Tue, May 02, 2006 at 03:19:09PM -0500, Dirk Eddelbuettel wrote:
+>> Robert,
+>>
+>> Thanks for the follow-up. Hopefully someone (Christian ?) can pick it up from
+>> here as I don't use or build these backported packages...
+>>
+>> On 2 May 2006 at 11:50, Robert King wrote:
+>> | Hi Dirk,
+>> | 
+>> | This is my attempt to re-create the problem.  I'm not so sure it is just 
+>> | a dependency problem now.  I think there is possibly an apt problem on 
+>> | my machine, combined with a problem with the dependencies where 
+>> | r-recommended is wanting its old dependencies at the same time as trying 
+>> | to replace them.
+> 
+> I tried to follow debian-policy with the provides/replaces/conflicts, but I
+> might have gotten it wrong. I now added r-recommended to this list, and it
+> seems to work better for me, but maybe you can try again. The version is
+> 0sarge2 and should appear on your cran mirror soon, but you could try to
+> install from my debian page directly.
+> 
+> Christian
+
+
+From cts at debian.org  Thu May  4 13:55:03 2006
+From: cts at debian.org (Christian T. Steigies)
+Date: Thu, 4 May 2006 13:55:03 +0200
+Subject: [R-sig-Debian] stable backport apt problem (solved)
+In-Reply-To: <44591CED.5060203@newcastle.edu.au>
+References: <445790FA.1030701@newcastle.edu.au>
+	<17495.40376.232288.158543@basebud.nulle.part>
+	<4457A9FA.9080104@newcastle.edu.au>
+	<17495.48829.839711.421372@basebud.nulle.part>
+	<20060503132958.GA1353@chumley.earth.sol>
+	<44591CED.5060203@newcastle.edu.au>
+Message-ID: <20060504115503.GA13926@chumley.earth.sol>
+
+Hi Robert,
+On Wed, May 03, 2006 at 02:13:17PM -0700, Robert King wrote:
+> Hi Christian,
+> 
+> This went mostly OK, but failed with a problem with 
+> /usr/lib/R/library/grid/R/grid (see extract from output below).
+> This was fixed with an apt-get -f install.
+
+Yes, I had that, too. I assume this is because some files where moved from
+the core package to recommended. But apt-get -f fixed it for me without
+further intervention, so I thought I could leave it like this or do you see
+a major problem here? I'd probably have to add r-base-core to the replaces
+list to get rid of that message, but I am not sure if that is a good idea,
+since you still need to install the r-base-core package. If you have a
+better solution, I'll be happy to include it.
+
+> Note that this was on the basis of
+> apt-get install r-base=2.3.0-0sarge2
+> rather than apt-get upgrade, because I don't understand preferences well 
+> enough to get apt to prefer your private
+
+There should not be anything to configure, since my packages are for stable
+and they have a version number that is higher than the packages in stable. 
+ 
+> tolstoy:/home/king# apt-get -s upgrade
+> Reading Package Lists... Done
+> Building Dependency Tree... Done
+> The following packages have been kept back:
+>   kernel-image-2.6-686 r-base r-base-core r-recommended
+> The following packages will be upgraded:
+>   r-mathlib
+> 1 upgraded, 0 newly installed, 0 to remove and 4 not upgraded.
+> Inst r-mathlib [2.1.0-1] (2.3.0-0sarge2 cts:stable)
+> Conf r-mathlib (2.3.0-0sarge2 cts:stable)
+
+dist-upgrade should do it?
+ 
+Christian
+
+
+From edd at debian.org  Fri May  5 02:44:47 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 4 May 2006 19:44:47 -0500
+Subject: [R-sig-Debian] stable backport apt problem (solved)
+In-Reply-To: <20060504115503.GA13926@chumley.earth.sol>
+References: <445790FA.1030701@newcastle.edu.au>
+	<17495.40376.232288.158543@basebud.nulle.part>
+	<4457A9FA.9080104@newcastle.edu.au>
+	<17495.48829.839711.421372@basebud.nulle.part>
+	<20060503132958.GA1353@chumley.earth.sol>
+	<44591CED.5060203@newcastle.edu.au>
+	<20060504115503.GA13926@chumley.earth.sol>
+Message-ID: <17498.40959.247279.973624@basebud.nulle.part>
+
+
+On 4 May 2006 at 13:55, Christian T. Steigies wrote:
+| Hi Robert,
+| On Wed, May 03, 2006 at 02:13:17PM -0700, Robert King wrote:
+| > Hi Christian,
+| > 
+| > This went mostly OK, but failed with a problem with 
+| > /usr/lib/R/library/grid/R/grid (see extract from output below).
+| > This was fixed with an apt-get -f install.
+| 
+| Yes, I had that, too. I assume this is because some files where moved from
+| the core package to recommended. But apt-get -f fixed it for me without
+| further intervention, so I thought I could leave it like this or do you see
+| a major problem here? I'd probably have to add r-base-core to the replaces
+| list to get rid of that message, but I am not sure if that is a good idea,
+| since you still need to install the r-base-core package. If you have a
+| better solution, I'll be happy to include it.
+
+r-base-core is the `core' R package, we'd need that anyway.
+
+Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+

@@ -1,0 +1,1044 @@
+From mlpalmeira at ulg.ac.be  Thu Jan  7 11:33:20 2010
+From: mlpalmeira at ulg.ac.be (Leonor Palmeira)
+Date: Thu, 07 Jan 2010 11:33:20 +0100
+Subject: [R-sig-Debian]  rJava in R 2.8.1 on Ubuntu 8.10
+Message-ID: <4B45B870.1020205@ulg.ac.be>
+
+Dear all,
+
+I have had the same problem as stated before, even with SUN's jdk 
+installed, and therefore enable to install any of 'iplots', 'rJava' or 
+'JGR' packages.
+It seemed however that the R CMD javareconf couldn't catch the path of 
+my actual jdk.
+
+The following worked for me by forcing the JAVA_HOME environment variable:
+
+env JAVA_HOME=/my/path/to/my/very/own/sun/jdk1.6.0_17 
+/my/path/to/my/very/own/favourite/version/of/R-2.10.0/bin/R CMD javareconf
+
+and then, everything runs smoothly for the install of the previous packages.
+
+Hope this helps.
+Cheers,
+Leo.
+
+-- 
+/*******************************************/
+/* Leonor Palmeira, PhD                    */
+/*                                         */
+/* +32 4 3664269                           */
+/* mlpalmeira at ulg.ac.be                    */
+/*                                         */
+/* Bat. B43BIS Immunologie et vaccinologie */
+/* Boulevard de Colonster 20               */
+/* 4000 Liege, Belgique                    */
+/*******************************************/
+
+#################
+
+Previous Message :
+
+It's almost always the same with failing builds:
+
+On 31 January 2009 at 11:41, Stefan Th. Gries wrote:
+[...]
+Java home path   : /usr/lib/jvm/java-6-openjdk/jre
+[...]
+
+This clearly states that you have the JRE -- ie the __run-time__
+environment.  The Builds-Depends [1] are for the package openjdk-6-jdk -- ie
+the 'java development kit'.  Install that, re-run 'sudo R CMD 
+javareconf' and
+try again.
+
+Dirk
+
+[1] The second-best thing about having Debian packages, besides giving you
+the binaries, is that they give you the essentially fail-safe recipe for
+building them, including the list of ingredients encoded in the
+Build-Depends: line of debian/control. You get that via the .diff.gz
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From cddesjardins at gmail.com  Tue Jan 12 00:09:46 2010
+From: cddesjardins at gmail.com (Christopher David Desjardins)
+Date: Mon, 11 Jan 2010 17:09:46 -0600
+Subject: [R-sig-Debian] cran2deb repository and Squeeze?
+Message-ID: <4b4bafc5.1602be0a.584c.ffffa523@mx.google.com>
+
+Hi,
+I am curious what will happen to cran2deb:
+
+deb http://debian.cran.r-project.org/cran2deb/debian-amd64 testing/
+
+When Squeeze is released? I really hope this service will continue. It
+has been great being able to aptitude install R packages.
+
+Additionally are these packages signed and is there a key?
+Chris
+
+
+From edd at debian.org  Tue Jan 12 02:32:19 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 11 Jan 2010 19:32:19 -0600
+Subject: [R-sig-Debian] cran2deb repository and Squeeze?
+In-Reply-To: <4b4bafc5.1602be0a.584c.ffffa523@mx.google.com>
+References: <4b4bafc5.1602be0a.584c.ffffa523@mx.google.com>
+Message-ID: <19275.53539.932069.274496@ron.nulle.part>
+
+
+On 11 January 2010 at 17:09, Christopher David Desjardins wrote:
+| Hi,
+| I am curious what will happen to cran2deb:
+| 
+| deb http://debian.cran.r-project.org/cran2deb/debian-amd64 testing/
+| 
+| When Squeeze is released? 
+
+We will upgrade to what is the-then-new testing and continue. 
+
+Why would we stop? And FWIW we have already been through one release.
+
+| I really hope this service will continue. It has been great being able to
+| aptitude install R packages.
+| 
+| Additionally are these packages signed and is there a key?
+
+The Release file is signed and there is a key, see 
+
+    http://debian.cran.r-project.org
+
+For package signing, I guess we haven't gotten around to it. Feel free to
+submit a patch :)
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From cddesjardins at gmail.com  Tue Jan 12 02:59:24 2010
+From: cddesjardins at gmail.com (Christopher David Desjardins)
+Date: Mon, 11 Jan 2010 19:59:24 -0600
+Subject: [R-sig-Debian] cran2deb repository and Squeeze?
+In-Reply-To: <19275.53539.932069.274496@ron.nulle.part>
+References: <4b4bafc5.1602be0a.584c.ffffa523@mx.google.com>
+	<19275.53539.932069.274496@ron.nulle.part>
+Message-ID: <4b4bd77f.5644f10a.0be3.ffffc1e5@mx.google.com>
+
+On Mon, 2010-01-11 at 19:32 -0600, Dirk Eddelbuettel wrote:
+> On 11 January 2010 at 17:09, Christopher David Desjardins wrote:
+> | Hi,
+> | I am curious what will happen to cran2deb:
+> | 
+> | deb http://debian.cran.r-project.org/cran2deb/debian-amd64 testing/
+> | 
+> | When Squeeze is released? 
+> 
+> We will upgrade to what is the-then-new testing and continue. 
+> 
+> Why would we stop? And FWIW we have already been through one release.
+
+Sorry my question was will this service still be available to squeeze
+users or will it be only available to squeeze+1 users?
+
+Thanks.
+> 
+> | I really hope this service will continue. It has been great being able to
+> | aptitude install R packages.
+> | 
+> | Additionally are these packages signed and is there a key?
+> 
+> The Release file is signed and there is a key, see 
+> 
+>     http://debian.cran.r-project.org
+> 
+> For package signing, I guess we haven't gotten around to it. Feel free to
+> submit a patch :)
+> 
+> Dirk
+>
+
+
+From edd at debian.org  Tue Jan 12 03:20:06 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 11 Jan 2010 20:20:06 -0600
+Subject: [R-sig-Debian] cran2deb repository and Squeeze?
+In-Reply-To: <4b4bd77f.5644f10a.0be3.ffffc1e5@mx.google.com>
+References: <4b4bafc5.1602be0a.584c.ffffa523@mx.google.com>
+	<19275.53539.932069.274496@ron.nulle.part>
+	<4b4bd77f.5644f10a.0be3.ffffc1e5@mx.google.com>
+Message-ID: <19275.56406.364979.309748@ron.nulle.part>
+
+
+On 11 January 2010 at 19:59, Christopher David Desjardins wrote:
+| On Mon, 2010-01-11 at 19:32 -0600, Dirk Eddelbuettel wrote:
+| > On 11 January 2010 at 17:09, Christopher David Desjardins wrote:
+| > | Hi,
+| > | I am curious what will happen to cran2deb:
+| > | 
+| > | deb http://debian.cran.r-project.org/cran2deb/debian-amd64 testing/
+| > | 
+| > | When Squeeze is released? 
+| > 
+| > We will upgrade to what is the-then-new testing and continue. 
+| > 
+| > Why would we stop? And FWIW we have already been through one release.
+| 
+| Sorry my question was will this service still be available to squeeze
+| users or will it be only available to squeeze+1 users?
+
+It has always been for 'Debian testing' irrespective of the release codemame.
+If you still have questions, send them to me off-list. 
+
+Dirk
+ 
+| Thanks.
+| > 
+| > | I really hope this service will continue. It has been great being able to
+| > | aptitude install R packages.
+| > | 
+| > | Additionally are these packages signed and is there a key?
+| > 
+| > The Release file is signed and there is a key, see 
+| > 
+| >     http://debian.cran.r-project.org
+| > 
+| > For package signing, I guess we haven't gotten around to it. Feel free to
+| > submit a patch :)
+| > 
+| > Dirk
+| > 
+| 
+| 
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From pauljohn32 at gmail.com  Wed Jan 13 20:05:21 2010
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Wed, 13 Jan 2010 13:05:21 -0600
+Subject: [R-sig-Debian] There's a nice packaging thing you do...
+Message-ID: <13e802631001131105w5317b96cqdd80ef684df78543@mail.gmail.com>
+
+Hello, Dirk (and everybody):
+
+I have Ubuntu on some systems and I notice there's a very nice thing
+you do with your R packages.  The system is setup so that packages
+installed from deb go into /usr/lib/R, while packages built from
+scratch by root go into /usr/local/.., and if the user runs
+install.packages(), then it gets dumped into the user's own account.
+
+I'm much more familiar with RedHat/Fedora systems, and they don't have
+that approach built in.  I've not tried to install a package on an RPM
+based system as an ordinary user lately, but in the old days it failed
+because user's can't write in /usr/lib.  I am certain the RPM based
+systems don't segregate packages installed from RPM and built by root
+with install.packages.
+
+Am I correct in my "detective work" that your package is making
+changes to the Renviron file to make this happen?  Are there other
+changes as well?  I'd like to do the same to an RPM setup.
+
+I found myself wondering if this setup should be suggested to the R
+distribution itself?
+
+pj
+-- 
+Paul E. Johnson
+Professor, Political Science
+1541 Lilac Lane, Room 504
+University of Kansas
+
+
+From edd at debian.org  Wed Jan 13 20:23:55 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 13 Jan 2010 13:23:55 -0600
+Subject: [R-sig-Debian] There's a nice packaging thing you do...
+In-Reply-To: <13e802631001131105w5317b96cqdd80ef684df78543@mail.gmail.com>
+References: <13e802631001131105w5317b96cqdd80ef684df78543@mail.gmail.com>
+Message-ID: <19278.7627.167530.224032@ron.nulle.part>
+
+
+Hi Paul,
+
+On 13 January 2010 at 13:05, Paul Johnson wrote:
+| Hello, Dirk (and everybody):
+| 
+| I have Ubuntu on some systems and I notice there's a very nice thing
+| you do with your R packages.  The system is setup so that packages
+| installed from deb go into /usr/lib/R, while packages built from
+| scratch by root go into /usr/local/.., and if the user runs
+| install.packages(), then it gets dumped into the user's own account.
+
+Credit where credit is due -- Fritz and Kurt suggested that to me the first
+time I made it to Vienna (for DSC 2003 if memory serves)
+
+   R 'recommended' packages get	      /usr/lib/R/library
+   (eg boot, survival, MASS, ...)
+
+   Pre-packaged r-cran* deb	      /usr/lib/R/site-library
+
+   'The rest'			      /usr/local/lib/R/site-library
+
+which is indeed pretty nice as we separate installation via dpkg, apt,
+aptitude, ... from that with R (install.packages(), R CMD INSTALL, ...)
+
+That is done via the setting of R_LIBS_SITE (formerly: R_LIBS) in
+/etc/R/Renviron -- the very trick suggested by Fritz and Kurt.
+
+| I'm much more familiar with RedHat/Fedora systems, and they don't have
+| that approach built in.  I've not tried to install a package on an RPM
+| based system as an ordinary user lately, but in the old days it failed
+| because user's can't write in /usr/lib.  I am certain the RPM based
+| systems don't segregate packages installed from RPM and built by root
+| with install.packages.
+| 
+| Am I correct in my "detective work" that your package is making
+| changes to the Renviron file to make this happen?  Are there other
+| changes as well?  I'd like to do the same to an RPM setup.
+
+Not to package management, I think. 
+
+We do get Deepayan's tab-completion for bash and a bunch of other niceties --
+read the source, in this case debian/rules of the r-base package for Debian :)
+ 
+Thanks for kind encouragement.
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From kapatp at gmail.com  Thu Jan 14 01:18:29 2010
+From: kapatp at gmail.com (Prasenjit Kapat)
+Date: Wed, 13 Jan 2010 19:18:29 -0500
+Subject: [R-sig-Debian] There's a nice packaging thing you do...
+In-Reply-To: <13e802631001131105w5317b96cqdd80ef684df78543@mail.gmail.com>
+References: <13e802631001131105w5317b96cqdd80ef684df78543@mail.gmail.com>
+Message-ID: <de8c7cb41001131618w6565b3b6o5e76b0dc75c7a3af@mail.gmail.com>
+
+On Wed, Jan 13, 2010 at 2:05 PM, Paul Johnson <pauljohn32 at gmail.com> wrote:
+> Hello, Dirk (and everybody):
+>
+> I have Ubuntu on some systems and I notice there's a very nice thing
+> you do with your R packages. ?The system is setup so that packages
+> installed from deb go into /usr/lib/R, while packages built from
+> scratch by root go into /usr/local/.., and if the user runs
+> install.packages(), then it gets dumped into the user's own account.
+>
+> I'm much more familiar with RedHat/Fedora systems, and they don't have
+> that approach built in. ?I've not tried to install a package on an RPM
+> based system as an ordinary user lately, but in the old days it failed
+> because user's can't write in /usr/lib. ?I am certain the RPM based
+> systems don't segregate packages installed from RPM and built by root
+> with install.packages.
+
+Interesting that you bring this up. I can confirm this (lack of)
+behavior on RedHat atleast.
+
+>From the *NEW FEATURES* section under *CHANGES IN R VERSION 2.5.0* of
+http://www.cran.r-project.org/src/base/NEWS
+
+If 'lib' is not specified or is specified of length one and
+	the chosen location is not a writable directory,
+	install.packages() offers to create a personal library
+	directory for you if one does not already exist, and to
+	install there.
+
+If I understand correctly, this "feature" is not an artifact of a
+distribution specific packaging. It irks me how an rpm installation (I
+can talk of RedHat 5.4 only) blatantly ignores this, even to this day
+(R 2.10.0)! And I fail to understand how/why, especially when
+R_LIBS_USER is very specifically hardcoded in
+/usr/lib64/R/etc/Renviron  (for x86_64)!!!
+
+(Anyway, this is not the appropriate list for discussing any solution.)
+
+-- 
+Prasenjit
+
+
+From landronimirc at gmail.com  Mon Jan 18 11:03:39 2010
+From: landronimirc at gmail.com (Liviu Andronic)
+Date: Mon, 18 Jan 2010 10:03:39 +0000
+Subject: [R-sig-Debian] ggobi and plug-ins issues
+Message-ID: <68b1e2611001180203i4a6bbd29hb9e590610f0588fe@mail.gmail.com>
+
+Dear all
+I have issues with loading ggobi plug-ins in my Debian testing. In a R
+--vanilla session I get a lot of error messages about being unable to
+load the plug-ins (see at the end).
+
+I understand that this issue has been previously addressed [1][2], and
+the solution implemented in Debian:
+liviu at debian-liv:~$ locate /usr/lib/ggobi/plugins
+/usr/lib/ggobi/plugins
+/usr/lib/ggobi/plugins/DataViewer
+/usr/lib/ggobi/plugins/DescribeDisplay
+/usr/lib/ggobi/plugins/GraphAction
+/usr/lib/ggobi/plugins/GraphLayout
+/usr/lib/ggobi/plugins/VarCloud
+/usr/lib/ggobi/plugins/ggvis
+/usr/lib/ggobi/plugins/DataViewer/plugin.so
+/usr/lib/ggobi/plugins/DataViewer/plugin.so.0
+/usr/lib/ggobi/plugins/DataViewer/plugin.so.0.0.0
+/usr/lib/ggobi/plugins/DescribeDisplay/plugin.so
+/usr/lib/ggobi/plugins/DescribeDisplay/plugin.so.0
+/usr/lib/ggobi/plugins/DescribeDisplay/plugin.so.0.0.0
+/usr/lib/ggobi/plugins/GraphAction/plugin.so
+/usr/lib/ggobi/plugins/GraphAction/plugin.so.0
+/usr/lib/ggobi/plugins/GraphAction/plugin.so.0.0.0
+/usr/lib/ggobi/plugins/GraphLayout/plugin.so
+/usr/lib/ggobi/plugins/GraphLayout/plugin.so.0
+/usr/lib/ggobi/plugins/GraphLayout/plugin.so.0.0.0
+/usr/lib/ggobi/plugins/VarCloud/plugin.so
+/usr/lib/ggobi/plugins/VarCloud/plugin.so.0
+/usr/lib/ggobi/plugins/VarCloud/plugin.so.0.0.0
+/usr/lib/ggobi/plugins/ggvis/plugin.so
+/usr/lib/ggobi/plugins/ggvis/plugin.so.0
+/usr/lib/ggobi/plugins/ggvis/plugin.so.0.0.0
+
+However, by default I am still getting no plug-ins in ggobi. Is there
+something wrong in my system's config? Thank you
+Liviu
+
+
+[1] http://groups.google.com/group/ggobi/browse_thread/thread/328862a53d317c1b/a11e72464002b713?lnk=gst&q=plugin#a11e72464002b713
+[2] https://launchpad.net/ubuntu/+source/ggobi/+bug/73594
+
+
+> require(rggobi)
+Loading required package: rggobi
+> ggobi(iris)
+
+** (R:8779): CRITICAL **: Error on loading plugin library
+plugins/DataViewer/plugin.la: (null)
+
+** (R:8779): CRITICAL **: Error on loading plugin library
+plugins/DescribeDisplay/plugin.la: (null)
+
+** (R:8779): CRITICAL **: Error on loading plugin library
+plugins/GraphLayout/plugin.la: (null)
+
+** (R:8779): CRITICAL **: Error on loading plugin library
+plugins/GraphAction/plugin.la: (null)
+
+** (R:8779): CRITICAL **: Error on loading plugin library
+plugins/VarCloud/plugin.la: (null)
+
+** (R:8779): CRITICAL **: Error on loading plugin library
+plugins/ggvis/plugin.la: (null)
+
+** (R:8779): CRITICAL **: Error on loading plugin library
+plugins/DataViewer/plugin.la: (null)
+
+** (R:8779): CRITICAL **: can't locate required plugin routine
+addToMenu in Data Viewer
+
+** (R:8779): CRITICAL **: Error on loading plugin library
+plugins/DescribeDisplay/plugin.la: invalid module handle
+
+** (R:8779): CRITICAL **: can't locate required plugin routine
+addToToolsMenu in DescribeDisplay
+
+** (R:8779): CRITICAL **: Error on loading plugin library
+plugins/GraphLayout/plugin.la: invalid module handle
+
+** (R:8779): CRITICAL **: can't locate required plugin routine
+addToToolsMenu in GraphLayout
+
+** (R:8779): CRITICAL **: Error on loading plugin library
+plugins/GraphAction/plugin.la: invalid module handle
+
+** (R:8779): CRITICAL **: can't locate required plugin routine
+addToToolsMenu in GraphAction
+
+** (R:8779): CRITICAL **: Error on loading plugin library
+plugins/VarCloud/plugin.la: invalid module handle
+
+** (R:8779): CRITICAL **: can't locate required plugin routine
+addToToolsMenu in VarCloud
+
+** (R:8779): CRITICAL **: Error on loading plugin library
+plugins/ggvis/plugin.la: invalid module handle
+
+** (R:8779): CRITICAL **: can't locate required plugin routine
+addToToolsMenu in ggvis
+
+> sessionInfo()
+R version 2.10.1 (2009-12-14)
+x86_64-pc-linux-gnu
+
+locale:
+ [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C
+ [3] LC_TIME=en_GB.UTF-8        LC_COLLATE=en_GB.UTF-8
+ [5] LC_MONETARY=C              LC_MESSAGES=en_GB.UTF-8
+ [7] LC_PAPER=en_GB.UTF-8       LC_NAME=C
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C
+[11] LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base
+
+other attached packages:
+[1] rggobi_2.1.14
+
+loaded via a namespace (and not attached):
+[1] RGtk2_2.12.15
+
+liviu at debian-liv:~$ aptitude show ggobi
+Package: ggobi
+State: installed
+Automatically installed: yes
+Version: 2.1.9~20091212-1
+Priority: optional
+[..]
+
+
+
+-- 
+Do you know how to read?
+http://www.alienetworks.com/srtest.cfm
+http://goodies.xfce.org/projects/applications/xfce4-dict#speed-reader
+Do you know how to write?
+http://garbl.home.comcast.net/~garbl/stylemanual/e.htm#e-mail
+
+
+From ross at biostat.ucsf.edu  Tue Jan 26 08:25:08 2010
+From: ross at biostat.ucsf.edu (Ross Boylan)
+Date: Mon, 25 Jan 2010 23:25:08 -0800
+Subject: [R-sig-Debian] stable, testing, and backports
+Message-ID: <1264490708.27198.9.camel@corn.betterworld.us>
+
+The cran2deb archives target testing.
+I just pulled a package from them onto a stable system; the library
+loaded but said 
+> library(akima)
+Warning message:
+package 'akima' was built under R version 2.10.0 
+
+Are this and other packages likely to work correctly with different R's
+(2.7 in the case of stable)?
+
+How well are they likely to work with a backported R?  The R version
+would then match, but I assume some of the associated libraries might be
+off.
+
+Ross Boylan
+
+P.S. I see the mspath package I just uploaded is already in cran2deb.
+Cool, and thanks to Dirk, Charles Blundell, Google, and others who made
+this possible.
+
+
+From edd at debian.org  Sat Jan 30 18:18:35 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 30 Jan 2010 11:18:35 -0600
+Subject: [R-sig-Debian] Clash between r-cran-vr and r-cran-mass
+In-Reply-To: <879898.5391264851333698.JavaMail.root@unx-s-manc1.ifeltd.com>
+References: <879898.5391264851333698.JavaMail.root@unx-s-manc1.ifeltd.com>
+Message-ID: <19300.27115.809081.93260@ron.nulle.part>
+
+
+[ Kevin sent this to me but agreed that it's better to have this discussed here. ]
+
+On 30 January 2010 at 11:35, Kevin Donnelly wrote:
+| I am using Ubuntu 9.10.  Installing r-cran-latticist asks for r-cran-vr to
+| be installed as well, but this gives the following message: 
+| E: /var/cache/apt/archives/r-cran-vr_7.2.47-1_i386.deb: trying to overwrite
+| '/usr/lib/R/library/MASS/NAMESPACE', which is also in package r-cran-mass 0 
+| Is it possible for the packages to be updated to resolve this clash?
+
+It's a somewhat long story:
+
+1) For a decade, R had a bundle called 'VR' that contained (inter alia) MASS.
+
+2) Many packages depend on MASS, but as MASS did not exist as an installable
+   package (beging cloaked by VR) have to depend on VR instead.
+
+3) So for Debian packages this became r-cran-vr, and we still have many
+   package depending on r-cran-vr when it should be r-cran-mass that they should
+   depend upon.
+
+4) To make matters more interesting, R changed course and stopped having bundles. So
+   VR is now gone and we have four replacement packahes MASS, spatial, nnet and class. 
+   Trouble is, 'we' still have the depends on r-cran-vr to satisfay.
+
+5) All that said, you are creating your own trouble. There simply is no
+   package r-cran-latticist for Ubuntu.
+
+6) I presume you are trying to mix Ubuntu with the cran2deb repository. That
+   may work but IT IS NOT SUPPORTED or recommended or designed that way as
+   cran2deb is for (currently, at least) Debian testing only.  So buyer
+   beware, and if things break, you get to keep the pieces.
+
+7) What you need is r-cran-vr_7.3-1 from Debian. It is an empty package that
+   pulls in all four pieces formerly contained by VR.  It depends on MASS
+   (which you seem to have as per the error above).
+
+8) That said, things could still go astray. Recall point 6). You are somewhat
+   on your own here.
+
+9) One day we hope to have cran2deb for Ubuntu. We currently do not have
+   resources to get there and hence no ETA.
+
+Hope this helps,  Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From edd at debian.org  Sat Jan 30 18:26:26 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 30 Jan 2010 11:26:26 -0600
+Subject: [R-sig-Debian] Can I install debs over packages installed via R?
+In-Reply-To: <201001301218.01986.kevin@dotmon.com>
+References: <201001301218.01986.kevin@dotmon.com>
+Message-ID: <19300.27586.790961.634083@ron.nulle.part>
+
+
+[ Kevin sent this to me but agreed that it's better to have this discussed here. ]
+
+On 30 January 2010 at 12:18, Kevin Donnelly wrote:
+| Hi
+| 
+| I'm beginning to learn R,a nd I've just discovered cran2deb - what a terrific 
+| resource!  Thanks for making it.
+| 
+| I was wondering what happens if I want to use cran2deb versions instead of the 
+| versions installed via R itself.  I'm on Ubuntu 9.10, and the package 
+| versions go into /usr/lib/R/library, while the R versions go 
+| into /usr/local/lib/R/site-library.  Is it OK just to delete them from the 
+| site-library, and reinstall from cran2deb?
+
+1)  These are different locations, so there is no conflict.
+
+2)  R looks at the variables R_LIBS (or rather, R_LIBS_SITE and
+    R_LIBS_USER). On Debian/Ubuntu, R_LIBS is set in /etc/R/Renviron to 
+
+  # edd Apr 2003  Allow local install in /usr/local, also add a directory for
+  #               Debian packaged CRAN packages, and finally the default dir 
+  # edd Jul 2007  Now use R_LIBS_SITE, not R_LIBS
+  R_LIBS_SITE=${R_LIBS_SITE-'/usr/local/lib/R/site-library:/usr/lib/R/site-library:/usr/lib/R/library'}
+
+3)  This means
+
+      /usr/local/lib/R/site-library     is first and hence the default, so
+      					both 'R CMD INSTALL foo_1.2-3.tar.gz'
+      					and install.packages("foo") install here.
+					This is where R puts things.
+
+      /usr/lib/R/site-library		is where most r-cran-* packages go
+
+      /usr/lib/R/library		is where base and recommended r-cran-* 
+      					packages (ie those shipped with R sources)
+					go
+
+4)  You have no conflict, but if you have a library 'foo' in several
+    directories, the first one found wins.
+
+5)  On Debian, and thanks to cran2deb, I personally keep almost everything in 
+    /usr/lib/R/site-library as I use cran2deb _a lot_. /usr/local is only for
+    unpackage code, or things I install directly from SVN, or ...
+
+6)  On Ubuntu, I tend to rely on install.packages() and R CMD INSTALL and the
+    packages go into /usr/local/lib/R/site-library.  I do not use cran2deb on
+    Ubuntu. 
+
+Other folks may have other recommendations. Liviu seems to live happly with
+cran2deb on Ubuntu. You can try it but ... buy beware.
+
+Hope this helps, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From edd at debian.org  Sat Jan 30 19:09:31 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 30 Jan 2010 12:09:31 -0600
+Subject: [R-sig-Debian] stable, testing, and backports
+In-Reply-To: <1264490708.27198.9.camel@corn.betterworld.us>
+References: <1264490708.27198.9.camel@corn.betterworld.us>
+Message-ID: <19300.30171.847297.229129@ron.nulle.part>
+
+
+[ Missed this folder for a few days. Too much mail... ]
+
+On 25 January 2010 at 23:25, Ross Boylan wrote:
+| The cran2deb archives target testing.
+| I just pulled a package from them onto a stable system; the library
+| loaded but said 
+| > library(akima)
+| Warning message:
+| package 'akima' was built under R version 2.10.0 
+
+Because R changed documentation formats and we needed to rebuild all of
+cran2deb post R 2.10.0.
+
+| Are this and other packages likely to work correctly with different R's
+| (2.7 in the case of stable)?
+
+You are missing out on R 2.10.1 provided for stable thanks to Johannes (along
+with Vincent and Michael).  See http://cran.r-project.org/bin/linux/debian
+and Section 2.6 of the R FAQ.
+
+| How well are they likely to work with a backported R?  The R version
+| would then match, but I assume some of the associated libraries might be
+| off.
+
+Well if you need stable, you need stable and you can't run testing.  Round
+hole, square peg.  I have relied on testing for what must be a decade and a
+half...  YMMV as they say.
+ 
+| Ross Boylan
+| 
+| P.S. I see the mspath package I just uploaded is already in cran2deb.
+| Cool, and thanks to Dirk, Charles Blundell, Google, and others who made
+| this possible.
+
+Google has nothing more to do with it besides sponsoring the inital batch of
+work by Charles during 2008 as part of GSoC.  Since then its just Charles and
+myself tinkering, extending and running it with hosting and cpu resources
+kindly provided by CRAN.
+
+But yes, cran2deb is mighty cool.  New packages in essentially real-time.
+That works well with the CRANberries updates you may want to add to your
+friendly RSS reader via http://dirk.eddelbuette.com/cranberries/
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From ross at biostat.ucsf.edu  Sat Jan 30 20:41:13 2010
+From: ross at biostat.ucsf.edu (Ross Boylan)
+Date: Sat, 30 Jan 2010 11:41:13 -0800
+Subject: [R-sig-Debian] RSS feed for package updates
+In-Reply-To: <19300.30171.847297.229129@ron.nulle.part>
+References: <1264490708.27198.9.camel@corn.betterworld.us>
+	<19300.30171.847297.229129@ron.nulle.part>
+Message-ID: <1264880474.11406.0.camel@corn.betterworld.us>
+
+On Sat, 2010-01-30 at 12:09 -0600, Dirk Eddelbuettel wrote:
+> 
+> But yes, cran2deb is mighty cool.  New packages in essentially
+> real-time.
+> That works well with the CRANberries updates you may want to add to
+> your
+> friendly RSS reader via http://dirk.eddelbuette.com/cranberries/
+For the archives, that reference should be
+http://dirk.eddelbuettel.com/cranberries/
+(l at the end of Dirk's last name).
+Ross
+
+
+From edd at debian.org  Sat Jan 30 21:26:33 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 30 Jan 2010 14:26:33 -0600
+Subject: [R-sig-Debian] RSS feed for package updates
+In-Reply-To: <1264880474.11406.0.camel@corn.betterworld.us>
+References: <1264490708.27198.9.camel@corn.betterworld.us>
+	<19300.30171.847297.229129@ron.nulle.part>
+	<1264880474.11406.0.camel@corn.betterworld.us>
+Message-ID: <19300.38393.586577.61454@ron.nulle.part>
+
+
+On 30 January 2010 at 11:41, Ross Boylan wrote:
+| On Sat, 2010-01-30 at 12:09 -0600, Dirk Eddelbuettel wrote:
+| > 
+| > But yes, cran2deb is mighty cool.  New packages in essentially
+| > real-time.
+| > That works well with the CRANberries updates you may want to add to
+| > your
+| > friendly RSS reader via http://dirk.eddelbuette.com/cranberries/
+| For the archives, that reference should be
+| http://dirk.eddelbuettel.com/cranberries/
+| (l at the end of Dirk's last name).
+
+Good catch, thank you!  I probably need a catchier URL that is easier to type ;-)
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From landronimirc at gmail.com  Sat Jan 30 22:03:18 2010
+From: landronimirc at gmail.com (Liviu Andronic)
+Date: Sat, 30 Jan 2010 21:03:18 +0000
+Subject: [R-sig-Debian] Can I install debs over packages installed via R?
+In-Reply-To: <19300.27586.790961.634083@ron.nulle.part>
+References: <201001301218.01986.kevin@dotmon.com>
+	<19300.27586.790961.634083@ron.nulle.part>
+Message-ID: <68b1e2611001301303l1a2479b7rdf64d4038a2dd177@mail.gmail.com>
+
+On Sat, Jan 30, 2010 at 5:26 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+> Other folks may have other recommendations. Liviu seems to live happly with
+> cran2deb on Ubuntu. You can try it but ... buy beware.
+>
+Quick correction. :) I use Debian testing as my primary system, so
+it's there that I install cran2deb packages. (I open Ubuntu once a
+year, need-based.) I remember reading on this list, though, people
+using cran2deb on Ubuntu.
+
+Regards
+Liviu
+
+
+From kevin at dotmon.com  Sat Jan 30 22:35:25 2010
+From: kevin at dotmon.com (Kevin Donnelly)
+Date: Sat, 30 Jan 2010 21:35:25 +0000
+Subject: [R-sig-Debian] Clash between r-cran-vr and r-cran-mass
+In-Reply-To: <19300.27115.809081.93260@ron.nulle.part>
+References: <879898.5391264851333698.JavaMail.root@unx-s-manc1.ifeltd.com>
+	<19300.27115.809081.93260@ron.nulle.part>
+Message-ID: <201001302135.25673.kevin@dotmon.com>
+
+On Saturday 30 January 2010 17:18, Dirk Eddelbuettel wrote:
+> It's a somewhat long story:
+<snip>
+
+Thanks for the explanation - that makes it clear.  I understand the caveats 
+with Ubuntu, but so far everything seems to work - then again, since I'm a 
+newbie with R, I just might not be aware that it isn't working :-)  If there 
+are problems, I will uninstall the cran2deb packages and go back to 
+R:install.packages().
+
+Thanks for your help!
+
+-- 
+Pob hwyl / Best wishes
+
+Kevin Donnelly
+
+www.eurfa.org.uk - Geiriadur rhydd i'r Gymraeg
+
+
+From cddesjardins at gmail.com  Sat Jan 30 23:06:31 2010
+From: cddesjardins at gmail.com (Christopher David Desjardins)
+Date: Sat, 30 Jan 2010 16:06:31 -0600
+Subject: [R-sig-Debian] Clash between r-cran-vr and r-cran-mass
+In-Reply-To: <201001302135.25673.kevin@dotmon.com>
+References: <879898.5391264851333698.JavaMail.root@unx-s-manc1.ifeltd.com>	<19300.27115.809081.93260@ron.nulle.part>
+	<201001302135.25673.kevin@dotmon.com>
+Message-ID: <4B64AD67.8070605@gmail.com>
+
+On 01/30/2010 03:35 PM, Kevin Donnelly wrote:
+> On Saturday 30 January 2010 17:18, Dirk Eddelbuettel wrote:
+>    
+>> It's a somewhat long story:
+>>      
+> <snip>
+>
+> Thanks for the explanation - that makes it clear.  I understand the caveats
+> with Ubuntu, but so far everything seems to work - then again, since I'm a
+> newbie with R, I just might not be aware that it isn't working :-)
+
+I'm guessing problems won't be with R but instead with apt if you run 
+into any.
+>   If there
+> are problems, I will uninstall the cran2deb packages and go back to
+> R:install.packages().
+>
+> Thanks for your help!
+>
+>
+
+
+From edd at debian.org  Sat Jan 30 23:29:03 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 30 Jan 2010 16:29:03 -0600
+Subject: [R-sig-Debian] Clash between r-cran-vr and r-cran-mass
+In-Reply-To: <201001302135.25673.kevin@dotmon.com>
+References: <879898.5391264851333698.JavaMail.root@unx-s-manc1.ifeltd.com>
+	<19300.27115.809081.93260@ron.nulle.part>
+	<201001302135.25673.kevin@dotmon.com>
+Message-ID: <19300.45743.168641.401819@ron.nulle.part>
+
+
+On 30 January 2010 at 21:35, Kevin Donnelly wrote:
+| On Saturday 30 January 2010 17:18, Dirk Eddelbuettel wrote:
+| > It's a somewhat long story:
+| <snip>
+| 
+| Thanks for the explanation - that makes it clear.  I understand the caveats 
+| with Ubuntu, but so far everything seems to work - then again, since I'm a 
+| newbie with R, I just might not be aware that it isn't working :-)  If there 
+| are problems, I will uninstall the cran2deb packages and go back to 
+| R:install.packages().
+
+It may well work, esp for package that do not contain object code. For rest,
+it may or may not work. Mostly it will -- but Canonical once made a strategic
+decision to _not_ be binary compatible with Debian so if it breaks, blame'em.
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From info at aghmed.fsnet.co.uk  Sun Jan 31 16:27:44 2010
+From: info at aghmed.fsnet.co.uk (Michael Dewey)
+Date: Sun, 31 Jan 2010 15:27:44 +0000
+Subject: [R-sig-Debian] Doc suggestion,
+ was Re:  Can I install debs over  packages installed via R?
+In-Reply-To: <19300.27586.790961.634083@ron.nulle.part>
+References: <201001301218.01986.kevin@dotmon.com>
+	<19300.27586.790961.634083@ron.nulle.part>
+Message-ID: <Zen-1NbbiN-0004bk-JB@smarthost02.mail.zen.net.uk>
+
+At 17:26 30/01/2010, Dirk Eddelbuettel wrote:
+
+
+
+A lot of useful things and then
+
+>3)  This means
+>
+>       /usr/local/lib/R/site-library     is first and hence the default, so
+>                                         both 'R CMD INSTALL foo_1.2-3.tar.gz'
+>                                         and install.packages("foo") 
+> install here.
+>                                         This is where R puts things.
+>
+>       /usr/lib/R/site-library           is where most r-cran-* packages go
+>
+>       /usr/lib/R/library                is where base and 
+> recommended r-cran-*
+>                                         packages (ie those shipped 
+> with R sources)
+>                                         go
+>
+
+Could I suggest that this information be put in the readme page which 
+comes up on CRAN when you click on binaries and then on debian? I did 
+eventually work out two thirds of it myself but my desire to know 
+where things are being put vastly outstrips my ability to work it out 
+for myself.
+
+>Hope this helps, Dirk
+
+It certainly did.
+
+>--
+>Three out of two people have difficulties with fractions.
+>
+>_______________________________________________
+>R-SIG-Debian mailing list
+>R-SIG-Debian at r-project.org
+>https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+Michael Dewey
+http://www.aghmed.fsnet.co.uk
+
+
+From HodgessE at uhd.edu  Sun Jan 31 21:32:28 2010
+From: HodgessE at uhd.edu (Hodgess, Erin)
+Date: Sun, 31 Jan 2010 14:32:28 -0600
+Subject: [R-sig-Debian] accessing the Windows side from Debian
+Message-ID: <101CBF5360343B45B9C9B0B05D71474C25B0A9@BALI.uhd.campus>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100131/525a6493/attachment.pl>
+
+From tyler.smith at eku.edu  Sun Jan 31 22:52:05 2010
+From: tyler.smith at eku.edu (Tyler Smith)
+Date: Sun, 31 Jan 2010 16:52:05 -0500
+Subject: [R-sig-Debian] accessing the Windows side from Debian
+References: <101CBF5360343B45B9C9B0B05D71474C25B0A9@BALI.uhd.campus>
+Message-ID: <87iqaic58a.fsf@eku238261.eku.edu>
+
+"Hodgess, Erin" <HodgessE at uhd.edu> writes:
+
+> I have a desktop which has both Windows and Debian operating systems.
+>
+> If I am on the Debian side, is there a way to access file from the
+> Windows side, please?
+
+You need to 'mount' the windows partition to your Debian file system,
+and then you can read files from within Debian.
+
+To do this, you need a mount-point, and an appropriate entry in your
+/etc/fstab file.
+
+In my case, I have an empty directory in home (~/) named 'windows'. 
+
+The corresponding entry in /etc/fstab is:
+
+/dev/sda1	/home/tyler/windows	ntfs noauto,ro,users,noexec,umask=000 0 0
+
+I can then mount the windows side with the command 'mount ~/windows' and
+read files like I would any other directory.
+
+Some caveats:
+
+1) I use a pretty minimal setup, and use the command-line as my primary
+user interface. If you're using Gnome or KDE, you may have more 'point
+and clicky' alternatives
+
+2) I haven't tried writing to the windows partition from within Debian.
+It used to be impossible. I'm not sure where we are in the transition
+between risky and safe, so I just avoid it altogether.
+
+3) Depending on your hardware, the windows partition might not be at
+/dev/sda1, so you might have to do some poking around to figure it out.
+
+4) I don't remember the details for the fstab options. What I've got
+above works for reading an ntfs-formatted partition. You'd have to
+change it to read a fat32 partition, or to mount a partition read-write.
+
+5) Possibly another out-dated concern, I always unmount the windows
+drive before hibernating or shutting down. Unmounting is done via the
+command 'umount ~/windows'
+
+
+HTH,
+
+Tyler
+
+
+From desja004 at umn.edu  Tue Jan 12 00:04:42 2010
+From: desja004 at umn.edu (Christopher David Desjardins)
+Date: Mon, 11 Jan 2010 23:04:42 -0000
+Subject: [R-sig-Debian] cran2deb repository and Squeeze?
+Message-ID: <1263251038.3555.5.camel@debian.hsd1.mn.comcast.net.>
+
+Hi,
+I am curious what will happen to cran2deb:
+
+deb http://debian.cran.r-project.org/cran2deb/debian-amd64 testing/
+
+When Squeeze is released? I really hope this service will continue. It
+has been great being able to aptitude install R packages.
+
+Additionally are these packages signed and is there a key?
+Chris
+
+
+From desja004 at umn.edu  Tue Jan 12 00:40:30 2010
+From: desja004 at umn.edu (Christopher David Desjardins)
+Date: Mon, 11 Jan 2010 23:40:30 -0000
+Subject: [R-sig-Debian] cran2deb repository and Squeeze?
+Message-ID: <1263251378.3555.6.camel@debian.hsd1.mn.comcast.net.>
+
+Hi,
+I am curious what will happen to cran2deb:
+
+deb http://debian.cran.r-project.org/cran2deb/debian-amd64 testing/
+
+When Squeeze is released? I really hope this service will continue. It
+has been great being able to aptitude install R packages.
+
+Additionally are these packages signed and is there a key?
+Chris
+
+

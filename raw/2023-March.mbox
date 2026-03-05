@@ -1,0 +1,119 @@
+From edd @end|ng |rom deb|@n@org  Mon Mar 27 01:30:28 2023
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Sun, 26 Mar 2023 18:30:28 -0500
+Subject: [R-sig-Debian] Announcing r2u: 20k CRAN binaries for Ubuntu 22.04 +
+ 20.04
+Message-ID: <25632.54676.331469.457871@rob.eddelbuettel.com>
+
+
+The r2u repository [1] has been providing CRAN packages as Ubuntu binaries
+(with *full* and *complete* dependency resolution) since last May.  It is
+being served from a well-connect Internet2 mirror thanks to the University of
+Illinois making it *fast*.
+
+By relying on the bspm package [2], it can access the 20k binaries (all of
+CRAN, essentially, and around 240 BioConductor packages for the two most
+recent Ubuntu LTS releases 22.04 and 20.04) via the standard R functions such
+as install.packages().
+
+Over the last few months I have provided multiple 'demos' as animated gifs
+showing how for example `system.time(install.package("tinyverse"))` installs
+all these packages and all their dependencies in under twenty seconds (!!).
+
+So yes: this gives us on Ubuntu what Windows and macOS users had all those
+years. All packages as binaries, *fast*.  It integrates with the system so it
+will both update naturally to newer versions and never leave you stranded by
+removing a shared library your R package depends upon.  As apt and dpkg now
+"know" through the complete system-level resolution of dependencies, they
+will not remove a shared library they know to be in use. [3]
+
+The documentation site [1] also has a link to the nice gitpod.io site where
+(after getting access via your github handle) you can test drive this in the
+browser (!!). For those familiar with Docker there are also containers
+eddelbuettel/r2u appropriately tagged (20.04, focal, 22.04, jammy).
+Otherwise the site has two short scripts for adding r2u support to an
+existing Ubuntu setup.  Also, my own default CI setup (for use at GitHub,
+Azure Pipelines, Travis, ...) long switched to it as well [4].
+
+I hope you find this useful too.
+
+Cheers, Dirk
+
+
+[1] Documentation is at https://eddelbuettel.github.io/r2u/ including a short
+    FAQ section
+[2] https://cloud.r-project.org/package=bspm
+[3] A classic example that bit me many times is RcppGSL being dependent on
+    the current version of GSL. And when, say, libgsl24 is updated to
+    libgsl25 the compiled RcppGSL would break. No more: now apt will keep
+    libgsl24 and install libgsl25 next to it, and your R use cannot break.
+    No other OS gives you that.
+[3] See https://eddelbuettel.github.io/r-ci
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @end|ng |rom deb|@n@org  Mon Mar 27 01:53:08 2023
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Sun, 26 Mar 2023 18:53:08 -0500
+Subject: [R-sig-Debian] 
+ Announcing r2u: 20k CRAN binaries for Ubuntu 22.04 + 20.04
+In-Reply-To: <25632.54676.331469.457871@rob.eddelbuettel.com>
+References: <25632.54676.331469.457871@rob.eddelbuettel.com>
+Message-ID: <25632.56036.101213.585497@rob.eddelbuettel.com>
+
+
+On 26 March 2023 at 18:30, Dirk Eddelbuettel wrote:
+| Over the last few months I have provided multiple 'demos' as animated gifs
+| showing how for example `system.time(install.package("tinyverse"))` installs
+| all these packages and all their dependencies in under twenty seconds (!!).
+
+Classic typo as Josh kindly pointed out over DM:
+
+        `system.time(install.package("tidyverse"))`
+
+is what I meant. Sorry for any confusion this may have caused.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @end|ng |rom deb|@n@org  Mon Mar 27 14:06:41 2023
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 27 Mar 2023 07:06:41 -0500
+Subject: [R-sig-Debian] 
+ Announcing r2u: 20k CRAN binaries for Ubuntu 22.04 + 20.04
+In-Reply-To: <25632.56036.101213.585497@rob.eddelbuettel.com>
+References: <25632.54676.331469.457871@rob.eddelbuettel.com>
+ <25632.56036.101213.585497@rob.eddelbuettel.com>
+Message-ID: <25633.34513.711331.28177@rob.eddelbuettel.com>
+
+
+On 26 March 2023 at 18:53, Dirk Eddelbuettel wrote:
+| 
+| On 26 March 2023 at 18:30, Dirk Eddelbuettel wrote:
+| | Over the last few months I have provided multiple 'demos' as animated gifs
+| | showing how for example `system.time(install.package("tinyverse"))` installs
+| | all these packages and all their dependencies in under twenty seconds (!!).
+| 
+| Classic typo as Josh kindly pointed out over DM:
+| 
+|         `system.time(install.package("tidyverse"))`
+| 
+| is what I meant. Sorry for any confusion this may have caused.
+
+And Enrico quietly pointed that with lack of TABcompletion the s is missing:
+
+         system.time(install.packages("tidyverse"))
+
+My (double) bad. Thanks for both (!!) corrections.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+

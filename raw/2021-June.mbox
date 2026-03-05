@@ -1,0 +1,525 @@
+From k@r|dw @end|ng |rom berke|ey@edu  Wed Jun  2 00:22:01 2021
+From: k@r|dw @end|ng |rom berke|ey@edu (Karl Dunkle Werner)
+Date: Tue, 1 Jun 2021 22:22:01 +0000
+Subject: [R-sig-Debian] LTO flags in 4.1.0 Ubuntu 21.04 Makeconf
+Message-ID: <CAKb0fEg2a-80U_6hGs4ejK=_2dZO8_L3YB46YjnR+5vDKUD-OQ@mail.gmail.com>
+
+Hello,
+
+I noticed the Makeconf file that comes with the Ubuntu version of R 4.1.0
+has link-time optimization (LTO) flags enabled. For instance:
+CXX11FLAGS = -g -O2 -ffile-prefix-map=/build/r-base-aXXzqd/r-base-4.1.0=.
+-flto=auto -ffat-lto-objects -fstack-protector-strong -Wformat
+-Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g $(LTO)
+
+If I understand things correctly, these flags cause a bit of a problem
+trying to install the arrow package, since that package does not want to
+override the CXX11FLAGS, but also does not work with LTO. Setting "UseLTO:
+false" in the package description doesn't seem to work.
+Would it be possible to remove the flags -flto=auto and -ffat-lto-objects?
+
+See https://issues.apache.org/jira/browse/ARROW-12853 for a discussion of
+installation with these flags and
+https://issues.apache.org/jira/browse/ARROW-9616 for a broader discussion
+of LTO in Arrow.
+
+My apologies if this is the wrong place to report this kind of issue.
+
+The entire Makeconf file is attached to the first of those Arrow issues:
+https://issues.apache.org/jira/secure/attachment/13025950/Makeconf_local
+The file appears in the package
+https://cloud.r-project.org/bin/linux/ubuntu/hirsute-cran40/r-base-core_4.1.0-1.2104.0_amd64.deb.
+These flags are not set in the Debian Bullseye version (
+https://cloud.r-project.org/bin/linux/debian/bullseye-cran40/r-base-core_4.1.0-1~bullseyecran.0_amd64.deb)
+or the Ubuntu 20.10 version (
+https://cloud.r-project.org/bin/linux/ubuntu/groovy-cran40/r-base-core_4.1.0-1.2010.0_amd64.deb
+).
+(For anyone who is unfamiliar, as I was, the Makeconf file is in
+data/etc/R/, after extracting both the deb package and the data.tar.xz
+directory.)
+
+
+Thank you,
+Karl
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jun  2 00:40:58 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 1 Jun 2021 17:40:58 -0500
+Subject: [R-sig-Debian] LTO flags in 4.1.0 Ubuntu 21.04 Makeconf
+In-Reply-To: <CAKb0fEg2a-80U_6hGs4ejK=_2dZO8_L3YB46YjnR+5vDKUD-OQ@mail.gmail.com>
+References: <CAKb0fEg2a-80U_6hGs4ejK=_2dZO8_L3YB46YjnR+5vDKUD-OQ@mail.gmail.com>
+Message-ID: <24758.46970.636918.50021@rob.eddelbuettel.com>
+
+
+Hi Karl,
+
+On 1 June 2021 at 22:22, Karl Dunkle Werner wrote:
+| I noticed the Makeconf file that comes with the Ubuntu version of R 4.1.0
+| has link-time optimization (LTO) flags enabled. For instance:
+| CXX11FLAGS = -g -O2 -ffile-prefix-map=/build/r-base-aXXzqd/r-base-4.1.0=.
+| -flto=auto -ffat-lto-objects -fstack-protector-strong -Wformat
+| -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g $(LTO)
+
+Upstream decision by R Core, see the NEWS entry:
+
+  LINK-TIME OPTIMIZATION on a UNIX-ALIKE:
+
+    * Configuring with flag --enable-lto=R now also uses LTO when
+      installing the recommended packages.
+
+    * R CMD INSTALL and R CMD SHLIB have a new flag --use-LTO to use
+      LTO when compiling code, for use with R configured with
+      --enable-lto=R.  For R configured with --enable-lto, they have
+      the new flag --no-use-LTO.
+
+      Packages can opt in or out of LTO compilation _via_ a UseLTO
+      field in the DESCRIPTION file.  (As usual this can be overridden
+      by the command-line flags.)
+
+| If I understand things correctly, these flags cause a bit of a problem
+| trying to install the arrow package, since that package does not want to
+| override the CXX11FLAGS,
+
+I doubt that, based on a wee bit of experience with C++, C++11, and all that
+based coming up on 15 years with Rcpp, RInside and all that jazz.
+
+| but also does not work with LTO. Setting "UseLTO:
+| false" in the package description doesn't seem to work.
+
+That is something you may need to discuss with either R Core upstream (for
+the Makeconf), or maybe with the Arrow team for how they build the
+package. And there could of course be a bug but I remind you that Arrow
+itself is on CRAN.
+
+
+| Would it be possible to remove the flags -flto=auto and -ffat-lto-objects?
+
+Not likely for the package I ship. I tend to not second guess upstream, and
+have followed R Core pretty much without changes to the program for 20 years.
+
+If you think you need a locally modified version I may be able to help you
+build one.
+
+Hope this helps,  Dirk
+
+PS As for my experiences with Arrow, well. I will try to remain brief:
+ - while I have 25-ish years of experience building for Debian I _could
+   never_ build Arrow even as shipped for R; I did file (GitHub) bug reports
+   but they went nowhere (and I had no time for signing up for Jira, sorry)
+ - this included failure on the "rather unusual" second installation as the
+   Arrow build appears to not be entirely truthful by installing ... and then
+   not working telling you to reinstall
+ - that was generally on Ubuntu 'current at the time', but also on the Debian
+   testing machine I use for Rcpp reverse depends (and where I build well
+   over 2000 CRAN packages, yet Arrow remains "special")
+ - as of Arrow 4.0.0 I can at least succeed at the second stage
+but I would be interested to hear how others fared on Debian or Ubuntu systems. 
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jun  2 00:50:27 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 1 Jun 2021 17:50:27 -0500
+Subject: [R-sig-Debian] LTO flags in 4.1.0 Ubuntu 21.04 Makeconf
+In-Reply-To: <24758.46970.636918.50021@rob.eddelbuettel.com>
+References: <CAKb0fEg2a-80U_6hGs4ejK=_2dZO8_L3YB46YjnR+5vDKUD-OQ@mail.gmail.com>
+ <24758.46970.636918.50021@rob.eddelbuettel.com>
+Message-ID: <24758.47539.675478.287175@rob.eddelbuettel.com>
+
+
+Two more follow-ups if I may:
+
+- the Debian and hence derived Ubuntu package of R 4.1.0 does *not* enable
+  LTO yet, in other words I have not yet add --enable-lto to the configure
+  call and we use to default of 'nope'
+- my dev box is still 20.10; I only run 21.04 on one small machine where I
+  have not tried to build arrow; but under 20.10 + R 4.1.0 + arrow 4.0.? the
+  two step dance that they force on us works
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From k@r|dw @end|ng |rom berke|ey@edu  Wed Jun  2 04:12:42 2021
+From: k@r|dw @end|ng |rom berke|ey@edu (Karl Dunkle Werner)
+Date: Tue, 1 Jun 2021 19:12:42 -0700
+Subject: [R-sig-Debian] LTO flags in 4.1.0 Ubuntu 21.04 Makeconf
+In-Reply-To: <24758.47539.675478.287175@rob.eddelbuettel.com>
+References: <CAKb0fEg2a-80U_6hGs4ejK=_2dZO8_L3YB46YjnR+5vDKUD-OQ@mail.gmail.com>
+ <24758.46970.636918.50021@rob.eddelbuettel.com>
+ <24758.47539.675478.287175@rob.eddelbuettel.com>
+Message-ID: <ac940b56-17b0-e63e-8579-cce75d21d6b4@berkeley.edu>
+
+Hello Dirk,
+
+Thanks for the very helpful response!
+
+
+Answering the points you made, not in order:
+
+> | Would it be possible to remove the flags -flto=auto and -ffat-lto-objects?
+>
+> Not likely for the package I ship. I tend to not second guess upstream, and
+> have followed R Core pretty much without changes to the program for 20 years.
+>
+> If you think you need a locally modified version I may be able to help you
+> build one.
+Got it, and thank you for the offer! I can edit my Makeconf (everything 
+works when I remove the LTO-related flags). I was hoping to make 
+installation smoother for other Arrow and Ubuntu users, but maybe that's 
+something users or the Arrow developers will need to tackle.
+
+
+
+> but I would be interested to hear how others fared on Debian or Ubuntu systems.
+In my experience, installing Arrow has gotten a lot better over time 
+(including the reinstall requirement; see 
+https://cran.r-project.org/web/packages/arrow/vignettes/install.html). 
+It's still the most finicky of the packages I install, but substantially 
+improved.
+
+
+
+
+I think I'm confused by this comment (because I don't know much about 
+the packaging process).
+> - the Debian and hence derived Ubuntu package of R 4.1.0 does*not*  enable
+>    LTO yet, in other words I have not yet add --enable-lto to the configure
+>    call and we use to default of 'nope'
+I'm confused because the R 4.1.0 Debian versions have flags like:
+CXX11FLAGS = -g -O2 
+-ffile-prefix-map=/home/jranke/git/r-backports/bullseye/r-base-4.1.0=. 
+-fstack-protector-strong -Wformat -Werror=format-security -Wdate-time 
+-D_FORTIFY_SOURCE=2 -g $(LTO)
+
+The R 4.1.0 Ubuntu 20.10 flags are:
+CXX11FLAGS = -g -O2 
+-fdebug-prefix-map=/build/r-base-2Aokdc/r-base-4.1.0=. 
+-fstack-protector-strong -Wformat -Werror=format-security -Wdate-time 
+-D_FORTIFY_SOURCE=2 -g $(LTO)
+
+While the R 4.1.0 Ubuntu 21.04 flags are:
+CXX11FLAGS = -g -O2 
+-ffile-prefix-map=/build/r-base-aXXzqd/r-base-4.1.0=. -flto=auto 
+-ffat-lto-objects -fstack-protector-strong -Wformat 
+-Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g $(LTO)
+
+Should the Ubuntu 21.04 LTO flags be different than the others?
+
+
+> That is something you may need to discuss with either R Core upstream (for
+> the Makeconf), or maybe with the Arrow team for how they build the
+> package. And there could of course be a bug but I remind you that Arrow
+> itself is on CRAN.
+The GCC docs note that the -flto flag will enable LTO, but it can be 
+disabled by passing -fno-lto in the link command 
+(https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#index-flto). 
+I'll see if the Arrow folks are able to set -fno-lto.
+
+
+
+If it's at all helpful, here's a reproducible example using Rocker 
+(thank you for making this easy to troubleshoot across R installations).
+
+1. Download the Makeconf file with these LTO flags 
+(https://issues.apache.org/jira/secure/attachment/13025950/Makeconf_local) 
+or extract it from the Ubuntu 21.04 deb file 
+(https://cloud.r-project.org/bin/linux/ubuntu/hirsute-cran40/r-base-core_4.1.0-1.2104.0_amd64.deb).
+2. Start docker: docker run -e "LIBARROW_BINARY=false" -e 
+"ARROW_R_DEV=true" -e "LIBARROW_MINIMAL=true" --rm -ti rocker/r-base:4.1.0
+3. In a different terminal, find the docker container ID: docker ps
+4. Copy Makeconf: docker cp Makeconf_local <container ID>:/etc/R/Makeconf
+5. In the docker R:
+ ??? tools::Rcmd("config CXX11FLAGS") to see the new flags
+ ??? install.packages("arrow") now fails
+
+My challenges are with the Makeconf flags packaged with Ubuntu 21.04's R 
+4.1.0, but the example above also fails when the same Makeconf file is 
+copied into the rocker/r-base:4.0.5 image.
+
+
+Thanks,
+Karl
+
+
+
+On 6/1/21 3:50 PM, Dirk Eddelbuettel wrote:
+> Two more follow-ups if I may:
+>
+> - the Debian and hence derived Ubuntu package of R 4.1.0 does *not* enable
+>    LTO yet, in other words I have not yet add --enable-lto to the configure
+>    call and we use to default of 'nope'
+> - my dev box is still 20.10; I only run 21.04 on one small machine where I
+>    have not tried to build arrow; but under 20.10 + R 4.1.0 + arrow 4.0.? the
+>    two step dance that they force on us works
+>
+> Dirk
+>
+
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jun  2 04:48:09 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 1 Jun 2021 21:48:09 -0500
+Subject: [R-sig-Debian] LTO flags in 4.1.0 Ubuntu 21.04 Makeconf
+In-Reply-To: <ac940b56-17b0-e63e-8579-cce75d21d6b4@berkeley.edu>
+References: <CAKb0fEg2a-80U_6hGs4ejK=_2dZO8_L3YB46YjnR+5vDKUD-OQ@mail.gmail.com>
+ <24758.46970.636918.50021@rob.eddelbuettel.com>
+ <24758.47539.675478.287175@rob.eddelbuettel.com>
+ <ac940b56-17b0-e63e-8579-cce75d21d6b4@berkeley.edu>
+Message-ID: <24758.61801.914712.634572@rob.eddelbuettel.com>
+
+
+Hi Karl,
+
+On 1 June 2021 at 19:12, Karl Dunkle Werner wrote:
+| Thanks for the very helpful response!
+
+Thanks for weaving the threads back together.
+
+| Got it, and thank you for the offer! I can edit my Makeconf (everything 
+| works when I remove the LTO-related flags). I was hoping to make 
+| installation smoother for other Arrow and Ubuntu users, but maybe that's 
+| something users or the Arrow developers will need to tackle.
+
+Yes indeed. One difficulty is that package authors can generally not override
+what is in R's makeconf. As e.g. with my Rcpp maintainer hat on I have found
+that frustrating. But such is life with R: not everything can be altered on
+the fly.
+ 
+| I think I'm confused by this comment (because I don't know much about 
+| the packaging process).
+| > - the Debian and hence derived Ubuntu package of R 4.1.0 does*not*  enable
+| >    LTO yet, in other words I have not yet add --enable-lto to the configure
+| >    call and we use to default of 'nope'
+| I'm confused because the R 4.1.0 Debian versions have flags like:
+| CXX11FLAGS = -g -O2 
+| -ffile-prefix-map=/home/jranke/git/r-backports/bullseye/r-base-4.1.0=. 
+| -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time 
+| -D_FORTIFY_SOURCE=2 -g $(LTO)
+| 
+| The R 4.1.0 Ubuntu 20.10 flags are:
+| CXX11FLAGS = -g -O2 
+| -fdebug-prefix-map=/build/r-base-2Aokdc/r-base-4.1.0=. 
+| -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time 
+| -D_FORTIFY_SOURCE=2 -g $(LTO)
+| 
+| While the R 4.1.0 Ubuntu 21.04 flags are:
+| CXX11FLAGS = -g -O2 
+| -ffile-prefix-map=/build/r-base-aXXzqd/r-base-4.1.0=. -flto=auto 
+| -ffat-lto-objects -fstack-protector-strong -Wformat 
+| -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g $(LTO)
+| 
+| Should the Ubuntu 21.04 LTO flags be different than the others?
+
+<shrug emoji here>
+
+Bbut these come from two (or three) distinct sources
+- default compiler settings plus distro settings (really two players)
+- package changes
+
+and here you only one of the three constant (R 4.1.0). I think the -flto=auto
+(amd -ffat-lto-objects) may come from gcc itself.  I can assure you (and you
+can test that by looking at the git log at salsa.debian.org under my 'edd'
+handle for the r-base package) that the debian/rules files configuring the
+build _has not changed_ recently and does not set either.  In particularly no
+with/without lto settings.  It's all 'without lto by default' from my end. So
+back to ... distribution and compiler changes. And I have learned in the 20+
+years here to trust my colleagues looking after gcc et al.
+
+Also, and just to be plain, recall that $(LTO) is calling a variable which
+may, or may not, bet set.  When I look at my most recent package build logs
+I see the compilation (in the long log) commence with
+
+make[4]: Entering directory '/build/r-base-4.1.0/src/main'
+gcc -std=gnu99 -I../../src/extra  -I. -I../../src/include -I../../src/include   -I../../src/nmath -DHAVE_CONFIG_H   -fopenmp -fpic  -g -O2 -ffile-prefix-map=/build/r-base-4.1.0=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g -c CommandLineArgs.c -o CommandLineArgs.o
+
+No LTO or -flto here (or in the rest of the file). I may of course have
+missed something.
+
+| My challenges are with the Makeconf flags packaged with Ubuntu 21.04's R 
+| 4.1.0, but the example above also fails when the same Makeconf file is 
+| copied into the rocker/r-base:4.0.5 image.
+
+I have not looked as deeply into this as you but I can assure that I myself
+of the maintainer of 'r-base' have been deeply and profoundly frustrated by
+the inability of this one package to build properly.  If you can improve that
+without heavy surgery, side effects to other packages, or other shenanigans I
+would be all ears.
+
+Cheers, Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From k@r|dw @end|ng |rom berke|ey@edu  Sat Jun  5 02:00:43 2021
+From: k@r|dw @end|ng |rom berke|ey@edu (Karl Dunkle Werner)
+Date: Fri, 4 Jun 2021 17:00:43 -0700
+Subject: [R-sig-Debian] LTO flags in 4.1.0 Ubuntu 21.04 Makeconf
+In-Reply-To: <24758.61801.914712.634572@rob.eddelbuettel.com>
+References: <CAKb0fEg2a-80U_6hGs4ejK=_2dZO8_L3YB46YjnR+5vDKUD-OQ@mail.gmail.com>
+ <24758.46970.636918.50021@rob.eddelbuettel.com>
+ <24758.47539.675478.287175@rob.eddelbuettel.com>
+ <ac940b56-17b0-e63e-8579-cce75d21d6b4@berkeley.edu>
+ <24758.61801.914712.634572@rob.eddelbuettel.com>
+Message-ID: <2bd12fe0-364f-bc98-587d-77f1cdbc9046@berkeley.edu>
+
+Hello Dirk,
+
+I see, this is all very helpful. Thank you!
+
+
+For anyone else who runs into this issue, you can do either of the 
+following;
+(a) Remove the flags "-flto=auto" and "-ffat-lto-objects" from the 
+CXX11FLAGS in your /etc/R/Makeconf
+(b) Set CXX11FLAGS in your Makevars (in $HOME/.R/Makevars) to something 
+like the following:
+
+CXX11FLAGS = -g -O2 -ffile-prefix-map=/build/r-base-aXXzqd/r-base-4.1.0=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g
+
+(This is just the Makeconf CXX11FLAGS with LTO flags removed).
+Note that these may turn off LTO for other packages you install, 
+depending on how they manage build flags.
+
+
+Thanks,
+Karl
+
+
+
+On 6/1/21 7:48 PM, Dirk Eddelbuettel wrote:
+> Hi Karl,
+>
+> On 1 June 2021 at 19:12, Karl Dunkle Werner wrote:
+> | Thanks for the very helpful response!
+>
+> Thanks for weaving the threads back together.
+>
+> | Got it, and thank you for the offer! I can edit my Makeconf (everything
+> | works when I remove the LTO-related flags). I was hoping to make
+> | installation smoother for other Arrow and Ubuntu users, but maybe that's
+> | something users or the Arrow developers will need to tackle.
+>
+> Yes indeed. One difficulty is that package authors can generally not override
+> what is in R's makeconf. As e.g. with my Rcpp maintainer hat on I have found
+> that frustrating. But such is life with R: not everything can be altered on
+> the fly.
+>   
+> | I think I'm confused by this comment (because I don't know much about
+> | the packaging process).
+> | > - the Debian and hence derived Ubuntu package of R 4.1.0 does*not*  enable
+> | >    LTO yet, in other words I have not yet add --enable-lto to the configure
+> | >    call and we use to default of 'nope'
+> | I'm confused because the R 4.1.0 Debian versions have flags like:
+> | CXX11FLAGS = -g -O2
+> | -ffile-prefix-map=/home/jranke/git/r-backports/bullseye/r-base-4.1.0=.
+> | -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time
+> | -D_FORTIFY_SOURCE=2 -g $(LTO)
+> |
+> | The R 4.1.0 Ubuntu 20.10 flags are:
+> | CXX11FLAGS = -g -O2
+> | -fdebug-prefix-map=/build/r-base-2Aokdc/r-base-4.1.0=.
+> | -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time
+> | -D_FORTIFY_SOURCE=2 -g $(LTO)
+> |
+> | While the R 4.1.0 Ubuntu 21.04 flags are:
+> | CXX11FLAGS = -g -O2
+> | -ffile-prefix-map=/build/r-base-aXXzqd/r-base-4.1.0=. -flto=auto
+> | -ffat-lto-objects -fstack-protector-strong -Wformat
+> | -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g $(LTO)
+> |
+> | Should the Ubuntu 21.04 LTO flags be different than the others?
+>
+> <shrug emoji here>
+>
+> Bbut these come from two (or three) distinct sources
+> - default compiler settings plus distro settings (really two players)
+> - package changes
+>
+> and here you only one of the three constant (R 4.1.0). I think the -flto=auto
+> (amd -ffat-lto-objects) may come from gcc itself.  I can assure you (and you
+> can test that by looking at the git log at salsa.debian.org under my 'edd'
+> handle for the r-base package) that the debian/rules files configuring the
+> build _has not changed_ recently and does not set either.  In particularly no
+> with/without lto settings.  It's all 'without lto by default' from my end. So
+> back to ... distribution and compiler changes. And I have learned in the 20+
+> years here to trust my colleagues looking after gcc et al.
+>
+> Also, and just to be plain, recall that $(LTO) is calling a variable which
+> may, or may not, bet set.  When I look at my most recent package build logs
+> I see the compilation (in the long log) commence with
+>
+> make[4]: Entering directory '/build/r-base-4.1.0/src/main'
+> gcc -std=gnu99 -I../../src/extra  -I. -I../../src/include -I../../src/include   -I../../src/nmath -DHAVE_CONFIG_H   -fopenmp -fpic  -g -O2 -ffile-prefix-map=/build/r-base-4.1.0=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g -c CommandLineArgs.c -o CommandLineArgs.o
+>
+> No LTO or -flto here (or in the rest of the file). I may of course have
+> missed something.
+>
+> | My challenges are with the Makeconf flags packaged with Ubuntu 21.04's R
+> | 4.1.0, but the example above also fails when the same Makeconf file is
+> | copied into the rocker/r-base:4.0.5 image.
+>
+> I have not looked as deeply into this as you but I can assure that I myself
+> of the maintainer of 'r-base' have been deeply and profoundly frustrated by
+> the inability of this one package to build properly.  If you can improve that
+> without heavy surgery, side effects to other packages, or other shenanigans I
+> would be all ears.
+>
+> Cheers, Dirk
+>
+
+
+From edd @end|ng |rom deb|@n@org  Sat Jun  5 20:01:21 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Sat, 5 Jun 2021 13:01:21 -0500
+Subject: [R-sig-Debian] LTO flags in 4.1.0 Ubuntu 21.04 Makeconf
+In-Reply-To: <2bd12fe0-364f-bc98-587d-77f1cdbc9046@berkeley.edu>
+References: <CAKb0fEg2a-80U_6hGs4ejK=_2dZO8_L3YB46YjnR+5vDKUD-OQ@mail.gmail.com>
+ <24758.46970.636918.50021@rob.eddelbuettel.com>
+ <24758.47539.675478.287175@rob.eddelbuettel.com>
+ <ac940b56-17b0-e63e-8579-cce75d21d6b4@berkeley.edu>
+ <24758.61801.914712.634572@rob.eddelbuettel.com>
+ <2bd12fe0-364f-bc98-587d-77f1cdbc9046@berkeley.edu>
+Message-ID: <24763.48113.922174.591521@rob.eddelbuettel.com>
+
+
+Hi Karl,
+
+Thanks for circling back!
+
+On 4 June 2021 at 17:00, Karl Dunkle Werner wrote:
+| For anyone else who runs into this issue, you can do either of the 
+| following;
+| (a) Remove the flags "-flto=auto" and "-ffat-lto-objects" from the 
+| CXX11FLAGS in your /etc/R/Makeconf
+| (b) Set CXX11FLAGS in your Makevars (in $HOME/.R/Makevars) to something 
+| like the following:
+| 
+| CXX11FLAGS = -g -O2 -ffile-prefix-map=/build/r-base-aXXzqd/r-base-4.1.0=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g
+| 
+| (This is just the Makeconf CXX11FLAGS with LTO flags removed).
+| Note that these may turn off LTO for other packages you install, 
+| depending on how they manage build flags.
+
+Thanks for the concise summary.
+
+The other side of all this is that you reminded me that I should probably
+enable lto as a default. I may need to reach out with some testing help.
+
+Best, Dirk 
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+

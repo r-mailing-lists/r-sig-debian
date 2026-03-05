@@ -1,0 +1,419 @@
+From jeroenooms at gmail.com  Sat Apr 28 12:16:55 2018
+From: jeroenooms at gmail.com (Jeroen Ooms)
+Date: Sat, 28 Apr 2018 12:16:55 +0200
+Subject: [R-sig-Debian] FYI libcurl conflicts in ubuntu 18.04
+Message-ID: <CABFfbXsURcs50DSYW7SH-byhsGrVtjFJwfKzdrn62_s+H3P1Uw@mail.gmail.com>
+
+One of the curl maintainers has pointed me to this bug report on
+Launchpad that may affect r-base users:
+https://bugs.launchpad.net/ubuntu/+source/curl/+bug/1754294
+
+The issue is that ubuntu now ships both libcurl3 (gnutls, nss) as well
+as libcurl4 (openssl) which cannot be installed concurrently. Because
+r-base-core depends on libcurl4, it will conflict with any other
+packages depending on libcurl3.
+
+
+From edd at debian.org  Sat Apr 28 14:38:27 2018
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 28 Apr 2018 07:38:27 -0500
+Subject: [R-sig-Debian] FYI libcurl conflicts in ubuntu 18.04
+In-Reply-To: <CABFfbXsURcs50DSYW7SH-byhsGrVtjFJwfKzdrn62_s+H3P1Uw@mail.gmail.com>
+References: <CABFfbXsURcs50DSYW7SH-byhsGrVtjFJwfKzdrn62_s+H3P1Uw@mail.gmail.com>
+Message-ID: <23268.27459.138080.616177@rob.eddelbuettel.com>
+
+
+On 28 April 2018 at 12:16, Jeroen Ooms wrote:
+| One of the curl maintainers has pointed me to this bug report on
+| Launchpad that may affect r-base users:
+| https://bugs.launchpad.net/ubuntu/+source/curl/+bug/1754294
+| 
+| The issue is that ubuntu now ships both libcurl3 (gnutls, nss) as well
+| as libcurl4 (openssl) which cannot be installed concurrently. Because
+| r-base-core depends on libcurl4, it will conflict with any other
+| packages depending on libcurl3.
+
+Thanks. Assuming you are not referring to the 'official' package in the
+distro (as I don't think any readers of this list have anything to do with
+the formal Canonical builds, and nobody had poked me yet), "ours", ie via the
+CRAN directory Michael maintains, are still in flux anyway as we have to deal
+with the repercussions of the r-api-3.5 tag Debian wants.  FWIW I got some
+first binary packages onto a 17.10 box.
+
+That said, thanks for the heads up. We'll see what comes out of it. My Debian
+package also still uses curl3, but I noticed that there is a whole formal
+transition going on -- so 'our' r-base-core package would get rebuilt anyway:
+
+   https://release.debian.org/transitions/html/curl.html
+
+Ditto for r-base-3.5
+
+   https://release.debian.org/transitions/html/r-base-3.5.html
+
+We'll see how it goes. But thanks for the heads-up!
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From marutter at gmail.com  Sat Apr 28 22:00:46 2018
+From: marutter at gmail.com (Michael Rutter)
+Date: Sat, 28 Apr 2018 16:00:46 -0400
+Subject: [R-sig-Debian] R 3.5.0 Binaries for Ubuntu now available
+Message-ID: <b682e821-6976-6959-2d43-e126b51ee65d@gmail.com>
+
+
+Binaries for R 3.5.0 are now available at a new PPA:
+
+https://launchpad.net/~marutter/+archive/ubuntu/rrutter3.5
+
+These have not been mirrored to CRAN as I want to have the other r-cran 
+packages built against R 3.5 before adding to CRAN.  Worried about 
+breaking working systems currently on R 3.4.4.
+
+Status updates on my twitter account @marutterstat.
+
+Michael
+
+
+From jeroenooms at gmail.com  Sun Apr 29 13:50:09 2018
+From: jeroenooms at gmail.com (Jeroen Ooms)
+Date: Sun, 29 Apr 2018 13:50:09 +0200
+Subject: [R-sig-Debian] FYI libcurl conflicts in ubuntu 18.04
+In-Reply-To: <23268.27459.138080.616177@rob.eddelbuettel.com>
+References: <CABFfbXsURcs50DSYW7SH-byhsGrVtjFJwfKzdrn62_s+H3P1Uw@mail.gmail.com>
+ <23268.27459.138080.616177@rob.eddelbuettel.com>
+Message-ID: <CABFfbXuSK7DoOcyjtVQ4edActyfRR4k2fZH4=E_c-hJ04qm9mA@mail.gmail.com>
+
+On Sat, Apr 28, 2018 at 2:38 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+> That said, thanks for the heads up. We'll see what comes out of it. My Debian
+> package also still uses curl3, but I noticed that there is a whole formal
+> transition going on -- so 'our' r-base-core package would get rebuilt anyway
+
+If I understand it correctly this is a problem only in Ubuntu
+currently. They bumped libcurl3 to libcurl4 but only for the openssl
+flavor of libcurl, supposedly because they added support for nghttp2
+in this build. I don't think they realized this would create a split
+in the ecosystem between software that depends on libcurl3 vs
+libcurl4.
+
+I *think* that if you are building debian r-base against
+libcurl4-openssl-dev, then it will automatically start depending on
+libcurl4 once this makes it into testing:
+https://packages.debian.org/experimental/libcurl4
+
+Either way you know this better than me. I was mostly giving users
+like myself a heads-up that when they try to upgrade to ubuntu 18.04,
+apt may uninstall r-base or other packages trying to resolve the
+libcurl3 vs libcurl4 conflicts.
+
+
+From jeroenooms at gmail.com  Sun Apr 29 15:30:13 2018
+From: jeroenooms at gmail.com (Jeroen Ooms)
+Date: Sun, 29 Apr 2018 15:30:13 +0200
+Subject: [R-sig-Debian] R 3.5.0 Binaries for Ubuntu now available
+In-Reply-To: <b682e821-6976-6959-2d43-e126b51ee65d@gmail.com>
+References: <b682e821-6976-6959-2d43-e126b51ee65d@gmail.com>
+Message-ID: <CABFfbXsUR-33Dh=Y2+ALHV0Lu-Z23WgU==mOpA1pPRnLA5Zv1A@mail.gmail.com>
+
+On Sat, Apr 28, 2018 at 10:00 PM, Michael Rutter <marutter at gmail.com> wrote:
+> These have not been mirrored to CRAN as I want to have the other r-cran
+> packages built against R 3.5 before adding to CRAN.  Worried about breaking
+> working systems currently on R 3.4.4.
+
+Thanks, Michael. I did some simple tests, upgrading existing r-base
+installations to R 3.5. on Xenial and Bionic, and initially apt did
+the correct thing of removing the incompatible r-cran-xyz packages.
+
+However then I tried installing the (knowingly incompatible)
+r-cran-rcpp from c2d4u and apt didn't stop me. Do the r-cran-xyz
+packages from c2d4u not have the same r-api-nn dependency
+restrictions?
+
+
+From edd at debian.org  Sun Apr 29 15:44:44 2018
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 29 Apr 2018 08:44:44 -0500
+Subject: [R-sig-Debian] FYI libcurl conflicts in ubuntu 18.04
+In-Reply-To: <CABFfbXuSK7DoOcyjtVQ4edActyfRR4k2fZH4=E_c-hJ04qm9mA@mail.gmail.com>
+References: <CABFfbXsURcs50DSYW7SH-byhsGrVtjFJwfKzdrn62_s+H3P1Uw@mail.gmail.com>
+ <23268.27459.138080.616177@rob.eddelbuettel.com>
+ <CABFfbXuSK7DoOcyjtVQ4edActyfRR4k2fZH4=E_c-hJ04qm9mA@mail.gmail.com>
+Message-ID: <23269.52300.192164.521643@rob.eddelbuettel.com>
+
+
+On 29 April 2018 at 13:50, Jeroen Ooms wrote:
+| On Sat, Apr 28, 2018 at 2:38 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+| > That said, thanks for the heads up. We'll see what comes out of it. My Debian
+| > package also still uses curl3, but I noticed that there is a whole formal
+| > transition going on -- so 'our' r-base-core package would get rebuilt anyway
+| 
+| If I understand it correctly this is a problem only in Ubuntu
+| currently. They bumped libcurl3 to libcurl4 but only for the openssl
+| flavor of libcurl, supposedly because they added support for nghttp2
+| in this build. I don't think they realized this would create a split
+| in the ecosystem between software that depends on libcurl3 vs
+| libcurl4.
+| 
+| I *think* that if you are building debian r-base against
+| libcurl4-openssl-dev, then it will automatically start depending on
+| libcurl4 once this makes it into testing:
+| https://packages.debian.org/experimental/libcurl4
+
+For Debian, hence "transitions". See the trackers
+
+   https://release.debian.org/transitions/index.html
+
+and notice 'curl' and 'r-base-3.5' at the bottom of the left column for
+'planned transitions'.  Note also that they are independent -- as you noted
+r-base "just" needs a rebuild.
+
+But note that is Debian. I have no idea what Ubuntu but suspect something
+similar.
+ 
+| Either way you know this better than me. I was mostly giving users
+| like myself a heads-up that when they try to upgrade to ubuntu 18.04,
+| apt may uninstall r-base or other packages trying to resolve the
+| libcurl3 vs libcurl4 conflicts.
+
+We are muddying the waters a little with our inofficial repos. We are
+generally trying not to break things but you never know...
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd at debian.org  Sun Apr 29 15:49:48 2018
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 29 Apr 2018 08:49:48 -0500
+Subject: [R-sig-Debian] R 3.5.0 Binaries for Ubuntu now available
+In-Reply-To: <CABFfbXsUR-33Dh=Y2+ALHV0Lu-Z23WgU==mOpA1pPRnLA5Zv1A@mail.gmail.com>
+References: <b682e821-6976-6959-2d43-e126b51ee65d@gmail.com>
+ <CABFfbXsUR-33Dh=Y2+ALHV0Lu-Z23WgU==mOpA1pPRnLA5Zv1A@mail.gmail.com>
+Message-ID: <23269.52604.692022.405223@rob.eddelbuettel.com>
+
+
+On 29 April 2018 at 15:30, Jeroen Ooms wrote:
+| On Sat, Apr 28, 2018 at 10:00 PM, Michael Rutter <marutter at gmail.com> wrote:
+| > These have not been mirrored to CRAN as I want to have the other r-cran
+| > packages built against R 3.5 before adding to CRAN.  Worried about breaking
+| > working systems currently on R 3.4.4.
+| 
+| Thanks, Michael. I did some simple tests, upgrading existing r-base
+| installations to R 3.5. on Xenial and Bionic, and initially apt did
+| the correct thing of removing the incompatible r-cran-xyz packages.
+| 
+| However then I tried installing the (knowingly incompatible)
+| r-cran-rcpp from c2d4u and apt didn't stop me. Do the r-cran-xyz
+| packages from c2d4u not have the same r-api-nn dependency
+| restrictions?
+
+Does it have a r-api-3.4 tag like the official packages?  Michael and I may
+at some have made an executive decision to _not_ impose those on c2d4u packages.
+So blame us.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From marutter at gmail.com  Sun Apr 29 15:52:42 2018
+From: marutter at gmail.com (Michael Rutter)
+Date: Sun, 29 Apr 2018 09:52:42 -0400
+Subject: [R-sig-Debian] R 3.5.0 Binaries for Ubuntu now available
+In-Reply-To: <CABFfbXsUR-33Dh=Y2+ALHV0Lu-Z23WgU==mOpA1pPRnLA5Zv1A@mail.gmail.com>
+References: <b682e821-6976-6959-2d43-e126b51ee65d@gmail.com>
+ <CABFfbXsUR-33Dh=Y2+ALHV0Lu-Z23WgU==mOpA1pPRnLA5Zv1A@mail.gmail.com>
+Message-ID: <f99e86be-3150-8330-6ed5-b62a057d1f5f@gmail.com>
+
+
+
+On 04/29/2018 09:30 AM, Jeroen Ooms wrote:
+> On Sat, Apr 28, 2018 at 10:00 PM, Michael Rutter <marutter at gmail.com> wrote:
+>> These have not been mirrored to CRAN as I want to have the other r-cran
+>> packages built against R 3.5 before adding to CRAN.  Worried about breaking
+>> working systems currently on R 3.4.4.
+> 
+> Thanks, Michael. I did some simple tests, upgrading existing r-base
+> installations to R 3.5. on Xenial and Bionic, and initially apt did
+> the correct thing of removing the incompatible r-cran-xyz packages.
+> 
+> However then I tried installing the (knowingly incompatible)
+> r-cran-rcpp from c2d4u and apt didn't stop me. Do the r-cran-xyz
+> packages from c2d4u not have the same r-api-nn dependency
+> restrictions?
+
+Since c2d4u is (for the most part) automatic, it only grabs depends from 
+the CRAN web page.  Therefore, there is no r-api-nn dependency for 
+packages built from c2d4u source packages.  How that effects things is 
+unclear.  As Dirk just posted, it was an executive decision that we made 
+(or possibly ignored).
+
+However, sometimes I need to borrow a package from Debian (when someone 
+else has built it on Launchpad before I did), and those will have the 
+r-api-nn dependency.  There are also the universe packages.
+
+ From my end, this is a mess.  Rebuilding the universe packages for 3.5 
+is a slow process (crazy dependencies).  Plan is to build everything 
+against 3.5, but it will take some time.
+
+Michael
+
+
+From edd at debian.org  Sun Apr 29 23:11:38 2018
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 29 Apr 2018 16:11:38 -0500
+Subject: [R-sig-Debian] R 3.5.0 binaries for Debian and Ubuntu
+In-Reply-To: <f99e86be-3150-8330-6ed5-b62a057d1f5f@gmail.com>
+References: <b682e821-6976-6959-2d43-e126b51ee65d@gmail.com>
+ <CABFfbXsUR-33Dh=Y2+ALHV0Lu-Z23WgU==mOpA1pPRnLA5Zv1A@mail.gmail.com>
+ <f99e86be-3150-8330-6ed5-b62a057d1f5f@gmail.com>
+Message-ID: <23270.13578.678290.559862@rob.eddelbuettel.com>
+
+
+To clarify:
+
+- We have known since last summer when ALTREP was merged in r-devel that you
+  CANNOT mix and match BINARY BUILDS between R 3.5.0 and prior versions. And
+  R 3.5.0 is very clear about this in the NEWS file (albeit many lines down,
+  and in somewhat vague language):
+
+  C-LEVEL FACILITIES:
+
+    [...]
+
+    * The object header layout has been changed to support merging the
+      ALTREP branch. This requires re-installing packages that use
+      compiled code.
+
+- To repeat: You *must* reinstall every binary package.
+
+- This means eg that the vast and superbly useful collection in Michael's
+  c2d4u repo continues to work with R 3.4.* (for which it was built) but will
+  not work with the new R 3.5.*.  Do not mix and match.
+
+- Debian is even more adamant about this, and fellow maintainers made me add
+  a binary tag to every package: r-api-3.4 for the old ones, r-api-3.5 for
+  the new ones. Hence the need for a COMPLETE rebuild, which is filed, but
+  has not yet started. You can monitor it here as previously mentioned:
+    https://release.debian.org/transitions/html/r-base-3.5.html
+
+- This is the same for the 'official' Ubuntu packages from the distro as they
+  are built the same way. See eg https://packages.ubuntu.com/artful/r-cran-rcpp
+
+- Our contributed Ubuntu repos have NOT enforced the tag so they allow you to
+  co-install.  But per the above things will still break. So they will also
+  get a complete rebuild.
+
+- For Ubuntu, Michael has started a new repo:
+    https://launchpad.net/~marutter/+archive/ubuntu/rrutter3.5/+packages
+  I added a small one of mine too:
+    https://launchpad.net/~edd/+archive/ubuntu/r-3.5
+  and with that (and by reducing installed r-cran-packages down to a minimum)
+  was able to install R 3.5.* packages on my 17.10 laptop. But let me repeat
+  that for clarity: I involved removing r-api-3.4 packages and reinstalling
+  in /usr/local
+
+- For Debian, I started a similar 'minimal' R 3.5.0 repo here
+    https://github.com/eddelbuettel/drr35
+  which allowed me eg to update the 'base' Rocker image for R 3.5.0
+    https://github.com/rocker-org/rocker/blob/master/r-base/Dockerfile
+    https://hub.docker.com/r/rocker/r-base/
+  and I will send the usual PR to the offical library for the r-base image
+  mirroring this.
+
+- Travis remains an issue if and when you mix with preinstalled packages. We
+  probably want to wait there.
+
+- Michael uses the excellent Ubuntu PPA infrastructure, but uploads are
+  in fact manual. Please be patient.
+
+
+This was just a quick braindump to put some facts out there while the noise
+level keeps escalating on Twitter.  It is not efficient for me to try to
+follow each conversation there.  If we could, let's please keep the meat of
+the discussion HERE and feel free to distribute some common knowledge
+established over whichever social media strategy you feel you must use.
+
+Thanks,  Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From jeroenooms at gmail.com  Mon Apr 30 01:03:56 2018
+From: jeroenooms at gmail.com (Jeroen Ooms)
+Date: Mon, 30 Apr 2018 01:03:56 +0200
+Subject: [R-sig-Debian] R 3.5.0 Binaries for Ubuntu now available
+In-Reply-To: <23269.52604.692022.405223@rob.eddelbuettel.com>
+References: <b682e821-6976-6959-2d43-e126b51ee65d@gmail.com>
+ <CABFfbXsUR-33Dh=Y2+ALHV0Lu-Z23WgU==mOpA1pPRnLA5Zv1A@mail.gmail.com>
+ <23269.52604.692022.405223@rob.eddelbuettel.com>
+Message-ID: <CABFfbXtwEHy4AhjA77XNFhdv4w0F_D8JqNGts8yWL4=AAg8arg@mail.gmail.com>
+
+On Sun, Apr 29, 2018 at 3:49 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> On 29 April 2018 at 15:30, Jeroen Ooms wrote:
+> | On Sat, Apr 28, 2018 at 10:00 PM, Michael Rutter <marutter at gmail.com> wrote:
+> | > These have not been mirrored to CRAN as I want to have the other r-cran
+> | > packages built against R 3.5 before adding to CRAN.  Worried about breaking
+> | > working systems currently on R 3.4.4.
+> |
+> | Thanks, Michael. I did some simple tests, upgrading existing r-base
+> | installations to R 3.5. on Xenial and Bionic, and initially apt did
+> | the correct thing of removing the incompatible r-cran-xyz packages.
+> |
+> | However then I tried installing the (knowingly incompatible)
+> | r-cran-rcpp from c2d4u and apt didn't stop me. Do the r-cran-xyz
+> | packages from c2d4u not have the same r-api-nn dependency
+> | restrictions?
+>
+> Does it have a r-api-3.4 tag like the official packages?  Michael and I may
+> at some have made an executive decision to _not_ impose those on c2d4u packages.
+> So blame us.
+
+OK, understand this is a complex operation, but still unfortunate. The
+mixing of c2d4u packages with r-base 3.5 will inevitably happen when
+people upgrade their systems to R 3.5.
+
+If there would be a way to start adding the appropriate r-api-nn tag
+in c2d4u based on which version of R it was built with, that would
+probably be an enormous improvement. Not sure if this is something
+that can easily be automated.
+
+Thanks for your efforts on this!
+
+
+From johannes.ranke at jrwb.de  Mon Apr 30 07:44:03 2018
+From: johannes.ranke at jrwb.de (Johannes Ranke)
+Date: Mon, 30 Apr 2018 07:44:03 +0200
+Subject: [R-sig-Debian] R 3.5.0 binaries for Debian and Ubuntu
+In-Reply-To: <23270.13578.678290.559862@rob.eddelbuettel.com>
+References: <b682e821-6976-6959-2d43-e126b51ee65d@gmail.com>
+ <f99e86be-3150-8330-6ed5-b62a057d1f5f@gmail.com>
+ <23270.13578.678290.559862@rob.eddelbuettel.com>
+Message-ID: <1788866.PonmP5e4S4@ryz>
+
+Hi,
+
+> - For Debian, I started a similar 'minimal' R 3.5.0 repo here
+>     https://github.com/eddelbuettel/drr35
+>   which allowed me eg to update the 'base' Rocker image for R 3.5.0
+>     https://github.com/rocker-org/rocker/blob/master/r-base/Dockerfile
+>     https://hub.docker.com/r/rocker/r-base/
+>   and I will send the usual PR to the offical library for the r-base image
+>   mirroring this.
+
+I would like to add that R 3.5.0 is available for Debian stable and oldstable 
+in repositories stretch-cran35/ and jessie-cran35/ on CRAN:
+
+https://cran.r-project.org/bin/linux/debian/
+
+Johannes
+
+

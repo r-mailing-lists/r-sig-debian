@@ -1,0 +1,372 @@
+From tighe at brandeis.edu  Fri Jul 19 00:03:08 2013
+From: tighe at brandeis.edu (Elizabeth Tighe)
+Date: Thu, 18 Jul 2013 18:03:08 -0400
+Subject: [R-sig-Debian] revolution mkl with R 3.01 on Ubuntu 13.04
+Message-ID: <51E8661C.1080909@brandeis.edu>
+
+
+So I have two Dell power-edge machines running latest Ubuntu (13.04) 
+with latest version of R (3.01).  I installed revolution-mkl on one 
+machine (T-410) and it works fine.  On the second machine (T-620), it 
+says the latest version of revolution-mkl is installed, but I'm getting 
+no multi-processor functioning (R-benchmark-25.R) runs on a single 
+processor and takes same amount of time before and after installing.
+
+Both machines I've installed using simple sudo apt-get install r-base 
+r-base-dev and same for revolution-mkl
+
+Anyone have any tips for debugging, figuring out why it's not working on 
+the second machine?  Is there a way to get R to find the mkl libraries 
+without reinstalling from scratch from source code?
+
+Any insights anyone out there might have would be appreciated!
+
+Thanks,
+Liz
+
+
+From edd at debian.org  Fri Jul 19 02:36:27 2013
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 18 Jul 2013 19:36:27 -0500
+Subject: [R-sig-Debian] revolution mkl with R 3.01 on Ubuntu 13.04
+In-Reply-To: <51E8661C.1080909@brandeis.edu>
+References: <51E8661C.1080909@brandeis.edu>
+Message-ID: <20968.35339.154953.193234@max.nulle.part>
+
+
+On 18 July 2013 at 18:03, Elizabeth Tighe wrote:
+| 
+| So I have two Dell power-edge machines running latest Ubuntu (13.04) 
+| with latest version of R (3.01).  I installed revolution-mkl on one 
+| machine (T-410) and it works fine.  On the second machine (T-620), it 
+| says the latest version of revolution-mkl is installed, but I'm getting 
+| no multi-processor functioning (R-benchmark-25.R) runs on a single 
+| processor and takes same amount of time before and after installing.
+| 
+| Both machines I've installed using simple sudo apt-get install r-base 
+| r-base-dev and same for revolution-mkl
+
+The revo-mkl package is stale. It was a one-off; its 'closed source but
+freely distributed' annoyed a lot of people, and Revo no longer cares about
+Ubuntu (or Debian).
+ 
+| Anyone have any tips for debugging, figuring out why it's not working on 
+| the second machine?  Is there a way to get R to find the mkl libraries 
+| without reinstalling from scratch from source code?
+| 
+| Any insights anyone out there might have would be appreciated!
+
+Just install libopenblas-dev --- it is also multithreaded, but open source
+and under development (as a successor to the not-really-open-source GotoBLAS).
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From tighe at brandeis.edu  Fri Jul 19 04:14:16 2013
+From: tighe at brandeis.edu (Elizabeth Tighe)
+Date: Thu, 18 Jul 2013 22:14:16 -0400
+Subject: [R-sig-Debian] revolution mkl with R 3.01 on Ubuntu 13.04
+In-Reply-To: <20968.35339.154953.193234@max.nulle.part>
+References: <51E8661C.1080909@brandeis.edu>
+	<20968.35339.154953.193234@max.nulle.part>
+Message-ID: <51E8A0F8.7050403@brandeis.edu>
+
+
+Dirk,  That worked! Sort of.  It's gone from running processes on one 
+processor to two processors and Rbenchmark ran in 64 seconds rather than 
+178.  Is there a way to get it to use more than 2 processors when it 
+can?  (revo mkl used all available processors by default).
+
+many thanks!
+Liz
+
+
+On 7/18/2013 8:36 PM, Dirk Eddelbuettel wrote:
+>
+> On 18 July 2013 at 18:03, Elizabeth Tighe wrote:
+> |
+> | So I have two Dell power-edge machines running latest Ubuntu (13.04)
+> | with latest version of R (3.01).  I installed revolution-mkl on one
+> | machine (T-410) and it works fine.  On the second machine (T-620), it
+> | says the latest version of revolution-mkl is installed, but I'm getting
+> | no multi-processor functioning (R-benchmark-25.R) runs on a single
+> | processor and takes same amount of time before and after installing.
+> |
+> | Both machines I've installed using simple sudo apt-get install r-base
+> | r-base-dev and same for revolution-mkl
+>
+> The revo-mkl package is stale. It was a one-off; its 'closed source but
+> freely distributed' annoyed a lot of people, and Revo no longer cares about
+> Ubuntu (or Debian).
+>
+> | Anyone have any tips for debugging, figuring out why it's not working on
+> | the second machine?  Is there a way to get R to find the mkl libraries
+> | without reinstalling from scratch from source code?
+> |
+> | Any insights anyone out there might have would be appreciated!
+>
+> Just install libopenblas-dev --- it is also multithreaded, but open source
+> and under development (as a successor to the not-really-open-source GotoBLAS).
+>
+> Dirk
+>
+
+
+From edd at debian.org  Fri Jul 19 04:33:11 2013
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 18 Jul 2013 21:33:11 -0500
+Subject: [R-sig-Debian] revolution mkl with R 3.01 on Ubuntu 13.04
+In-Reply-To: <51E8A0F8.7050403@brandeis.edu>
+References: <51E8661C.1080909@brandeis.edu>
+	<20968.35339.154953.193234@max.nulle.part>
+	<51E8A0F8.7050403@brandeis.edu>
+Message-ID: <20968.42343.556446.572219@max.nulle.part>
+
+
+On 18 July 2013 at 22:14, Elizabeth Tighe wrote:
+| 
+| Dirk,  That worked! Sort of.  It's gone from running processes on one 
+| processor to two processors and Rbenchmark ran in 64 seconds rather than 
+| 178.  Is there a way to get it to use more than 2 processors when it 
+| can?  (revo mkl used all available processors by default).
+
+That is by R's "design choice" as the parallel package sets the default to
+two.  See help(options), and/or the vignette for r-sig-hpc.
+
+There have been helpful discussion over on r-sig-hpc over the months; you
+probably want to lurk on that list / google-search its archives.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From edd at debian.org  Fri Jul 19 04:54:59 2013
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 18 Jul 2013 21:54:59 -0500
+Subject: [R-sig-Debian] revolution mkl with R 3.01 on Ubuntu 13.04
+In-Reply-To: <20968.42343.556446.572219@max.nulle.part>
+References: <51E8661C.1080909@brandeis.edu>
+	<20968.35339.154953.193234@max.nulle.part>
+	<51E8A0F8.7050403@brandeis.edu>
+	<20968.42343.556446.572219@max.nulle.part>
+Message-ID: <20968.43651.283391.114307@max.nulle.part>
+
+
+On 18 July 2013 at 21:33, Dirk Eddelbuettel wrote:
+| That is by R's "design choice" as the parallel package sets the default to
+| two.  See help(options), and/or the vignette for r-sig-hpc.
+
+Sorry, I meant: "vignette for package parallel" -- that vignette is a good
+read anyway.
+
+And help(options) yields:
+
+  Options set in package parallel:
+
+     These will be set when package ?parallel? (or its namespace) is
+     loaded if not already set.
+
+     ?mc.cores?: a integer giving the maximum allowed number of
+          _additional_ R processes allowed to be run in parallel to the
+          current R process.  Defaults to the setting of the
+          environment variable ?MC_CORES? if set.  Most applications
+          which use this assume a limit of ?2? if it is unset.
+
+For OpenBLAS, see eg under 'Usage' at the bottom of 
+
+   https://github.com/xianyi/OpenBLAS
+
+It has been a while since I looked into this, but as I recall the option set
+by R is respected one one possible option by OpenBLAS, which is why you end
+up with 2 unless you set the number explicitly.
+
+Dirk
+ 
+| There have been helpful discussion over on r-sig-hpc over the months; you
+| probably want to lurk on that list / google-search its archives.
+| 
+| Dirk
+| 
+| -- 
+| Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From ross at biostat.ucsf.edu  Sat Jul 20 21:41:55 2013
+From: ross at biostat.ucsf.edu (Ross Boylan)
+Date: Sat, 20 Jul 2013 12:41:55 -0700
+Subject: [R-sig-Debian] roxygen
+Message-ID: <201307201241.55844.ross@biostat.ucsf.edu>
+
+I am modifying a package that appears to have been made with roxygen.  I'm 
+currently running Debian stable (wheezy) amd64 with the stock R 2.15.1.  I 
+have some other, mostly older, flavors as well.
+
+roxygen doesn't seem to be in the Debian repositories or (if I wanted to 
+switch to R v3) http://cran.r-project.org/bin/linux/debian/wheezy-cran3/.
+
+Any tips?  Just install from source and discover what dependencies it needs?
+
+Ross
+
+
+From mar36 at psu.edu  Mon Jul 22 03:08:14 2013
+From: mar36 at psu.edu (Michael Rutter)
+Date: Sun, 21 Jul 2013 21:08:14 -0400
+Subject: [R-sig-Debian] revolution mkl with R 3.01 on Ubuntu 13.04
+In-Reply-To: <20968.42343.556446.572219@max.nulle.part>
+References: <51E8661C.1080909@brandeis.edu>
+	<20968.35339.154953.193234@max.nulle.part>
+	<51E8A0F8.7050403@brandeis.edu>
+	<20968.42343.556446.572219@max.nulle.part>
+Message-ID: <51EC85FE.4020502@psu.edu>
+
+
+
+On 07/18/2013 10:33 PM, Dirk Eddelbuettel wrote:
+>
+> On 18 July 2013 at 22:14, Elizabeth Tighe wrote:
+> |
+> | Dirk,  That worked! Sort of.  It's gone from running processes on one
+> | processor to two processors and Rbenchmark ran in 64 seconds rather than
+> | 178.  Is there a way to get it to use more than 2 processors when it
+> | can?  (revo mkl used all available processors by default).
+>
+> That is by R's "design choice" as the parallel package sets the default to
+> two.  See help(options), and/or the vignette for r-sig-hpc.
+>
+> There have been helpful discussion over on r-sig-hpc over the months; you
+> probably want to lurk on that list / google-search its archives.
+>
+
+I am a little late to this thread, but I have an update.  Many moons 
+ago, I filed a bug/request to get the openblas package to run on more 
+than two threads.  Every once in a while, I would get an update to that 
+request, and finally the said the had fixed that issue.  I added this to 
+my "to do" pile, and I have finally gotten around to testing it.
+
+And the good news is that it works.  If you go to my RDev PPA 
+(https://launchpad.net/~marutter/+archive/rdev), you will find the 
+latest version of Ubuntu's obenblas package backported to Raring, 
+Quantal, and Precise.  You will also find updated versions of atlas and 
+blas, as the new version of openblas breaks R if those are not installed 
+as well.  I think Raring is fine, but Quantal and Precise need at least 
+one installed.
+
+If you install the libopenblas-base pacakge, it should work right out of 
+the box.  On my quad core machine, it ran 4 threads without having to do 
+anything besides installing the package.  R-benchmark-25.R went from 
+20.1 to 16.6 seconds, but all cores were being used for the Matrix 
+function part of the test.
+
+Hope this helps,
+Michael
+
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+4205 College Drive
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+mar36 at psu.edu
+
+
+From HodgessE at uhd.edu  Sun Jul 28 02:07:37 2013
+From: HodgessE at uhd.edu (Hodgess, Erin)
+Date: Sun, 28 Jul 2013 00:07:37 +0000
+Subject: [R-sig-Debian] Problem with ldpaths in Ubuntu 13.04
+Message-ID: <FF9DB805FC41CC4E95825A50F680630217A401BD@challenger.uhd.campus>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130728/4149f16f/attachment.pl>
+
+From edd at debian.org  Sun Jul 28 02:38:16 2013
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 27 Jul 2013 19:38:16 -0500
+Subject: [R-sig-Debian] Problem with ldpaths in Ubuntu 13.04
+In-Reply-To: <FF9DB805FC41CC4E95825A50F680630217A401BD@challenger.uhd.campus>
+References: <FF9DB805FC41CC4E95825A50F680630217A401BD@challenger.uhd.campus>
+Message-ID: <20980.26616.779282.627408@max.nulle.part>
+
+
+On 28 July 2013 at 00:07, Hodgess, Erin wrote:
+| Hello!
+| 
+| I'm trying to install R-3.0.1 on an Ubuntu machine (64 bit, version 13.04).  I have uninstalled and installed several times, but to no avail.
+| 
+| 
+| I keep getting errors about missing ldpaths, and installing packages does not work at all.
+|
+| erin at erin-Lenovo-IdeaPad-Y480:~$ R
+| /usr/bin/R: line 236: /usr/lib/R/etc/ldpaths: No such file or directory
+| 
+| R version 3.0.1 (2013-05-16) -- "Good Sport"
+| Copyright (C) 2013 The R Foundation for Statistical Computing
+| Platform: x86_64-pc-linux-gnu (64-bit)
+| 
+| R is free software and comes with ABSOLUTELY NO WARRANTY.
+| You are welcome to redistribute it under certain conditions.
+| Type 'license()' or 'licence()' for distribution details.
+| 
+|   Natural language support but running in an English locale
+| 
+| R is a collaborative project with many contributors.
+| Type 'contributors()' for more information and
+| 'citation()' on how to cite R or R packages in publications.
+| 
+| Type 'demo()' for some demos, 'help()' for on-line help, or
+| 'help.start()' for an HTML browser interface to help.
+| Type 'q()' to quit R.
+| 
+
+Well R is installed as it evidently starts. 
+
+It prints one warning about a softlink missing its target:  
+
+| /usr/bin/R: line 236: /usr/lib/R/etc/ldpaths: No such file or directory
+
+That is possible -- though it has not happened to me in many dozen installs
+over the years.
+
+You can either recreate the softlink by hand (my (verbatim) file is below) or
+reinstall __after running 'purge' rather that remove__ ie making sure you
+have nothing left in /etc/R (a convenience location) or /usr/lib/R/
+
+Dirk
+
+
+
+
+edd at max:~$ cat /etc/R/ldpaths 
+: ${JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/jre}
+: ${R_JAVA_LD_LIBRARY_PATH=${JAVA_HOME}/lib/amd64/server}
+if test -n ""; then
+: ${R_LD_LIBRARY_PATH=${R_HOME}/lib:}
+else
+: ${R_LD_LIBRARY_PATH=${R_HOME}/lib}
+fi
+if test -n "${R_JAVA_LD_LIBRARY_PATH}"; then
+  R_LD_LIBRARY_PATH="${R_LD_LIBRARY_PATH}:${R_JAVA_LD_LIBRARY_PATH}"
+fi
+## This is DYLD_FALLBACK_LIBRARY_PATH on Darwin (OS X) and LD_LIBRARY_PATH elsewhere
+if test -z "${LD_LIBRARY_PATH}"; then
+  LD_LIBRARY_PATH="${R_LD_LIBRARY_PATH}"
+else
+  LD_LIBRARY_PATH="${R_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}"
+fi
+export LD_LIBRARY_PATH
+edd at max:~$
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+

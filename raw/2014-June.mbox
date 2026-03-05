@@ -1,0 +1,92 @@
+From sbowerma at hawk.iit.edu  Mon Jun  9 23:12:12 2014
+From: sbowerma at hawk.iit.edu (Samuel Bowerman)
+Date: Mon, 9 Jun 2014 16:12:12 -0500
+Subject: [R-sig-Debian] Compiling an older version of R (2.11.1) on Ubuntu
+	13.10
+Message-ID: <CAJWifqb4=hNScW8Us1_oA1Pa3yQMANM39yscFU3OLcxbz5u8cQ@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140609/bd935ce7/attachment.pl>
+
+From edd at debian.org  Mon Jun  9 23:41:14 2014
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 9 Jun 2014 16:41:14 -0500
+Subject: [R-sig-Debian] Compiling an older version of R (2.11.1) on
+	Ubuntu	13.10
+In-Reply-To: <CAJWifqb4=hNScW8Us1_oA1Pa3yQMANM39yscFU3OLcxbz5u8cQ@mail.gmail.com>
+References: <CAJWifqb4=hNScW8Us1_oA1Pa3yQMANM39yscFU3OLcxbz5u8cQ@mail.gmail.com>
+Message-ID: <21398.10746.152649.42089@max.nulle.part>
+
+
+Hi Sam,
+
+Always nice to email across town :)
+
+On 9 June 2014 at 16:12, Samuel Bowerman wrote:
+| Hello all,
+| 
+| I am trying to compile (by "hand") an old version of R (2.11.1,
+| specifically). "Why?", you might ask. Well, I have a program I am trying to
+| run (that was not written by me, but I am hoping to use in my research) that
+| was written in "old" R, and the program writer has specifically mentioned
+| that R-2.11.1 or older must be used. I have run "./configure" with no
+| obvious errors (the entire output being far too long to post here, but I
+| have been warned that I cannot make PDF, DVI, or html versions of the help
+| pages, which I'm not too concerned about). Next, when I pass the "make"
+| command, I am met with the following error (after a long stream of
+| successful commands):
+| 
+|     Warning in solve.default(rgb):
+| 
+|     unable to load shared library
+| '/home/sbowerma/Programs/R-2.11.1/modules//lapack.so':
+| 
+|     /home/sbowerma/Programs/R-2.11.1/lib/libRlapack.so: undefined symbol:
+| _gfortran_compare_string
+| 
+|     Error in solve.default(rgb) : lapack routines cannot be loaded
+| 
+|     Error: unable to load R code in package 'grDevices'
+| 
+|     Execution halted
+| 
+| However, I have confirmed that the library "lapack.so" is, in fact, in the
+| exact position it is supposed to be. If anyone has any suggestions or fixes,
+| I would be most appreciative. Thanks.
+
+You could try configuring with the external BLAS and LAPACK instead of using
+R's own sources.
+
+In general, maybe you safest bet is to a sufficient old version of Ubuntu and
+run it in virtualization. Then the build environment will match more closely.
+If you were to move your main Ubuntu to 14.04, then you could take advantage
+of the (unbelievably awesome) docker.io that runs just outside the box:
+
+edd at max:~$ docker.io images
+REPOSITORY    TAG        IMAGE ID         CREATED     VIRTUAL SIZE
+ubuntu        12.10      6006e6343fad     10 days ago     172.2 MB
+ubuntu        quantal    6006e6343fad     10 days ago     172.2 MB
+ubuntu        13.10      d2099a5ba6c5     10 days ago     180.2 MB
+ubuntu        saucy      d2099a5ba6c5     10 days ago     180.2 MB
+ubuntu        14.04      5cf8fd909c6c     10 days ago     274.3 MB
+ubuntu        latest     5cf8fd909c6c     10 days ago     274.3 MB
+ubuntu        trusty     5cf8fd909c6c     10 days ago     274.3 MB
+ubuntu        13.04      7656cbf56a8c     10 days ago     169.4 MB
+ubuntu        raring     7656cbf56a8c     10 days ago     169.4 MB
+ubuntu        12.04      cc0067db4f11     10 days ago     210.1 MB
+ubuntu        precise    cc0067db4f11     10 days ago     210.1 MB
+ubuntu        10.04      3db9c44f4520     7 weeks ago     183 MB
+ubuntu        lucid      3db9c44f4520     7 weeks ago     183 MB
+edd at max:~$ 
+
+Here I just followed the basic example steps to install the default ubuntu
+images and in one command ended up with an almost half-decade suite from
+10.04 to 14.04.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+

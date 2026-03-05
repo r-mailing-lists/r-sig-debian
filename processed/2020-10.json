@@ -1,0 +1,470 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2020-10",
+  "messages": [
+    {
+      "id": "msg-ed3de568d604",
+      "message_id": "<CAEtT+h2AHn=LnyGQe9xgD6LS+BRyuiTeRjZz1uO=P-bRVGdPyg@mail.gmail.com>",
+      "from_name": "Sam H",
+      "from_email_hash": "c340ce9bd8a7b29d0cd108d82723da56ce679bb9a58076ced923f8138371ec0c",
+      "date": "2020-10-08T14:37:37-04:00",
+      "subject": "[R-sig-Debian] Installing package fails at \"testing if installed package can be loaded from temporary location\"",
+      "subject_clean": "Installing package fails at \"testing if installed package can be loaded from temporary location\"",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi,\n\nI can not install packages from source which links to RcppArmadillo on\nUbuntu 20.04 (after upgrading from 18.04). The following problem occurs:\n\n** testing if installed package can be loaded from temporary location\nError: package or namespace load failed for 'myPackage' in\ndyn.load(file, DLLpath = DLLpath, ...):\n unable to load shared object\n'/usr/local/lib/R/site-library/00LOCK-my_package/00new/myPackage/libs/myPackage.so':\n  /usr/local/lib/R/site-library/00LOCK-my_package/00new/myPackge/libs/myPackage.so:\nundefined symbol: dgesvx_\nError: loading failed\nExecution halted\nERROR: loading failed\n\nThis dgesvx_ looked to me like a LAPACK problem (\nhttps://www.netlib.org/lapack/explore-html/d7/d3b/group__double_g_esolve_ga9d90ccf6e340cacd08b7bbbb502ceb21.html#ga9d90ccf6e340cacd08b7bbbb502ceb21\n).\n\nI was playing with different BLAS/LAPACK versions on my system and\nresearching this for a couple of days now but without success.\n\nI was first looking at which LAPACK and BLAS R is \"using\"\n\nuser at user:~$ ps aux | grep exec/R\nuser+   11663  1.9  1.7 1030952 415240 pts/0  Sl+  06:33   0:13\n/usr/lib/R/bin/exec/R --vanilla --quiet\nuser+   13836  2.5  0.2 441664 52024 pts/1    Sl+  06:44   0:00\n/usr/lib/R/bin/exec/R\nuser+   13932  0.0  0.0   8900   660 pts/2    S+   06:45   0:00 grep exec/R\nuser at user:~$ lsof -p 13836 | grep 'blas\\|lapack'\nR       13836 user  mem    REG    8,1 33562376  3961750\n/usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\nR       13836 user  mem    REG    8,1 27200552  3961749\n/usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\nuser at user:~$ ls -l /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\n-rw-r--r-- 1 root root 27200552 Jun  2 06:55\n/usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\nuser at user:~$ ls -l /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n-rw-r--r-- 1 root root 33562376 Jun  2 06:55\n/usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n\nAnd then tried different versions:\n\nuser at user:~$ sudo update-alternatives --config libblas.so.3-x86_64-linux-gnu\nThere are 4 choices for the alternative libblas.so.3-x86_64-linux-gnu\n(providing /usr/lib/x86_64-linux-gnu/libblas.so.3).\n\n  Selection    Path\nPriority   Status\n------------------------------------------------------------\n* 0            /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\n100       auto mode\n  1            /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3              35\n       manual mode\n  2            /usr/lib/x86_64-linux-gnu/blas/libblas.so.3               10\n       manual mode\n  3            /usr/lib/x86_64-linux-gnu/openblas-openmp/libblas.so.3    95\n       manual mode\n  4            /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\n100       manual mode\n\nPress <enter> to keep the current choice[*], or type selection number: 3\nupdate-alternatives: using\n/usr/lib/x86_64-linux-gnu/openblas-openmp/libblas.so.3 to provide\n/usr/lib/x86_64-linux-gnu/libblas.so.3 (libblas.so.3-x86_64-linux-gnu) in\nmanual mode\nuser at user:~$ sudo update-alternatives --config\nliblapack.so.3-x86_64-linux-gnu\nThere are 4 choices for the alternative liblapack.so.3-x86_64-linux-gnu\n(providing /usr/lib/x86_64-linux-gnu/liblapack.so.3).\n\n  Selection    Path\nPriority   Status\n------------------------------------------------------------\n* 0            /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n100       auto mode\n  1            /usr/lib/x86_64-linux-gnu/atlas/liblapack.so.3\n 35        manual mode\n  2            /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3\n10        manual mode\n  3            /usr/lib/x86_64-linux-gnu/openblas-openmp/liblapack.so.3\n 95        manual mode\n  4            /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n100       manual mode\n\nPress <enter> to keep the current choice[*], or type selection number: 3\nupdate-alternatives: using\n/usr/lib/x86_64-linux-gnu/openblas-openmp/liblapack.so.3 to provide\n/usr/lib/x86_64-linux-gnu/liblapack.so.3 (liblapack.so.3-x86_64-linux-gnu)\nin manual mode\nuser at user:~$ sudo update-alternatives --config libblas.so.3-x86_64-linux-gnu\nThere are 4 choices for the alternative libblas.so.3-x86_64-linux-gnu\n(providing /usr/lib/x86_64-linux-gnu/libblas.so.3).\n\n  Selection    Path\nPriority   Status\n------------------------------------------------------------\n  0            /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\n100       auto mode\n  1            /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3              35\n       manual mode\n  2            /usr/lib/x86_64-linux-gnu/blas/libblas.so.3               10\n       manual mode\n* 3            /usr/lib/x86_64-linux-gnu/openblas-openmp/libblas.so.3    95\n       manual mode\n  4            /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\n100       manual mode\n\nPress <enter> to keep the current choice[*], or type selection number: 2\nupdate-alternatives: using /usr/lib/x86_64-linux-gnu/blas/libblas.so.3 to\nprovide /usr/lib/x86_64-linux-gnu/libblas.so.3\n(libblas.so.3-x86_64-linux-gnu) in manual mode\nuser at user:~$ sudo update-alternatives --config\nliblapack.so.3-x86_64-linux-gnu\nThere are 4 choices for the alternative liblapack.so.3-x86_64-linux-gnu\n(providing /usr/lib/x86_64-linux-gnu/liblapack.so.3).\n\n  Selection    Path\nPriority   Status\n------------------------------------------------------------\n  0            /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n100       auto mode\n  1            /usr/lib/x86_64-linux-gnu/atlas/liblapack.so.3\n 35        manual mode\n  2            /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3\n10        manual mode\n* 3            /usr/lib/x86_64-linux-gnu/openblas-openmp/liblapack.so.3\n 95        manual mode\n  4            /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n100       manual mode\n\nPress <enter> to keep the current choice[*], or type selection number: 2\nupdate-alternatives: using /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3\nto provide /usr/lib/x86_64-linux-gnu/liblapack.so.3\n(liblapack.so.3-x86_64-linux-gnu) in manual mode\nI have no idea what could be wrong here... Thanks in advance for hints and\nhelp on what to do here.\n\nBest regards,\nSam\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Hi,\n\nI can not install packages from source which links to RcppArmadillo on\nUbuntu 20.04 (after upgrading from 18.04). The following problem occurs:\n\n** testing if installed package can be loaded from",
+      "thread_id": "thread-ed3de568d604",
+      "thread_depth": 0,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-c2eca4a3d87e",
+      "message_id": "<24447.27283.615349.717233@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-10-08T14:37:55-05:00",
+      "subject": "[R-sig-Debian]  Installing package fails at \"testing if installed package can be loaded from temporary location\"",
+      "subject_clean": "Installing package fails at \"testing if installed package can be loaded from temporary location\"",
+      "in_reply_to": "<CAEtT+h2AHn=LnyGQe9xgD6LS+BRyuiTeRjZz1uO=P-bRVGdPyg@mail.gmail.com>",
+      "references": [
+        "<CAEtT+h2AHn=LnyGQe9xgD6LS+BRyuiTeRjZz1uO=P-bRVGdPyg@mail.gmail.com>"
+      ],
+      "body_plain": "Hi Sam,\n\nThanks for bringing this here. It is the right place.\n\nAnd for what it is worth I also use 20.04, and update RcppArmadillo\nfrequently (currently working on a pre-release)\n\nOn 8 October 2020 at 14:37, Sam H wrote:\n| Hi,\n| \n| I can not install packages from source which links to RcppArmadillo on\n| Ubuntu 20.04 (after upgrading from 18.04). The following problem occurs:\n| \n| ** testing if installed package can be loaded from temporary location\n| Error: package or namespace load failed for 'myPackage' in\n| dyn.load(file, DLLpath = DLLpath, ...):\n|  unable to load shared object\n| '/usr/local/lib/R/site-library/00LOCK-my_package/00new/myPackage/libs/myPackage.so':\n|   /usr/local/lib/R/site-library/00LOCK-my_package/00new/myPackge/libs/myPackage.so:\n| undefined symbol: dgesvx_\n\nOk, this could be two things. Are you using the R package for Ubuntu from\nCRAN, or directly from the Rutter PPA ?  All this works best with R being\ncompiled using shared libraries and external LAPACK/BLAS.  So in R itself,\nwhen you type sessionInfo() you should see two lines like this:\n\n  Matrix products: default\n  BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\n  LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n\nSecond, for any locally compiled package, `ldd` on that .so file should\nresolve LAPACK and BLAS:\n\n  edd at rob:~$ ldd /usr/local/lib/R/site-library/RcppZiggurat/libs/RcppZiggurat.so | grep \"blas\\|lapack\"\n          libgslcblas.so.0 => /usr/lib/x86_64-linux-gnu/libgslcblas.so.0 (0x00007effdd3ab000)\n          libblas.so.3 => /usr/lib/x86_64-linux-gnu/libblas.so.3 (0x00007effdb9ac000)\n  edd at rob:~$ \n\n| Error: loading failed\n| Execution halted\n| ERROR: loading failed\n| \n| This dgesvx_ looked to me like a LAPACK problem (\n| https://www.netlib.org/lapack/explore-html/d7/d3b/group__double_g_esolve_ga9d90ccf6e340cacd08b7bbbb502ceb21.html#ga9d90ccf6e340cacd08b7bbbb502ceb21\n| ).\n| \n| I was playing with different BLAS/LAPACK versions on my system and\n| researching this for a couple of days now but without success.\n| \n| I was first looking at which LAPACK and BLAS R is \"using\"\n| \n| user at user:~$ ps aux | grep exec/R\n| user+   11663  1.9  1.7 1030952 415240 pts/0  Sl+  06:33   0:13\n| /usr/lib/R/bin/exec/R --vanilla --quiet\n| user+   13836  2.5  0.2 441664 52024 pts/1    Sl+  06:44   0:00\n| /usr/lib/R/bin/exec/R\n| user+   13932  0.0  0.0   8900   660 pts/2    S+   06:45   0:00 grep exec/R\n| user at user:~$ lsof -p 13836 | grep 'blas\\|lapack'\n| R       13836 user  mem    REG    8,1 33562376  3961750\n| /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n\nSame as mine above, found via a more hardcore way :)\n\n| R       13836 user  mem    REG    8,1 27200552  3961749\n| /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\n| user at user:~$ ls -l /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\n| -rw-r--r-- 1 root root 27200552 Jun  2 06:55\n| /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\n| user at user:~$ ls -l /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n| -rw-r--r-- 1 root root 33562376 Jun  2 06:55\n| /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n| \n| And then tried different versions:\n| \n| user at user:~$ sudo update-alternatives --config libblas.so.3-x86_64-linux-gnu\n| There are 4 choices for the alternative libblas.so.3-x86_64-linux-gnu\n| (providing /usr/lib/x86_64-linux-gnu/libblas.so.3).\n| \n|   Selection    Path\n| Priority   Status\n| ------------------------------------------------------------\n| * 0            /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\n| 100       auto mode\n|   1            /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3              35\n|        manual mode\n|   2            /usr/lib/x86_64-linux-gnu/blas/libblas.so.3               10\n|        manual mode\n|   3            /usr/lib/x86_64-linux-gnu/openblas-openmp/libblas.so.3    95\n|        manual mode\n|   4            /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\n| 100       manual mode\n\nAlso fine.\n \n| Press <enter> to keep the current choice[*], or type selection number: 3\n| update-alternatives: using\n| /usr/lib/x86_64-linux-gnu/openblas-openmp/libblas.so.3 to provide\n| /usr/lib/x86_64-linux-gnu/libblas.so.3 (libblas.so.3-x86_64-linux-gnu) in\n| manual mode\n| user at user:~$ sudo update-alternatives --config\n| liblapack.so.3-x86_64-linux-gnu\n| There are 4 choices for the alternative liblapack.so.3-x86_64-linux-gnu\n| (providing /usr/lib/x86_64-linux-gnu/liblapack.so.3).\n| \n|   Selection    Path\n| Priority   Status\n| ------------------------------------------------------------\n| * 0            /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n| 100       auto mode\n|   1            /usr/lib/x86_64-linux-gnu/atlas/liblapack.so.3\n|  35        manual mode\n|   2            /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3\n| 10        manual mode\n|   3            /usr/lib/x86_64-linux-gnu/openblas-openmp/liblapack.so.3\n|  95        manual mode\n|   4            /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n| 100       manual mode\n| \n| Press <enter> to keep the current choice[*], or type selection number: 3\n| update-alternatives: using\n| /usr/lib/x86_64-linux-gnu/openblas-openmp/liblapack.so.3 to provide\n| /usr/lib/x86_64-linux-gnu/liblapack.so.3 (liblapack.so.3-x86_64-linux-gnu)\n| in manual mode\n| user at user:~$ sudo update-alternatives --config libblas.so.3-x86_64-linux-gnu\n| There are 4 choices for the alternative libblas.so.3-x86_64-linux-gnu\n| (providing /usr/lib/x86_64-linux-gnu/libblas.so.3).\n| \n|   Selection    Path\n| Priority   Status\n| ------------------------------------------------------------\n|   0            /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\n| 100       auto mode\n|   1            /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3              35\n|        manual mode\n|   2            /usr/lib/x86_64-linux-gnu/blas/libblas.so.3               10\n|        manual mode\n| * 3            /usr/lib/x86_64-linux-gnu/openblas-openmp/libblas.so.3    95\n|        manual mode\n|   4            /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\n| 100       manual mode\n| \n| Press <enter> to keep the current choice[*], or type selection number: 2\n| update-alternatives: using /usr/lib/x86_64-linux-gnu/blas/libblas.so.3 to\n| provide /usr/lib/x86_64-linux-gnu/libblas.so.3\n| (libblas.so.3-x86_64-linux-gnu) in manual mode\n| user at user:~$ sudo update-alternatives --config\n| liblapack.so.3-x86_64-linux-gnu\n| There are 4 choices for the alternative liblapack.so.3-x86_64-linux-gnu\n| (providing /usr/lib/x86_64-linux-gnu/liblapack.so.3).\n| \n|   Selection    Path\n| Priority   Status\n| ------------------------------------------------------------\n|   0            /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n| 100       auto mode\n|   1            /usr/lib/x86_64-linux-gnu/atlas/liblapack.so.3\n|  35        manual mode\n|   2            /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3\n| 10        manual mode\n| * 3            /usr/lib/x86_64-linux-gnu/openblas-openmp/liblapack.so.3\n|  95        manual mode\n|   4            /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n| 100       manual mode\n| \n| Press <enter> to keep the current choice[*], or type selection number: 2\n| update-alternatives: using /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3\n| to provide /usr/lib/x86_64-linux-gnu/liblapack.so.3\n| (liblapack.so.3-x86_64-linux-gnu) in manual mode\n| I have no idea what could be wrong here... Thanks in advance for hints and\n| help on what to do here.\n\nIt is possible to 'bust' one's system by playing with update-alternatives. I\nusually don't touch it, or make triple-sure I am doing it right.\n\nI would check whether linear algebra currently works for you. One check:\n\n   $ Rscript -e 'library(RcppArmadillo); example(\"fastLm\")\n\nDirk\n\n| Best regards,\n| Sam\n| \n| \t[[alternative HTML version deleted]]\n| \n| _______________________________________________\n| R-SIG-Debian mailing list\n| R-SIG-Debian at r-project.org\n| https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "Hi Sam,\n\nThanks for bringing this here. It is the right place.\n\nAnd for what it is worth I also use 20.04, and update RcppArmadillo\nfrequently (currently working on a pre-release)\n\nOn 8 October 2020 a",
+      "thread_id": "thread-ed3de568d604",
+      "thread_depth": 1,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-d9f42a790185",
+      "message_id": "<24447.27370.526082.233966@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-10-08T14:39:22-05:00",
+      "subject": "[R-sig-Debian]  Installing package fails at \"testing if installed package can be loaded from temporary location\"",
+      "subject_clean": "Installing package fails at \"testing if installed package can be loaded from temporary location\"",
+      "in_reply_to": "<CAEtT+h2AHn=LnyGQe9xgD6LS+BRyuiTeRjZz1uO=P-bRVGdPyg@mail.gmail.com>",
+      "references": [
+        "<CAEtT+h2AHn=LnyGQe9xgD6LS+BRyuiTeRjZz1uO=P-bRVGdPyg@mail.gmail.com>"
+      ],
+      "body_plain": "Sam,\n\nPS It could of course also be something else: Is you src/Makevars for your\ntest package correct?  Did you use `RcppArmadillo.packages.skeleton()` ? You\nneed the lapack/blas link instruction therein.  See\n\nedd at rob:~$ cat /usr/local/lib/R/site-library/RcppArmadillo/skeleton/Makevars\n\n## With R 3.1.0 or later, you can uncomment the following line to tell R to \n## enable compilation with C++11 (where available)\n##\n## Also, OpenMP support in Armadillo prefers C++11 support. However, for wider\n## availability of the package we do not yet enforce this here.  It is however\n## recommended for client packages to set it.\n##\n## And with R 3.4.0, and RcppArmadillo 0.7.960.*, we turn C++11 on as OpenMP\n## support within Armadillo prefers / requires it\nCXX_STD = CXX11\n\nPKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) \nPKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)\nedd at rob:~$ \n\n\nDirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "Sam,\n\nPS It could of course also be something else: Is you src/Makevars for your\ntest package correct?  Did you use `RcppArmadillo.packages.skeleton()` ? You\nneed the lapack/blas link instruction ther",
+      "thread_id": "thread-ed3de568d604",
+      "thread_depth": 1,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-cb56e340e725",
+      "message_id": "<CAEtT+h2nq1JoBsmnRRc-C5=VpCJOBKJvtmASxtjwg3JOcyAodw@mail.gmail.com>",
+      "from_name": "Sam H",
+      "from_email_hash": "c340ce9bd8a7b29d0cd108d82723da56ce679bb9a58076ced923f8138371ec0c",
+      "date": "2020-10-08T16:43:09-04:00",
+      "subject": "[R-sig-Debian]  Installing package fails at \"testing if installed package can be loaded from temporary location\"",
+      "subject_clean": "Installing package fails at \"testing if installed package can be loaded from temporary location\"",
+      "in_reply_to": "<24447.27370.526082.233966@rob.eddelbuettel.com>",
+      "references": [
+        "<CAEtT+h2AHn=LnyGQe9xgD6LS+BRyuiTeRjZz1uO=P-bRVGdPyg@mail.gmail.com>",
+        "<24447.27370.526082.233966@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Dirk, thank you a thousand times.\n\nIndeed, src/Makevars was wrong. I modified Makevars so that now looks like\nthe below and the package now compiled and linked properly.\nCXX_STD = CXX11\n\nPKG_LIBS += $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)\n$(shell ${R_HOME}/bin/Rscript -e \"RcppParallel::RcppParallelLibs()\")\nPKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) -I../inst/include\n\nBest,\nSam\n\nOn Thu, Oct 8, 2020 at 3:39 PM Dirk Eddelbuettel <edd at debian.org> wrote:\n\n>\n> Sam,\n>\n> PS It could of course also be something else: Is you src/Makevars for your\n> test package correct?  Did you use `RcppArmadillo.packages.skeleton()` ?\n> You\n> need the lapack/blas link instruction therein.  See\n>\n> edd at rob:~$ cat\n> /usr/local/lib/R/site-library/RcppArmadillo/skeleton/Makevars\n>\n> ## With R 3.1.0 or later, you can uncomment the following line to tell R\n> to\n> ## enable compilation with C++11 (where available)\n> ##\n> ## Also, OpenMP support in Armadillo prefers C++11 support. However, for\n> wider\n> ## availability of the package we do not yet enforce this here.  It is\n> however\n> ## recommended for client packages to set it.\n> ##\n> ## And with R 3.4.0, and RcppArmadillo 0.7.960.*, we turn C++11 on as\n> OpenMP\n> ## support within Armadillo prefers / requires it\n> CXX_STD = CXX11\n>\n> PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS)\n> PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)\n> edd at rob:~$\n>\n>\n> Dirk\n>\n> --\n> https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org\n>\n\n\n-- \nBest regards,\nSam\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Dirk, thank you a thousand times.\n\nIndeed, src/Makevars was wrong. I modified Makevars so that now looks like\nthe below and the package now compiled and linked properly.\nCXX_STD = CXX11\n\nPKG_LIBS += $",
+      "thread_id": "thread-ed3de568d604",
+      "thread_depth": 2,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-4de9164e6db0",
+      "message_id": "<24447.32049.944608.684727@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-10-08T15:57:21-05:00",
+      "subject": "[R-sig-Debian]  Installing package fails at \"testing if installed package can be loaded from temporary location\"",
+      "subject_clean": "Installing package fails at \"testing if installed package can be loaded from temporary location\"",
+      "in_reply_to": "<CAEtT+h2nq1JoBsmnRRc-C5=VpCJOBKJvtmASxtjwg3JOcyAodw@mail.gmail.com>",
+      "references": [
+        "<CAEtT+h2AHn=LnyGQe9xgD6LS+BRyuiTeRjZz1uO=P-bRVGdPyg@mail.gmail.com>",
+        "<24447.27370.526082.233966@rob.eddelbuettel.com>",
+        "<CAEtT+h2nq1JoBsmnRRc-C5=VpCJOBKJvtmASxtjwg3JOcyAodw@mail.gmail.com>"
+      ],
+      "body_plain": "On 8 October 2020 at 16:43, Sam H wrote:\n| Dirk, thank you a thousand times.\n| \n| Indeed, src/Makevars was wrong. I modified Makevars so that now looks like\n| the below and the package now compiled and linked properly.\n| CXX_STD = CXX11\n| \n| PKG_LIBS += $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)\n| $(shell ${R_HOME}/bin/Rscript -e \"RcppParallel::RcppParallelLibs()\")\n| PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) -I../inst/include\n\nAwesome.\n\nI should think of a really clever way to catch that before it happens.\nTrouble here is that R doesn't 'read' the src/Makevars and simply lets make\nand g++ (or clang++) take care of things so the failure is silent.\n\nYet extremely frustrating and tricky to debug.  If anybody has clever pointers...\n\nDirk\n\nPS The CXX_STD=CXX11 is mostly historic. R itself imposes that now ... as\nwill RcppArmadillo from the next release.\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 8 October 2020 at 16:43, Sam H wrote:\n| Dirk, thank you a thousand times.\n| \n| Indeed, src/Makevars was wrong. I modified Makevars so that now looks like\n| the below and the package now compiled an",
+      "thread_id": "thread-ed3de568d604",
+      "thread_depth": 3,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-6ba42612a6b3",
+      "message_id": "<451b777d-f5d4-0482-cccc-86e61f43596d@gmail.com>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "fa9a311629388b6101be83d3f529d49cb003033a62bdd75c9f3e231ba130973a",
+      "date": "2020-10-18T13:16:28-04:00",
+      "subject": "[R-sig-Debian] EXPKEYSIG for CRAN Ubuntu repositories",
+      "subject_clean": "EXPKEYSIG for CRAN Ubuntu repositories",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "If you receive the following error when updating and Ubuntu machine that \nutilizes the CRAN based Ubuntu repositories, there is a simple fix.\n\nThe following signatures were invalid: EXPKEYSIG 51716619E084DAB9 \nMichael Rutter <marutter at gmail.com>\n\nEXPKEYSIG indicates that the key on your system has expired.  I renewed \nmy key a month ago, so you just need to update my key using normal \nprocedures.  For example:\n\nsudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys \nE298A3A825C0D65DFD57CBB651716619E084DAB9\n\nOr any of the other methods mentioned on the CRAN Ubuntu page \n(https://cran.r-project.org/bin/linux/ubuntu/).\n\nIf you have any questions, please let me know.\nMichael",
+      "body_snippet": "If you receive the following error when updating and Ubuntu machine that \nutilizes the CRAN based Ubuntu repositories, there is a simple fix.\n\nThe following signatures were invalid: EXPKEYSIG 51716619",
+      "thread_id": "thread-6ba42612a6b3",
+      "thread_depth": 0,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-e5a1f0e9bd91",
+      "message_id": "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>",
+      "from_name": "Frank Harrell",
+      "from_email_hash": "ae220ca8ba425c013b7f9365d72b268542fcad1d69d2cda2884742d2785a939d",
+      "date": "2020-10-25T11:37:52-05:00",
+      "subject": "[R-sig-Debian] Ubuntu 20.10",
+      "subject_clean": "Ubuntu 20.10",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "I made the mistake of updating to Ubuntu 20.10 from 20.04 before before debian repo supports 20.10.? This broke RcppParallel and plotly.? Any idea with 20.10 will be available for r-cran-* debian packages?\n\nThanks\n\nFrank\n\n\n \n\n\nhttp://fharrell.com  \n\nhttp://biostat.mc.vanderbilt.edu/FrankHarrell  \n\nTwitter:  @f2harrell",
+      "body_snippet": "I made the mistake of updating to Ubuntu 20.10 from 20.04 before before debian repo supports 20.10.? This broke RcppParallel and plotly.? Any idea with 20.10 will be available for r-cran-* debian pack",
+      "thread_id": "thread-e5a1f0e9bd91",
+      "thread_depth": 0,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-6c98c85b4ffd",
+      "message_id": "<f2e286eb-fbc0-4005-c786-adfed905cd08@gmail.com>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "fa9a311629388b6101be83d3f529d49cb003033a62bdd75c9f3e231ba130973a",
+      "date": "2020-10-25T12:51:15-04:00",
+      "subject": "[R-sig-Debian] Ubuntu 20.10",
+      "subject_clean": "Ubuntu 20.10",
+      "in_reply_to": "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>",
+      "references": [
+        "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>"
+      ],
+      "body_plain": "On 10/25/20 12:37 PM, Frank Harrell wrote:\n> I made the mistake of updating to Ubuntu 20.10 from 20.04 before before debian repo supports 20.10.? This broke RcppParallel and plotly.? Any idea with 20.10 will be available for r-cran-* debian packages?\n> \n> Thanks\n> \n> Frank\n\nThis is on my to-do list for the day.  However, since this is not an LTS \nrelease, it will only be r-base and the handful of recommended packages \nyou can find on the CRAN Ubuntu repositories.  If you want access to the \n4,000+ packages available on c2d4u \n(https://launchpad.net/~c2d4u.team/+archive/ubuntu/c2d4u4.0+), you will \nneed to stick with 20.04.\n\nMichael\n\n\n> \n>   \n> \n> \n> http://fharrell.com\n> \n> http://biostat.mc.vanderbilt.edu/FrankHarrell\n> \n> Twitter:  @f2harrell\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n>",
+      "body_snippet": "On 10/25/20 12:37 PM, Frank Harrell wrote:\n> I made the mistake of updating to Ubuntu 20.10 from 20.04 before before debian repo supports 20.10.? This broke RcppParallel and plotly.? Any idea with 20.",
+      "thread_id": "thread-e5a1f0e9bd91",
+      "thread_depth": 1,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-17c9545cddd1",
+      "message_id": "<24469.44379.306846.855842@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-10-25T11:52:43-05:00",
+      "subject": "[R-sig-Debian] Ubuntu 20.10",
+      "subject_clean": "Ubuntu 20.10",
+      "in_reply_to": "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>",
+      "references": [
+        "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>"
+      ],
+      "body_plain": "On 25 October 2020 at 11:37, Frank Harrell wrote:\n| I made the mistake of updating to Ubuntu 20.10 from 20.04 before before debian repo supports 20.10.? This broke RcppParallel and plotly.? Any idea with 20.10 will be available for r-cran-* debian packages?\n\nJust continue to point to the focal (\"20.04\") repos.  They _will_ run because\nthis is the standard \"forward compatible\" mode.  Binaries built on older\nsystems almost always run on newer ones (unless an explicit break happened,\nwhich is rare), just the reverse is not true.\n\nIt's not unlike your packages from the previous R version in /usr/local still\nworking when you upgrade R.\n\nHow's 20.10 otherwise? I usually wait about a little \"just to let some things\nshake out\" but will likely upgrade in a month or two.\n\nHope this helps,  Dirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 25 October 2020 at 11:37, Frank Harrell wrote:\n| I made the mistake of updating to Ubuntu 20.10 from 20.04 before before debian repo supports 20.10.? This broke RcppParallel and plotly.? Any idea w",
+      "thread_id": "thread-e5a1f0e9bd91",
+      "thread_depth": 1,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-42aee9dd7b26",
+      "message_id": "<17560ba70c7.10ef037c7250293.4968983677446662852@fharrell.com>",
+      "from_name": "Frank Harrell",
+      "from_email_hash": "ae220ca8ba425c013b7f9365d72b268542fcad1d69d2cda2884742d2785a939d",
+      "date": "2020-10-25T12:07:12-05:00",
+      "subject": "[R-sig-Debian] Ubuntu 20.10",
+      "subject_clean": "Ubuntu 20.10",
+      "in_reply_to": "<24469.44379.306846.855842@rob.eddelbuettel.com>",
+      "references": [
+        "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>",
+        "<24469.44379.306846.855842@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Hi Dirk,\n\n\n\nI didn't capture the output but using Focal I got an error with RcppParallel trying to open a file that wasn't found, and plotly::ggplot() would not render a ggplot graph.\n\n\n\n20.10 is working well for me otherwise.\n\n\nFrank\n\n\n\n \n\n\nhttp://fharrell.com  \n\nhttp://biostat.mc.vanderbilt.edu/FrankHarrell  \n\nTwitter:  @f2harrell  \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n---- On Sun, 25 Oct 2020 11:52:43 -0500 Dirk Eddelbuettel <edd at debian.org> wrote ----\n\n\n\nOn 25 October 2020 at 11:37, Frank Harrell wrote: \n| I made the mistake of updating to Ubuntu 20.10 from 20.04 before before debian repo supports 20.10.? This broke RcppParallel and plotly.? Any idea with 20.10 will be available for r-cran-* debian packages? \n \nJust continue to point to the focal (\"20.04\") repos.  They _will_ run because \nthis is the standard \"forward compatible\" mode.  Binaries built on older \nsystems almost always run on newer ones (unless an explicit break happened, \nwhich is rare), just the reverse is not true. \n \nIt's not unlike your packages from the previous R version in /usr/local still \nworking when you upgrade R. \n \nHow's 20.10 otherwise? I usually wait about a little \"just to let some things \nshake out\" but will likely upgrade in a month or two. \n \nHope this helps,  Dirk \n \n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | mailto:edd at debian.org",
+      "body_snippet": "Hi Dirk,\n\n\n\nI didn't capture the output but using Focal I got an error with RcppParallel trying to open a file that wasn't found, and plotly::ggplot() would not render a ggplot graph.\n\n\n\n20.10 is work",
+      "thread_id": "thread-e5a1f0e9bd91",
+      "thread_depth": 2,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-14f472b05981",
+      "message_id": "<24469.45808.523268.450411@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-10-25T12:16:32-05:00",
+      "subject": "[R-sig-Debian] Ubuntu 20.10",
+      "subject_clean": "Ubuntu 20.10",
+      "in_reply_to": "<24469.44379.306846.855842@rob.eddelbuettel.com>",
+      "references": [
+        "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>",
+        "<24469.44379.306846.855842@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "On 25 October 2020 at 11:52, Dirk Eddelbuettel wrote:\n| Just continue to point to the focal (\"20.04\") repos.  They _will_ run because\n\nAnd by that I meant of course \"just\" the PPAs for R at CRAN or Launchpad.\n\nI have mixed those (LTS builds) just fine with the subsequent standard releases.\n\nDirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 25 October 2020 at 11:52, Dirk Eddelbuettel wrote:\n| Just continue to point to the focal (\"20.04\") repos.  They _will_ run because\n\nAnd by that I meant of course \"just\" the PPAs for R at CRAN or La",
+      "thread_id": "thread-e5a1f0e9bd91",
+      "thread_depth": 2,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-057c3622b8d0",
+      "message_id": "<24469.45889.34155.690975@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-10-25T12:17:53-05:00",
+      "subject": "[R-sig-Debian] Ubuntu 20.10",
+      "subject_clean": "Ubuntu 20.10",
+      "in_reply_to": "<17560ba70c7.10ef037c7250293.4968983677446662852@fharrell.com>",
+      "references": [
+        "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>",
+        "<24469.44379.306846.855842@rob.eddelbuettel.com>",
+        "<17560ba70c7.10ef037c7250293.4968983677446662852@fharrell.com>"
+      ],
+      "body_plain": "Frank,\n\n(Your mail came in an html variant my default mail reader cannot read so no\nquoted reply.)\n\nWe would need a more standardized reproducible example to help you further.\n\nDirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "Frank,\n\n(Your mail came in an html variant my default mail reader cannot read so no\nquoted reply.)\n\nWe would need a more standardized reproducible example to help you further.\n\nDirk\n\n-- \nhttps://dirk.",
+      "thread_id": "thread-e5a1f0e9bd91",
+      "thread_depth": 3,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-13cb3424f3a7",
+      "message_id": "<DD8A4BF2-7195-4D0C-8DFA-0CC7112DA918@wligtenberg.nl>",
+      "from_name": "Willem Ligtenberg",
+      "from_email_hash": "5a5c169ac16131b59851c26781c29dede5f979e3b59b5836123795642a231f17",
+      "date": "2020-10-25T18:23:59+01:00",
+      "subject": "[R-sig-Debian] Ubuntu 20.10",
+      "subject_clean": "Ubuntu 20.10",
+      "in_reply_to": "<24469.44379.306846.855842@rob.eddelbuettel.com>",
+      "references": [
+        "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>",
+        "<24469.44379.306846.855842@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Just a response to the how is 20.10 otherwise.\nI think it is a nice and solid release so far. :)\n\nKind regards,\n\nWillem\n\nDirk Eddelbuettel <edd at debian.org> schreef op 25 oktober 2020 17:52:43 CET:\n>\n>On 25 October 2020 at 11:37, Frank Harrell wrote:\n>| I made the mistake of updating to Ubuntu 20.10 from 20.04 before\n>before debian repo supports 20.10.? This broke RcppParallel and\n>plotly.? Any idea with 20.10 will be available for r-cran-* debian\n>packages?\n>\n>Just continue to point to the focal (\"20.04\") repos.  They _will_ run\n>because\n>this is the standard \"forward compatible\" mode.  Binaries built on\n>older\n>systems almost always run on newer ones (unless an explicit break\n>happened,\n>which is rare), just the reverse is not true.\n>\n>It's not unlike your packages from the previous R version in /usr/local\n>still\n>working when you upgrade R.\n>\n>How's 20.10 otherwise? I usually wait about a little \"just to let some\n>things\n>shake out\" but will likely upgrade in a month or two.\n>\n>Hope this helps,  Dirk\n>\n>-- \n>https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org\n>\n>_______________________________________________\n>R-SIG-Debian mailing list\n>R-SIG-Debian at r-project.org\n>https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Just a response to the how is 20.10 otherwise.\nI think it is a nice and solid release so far. :)\n\nKind regards,\n\nWillem\n\nDirk Eddelbuettel <edd at debian.org> schreef op 25 oktober 2020 17:52:43 CET:\n",
+      "thread_id": "thread-e5a1f0e9bd91",
+      "thread_depth": 2,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-369139f68c10",
+      "message_id": "<24469.46768.935629.746236@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-10-25T12:32:32-05:00",
+      "subject": "[R-sig-Debian] Ubuntu 20.10",
+      "subject_clean": "Ubuntu 20.10",
+      "in_reply_to": "<DD8A4BF2-7195-4D0C-8DFA-0CC7112DA918@wligtenberg.nl>",
+      "references": [
+        "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>",
+        "<24469.44379.306846.855842@rob.eddelbuettel.com>",
+        "<DD8A4BF2-7195-4D0C-8DFA-0CC7112DA918@wligtenberg.nl>"
+      ],
+      "body_plain": "On 25 October 2020 at 18:23, Willem Ligtenberg wrote:\n| Just a response to the how is 20.10 otherwise.\n| I think it is a nice and solid release so far. :)\n\n:)\n\nI am also a pretty happy 'upgrade every six months' user.\n\nDirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 25 October 2020 at 18:23, Willem Ligtenberg wrote:\n| Just a response to the how is 20.10 otherwise.\n| I think it is a nice and solid release so far. :)\n\n:)\n\nI am also a pretty happy 'upgrade every ",
+      "thread_id": "thread-e5a1f0e9bd91",
+      "thread_depth": 3,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-fa3ff2567952",
+      "message_id": "<1756508d36d.bc6db6dd12658.8414892503663513479@fharrell.com>",
+      "from_name": "Frank Harrell",
+      "from_email_hash": "ae220ca8ba425c013b7f9365d72b268542fcad1d69d2cda2884742d2785a939d",
+      "date": "2020-10-26T08:11:18-05:00",
+      "subject": "[R-sig-Debian] Ubuntu 20.10",
+      "subject_clean": "Ubuntu 20.10",
+      "in_reply_to": "<24469.45889.34155.690975@rob.eddelbuettel.com>",
+      "references": [
+        "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>",
+        "<24469.44379.306846.855842@rob.eddelbuettel.com>",
+        "<17560ba70c7.10ef037c7250293.4968983677446662852@fharrell.com>",
+        "<24469.45889.34155.690975@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Hi Dirk,\n\n\n\nOne side observation: r-cran debian now seems to be in Ubuntu 20.10 Universe so I don't need to add the repo any more.\n\n\n\nHere is a reproducible example that fails with the latest r-cran-rcppparallel but works when I manually install the source package:\n\n\n\nrequire(rstan)\n\nstancode <- 'data {real y_mean;} parameters {real y;} model {y ~ normal(y_mean,1);}'\n\nmod <- stan_model(model_code = stancode, verbose = TRUE)\n\n\n\nTRANSLATING MODEL '16a540c6086086816528e4524def24d9' FROM Stan CODE TO C++ CODE NOW.\n\nsuccessful in parsing the Stan model '16a540c6086086816528e4524def24d9'.\n\nCOMPILING THE C++ CODE FOR MODEL '16a540c6086086816528e4524def24d9' NOW.\n\nOS: x86_64, linux-gnu; rstan: 2.21.2; Rcpp: 1.0.5; inline: 0.3.16 \n\nError in system.file(\"lib\", .Platform$r_arch, package = \"RcppParallel\",? : \n\n? no file found\n\n\n\nI also still have a plotly::ggplot(ggplot output) that fails to render unless I install plotly from install.packages(...).\n\n\n\nFrank\n\n\n\n\n\n\n \n\n\nhttp://fharrell.com  \n\nhttp://biostat.mc.vanderbilt.edu/FrankHarrell  \n\nTwitter:  @f2harrell  \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n---- On Sun, 25 Oct 2020 12:17:53 -0500 Dirk Eddelbuettel <edd at debian.org> wrote ----\n\n\n\nFrank, \n \n(Your mail came in an html variant my default mail reader cannot read so no \nquoted reply.) \n \nWe would need a more standardized reproducible example to help you further. \n \nDirk \n \n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | mailto:edd at debian.org",
+      "body_snippet": "Hi Dirk,\n\n\n\nOne side observation: r-cran debian now seems to be in Ubuntu 20.10 Universe so I don't need to add the repo any more.\n\n\n\nHere is a reproducible example that fails with the latest r-cran-r",
+      "thread_id": "thread-e5a1f0e9bd91",
+      "thread_depth": 4,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-4160c54ef296",
+      "message_id": "<24470.54319.965742.777967@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-10-26T08:50:39-05:00",
+      "subject": "[R-sig-Debian] Ubuntu 20.10",
+      "subject_clean": "Ubuntu 20.10",
+      "in_reply_to": "<1756508d36d.bc6db6dd12658.8414892503663513479@fharrell.com>",
+      "references": [
+        "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>",
+        "<24469.44379.306846.855842@rob.eddelbuettel.com>",
+        "<17560ba70c7.10ef037c7250293.4968983677446662852@fharrell.com>",
+        "<24469.45889.34155.690975@rob.eddelbuettel.com>",
+        "<1756508d36d.bc6db6dd12658.8414892503663513479@fharrell.com>"
+      ],
+      "body_plain": "Frank,\n\nYour html mail still upsets my reader so still no quote.\n\nI do not know what you refer to as \"r-cran\".  Maybe you mean that Debian and\nUbuntu have packages in the distro?  If so that is true since say 2003 when I\nstarted adding via r-cran-rodbc which were actually followed by your design\npackage before it was rms and on cran...\n\nTo take the rstan example, it is in Debian\n  https://packages.debian.org/search?keywords=r-cran-stan\nand hence also in Ubuntu\n  https://packages.ubuntu.com/search?keywords=r-cran-stan\n\nAt present, there around 900 such r-cran-* or r-bioc-* packages directly in\nDebian or Ubuntu.\n\nIt looks like are currently using one of these and have a bug. The best step\nwould then be to contact the (Debian) package maintainer.\n\nBut for completeness: The Rutter PPA remains extremely attractive as it\noffers 4700 packages---which is significantly more than the 900 in core.\n\nWe also offer nice (and new) access layers via BSPM, or alternatively to RSPM\nserving \"raw\" binaries (not .deb packages).  But that is a different topic. :)\n\nHope this helps, Dirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "Frank,\n\nYour html mail still upsets my reader so still no quote.\n\nI do not know what you refer to as \"r-cran\".  Maybe you mean that Debian and\nUbuntu have packages in the distro?  If so that is true s",
+      "thread_id": "thread-e5a1f0e9bd91",
+      "thread_depth": 5,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-cba5d087a8c0",
+      "message_id": "<175654032c6.dbc4ec1c24944.1077824801970626905@fharrell.com>",
+      "from_name": "Frank Harrell",
+      "from_email_hash": "ae220ca8ba425c013b7f9365d72b268542fcad1d69d2cda2884742d2785a939d",
+      "date": "2020-10-26T09:11:47-05:00",
+      "subject": "[R-sig-Debian] Ubuntu 20.10",
+      "subject_clean": "Ubuntu 20.10",
+      "in_reply_to": "<24470.54319.965742.777967@rob.eddelbuettel.com>",
+      "references": [
+        "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>",
+        "<24469.44379.306846.855842@rob.eddelbuettel.com>",
+        "<17560ba70c7.10ef037c7250293.4968983677446662852@fharrell.com>",
+        "<24469.45889.34155.690975@rob.eddelbuettel.com>",
+        "<1756508d36d.bc6db6dd12658.8414892503663513479@fharrell.com>",
+        "<24470.54319.965742.777967@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Hi Dirk,\n\n\n\nApologies for the html.\n\n\n\nI think I'm missing something simple.?? Ubuntu 20.10 uses /etc/apt/sources.list.d to hold repo information and I have this file there: marutter-ubuntu-rrutter4_0-focal.list with contents:\n\n\n\n\n\ndeb http://ppa.launchpad.net/marutter/rrutter4.0/ubuntu/ focal main\n\n# deb-src http://ppa.launchpad.net/marutter/rrutter4.0/ubuntu/ groovy main\n\n\n\nI ran sudo apt update, then apt-cache search r-cran* | wc but this only reports 935 packages.\n\n\n\nSomehow the Rutter repo is not taking precedence over what's in Ubuntu University repo.\n\nFrank\n\n\n\n\n \n\n\nhttp://fharrell.com  \n\nhttp://biostat.mc.vanderbilt.edu/FrankHarrell  \n\nTwitter:  @f2harrell  \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n---- On Mon, 26 Oct 2020 08:50:39 -0500 Dirk Eddelbuettel <edd at debian.org> wrote ----\n\n\n\nFrank, \n \nYour html mail still upsets my reader so still no quote. \n \nI do not know what you refer to as \"r-cran\".  Maybe you mean that Debian and \nUbuntu have packages in the distro?  If so that is true since say 2003 when I \nstarted adding via r-cran-rodbc which were actually followed by your design \npackage before it was rms and on cran... \n \nTo take the rstan example, it is in Debian \n https://packages.debian.org/search?keywords=r-cran-stan \nand hence also in Ubuntu \n https://packages.ubuntu.com/search?keywords=r-cran-stan \n \nAt present, there around 900 such r-cran-* or r-bioc-* packages directly in \nDebian or Ubuntu. \n \nIt looks like are currently using one of these and have a bug. The best step \nwould then be to contact the (Debian) package maintainer. \n \nBut for completeness: The Rutter PPA remains extremely attractive as it \noffers 4700 packages---which is significantly more than the 900 in core. \n \nWe also offer nice (and new) access layers via BSPM, or alternatively to RSPM \nserving \"raw\" binaries (not .deb packages).  But that is a different topic. :) \n \nHope this helps, Dirk \n \n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | mailto:edd at debian.org",
+      "body_snippet": "Hi Dirk,\n\n\n\nApologies for the html.\n\n\n\nI think I'm missing something simple.?? Ubuntu 20.10 uses /etc/apt/sources.list.d to hold repo information and I have this file there: marutter-ubuntu-rrutter4_0",
+      "thread_id": "thread-e5a1f0e9bd91",
+      "thread_depth": 6,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-4fcfc15db02b",
+      "message_id": "<24470.56811.361104.523428@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-10-26T09:32:11-05:00",
+      "subject": "[R-sig-Debian] Ubuntu 20.10",
+      "subject_clean": "Ubuntu 20.10",
+      "in_reply_to": "<175654032c6.dbc4ec1c24944.1077824801970626905@fharrell.com>",
+      "references": [
+        "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>",
+        "<24469.44379.306846.855842@rob.eddelbuettel.com>",
+        "<17560ba70c7.10ef037c7250293.4968983677446662852@fharrell.com>",
+        "<24469.45889.34155.690975@rob.eddelbuettel.com>",
+        "<1756508d36d.bc6db6dd12658.8414892503663513479@fharrell.com>",
+        "<24470.54319.965742.777967@rob.eddelbuettel.com>",
+        "<175654032c6.dbc4ec1c24944.1077824801970626905@fharrell.com>"
+      ],
+      "body_plain": "Frank\n\nIt is STILL unreadable (to me) html.\n\nYour entry is simply outdate. See the usual README at all CRAN mirror:\n\n  deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/\n\nalso pointing to\n\n  https://launchpad.net/~c2d4u.team/+archive/ubuntu/c2d4u4.0+\n\nsuggesting\n\n  sudo add-apt-repository ppa:c2d4u.team/c2d4u4.0+\n\nyielding\n\n  edd at vijay:~$ apt-cache search \"^r-(cran|bioc|other)-\" | wc -l\n  4515\n  edd at vijay:~$ \n\nHth, Dirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "Frank\n\nIt is STILL unreadable (to me) html.\n\nYour entry is simply outdate. See the usual README at all CRAN mirror:\n\n  deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/\n\nalso pointing to\n",
+      "thread_id": "thread-e5a1f0e9bd91",
+      "thread_depth": 7,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-7bcb8b82be6c",
+      "message_id": "<1756577e272.c0b9c7bb37835.2303520210727866957@fharrell.com>",
+      "from_name": "Frank Harrell",
+      "from_email_hash": "ae220ca8ba425c013b7f9365d72b268542fcad1d69d2cda2884742d2785a939d",
+      "date": "2020-10-26T10:12:36-05:00",
+      "subject": "[R-sig-Debian] Ubuntu 20.10",
+      "subject_clean": "Ubuntu 20.10",
+      "in_reply_to": "<24470.56811.361104.523428@rob.eddelbuettel.com>",
+      "references": [
+        "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>",
+        "<24469.44379.306846.855842@rob.eddelbuettel.com>",
+        "<17560ba70c7.10ef037c7250293.4968983677446662852@fharrell.com>",
+        "<24469.45889.34155.690975@rob.eddelbuettel.com>",
+        "<1756508d36d.bc6db6dd12658.8414892503663513479@fharrell.com>",
+        "<24470.54319.965742.777967@rob.eddelbuettel.com>",
+        "<175654032c6.dbc4ec1c24944.1077824801970626905@fharrell.com>",
+        "<24470.56811.361104.523428@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Thanks Dirk - I think I turned off html now.\n\nThat worked.  I had actually \"mastered\" that a couple of years ago but keep forgetting how to get the latest and greatest r-debian repo.\n\nI just had to edit /etc/apt/sources.list.d/c2d4u_team*.list to change groovy to focal.  I now see 4448 r-cran-* packages.\n\nI'll contact the debian package maintainer about the problem with RcppParallel.  I'm still now clear why there is no bug when I do a manual install from .tar.gz.\n\nFrank\n\n\n\n\n\n ---- On Mon, 26 Oct 2020 09:32:11 -0500 Dirk Eddelbuettel <edd at debian.org> wrote ----\n > \n > Frank\n > \n > It is STILL unreadable (to me) html.\n > \n > Your entry is simply outdate. See the usual README at all CRAN mirror:\n > \n >   deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/\n > \n > also pointing to\n > \n >   https://launchpad.net/~c2d4u.team/+archive/ubuntu/c2d4u4.0+\n > \n > suggesting\n > \n >   sudo add-apt-repository ppa:c2d4u.team/c2d4u4.0+\n > \n > yielding\n > \n >   edd at vijay:~$ apt-cache search \"^r-(cran|bioc|other)-\" | wc -l\n >   4515\n >   edd at vijay:~$ \n > \n > Hth, Dirk\n > \n > -- \n > https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org\n >",
+      "body_snippet": "Thanks Dirk - I think I turned off html now.\n\nThat worked.  I had actually \"mastered\" that a couple of years ago but keep forgetting how to get the latest and greatest r-debian repo.\n\nI just had to ed",
+      "thread_id": "thread-e5a1f0e9bd91",
+      "thread_depth": 8,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-4c49264e1800",
+      "message_id": "<24470.61018.186036.75423@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-10-26T10:42:18-05:00",
+      "subject": "[R-sig-Debian] Ubuntu 20.10",
+      "subject_clean": "Ubuntu 20.10",
+      "in_reply_to": "<1756577e272.c0b9c7bb37835.2303520210727866957@fharrell.com>",
+      "references": [
+        "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>",
+        "<24469.44379.306846.855842@rob.eddelbuettel.com>",
+        "<17560ba70c7.10ef037c7250293.4968983677446662852@fharrell.com>",
+        "<24469.45889.34155.690975@rob.eddelbuettel.com>",
+        "<1756508d36d.bc6db6dd12658.8414892503663513479@fharrell.com>",
+        "<24470.54319.965742.777967@rob.eddelbuettel.com>",
+        "<175654032c6.dbc4ec1c24944.1077824801970626905@fharrell.com>",
+        "<24470.56811.361104.523428@rob.eddelbuettel.com>",
+        "<1756577e272.c0b9c7bb37835.2303520210727866957@fharrell.com>"
+      ],
+      "body_plain": "On 26 October 2020 at 10:12, Frank Harrell wrote:\n| Thanks Dirk - I think I turned off html now.\n\nConfirmed!  :)    [ Out of curiousity, what was it? \n \n| That worked.  I had actually \"mastered\" that a couple of years ago but keep forgetting how to get the latest and greatest r-debian repo.\n| \n| I just had to edit /etc/apt/sources.list.d/c2d4u_team*.list to change groovy to focal.  I now see 4448 r-cran-* packages.\n| \n| I'll contact the debian package maintainer about the problem with RcppParallel.  I'm still now clear why there is no bug when I do a manual install from .tar.gz.\n\nSounds good. They are a bunch of very-well-meaning Debian folks looking after\na number of those 900+ packages in the distro, but they sometimes prioritise\nDebian views / experience over R and CRAN so issues like this can arise.\nPersonally I think it is foolish to not take advantage of the very solid\ntesting CRAN already does but hey can't win them all...  Hope you get that\nfixed with some help from them.\n\nDirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 26 October 2020 at 10:12, Frank Harrell wrote:\n| Thanks Dirk - I think I turned off html now.\n\nConfirmed!  :)    [ Out of curiousity, what was it? \n \n| That worked.  I had actually \"mastered\" that ",
+      "thread_id": "thread-e5a1f0e9bd91",
+      "thread_depth": 9,
+      "month": "2020-10"
+    },
+    {
+      "id": "msg-e0c2ad03b799",
+      "message_id": "<24470.61420.826091.113060@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-10-26T10:49:00-05:00",
+      "subject": "[R-sig-Debian] Ubuntu 20.10",
+      "subject_clean": "Ubuntu 20.10",
+      "in_reply_to": "<24470.61018.186036.75423@rob.eddelbuettel.com>",
+      "references": [
+        "<175609f95d8.12524f6cd249480.8077865126919451032@fharrell.com>",
+        "<24469.44379.306846.855842@rob.eddelbuettel.com>",
+        "<17560ba70c7.10ef037c7250293.4968983677446662852@fharrell.com>",
+        "<24469.45889.34155.690975@rob.eddelbuettel.com>",
+        "<1756508d36d.bc6db6dd12658.8414892503663513479@fharrell.com>",
+        "<24470.54319.965742.777967@rob.eddelbuettel.com>",
+        "<175654032c6.dbc4ec1c24944.1077824801970626905@fharrell.com>",
+        "<24470.56811.361104.523428@rob.eddelbuettel.com>",
+        "<1756577e272.c0b9c7bb37835.2303520210727866957@fharrell.com>",
+        "<24470.61018.186036.75423@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "On 26 October 2020 at 10:42, Dirk Eddelbuettel wrote:\n| \n| On 26 October 2020 at 10:12, Frank Harrell wrote:\n| | Thanks Dirk - I think I turned off html now.\n| \n| Confirmed!  :)    [ Out of curiousity, what was it? \n\n(For the record:  Forgot to edit it out, but checked the headers: SOHO Mail.)\n\nDirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 26 October 2020 at 10:42, Dirk Eddelbuettel wrote:\n| \n| On 26 October 2020 at 10:12, Frank Harrell wrote:\n| | Thanks Dirk - I think I turned off html now.\n| \n| Confirmed!  :)    [ Out of curiousity",
+      "thread_id": "thread-e5a1f0e9bd91",
+      "thread_depth": 10,
+      "month": "2020-10"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-ed3de568d604",
+      "subject": "Installing package fails at \"testing if installed package can be loaded from temporary location\"",
+      "message_count": 5,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Sam H"
+      ],
+      "started": "2020-10-08T14:37:37-04:00",
+      "last_reply": "2020-10-08T15:57:21-05:00",
+      "root_message_id": "msg-ed3de568d604"
+    },
+    {
+      "id": "thread-6ba42612a6b3",
+      "subject": "EXPKEYSIG for CRAN Ubuntu repositories",
+      "message_count": 1,
+      "participants": [
+        "Michael Rutter"
+      ],
+      "started": "2020-10-18T13:16:28-04:00",
+      "last_reply": "2020-10-18T13:16:28-04:00",
+      "root_message_id": "msg-6ba42612a6b3"
+    },
+    {
+      "id": "thread-e5a1f0e9bd91",
+      "subject": "Ubuntu 20.10",
+      "message_count": 15,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Frank Harrell",
+        "Michael Rutter",
+        "Willem Ligtenberg"
+      ],
+      "started": "2020-10-25T11:37:52-05:00",
+      "last_reply": "2020-10-26T10:49:00-05:00",
+      "root_message_id": "msg-e5a1f0e9bd91"
+    }
+  ]
+}

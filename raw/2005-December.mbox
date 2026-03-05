@@ -1,0 +1,399 @@
+From edd at debian.org  Thu Dec  1 03:03:16 2005
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 30 Nov 2005 20:03:16 -0600
+Subject: [R-sig-Debian] setting R_LIBS
+In-Reply-To: <87d5kheowo.fsf@gmail.com>
+References: <87d5kheowo.fsf@gmail.com>
+Message-ID: <17294.23012.203767.126820@basebud.nulle.part>
+
+
+On 30 November 2005 at 16:44, Sebastian Luque wrote:
+| I'm adding a private library tree in my home directory by adding this to
+| my ~/.Renviron:
+| 
+| R_LIBS="~/R/library:${R_LIBS}"
+| 
+| so that once in R:
+| 
+| R> cat(Sys.getenv("R_LIBS"), "\n")
+| ~/R/library:/usr/local/lib/R/site-library:/usr/lib/R/site-library:/usr/lib/R/library
+| 
+| 
+| Is this the best way to proceed?
+
+Sure, after all it's in the FAQ (Q5.2) and documented under help(Startup).  
+
+I also use it at work on different system where 
+
+	a) I may or may not have write permissions (Linux), or 
+
+	b) want to keep my package directory outside of the versioned R
+	   directory tree (Windoze).
+
+So thumbs up from me.  And under Debian, thanks to the useful expansion of
+R_LIBS from pre-defined values, you get your own as well as the systems
+directory in /usr/lib and /usr/local/lib.  
+
+The only other thing to consider would be a multi-user setting. You could
+experiement with Renviron.site if you want to leave the conffile
+/etc/R/Renviron alone.  I have not tried this.
+
+Dirk
+
+-- 
+Statistics: The (futile) attempt to offer certainty about uncertainty.
+         -- Roger Koenker, 'Dictionary of Received Ideas of Statistics'
+
+
+From spluque at gmail.com  Thu Dec  1 16:36:59 2005
+From: spluque at gmail.com (Sebastian Luque)
+Date: Thu, 01 Dec 2005 09:36:59 -0600
+Subject: [R-sig-Debian] setting R_LIBS
+References: <87d5kheowo.fsf@gmail.com>
+	<17294.23012.203767.126820@basebud.nulle.part>
+Message-ID: <87r78wkew4.fsf@gmail.com>
+
+[resending this; first message had wrong header]
+
+
+On Wed, 30 Nov 2005 20:03:16 -0600,
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+[...]
+
+> Sure, after all it's in the FAQ (Q5.2) and documented under help(Startup).
+>
+> I also use it at work on different system where 
+>
+> 	a) I may or may not have write permissions (Linux), or 
+>
+>	b) want to keep my package directory outside of the versioned R
+>	   directory tree (Windoze).
+>
+> So thumbs up from me.  And under Debian, thanks to the useful expansion of
+> R_LIBS from pre-defined values, you get your own as well as the systems
+> directory in /usr/lib and /usr/local/lib.  
+
+Thanks Dirk.  Since as a normal user I don't have permissions to
+/usr/local/, this seemed like a good idea.  Also, /home is in a separate
+hard drive, so I thought this ~/.Renviron would help if the OS needs to be
+reinstalled on the main hard drive.  But wanted to hear what other Debian
+R users thought.
+
+
+Cheers,
+
+-- 
+Sebastian P. Luque
+p.s. don't know if it was announced somewhere, but r-sig-debian is
+available at gmane.comp.lang.r.debian
+
+
+From spluque at gmail.com  Tue Dec  6 03:40:09 2005
+From: spluque at gmail.com (Sebastian Luque)
+Date: Mon, 05 Dec 2005 20:40:09 -0600
+Subject: [R-sig-Debian] setting R_LIBS
+References: <87d5kheowo.fsf@gmail.com>
+Message-ID: <871x0rq77a.fsf@arctocephalus.homelinux.org>
+
+Hi again,
+
+My new private library setting needs some further tweaking apparently.  Two
+things seem to be wrong:
+
+1) Although package compilation finishes without problems, I get this message at
+   the end:
+
+,-----
+| Warning message:
+| cannot create HTML package index in: tools:::unix.packages.html(.Library) 
+`-----
+
+2) when doing library("package"), I get this:
+
+,-----
+| Error in dyn.load(x, as.logical(local), as.logical(now)) : 
+| 	unable to load shared library '/home/sluque/R/library/chron/libs/chron.so':
+|   /home/sluque/R/library/chron/libs/chron.so: failed to map segment from shared object: Operation not permitted
+| Error: package/namespace load failed for 'chron'
+`-----
+
+None of this happens when using the predefined library at
+/usr/local/lib/R/site-library.  Perhaps I need to set some particular
+permissions on this directory?
+
+
+Thanks,
+
+-- 
+Sebastian P. Luque
+
+
+From edd at debian.org  Tue Dec  6 03:54:50 2005
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 5 Dec 2005 20:54:50 -0600
+Subject: [R-sig-Debian] setting R_LIBS
+In-Reply-To: <871x0rq77a.fsf@arctocephalus.homelinux.org>
+References: <87d5kheowo.fsf@gmail.com>
+	<871x0rq77a.fsf@arctocephalus.homelinux.org>
+Message-ID: <17300.64890.135891.550502@basebud.nulle.part>
+
+
+On 5 December 2005 at 20:40, Sebastian Luque wrote:
+| Hi again,
+| 
+| My new private library setting needs some further tweaking apparently.  Two
+| things seem to be wrong:
+| 
+| 1) Although package compilation finishes without problems, I get this message at
+|    the end:
+| 
+| ,-----
+| | Warning message:
+| | cannot create HTML package index in: tools:::unix.packages.html(.Library) 
+| `-----
+
+Do you write permissions where the default library index is written?  If not,
+did you use an appropriate option to destdir ?
+
+| 2) when doing library("package"), I get this:
+
+Is that a literal "package", are do you mean this as an example?  
+
+| ,-----
+| | Error in dyn.load(x, as.logical(local), as.logical(now)) : 
+| | 	unable to load shared library '/home/sluque/R/library/chron/libs/chron.so':
+| |   /home/sluque/R/library/chron/libs/chron.so: failed to map segment from shared object: Operation not permitted
+| | Error: package/namespace load failed for 'chron'
+| `-----
+| 
+| None of this happens when using the predefined library at
+| /usr/local/lib/R/site-library.  Perhaps I need to set some particular
+| permissions on this directory?
+
+This looks as if the build failed. I'd remove the package and try again. If
+it fails again, but doesn't affect other packages, I'd consider debugging
+cron.
+
+Hth, Dirk
+
+-- 
+Statistics: The (futile) attempt to offer certainty about uncertainty.
+         -- Roger Koenker, 'Dictionary of Received Ideas of Statistics'
+
+
+From spluque at gmail.com  Tue Dec  6 03:59:27 2005
+From: spluque at gmail.com (Sebastian Luque)
+Date: Mon, 05 Dec 2005 20:59:27 -0600
+Subject: [R-sig-Debian] setting R_LIBS
+References: <87d5kheowo.fsf@gmail.com>
+	<871x0rq77a.fsf@arctocephalus.homelinux.org>
+Message-ID: <87psoborqo.fsf@arctocephalus.homelinux.org>
+
+Sebastian Luque <spluque at gmail.com> wrote:
+> 1) Although package compilation finishes without problems, I get this message
+> at the end:
+
+> ,-----
+> | Warning message:
+> | cannot create HTML package index in: tools:::unix.packages.html(.Library)
+> `-----
+
+
+To clarify what I mean here -- this is the last message after installing a
+package in the new private library.  It occurs with any package I try to
+install.
+
+
+Cheers,
+
+-- 
+Sebastian P. Luque
+
+
+From edd at debian.org  Tue Dec  6 04:09:51 2005
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 5 Dec 2005 21:09:51 -0600
+Subject: [R-sig-Debian] setting R_LIBS
+In-Reply-To: <87psoborqo.fsf@arctocephalus.homelinux.org>
+References: <87d5kheowo.fsf@gmail.com>
+	<871x0rq77a.fsf@arctocephalus.homelinux.org>
+	<87psoborqo.fsf@arctocephalus.homelinux.org>
+Message-ID: <17301.255.577073.509674@basebud.nulle.part>
+
+
+On 5 December 2005 at 20:59, Sebastian Luque wrote:
+| Sebastian Luque <spluque at gmail.com> wrote:
+| > 1) Although package compilation finishes without problems, I get this message
+| > at the end:
+| 
+| > ,-----
+| > | Warning message:
+| > | cannot create HTML package index in: tools:::unix.packages.html(.Library)
+| > `-----
+| 
+| 
+| To clarify what I mean here -- this is the last message after installing a
+| package in the new private library.  It occurs with any package I try to
+| install.
+
+Which R version?  This changed in 2.2.0, I think. Do you still use 2.1.1 ?
+
+Dirk
+
+-- 
+Statistics: The (futile) attempt to offer certainty about uncertainty.
+         -- Roger Koenker, 'Dictionary of Received Ideas of Statistics'
+
+
+From spluque at gmail.com  Tue Dec  6 04:20:13 2005
+From: spluque at gmail.com (Sebastian Luque)
+Date: Mon, 05 Dec 2005 21:20:13 -0600
+Subject: [R-sig-Debian] setting R_LIBS
+References: <87d5kheowo.fsf@gmail.com>
+	<871x0rq77a.fsf@arctocephalus.homelinux.org>
+	<17300.64890.135891.550502@basebud.nulle.part>
+Message-ID: <87lkyyq5ci.fsf@arctocephalus.homelinux.org>
+
+Thanks for the quick reply!
+
+
+On Mon, 5 Dec 2005 20:54:50 -0600,
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+[...]
+
+> Do you write permissions where the default library index is written?  If not,
+> did you use an appropriate option to destdir ?
+
+> | 2) when doing library("package"), I get this:
+
+> Is that a literal "package", are do you mean this as an example?  
+
+
+Yes, just an example; it doesn't only occur with chron, but with every package
+I've tried.  I didn't specify anything for destdir, as I've never had to in the
+past (they always go to /tmp/).  My permissions in that library folder look ok
+to me (drwxr-xr-x).  Here's the whole output for the attempt to install chron
+(much shorter than with other packages):
+
+
+--8<---------------cut here---------------start------------->8---
+R> install.packages("chron")
+Warning in install.packages("chron") : argument 'lib' is missing: using ~/R/library
+trying URL 'http://probability.ca/cran/src/contrib/chron_2.3-0.tar.gz'
+Content type 'application/x-tar' length 27899 bytes
+opened URL
+==================================================
+downloaded 27Kb
+
+* Installing *source* package 'chron' ...
+** libs
+gcc -I/usr/lib/R/include     -fPIC  -g -O2 -c chron_strs.c -o chron_strs.o
+gcc -I/usr/lib/R/include     -fPIC  -g -O2 -c init.c -o init.o
+gcc -I/usr/lib/R/include     -fPIC  -g -O2 -c unpaste.c -o unpaste.o
+gcc -shared  -o chron.so chron_strs.o init.o unpaste.o   -L/usr/lib/R/lib -lR
+** R
+** preparing package for lazy loading
+
+** help
+ >>> Building/Updating help pages for package 'chron'
+     Formats: text html latex example 
+  chron-internal                    text    html    latex
+  chron                             text    html    latex   example
+  cut.dates                         text    html    latex   example
+  dates                             text    html    latex   example
+  day.of.week                       text    html    latex   example
+  days                              text    html    latex   example
+  hours                             text    html    latex   example
+  is.holiday                        text    html    latex   example
+  seq.dates                         text    html    latex   example
+** building package indices ...
+* DONE (chron)
+
+The downloaded packages are in
+	/tmp/RtmpoLM72j/downloaded_packages
+Warning message:
+cannot create HTML package index in: tools:::unix.packages.html(.Library) 
+--8<---------------cut here---------------end--------------->8---
+
+
+And yes, I've tried removing and retrying several times without success.  What's
+weird is that running R as root and installing to the normal
+/usr/local/lib/R/site-library works ok!
+
+
+-- 
+Sebastian P. Luque
+
+
+From spluque at gmail.com  Tue Dec  6 04:34:10 2005
+From: spluque at gmail.com (Sebastian Luque)
+Date: Mon, 05 Dec 2005 21:34:10 -0600
+Subject: [R-sig-Debian] setting R_LIBS
+References: <87d5kheowo.fsf@gmail.com>
+	<871x0rq77a.fsf@arctocephalus.homelinux.org>
+	<87psoborqo.fsf@arctocephalus.homelinux.org>
+	<17301.255.577073.509674@basebud.nulle.part>
+Message-ID: <87fyp6q4p9.fsf@arctocephalus.homelinux.org>
+
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+[...]
+
+> Which R version?  This changed in 2.2.0, I think. Do you still use 2.1.1 ?
+
+Using 2.2.0 here:
+
+R> version
+         _                
+platform i486-pc-linux-gnu
+arch     i486             
+os       linux-gnu        
+system   i486, linux-gnu  
+status                    
+major    2                
+minor    2.0              
+year     2005             
+month    10               
+day      06               
+svn rev  35749            
+language R
+
+
+
+-- 
+Sebastian P. Luque
+
+
+From spluque at gmail.com  Tue Dec  6 05:59:41 2005
+From: spluque at gmail.com (Sebastian Luque)
+Date: Mon, 05 Dec 2005 22:59:41 -0600
+Subject: [R-sig-Debian] setting R_LIBS
+References: <87d5kheowo.fsf@gmail.com>
+	<871x0rq77a.fsf@arctocephalus.homelinux.org>
+	<17300.64890.135891.550502@basebud.nulle.part>
+	<87lkyyq5ci.fsf@arctocephalus.homelinux.org>
+Message-ID: <87bqzuq0qq.fsf@arctocephalus.homelinux.org>
+
+Sebastian Luque <spluque at gmail.com> wrote:
+
+[...]
+
+> And yes, I've tried removing and retrying several times without success.
+> What's weird is that running R as root and installing to the normal
+> /usr/local/lib/R/site-library works ok!
+
+I'm puzzled.  I can confirm that installing as user to different libraries
+(purpusely created for testing) in my home directory produces these errors.
+However, installing as root to any of these same libraries works ok.  Googling
+and searching in J Baron's archives is not giving any clues.  Any further ideas
+to pinpoint the problem are very welcome.
+
+
+Cheers,
+
+-- 
+Sebastian P. Luque
+
+

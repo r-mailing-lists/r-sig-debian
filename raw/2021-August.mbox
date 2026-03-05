@@ -1,0 +1,1457 @@
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Sun Aug 15 19:49:19 2021
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Sun, 15 Aug 2021 19:49:19 +0200
+Subject: [R-sig-Debian] R 4.1.0 and Graphics Packages
+In-Reply-To: <24748.61225.342459.87239@rob.eddelbuettel.com>
+References: <4844796.BOxAeFuOYR@ryz> <6388852.kXAsSdvdp7@ryz>
+ <24748.61225.342459.87239@rob.eddelbuettel.com>
+Message-ID: <4422234.45aB29H24f@ryz>
+
+Just a quick reminder, see below ...
+ 
+> We can rebuild all the affected packages.  An 'apt update; apt upgrade'
+> would then pull them in.  That is generally my preferred approach.
+> 
+> Dirk
+
+Johannes
+
+
+From r@turner @end|ng |rom @uck|@nd@@c@nz  Sun Aug 29 01:21:06 2021
+From: r@turner @end|ng |rom @uck|@nd@@c@nz (Rolf Turner)
+Date: Sun, 29 Aug 2021 11:21:06 +1200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+Message-ID: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+
+
+I asked this question a short while ago on the R-help list, and
+received an off-list reply from Ivan Krylov, suggesting that it would
+be better to ask on r-sig-debian.  So here goes:  to set the context,
+I'm running Ubuntu 20.04, with a Mate 1.24.0 desktop.
+
+The question is long and complicated; you will need a great deal of
+patience to plough through it.  (Sorry 'bout that!)
+
+I'm getting results from a package (written by my very good self) which
+differ (rather mysteriously) from results that I got a few weeks ago,
+and the only thing that I can think of that's changed is the version of
+R (from 4.1.0 to 4.4.1).
+
+So I wanted to install 4.1.0 and play around with that, to see if that
+is indeed the explanation.  (If that is so, a whole new set of
+questions would be raised, but let's not go there, for the moment.)  I
+downloaded the tarball and set about installing 4.1.0 from source.  But
+the configure step threw an error, as given in the subject line of
+this message.  The error went on:
+
+> configure: error: libcurl >= 7.28.0 library and headers are required
+> with support for https  
+
+A bit of web searching turned up the advice to re-install curl
+using
+
+    sudo apt-get install curl
+
+but when I did that I was informed that:
+
+> curl is already the newest version (7.68.0-1ubuntu2.6).
+
+Prof. Krylov suggested in his off-list email that I should do:
+
+    sudo apt install libcurl-dev
+
+So I did that (effectively; but see below) and what I did seemed to run
+without (too much) complaint, but the configure error persisted.
+
+When I tried "sudo apt install libcurl-dev" I got a message to the
+effect that "libcurl-dev" was ambiguous.  Explicitly:
+
+> Package libcurl-dev is a virtual package provided by:
+>   libcurl4-openssl-dev 7.68.0-1ubuntu2.6
+>   libcurl4-nss-dev 7.68.0-1ubuntu2.6
+>   libcurl4-gnutls-dev 7.68.0-1ubuntu2.6
+> You should explicitly select one to install.
+> 
+
+Hmmm.  Which one?  No idea, really, but the config.log file was
+full of stuff relating to errors from "openssl.c" (*way* beyond my pay
+grade!!!) so I thought I'd try the first one.
+
+As indicated above,
+
+    sudo apt-get install libcurl4-openssl-dev
+
+seemed to run without complaint, although it said
+
+> The following packages will be REMOVED
+>   libcurl4-gnutls-dev
+
+which made me think that maybe I should have used "libcurl4-gnutls-dev".
+But I carried on, and the command ran (without --- further ---
+complaint).  However, as I said, the configuration error persisted.
+
+So I then tried:
+
+   sudo apt remove libcurl4-openssl-dev
+
+and got a whole lot of ominous warnings, starting:
+
+> dpkg: libcurl4-openssl-dev:amd64: dependency problems, but removing
+> anyway as you requested:
+>  libdap-dev:amd64 depends on libcurl4-gnutls-dev | libcurl-dev;
+> however: Package libcurl4-gnutls-dev is not installed.
+>   Package libcurl-dev is not installed.
+>   Package libcurl4-openssl-dev:amd64 which provides libcurl-dev is to
+> be removed.
+
+(There was more ....)
+
+Having done that I crossed my fingers and tried:
+
+    sudo apt-get install libcurl4-gnutls-dev
+
+and got
+
+> libcurl4-gnutls-dev is already the newest version (7.68.0-1ubuntu2.6).
+> libcurl4-gnutls-dev set to manually installed.
+
+So I then tried *removing* libcurl4-gnutls-dev (that seemed to work!)
+and then re-installing it.  *That* seemed to work too, and there were
+no more messages about "manually installed".
+
+But the configure error *still* persisted!!!
+
+I am now out of ideas, at my wits' end, at the end of my tether, and a
+few other things.
+
+Can anyone suggest anything else that I might try?  If so, can I
+very humbly exhort you to please (*please* *PLEASE*) present it in very
+simple terms if you can. (I am a Bear of Very Little Brain, and long
+words bother me.) A step-by-step recipe would be appreciated.
+
+As you can see from this long-winded question, I really have no idea at
+all what I am doing, and am basically issuing commands by rote,
+hammering and hoping.  (With the hopes always being dashed. :-( )
+Consequently any advice, that presupposes that I have *insight* into
+the processes that I am invoking, is unlikely to be of any use to me.
+
+cheers,
+
+Rolf Turner
+
+-- 
+Honorary Research Fellow
+Department of Statistics
+University of Auckland
+Phone: +64-9-373-7599 ext. 88276
+
+
+From edd @end|ng |rom deb|@n@org  Sun Aug 29 02:55:12 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Sat, 28 Aug 2021 19:55:12 -0500
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+In-Reply-To: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+Message-ID: <24874.56048.87165.894214@rob.eddelbuettel.com>
+
+
+Rolf,
+
+Asking here is the Right Thing (TM) but I am in at this moment between two
+differen things (one of them being dinner...) so I have to come back to this
+but regarding
+
+> Package libcurl-dev is a virtual package provided by:
+>   libcurl4-openssl-dev 7.68.0-1ubuntu2.6
+>   libcurl4-nss-dev 7.68.0-1ubuntu2.6
+>   libcurl4-gnutls-dev 7.68.0-1ubuntu2.6
+> You should explicitly select one to install.
+
+I have also found that confusing. I somewhat recently helped a very motivated
+undergrad getting an R package working which required a (available for
+Ubuntu, good thing there) library which itself libcurl4-gnutls-dev. I happen
+to have libcurl4-openssl-dev installed and they don't coexist ... so I opted
+to doing that work with the undergrad in a Docker environment.
+
+Long story short, I would suggest trying to see if you can work with / can
+get what you need adjusted to libcurl4-openssl-dev.   On my Ubuntu (21.04)
+system:
+
+  edd at rob:~$ apt-cache rdepends libcurl4-openssl-dev | wc -l
+  22
+  edd at rob:~$ apt-cache rdepends libcurl4-gnutls-dev | wc -l
+  45
+  edd at rob:~$
+
+So maybe my preference is on the wrong side of the tracks too. I don't fully
+understand why these cannot coexist...
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From r@turner @end|ng |rom @uck|@nd@@c@nz  Sun Aug 29 05:11:33 2021
+From: r@turner @end|ng |rom @uck|@nd@@c@nz (Rolf Turner)
+Date: Sun, 29 Aug 2021 15:11:33 +1200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+In-Reply-To: <24874.56048.87165.894214@rob.eddelbuettel.com>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <24874.56048.87165.894214@rob.eddelbuettel.com>
+Message-ID: <20210829151133.0b920695@rolf-Latitude-E7470>
+
+
+On Sat, 28 Aug 2021 19:55:12 -0500
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+> 
+> Rolf,
+> 
+> Asking here is the Right Thing (TM) but I am in at this moment
+> between two differen things (one of them being dinner...) so I have
+> to come back to this ...
+
+<SNIP>
+
+Thanks Dirk.  I might try removing libcurl4-gnutls-dev again,
+and installing libcurl4-openssl-dev again, while I'm waiting to hear
+more from you.  Don't like my chances, but.
+
+> So maybe my preference is on the wrong side of the tracks too. I
+> don't fully understand why these cannot coexist...
+
+Sheesh!  If *you* don't understand, what hope is there for the rest of
+us, me in particular?
+
+cheers,
+
+Rolf
+
+
+-- 
+Honorary Research Fellow
+Department of Statistics
+University of Auckland
+Phone: +64-9-373-7599 ext. 88276
+
+
+From edd @end|ng |rom deb|@n@org  Sun Aug 29 05:33:08 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Sat, 28 Aug 2021 22:33:08 -0500
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+In-Reply-To: <20210829151133.0b920695@rolf-Latitude-E7470>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <24874.56048.87165.894214@rob.eddelbuettel.com>
+ <20210829151133.0b920695@rolf-Latitude-E7470>
+Message-ID: <24874.65524.187750.182109@rob.eddelbuettel.com>
+
+
+Rolf,
+
+I am truly sorry but I am getting lost in your original message. Could you
+follow-up and describe (concisely, if possible) what your question is?  Is it
+ - installing 4.1.1 or 4.1.0
+ - developing a package of yours
+ - installing a package ?
+
+You seem to interweave a few strands in ways that make it less clear exactly
+what is holding you back.
+
+On 29 August 2021 at 15:11, Rolf Turner wrote:
+| > So maybe my preference is on the wrong side of the tracks too. I
+| > don't fully understand why these cannot coexist...
+| 
+| Sheesh!  If *you* don't understand, what hope is there for the rest of
+| us, me in particular?
+
+Sometimes it is a simple lack of resources / time / effort / merit. Something
+I meant to tackle is to allow r-base-core to coexist with a (to be written
+package) r-base-devel but doing that _cleanly_ with the expect robustness is
+a lot of work so I have yet to do it, even after ~ 20 years of working on R
+and the r-{base,doc}-* packages as well as many r-cran-* ones.
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From r@turner @end|ng |rom @uck|@nd@@c@nz  Sun Aug 29 08:49:19 2021
+From: r@turner @end|ng |rom @uck|@nd@@c@nz (Rolf Turner)
+Date: Sun, 29 Aug 2021 18:49:19 +1200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+In-Reply-To: <24874.65524.187750.182109@rob.eddelbuettel.com>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <24874.56048.87165.894214@rob.eddelbuettel.com>
+ <20210829151133.0b920695@rolf-Latitude-E7470>
+ <24874.65524.187750.182109@rob.eddelbuettel.com>
+Message-ID: <20210829184919.4b875fa3@rolf-Latitude-E7470>
+
+
+On Sat, 28 Aug 2021 22:33:08 -0500
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+> 
+> Rolf,
+> 
+> I am truly sorry but I am getting lost in your original message.
+> Could you follow-up and describe (concisely, if possible) what your
+> question is?  Is it
+>  - installing 4.1.1 or 4.1.0
+>  - developing a package of yours
+>  - installing a package ?
+
+Sorry if I over-egged my explanation.
+
+* I am trying to install R 4.1.0 (the previous version of R).
+  I have the current version, R 4.1.1 (readily available as a Linux
+  binary) up and going; no problema.
+
+* My desire to install 4.1.0 was *motivated* by a strange
+  conundrum with respect to a package that I am developing.
+  But that's *not* actually relevant at the moment.
+
+* I successfully downloaded the source for R 4.1.0 and started
+  the configure -> make sequence.  But things came to a halt with the
+  configure error shown in the subject line.
+
+* I then fooled around with installing/uninstalling various flavours
+  of libcurl.dev to see if I could get rid of the configure error.
+  Nothing worked.
+
+I hope that my problem is clear now.
+
+cheers,
+
+Rolf
+
+-- 
+Honorary Research Fellow
+Department of Statistics
+University of Auckland
+Phone: +64-9-373-7599 ext. 88276
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Sun Aug 29 10:16:16 2021
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Sun, 29 Aug 2021 10:16:16 +0200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+In-Reply-To: <20210829184919.4b875fa3@rolf-Latitude-E7470>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <24874.65524.187750.182109@rob.eddelbuettel.com>
+ <20210829184919.4b875fa3@rolf-Latitude-E7470>
+Message-ID: <4769977.OJrbuZXRLL@ryz>
+
+Hi,
+
+for what it's worth, on a Debian bullseye system, configuring the R 4.1.0 
+tarball works fine:
+
+$ wget https://cran.r-project.org/src/base/R-4/R-4.1.0.tar.gz
+$ tar xf R-4.1.0.tar.gz
+$ cd R-4.1.0/
+$ ./configure
+
+...
+checking if libcurl supports https... yes
+...
+
+with libcurl4 and libcurl4-gnutls-dev installed. I believe this should also 
+work on Ubuntu.
+
+You can try
+
+$ sudo apt build-dep r-base
+
+to pull in all build dependencies specified by Dirks R debs, and try again.
+
+Johannes
+
+
+
+
+
+
+Am Sonntag, 29. August 2021, 08:49:19 CEST schrieb Rolf Turner:
+> On Sat, 28 Aug 2021 22:33:08 -0500
+> 
+> Dirk Eddelbuettel <edd at debian.org> wrote:
+> > Rolf,
+> > 
+> > I am truly sorry but I am getting lost in your original message.
+> > Could you follow-up and describe (concisely, if possible) what your
+> > question is?  Is it
+> > 
+> >  - installing 4.1.1 or 4.1.0
+> >  - developing a package of yours
+> >  - installing a package ?
+> 
+> Sorry if I over-egged my explanation.
+> 
+> * I am trying to install R 4.1.0 (the previous version of R).
+>   I have the current version, R 4.1.1 (readily available as a Linux
+>   binary) up and going; no problema.
+> 
+> * My desire to install 4.1.0 was *motivated* by a strange
+>   conundrum with respect to a package that I am developing.
+>   But that's *not* actually relevant at the moment.
+> 
+> * I successfully downloaded the source for R 4.1.0 and started
+>   the configure -> make sequence.  But things came to a halt with the
+>   configure error shown in the subject line.
+> 
+> * I then fooled around with installing/uninstalling various flavours
+>   of libcurl.dev to see if I could get rid of the configure error.
+>   Nothing worked.
+> 
+> I hope that my problem is clear now.
+> 
+> cheers,
+> 
+> Rolf
+
+
+From r@turner @end|ng |rom @uck|@nd@@c@nz  Sun Aug 29 10:30:50 2021
+From: r@turner @end|ng |rom @uck|@nd@@c@nz (Rolf Turner)
+Date: Sun, 29 Aug 2021 20:30:50 +1200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+In-Reply-To: <20210829151133.0b920695@rolf-Latitude-E7470>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <24874.56048.87165.894214@rob.eddelbuettel.com>
+ <20210829151133.0b920695@rolf-Latitude-E7470>
+Message-ID: <20210829203050.4c2c306e@rolf-Latitude-E7470>
+
+
+
+On Sun, 29 Aug 2021 15:11:33 +1200
+Rolf Turner <r.turner at auckland.ac.nz> wrote:
+
+<SNIP>
+
+> ... I might try removing libcurl4-gnutls-dev again,
+> and installing libcurl4-openssl-dev again, while I'm waiting to hear
+> more from you.  Don't like my chances, but.
+
+<SNIP>
+
+I tried this just now.  No help at all.  I was right not to like my
+chances!
+
+cheers,
+
+Rolf
+
+-- 
+Honorary Research Fellow
+Department of Statistics
+University of Auckland
+Phone: +64-9-373-7599 ext. 88276
+
+
+From r@turner @end|ng |rom @uck|@nd@@c@nz  Sun Aug 29 11:01:43 2021
+From: r@turner @end|ng |rom @uck|@nd@@c@nz (Rolf Turner)
+Date: Sun, 29 Aug 2021 21:01:43 +1200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+In-Reply-To: <4769977.OJrbuZXRLL@ryz>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <24874.65524.187750.182109@rob.eddelbuettel.com>
+ <20210829184919.4b875fa3@rolf-Latitude-E7470>
+ <4769977.OJrbuZXRLL@ryz>
+Message-ID: <20210829210143.6958f496@rolf-Latitude-E7470>
+
+
+On Sun, 29 Aug 2021 10:16:16 +0200
+Johannes Ranke <johannes.ranke at jrwb.de> wrote:
+
+> Hi,
+> 
+> for what it's worth, on a Debian bullseye system, configuring the R
+> 4.1.0 tarball works fine:
+> 
+> $ wget
+> https://cran.r-project.org/src/base/R-4/R-4.1.0.tar.gz
+> $ tar xf R-4.1.0.tar.gz $ cd R-4.1.0/
+> $ ./configure
+> 
+> ...
+> checking if libcurl supports https... yes
+> ...
+> 
+> with libcurl4 and libcurl4-gnutls-dev installed. I believe this
+> should also work on Ubuntu.
+
+Hmm.  I may not have had libcurl4 properly installed; tried to install
+it (to make sure) and got a message about it having been "manually
+installed". (No idea how the <expletive deleted> that happened, but
+ne'er mind.) So I removed libcurl4, re-installed it, and tried the
+configure step again.  Same result, same error.
+
+
+
+> You can try
+> 
+> $ sudo apt build-dep r-base
+> 
+> to pull in all build dependencies specified by Dirks R debs, and try
+> again.
+
+Thanks for the suggestion.  I did
+
+   sudo apt build-dep r-base
+
+as instructed.
+
+I then noticed that I could not run R --- got a "permission denied"
+error.  So I next did:
+
+   sudo apt-get install r-base
+
+After quite a while and after an enourmous amount of incomprehensible
+output had been spewed out onto the screen, the command appeared to
+succeed and I could run R again.
+
+I then tried the configure step, for building R 4.1.0 from source,
+again.  Same result, same error.
+
+Why, in the name of all that's unholy, do these things happen to *me*?
+
+cheers,
+
+Rolf Turner
+
+P.S. Clearly there must be something broken in my system, but how on
+earth do I track down what's wrong?
+
+R. T.
+
+-- 
+Honorary Research Fellow
+Department of Statistics
+University of Auckland
+Phone: +64-9-373-7599 ext. 88276
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Sun Aug 29 13:25:34 2021
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Sun, 29 Aug 2021 13:25:34 +0200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+In-Reply-To: <20210829210143.6958f496@rolf-Latitude-E7470>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <4769977.OJrbuZXRLL@ryz> <20210829210143.6958f496@rolf-Latitude-E7470>
+Message-ID: <5510031.VddUr14hnC@ryz>
+
+Am Sonntag, 29. August 2021, 11:01:43 CEST schrieb Rolf Turner:
+> On Sun, 29 Aug 2021 10:16:16 +0200
+> 
+> Johannes Ranke <johannes.ranke at jrwb.de> wrote:
+
+...
+
+> > You can try
+> > 
+> > $ sudo apt build-dep r-base
+> > 
+> > to pull in all build dependencies specified by Dirks R debs, and try
+> > again.
+> 
+> Thanks for the suggestion.  I did
+> 
+>    sudo apt build-dep r-base
+> 
+> as instructed.
+
+I assume this pulled in some unrelated packages. As you do not mention any 
+output, I assume there was no error.
+
+> I then noticed that I could not run R --- got a "permission denied"
+> error.  So I next did:
+
+...
+
+> P.S. Clearly there must be something broken in my system, but how on
+> earth do I track down what's wrong?
+
+One reason for what you see could be that you have previously compiled and 
+installed curl from source (which will also build and install libcurl), and 
+this local installation does not have ssl support.
+
+One check that I can think of is to run
+
+$ which curl
+
+which returns
+
+/usr/bin/curl
+
+if you only have the Ubuntu package installed.
+
+Johannes
+
+
+From m|ke@m@honey@218 @end|ng |rom gm@||@com  Sun Aug 29 14:06:00 2021
+From: m|ke@m@honey@218 @end|ng |rom gm@||@com (Michael Mahoney)
+Date: Sun, 29 Aug 2021 08:06:00 -0400
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+In-Reply-To: <5510031.VddUr14hnC@ryz>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <4769977.OJrbuZXRLL@ryz>
+ <20210829210143.6958f496@rolf-Latitude-E7470> <5510031.VddUr14hnC@ryz>
+Message-ID: <CAKpp89vy=iSJiXPX5XgdO7=vHxL7bv+ZWTD6YosMiaGZPV3Tsg@mail.gmail.com>
+
+Forgive me if I'm missing something here, but do you need to install
+from source or do you just need R 4.1.0?
+
+If the latter, my understanding is that you should be able to get R
+version 4.1.0 on Ubuntu distributions via:
+
+sudo apt install r-base=4.1.0-1.2004.0 r-recommended=4.1.0-1.2004.0
+r-base-html=4.1.0-1.2004.0 r-doc-html=4.1.0-1.2004.0
+
+Assuming you're using the official ppa (and uninstalled the newer
+versions first).
+
+If all you need is R 4.1.0, this might be a bit less temperamental.
+
+Thanks,
+
+Michael Mahoney
+781-812-8842 | mike.mahoney.218 at gmail.com
+Website | LinkedIn | GitHub
+
+Michael Mahoney
+781-812-8842 | mike.mahoney.218 at gmail.com
+Website | LinkedIn | GitHub
+
+
+On Sun, Aug 29, 2021 at 7:25 AM Johannes Ranke <johannes.ranke at jrwb.de> wrote:
+>
+> Am Sonntag, 29. August 2021, 11:01:43 CEST schrieb Rolf Turner:
+> > On Sun, 29 Aug 2021 10:16:16 +0200
+> >
+> > Johannes Ranke <johannes.ranke at jrwb.de> wrote:
+>
+> ...
+>
+> > > You can try
+> > >
+> > > $ sudo apt build-dep r-base
+> > >
+> > > to pull in all build dependencies specified by Dirks R debs, and try
+> > > again.
+> >
+> > Thanks for the suggestion.  I did
+> >
+> >    sudo apt build-dep r-base
+> >
+> > as instructed.
+>
+> I assume this pulled in some unrelated packages. As you do not mention any
+> output, I assume there was no error.
+>
+> > I then noticed that I could not run R --- got a "permission denied"
+> > error.  So I next did:
+>
+> ...
+>
+> > P.S. Clearly there must be something broken in my system, but how on
+> > earth do I track down what's wrong?
+>
+> One reason for what you see could be that you have previously compiled and
+> installed curl from source (which will also build and install libcurl), and
+> this local installation does not have ssl support.
+>
+> One check that I can think of is to run
+>
+> $ which curl
+>
+> which returns
+>
+> /usr/bin/curl
+>
+> if you only have the Ubuntu package installed.
+>
+> Johannes
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From edd @end|ng |rom deb|@n@org  Sun Aug 29 14:42:08 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Sun, 29 Aug 2021 07:42:08 -0500
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+In-Reply-To: <CAKpp89vy=iSJiXPX5XgdO7=vHxL7bv+ZWTD6YosMiaGZPV3Tsg@mail.gmail.com>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <4769977.OJrbuZXRLL@ryz>
+ <20210829210143.6958f496@rolf-Latitude-E7470>
+ <5510031.VddUr14hnC@ryz>
+ <CAKpp89vy=iSJiXPX5XgdO7=vHxL7bv+ZWTD6YosMiaGZPV3Tsg@mail.gmail.com>
+Message-ID: <24875.32928.708610.880179@rob.eddelbuettel.com>
+
+
+On 29 August 2021 at 08:06, Michael Mahoney wrote:
+| Forgive me if I'm missing something here, but do you need to install
+| from source or do you just need R 4.1.0?
+| 
+| If the latter, my understanding is that you should be able to get R
+| version 4.1.0 on Ubuntu distributions via:
+
+An even easier alternative is to just run a pre-made Docker version, and then
+run your local package tests in that.
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From kry|ov@r00t @end|ng |rom gm@||@com  Sun Aug 29 23:37:06 2021
+From: kry|ov@r00t @end|ng |rom gm@||@com (Ivan Krylov)
+Date: Sun, 29 Aug 2021 23:37:06 +0200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+In-Reply-To: <20210829203050.4c2c306e@rolf-Latitude-E7470>
+Message-ID: <20210829233706.0f2bf476@parabola>
+
+Dear Rolf,
+
+Sorry you're still having problems with this. If you still would like
+to build R-4.1.0 from source (instead of using a Docker image or some
+binary package), could you share your config.log using a service like
+https://paste.debian.net/ ?
+
+It's also... interesting that you got a "permission denied" while
+trying to run R. Which version of R was that? (`which R` may help to
+find out.)
+
+-- 
+Best regards,
+Ivan
+
+
+From r@turner @end|ng |rom @uck|@nd@@c@nz  Mon Aug 30 01:47:29 2021
+From: r@turner @end|ng |rom @uck|@nd@@c@nz (Rolf Turner)
+Date: Mon, 30 Aug 2021 11:47:29 +1200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+In-Reply-To: <CAKpp89vy=iSJiXPX5XgdO7=vHxL7bv+ZWTD6YosMiaGZPV3Tsg@mail.gmail.com>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <4769977.OJrbuZXRLL@ryz>
+ <20210829210143.6958f496@rolf-Latitude-E7470>
+ <5510031.VddUr14hnC@ryz>
+ <CAKpp89vy=iSJiXPX5XgdO7=vHxL7bv+ZWTD6YosMiaGZPV3Tsg@mail.gmail.com>
+Message-ID: <20210830114729.451c780c@rolf-Latitude-E7470>
+
+
+On Sun, 29 Aug 2021 08:06:00 -0400
+Michael Mahoney <mike.mahoney.218 at gmail.com> wrote:
+
+> Forgive me if I'm missing something here, but do you need to install
+> from source or do you just need R 4.1.0?
+
+I just need R 4.1.0.  Installing from source is/was only a means to
+this end.
+
+However I could not find (despite substantial web-searching) any way to
+install a pre-built binary of anything but the *current* release.
+
+> If the latter, my understanding is that you should be able to get R
+> version 4.1.0 on Ubuntu distributions via:
+> 
+> sudo apt install r-base=4.1.0-1.2004.0 r-recommended=4.1.0-1.2004.0
+> r-base-html=4.1.0-1.2004.0 r-doc-html=4.1.0-1.2004.0
+> 
+> Assuming you're using the official ppa (and uninstalled the newer
+> versions first).
+
+I *assume* that I'm using "the official ppa", but I have no idea what
+that means!!!  Can you elaborate?
+
+Can you also elaborate as to how to "uninstall the newer versions"?
+Sorry to be so demanding and to be such a thicko.
+
+> If all you need is R 4.1.0, this might be a bit less temperamental.
+
+There is a problem however.  I really want to have 4.1.0 *available*,
+but to keep 4.1.1 as being the "real" R.
+
+If I were to succeed in "installing" from source, I could do just
+the configure/make steps and omit the "make install" step.  I could
+then run R 4.1.0 from the bin directory that is created.  I think!
+Rather than putting the executable into /usr/bin, so that /usr/bin/R
+would remain the 4.1.1 version.
+
+Is there any way/can you see any way to have both the 4.1.1 and the
+4.1.0 versions available, when the 4.1.0 version is installed from
+binary in the manner that you suggest?
+
+Again, sorry to be so demanding and to be such a thicko.
+
+cheers,
+
+Rolf
+
+
+-- 
+Honorary Research Fellow
+Department of Statistics
+University of Auckland
+Phone: +64-9-373-7599 ext. 88276
+
+
+From r@turner @end|ng |rom @uck|@nd@@c@nz  Mon Aug 30 02:12:40 2021
+From: r@turner @end|ng |rom @uck|@nd@@c@nz (Rolf Turner)
+Date: Mon, 30 Aug 2021 12:12:40 +1200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+In-Reply-To: <24875.32928.708610.880179@rob.eddelbuettel.com>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <4769977.OJrbuZXRLL@ryz>
+ <20210829210143.6958f496@rolf-Latitude-E7470>
+ <5510031.VddUr14hnC@ryz>
+ <CAKpp89vy=iSJiXPX5XgdO7=vHxL7bv+ZWTD6YosMiaGZPV3Tsg@mail.gmail.com>
+ <24875.32928.708610.880179@rob.eddelbuettel.com>
+Message-ID: <20210830121240.3faafe38@rolf-Latitude-E7470>
+
+
+On Sun, 29 Aug 2021 07:42:08 -0500
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+> 
+> On 29 August 2021 at 08:06, Michael Mahoney wrote:
+> | Forgive me if I'm missing something here, but do you need to install
+> | from source or do you just need R 4.1.0?
+> | 
+> | If the latter, my understanding is that you should be able to get R
+> | version 4.1.0 on Ubuntu distributions via:
+> 
+> An even easier alternative is to just run a pre-made Docker version,
+> and then run your local package tests in that.
+
+Sounds like a Good Idea, but oh God.  It's daunting.  I have no idea
+what Docker is, or how to use it ....
+
+Did some web searching, and found *some* instructions.  Started off by
+looking at the instructions for installing Docker on Ubuntu.  Did the
+update step and the set-up-repository step.  That seemed to go OK.
+
+Then I came to the "Add Docker?s official GPG key:" step.  Issued the
+specified command
+
+> curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg
+> --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+And of course all hell broke loose.  Since curl is involved.  I got:
+
+> curl: /usr/local/lib/libcurl.so.4: no version information available (required by curl)
+> curl: symbol lookup error: curl: undefined symbol: curl_mime_free, version CURL_OPENSSL_4
+> gpg: no valid OpenPGP data found.
+
+So I'm back to the fact that my system is stuffed w.r.t. curl, but I
+have no idea how to track down what's wrong. :-(
+
+cheers,
+
+Rolf
+
+-- 
+Honorary Research Fellow
+Department of Statistics
+University of Auckland
+Phone: +64-9-373-7599 ext. 88276
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Mon Aug 30 06:13:11 2021
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Mon, 30 Aug 2021 06:13:11 +0200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+In-Reply-To: <20210830121240.3faafe38@rolf-Latitude-E7470>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <24875.32928.708610.880179@rob.eddelbuettel.com>
+ <20210830121240.3faafe38@rolf-Latitude-E7470>
+Message-ID: <4175909.TWcxb7EOz5@ryz>
+
+...
+
+> > curl: /usr/local/lib/libcurl.so.4: no version information available
+
+so here we have evidence that indeed you have a locally compiled curl version 
+on your system in addition to the Ubuntu one (which would not put anything 
+into /usr/local/lib).
+
+So it seems that at some point you have downloaded curl sources and installed 
+them into your system, and that this version (as it has no https support) got 
+in the way configuring R 4.1.0.
+
+If you still have the sources lying around, there is an uninstall target in 
+the Makefile, so you should go to the source directory and do a
+
+sudo make uninstall
+
+to get rid of your local curl version in /usr/local/.
+
+Johannes
+
+
+From r@turner @end|ng |rom @uck|@nd@@c@nz  Mon Aug 30 07:42:56 2021
+From: r@turner @end|ng |rom @uck|@nd@@c@nz (Rolf Turner)
+Date: Mon, 30 Aug 2021 17:42:56 +1200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no --- slight update.
+In-Reply-To: <20210830121240.3faafe38@rolf-Latitude-E7470>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <4769977.OJrbuZXRLL@ryz>
+ <20210829210143.6958f496@rolf-Latitude-E7470>
+ <5510031.VddUr14hnC@ryz>
+ <CAKpp89vy=iSJiXPX5XgdO7=vHxL7bv+ZWTD6YosMiaGZPV3Tsg@mail.gmail.com>
+ <24875.32928.708610.880179@rob.eddelbuettel.com>
+ <20210830121240.3faafe38@rolf-Latitude-E7470>
+Message-ID: <20210830174256.3588874a@rolf-Latitude-E7470>
+
+
+Hi All,
+
+I just thought I'd let you know that I've tried a couple of other
+things.  No real progress, but.
+
+(1) In respect of just-plain-curl: to make the issue clearer, I tried
+
+    curl --version
+
+and got:
+
+> > curl: /usr/local/lib/libcurl.so.4: no version information available
+> > (required by curl)
+> curl: symbol lookup error: curl: undefined symbol: curl_mime_free,
+> version CURL_OPENSSL_4
+
+I found that there was another, apparently newer, version of
+libcurl.so.4 in /usr/lib/x86_64-linux-gnu.  I realised that I did
+not have /usr/lib/x86_64-linux-gnu in my LD_LIBRARY_PATH.  So I put it
+into that path (*before* /usr/local/lib) and "curl --version" now
+seems to be OK and gives:
+
+> curl 7.68.0 (x86_64-pc-linux-gnu) libcurl/7.68.0 OpenSSL/1.1.1f
+> zlib/1.2.11 brotli/1.0.7 libidn2/2.2.0 libpsl/0.21.0
+> (+libidn2/2.2.0) libssh/0.9.3/openssl/zlib nghttp2/1.40.0
+> librtmp/2.3 Release-Date: 2020-01-08 Protocols: dict file ftp ftps
+> gopher http https imap imaps ldap ldaps pop3 pop3s rtmp rtsp scp
+> sftp smb smbs smtp smtps telnet tftp Features: AsynchDNS brotli
+> GSS-API HTTP2 HTTPS-proxy IDN IPv6 Kerberos Largefile libz NTLM
+> NTLM_WB PSL SPNEGO SSL TLS-SRP UnixSockets  
+
+which verbose, but I guess that's alright.
+
+(2) In respect of libcurl and https:
+
+I did a web search on "libcurl >= 7.28.0 library and headers are
+required" and after much thrashing around found what looked like a
+useful hit at https://www.xspdf.com/help/51318770.html .
+
+The problem(s) described are exactly the same as mine.  Different
+correspondents report different results; one person said that
+installing libcurl4-openssl-dev solved the problem, another said that
+it didn't but that libcurl4-gnutls-dev did work.
+
+It was nice to know that I am not alone, but neither of the foregoing
+solutions worked for me.  Then another correspondent suggested that the
+problem might be with the gcc variant.  I thought that this was
+promising.
+
+I found that my gcc version was 9.3.0.  I found that the latest version
+seemed to be 11.2, so I tried to upgrade.  The process seemed to be
+endlessly complicated but I eventually got a new version such that
+
+   gcc --version
+
+gives "(Ubuntu 11.1.0-1ubuntu1~20.04) 11.1.0".  (11.1 not 11.2 ??? Oh,
+well.)
+
+But then I tried the configure step again, with the new gcc in place,
+and got the same old error.  Story of my life.
+
+I'm going mad, *mad* I tell you!!! :-)
+
+cheers,
+
+Rolf
+
+-- 
+Honorary Research Fellow
+Department of Statistics
+University of Auckland
+Phone: +64-9-373-7599 ext. 88276
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Mon Aug 30 08:00:34 2021
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Mon, 30 Aug 2021 08:00:34 +0200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no --- slight update.
+In-Reply-To: <20210830174256.3588874a@rolf-Latitude-E7470>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <20210830121240.3faafe38@rolf-Latitude-E7470>
+ <20210830174256.3588874a@rolf-Latitude-E7470>
+Message-ID: <3901794.ic6qRUZXWP@ryz>
+
+Hi Rolf,
+
+Am Montag, 30. August 2021, 07:42:56 CEST schrieb Rolf Turner:
+> Hi All,
+> 
+> I just thought I'd let you know that I've tried a couple of other
+> things.  No real progress, but.
+> 
+> (1) In respect of just-plain-curl: to make the issue clearer, I tried
+> 
+>     curl --version
+> 
+> and got:
+> > > curl: /usr/local/lib/libcurl.so.4: no version information available
+> > > (required by curl)
+> > 
+> > curl: symbol lookup error: curl: undefined symbol: curl_mime_free,
+> > version CURL_OPENSSL_4
+> 
+> I found that there was another, apparently newer, version of
+> libcurl.so.4 in /usr/lib/x86_64-linux-gnu.  I realised that I did
+> not have /usr/lib/x86_64-linux-gnu in my LD_LIBRARY_PATH.  So I put it
+> into that path (*before* /usr/local/lib) and "curl --version" now
+> 
+> seems to be OK and gives:
+> > curl 7.68.0 (x86_64-pc-linux-gnu) libcurl/7.68.0 OpenSSL/1.1.1f
+> > zlib/1.2.11 brotli/1.0.7 libidn2/2.2.0 libpsl/0.21.0
+> > (+libidn2/2.2.0) libssh/0.9.3/openssl/zlib nghttp2/1.40.0
+> > librtmp/2.3 Release-Date: 2020-01-08 Protocols: dict file ftp ftps
+> > gopher http https imap imaps ldap ldaps pop3 pop3s rtmp rtsp scp
+> > sftp smb smbs smtp smtps telnet tftp Features: AsynchDNS brotli
+> > GSS-API HTTP2 HTTPS-proxy IDN IPv6 Kerberos Largefile libz NTLM
+> > NTLM_WB PSL SPNEGO SSL TLS-SRP UnixSockets
+> 
+> which verbose, but I guess that's alright.
+
+That may be OK for your the curl binary you are using (likely /usr/local/bin/
+curl, you still owe use the output of 'which curl'.
+
+But it seems you still have a curl/libcurl version in /usr/local that you 
+should get rid of, as it gets in the way of configuring R.
+
+Johannes
+
+> 
+> (2) In respect of libcurl and https:
+> 
+> I did a web search on "libcurl >= 7.28.0 library and headers are
+> required" and after much thrashing around found what looked like a
+> useful hit at https://www.xspdf.com/help/51318770.html .
+> 
+> The problem(s) described are exactly the same as mine.  Different
+> correspondents report different results; one person said that
+> installing libcurl4-openssl-dev solved the problem, another said that
+> it didn't but that libcurl4-gnutls-dev did work.
+> 
+> It was nice to know that I am not alone, but neither of the foregoing
+> solutions worked for me.  Then another correspondent suggested that the
+> problem might be with the gcc variant.  I thought that this was
+> promising.
+> 
+> I found that my gcc version was 9.3.0.  I found that the latest version
+> seemed to be 11.2, so I tried to upgrade.  The process seemed to be
+> endlessly complicated but I eventually got a new version such that
+> 
+>    gcc --version
+> 
+> gives "(Ubuntu 11.1.0-1ubuntu1~20.04) 11.1.0".  (11.1 not 11.2 ??? Oh,
+> well.)
+> 
+> But then I tried the configure step again, with the new gcc in place,
+> and got the same old error.  Story of my life.
+> 
+> I'm going mad, *mad* I tell you!!! :-)
+> 
+> cheers,
+> 
+> Rolf
+
+
+-- 
+Johannes Ranke
+Wissenschaftlicher Berater
+07624 8099027
+https://jrwb.de
+
+
+From r@turner @end|ng |rom @uck|@nd@@c@nz  Tue Aug 31 01:47:14 2021
+From: r@turner @end|ng |rom @uck|@nd@@c@nz (Rolf Turner)
+Date: Tue, 31 Aug 2021 11:47:14 +1200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no --- slight update.
+In-Reply-To: <3901794.ic6qRUZXWP@ryz>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <20210830121240.3faafe38@rolf-Latitude-E7470>
+ <20210830174256.3588874a@rolf-Latitude-E7470>
+ <3901794.ic6qRUZXWP@ryz>
+Message-ID: <20210831114714.13721811@rolf-Latitude-E7470>
+
+On Mon, 30 Aug 2021 08:00:34 +0200
+Johannes Ranke <johannes.ranke at jrwb.de> wrote:
+
+> Hi Rolf,
+> 
+> Am Montag, 30. August 2021, 07:42:56 CEST schrieb Rolf Turner:
+> > Hi All,
+> > 
+> > I just thought I'd let you know that I've tried a couple of other
+> > things.  No real progress, but.
+> > 
+> > (1) In respect of just-plain-curl: to make the issue clearer, I
+> > tried
+> > 
+> >     curl --version
+> > 
+> > and got:
+> > > > curl: /usr/local/lib/libcurl.so.4: no version information
+> > > > available (required by curl)
+> > > 
+> > > curl: symbol lookup error: curl: undefined symbol: curl_mime_free,
+> > > version CURL_OPENSSL_4
+> > 
+> > I found that there was another, apparently newer, version of
+> > libcurl.so.4 in /usr/lib/x86_64-linux-gnu.  I realised that I did
+> > not have /usr/lib/x86_64-linux-gnu in my LD_LIBRARY_PATH.  So I put
+> > it into that path (*before* /usr/local/lib) and "curl --version" now
+> > 
+> > seems to be OK and gives:
+> > > curl 7.68.0 (x86_64-pc-linux-gnu) libcurl/7.68.0 OpenSSL/1.1.1f
+> > > zlib/1.2.11 brotli/1.0.7 libidn2/2.2.0 libpsl/0.21.0
+> > > (+libidn2/2.2.0) libssh/0.9.3/openssl/zlib nghttp2/1.40.0
+> > > librtmp/2.3 Release-Date: 2020-01-08 Protocols: dict file ftp ftps
+> > > gopher http https imap imaps ldap ldaps pop3 pop3s rtmp rtsp scp
+> > > sftp smb smbs smtp smtps telnet tftp Features: AsynchDNS brotli
+> > > GSS-API HTTP2 HTTPS-proxy IDN IPv6 Kerberos Largefile libz NTLM
+> > > NTLM_WB PSL SPNEGO SSL TLS-SRP UnixSockets
+> > 
+> > which verbose, but I guess that's alright.
+> 
+> That may be OK for your the curl binary you are using (likely
+> /usr/local/bin/ curl, you still owe use the output of 'which curl'.
+
+Actually "which curl" yields "/usr/bin/curl".  Not that it really
+matters (???).
+
+> But it seems you still have a curl/libcurl version in /usr/local that
+> you should get rid of, as it gets in the way of configuring R.
+
+I don't think so.  I did "sudo find /usr -name "*curl*" -print".  The
+results are attached in the file "curlSearch.txt".  I am too ignorant
+to discern what might be problematic, but nothing obvious leaps out at
+me.  Could the stuff in /usr/local/include/curl be a source of
+difficulty?
+
+ cheers,
+
+Rolf
+
+-- 
+Honorary Research Fellow
+Department of Statistics
+University of Auckland
+Phone: +64-9-373-7599 ext. 88276
+
+-------------- next part --------------
+An embedded and charset-unspecified text was scrubbed...
+Name: curlSearch.txt
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20210831/0a32397d/attachment.txt>
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Tue Aug 31 10:03:02 2021
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Tue, 31 Aug 2021 10:03:02 +0200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no --- slight update.
+In-Reply-To: <20210831114714.13721811@rolf-Latitude-E7470>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <3901794.ic6qRUZXWP@ryz> <20210831114714.13721811@rolf-Latitude-E7470>
+Message-ID: <8257109.ufSXJEhPMV@ryz>
+
+Am Dienstag, 31. August 2021, 01:47:14 CEST schrieb Rolf Turner:
+> On Mon, 30 Aug 2021 08:00:34 +0200
+ 
+ ...
+
+> > But it seems you still have a curl/libcurl version in /usr/local that
+> > you should get rid of, as it gets in the way of configuring R.
+> 
+> I don't think so.  I did "sudo find /usr -name "*curl*" -print".  The
+> results are attached in the file "curlSearch.txt".  
+
+Good thought as far as I can tell. Unfortunately the attachment didn't get 
+through.
+
+> I am too ignorant
+> to discern what might be problematic, but nothing obvious leaps out at
+> me.  Could the stuff in /usr/local/include/curl be a source of
+> difficulty?
+
+Others on this list are far more qualified to answer this, but from my limited 
+knowledge in this area I would say yes, it could.
+
+Johannes
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Tue Aug 31 11:15:49 2021
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Tue, 31 Aug 2021 11:15:49 +0200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no --- slight update.
+In-Reply-To: <8257109.ufSXJEhPMV@ryz>
+References: <20210829112106.5b9c8107@rolf-Latitude-E7470>
+ <20210831114714.13721811@rolf-Latitude-E7470> <8257109.ufSXJEhPMV@ryz>
+Message-ID: <9374026.3FNg66p3d9@ryz>
+
+> > I don't think so.  I did "sudo find /usr -name "*curl*" -print".  The
+> > results are attached in the file "curlSearch.txt".
+> 
+> Good thought as far as I can tell. Unfortunately the attachment didn't get
+> through.
+
+Oh, I just overlooked the attachement, it did get through. The listing clearly 
+shows that you have a curl version in /usr/local/ that I would recommend to 
+uninstall (preferably using make uninstall in the source directory) as 
+suggested in my previous emails, as it is the likely cause of the configure 
+error you came to report.
+
+The Ubuntu curl/libcurl etc packages (that you should keep) provide the 
+headers in /usr/include.
+
+Johannes
+
+> 
+> > I am too ignorant
+> > to discern what might be problematic, but nothing obvious leaps out at
+> > me.  Could the stuff in /usr/local/include/curl be a source of
+> > difficulty?
+> 
+> Others on this list are far more qualified to answer this, but from my
+> limited knowledge in this area I would say yes, it could.
+> 
+> Johannes
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From kry|ov@r00t @end|ng |rom gm@||@com  Tue Aug 31 12:10:16 2021
+From: kry|ov@r00t @end|ng |rom gm@||@com (Ivan Krylov)
+Date: Tue, 31 Aug 2021 12:10:16 +0200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no
+In-Reply-To: <20210831121014.0b086191@rolf-Latitude-E7470>
+References: <20210829203050.4c2c306e@rolf-Latitude-E7470>
+ <20210829233706.0f2bf476@parabola>
+ <20210831121014.0b086191@rolf-Latitude-E7470>
+Message-ID: <20210831121016.4444fd16@trisector>
+
+Hello Rolf,
+
+Thanks for the config.log! I think we do have a path forward, but there
+might be some more problems on the way.
+
+Here's the relevant part of config.log:
+http://paste.debian.net/hidden/a0821b3c/
+
+This system is in a tricky state. There's libcurl and maybe some other
+software in /usr/local. The libcurl installation in particular is broken
+and prevents R's ./configure from linking to system libcurl. (I think
+that the linker ends up trying to link to the static library but isn't
+passed the flags to link curl's dependencies too.)
+
+Here are some options, maybe one of them would work:
+
+1. Run:
+
+   ./configure \
+    CPPFLAGS="-isystem /usr/include" \
+    LDFLAGS="-L/usr/lib -L/usr/lib/$(uname -m)-linux-gnu"
+
+   instead of ./configure.
+
+   Since both the ./configure script and the compiler default to
+   searching /usr/local for headers and libraries to link to, pass them
+   flags to make sure that /usr and not /usr/local is searched first.
+   
+
+2. Move anything that seems related to libcurl away from /usr/local.
+   This may break some other manually installed software that was built
+   with libcurl that had been installed into /usr/local, but should not
+   break the system.
+
+-- 
+Best regards,
+Ivan
+
+
+From r@turner @end|ng |rom @uck|@nd@@c@nz  Tue Aug 31 23:14:06 2021
+From: r@turner @end|ng |rom @uck|@nd@@c@nz (Rolf Turner)
+Date: Wed, 1 Sep 2021 09:14:06 +1200
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no --- SOLVED
+In-Reply-To: <20210831121016.4444fd16@trisector>
+References: <20210829203050.4c2c306e@rolf-Latitude-E7470>
+ <20210829233706.0f2bf476@parabola>
+ <20210831121014.0b086191@rolf-Latitude-E7470>
+ <20210831121016.4444fd16@trisector>
+Message-ID: <20210901091406.4e9cf865@rolf-Latitude-E7470>
+
+
+On Tue, 31 Aug 2021 12:10:16 +0200
+Ivan Krylov <krylov.r00t at gmail.com> wrote:
+
+> Hello Rolf,
+> 
+> Thanks for the config.log! I think we do have a path forward, but
+> there might be some more problems on the way.
+> 
+> Here's the relevant part of config.log:
+> http://paste.debian.net/hidden/a0821b3c
+> 
+> This system is in a tricky state. There's libcurl and maybe some other
+> software in /usr/local. The libcurl installation in particular is
+> broken and prevents R's ./configure from linking to system libcurl.
+> (I think that the linker ends up trying to link to the static library
+> but isn't passed the flags to link curl's dependencies too.)
+> 
+> Here are some options, maybe one of them would work:
+> 
+> 1. Run:
+> 
+>    ./configure \
+>     CPPFLAGS="-isystem /usr/include" \
+>     LDFLAGS="-L/usr/lib -L/usr/lib/$(uname -m)-linux-gnu"
+> 
+>    instead of ./configure.
+> 
+>    Since both the ./configure script and the compiler default to
+>    searching /usr/local for headers and libraries to link to, pass
+> them flags to make sure that /usr and not /usr/local is searched
+> first. 
+> 
+> 2. Move anything that seems related to libcurl away from /usr/local.
+>    This may break some other manually installed software that was
+> built with libcurl that had been installed into /usr/local, but
+> should not break the system.
+
+Thank you Ivan!!!  You have gone above and beyond the call of duty on
+my behalf.  I am extremely grateful.
+
+And thanks to everone else who contributed.
+
+I implemented the number 2 strategy that you (Ivan) suggested and it
+worked. Explicitly I did:
+
+sudo apt-get purge curl
+cd /usr/local
+sudo mkdir Junk
+sudo mkdir Junk/include
+sudo mkdir Junk/lib
+sudo mkdir Junk/bin
+sudo mkdir Junk/lib/pkgconfig
+sudo mv include/curl Junk/include
+sudo mv lib/*curl* Junk/lib
+sudo mv bin/*curl* Junk/bin
+sudo mv lib/pkgconfig/libcurl.pc Junk/lib/pkgconfig/
+sudo apt-get install curl
+
+I then tried the configure step again, and THIS TIME awaaaaaayyyy
+it went.  The make step went fine too.
+
+Thanks again.
+
+cheers,
+
+Rolf
+
+P.S. Apropos of nothing, really, but it mystifies me how the system got
+into the "tricky state" that it was in.  I'm pretty sure that I *never*
+installed/tried to install curl "manually".  I am a fervent devotee of
+the "sudo apt-get install" paradigm, as long as it works, and it works
+with curl. There is no trace of a manual install of curl on my system.
+
+One other thing:  I was exhorted to do an uninstall of the
+manually installed version.  Since no trace of any manual install
+existed, I could not do this.  Then I thought (just now, after the
+problem was solved anyway!) why not create such a "trace"?  So (after a
+brief web search) I did:
+
+mkdir curlStuff
+cd curlStuff
+wget https://curl.haxx.se/download/curl-7.52.1.tar.gz
+tar xvf curl-7.52.1.tar.gz
+./configure
+grep uninstall Makefile
+
+Got lots of output, with which I will not bore you.  So it kind of
+looks like "make uninstall" *might* have worked.  No way to tell for
+sure now, but.  Don't want to mess things up again!
+
+R.
+
+-- 
+Honorary Research Fellow
+Department of Statistics
+University of Auckland
+Phone: +64-9-373-7599 ext. 88276
+
+
+From edd @end|ng |rom deb|@n@org  Tue Aug 31 23:41:31 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 31 Aug 2021 16:41:31 -0500
+Subject: [R-sig-Debian] Configure error: checking if libcurl supports
+ https... no --- SOLVED
+In-Reply-To: <20210901091406.4e9cf865@rolf-Latitude-E7470>
+References: <20210829203050.4c2c306e@rolf-Latitude-E7470>
+ <20210829233706.0f2bf476@parabola>
+ <20210831121014.0b086191@rolf-Latitude-E7470>
+ <20210831121016.4444fd16@trisector>
+ <20210901091406.4e9cf865@rolf-Latitude-E7470>
+Message-ID: <24878.41483.62593.570278@rob.eddelbuettel.com>
+
+
+Rolf,
+
+Glad you're sorted out, and I concur in the thanks to Ivan (and Johannes and
+other who patiently helped).
+
+To me, the take-away message is that /usr/local wins generally, not just in
+your $PATH (or, say, in R's library path) but also for configure and friends
+so ... it opens the door for shooting both your feet off.  And I concur on
+'fervent devotee of the "sudo apt-get install" paradigm' as that is better
+and cleaner. And allows uninstalling !
+
+As mentioned, Docker is also good.  Read up on it.  It makes for a /great/
+way to experiment without side effects.  You can install (and run, and if you
+want persist in a container) things while leaving your outer system alone.
+Lots of tutorials out there.
+
+Best,  Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+

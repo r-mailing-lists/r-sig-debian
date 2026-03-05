@@ -1,0 +1,183 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2022-01",
+  "messages": [
+    {
+      "id": "msg-b4e18e12a10c",
+      "message_id": "<18af99824656ff27563d863f597038a1b6c52351.camel@math.aau.dk>",
+      "from_name": "Ege Rubak",
+      "from_email_hash": "bdfd06d5dae5231c50b59c7dde1344fb63ffd07aaff26187ce3188637a6de70b",
+      "date": "2022-01-08T20:40:11Z",
+      "subject": "[R-sig-Debian] Segfault from c2d4u binary of RandomFields",
+      "subject_clean": "Segfault from c2d4u binary of RandomFields",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi everyone,\n\nFor some time the GitHub Action of spatstat.core has been failing due\nto a segfault when calling RandomFields (which calls RandomFieldsUtils\nwhich may be causing the acutal segfault):\n\nhttps://github.com/spatstat/spatstat.core/runs/4739596930?check_suite_focus=true#step:6:387\n\nI tried changing the action to install a source version of RandomField\nand RandomFieldsUtils over the binary c2d4u version and the action now\ncontinues smoothly without any segfault:\n\nhttps://github.com/spatstat/spatstat.core/runs/4749470559?check_suite_focus=true\n\nDoes anyone know why the segfault only happens with the c2d4u version\n(Michael and Dirk are probably good guesses, but maybe someone else is\nlistening out there and can take some workload off their shoulders...)\n\nI'm happy to investigate further and produce a more minimal\nreproducible example, but I will not go down the rabbit hole for now if\nsomeone already now knows what the problem is and how it should be\nfixed.\n\nA (not so minimal) reproducible example is to install both\nRandomFields, RandomFieldsUtils and spatstat.core from c2d4u and then\nrun the following in R (this segfaults, so consider yourself warned):\n\nlibrary(spatstat.core)\nexample(kppm)\n\nCheers,\nEge\n\n-- \nEge Rubak, Associate Professor,\nDepartment of Mathematical Sciences, Aalborg University\nSkjernvej 4A, 9220 Aalborg East, Denmark\nPhone: (+45)99408861\nMobile: (+45)30230252\nEmail: rubak at math.aau.dk",
+      "body_snippet": "Hi everyone,\n\nFor some time the GitHub Action of spatstat.core has been failing due\nto a segfault when calling RandomFields (which calls RandomFieldsUtils\nwhich may be causing the acutal segfault):\n\nh",
+      "thread_id": "thread-b4e18e12a10c",
+      "thread_depth": 0,
+      "month": "2022-01"
+    },
+    {
+      "id": "msg-d73f540963d1",
+      "message_id": "<25050.3051.209023.603543@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2022-01-08T16:10:51-06:00",
+      "subject": "[R-sig-Debian] Segfault from c2d4u binary of RandomFields",
+      "subject_clean": "Segfault from c2d4u binary of RandomFields",
+      "in_reply_to": "<18af99824656ff27563d863f597038a1b6c52351.camel@math.aau.dk>",
+      "references": [
+        "<18af99824656ff27563d863f597038a1b6c52351.camel@math.aau.dk>"
+      ],
+      "body_plain": "On 8 January 2022 at 20:40, Ege Rubak wrote:\n| Hi everyone,\n| \n| For some time the GitHub Action of spatstat.core has been failing due\n| to a segfault when calling RandomFields (which calls RandomFieldsUtils\n| which may be causing the acutal segfault):\n| \n| https://github.com/spatstat/spatstat.core/runs/4739596930?check_suite_focus=true#step:6:387\n| \n| I tried changing the action to install a source version of RandomField\n| and RandomFieldsUtils over the binary c2d4u version and the action now\n| continues smoothly without any segfault:\n| \n| https://github.com/spatstat/spatstat.core/runs/4749470559?check_suite_focus=true\n| \n| Does anyone know why the segfault only happens with the c2d4u version\n| (Michael and Dirk are probably good guesses, but maybe someone else is\n| listening out there and can take some workload off their shoulders...)\n| \n| I'm happy to investigate further and produce a more minimal\n| reproducible example, but I will not go down the rabbit hole for now if\n| someone already now knows what the problem is and how it should be\n| fixed.\n| \n| A (not so minimal) reproducible example is to install both\n| RandomFields, RandomFieldsUtils and spatstat.core from c2d4u and then\n| run the following in R (this segfaults, so consider yourself warned):\n| \n| library(spatstat.core)\n| example(kppm)\n\nThe geo stack is complicated. I have no pointers.  But on the Debian testing\nmachine (i.e. something \"close\" your Ubuntu setup) I use for Rcpp reverse\ndepends, I recently recompiled an entire stack \"in bulk and anger\" simply\nbecause I could not pin-point where such a segfault came from.\n\nWhat you could is try to mimick the Actions setup (by starting with a Ubuntu\n20.04 container, Rocker has some as eg rocker/r-ubuntu:20.04 giving you a\nhead).  You can then start to replace .deb by .deb by hand-compiling and see\nwhich one is 'guilty'. Michael could then rebuild that .deb.\n\nSadly I do not know of any other shortcuts.\n\nBest, Dirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 8 January 2022 at 20:40, Ege Rubak wrote:\n| Hi everyone,\n| \n| For some time the GitHub Action of spatstat.core has been failing due\n| to a segfault when calling RandomFields (which calls RandomFiel",
+      "thread_id": "thread-b4e18e12a10c",
+      "thread_depth": 1,
+      "month": "2022-01"
+    },
+    {
+      "id": "msg-0d8fed1bdee2",
+      "message_id": "<81d1536f-964d-e9fd-c8ca-c853bb129e62@maher.org.uk>",
+      "from_name": "Joseph Maher",
+      "from_email_hash": "2824ad248d2eb908d405e1b8d9adbe843de6d267c1538f91d8c7089285982113",
+      "date": "2022-01-18T17:06:43-05:00",
+      "subject": "[R-sig-Debian] https://github.com/rstudio/shiny/issues/3573",
+      "subject_clean": "https://github.com/rstudio/shiny/issues/3573",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "I just filed this bug with shiny, but I suspect it might be a problem with \nthe version of shiny in debian, as the version of shiny on shinyapps.io \nseems to work, anyway, full details below, any advice much appreciated...\n\nJoseph\n\nSystem details\n\nBrowser Version: Version 97.0.4692.71 (Official Build) built on Debian \n11.2, running on Debian 11.2 (64-bit)\n\nOutput of sessionInfo():\n\nR version 4.0.4 (2021-02-15)\nPlatform: x86_64-pc-linux-gnu (64-bit)\nRunning under: Debian GNU/Linux 11 (bullseye)\n\nMatrix products: default\nBLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\nLAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.13.so\n\nRandom number generation:\n  RNG:     Mersenne-Twister\n  Normal:  Inversion\n  Sample:  Rounding\n\nlocale:\n  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C\n  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8\n  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8\n  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C\n  [9] LC_ADDRESS=C               LC_TELEPHONE=C\n[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base\n\nloaded via a namespace (and not attached):\n[1] htmlwidgets_1.5.3 compiler_4.0.4    magrittr_2.0.1    R6_2.5.0\n[5] leaflet_2.0.4.1   htmltools_0.5.1.1 crosstalk_1.1.1   digest_0.6.27\n[9] rlang_0.4.10\n\nExample application or steps to reproduce the problem\n\nlibrary(shiny)\n\nui <- fluidPage(sliderInput(\n   inputId = \"range\",\n   label = \"Range\",\n   min = as.Date(\"2021-01-01\"),\n   max = as.Date(\"2021-12-31\"),\n   value = c(as.Date(\"2021-02-02\"), as.Date(\"2021-03-03\"))\n))\n\nserver <- function(input, output, session) {}\n\nshinyApp(ui, server)\n\nDescribe the problem in detail\n\nRunning this in R on my local machine doesn't display the slider, just the \nlabel and an empty text entry box. However, if I split this file up in to \nui.R and server.R and run it on shinyapps.io then it runs just fine, so \nthe code seems fine, and I think there is something wrong with the R \npackages on the local machine. The versions of the libraries seem the same \nbetween the local machine and shinyapps.io.\n\nIf I look at the javascript in the browser, then the non-working copy \nseems to have no javascript in the <div class=\"container-fluid\"> section \nbetween ::before and <div class=\"form-group-shiny-input-container\">, I've \npasted the two versions below.\n\nDon't know whether this is a bug in shiny or something else, any advice \nappreciated.\n\nworking version:\n\n<html><head>\n<base href=\"_w_bd0954ec/\">\n     <script type=\"text/javascript\">\n(function() {\n   var workerId = '_w_bd0954ec';\n   // remove base href if worker ID is in url\n   if (window.location.href.indexOf(workerId) > 0) {\n     document.querySelector('base').removeAttribute('href');\n   }\n})();\n</script>\n\n       <script type=\"text/javascript\">\n       var __connect = {\n         shinyPre101: false\n       }\n       </script>\n\n   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n   <script type=\"application/shiny-singletons\"></script>\n   <script \ntype=\"application/html-dependencies\">json2[2014.02.04];jquery[3.5.1];shiny[1.5.0];ionrangeslider[2.1.6];strftime[0.9.2];bootstrap[3.4.1]</script>\n<script src=\"shared/json2-min.js\"></script>\n<script src=\"shared/jquery.min.js\"></script>\n<link href=\"shared/shiny.css\" rel=\"stylesheet\">\n<script src=\"shared/shiny.min.js\"></script>\n<link href=\"shared/ionrangeslider/css/ion.rangeSlider.css\" \nrel=\"stylesheet\">\n<link href=\"shared/ionrangeslider/css/ion.rangeSlider.skinShiny.css\" \nrel=\"stylesheet\">\n<script src=\"shared/ionrangeslider/js/ion.rangeSlider.min.js\"></script>\n<script src=\"shared/strftime/strftime-min.js\"></script>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<link href=\"shared/bootstrap/css/bootstrap.min.css\" rel=\"stylesheet\">\n<script src=\"shared/bootstrap/js/bootstrap.min.js\"></script>\n<script src=\"shared/bootstrap/shim/html5shiv.min.js\"></script>\n<script src=\"shared/bootstrap/shim/respond.min.js\"></script>\n<script src=\"__assets__/sockjs.min.js\"></script>\n<script src=\"__assets__/shiny-server-client.min.js\"></script>\n<script>preShinyInit({reconnect:true,reconnectTimeout:15000,disableProtocols:[\"htmlfile\",\"xdr-streaming\",\"xdr-polling\",\"websocket\"],token:true,workerId:true,subappTag:true,extendSession:true,fixupInternalLinks:true});</script>\n<link rel=\"stylesheet\" type=\"text/css\" \nhref=\"__assets__/rstudio-connect.css\">\n<link rel=\"stylesheet\" type=\"text/css\" \nhref=\"/__static__/frontend/css/shinyapps.css\"></head>\n<body>\n<script type=\"text/javascript\" \nsrc=\"/__static__/components/iframe-resizer/js/iframeResizer.contentWindow.min.js\"></script>\n<script type=\"text/javascript\" \nsrc=\"/__static__/frontend/scripts/shinyapps.frame.content.js\"></script>\n<script type=\"text/javascript\" \nsrc=\"/__static__/frontend/scripts/shinyapps.js\"></script>\n   <div class=\"container-fluid\">\n     <div class=\"form-group shiny-input-container\">\n       <label class=\"control-label\" for=\"range\">Range</label>\n       <span class=\"irs js-irs-0 irs-with-grid\"><span class=\"irs\"><span \nclass=\"irs-line\" tabindex=\"0\"><span class=\"irs-line-left\"></span><span \nclass=\"irs-line-mid\"></span><span \nclass=\"irs-line-right\"></span></span><span class=\"irs-min\" \nstyle=\"visibility: hidden;\">2021-01-01</span><span class=\"irs-max\" \nstyle=\"visibility: visible;\">2021-12-31</span><span class=\"irs-from\" \nstyle=\"visibility: hidden; left: 1.43299%;\">2021-02-02</span><span \nclass=\"irs-to\" style=\"visibility: hidden; left: \n8.81577%;\">2021-03-03</span><span class=\"irs-single\" style=\"visibility: \nvisible; left: -7.10475%;\">2021-02-02 ? 2021-03-03</span></span><span \nclass=\"irs-grid\" style=\"width: 92.6667%; left: 3.56667%;\"><span \nclass=\"irs-grid-pol\" style=\"left: 0%\"></span><span class=\"irs-grid-text \njs-grid-text-0\" style=\"left: 0%; margin-left: \n-8.67448%;\">2021-01-01</span><span class=\"irs-grid-pol small\" style=\"left: \n6.776556776556776%\"></span><span class=\"irs-grid-pol small\" style=\"left: \n3.388278388278388%\"></span><span class=\"irs-grid-pol\" style=\"left: \n10.164835164835162%\"></span><span class=\"irs-grid-text js-grid-text-1\" \nstyle=\"left: 10.1648%; visibility: hidden; margin-left: \n-8.67448%;\">2021-02-07</span><span class=\"irs-grid-pol small\" style=\"left: \n16.941391941391938%\"></span><span class=\"irs-grid-pol small\" style=\"left: \n13.553113553113551%\"></span><span class=\"irs-grid-pol\" style=\"left: \n20.329670329670325%\"></span><span class=\"irs-grid-text js-grid-text-2\" \nstyle=\"left: 20.3297%; visibility: visible; margin-left: \n-8.67448%;\">2021-03-16</span><span class=\"irs-grid-pol small\" style=\"left: \n27.106227106227102%\"></span><span class=\"irs-grid-pol small\" style=\"left: \n23.717948717948712%\"></span><span class=\"irs-grid-pol\" style=\"left: \n30.49450549450549%\"></span><span class=\"irs-grid-text js-grid-text-3\" \nstyle=\"left: 30.4945%; visibility: hidden; margin-left: \n-8.67448%;\">2021-04-22</span><span class=\"irs-grid-pol small\" style=\"left: \n37.27106227106226%\"></span><span class=\"irs-grid-pol small\" style=\"left: \n33.882783882783876%\"></span><span class=\"irs-grid-pol\" style=\"left: \n40.65934065934065%\"></span><span class=\"irs-grid-text js-grid-text-4\" \nstyle=\"left: 40.6593%; margin-left: -8.67448%;\">2021-05-29</span><span \nclass=\"irs-grid-pol small\" style=\"left: 47.435897435897424%\"></span><span \nclass=\"irs-grid-pol small\" style=\"left: 44.04761904761904%\"></span><span \nclass=\"irs-grid-pol\" style=\"left: 50.82417582417581%\"></span><span \nclass=\"irs-grid-text js-grid-text-5\" style=\"left: 50.8242%; visibility: \nhidden; margin-left: -8.67448%;\">2021-07-05</span><span \nclass=\"irs-grid-pol small\" style=\"left: 57.60073260073259%\"></span><span \nclass=\"irs-grid-pol small\" style=\"left: 54.2124542124542%\"></span><span \nclass=\"irs-grid-pol\" style=\"left: 60.98901098901098%\"></span><span \nclass=\"irs-grid-text js-grid-text-6\" style=\"left: 60.989%; visibility: \nvisible; margin-left: -8.5625%;\">2021-08-11</span><span \nclass=\"irs-grid-pol small\" style=\"left: 67.76556776556775%\"></span><span \nclass=\"irs-grid-pol small\" style=\"left: 64.37728937728936%\"></span><span \nclass=\"irs-grid-pol\" style=\"left: 71.15384615384613%\"></span><span \nclass=\"irs-grid-text js-grid-text-7\" style=\"left: 71.1538%; visibility: \nhidden; margin-left: -8.67448%;\">2021-09-17</span><span \nclass=\"irs-grid-pol small\" style=\"left: 77.9304029304029%\"></span><span \nclass=\"irs-grid-pol small\" style=\"left: 74.54212454212453%\"></span><span \nclass=\"irs-grid-pol\" style=\"left: 81.3186813186813%\"></span><span \nclass=\"irs-grid-text js-grid-text-8\" style=\"left: 81.3187%; margin-left: \n-8.67448%;\">2021-10-24</span><span class=\"irs-grid-pol small\" style=\"left: \n88.09523809523807%\"></span><span class=\"irs-grid-pol small\" style=\"left: \n84.7069597069597%\"></span><span class=\"irs-grid-pol\" style=\"left: \n91.48351648351647%\"></span><span class=\"irs-grid-text js-grid-text-9\" \nstyle=\"left: 91.4835%; visibility: hidden; margin-left: \n-8.5625%;\">2021-11-30</span><span class=\"irs-grid-pol small\" style=\"left: \n97.16117216117216%\"></span><span class=\"irs-grid-pol small\" style=\"left: \n94.3223443223443%\"></span><span class=\"irs-grid-pol\" style=\"left: \n100%\"></span><span class=\"irs-grid-text js-grid-text-10\" style=\"left: \n100%; visibility: visible; margin-left: \n-8.67448%;\">2021-12-31</span></span><span class=\"irs-bar\" style=\"cursor: \new-resize; left: 11.8132%; width: 7.38278%;\"></span><span \nclass=\"irs-shadow shadow-from\" style=\"display: none;\"></span><span \nclass=\"irs-shadow shadow-to\" style=\"display: none;\"></span><span \nclass=\"irs-slider from\" style=\"left: 8.14652%;\"></span><span \nclass=\"irs-slider to type_last\" style=\"left: \n15.5293%;\"></span></span><input class=\"js-range-slider irs-hidden-input \nshiny-bound-input\" id=\"range\" data-type=\"double\" data-min=\"1609459200000\" \ndata-max=\"1640908800000\" data-from=\"1612224000000\" data-to=\"1614729600000\" \ndata-step=\"86400000\" data-grid=\"true\" data-grid-num=\"9.83783783783784\" \ndata-grid-snap=\"false\" data-prettify-separator=\",\" \ndata-prettify-enabled=\"true\" data-keyboard=\"true\" \ndata-drag-interval=\"true\" data-data-type=\"date\" data-time-format=\"%F\" \ntabindex=\"-1\" readonly=\"\">\n     </div>\n   </div>\n\n\n<div id=\"ss-connect-dialog\" style=\"display: none;\"></div><div \nid=\"ss-overlay\" class=\"ss-gray-out\" style=\"display: \nnone;\"></div></body></html>\n\nNon-working version:\n\n<html><head>\n   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n   <script type=\"application/shiny-singletons\"></script>\n   <script \ntype=\"application/html-dependencies\">json2[2014.02.04];jquery[3.5.1];shiny[1.5.0];ionrangeslider[2.1.6];strftime[0.9.2];bootstrap[3.4.1]</script>\n<script src=\"shared/json2-min.js\"></script>\n<script src=\"shared/jquery.min.js\"></script>\n<link href=\"shared/shiny.css\" rel=\"stylesheet\">\n<script src=\"shared/shiny.min.js\"></script>\n<link href=\"shared/ionrangeslider/css/ion.rangeSlider.css\" \nrel=\"stylesheet\">\n<link href=\"shared/ionrangeslider/css/ion.rangeSlider.skinShiny.css\" \nrel=\"stylesheet\">\n<script src=\"shared/ionrangeslider/js/ion.rangeSlider.min.js\"></script>\n<script src=\"shared/strftime/strftime-min.js\"></script>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<link href=\"shared/bootstrap/css/bootstrap.min.css\" rel=\"stylesheet\">\n<script src=\"shared/bootstrap/js/bootstrap.min.js\"></script>\n<script src=\"shared/bootstrap/shim/html5shiv.min.js\"></script>\n<script src=\"shared/bootstrap/shim/respond.min.js\"></script>\n</head>\n<body>\n   <div class=\"container-fluid\">\n     <div class=\"form-group shiny-input-container\">\n       <label class=\"control-label\" for=\"range\">Range</label>\n       <input class=\"js-range-slider\" id=\"range\" data-type=\"double\" \ndata-min=\"1609459200000\" data-max=\"1640908800000\" \ndata-from=\"1612224000000\" data-to=\"1614729600000\" data-step=\"86400000\" \ndata-grid=\"true\" data-grid-num=\"9.83783783783784\" data-grid-snap=\"false\" \ndata-prettify-separator=\",\" data-prettify-enabled=\"true\" \ndata-keyboard=\"true\" data-drag-interval=\"true\" data-data-type=\"date\" \ndata-time-format=\"%F\">\n     </div>\n   </div>\n\n\n</body></html>",
+      "body_snippet": "I just filed this bug with shiny, but I suspect it might be a problem with \nthe version of shiny in debian, as the version of shiny on shinyapps.io \nseems to work, anyway, full details below, any advi",
+      "thread_id": "thread-0d8fed1bdee2",
+      "thread_depth": 0,
+      "month": "2022-01"
+    },
+    {
+      "id": "msg-57165a696fed",
+      "message_id": "<25063.16384.5379.353784@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2022-01-18T16:32:31-06:00",
+      "subject": "[R-sig-Debian] https://github.com/rstudio/shiny/issues/3573",
+      "subject_clean": "https://github.com/rstudio/shiny/issues/3573",
+      "in_reply_to": "<81d1536f-964d-e9fd-c8ca-c853bb129e62@maher.org.uk>",
+      "references": [
+        "<81d1536f-964d-e9fd-c8ca-c853bb129e62@maher.org.uk>"
+      ],
+      "body_plain": "Joseph,\n\nSeems to work fine here -- Ubuntu 21.04, R 4.1.2, all CRAN packages current\n\nNote that even on Debian stable you can get yourself current R and current\nkey packages thanks to the work of Johannes, see\n \n   https://cloud.r-project.org/bin/linux/debian/\n\nfor more.\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "Joseph,\n\nSeems to work fine here -- Ubuntu 21.04, R 4.1.2, all CRAN packages current\n\nNote that even on Debian stable you can get yourself current R and current\nkey packages thanks to the work of Joha",
+      "thread_id": "thread-0d8fed1bdee2",
+      "thread_depth": 1,
+      "month": "2022-01"
+    },
+    {
+      "id": "msg-eabae4f691e5",
+      "message_id": "<b34ca4f2-bc34-943b-3136-ca23b79b7627@maher.org.uk>",
+      "from_name": "Joseph Maher",
+      "from_email_hash": "2824ad248d2eb908d405e1b8d9adbe843de6d267c1538f91d8c7089285982113",
+      "date": "2022-01-18T18:26:32-05:00",
+      "subject": "[R-sig-Debian] https://github.com/rstudio/shiny/issues/3573",
+      "subject_clean": "https://github.com/rstudio/shiny/issues/3573",
+      "in_reply_to": "<25063.16384.5379.353784@rob.eddelbuettel.com>",
+      "references": [
+        "<81d1536f-964d-e9fd-c8ca-c853bb129e62@maher.org.uk>",
+        "<25063.16384.5379.353784@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Thanks!  This seems to be a problem specific to the debian package \nr-cran-shiny - if I install shiny with install.packages() then it seems to \nwork fine...\n\nJoseph\n\nOn Tue, 18 Jan 2022, Dirk Eddelbuettel wrote:\n\n>\n> Joseph,\n>\n> Seems to work fine here -- Ubuntu 21.04, R 4.1.2, all CRAN packages current\n>\n> Note that even on Debian stable you can get yourself current R and current\n> key packages thanks to the work of Johannes, see\n>\n>   https://cloud.r-project.org/bin/linux/debian/\n>\n> for more.\n>\n> -- \n> https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org\n>",
+      "body_snippet": "Thanks!  This seems to be a problem specific to the debian package \nr-cran-shiny - if I install shiny with install.packages() then it seems to \nwork fine...\n\nJoseph\n\nOn Tue, 18 Jan 2022, Dirk Eddelbue",
+      "thread_id": "thread-0d8fed1bdee2",
+      "thread_depth": 2,
+      "month": "2022-01"
+    },
+    {
+      "id": "msg-d88c38414a2c",
+      "message_id": "<25063.28602.89111.137899@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2022-01-18T19:56:10-06:00",
+      "subject": "[R-sig-Debian] https://github.com/rstudio/shiny/issues/3573",
+      "subject_clean": "https://github.com/rstudio/shiny/issues/3573",
+      "in_reply_to": "<b34ca4f2-bc34-943b-3136-ca23b79b7627@maher.org.uk>",
+      "references": [
+        "<81d1536f-964d-e9fd-c8ca-c853bb129e62@maher.org.uk>",
+        "<25063.16384.5379.353784@rob.eddelbuettel.com>",
+        "<b34ca4f2-bc34-943b-3136-ca23b79b7627@maher.org.uk>"
+      ],
+      "body_plain": "On 18 January 2022 at 18:26, Joseph Maher wrote:\n| Thanks!  This seems to be a problem specific to the debian package \n| r-cran-shiny\n\nWell: which version, exactly?  The pages at \n\n   https://packages.debian.org/r-cran-shiny\n\nshow us that there are quite a few, and that you could get current 1.5.0\nversion if you enable the buster-backports repo.\n\n| - if I install shiny with install.packages() then it seems to \n| work fine...\n\na) Standard procedure: Please establish whether this happens with the\n_current_ package in Debian. If so, _contact the Debian maintainer_\n\nb) Stuff happens. CRAN moves fast. For me, Debian stable is too old. You may\nhave to find _your sweet spot_ between current CRAN features and Debian\nstability and upgradeability.\n\nCheers, Dirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 18 January 2022 at 18:26, Joseph Maher wrote:\n| Thanks!  This seems to be a problem specific to the debian package \n| r-cran-shiny\n\nWell: which version, exactly?  The pages at \n\n   https://packages",
+      "thread_id": "thread-0d8fed1bdee2",
+      "thread_depth": 3,
+      "month": "2022-01"
+    },
+    {
+      "id": "msg-5338e1bcb7bb",
+      "message_id": "<c63a7910-bb9a-6b6b-48a1-13d46ec4de33@maher.org.uk>",
+      "from_name": "Joseph Maher",
+      "from_email_hash": "2824ad248d2eb908d405e1b8d9adbe843de6d267c1538f91d8c7089285982113",
+      "date": "2022-01-19T12:49:05-05:00",
+      "subject": "[R-sig-Debian] https://github.com/rstudio/shiny/issues/3573",
+      "subject_clean": "https://github.com/rstudio/shiny/issues/3573",
+      "in_reply_to": "<25063.28602.89111.137899@rob.eddelbuettel.com>",
+      "references": [
+        "<81d1536f-964d-e9fd-c8ca-c853bb129e62@maher.org.uk>",
+        "<25063.16384.5379.353784@rob.eddelbuettel.com>",
+        "<b34ca4f2-bc34-943b-3136-ca23b79b7627@maher.org.uk>",
+        "<25063.28602.89111.137899@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "The versions in debian bullseye/stable and above are all 1.5.0, the most \nrecent CRAN package is 1.7.1.  For my purposes I can just use the 1.7.1 \nCRAN version.  I might file a bug against the debian r-cran-shiny package, \nbut I assume the maintainer will update it in due course anyway...\n\nThanks a lot!\n\nJoseph\n\nOn Tue, 18 Jan 2022, Dirk Eddelbuettel wrote:\n\n>\n> On 18 January 2022 at 18:26, Joseph Maher wrote:\n> | Thanks!  This seems to be a problem specific to the debian package\n> | r-cran-shiny\n>\n> Well: which version, exactly?  The pages at\n>\n>   https://packages.debian.org/r-cran-shiny\n>\n> show us that there are quite a few, and that you could get current 1.5.0\n> version if you enable the buster-backports repo.\n>\n> | - if I install shiny with install.packages() then it seems to\n> | work fine...\n>\n> a) Standard procedure: Please establish whether this happens with the\n> _current_ package in Debian. If so, _contact the Debian maintainer_\n>\n> b) Stuff happens. CRAN moves fast. For me, Debian stable is too old. You may\n> have to find _your sweet spot_ between current CRAN features and Debian\n> stability and upgradeability.\n>\n> Cheers, Dirk\n>\n> -- \n> https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org\n>",
+      "body_snippet": "The versions in debian bullseye/stable and above are all 1.5.0, the most \nrecent CRAN package is 1.7.1.  For my purposes I can just use the 1.7.1 \nCRAN version.  I might file a bug against the debian ",
+      "thread_id": "thread-0d8fed1bdee2",
+      "thread_depth": 4,
+      "month": "2022-01"
+    },
+    {
+      "id": "msg-a0390b47aedb",
+      "message_id": "<25064.22180.662768.876661@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2022-01-19T12:21:24-06:00",
+      "subject": "[R-sig-Debian] https://github.com/rstudio/shiny/issues/3573",
+      "subject_clean": "https://github.com/rstudio/shiny/issues/3573",
+      "in_reply_to": "<c63a7910-bb9a-6b6b-48a1-13d46ec4de33@maher.org.uk>",
+      "references": [
+        "<81d1536f-964d-e9fd-c8ca-c853bb129e62@maher.org.uk>",
+        "<25063.16384.5379.353784@rob.eddelbuettel.com>",
+        "<b34ca4f2-bc34-943b-3136-ca23b79b7627@maher.org.uk>",
+        "<25063.28602.89111.137899@rob.eddelbuettel.com>",
+        "<c63a7910-bb9a-6b6b-48a1-13d46ec4de33@maher.org.uk>"
+      ],
+      "body_plain": "On 19 January 2022 at 12:49, Joseph Maher wrote:\n| The versions in debian bullseye/stable and above are all 1.5.0, the most \n| recent CRAN package is 1.7.1.  For my purposes I can just use the 1.7.1 \n| CRAN version.  I might file a bug against the debian r-cran-shiny package, \n| but I assume the maintainer will update it in due course anyway...\n\nYou could check the open bugreports, see if there are issue (javascript\ndependencies come to mind, maybe something cannot be updated) and possibly\nreport a gentle nudge to upgrade in a bug report with normal or lower\npriority. That may help the process along.\n\nIn the meantime, and in general, you can install locally from CRAN too.\n\nDirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 19 January 2022 at 12:49, Joseph Maher wrote:\n| The versions in debian bullseye/stable and above are all 1.5.0, the most \n| recent CRAN package is 1.7.1.  For my purposes I can just use the 1.7.1 \n",
+      "thread_id": "thread-0d8fed1bdee2",
+      "thread_depth": 5,
+      "month": "2022-01"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-b4e18e12a10c",
+      "subject": "Segfault from c2d4u binary of RandomFields",
+      "message_count": 2,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Ege Rubak"
+      ],
+      "started": "2022-01-08T20:40:11+00:00",
+      "last_reply": "2022-01-08T16:10:51-06:00",
+      "root_message_id": "msg-b4e18e12a10c"
+    },
+    {
+      "id": "thread-0d8fed1bdee2",
+      "subject": "https://github.com/rstudio/shiny/issues/3573",
+      "message_count": 6,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Joseph Maher"
+      ],
+      "started": "2022-01-18T17:06:43-05:00",
+      "last_reply": "2022-01-19T12:21:24-06:00",
+      "root_message_id": "msg-0d8fed1bdee2"
+    }
+  ]
+}

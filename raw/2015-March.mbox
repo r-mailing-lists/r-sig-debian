@@ -1,0 +1,1421 @@
+From jranke at uni-bremen.de  Mon Mar  2 10:09:26 2015
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 02 Mar 2015 10:09:26 +0100
+Subject: [R-sig-Debian] Suggestions to improve the info page of
+	/bin/linux/debian
+In-Reply-To: <54EF86F6.90701@ase-research.org>
+References: <54EF86F6.90701@ase-research.org>
+Message-ID: <1723394.tBF8nWusVI@tux>
+
+Hi Mathieu,
+
+thanks for your input. It reminds me how I got involved in the Debian 
+backports, as I thought the Debian README on CRAN needed an update...
+
+At the moment I do not have the time to reorganize the README, so if you would 
+like to go ahead and implement your changes into a README.html, I wouldn't 
+mind. Otherwise I am willing to pick up your suggestions, but it will take me 
+some time to get around to do it.
+
+>From my work on R package vignettes I know that pandoc is able to generate 
+single html documents with linked TOC from markdown, which is more flexible 
+than the text2html stuff I am using at the moment (as well as Michael does). 
+But maybe you or someone else on this list knows another convenient way? Or it 
+could be written in HTML using div tags and a hand-crafted css...
+
+Kind regards,
+
+Johannes
+
+Am Donnerstag, 26. Februar 2015, 15:49:58 schrieb Mathieu Basille:
+> After Johannes set up the CRAN repository for Jessie, I had quite some
+> trouble figuring out what any user should do to have a running and
+> up-to-date R in Debian (particularly Testing). Part of the problem is, I
+> think, the overwhelming documentation on the page "DEBIAN PACKAGES OF R
+> SOFTWARE" which is provided on CRAN at /bin/linux/debian. Some information
+> is also lacking in places.
+> 
+> So here are a few suggestions to try to arrange this page. The main one is
+> actually a reorganization of the whole page, which should make it easier
+> from a user perspective. Note that I think all information I added is
+> correct, but it might not be entirely accurate.
+> 
+> I think the page in itself would benefit largely from the inclusion of a
+> table of contents (with links to sections). With the page reorganized, that
+> would follow this:
+> 
+> INSTALLATION
+>     ADMINISTRATION AND MAINTENANCE
+>     PATHWAYS TO R PACKAGES
+> BACKPORTS ON CRAN
+>     SUPPORTED PACKAGES
+>     DEBIAN WHEEZY (STABLE)
+>     DEBIAN JESSIE (TESTING)
+>     DEBIAN SQUEEZE (OLD STABLE)
+>     DEBIAN SID (UNSTABLE)
+>     SECURE APT
+>     SUPPORTED PLATFORMS
+> REPORTING PROBLEMS
+> BACKPORTING FOR DEBIAN
+> ACKNOWLEDGEMENT
+> 
+> I added at the bottom of this message a few modifications of some of these
+> (sub-)sections. The vast majority of the information is already there, so
+> these are really minor changes, except for the Jessie sub-section.
+> 
+> Hope this helps,
+> Mathieu.
+> 
+> 
+> ==========================================================================
+> 
+> INSTALLATION
+> 
+> With an appropriate entry in /etc/apt/sources.list *(see below according to
+> the branch of Debian used)*, the newest R release *including recommended
+> packages* can be installed using a command sequence like
+> 
+> 
+> SUPPORTED PACKAGES
+> 
+> [Remove:]   r-cran-rmatrix
+> 
+> 
+> DEBIAN JESSIE (TESTING)
+> 
+> As of end of January 2015, there is a new repository containing binaries
+> for Jessie (current testing). This repository hosts all supported packages
+> presented above, and is updated upon new R releases.
+> 
+> To use R supported packages on Debian Jessie, simply add something like
+> 
+>     deb http://<favorite-cran-mirror>/bin/linux/debian jessie-cran3/
+> 
+> to the file /etc/apt/sources.list on your computer. You need to substitute
+> <favorite-cran-mirror> by one of the mirror URLs listed in
+> 
+>     http://cran.r-project.org/mirrors.html
+> 
+> Alternatively, it is possible to use APT-pining to install only R-related
+> packages from SID using Debian official repositories (/!\ Warning: should
+> be reserved to advanced users already familiar with pining their Debian
+> system). Simply add the supported packages (and other r-cran-* of interest)
+> in /etc/apt/preferences with a priority greater or equal than the priority
+> of regular testing packages:
+> 
+>     Package: r-base r-base-core r-base-dev r-recommended r-cran-boot
+> r-cran-cluster r-cran-class r-cran-codetools r-cran-foreign
+> r-cran-kernsmooth r-cran-lattice r-cran-mass r-cran-matrix r-cran-mgcv
+> r-cran-nlme r-cran-nnet r-cran-rpart r-cran-spatial r-cran-survival littler
+> r-cran-rodbc python-rpy python-rpy2 rkward r-cran-jags r-cran-coda
+>     Pin: release o=Debian,a=unstable,l=Debian
+>     Pin-Priority: 900
+> 
+> 
+> DEBIAN SID (UNSTABLE)
+> 
+> The latest stable versions of R and R packages are readily available in
+> official Debian SID repositories.
+-- 
+PD Dr. Johannes Ranke
+Kronacher Str. 8
+79639 Grenzach-Wyhlen
+
+
+From basille.web at ase-research.org  Tue Mar  3 16:02:23 2015
+From: basille.web at ase-research.org (Mathieu Basille)
+Date: Tue, 03 Mar 2015 10:02:23 -0500
+Subject: [R-sig-Debian] Suggestions to improve the info page of
+ /bin/linux/debian
+In-Reply-To: <1723394.tBF8nWusVI@tux>
+References: <54EF86F6.90701@ase-research.org> <1723394.tBF8nWusVI@tux>
+Message-ID: <54F5CCFF.6000806@ase-research.org>
+
+Hi Johannes,
+
+I didn't know what would be the best approach to modify the page?how it was 
+generated, is there a central place, etc.?which is why I posted on 
+r-sig-debian in the first place. Anyway, although I'm more or less familiar 
+with markdown and pandoc, it was easier for me to edit directly README.html 
+as it was on CRAN. Please find attached a revision with the modifications I 
+suggested earlier. Again, I tried to be correct to the best of my 
+knowledge, but I may not be entirely accurate.
+
+I simply edited (and formated the file) using Emacs, and manually added the 
+TOC and other suggested modifications (notably reorganization). I think 
+there is still room for improvement, but this should get things started. I 
+cleaned the layout, but left most of the actual code and text unchanged.
+
+I think the whole page would also benefit from a CSS, e.g. for titles 
+(instead of caps), but left it without it.
+
+Best,
+Mathieu.
+
+
+Le 02/03/2015 04:09, Johannes Ranke a ?crit :
+> Hi Mathieu,
+>
+> thanks for your input. It reminds me how I got involved in the Debian
+> backports, as I thought the Debian README on CRAN needed an update...
+>
+> At the moment I do not have the time to reorganize the README, so if you would
+> like to go ahead and implement your changes into a README.html, I wouldn't
+> mind. Otherwise I am willing to pick up your suggestions, but it will take me
+> some time to get around to do it.
+>
+>  From my work on R package vignettes I know that pandoc is able to generate
+> single html documents with linked TOC from markdown, which is more flexible
+> than the text2html stuff I am using at the moment (as well as Michael does).
+> But maybe you or someone else on this list knows another convenient way? Or it
+> could be written in HTML using div tags and a hand-crafted css...
+>
+> Kind regards,
+>
+> Johannes
+>
+> Am Donnerstag, 26. Februar 2015, 15:49:58 schrieb Mathieu Basille:
+>> After Johannes set up the CRAN repository for Jessie, I had quite some
+>> trouble figuring out what any user should do to have a running and
+>> up-to-date R in Debian (particularly Testing). Part of the problem is, I
+>> think, the overwhelming documentation on the page "DEBIAN PACKAGES OF R
+>> SOFTWARE" which is provided on CRAN at /bin/linux/debian. Some information
+>> is also lacking in places.
+>>
+>> So here are a few suggestions to try to arrange this page. The main one is
+>> actually a reorganization of the whole page, which should make it easier
+>> from a user perspective. Note that I think all information I added is
+>> correct, but it might not be entirely accurate.
+>>
+>> I think the page in itself would benefit largely from the inclusion of a
+>> table of contents (with links to sections). With the page reorganized, that
+>> would follow this:
+>>
+>> INSTALLATION
+>>      ADMINISTRATION AND MAINTENANCE
+>>      PATHWAYS TO R PACKAGES
+>> BACKPORTS ON CRAN
+>>      SUPPORTED PACKAGES
+>>      DEBIAN WHEEZY (STABLE)
+>>      DEBIAN JESSIE (TESTING)
+>>      DEBIAN SQUEEZE (OLD STABLE)
+>>      DEBIAN SID (UNSTABLE)
+>>      SECURE APT
+>>      SUPPORTED PLATFORMS
+>> REPORTING PROBLEMS
+>> BACKPORTING FOR DEBIAN
+>> ACKNOWLEDGEMENT
+>>
+>> I added at the bottom of this message a few modifications of some of these
+>> (sub-)sections. The vast majority of the information is already there, so
+>> these are really minor changes, except for the Jessie sub-section.
+>>
+>> Hope this helps,
+>> Mathieu.
+>>
+>>
+>> ==========================================================================
+>>
+>> INSTALLATION
+>>
+>> With an appropriate entry in /etc/apt/sources.list *(see below according to
+>> the branch of Debian used)*, the newest R release *including recommended
+>> packages* can be installed using a command sequence like
+>>
+>>
+>> SUPPORTED PACKAGES
+>>
+>> [Remove:]   r-cran-rmatrix
+>>
+>>
+>> DEBIAN JESSIE (TESTING)
+>>
+>> As of end of January 2015, there is a new repository containing binaries
+>> for Jessie (current testing). This repository hosts all supported packages
+>> presented above, and is updated upon new R releases.
+>>
+>> To use R supported packages on Debian Jessie, simply add something like
+>>
+>>      deb http://<favorite-cran-mirror>/bin/linux/debian jessie-cran3/
+>>
+>> to the file /etc/apt/sources.list on your computer. You need to substitute
+>> <favorite-cran-mirror> by one of the mirror URLs listed in
+>>
+>>      http://cran.r-project.org/mirrors.html
+>>
+>> Alternatively, it is possible to use APT-pining to install only R-related
+>> packages from SID using Debian official repositories (/!\ Warning: should
+>> be reserved to advanced users already familiar with pining their Debian
+>> system). Simply add the supported packages (and other r-cran-* of interest)
+>> in /etc/apt/preferences with a priority greater or equal than the priority
+>> of regular testing packages:
+>>
+>>      Package: r-base r-base-core r-base-dev r-recommended r-cran-boot
+>> r-cran-cluster r-cran-class r-cran-codetools r-cran-foreign
+>> r-cran-kernsmooth r-cran-lattice r-cran-mass r-cran-matrix r-cran-mgcv
+>> r-cran-nlme r-cran-nnet r-cran-rpart r-cran-spatial r-cran-survival littler
+>> r-cran-rodbc python-rpy python-rpy2 rkward r-cran-jags r-cran-coda
+>>      Pin: release o=Debian,a=unstable,l=Debian
+>>      Pin-Priority: 900
+>>
+>>
+>> DEBIAN SID (UNSTABLE)
+>>
+>> The latest stable versions of R and R packages are readily available in
+>> official Debian SID repositories.
+
+-- 
+
+~$ whoami
+Mathieu Basille
+http://ase-research.org/basille
+
+~$ locate --details
+University of Florida \\
+Fort Lauderdale Research and Education Center
+(+1) 954-577-6314
+
+~$ fortune
+? Le tout est de tout dire, et je manque de mots
+Et je manque de temps, et je manque d'audace. ?
+  -- Paul ?luard
+
+From basille.web at ase-research.org  Tue Mar  3 16:26:51 2015
+From: basille.web at ase-research.org (Mathieu Basille)
+Date: Tue, 03 Mar 2015 10:26:51 -0500
+Subject: [R-sig-Debian] Suggestions to improve the info page of
+ /bin/linux/debian
+In-Reply-To: <54F5CCFF.6000806@ase-research.org>
+References: <54EF86F6.90701@ase-research.org> <1723394.tBF8nWusVI@tux>
+	<54F5CCFF.6000806@ase-research.org>
+Message-ID: <54F5D2BB.2000503@ase-research.org>
+
+Le 03/03/2015 10:02, Mathieu Basille a ?crit :
+> Hi Johannes,
+>
+> I didn't know what would be the best approach to modify the page?how it was
+> generated, is there a central place, etc.?which is why I posted on
+> r-sig-debian in the first place. Anyway, although I'm more or less familiar
+> with markdown and pandoc, it was easier for me to edit directly README.html
+> as it was on CRAN. Please find attached a revision with the modifications I
+> suggested earlier. Again, I tried to be correct to the best of my
+> knowledge, but I may not be entirely accurate.
+>
+> I simply edited (and formated the file) using Emacs, and manually added the
+> TOC and other suggested modifications (notably reorganization). I think
+> there is still room for improvement, but this should get things started. I
+> cleaned the layout, but left most of the actual code and text unchanged.
+>
+> I think the whole page would also benefit from a CSS, e.g. for titles
+> (instead of caps), but left it without it.
+
+Ah! I just noticed that there was actually one (I must be really tired)... 
+so let me rephrase that last part: I think the CSS would also benefit from 
+an update, e.g. for titles (coding caps in the CSS) and the TOC, but I left 
+it unchanged!
+
+Mathieu.
+
+
+>
+> Best,
+> Mathieu.
+>
+>
+> Le 02/03/2015 04:09, Johannes Ranke a ?crit :
+>> Hi Mathieu,
+>>
+>> thanks for your input. It reminds me how I got involved in the Debian
+>> backports, as I thought the Debian README on CRAN needed an update...
+>>
+>> At the moment I do not have the time to reorganize the README, so if you
+>> would
+>> like to go ahead and implement your changes into a README.html, I wouldn't
+>> mind. Otherwise I am willing to pick up your suggestions, but it will
+>> take me
+>> some time to get around to do it.
+>>
+>>  From my work on R package vignettes I know that pandoc is able to generate
+>> single html documents with linked TOC from markdown, which is more flexible
+>> than the text2html stuff I am using at the moment (as well as Michael does).
+>> But maybe you or someone else on this list knows another convenient way?
+>> Or it
+>> could be written in HTML using div tags and a hand-crafted css...
+>>
+>> Kind regards,
+>>
+>> Johannes
+>>
+>> Am Donnerstag, 26. Februar 2015, 15:49:58 schrieb Mathieu Basille:
+>>> After Johannes set up the CRAN repository for Jessie, I had quite some
+>>> trouble figuring out what any user should do to have a running and
+>>> up-to-date R in Debian (particularly Testing). Part of the problem is, I
+>>> think, the overwhelming documentation on the page "DEBIAN PACKAGES OF R
+>>> SOFTWARE" which is provided on CRAN at /bin/linux/debian. Some information
+>>> is also lacking in places.
+>>>
+>>> So here are a few suggestions to try to arrange this page. The main one is
+>>> actually a reorganization of the whole page, which should make it easier
+>>> from a user perspective. Note that I think all information I added is
+>>> correct, but it might not be entirely accurate.
+>>>
+>>> I think the page in itself would benefit largely from the inclusion of a
+>>> table of contents (with links to sections). With the page reorganized, that
+>>> would follow this:
+>>>
+>>> INSTALLATION
+>>>      ADMINISTRATION AND MAINTENANCE
+>>>      PATHWAYS TO R PACKAGES
+>>> BACKPORTS ON CRAN
+>>>      SUPPORTED PACKAGES
+>>>      DEBIAN WHEEZY (STABLE)
+>>>      DEBIAN JESSIE (TESTING)
+>>>      DEBIAN SQUEEZE (OLD STABLE)
+>>>      DEBIAN SID (UNSTABLE)
+>>>      SECURE APT
+>>>      SUPPORTED PLATFORMS
+>>> REPORTING PROBLEMS
+>>> BACKPORTING FOR DEBIAN
+>>> ACKNOWLEDGEMENT
+>>>
+>>> I added at the bottom of this message a few modifications of some of these
+>>> (sub-)sections. The vast majority of the information is already there, so
+>>> these are really minor changes, except for the Jessie sub-section.
+>>>
+>>> Hope this helps,
+>>> Mathieu.
+>>>
+>>>
+>>> ==========================================================================
+>>>
+>>> INSTALLATION
+>>>
+>>> With an appropriate entry in /etc/apt/sources.list *(see below according to
+>>> the branch of Debian used)*, the newest R release *including recommended
+>>> packages* can be installed using a command sequence like
+>>>
+>>>
+>>> SUPPORTED PACKAGES
+>>>
+>>> [Remove:]   r-cran-rmatrix
+>>>
+>>>
+>>> DEBIAN JESSIE (TESTING)
+>>>
+>>> As of end of January 2015, there is a new repository containing binaries
+>>> for Jessie (current testing). This repository hosts all supported packages
+>>> presented above, and is updated upon new R releases.
+>>>
+>>> To use R supported packages on Debian Jessie, simply add something like
+>>>
+>>>      deb http://<favorite-cran-mirror>/bin/linux/debian jessie-cran3/
+>>>
+>>> to the file /etc/apt/sources.list on your computer. You need to substitute
+>>> <favorite-cran-mirror> by one of the mirror URLs listed in
+>>>
+>>>      http://cran.r-project.org/mirrors.html
+>>>
+>>> Alternatively, it is possible to use APT-pining to install only R-related
+>>> packages from SID using Debian official repositories (/!\ Warning: should
+>>> be reserved to advanced users already familiar with pining their Debian
+>>> system). Simply add the supported packages (and other r-cran-* of interest)
+>>> in /etc/apt/preferences with a priority greater or equal than the priority
+>>> of regular testing packages:
+>>>
+>>>      Package: r-base r-base-core r-base-dev r-recommended r-cran-boot
+>>> r-cran-cluster r-cran-class r-cran-codetools r-cran-foreign
+>>> r-cran-kernsmooth r-cran-lattice r-cran-mass r-cran-matrix r-cran-mgcv
+>>> r-cran-nlme r-cran-nnet r-cran-rpart r-cran-spatial r-cran-survival littler
+>>> r-cran-rodbc python-rpy python-rpy2 rkward r-cran-jags r-cran-coda
+>>>      Pin: release o=Debian,a=unstable,l=Debian
+>>>      Pin-Priority: 900
+>>>
+>>>
+>>> DEBIAN SID (UNSTABLE)
+>>>
+>>> The latest stable versions of R and R packages are readily available in
+>>> official Debian SID repositories.
+>
+
+-- 
+
+~$ whoami
+Mathieu Basille
+http://ase-research.org/basille
+
+~$ locate --details
+University of Florida \\
+Fort Lauderdale Research and Education Center
+(+1) 954-577-6314
+
+~$ fortune
+? Le tout est de tout dire, et je manque de mots
+Et je manque de temps, et je manque d'audace. ?
+  -- Paul ?luard
+
+
+From jranke at uni-bremen.de  Wed Mar  4 07:51:37 2015
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Wed, 04 Mar 2015 07:51:37 +0100
+Subject: [R-sig-Debian] Suggestions to improve the info page of
+	/bin/linux/debian
+In-Reply-To: <54F5D2BB.2000503@ase-research.org>
+References: <54EF86F6.90701@ase-research.org>
+	<54F5CCFF.6000806@ase-research.org>
+	<54F5D2BB.2000503@ase-research.org>
+Message-ID: <4499017.GtGycGKonz@tux>
+
+Hi Mathieu,
+
+thanks a lot for your help with this! I just did some minor polishing, and the 
+result is now on CRAN.
+
+I tried to make the resulting page validate cleanly, but as the README.html is 
+only included in the <body> of the index page, I do not think there is a way 
+to include the stylesheet with valid html. The rest of the html validates 
+without errors.
+
+I am now using a separate README.css - improvements welcome!
+
+Kind regards,
+
+Johannes
+
+
+Am Dienstag, 3. M?rz 2015, 10:26:51 schrieb Mathieu Basille:
+> Le 03/03/2015 10:02, Mathieu Basille a ?crit :
+> > Hi Johannes,
+> > 
+> > I didn't know what would be the best approach to modify the page?how it
+> > was
+> > generated, is there a central place, etc.?which is why I posted on
+> > r-sig-debian in the first place. Anyway, although I'm more or less
+> > familiar
+> > with markdown and pandoc, it was easier for me to edit directly
+> > README.html
+> > as it was on CRAN. Please find attached a revision with the modifications
+> > I
+> > suggested earlier. Again, I tried to be correct to the best of my
+> > knowledge, but I may not be entirely accurate.
+> > 
+> > I simply edited (and formated the file) using Emacs, and manually added
+> > the
+> > TOC and other suggested modifications (notably reorganization). I think
+> > there is still room for improvement, but this should get things started. I
+> > cleaned the layout, but left most of the actual code and text unchanged.
+> > 
+> > I think the whole page would also benefit from a CSS, e.g. for titles
+> > (instead of caps), but left it without it.
+> 
+> Ah! I just noticed that there was actually one (I must be really tired)...
+> so let me rephrase that last part: I think the CSS would also benefit from
+> an update, e.g. for titles (coding caps in the CSS) and the TOC, but I left
+> it unchanged!
+> 
+> Mathieu.
+> 
+> > Best,
+> > Mathieu.
+> > 
+> > Le 02/03/2015 04:09, Johannes Ranke a ?crit :
+> >> Hi Mathieu,
+> >> 
+> >> thanks for your input. It reminds me how I got involved in the Debian
+> >> backports, as I thought the Debian README on CRAN needed an update...
+> >> 
+> >> At the moment I do not have the time to reorganize the README, so if you
+> >> would
+> >> like to go ahead and implement your changes into a README.html, I
+> >> wouldn't
+> >> mind. Otherwise I am willing to pick up your suggestions, but it will
+> >> take me
+> >> some time to get around to do it.
+> >> 
+> >>  From my work on R package vignettes I know that pandoc is able to
+> >>  generate
+> >> 
+> >> single html documents with linked TOC from markdown, which is more
+> >> flexible
+> >> than the text2html stuff I am using at the moment (as well as Michael
+> >> does). But maybe you or someone else on this list knows another
+> >> convenient way? Or it
+> >> could be written in HTML using div tags and a hand-crafted css...
+> >> 
+> >> Kind regards,
+> >> 
+> >> Johannes
+> >> 
+> >> Am Donnerstag, 26. Februar 2015, 15:49:58 schrieb Mathieu Basille:
+> >>> After Johannes set up the CRAN repository for Jessie, I had quite some
+> >>> trouble figuring out what any user should do to have a running and
+> >>> up-to-date R in Debian (particularly Testing). Part of the problem is, I
+> >>> think, the overwhelming documentation on the page "DEBIAN PACKAGES OF R
+> >>> SOFTWARE" which is provided on CRAN at /bin/linux/debian. Some
+> >>> information
+> >>> is also lacking in places.
+> >>> 
+> >>> So here are a few suggestions to try to arrange this page. The main one
+> >>> is
+> >>> actually a reorganization of the whole page, which should make it easier
+> >>> from a user perspective. Note that I think all information I added is
+> >>> correct, but it might not be entirely accurate.
+> >>> 
+> >>> I think the page in itself would benefit largely from the inclusion of a
+> >>> table of contents (with links to sections). With the page reorganized,
+> >>> that
+> >>> would follow this:
+> >>> 
+> >>> INSTALLATION
+> >>> 
+> >>>      ADMINISTRATION AND MAINTENANCE
+> >>>      PATHWAYS TO R PACKAGES
+> >>> 
+> >>> BACKPORTS ON CRAN
+> >>> 
+> >>>      SUPPORTED PACKAGES
+> >>>      DEBIAN WHEEZY (STABLE)
+> >>>      DEBIAN JESSIE (TESTING)
+> >>>      DEBIAN SQUEEZE (OLD STABLE)
+> >>>      DEBIAN SID (UNSTABLE)
+> >>>      SECURE APT
+> >>>      SUPPORTED PLATFORMS
+> >>> 
+> >>> REPORTING PROBLEMS
+> >>> BACKPORTING FOR DEBIAN
+> >>> ACKNOWLEDGEMENT
+> >>> 
+> >>> I added at the bottom of this message a few modifications of some of
+> >>> these
+> >>> (sub-)sections. The vast majority of the information is already there,
+> >>> so
+> >>> these are really minor changes, except for the Jessie sub-section.
+> >>> 
+> >>> Hope this helps,
+> >>> Mathieu.
+> >>> 
+> >>> 
+> >>> ========================================================================
+> >>> ==
+> >>> 
+> >>> INSTALLATION
+> >>> 
+> >>> With an appropriate entry in /etc/apt/sources.list *(see below according
+> >>> to
+> >>> the branch of Debian used)*, the newest R release *including recommended
+> >>> packages* can be installed using a command sequence like
+> >>> 
+> >>> 
+> >>> SUPPORTED PACKAGES
+> >>> 
+> >>> [Remove:]   r-cran-rmatrix
+> >>> 
+> >>> 
+> >>> DEBIAN JESSIE (TESTING)
+> >>> 
+> >>> As of end of January 2015, there is a new repository containing binaries
+> >>> for Jessie (current testing). This repository hosts all supported
+> >>> packages
+> >>> presented above, and is updated upon new R releases.
+> >>> 
+> >>> To use R supported packages on Debian Jessie, simply add something like
+> >>> 
+> >>>      deb http://<favorite-cran-mirror>/bin/linux/debian jessie-cran3/
+> >>> 
+> >>> to the file /etc/apt/sources.list on your computer. You need to
+> >>> substitute
+> >>> <favorite-cran-mirror> by one of the mirror URLs listed in
+> >>> 
+> >>>      http://cran.r-project.org/mirrors.html
+> >>> 
+> >>> Alternatively, it is possible to use APT-pining to install only
+> >>> R-related
+> >>> packages from SID using Debian official repositories (/!\ Warning:
+> >>> should
+> >>> be reserved to advanced users already familiar with pining their Debian
+> >>> system). Simply add the supported packages (and other r-cran-* of
+> >>> interest)
+> >>> in /etc/apt/preferences with a priority greater or equal than the
+> >>> priority
+> >>> 
+> >>> of regular testing packages:
+> >>>      Package: r-base r-base-core r-base-dev r-recommended r-cran-boot
+> >>> 
+> >>> r-cran-cluster r-cran-class r-cran-codetools r-cran-foreign
+> >>> r-cran-kernsmooth r-cran-lattice r-cran-mass r-cran-matrix r-cran-mgcv
+> >>> r-cran-nlme r-cran-nnet r-cran-rpart r-cran-spatial r-cran-survival
+> >>> littler
+> >>> r-cran-rodbc python-rpy python-rpy2 rkward r-cran-jags r-cran-coda
+> >>> 
+> >>>      Pin: release o=Debian,a=unstable,l=Debian
+> >>>      Pin-Priority: 900
+> >>> 
+> >>> DEBIAN SID (UNSTABLE)
+> >>> 
+> >>> The latest stable versions of R and R packages are readily available in
+> >>> official Debian SID repositories.
+-- 
+PD Dr. Johannes Ranke
+Kronacher Str. 8
+79639 Grenzach-Wyhlen
+
+
+From marius.hofert at uwaterloo.ca  Mon Mar 30 08:24:28 2015
+From: marius.hofert at uwaterloo.ca (Marius Hofert)
+Date: Mon, 30 Mar 2015 02:24:28 -0400
+Subject: [R-sig-Debian] Debian Testing: ~/.Renviron seems to not being read
+	(R_LIBS not set)
+Message-ID: <CAM3-KjZnp20BgLR5QVks8CUutNPsdhBW1FSYtzsuarRSm6d4-g@mail.gmail.com>
+
+Hi,
+
+I have Debian Testing running on a Lenovo Thinkpad X1
+Carbon (2015, 3rd gen.). I would like to have a package library
+independent of the installed R version. Under Ubuntu, I used to
+have the following line in ~/.Renviron:
+R_LIBS=/usr/local/R/library:/usr/lib/R/site-library This worked
+fine and /usr/local/R/library showed up in .libPaths().
+
+However, under Debian (with the same ~/.Renviron), my .libPaths()
+just shows "/usr/local/R/R-3.1.3-build/library" which is the
+version-dependent library (this used to come at 3rd position in
+.libPaths()). Does R on Debian not look for ~/.Renviron? I also
+tried R_LIBS_USER but no luck here either (although, as far as I
+understand Section 6.2 of "R Installation and Administration",
+R_LIBS or R_LIBS_USER should work (?))
+
+Cheers, Marius
+
+PS: I found two sites which seem to be related, but it was still
+not quite clear to me how to approach the problem:
+https://stat.ethz.ch/pipermail/r-sig-debian/2005-December/000050.html
+https://stat.ethz.ch/pipermail/r-sig-debian/2010-May/001146.html
+
+
+From jranke at uni-bremen.de  Mon Mar 30 09:13:34 2015
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 30 Mar 2015 09:13:34 +0200
+Subject: [R-sig-Debian] Debian Testing: ~/.Renviron seems to not being
+	read (R_LIBS not set)
+In-Reply-To: <CAM3-KjZnp20BgLR5QVks8CUutNPsdhBW1FSYtzsuarRSm6d4-g@mail.gmail.com>
+References: <CAM3-KjZnp20BgLR5QVks8CUutNPsdhBW1FSYtzsuarRSm6d4-g@mail.gmail.com>
+Message-ID: <12988558.bj1Ogvnc6f@tux>
+
+Hi Marius,
+
+Am Montag, 30. M?rz 2015, 02:24:28 schrieb Marius Hofert:
+> Hi,
+> 
+> I have Debian Testing running on a Lenovo Thinkpad X1
+> Carbon (2015, 3rd gen.). 
+
+Please specify what version of R you are using and how you installed it.
+
+> I would like to have a package library
+> independent of the installed R version.
+
+For this purpose, in the default setup on Debian we have 
+/usr/local/lib/R/site-library. When using the R backport from CRAN on Debian 
+testing this is what you should get:
+
+ > sessionInfo()
+ R version 3.1.3 (2015-03-09)
+ Platform: x86_64-pc-linux-gnu (64-bit)
+ Running under: Debian GNU/Linux 8 (jessie)
+
+ ...
+
+ > .libPaths()
+ [1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"       
+"/usr/lib/R/library" 
+
+> Under Ubuntu, I used to
+> have the following line in ~/.Renviron:
+> R_LIBS=/usr/local/R/library:/usr/lib/R/site-library This worked
+> fine and /usr/local/R/library showed up in .libPaths().
+
+This should usually not be necessary, as you can use the default location of
+the local site library.
+
+> However, under Debian (with the same ~/.Renviron), my .libPaths()
+> just shows "/usr/local/R/R-3.1.3-build/library"
+
+It looks like you have done something fairly non-standard to your system...
+
+Cheers,
+
+Johannes
+
+> which is the
+> version-dependent library (this used to come at 3rd position in
+> .libPaths()). Does R on Debian not look for ~/.Renviron? I also
+> tried R_LIBS_USER but no luck here either (although, as far as I
+> understand Section 6.2 of "R Installation and Administration",
+> R_LIBS or R_LIBS_USER should work (?))
+> 
+> Cheers, Marius
+> 
+> PS: I found two sites which seem to be related, but it was still
+> not quite clear to me how to approach the problem:
+> https://stat.ethz.ch/pipermail/r-sig-debian/2005-December/000050.html
+> https://stat.ethz.ch/pipermail/r-sig-debian/2010-May/001146.html
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+-- 
+PD Dr. Johannes Ranke
+Kronacher Str. 8
+79639 Grenzach-Wyhlen
+
+
+From edd at debian.org  Mon Mar 30 13:39:50 2015
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 30 Mar 2015 06:39:50 -0500
+Subject: [R-sig-Debian] Debian Testing: ~/.Renviron seems to not being
+	read	(R_LIBS not set)
+In-Reply-To: <CAM3-KjZnp20BgLR5QVks8CUutNPsdhBW1FSYtzsuarRSm6d4-g@mail.gmail.com>
+References: <CAM3-KjZnp20BgLR5QVks8CUutNPsdhBW1FSYtzsuarRSm6d4-g@mail.gmail.com>
+Message-ID: <21785.13830.839727.258646@max.nulle.part>
+
+
+Hi Marius,
+
+On 30 March 2015 at 02:24, Marius Hofert wrote:
+| I have Debian Testing running on a Lenovo Thinkpad X1
+| Carbon (2015, 3rd gen.). I would like to have a package library
+| independent of the installed R version. Under Ubuntu, I used to
+| have the following line in ~/.Renviron:
+| R_LIBS=/usr/local/R/library:/usr/lib/R/site-library This worked
+| fine and /usr/local/R/library showed up in .libPaths().
+
+Please look at
+
+       /etc/R/Renviron
+       /usr/lib/R/etc/Renviron
+
+(which are the same file via softlinks) and how they set R_LIBS_SITE and have
+been 2003 (!!).
+ 
+| However, under Debian (with the same ~/.Renviron), my .libPaths()
+| just shows "/usr/local/R/R-3.1.3-build/library" which is the
+| version-dependent library (this used to come at 3rd position in
+| .libPaths()). Does R on Debian not look for ~/.Renviron? I also
+
+It should. See help(Startup).
+
+And does:
+
+  edd at max:~$ grep Hello .Renviron
+  MARIUS="Hello, world from .Renviron"
+  edd at max:~$ R -q -e 'Sys.getenv("MARIUS")'
+  R> Sys.getenv("MARIUS")
+  [1] "Hello, world from .Renviron"
+  R> 
+  R> 
+  edd at max:~$ 
+
+Small caveat: littler does not (yet). But you didn't say whether you used R
+or r.
+
+Dirk
+
+| tried R_LIBS_USER but no luck here either (although, as far as I
+| understand Section 6.2 of "R Installation and Administration",
+| R_LIBS or R_LIBS_USER should work (?))
+| 
+| Cheers, Marius
+| 
+| PS: I found two sites which seem to be related, but it was still
+| not quite clear to me how to approach the problem:
+| https://stat.ethz.ch/pipermail/r-sig-debian/2005-December/000050.html
+| https://stat.ethz.ch/pipermail/r-sig-debian/2010-May/001146.html
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From marius.hofert at uwaterloo.ca  Mon Mar 30 18:30:37 2015
+From: marius.hofert at uwaterloo.ca (Marius Hofert)
+Date: Mon, 30 Mar 2015 12:30:37 -0400
+Subject: [R-sig-Debian] Debian Testing: ~/.Renviron seems to not being
+ read (R_LIBS not set)
+In-Reply-To: <677c3a2e13594355b88b4399f8253695@CONNHUB3.connect.uwaterloo.ca>
+References: <CAM3-KjZnp20BgLR5QVks8CUutNPsdhBW1FSYtzsuarRSm6d4-g@mail.gmail.com>
+	<677c3a2e13594355b88b4399f8253695@CONNHUB3.connect.uwaterloo.ca>
+Message-ID: <CAM3-KjYqMR8m2NW+g0CWAZbNEs5HqpdWixndXRR7L2ACJDjXAA@mail.gmail.com>
+
+Dear Johannes, Dear Dirk,
+
+Thanks a lot for helping. Here is the missing information.
+
+Here is how I installed R. This is basically how Martin Maechler
+showed me to install R under Ubuntu (in several versions so that they
+are also recognized by ESS). My goal is to adjust this to make it work
+for Debian:
+
+1) sudo emacs /etc/apt/sources.list # then add:
+   deb http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/
+   deb-src http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/
+
+2) sudo apt-get build-dep r-base
+
+3) sudo mkdir /usr/local/R
+   sudo chown mhofert:mhofert /usr/local/R
+
+   cd /usr/local/R
+   wget http://cran.r-project.org/src/base/R-3/R-3.1.3.tar.gz
+   tar -xzf R-3.1.3.tar.gz
+   mv R-3.1.3 R-3.1.3-source
+
+   mkdir R-3.1.3-build
+   cd R-3.1.3-build
+   ../R-3.1.3-source/configure
+
+   make
+   make check
+   make pdf
+   make info
+
+   cd ..
+   ln -s /usr/local/R/R-3.1.3-build/bin/R /usr/local/R/R
+
+   sudo emacs ~/etc/bash.bashrc # then add:
+   PATH=/usr/local/R:$PATH
+
+
+.libPaths() shows:
+
+> .libPaths()
+[1] "/usr/local/R/R-3.1.3-build/library"
+
+
+and sessionInfo() is:
+
+> sessionInfo()
+R version 3.1.3 (2015-03-09)
+Platform: x86_64-unknown-linux-gnu (64-bit)
+Running under: Debian GNU/Linux 8 (jessie)
+
+locale:
+ [1] LC_CTYPE=en_CA.UTF-8       LC_NUMERIC=C
+ [3] LC_TIME=en_CA.UTF-8        LC_COLLATE=en_CA.UTF-8
+ [5] LC_MONETARY=en_CA.UTF-8    LC_MESSAGES=en_CA.UTF-8
+ [7] LC_PAPER=en_CA.UTF-8       LC_NAME=C
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C
+[11] LC_MEASUREMENT=en_CA.UTF-8 LC_IDENTIFICATION=C
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base
+
+
+Interestingly, under Ubuntu, I find /etc/R/Renviron, under Debian, it
+does not exist... hmmm... what's flawed in the above installation
+process (?)
+
+Cheers,
+Marius
+
+
+On Mon, Mar 30, 2015 at 7:39 AM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> Hi Marius,
+>
+> On 30 March 2015 at 02:24, Marius Hofert wrote:
+> | I have Debian Testing running on a Lenovo Thinkpad X1
+> | Carbon (2015, 3rd gen.). I would like to have a package library
+> | independent of the installed R version. Under Ubuntu, I used to
+> | have the following line in ~/.Renviron:
+> | R_LIBS=/usr/local/R/library:/usr/lib/R/site-library This worked
+> | fine and /usr/local/R/library showed up in .libPaths().
+>
+> Please look at
+>
+>        /etc/R/Renviron
+>        /usr/lib/R/etc/Renviron
+>
+> (which are the same file via softlinks) and how they set R_LIBS_SITE and have
+> been 2003 (!!).
+>
+> | However, under Debian (with the same ~/.Renviron), my .libPaths()
+> | just shows "/usr/local/R/R-3.1.3-build/library" which is the
+> | version-dependent library (this used to come at 3rd position in
+> | .libPaths()). Does R on Debian not look for ~/.Renviron? I also
+>
+> It should. See help(Startup).
+>
+> And does:
+>
+>   edd at max:~$ grep Hello .Renviron
+>   MARIUS="Hello, world from .Renviron"
+>   edd at max:~$ R -q -e 'Sys.getenv("MARIUS")'
+>   R> Sys.getenv("MARIUS")
+>   [1] "Hello, world from .Renviron"
+>   R>
+>   R>
+>   edd at max:~$
+>
+> Small caveat: littler does not (yet). But you didn't say whether you used R
+> or r.
+>
+> Dirk
+>
+> | tried R_LIBS_USER but no luck here either (although, as far as I
+> | understand Section 6.2 of "R Installation and Administration",
+> | R_LIBS or R_LIBS_USER should work (?))
+> |
+> | Cheers, Marius
+> |
+> | PS: I found two sites which seem to be related, but it was still
+> | not quite clear to me how to approach the problem:
+> | https://stat.ethz.ch/pipermail/r-sig-debian/2005-December/000050.html
+> | https://stat.ethz.ch/pipermail/r-sig-debian/2010-May/001146.html
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+> --
+> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From jranke at uni-bremen.de  Mon Mar 30 18:53:00 2015
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 30 Mar 2015 18:53 +0200
+Subject: [R-sig-Debian] Debian Testing: ~/.Renviron seems to not being
+	read (R_LIBS not set)
+In-Reply-To: <CAM3-KjYqMR8m2NW+g0CWAZbNEs5HqpdWixndXRR7L2ACJDjXAA@mail.gmail.com>
+References: <CAM3-KjZnp20BgLR5QVks8CUutNPsdhBW1FSYtzsuarRSm6d4-g@mail.gmail.com>
+	<677c3a2e13594355b88b4399f8253695@CONNHUB3.connect.uwaterloo.ca>
+	<CAM3-KjYqMR8m2NW+g0CWAZbNEs5HqpdWixndXRR7L2ACJDjXAA@mail.gmail.com>
+Message-ID: <1723196.Q6yTZGHAe7@tux>
+
+Am Montag, 30. M?rz 2015, 12:30:37 schrieb Marius Hofert:
+> Dear Johannes, Dear Dirk,
+> 
+> Thanks a lot for helping. Here is the missing information.
+> 
+> Here is how I installed R. This is basically how Martin Maechler
+> showed me to install R under Ubuntu (in several versions so that they
+> are also recognized by ESS). My goal is to adjust this to make it work
+> for Debian:
+> 
+> 1) sudo emacs /etc/apt/sources.list # then add:
+>    deb http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/
+>    deb-src http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/
+> 
+> 2) sudo apt-get build-dep r-base
+
+At this point you should simply do
+
+    sudo apt-get install r-base r-base-dev
+
+as per the Debian README on CRAN.
+
+http://cran.r-project.org/bin/linux/debian/README.html
+
+Then you do not have to build from sources as you did below! This will also 
+give you /etc/R/Renviron.
+
+Kind regards,
+
+Johannes
+
+> 
+> 3) sudo mkdir /usr/local/R
+>    sudo chown mhofert:mhofert /usr/local/R
+> 
+>    cd /usr/local/R
+>    wget http://cran.r-project.org/src/base/R-3/R-3.1.3.tar.gz
+>    tar -xzf R-3.1.3.tar.gz
+>    mv R-3.1.3 R-3.1.3-source
+> 
+>    mkdir R-3.1.3-build
+>    cd R-3.1.3-build
+>    ../R-3.1.3-source/configure
+> 
+>    make
+>    make check
+>    make pdf
+>    make info
+> 
+>    cd ..
+>    ln -s /usr/local/R/R-3.1.3-build/bin/R /usr/local/R/R
+> 
+>    sudo emacs ~/etc/bash.bashrc # then add:
+>    PATH=/usr/local/R:$PATH
+> 
+> .libPaths() shows:
+> > .libPaths()
+> 
+> [1] "/usr/local/R/R-3.1.3-build/library"
+> 
+> and sessionInfo() is:
+> > sessionInfo()
+> 
+> R version 3.1.3 (2015-03-09)
+> Platform: x86_64-unknown-linux-gnu (64-bit)
+> Running under: Debian GNU/Linux 8 (jessie)
+> 
+> locale:
+>  [1] LC_CTYPE=en_CA.UTF-8       LC_NUMERIC=C
+>  [3] LC_TIME=en_CA.UTF-8        LC_COLLATE=en_CA.UTF-8
+>  [5] LC_MONETARY=en_CA.UTF-8    LC_MESSAGES=en_CA.UTF-8
+>  [7] LC_PAPER=en_CA.UTF-8       LC_NAME=C
+>  [9] LC_ADDRESS=C               LC_TELEPHONE=C
+> [11] LC_MEASUREMENT=en_CA.UTF-8 LC_IDENTIFICATION=C
+> 
+> attached base packages:
+> [1] stats     graphics  grDevices utils     datasets  methods   base
+> 
+> 
+> Interestingly, under Ubuntu, I find /etc/R/Renviron, under Debian, it
+> does not exist... hmmm... what's flawed in the above installation
+> process (?)
+> 
+> Cheers,
+> Marius
+> 
+> On Mon, Mar 30, 2015 at 7:39 AM, Dirk Eddelbuettel <edd at debian.org> wrote:
+> > Hi Marius,
+> > 
+> > On 30 March 2015 at 02:24, Marius Hofert wrote:
+> > | I have Debian Testing running on a Lenovo Thinkpad X1
+> > | Carbon (2015, 3rd gen.). I would like to have a package library
+> > | independent of the installed R version. Under Ubuntu, I used to
+> > | have the following line in ~/.Renviron:
+> > | R_LIBS=/usr/local/R/library:/usr/lib/R/site-library This worked
+> > | fine and /usr/local/R/library showed up in .libPaths().
+> > 
+> > Please look at
+> > 
+> >        /etc/R/Renviron
+> >        /usr/lib/R/etc/Renviron
+> > 
+> > (which are the same file via softlinks) and how they set R_LIBS_SITE and
+> > have been 2003 (!!).
+> > 
+> > | However, under Debian (with the same ~/.Renviron), my .libPaths()
+> > | just shows "/usr/local/R/R-3.1.3-build/library" which is the
+> > | version-dependent library (this used to come at 3rd position in
+> > | .libPaths()). Does R on Debian not look for ~/.Renviron? I also
+> > 
+> > It should. See help(Startup).
+> > 
+> > And does:
+> >   edd at max:~$ grep Hello .Renviron
+> >   MARIUS="Hello, world from .Renviron"
+> >   edd at max:~$ R -q -e 'Sys.getenv("MARIUS")'
+> >   R> Sys.getenv("MARIUS")
+> >   [1] "Hello, world from .Renviron"
+> >   R>
+> >   R>
+> >   edd at max:~$
+> > 
+> > Small caveat: littler does not (yet). But you didn't say whether you used
+> > R
+> > or r.
+> > 
+> > Dirk
+> > 
+> > | tried R_LIBS_USER but no luck here either (although, as far as I
+> > | understand Section 6.2 of "R Installation and Administration",
+> > | R_LIBS or R_LIBS_USER should work (?))
+> > | 
+> > | Cheers, Marius
+> > | 
+> > | PS: I found two sites which seem to be related, but it was still
+> > | not quite clear to me how to approach the problem:
+> > | https://stat.ethz.ch/pipermail/r-sig-debian/2005-December/000050.html
+> > | https://stat.ethz.ch/pipermail/r-sig-debian/2010-May/001146.html
+> > | 
+> > | _______________________________________________
+> > | R-SIG-Debian mailing list
+> > | R-SIG-Debian at r-project.org
+> > | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> > 
+> > --
+> > http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+-- 
+PD Dr. Johannes Ranke
+Kronacher Str. 8
+79639 Grenzach-Wyhlen
+
+
+From edd at debian.org  Mon Mar 30 19:09:08 2015
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 30 Mar 2015 12:09:08 -0500
+Subject: [R-sig-Debian] Debian Testing: ~/.Renviron seems to not being
+ read (R_LIBS not set)
+In-Reply-To: <CAM3-KjYqMR8m2NW+g0CWAZbNEs5HqpdWixndXRR7L2ACJDjXAA@mail.gmail.com>
+References: <CAM3-KjZnp20BgLR5QVks8CUutNPsdhBW1FSYtzsuarRSm6d4-g@mail.gmail.com>
+	<677c3a2e13594355b88b4399f8253695@CONNHUB3.connect.uwaterloo.ca>
+	<CAM3-KjYqMR8m2NW+g0CWAZbNEs5HqpdWixndXRR7L2ACJDjXAA@mail.gmail.com>
+Message-ID: <21785.33588.49622.511782@max.nulle.part>
+
+
+Marius,
+
+On 30 March 2015 at 12:30, Marius Hofert wrote:
+| Here is how I installed R. This is basically how Martin Maechler
+| showed me to install R under Ubuntu (in several versions so that they
+| are also recognized by ESS). My goal is to adjust this to make it work
+| for Debian:
+
+That's your beef.  We support reasonably feature complete packages built in
+reasonably well-engineered and by now mostly debugged processes.  
+
+You can of course build your own, but if you do and things break you get to
+keep those pieces.
+
+And how to build R(-devel) locally has been discussed in the past.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From marius.hofert at uwaterloo.ca  Tue Mar 31 02:42:47 2015
+From: marius.hofert at uwaterloo.ca (Marius Hofert)
+Date: Mon, 30 Mar 2015 20:42:47 -0400
+Subject: [R-sig-Debian] Debian Testing: ~/.Renviron seems to not being
+ read (R_LIBS not set)
+In-Reply-To: <7c4b80a7f9b24fa4af2b1aa15ee80e4e@CONNHUB3.connect.uwaterloo.ca>
+References: <CAM3-KjZnp20BgLR5QVks8CUutNPsdhBW1FSYtzsuarRSm6d4-g@mail.gmail.com>
+	<677c3a2e13594355b88b4399f8253695@CONNHUB3.connect.uwaterloo.ca>
+	<CAM3-KjYqMR8m2NW+g0CWAZbNEs5HqpdWixndXRR7L2ACJDjXAA@mail.gmail.com>
+	<7c4b80a7f9b24fa4af2b1aa15ee80e4e@CONNHUB3.connect.uwaterloo.ca>
+Message-ID: <CAM3-KjapjRLWZfT3fafWS39zK8CUV53DAv6YpPYbiE5EhQReXQ@mail.gmail.com>
+
+Dear Dirk, Dear Johannes,
+
+Thanks for helping, I could solve the problem.
+
+By reading your posts, I got a bit of the impression that questions
+beyond the 'standard installation' process are not really welcome on
+R-SIG-Debian. If this is the case, I'm sorry for my post. I wasn't
+aware of this, but Dirk makes it clear why on
+https://stat.ethz.ch/pipermail/r-sig-debian/2013-March/002062.html.
+
+As Dirk also mentioned on
+http://stackoverflow.com/questions/8343686/how-to-install-2-different-r-versions-on-debian
+installing from source is the only practical way in case one needs
+several R versions. I now went back to Chapter 2 of
+http://cran.r-project.org/doc/manuals/r-release/R-admin.html to read
+more about it and to see whether I have done something substantially
+wrong. This seemed not to be the case.
+
+Next, Dirk's wonderful little example helped... I could check that
+.Renviron is indeed found. Then it was easy: my local
+version-independent library was not found simply because .libPaths()
+only contains those folders which physically exist (also mentioned on
+?.libPaths). And indeed, I had not checked that.
+
+Here is thus the final solution that worked (in case useful for others
+or being improved upon [slightly expanded in comparison to the
+original one, e.g., also addressing how to obtain a key -- the server
+is different than keys.gnupg.net mentioned on CRAN.]):
+
+1) sudo emacs /etc/apt/sources.list # then add: deb
+   http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/ deb-src
+   http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/ # => then run sudo
+   apt-get update. It fails due to a missing key => note the missing key number
+   # and use sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key
+   <NUMBER> where # <NUMBER> = number of the missing public key
+
+2) sudo apt-get build-dep r-base
+
+3) sudo mkdir /usr/local/R sudo chown mhofert:mhofert /usr/local/R
+
+   cd /usr/local/R # if old versions exist (./R-devel, ./R-devel-build,
+   ./R-devel.tar.gz etc.), # delete them first, then do: wget
+   http://cran.r-project.org/src/base/R-3/R-3.1.3.tar.gz tar -xzf R-3.1.3.tar.gz
+   mv R-3.1.3 R-3.1.3-source
+
+   mkdir R-3.1.3-build cd R-3.1.3-build ../R-3.1.3-source/configure # we do
+   ./configure *outside* the source directory (=> keep sources)
+
+   make make check make pdf make info
+
+   cd ..  ln -s /usr/local/R/R-3.1.3-build/bin/R /usr/local/R/R
+
+   mkdir /usr/local/R/library # create version-independent library
+
+   sudo emacs ~/etc/bash.bashrc # then add: PATH=/usr/local/R:$PATH
+
+4) ~/.Renviron should contain R_LIBS=/usr/local/R/library
+
+
+Thanks & cheers,
+Marius
+
+
+On Mon, Mar 30, 2015 at 1:09 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> Marius,
+>
+> On 30 March 2015 at 12:30, Marius Hofert wrote:
+> | Here is how I installed R. This is basically how Martin Maechler
+> | showed me to install R under Ubuntu (in several versions so that they
+> | are also recognized by ESS). My goal is to adjust this to make it work
+> | for Debian:
+>
+> That's your beef.  We support reasonably feature complete packages built in
+> reasonably well-engineered and by now mostly debugged processes.
+>
+> You can of course build your own, but if you do and things break you get to
+> keep those pieces.
+>
+> And how to build R(-devel) locally has been discussed in the past.
+>
+> Dirk
+>
+> --
+> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From jranke at uni-bremen.de  Tue Mar 31 08:05:57 2015
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Tue, 31 Mar 2015 08:05:57 +0200
+Subject: [R-sig-Debian] Debian Testing: ~/.Renviron seems to not being
+	read (R_LIBS not set)
+In-Reply-To: <CAM3-KjapjRLWZfT3fafWS39zK8CUV53DAv6YpPYbiE5EhQReXQ@mail.gmail.com>
+References: <CAM3-KjZnp20BgLR5QVks8CUutNPsdhBW1FSYtzsuarRSm6d4-g@mail.gmail.com>
+	<7c4b80a7f9b24fa4af2b1aa15ee80e4e@CONNHUB3.connect.uwaterloo.ca>
+	<CAM3-KjapjRLWZfT3fafWS39zK8CUV53DAv6YpPYbiE5EhQReXQ@mail.gmail.com>
+Message-ID: <3134135.mktAadjgde@tux>
+
+Dear Marius,
+
+thanks for sharing your thoughts on this. I am not very happy that you provide 
+instructions to install R 3.1.3 from sources when binaries are already 
+provided on CRAN. The installation instructions you share bring more work and 
+a more non-standard setup, unless you want two different copies of R. But your 
+instructions do not cover that case!
+
+>From my point of view it could be interesting if it were modified for keeping 
+an up to date copy of R-devel in addition to the released version, but in the 
+way you are giving it here I think it may lead people to be distracted from 
+the easy and clean way to do it. I say clean, because when you use the .deb 
+packages it is much easier to remove or revert what you have done.
+
+So maybe you could modify your instructions to the case where someone wants to 
+have R-devel in addition to the released R version, if that is what you are 
+aiming at? I could then add it to the README for Debian on CRAN.
+
+And then, regarding your comment on the keyserver listed in the README, what's 
+wrong with keys.gnupg.net? I just tested it (again) and it worked fine.
+
+Kind regards, 
+
+Johannes
+
+Am Montag, 30. M?rz 2015, 20:42:47 schrieb Marius Hofert:
+> Dear Dirk, Dear Johannes,
+> 
+> Thanks for helping, I could solve the problem.
+> 
+> By reading your posts, I got a bit of the impression that questions
+> beyond the 'standard installation' process are not really welcome on
+> R-SIG-Debian. If this is the case, I'm sorry for my post. I wasn't
+> aware of this, but Dirk makes it clear why on
+> https://stat.ethz.ch/pipermail/r-sig-debian/2013-March/002062.html.
+> 
+> As Dirk also mentioned on
+> http://stackoverflow.com/questions/8343686/how-to-install-2-different-r-vers
+> ions-on-debian installing from source is the only practical way in case one
+> needs several R versions. I now went back to Chapter 2 of
+> http://cran.r-project.org/doc/manuals/r-release/R-admin.html to read
+> more about it and to see whether I have done something substantially
+> wrong. This seemed not to be the case.
+> 
+> Next, Dirk's wonderful little example helped... I could check that
+> .Renviron is indeed found. Then it was easy: my local
+> version-independent library was not found simply because .libPaths()
+> only contains those folders which physically exist (also mentioned on
+> ?.libPaths). And indeed, I had not checked that.
+> 
+> Here is thus the final solution that worked (in case useful for others
+> or being improved upon [slightly expanded in comparison to the
+> original one, e.g., also addressing how to obtain a key -- the server
+> is different than keys.gnupg.net mentioned on CRAN.]):
+> 
+> 1) sudo emacs /etc/apt/sources.list # then add: deb
+>    http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/ deb-src
+>    http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/ # => then run
+> sudo apt-get update. It fails due to a missing key => note the missing key
+> number # and use sudo apt-key adv --keyserver keyserver.ubuntu.com
+> --recv-key <NUMBER> where # <NUMBER> = number of the missing public key
+> 
+> 2) sudo apt-get build-dep r-base
+> 
+> 3) sudo mkdir /usr/local/R sudo chown mhofert:mhofert /usr/local/R
+> 
+>    cd /usr/local/R # if old versions exist (./R-devel, ./R-devel-build,
+>    ./R-devel.tar.gz etc.), # delete them first, then do: wget
+>    http://cran.r-project.org/src/base/R-3/R-3.1.3.tar.gz tar -xzf
+> R-3.1.3.tar.gz mv R-3.1.3 R-3.1.3-source
+> 
+>    mkdir R-3.1.3-build cd R-3.1.3-build ../R-3.1.3-source/configure # we do
+>    ./configure *outside* the source directory (=> keep sources)
+> 
+>    make make check make pdf make info
+> 
+>    cd ..  ln -s /usr/local/R/R-3.1.3-build/bin/R /usr/local/R/R
+> 
+>    mkdir /usr/local/R/library # create version-independent library
+> 
+>    sudo emacs ~/etc/bash.bashrc # then add: PATH=/usr/local/R:$PATH
+> 
+> 4) ~/.Renviron should contain R_LIBS=/usr/local/R/library
+> 
+> 
+> Thanks & cheers,
+> Marius
+> 
+> On Mon, Mar 30, 2015 at 1:09 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+> > Marius,
+> > 
+> > On 30 March 2015 at 12:30, Marius Hofert wrote:
+> > | Here is how I installed R. This is basically how Martin Maechler
+> > | showed me to install R under Ubuntu (in several versions so that they
+> > | are also recognized by ESS). My goal is to adjust this to make it work
+> > 
+> > | for Debian:
+> > That's your beef.  We support reasonably feature complete packages built
+> > in
+> > reasonably well-engineered and by now mostly debugged processes.
+> > 
+> > You can of course build your own, but if you do and things break you get
+> > to
+> > keep those pieces.
+> > 
+> > And how to build R(-devel) locally has been discussed in the past.
+> > 
+> > Dirk
+> > 
+> > --
+> > http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+-- 
+PD Dr. Johannes Ranke
+Kronacher Str. 8
+79639 Grenzach-Wyhlen
+
+

@@ -1,0 +1,294 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2017-01",
+  "messages": [
+    {
+      "id": "msg-59d74c53da7e",
+      "message_id": "<682472120.85284.1484780090882@mail.yahoo.com>",
+      "from_name": "Ian Erickson",
+      "from_email_hash": "5e8b69daf05424a94f44b7ae640c123472b974952da7260f16e57281a83f1fe1",
+      "date": "2017-01-18T22:54:50Z",
+      "subject": "[R-sig-Debian] Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "subject_clean": "Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "in_reply_to": null,
+      "references": [
+        "<682472120.85284.1484780090882.ref@mail.yahoo.com>"
+      ],
+      "body_plain": "Greetings; I've posted the following to R's bug tracking system (at https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17210 ) and Martin Maechler requested that I post to this list as well.\nIf I start R from the command line with --vanilla, then repeatedly execute the following line:\n\ndet(matrix(nrow=10,ncol=10))\n\n... I eventually get a crash, with error:\n\n*** Error in `/usr/lib/R/bin/exec/R': malloc(): memory corruption: 0x0000000002399400 ***\n\nThe specific address in memory that is referenced varies. The number of times I need to execute the above line before getting a crash also varies.\n\nThis occurs with a wide range of matrix dimensions; 10x10 is not the only size that causes this issue.\n\noutput of R.version:\nplatform      x86_64-pc-linux-gnu\narch          x86_64\nos            linux-gnu\nsystem        x86_64, linux-gnu\nstatus\nmajor          3\nminor          3.2\nyear          2016\nmonth          10\nday            31\nsvn rev        71607\nlanguage      R\nversion.string R version 3.3.2 (2016-10-31)\nnickname      Sincere Pumpkin Patch\n\nI am running Linux Mint 17.3; my CPU is an Intel Core i7-2620m (Sandy Bridge). My RAM is non-ECC. My R binary is from the CRAN Ubuntu repository at cran.cnr.berkeley.edu . (r-base and r-base-core versions 3.3.2-1trusty0 )\n\nI also see this issue running R within Emacs, as well as Rstudio.\n\nThis issue may be related to https://bugs.r-project.org/bugzilla/show_bug.cgi?id=16862 but I'm not certain.\n\nThe output of La_version() for me is:\n[1] \"3.5.0\"\n\nThe output of:\nsystem(paste(\"lsof -p\", Sys.getpid(), \"| grep -iE '(blas|lapack)'\"))\nis:\nR      3636 <myusername>  mem    REG              252,0    39272 11930369 /usr/lib/R/modules/lapack.so\nR      3636 <myusername>  mem    REG              252,0  5882272 11933488 /usr/lib/lapack/liblapack.so.3.0\nR      3636 <myusername>  mem    REG              252,0 23108112 11929607 /usr/lib/openblas-base/libopenblas.so.0\nIs anyone able to reproduce?\n\nThanks,\n\n--Ian",
+      "body_snippet": "Greetings; I've posted the following to R's bug tracking system (at https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17210 ) and Martin Maechler requested that I post to this list as well.\nIf I sta",
+      "thread_id": "thread-59d74c53da7e",
+      "thread_depth": 0,
+      "month": "2017-01"
+    },
+    {
+      "id": "msg-30ac5205f6fa",
+      "message_id": "<58de1c22-2bf0-223a-d288-1bc2cbc5f3ab@auckland.ac.nz>",
+      "from_name": "Rolf Turner",
+      "from_email_hash": "904c134d5ad39093183253270ee481b35c208cc4297e137e579e32e8115e7dff",
+      "date": "2017-01-19T12:10:36+13:00",
+      "subject": "[R-sig-Debian] [FORGED] Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "subject_clean": "[FORGED] Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "in_reply_to": "<682472120.85284.1484780090882@mail.yahoo.com>",
+      "references": [
+        "<682472120.85284.1484780090882.ref@mail.yahoo.com>",
+        "<682472120.85284.1484780090882@mail.yahoo.com>"
+      ],
+      "body_plain": "On 19/01/17 11:54, Ian Erickson wrote:\n> Greetings; I've posted the following to R's bug tracking system (at https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17210 ) and Martin Maechler requested that I post to this list as well.\n> If I start R from the command line with --vanilla, then repeatedly execute the following line:\n>\n> det(matrix(nrow=10,ncol=10))\n>\n> ... I eventually get a crash, with error:\n>\n> *** Error in `/usr/lib/R/bin/exec/R': malloc(): memory corruption: 0x0000000002399400 ***\n>\n> The specific address in memory that is referenced varies. The number of times I need to execute the above line before getting a crash also varies.\n>\n> This occurs with a wide range of matrix dimensions; 10x10 is not the only size that causes this issue.\n>\n> output of R.version:\n> platform      x86_64-pc-linux-gnu\n> arch          x86_64\n> os            linux-gnu\n> system        x86_64, linux-gnu\n> status\n> major          3\n> minor          3.2\n> year          2016\n> month          10\n> day            31\n> svn rev        71607\n> language      R\n> version.string R version 3.3.2 (2016-10-31)\n> nickname      Sincere Pumpkin Patch\n>\n> I am running Linux Mint 17.3; my CPU is an Intel Core i7-2620m (Sandy Bridge). My RAM is non-ECC. My R binary is from the CRAN Ubuntu repository at cran.cnr.berkeley.edu . (r-base and r-base-core versions 3.3.2-1trusty0 )\n>\n> I also see this issue running R within Emacs, as well as Rstudio.\n>\n> This issue may be related to https://bugs.r-project.org/bugzilla/show_bug.cgi?id=16862 but I'm not certain.\n>\n> The output of La_version() for me is:\n> [1] \"3.5.0\"\n>\n> The output of:\n> system(paste(\"lsof -p\", Sys.getpid(), \"| grep -iE '(blas|lapack)'\"))\n> is:\n> R      3636 <myusername>  mem    REG              252,0    39272 11930369 /usr/lib/R/modules/lapack.so\n> R      3636 <myusername>  mem    REG              252,0  5882272 11933488 /usr/lib/lapack/liblapack.so.3.0\n> R      3636 <myusername>  mem    REG              252,0 23108112 11929607 /usr/lib/openblas-base/libopenblas.so.0\n> Is anyone able to reproduce?\n\n\nI can't.  I tried\n\nfor(i in 1:100000) det(matrix(nrow=10,ncol=10))\n\nand got no crash.  I am running Ubuntu 16.04 (with Mate Desktop 1.12.1, \nif that matters).\n\nOutput of sessionInfo():\n\nR version 3.3.2 (2016-10-31)\nPlatform: x86_64-pc-linux-gnu (64-bit)\nRunning under: Ubuntu 16.04.1 LTS\n\nlocale:\n  [1] LC_CTYPE=en_NZ.UTF-8       LC_NUMERIC=C\n  [3] LC_TIME=en_NZ.UTF-8        LC_COLLATE=en_NZ.UTF-8\n  [5] LC_MONETARY=en_NZ.UTF-8    LC_MESSAGES=en_NZ.UTF-8\n  [7] LC_PAPER=en_NZ.UTF-8       LC_NAME=C\n  [9] LC_ADDRESS=C               LC_TELEPHONE=C\n[11] LC_MEASUREMENT=en_NZ.UTF-8 LC_IDENTIFICATION=C\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base\n\nother attached packages:\n[1] misc_0.0-16\n\nloaded via a namespace (and not attached):\n  [1] deldir_0.1-13       Matrix_1.2-7.1      tools_3.3.2\n  [4] mgcv_1.8-15         abind_1.4-5         spatstat_1.48-0.010\n  [7] rpart_4.1-10        nlme_3.1-128        grid_3.3.2\n[10] polyclip_1.5-6      lattice_0.20-34     goftest_1.0-3\n[13] tensor_1.5\n\ncheers,\n\nRolf Turner\n\n-- \nTechnical Editor ANZJS\nDepartment of Statistics\nUniversity of Auckland\nPhone: +64-9-373-7599 ext. 88276",
+      "body_snippet": "On 19/01/17 11:54, Ian Erickson wrote:\n> Greetings; I've posted the following to R's bug tracking system (at https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17210 ) and Martin Maechler requested t",
+      "thread_id": "thread-59d74c53da7e",
+      "thread_depth": 1,
+      "month": "2017-01"
+    },
+    {
+      "id": "msg-5d352401d177",
+      "message_id": "<22655.63488.711606.634958@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2017-01-18T17:19:28-06:00",
+      "subject": "[R-sig-Debian] Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "subject_clean": "Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "in_reply_to": "<682472120.85284.1484780090882@mail.yahoo.com>",
+      "references": [
+        "<682472120.85284.1484780090882.ref@mail.yahoo.com>",
+        "<682472120.85284.1484780090882@mail.yahoo.com>"
+      ],
+      "body_plain": "On 18 January 2017 at 22:54, Ian Erickson wrote:\n| Greetings; I've posted the following to R's bug tracking system (at https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17210 ) and Martin Maechler requested that I post to this list as well.\n| If I start R from the command line with --vanilla, then repeatedly execute the following line:\n| \n| det(matrix(nrow=10,ncol=10))\n\nThat is not reproducible code. While you a matrix with dimensions, you do not\nhave content in it. Did you mean something like\n\n   set.seed(42)      # or any other seed\n   det(matrix(rnorm(100), nrow=10, ncol=10))\n\n\nOk now I looked at your example in the BTS. You meant\n\n   det(matrix( , nrow=10, ncol=10))\n\nand I just don't know how meaningful that is.  It is random input. Sure, R\nshould never die...\n\nBut just like Martin Maechler, I can run\n\n  r -e 'for(i in 1:100000) { d <- det(matrix(, 10,10)); stopifnot(identical(d, NA_real_)) }; cat(\"Alive\\n\")'\n\njust fine on two different machines (which both happen to Ubuntu 16.04 using OpenBLAS).\n\n| ... I eventually get a crash, with error:\n| \n| *** Error in `/usr/lib/R/bin/exec/R': malloc(): memory corruption: 0x0000000002399400 ***\n| \n| The specific address in memory that is referenced varies. The number of times I need to execute the above line before getting a crash also varies.\n| \n| This occurs with a wide range of matrix dimensions; 10x10 is not the only size that causes this issue.\n| \n| output of R.version:\n| platform      x86_64-pc-linux-gnu\n| arch          x86_64\n| os            linux-gnu\n| system        x86_64, linux-gnu\n| status\n| major          3\n| minor          3.2\n| year          2016\n| month          10\n| day            31\n| svn rev        71607\n| language      R\n| version.string R version 3.3.2 (2016-10-31)\n| nickname      Sincere Pumpkin Patch\n| \n| I am running Linux Mint 17.3; my CPU is an Intel Core i7-2620m (Sandy Bridge). My RAM is non-ECC. My R binary is from the CRAN Ubuntu repository at cran.cnr.berkeley.edu . (r-base and r-base-core versions 3.3.2-1trusty0 )\n| \n| I also see this issue running R within Emacs, as well as Rstudio.\n| \n| This issue may be related to https://bugs.r-project.org/bugzilla/show_bug.cgi?id=16862 but I'm not certain.\n| \n| The output of La_version() for me is:\n| [1] \"3.5.0\"\n| \n| The output of:\n| system(paste(\"lsof -p\", Sys.getpid(), \"| grep -iE '(blas|lapack)'\"))\n| is:\n| R      3636 <myusername>  mem    REG              252,0    39272 11930369 /usr/lib/R/modules/lapack.so\n| R      3636 <myusername>  mem    REG              252,0  5882272 11933488 /usr/lib/lapack/liblapack.so.3.0\n| R      3636 <myusername>  mem    REG              252,0 23108112 11929607 /usr/lib/openblas-base/libopenblas.so.0\n| Is anyone able to reproduce?\n\nI cannot as stated above.\n\nTry one of the other blas implementations. On a .deb-based system, this is\njust a an apt-get way. I keep forgetting whether atlas has higher priority\nthan openblas but you know enough to check this.\n\nDirk\n \n| Thanks,\n| \n| --Ian\n| \n| _______________________________________________\n| R-SIG-Debian mailing list\n| R-SIG-Debian at r-project.org\n| https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 18 January 2017 at 22:54, Ian Erickson wrote:\n| Greetings; I've posted the following to R's bug tracking system (at https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17210 ) and Martin Maechler r",
+      "thread_id": "thread-59d74c53da7e",
+      "thread_depth": 1,
+      "month": "2017-01"
+    },
+    {
+      "id": "msg-d9d6a38ce078",
+      "message_id": "<a6ee4a66774742b88ff284825aa6e50e@exch-mbx01.ad.une.edu.au>",
+      "from_name": "Klint Gore",
+      "from_email_hash": "e629cd9f222dd45623170ded3a88a2009a32ab8bb5efb77a250469e6cbd5456a",
+      "date": "2017-01-18T23:38:54Z",
+      "subject": "[R-sig-Debian] Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "subject_clean": "Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "in_reply_to": "<58de1c22-2bf0-223a-d288-1bc2cbc5f3ab@auckland.ac.nz>",
+      "references": [
+        "<682472120.85284.1484780090882.ref@mail.yahoo.com>",
+        "<682472120.85284.1484780090882@mail.yahoo.com>",
+        "<58de1c22-2bf0-223a-d288-1bc2cbc5f3ab@auckland.ac.nz>"
+      ],
+      "body_plain": "-----Original Message-----\nFrom: R-SIG-Debian [mailto:r-sig-debian-bounces at r-project.org] On Behalf Of Rolf Turner\nSent: Thursday, 19 January 2017 10:11 AM\nTo: Ian Erickson\nCc: r-sig-debian at r-project.org\nSubject: Re: [R-sig-Debian] [FORGED] Taking determinant of a matrix of NAs results in intermittent memory corruption\n\n>On 19/01/17 11:54, Ian Erickson wrote:\n>> Greetings; I've posted the following to R's bug tracking system (at https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17210 ) and Martin Maechler requested that I post to this list as well.\n>> If I start R from the command line with --vanilla, then repeatedly execute the following line:\n>>\n>> det(matrix(nrow=10,ncol=10))\n>>\n>> ... I eventually get a crash, with error:\n>>\n>> *** Error in `/usr/lib/R/bin/exec/R': malloc(): memory corruption: \n>> 0x0000000002399400 ***\n>>\n>> Is anyone able to reproduce?\n>\n>I can't.  I tried\n>\n>for(i in 1:100000) det(matrix(nrow=10,ncol=10))\n\nI can.  It's repeatable as well. \nCPU is Intel Xeon E5-2630v3 \nUbuntu 14.04.5 LTS\nR from deb http://cran.r-project.org/bin/linux/ubuntu trusty/\n\nR version 3.3.2 (2016-10-31) -- \"Sincere Pumpkin Patch\"\nCopyright (C) 2016 The R Foundation for Statistical Computing\nPlatform: x86_64-pc-linux-gnu (64-bit)\n\nR is free software and comes with ABSOLUTELY NO WARRANTY.\nYou are welcome to redistribute it under certain conditions.\nType 'license()' or 'licence()' for distribution details.\n\n  Natural language support but running in an English locale\n\nR is a collaborative project with many contributors.\nType 'contributors()' for more information and\n'citation()' on how to cite R or R packages in publications.\n\nType 'demo()' for some demos, 'help()' for on-line help, or\n'help.start()' for an HTML browser interface to help.\nType 'q()' to quit R.\n\n>  La_version()\n[1] \"3.5.0\"\n> system(paste(\"lsof -p\", Sys.getpid(), \"| grep -iE '(blas|lapack)'\"))\nR       25596 kgore4  mem    REG    8,4    39272 118292573 /usr/lib/R/modules/lapack.so\nR       25596 kgore4  mem    REG    8,4  5882272 118096040 /usr/lib/lapack/liblapack.so.3.0\nR       25596 kgore4  mem    REG    8,4 23058832 118129172 /usr/lib/openblas-base/libblas.so.3\n>  det(matrix(nrow=10,ncol=10))\n[1] NA\n>  det(matrix(nrow=10,ncol=10))\n[1] NA\n>  det(matrix(nrow=10,ncol=10))\n[1] NA\n>  det(matrix(nrow=10,ncol=10))\n[1] NA\n>  det(matrix(nrow=10,ncol=10))\n*** Error in `/usr/lib/R/bin/exec/R': malloc(): memory corruption: 0x0000000001393090 ***\nAborted (core dumped)\n\nIt doesn't seem to matter what happens after the 4th execution it throws it out.  Eg I just started mashing the keyboard\n\nType 'demo()' for some demos, 'help()' for on-line help, or\n'help.start()' for an HTML browser interface to help.\nType 'q()' to quit R.\n\n> det(matrix(nrow=10,ncol=10))\n[1] NA\n> det(matrix(nrow=10,ncol=10))\n[1] NA\n> det(matrix(nrow=10,ncol=10))\n[1] NA\n> det(matrix(nrow=10,ncol=10))\n[1] NA\n> sdfsdfjkjsdhfkjsdhfk*** Error in `/usr/lib/R/bin/exec/R': malloc(): memory corruption: 0x00000000025c4090 ***\nAborted (core dumped)\n_______________________________________________\nR-SIG-Debian mailing list\nR-SIG-Debian at r-project.org\nhttps://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "-----Original Message-----\nFrom: R-SIG-Debian [mailto:r-sig-debian-bounces at r-project.org] On Behalf Of Rolf Turner\nSent: Thursday, 19 January 2017 10:11 AM\nTo: Ian Erickson\nCc: r-sig-debian at r-pr",
+      "thread_id": "thread-59d74c53da7e",
+      "thread_depth": 2,
+      "month": "2017-01"
+    },
+    {
+      "id": "msg-25c98db90bb8",
+      "message_id": "<22656.1642.794521.457217@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2017-01-18T18:20:58-06:00",
+      "subject": "[R-sig-Debian] Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "subject_clean": "Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "in_reply_to": "<a6ee4a66774742b88ff284825aa6e50e@exch-mbx01.ad.une.edu.au>",
+      "references": [
+        "<682472120.85284.1484780090882.ref@mail.yahoo.com>",
+        "<682472120.85284.1484780090882@mail.yahoo.com>",
+        "<58de1c22-2bf0-223a-d288-1bc2cbc5f3ab@auckland.ac.nz>",
+        "<a6ee4a66774742b88ff284825aa6e50e@exch-mbx01.ad.une.edu.au>"
+      ],
+      "body_plain": "So this converges towards 'old versions bad, new versions fine' ?\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "So this converges towards 'old versions bad, new versions fine' ?\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "thread_id": "thread-59d74c53da7e",
+      "thread_depth": 3,
+      "month": "2017-01"
+    },
+    {
+      "id": "msg-5a4d17a437d5",
+      "message_id": "<4e59ae22cd074e86a7aed65aa76ba291@exch-mbx01.ad.une.edu.au>",
+      "from_name": "Klint Gore",
+      "from_email_hash": "e629cd9f222dd45623170ded3a88a2009a32ab8bb5efb77a250469e6cbd5456a",
+      "date": "2017-01-19T01:26:30Z",
+      "subject": "[R-sig-Debian] Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "subject_clean": "Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "in_reply_to": "<22656.1642.794521.457217@max.nulle.part>",
+      "references": [
+        "<682472120.85284.1484780090882.ref@mail.yahoo.com>",
+        "<682472120.85284.1484780090882@mail.yahoo.com>",
+        "<58de1c22-2bf0-223a-d288-1bc2cbc5f3ab@auckland.ac.nz>",
+        "<a6ee4a66774742b88ff284825aa6e50e@exch-mbx01.ad.une.edu.au>",
+        "<22656.1642.794521.457217@max.nulle.part>"
+      ],
+      "body_plain": "-----Original Message-----\nFrom: Dirk Eddelbuettel [mailto:dirk.eddelbuettel at gmail.com] On Behalf Of Dirk Eddelbuettel\nSent: Thursday, 19 January 2017 11:21 AM\nTo: Klint Gore\nCc: r-sig-debian at r-project.org\nSubject: Re: [R-sig-Debian] Taking determinant of a matrix of NAs results in intermittent memory corruption\n\n>So this converges towards 'old versions bad, new versions fine' ?\n\nProbably.  Old version of what, I don't know.  Openblas is 0.2.8-6ubuntu1 on 14.04 lts which is current.\n\nHere's a backtrace if it helps.\n\n> det(matrix(nrow=10,n*** Error in `/usr/lib/R/bin/exec/R': malloc(): memory corruption: 0x0000000000c34090 ***\n\nProgram received signal SIGABRT, Aborted.\n0x00007ffff720fc37 in __GI_raise (sig=sig at entry=6)\n    at ../nptl/sysdeps/unix/sysv/linux/raise.c:56\n56      ../nptl/sysdeps/unix/sysv/linux/raise.c: No such file or directory.\n(gdb) bt\n#0  0x00007ffff720fc37 in __GI_raise (sig=sig at entry=6)\n    at ../nptl/sysdeps/unix/sysv/linux/raise.c:56\n#1  0x00007ffff7213028 in __GI_abort () at abort.c:89\n#2  0x00007ffff724c2a4 in __libc_message (do_abort=1,\n    fmt=fmt at entry=0x7ffff735a6b0 \"*** Error in `%s': %s: 0x%s ***\\n\")\n    at ../sysdeps/posix/libc_fatal.c:175\n#3  0x00007ffff7259e26 in malloc_printerr (ptr=0xc34090,\n    str=0x7ffff7356882 \"malloc(): memory corruption\", action=<optimized out>)\n    at malloc.c:4996\n#4  _int_malloc (av=0x7ffff7597760 <main_arena>, bytes=32) at malloc.c:3447\n#5  0x00007ffff725b6c0 in __GI___libc_malloc (bytes=32) at malloc.c:2891\n#6  0x00007ffff54b7dd9 in xmalloc ()\n   from /lib/x86_64-linux-gnu/libreadline.so.6\n#7  0x00007ffff54acfde in rl_add_undo ()\n   from /lib/x86_64-linux-gnu/libreadline.so.6\n#8  0x00007ffff54af709 in rl_insert_text ()\n   from /lib/x86_64-linux-gnu/libreadline.so.6\n#9  0x00007ffff54b07cc in _rl_insert_char ()\n   from /lib/x86_64-linux-gnu/libreadline.so.6\n#10 0x00007ffff5497a5d in _rl_dispatch_subseq ()\n   from /lib/x86_64-linux-gnu/libreadline.so.6\n#11 0x00007ffff5497f1d in readline_internal_char ()\n   from /lib/x86_64-linux-gnu/libreadline.so.6\n#12 0x00007ffff54ae8ad in rl_callback_read_char ()\n   from /lib/x86_64-linux-gnu/libreadline.so.6\n#13 0x00007ffff79baec6 in ?? () from /usr/lib/libR.so\n#14 0x00007ffff78f7ca1 in Rf_ReplIteration () from /usr/lib/libR.so\n#15 0x00007ffff78f80f1 in ?? () from /usr/lib/libR.so\n#16 0x00007ffff78f81af in run_Rmainloop () from /usr/lib/libR.so\n#17 0x00000000004007eb in main ()\n#18 0x00007ffff71faf45 in __libc_start_main (main=0x4007d0 <main>, argc=1,\n    argv=0x7fffffffd548, init=<optimized out>, fini=<optimized out>,\n    rtld_fini=<optimized out>, stack_end=0x7fffffffd538) at libc-start.c:287\n#19 0x000000000040081b in _start ()",
+      "body_snippet": "-----Original Message-----\nFrom: Dirk Eddelbuettel [mailto:dirk.eddelbuettel at gmail.com] On Behalf Of Dirk Eddelbuettel\nSent: Thursday, 19 January 2017 11:21 AM\nTo: Klint Gore\nCc: r-sig-debian at r-",
+      "thread_id": "thread-59d74c53da7e",
+      "thread_depth": 4,
+      "month": "2017-01"
+    },
+    {
+      "id": "msg-ffc86be4ce78",
+      "message_id": "<22656.6472.931755.139458@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2017-01-18T19:41:28-06:00",
+      "subject": "[R-sig-Debian] Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "subject_clean": "Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "in_reply_to": "<4e59ae22cd074e86a7aed65aa76ba291@exch-mbx01.ad.une.edu.au>",
+      "references": [
+        "<682472120.85284.1484780090882.ref@mail.yahoo.com>",
+        "<682472120.85284.1484780090882@mail.yahoo.com>",
+        "<58de1c22-2bf0-223a-d288-1bc2cbc5f3ab@auckland.ac.nz>",
+        "<a6ee4a66774742b88ff284825aa6e50e@exch-mbx01.ad.une.edu.au>",
+        "<22656.1642.794521.457217@max.nulle.part>",
+        "<4e59ae22cd074e86a7aed65aa76ba291@exch-mbx01.ad.une.edu.au>"
+      ],
+      "body_plain": "On 19 January 2017 at 01:26, Klint Gore wrote:\n| >So this converges towards 'old versions bad, new versions fine' ?\n| \n| Probably.  Old version of what, I don't know.  Openblas is 0.2.8-6ubuntu1 on 14.04 lts which is current.\n\nSorry, what part of '14.04' is current?\n\nUbuntu is at 16.10. And release 16.04, which as a LTS replaces the LTS 14.04\nyou use, also passes.  Can you upgrade?\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 19 January 2017 at 01:26, Klint Gore wrote:\n| >So this converges towards 'old versions bad, new versions fine' ?\n| \n| Probably.  Old version of what, I don't know.  Openblas is 0.2.8-6ubuntu1 on 14",
+      "thread_id": "thread-59d74c53da7e",
+      "thread_depth": 5,
+      "month": "2017-01"
+    },
+    {
+      "id": "msg-638fd9cdd6dd",
+      "message_id": "<2b4ca3ec305a4e089ad24550b309b903@exch-mbx01.ad.une.edu.au>",
+      "from_name": "Klint Gore",
+      "from_email_hash": "e629cd9f222dd45623170ded3a88a2009a32ab8bb5efb77a250469e6cbd5456a",
+      "date": "2017-01-19T02:49:15Z",
+      "subject": "[R-sig-Debian] Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "subject_clean": "Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "in_reply_to": "<22656.6472.931755.139458@max.nulle.part>",
+      "references": [
+        "<682472120.85284.1484780090882.ref@mail.yahoo.com>",
+        "<682472120.85284.1484780090882@mail.yahoo.com>",
+        "<58de1c22-2bf0-223a-d288-1bc2cbc5f3ab@auckland.ac.nz>",
+        "<a6ee4a66774742b88ff284825aa6e50e@exch-mbx01.ad.une.edu.au>",
+        "<22656.1642.794521.457217@max.nulle.part>",
+        "<4e59ae22cd074e86a7aed65aa76ba291@exch-mbx01.ad.une.edu.au>",
+        "<22656.6472.931755.139458@max.nulle.part>"
+      ],
+      "body_plain": "-----Original Message-----\nFrom: Dirk Eddelbuettel [mailto:dirk.eddelbuettel at gmail.com] On Behalf Of Dirk Eddelbuettel\nSent: Thursday, 19 January 2017 12:41 PM\nTo: Klint Gore\nCc: Dirk Eddelbuettel; r-sig-debian at r-project.org\nSubject: RE: [R-sig-Debian] Taking determinant of a matrix of NAs results in intermittent memory corruption\n\n\nOn 19 January 2017 at 01:26, Klint Gore wrote:\n| >So this converges towards 'old versions bad, new versions fine' ?\n| \n| Probably.  Old version of what, I don't know.  Openblas is 0.2.8-6ubuntu1 on 14.04 lts which is current.\n\n> Sorry, what part of '14.04' is current?\n>\n> Ubuntu is at 16.10. And release 16.04, which as a LTS replaces the LTS 14.04 you use, also passes.  Can you upgrade?\n\nThat version of the openblas package is the latest currently available for 14.04 LTS from the official ubuntu repository.  14.04 LTS is \"supported\" by Canonical until 2019.  \n\nAlso, I'm just confirming that I can repeat it.  It's not an issue for me as it's never happened other than the contrived example.  If someone brought it to my attention, I'd probably follow your original though and ask them if they really wanted the determinant of an unassigned matrix as it sounds like not a useful thing to do.  Using rnorm to initialise the matrix works fine.\n\nI'd suggest the OP pursue it with the linux mint people as it's directly affecting him and it occurs in their \"supported\" version.\n\nKlint.",
+      "body_snippet": "-----Original Message-----\nFrom: Dirk Eddelbuettel [mailto:dirk.eddelbuettel at gmail.com] On Behalf Of Dirk Eddelbuettel\nSent: Thursday, 19 January 2017 12:41 PM\nTo: Klint Gore\nCc: Dirk Eddelbuettel;",
+      "thread_id": "thread-59d74c53da7e",
+      "thread_depth": 6,
+      "month": "2017-01"
+    },
+    {
+      "id": "msg-cae340e756ad",
+      "message_id": "<22656.13686.461118.752348@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2017-01-18T21:41:42-06:00",
+      "subject": "[R-sig-Debian] Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "subject_clean": "Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "in_reply_to": "<2b4ca3ec305a4e089ad24550b309b903@exch-mbx01.ad.une.edu.au>",
+      "references": [
+        "<682472120.85284.1484780090882.ref@mail.yahoo.com>",
+        "<682472120.85284.1484780090882@mail.yahoo.com>",
+        "<58de1c22-2bf0-223a-d288-1bc2cbc5f3ab@auckland.ac.nz>",
+        "<a6ee4a66774742b88ff284825aa6e50e@exch-mbx01.ad.une.edu.au>",
+        "<22656.1642.794521.457217@max.nulle.part>",
+        "<4e59ae22cd074e86a7aed65aa76ba291@exch-mbx01.ad.une.edu.au>",
+        "<22656.6472.931755.139458@max.nulle.part>",
+        "<2b4ca3ec305a4e089ad24550b309b903@exch-mbx01.ad.une.edu.au>"
+      ],
+      "body_plain": "On 19 January 2017 at 02:49, Klint Gore wrote:\n| -----Original Message-----\n| From: Dirk Eddelbuettel [mailto:dirk.eddelbuettel at gmail.com] On Behalf Of Dirk Eddelbuettel\n| > Sorry, what part of '14.04' is current?\n| >\n| > Ubuntu is at 16.10. And release 16.04, which as a LTS replaces the LTS 14.04 you use, also passes.  Can you upgrade?\n| \n| That version of the openblas package is the latest currently available for 14.04 LTS from the official ubuntu repository.  14.04 LTS is \"supported\" by Canonical until 2019.  \n\nWell but aren't you confusing or conflating two things here? I am only\nharping on this as it is r-sig-debian. \"Supported\" by Canonical means that\nshould a security bug require an update to a component of your installation,\nyou may get it from their repo. No more, no less.\n\nOtherwise, the focus is on _stability_ -- hence no changes whatsoever. [1] \n\nWhich in turn means old, known bugs like the one we are talking about here\nwill NOT get fixed.  It is a trade-off: some people value the stability, some\npeople value the fixes and new features.  \n \n| Also, I'm just confirming that I can repeat it.  It's not an issue for me as it's never happened other than the contrived example.  If someone brought it to my attention, I'd probably follow your original though and ask them if they really wanted the determinant of an unassigned matrix as it sounds like not a useful thing to do.  Using rnorm to initialise the matrix works fine.\n| \n| I'd suggest the OP pursue it with the linux mint people as it's directly affecting him and it occurs in their \"supported\" version.\n\nAgreed.\n\nDirk\n\n[1] Eg the R version in 14.04 is forever fixed at version 3.0.2 as far as the\n'official Ubuntu repository' is concerned. \n| \n| \n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 19 January 2017 at 02:49, Klint Gore wrote:\n| -----Original Message-----\n| From: Dirk Eddelbuettel [mailto:dirk.eddelbuettel at gmail.com] On Behalf Of Dirk Eddelbuettel\n| > Sorry, what part of '14",
+      "thread_id": "thread-59d74c53da7e",
+      "thread_depth": 7,
+      "month": "2017-01"
+    },
+    {
+      "id": "msg-f6ef82da1128",
+      "message_id": "<1716851166.20170119085947@telus.net>",
+      "from_name": "norules at telus.net",
+      "from_email_hash": "74a5478b8cd31739fbb533414564c96a348201738323057bddcaf46031d2089a",
+      "date": "2017-01-19T08:59:47+03:00",
+      "subject": "[R-sig-Debian] Fw: really and truly",
+      "subject_clean": "really and truly",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi friend! \n\nI  wanted to  share with  you  something important, I guess I really and truly am in love this time!  Take a look  at some pics of  us http://nicolo.furniturequickship.com/6e6f\n\nAll best, norules at telus.net\n\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Hi friend! \n\nI  wanted to  share with  you  something important, I guess I really and truly am in love this time!  Take a look  at some pics of  us http://nicolo.furniturequickship.com/6e6f\n\nAll best,",
+      "thread_id": "thread-f6ef82da1128",
+      "thread_depth": 0,
+      "month": "2017-01"
+    },
+    {
+      "id": "msg-f206c2372855",
+      "message_id": "<361939731.86815.1484867775721@mail.yahoo.com>",
+      "from_name": "Ian Erickson",
+      "from_email_hash": "5e8b69daf05424a94f44b7ae640c123472b974952da7260f16e57281a83f1fe1",
+      "date": "2017-01-19T23:16:15Z",
+      "subject": "[R-sig-Debian] Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "subject_clean": "Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "in_reply_to": "<22656.13686.461118.752348@max.nulle.part>",
+      "references": [
+        "<682472120.85284.1484780090882.ref@mail.yahoo.com>",
+        "<682472120.85284.1484780090882@mail.yahoo.com>",
+        "<58de1c22-2bf0-223a-d288-1bc2cbc5f3ab@auckland.ac.nz>",
+        "<a6ee4a66774742b88ff284825aa6e50e@exch-mbx01.ad.une.edu.au>",
+        "<22656.1642.794521.457217@max.nulle.part>",
+        "<4e59ae22cd074e86a7aed65aa76ba291@exch-mbx01.ad.une.edu.au>",
+        "<22656.6472.931755.139458@max.nulle.part>",
+        "<2b4ca3ec305a4e089ad24550b309b903@exch-mbx01.ad.une.edu.au>",
+        "<22656.13686.461118.752348@max.nulle.part>"
+      ],
+      "body_plain": "Thank you Dirk, Klint, and Rolf for your time and attention.\n\nI tried booting off a flash drive loaded with (the most recent) Linux Mint 18.1, enabled a CRAN Ubuntu mirror as a software source, installed the latest R from CRAN, and was unable to reproduce the issue.\n\nLa_version() gave me 3.6.0, and the output of system(paste(\"lsof -p\", Sys.getpid(), \"| grep -iE '(blas|lapack)'\")) also indicated that R was using the 3.6.0 versions of liblapack.so and libopenblas.so\n\n\nSo, I agree that it looks like it was an issue with the shared libraries as Martin suspected.\n\n\nBefore submitting this bug report, I had assumed that R uses its own versions of these libraries by default, so I've learned something new as well.\n\nThanks Martin also for the troubleshooting tips on how to determine what libraries are being used by R.\n\nI'll update and close the report on the R Bugzilla tracker next.\n\nBest Wishes,\n\n--Ian\n\n\n\n\n________________________________\nFrom: Dirk Eddelbuettel <edd at debian.org>\nTo: Klint Gore <kgore4 at une.edu.au> \nCc: \"r-sig-debian at r-project.org\" <r-sig-debian at r-project.org>\nSent: Wednesday, January 18, 2017 7:41 PM\nSubject: Re: [R-sig-Debian] Taking determinant of a matrix of NAs results in intermittent memory corruption\n\n\n\nOn 19 January 2017 at 02:49, Klint Gore wrote:\n| -----Original Message-----\n| From: Dirk Eddelbuettel [mailto:dirk.eddelbuettel at gmail.com] On Behalf Of Dirk Eddelbuettel\n| > Sorry, what part of '14.04' is current?\n| >\n| > Ubuntu is at 16.10. And release 16.04, which as a LTS replaces the LTS 14.04 you use, also passes.  Can you upgrade?\n| \n| That version of the openblas package is the latest currently available for 14.04 LTS from the official ubuntu repository.  14.04 LTS is \"supported\" by Canonical until 2019.  \n\nWell but aren't you confusing or conflating two things here? I am only\nharping on this as it is r-sig-debian. \"Supported\" by Canonical means that\nshould a security bug require an update to a component of your installation,\nyou may get it from their repo. No more, no less.\n\nOtherwise, the focus is on _stability_ -- hence no changes whatsoever. [1] \n\nWhich in turn means old, known bugs like the one we are talking about here\nwill NOT get fixed.  It is a trade-off: some people value the stability, some\npeople value the fixes and new features.  \n\n| Also, I'm just confirming that I can repeat it.  It's not an issue for me as it's never happened other than the contrived example.  If someone brought it to my attention, I'd probably follow your original though and ask them if they really wanted the determinant of an unassigned matrix as it sounds like not a useful thing to do.  Using rnorm to initialise the matrix works fine.\n| \n| I'd suggest the OP pursue it with the linux mint people as it's directly affecting him and it occurs in their \"supported\" version.\n\nAgreed.\n\nDirk\n\n[1] Eg the R version in 14.04 is forever fixed at version 3.0.2 as far as the\n'official Ubuntu repository' is concerned. \n| \n| \n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org\n\n\n_______________________________________________\nR-SIG-Debian mailing list\nR-SIG-Debian at r-project.org\nhttps://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "Thank you Dirk, Klint, and Rolf for your time and attention.\n\nI tried booting off a flash drive loaded with (the most recent) Linux Mint 18.1, enabled a CRAN Ubuntu mirror as a software source, instal",
+      "thread_id": "thread-59d74c53da7e",
+      "thread_depth": 8,
+      "month": "2017-01"
+    },
+    {
+      "id": "msg-6fa881bb0e96",
+      "message_id": "<3e373e8e-7aa4-7094-3b6d-5aba7ac735d1@ericeikrem.com>",
+      "from_name": "Eric Eikrem",
+      "from_email_hash": "d10a78b05a618156164b722dddb0b2108db496f74bdb05693e6eefd51a1920c1",
+      "date": "2017-01-23T13:35:00+01:00",
+      "subject": "[R-sig-Debian] R base-package installation issue",
+      "subject_clean": "R base-package installation issue",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi,\n\nThis still seems to be an issue: \nhttps://askubuntu.com/questions/855013/safely-cleanup-apt-get-after-a-failed-r-installation-from-an-added-repo\n\nThat is: The post-installation script \n(/var/lib/dpkg/info/r-base-core.postinst) do not check if the \n/usr/share/bash-completion/completions/R file exist before trying to \nmove it.\n\n-- \nEric",
+      "body_snippet": "Hi,\n\nThis still seems to be an issue: \nhttps://askubuntu.com/questions/855013/safely-cleanup-apt-get-after-a-failed-r-installation-from-an-added-repo\n\nThat is: The post-installation script \n(/var/lib/",
+      "thread_id": "thread-6fa881bb0e96",
+      "thread_depth": 0,
+      "month": "2017-01"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-59d74c53da7e",
+      "subject": "Taking determinant of a matrix of NAs results in intermittent memory corruption",
+      "message_count": 10,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Ian Erickson",
+        "Klint Gore",
+        "Rolf Turner"
+      ],
+      "started": "2017-01-18T22:54:50+00:00",
+      "last_reply": "2017-01-19T23:16:15+00:00",
+      "root_message_id": "msg-59d74c53da7e"
+    },
+    {
+      "id": "thread-f6ef82da1128",
+      "subject": "really and truly",
+      "message_count": 1,
+      "participants": [
+        "norules at telus.net"
+      ],
+      "started": "2017-01-19T08:59:47+03:00",
+      "last_reply": "2017-01-19T08:59:47+03:00",
+      "root_message_id": "msg-f6ef82da1128"
+    },
+    {
+      "id": "thread-6fa881bb0e96",
+      "subject": "R base-package installation issue",
+      "message_count": 1,
+      "participants": [
+        "Eric Eikrem"
+      ],
+      "started": "2017-01-23T13:35:00+01:00",
+      "last_reply": "2017-01-23T13:35:00+01:00",
+      "root_message_id": "msg-6fa881bb0e96"
+    }
+  ]
+}

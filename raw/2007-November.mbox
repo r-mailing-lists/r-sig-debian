@@ -1,0 +1,2925 @@
+From mwkimpel at gmail.com  Thu Nov  1 03:58:30 2007
+From: mwkimpel at gmail.com (Mark W Kimpel)
+Date: Wed, 31 Oct 2007 22:58:30 -0400
+Subject: [R-sig-Debian] trouble installing building packages from	source
+ using R 2.6.0 on Ubuntu Gutsy AMD64
+In-Reply-To: <0305F06765A6B740A354B08983798B4E4FA72509@iu-mssg-mbx04.ads.iu.edu>
+References: <47274D29.1050808@iupui.edu>
+	<0305F06765A6B740A354B08983798B4E4FA72509@iu-mssg-mbx04.ads.iu.edu>
+Message-ID: <472940D6.1020403@iupui.edu>
+
+Hugh,
+
+Thanks for the advice. I decided to go the route of using source debian 
+packages this time around. Below is the basic script I used, adapted 
+from the other replies I received. This was successful in getting the 
+base R installed as well as an addition ~275 packages from CRAN, 
+Omegahat, and BioConductor.
+
+Unfortunately, I have not yet had luck with the following packages:
+  [1] "affycoretools" "AnnBuilder"    "biocViews"     "biomaRt"
+  [5] "GSEABase"      "odfWeave"      "RCurl"         "Resourcerer"
+  [9] "Rgraphviz"     "RSPerl"        "RSPython"      "SBMLR"
+[13] "TMat"          "XML"
+Some of which may depend on one another. In particular, I get errors 
+from both curl and graphviz, I suspect a version problem as they are 
+both on my PATH. I am going to work on them some more tomorrow and may 
+be posting more specific error messages if I cannot get the problems 
+fixed myself.
+
+The script below is what I believe I did, but this was not done on a 
+virgin Ubuntu install as I have been futzing with this for a day or so. 
+I am also not absolutely sure I have included every necessary step nor 
+perhaps included some un-necessary ones. I am brand new to Debian/Ubuntu 
+and just learning about the apt/synaptic system.
+
+If Johannes, Vincent, or Dirk could comment on what I did below, it 
+would be helpful to me and perhaps other Debian newbies.
+
+Thanks again to all,
+Mark
+
+#########################################################
+#Making R and BioC on Ubuntu Gutsy with AMD64-bit OS
+
+#Add this to /etc/apt/sources.list and update apt
+deb-src http://cran.r-project.org/bin/linux/debian etch/
+apt-get update
+
+#make a directory for deb source files
+mkdir /home/USER/r-2.6.0-deb
+cd /home/USER/r-2.6.0-deb
+
+#get the source files and unpack them
+sudo apt-get source r-base
+sudo dpkg-source -x r-base_2.6.0-1~etchcran.1.dsc
+
+#cd into r-base-VERSION
+cd r-base-2.6.0
+
+#compile the package, this may be un-necessary, but I did it
+sudo dpkg-buildpackage -rfakeroot -b
+
+#get some libraries need for building R
+apt-get install build-essential # fail and will produce a suggestion to 
+do the following command, DO IT
+apt-get -f install
+
+#install the package from .deb
+sudo dpkg -i ../r-base-core_2.6.0-1~etchcran.1_amd64.deb
+
+## to get rgl to install into R with Ubuntu Gutsy AMD64
+apt-get install freeglut3 freeglut3-dev libgl1-mesa-dev libglu1-mesa-dev 
+libice-dev libsm-dev libx11-dev libxau-dev libxdmcp-dev libxext-dev 
+libxt-dev mesa-common-dev x11proto-core-dev x11proto-input-dev 
+x11proto-kb-dev x11proto-xext-dev xlibmesa-gl-dev xtrans-dev
+
+#Now replace i686 site-library with an empty one for new packages
+cd R_HOME #if not made, make it
+mv site-library site-library-i686 #if you have an old site-library you 
+want to save
+mkdir site-library
+
+#if have packages in old library that you want installed in new one
+cd site-library-i686
+ls > ../my.packages.txt
+
+#to .Rprofile add at beginning:
+.libPaths(new= "~/R_HOME/site-library") #tell R where site-library is
+
+export PATH:$PATH:/usr
+
+#Start R
+#install.packages from appropriate repositories, may read in old package 
+# names from old library using:
+packages.to.install <- read.delim("~/R_HOME/my.packages.txt", as.is = 
+TRUE)[,1]
+source("http://bioconductor.org/biocLite.R")
+biocLite(packages.to.install)
+my.new.packages <- c( dir("~/R_HOME/site-library"), 
+dir("/usr/lib/R/library"))
+yet.to.install <- setdiff(packages,my.new.packages)
+biocLite(yet.to.install, dependencies = TRUE)
+
+
+
+
+
+
+Mark W. Kimpel MD  ** Neuroinformatics ** Dept. of Psychiatry
+Indiana University School of Medicine
+
+15032 Hunter Court, Westfield, IN  46074
+
+(317) 490-5129 Work, & Mobile & VoiceMail
+(317) 204-4202 Home (no voice mail please)
+
+mwkimpel<at>gmail<dot>com
+
+******************************************************************
+
+
+hugh wrote:
+> Mark,
+> 
+> I am also a relatively new user of Linux, so am not an expert and thus
+> am not responding to the whole R-sig-Debian group.  I am running the
+> 64-bit version (intel Q6700 CPU) of Gutsy and was able to compile from
+> source file on CRAN.  I am able to use 'install.packages(FOO)' within my
+> compiled R to successfully add packages.  If building a shared library
+> is important to you, I was NOT successful in doing that (a shared
+> library appears to be important if you want to use GUI's like JGR).
+> 
+> The only change/flag I used was LDFLAGS="-L/usr/local/lib64
+> -L/usr/local/lib".  You can edit your config.site file (e.g., sudo gedit
+> config.site) and search for LDFLAGS....uncomment it and use the line I
+> used.  Alternately, you can just type sudo ./configure
+> LDFLAGS="-L/usr/local/lib64 -L/usr/local/lib"  (that is how you can set
+> flags).
+> 
+> My experience was that the "standard" Gutsy install was missing a number
+> of programs/librarys to compile R, so I had to add a lot of them.  If
+> you are having compile problems, my guess is that you are missing some
+> of these libraries which you can install using the Synaptic Package
+> Manager.  If you are still having problems, I can try to figure out how
+> to send a list of the packages/libraries I have installed if that is
+> helpful.
+> 
+> I also found this site helpful:
+>  http://idecide.mskcc.org/yl_home/linux.html
+> 
+> 
+> Best,
+> Hugh Whelan
+> 
+> 
+> 
+> 
+> 
+> On Tue, 2007-10-30 at 11:26 -0400, Mark W Kimpel wrote:
+>> I have recently upgraded to Ubuntu Gutsy and, for the first time, am
+>> using a 64-bit installation. After failing miserably to install R from
+>> source, not a problem for me in the past with a 32-bit install, I went
+>> the route of using the Debian Etch build. This went smoothly, but I am
+>> unable to update my numerous R and BioConductor packages, getting
+>> non-zero exit status errors on each package. Is there a repository of
+>> pre-built packages for Debian Etch 64 besides the r-base and
+>> r-recommended? If not, could someone suggest how I might get things
+>> working installing from source?
+>>
+>> I have installed the ia32 library, which did help me build VMWare, but
+>> did not help with R. Reading the R-admin manual, there are some
+>> suggested compiler flags, but I don't know how to enter them as I am a
+>> relative new-comer to Linux.
+>>
+>> Thanks so much,
+>> Mark
+>>
+>> ---
+>>
+>> Mark W. Kimpel MD  ** Neuroinformatics ** Dept. of Psychiatry
+>> Indiana University School of Medicine
+>>
+>> 15032 Hunter Court, Westfield, IN  46074
+>>
+>> (317) 490-5129 Work, & Mobile & VoiceMail
+>> (317) 663-0513 Home (no voice mail please)
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+>
+
+
+From tyler.smith at mail.mcgill.ca  Fri Nov  2 18:10:26 2007
+From: tyler.smith at mail.mcgill.ca (Tyler Smith)
+Date: Fri, 2 Nov 2007 14:10:26 -0300
+Subject: [R-sig-Debian] tk not installed properly
+Message-ID: <20071102171026.GC19765@blackbart.mynetwork>
+
+Hi,
+
+I'm getting the following error:
+
+> install.packages()
+--- Please select a CRAN mirror for use in this session ---
+Loading Tcl/Tk interface ... Error in fun(...) : Can't find a usable tk.tcl in the following directories: 
+    /usr/share/tcltk/tcl8.4/tk8.4 ./lib/tk8.4 /usr/local/lib/tcltk/tk8.4 /usr/local/share/tcltk/tk8.4 /usr/lib/tcltk/tk8.4 /usr/share/tcltk/tk8.4 ./library ./tk8.4.16/library
+
+
+
+This probably means that tk wasn't installed properly.
+
+Error: .onLoad failed in 'loadNamespace' for 'tcltk'
+>
+
+This has worked before, probably last used successfully a couple of
+weeks ago. I'm running Lenny, interacting with R version 2.5.1
+(2007-06-27) using Emacs22 and ESS. I downloaded and installed Emacs22
+from GNU directly before it was in the Debian repository, and
+hand-installed ESS according to standard directions. R was installed
+via the Debian repositories. Up until today I had no problems with
+tcltk.
+
+I have tk8.4.16-1 and tcl8.4.16-3 installed via aptitude, satisfying
+the dependencies of r-base-core. I just installed tk8.5 and tcl8.5,
+but the problem remains.
+
+Any ideas?
+
+Thanks,
+
+Tyler
+
+
+-- 
+Better a botanist than a sociopath.
+                                       --Charlane Bishop
+
+
+From edd at debian.org  Fri Nov  2 18:54:45 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 2 Nov 2007 12:54:45 -0500
+Subject: [R-sig-Debian] tk not installed properly
+In-Reply-To: <20071102171026.GC19765@blackbart.mynetwork>
+References: <20071102171026.GC19765@blackbart.mynetwork>
+Message-ID: <18219.25701.223804.875908@ron.nulle.part>
+
+
+Tyler,
+
+On 2 November 2007 at 14:10, Tyler Smith wrote:
+| Hi,
+| 
+| I'm getting the following error:
+| 
+| > install.packages()
+| --- Please select a CRAN mirror for use in this session ---
+| Loading Tcl/Tk interface ... Error in fun(...) : Can't find a usable tk.tcl in the following directories: 
+|     /usr/share/tcltk/tcl8.4/tk8.4 ./lib/tk8.4 /usr/local/lib/tcltk/tk8.4 /usr/local/share/tcltk/tk8.4 /usr/lib/tcltk/tk8.4 /usr/share/tcltk/tk8.4 ./library ./tk8.4.16/library
+| 
+
+Ick, I can confirm that using 'R --vanilla' (package 2.6.0-3 on testing) and
+then calling install.packages().  I will have to look into that.  The weird
+thing is that capabilities() lists tcltk as TRUE. Hm.
+
+
+| This probably means that tk wasn't installed properly.
+| 
+| Error: .onLoad failed in 'loadNamespace' for 'tcltk'
+| >
+| 
+| This has worked before, probably last used successfully a couple of
+| weeks ago. I'm running Lenny, interacting with R version 2.5.1
+| (2007-06-27) using Emacs22 and ESS. I downloaded and installed Emacs22
+| from GNU directly before it was in the Debian repository, and
+| hand-installed ESS according to standard directions. R was installed
+| via the Debian repositories. Up until today I had no problems with
+| tcltk.
+| 
+| I have tk8.4.16-1 and tcl8.4.16-3 installed via aptitude, satisfying
+| the dependencies of r-base-core. I just installed tk8.5 and tcl8.5,
+| but the problem remains.
+| 
+| Any ideas?
+
+Not immediately.  To be able to load packages, skip the tcl/tk menu step. One
+way is to put something like this intp ~/.Renviron:
+
+options("repos"=c(CRAN="http://cran.us.r-project.org", Bioc="http://www.bioconductor.org", Omegahat="http://www.omegahat.org/R"))
+
+With options(repos) set, it won't run the selector that failed.  I'll have to
+see why tcl is broken.  
+
+[...]
+
+
+Ok, step one:
+
+edd at ron:~> locate tk.tcl
+/usr/lib/R/library/tcltk/exec/util-tk.tcl
+/usr/lib/tk8.4/safetk.tcl
+/usr/lib/tk8.4/tk.tcl
+edd at ron:~> 
+
+so it is there.  
+
+
+
+Step two, noticing that there is a newer tk8.4 in unstale, and looking at 
+http://changelog.debian.net/tk8.4, I see 
+
+tk8.4 (8.4.16-2) unstable; urgency=low
+
+  * Removed TK_INC_DIR from tkConfig.sh and tcl.m4.
+  * Added -fno-unit-at-a-time option to match tcl8.4 build options.
+  * Moved architecture independent files from /usr/lib/tk8.4 to
+    /usr/share/tcltk/tk8.4. To keep backward compatibility tkConfig.sh is
+    linked into /usr/lib/tk8.4 directory.
+  * Fixed bug with update-alternatives in prerm script.
+  * Removed conflicts with tcl and providing tcl-dev packages from
+    debian/control to prepare binary packages for default tcl and tcl-dev.
+  * Added Homepage field to debian/control.
+  * Fixed segfault in case if only scalable fonts are available and the best
+    scored font is infeasible (closes: #444546).
+  * Rearranged conflicts of tk8.4-doc package because of planned adoption of
+    real tk-doc package.
+
+ -- Sergei Golovan <sgolovan at debian.org>  Fri, 19 Oct 2007 16:08:07 +0400
+
+and the third item is a winner as /usr/share/tcltk/tk8.4 is one of the
+searched directories, and indeed after
+
+
+Step 3:  Running 'wajig install tk8.4/unstable' (I really like wajig as
+a consistent wrapper around dpkg, apt-*, dselect, aptitude, ...), the example
+works.
+
+
+Summary:  tk8.4 in testing is broken, R needs an explicit Depends on 
+
+	tk8.4 (>= 8.4.16-2)
+
+Thanks for bringing this up!
+
+Thanks, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From mwkimpel at gmail.com  Sat Nov  3 03:07:05 2007
+From: mwkimpel at gmail.com (Mark W Kimpel)
+Date: Fri, 02 Nov 2007 22:07:05 -0400
+Subject: [R-sig-Debian] trouble installing building packages from source
+ using R 2.6.0 on Ubuntu Gutsy AMD64
+Message-ID: <472BD7C9.3060800@gmail.com>
+
+Several days ago I posted a query as to how to get R-2.6.0 installed on
+Ubuntu Gutsy AMD64 build. With helpful suggestions from others on the
+list, I have come up with the following script which may be helpful to
+those who have some experience with R and BioConductor but, like me, are
+novices with Debian/Ubuntu. Development of the script was not a linear
+process, and it is possible that something is missing, so please let me
+know via the list if you encounter problems.
+
+Mark
+
+#########################################################
+#Making R and BioC on Ubuntu Gutsy with AMD64-bit OS
+
+#Add this to /etc/apt/sources.list and update apt
+deb-src http://cran.r-project.org/bin/linux/debian etch/
+apt-get update
+
+#make a directory for deb source files
+mkdir /home/USER/r-2.6.0-deb
+cd /home/USER/r-2.6.0-deb
+
+#get the source files and unpack them
+sudo apt-get source r-base
+sudo dpkg-source -x r-base_2.6.0-1~etchcran.1.dsc
+
+#cd into r-base-VERSION
+cd r-base-2.6.0
+
+#compile the package, this may be un-necessary, but I did it
+sudo dpkg-buildpackage -rfakeroot -b -us -uc -tc
+
+#get some libraries need for building R
+apt-get install build-essential # fail and will produce a suggestion to
+do the following command, DO IT
+# Dirk says this represents a possible bug, the following did work for
+me, but may be dangerous
+apt-get -f install
+
+#install the package from .deb
+sudo dpkg -i ../r-base-core_2.6.0-1~etchcran.1_amd64.deb
+
+#install some development libraries for building packages
+sudo apt-get install r-base-dev
+
+## to get rgl to install into R with Ubuntu Gutsy AMD64
+apt-get install freeglut3 freeglut3-dev libgl1-mesa-dev libglu1-mesa-dev
+libice-dev libsm-dev libx11-dev libxau-dev libxdmcp-dev libxext-dev
+libxt-dev mesa-common-dev x11proto-core-dev x11proto-input-dev
+x11proto-kb-dev x11proto-xext-dev xlibmesa-gl-dev xtrans-dev
+##OR, after R is installed, do sudo apt-get build-dep r-cran-rgl
+(edd at debian.org)
+
+## to get Rgraphviz to install
+apt-get install graphviz graphviz-dev
+##NO sudo apt-get build-dep r-cran-rgraphviz available
+
+## to get XML to install
+apt-get install xml2 libxml2-dev libxml2-utils libxml2 libxml++2.6-dev
+libxml++2.6c2a
+##OR, after R is installed, do sudo apt-get build-dep r-cran-xml
+(edd at debian.org)
+
+## to get RCurl to install
+apt-get install libcurl4-gnutls-dev libcurl3-gnutls libcurl3
+##No sudo apt-get build-dep r-cran-rcurl available
+
+#Now, if you are upgrading from an X_86 architecture to AMD64, replace
+site-library with an empty one for new packages
+cd R_HOME #if not made, make it
+mv site-library site-library-X_86 #if you have an old site-library you
+want to save
+mkdir site-library
+
+#if have packages in old library that you want installed in new one
+cd site-library-X_86
+ls > ../my.packages.txt
+
+#to .Rprofile add at beginning:
+.libPaths(new= "~/R_HOME/site-library") #tell R where site-library is
+
+export PATH:$PATH:/usr
+
+#Start R
+#install.packages from appropriate repositories, may read in old package
+names from old library using:
+packages.to.install <- read.delim("~/R_HOME/my.packages.txt", as.is =
+TRUE)[,1]
+source("http://bioconductor.org/biocLite.R")
+biocLite(packages.to.install)
+my.new.packages <- c( dir("~/R_HOME/site-library"),
+dir("/usr/lib/R/library"))
+yet.to.install <- setdiff(packages.to.install, my.new.packages)
+biocLite(yet.to.install, dependencies = TRUE)
+
+#After everything else installs, this works
+install.packages("RSPerl", repos="http://www.omegahat.org/R",
+dependencies = TRUE)
+install.packages("RSPython", repos="http://www.omegahat.org/R",
+dependencies = TRUE)
+
+# "TMat" not available in any repos, dc/d?
+
+These all installed without problems with R-2.6.0 on 11.1.2007
+
+my.new.packages
+  [1] "acepack"               "affxparser"
+"affy"
+  [4] "affycomp"              "affycoretools"
+"affydata"
+  [7] "affyio"                "affypdnn"
+"affyPLM"
+[10] "affyQCReport"          "akima"
+"ALL"
+[13] "altcdfenvs"            "amap"
+"annaffy"
+[16] "AnnBuilder"            "annotate"
+"AnnotationDbi"
+[19] "annotationTools"       "aroma.light"
+"arrayMagic"
+[22] "aws"                   "Biobase"
+"biocViews"
+[25] "bioDist"               "biomaRt"
+"Biostrings"
+[28] "boot"                  "BSgenome"
+"BufferedMatrix"
+[31] "BufferedMatrixMethods" "CALIB"
+"car"
+[34] "Category"              "cellHTS"
+"ChromoViz"
+[37] "chron"                 "class"
+"cluster"
+[40] "clusterStab"           "CoCiteStats"
+"coda"
+[43] "codelink"              "codetools"
+"colorspace"
+[46] "combinat"              "convert"
+"copa"
+[49] "corpcor"               "cosmo"
+"cosmoGUI"
+[52] "DAAG"                  "DBI"
+"DEDS"
+[55] "Design"                "diffGeneAnalysis"
+"digest"
+[58] "DynDoc"                "dynlm"
+"e1071"
+[61] "EBarrays"              "Ecdat"
+"edd"
+[64] "EMV"                   "factDesign"
+"fBasics"
+[67] "fCalendar"             "fdrtool"
+"fEcofin"
+[70] "fibroEset"             "fields"
+"fImport"
+[73] "foreign"               "fSeries"
+"fUtilities"
+[76] "gam"                   "gcrma"
+"gdata"
+[79] "GeneCycle"             "genefilter"
+"GeneMeta"
+[82] "GeneNet"               "geneplotter"
+"GeneR"
+[85] "geneRecommender"       "GeneTS"
+"GEOquery"
+[88] "GLAD"                  "GlobalAncova"
+"globaltest"
+[91] "gmodels"               "GO"
+"GO.db"
+[94] "golubEsets"            "GOstats"
+"goTools"
+[97] "gplots"                "gpls"
+"graph"
+[100] "GraphAT"               "gregmisc"
+"gridBase"
+[103] "GSEABase"              "gtools"
+"Harshlight"
+[106] "Heatplus"              "hexbin"
+"hgfocus"
+[109] "hgfocuscdf"            "hgu133a"
+"hgu133acdf"
+[112] "hgu133aprobe"          "hgu133plus2"
+"hgu95acdf"
+[115] "hgu95av2"              "hgu95av2cdf"
+"hgu95av2.db"
+[118] "hgu95av2probe"         "Hmisc"
+"hopach"
+[121] "hsahomology"           "hu6800"
+"hu6800cdf"
+[124] "hu6800probe"           "humanLLMappings"
+"hypergraph"
+[127] "Icens"                 "idiogram"
+"impute"
+[130] "ipred"                 "its"
+"KEGG"
+[133] "KEGG.db"               "keggorth"
+"KernSmooth"
+[136] "lapmix"                "lattice"
+"LBE"
+[139] "leaps"                 "limma"
+"lme4"
+[142] "LMGene"                "lmtest"
+"locfdr"
+[145] "locfit"                "lodplot"
+"longitudinal"
+[148] "LPE"                   "maanova"
+"macat"
+[151] "maCorrPlot"            "makecdfenv"
+"makePlatformDesign"
+[154] "MantelCorr"            "mapproj"
+"maps"
+[157] "marray"                "maSigPro"
+"MASS"
+[160] "matchprobes"           "Matrix"
+"mclust"
+[163] "MCMCpack"              "mda"
+"MergeMaid"
+[166] "metaArray"             "Mfuzz"
+"mgcv"
+[169] "mgu74av2"              "minpack.lm"
+"MiPP"
+[172] "mlbench"               "MLInterfaces"
+"mlmRev"
+[175] "multtest"              "MVCClass"
+"mvtnorm"
+[178] "nlme"                  "nnet"
+"nnNorm"
+[181] "odesolve"              "odfWeave"
+"oligo"
+[184] "oligoClasses"          "ontoTools"
+"OrderedList"
+[187] "oz"                    "pamr"
+"panp"
+[190] "pcaMethods"            "pcot2"
+"pdInfoBuilder"
+[193] "pdmclass"              "pickgene"
+"pixmap"
+[196] "pkgDepTools"           "plier"
+"plotrix"
+[199] "pls"                   "prada"
+"preprocessCore"
+[202] "PROcess"               "qtl"
+"quadprog"
+[205] "quantreg"              "quantsmooth"
+"qvalue"
+[208] "R2HTML"                "rae230a"
+"rae230aprobe"
+[211] "rama"                  "randomForest"
+"RankProd"
+[214] "rat2302"               "rat2302cdf"
+"RbcBook1"
+[217] "RBGL"                  "RColorBrewer"
+"rcompgen"
+[220] "R.css"                 "RCurl"
+"rda"
+[223] "Rdbi"                  "reb"
+"RefPlus"
+[226] "Resourcerer"           "rgl"
+"Rgraphviz"
+[229] "rgu34a"                "rgu34acdf"
+"rlecuyer"
+[232] "RLMM"                  "RMAPPER"
+"robustbase"
+[235] "ROC"                   "R.oo"
+"rpart"
+[238] "rrcov"                 "RSNPper"
+"RSPerl"
+[241] "RSPython"              "RSQLite"
+"RSvgDevice"
+[244] "RUnit"                 "R.utils"
+"Ruuid"
+[247] "safe"                  "SAGx"
+"sandwich"
+[250] "SBMLR"                 "scatterplot3d"
+"sem"
+[253] "SemSim"                "seqLogo"
+"sgeostat"
+[256] "siggenes"              "sigPathway"
+"simpleaffy"
+[259] "sizepower"             "sma"
+"snow"
+[262] "SparseM"               "spatial"
+"splots"
+[265] "ssize"                 "statmod"
+"stepNorm"
+[268] "strucchange"           "survival"
+"systemfit"
+[271] "TeachingDemos"         "time"
+"tkrplot"
+[274] "tkWidgets"             "topGO"
+"tripack"
+[277] "tseries"               "tweedie"
+"twilight"
+[280] "TypeInfo"              "vsn"
+"weaver"
+[283] "widgetTools"           "xgobi"
+"XML"
+[286] "xtable"                "zoo"
+"base"
+[289] "boot"                  "class"
+"cluster"
+[292] "codetools"             "datasets"
+"foreign"
+[295] "graphics"              "grDevices"
+"grid"
+[298] "KernSmooth"            "lattice"
+"MASS"
+[301] "methods"               "mgcv"
+"nlme"
+[304] "nnet"                  "rcompgen"
+"R.css"
+[307] "rpart"                 "spatial"
+"splines"
+[310] "stats"                 "stats4"
+"survival"
+[313] "tcltk"                 "tools"                 "utils"
+
+Mark W. Kimpel MD  ** Neuroinformatics ** Dept. of Psychiatry
+Indiana University School of Medicine
+
+15032 Hunter Court, Westfield, IN  46074
+
+(317) 490-5129 Work, & Mobile & VoiceMail
+(317) 204-4202 Home (no voice mail please)
+
+mwkimpel<at>gmail<dot>com
+
+
+From Katharina.Manderscheid at unibas.ch  Mon Nov 12 23:50:04 2007
+From: Katharina.Manderscheid at unibas.ch (Katharina Manderscheid)
+Date: Mon, 12 Nov 2007 23:50:04 +0100
+Subject: [R-sig-Debian] separate window for help/newbie
+Message-ID: <1194907804.4738d89c57a24@webmail.unibas.ch>
+
+hi,
+is there a way to make r open the help file in a separate window?
+i'm quite new to linux(kubuntu) and used to work with r under windows...
+thanks,
+katharina
+
+
+From edd at debian.org  Tue Nov 13 00:21:23 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 12 Nov 2007 17:21:23 -0600
+Subject: [R-sig-Debian] separate window for help/newbie
+In-Reply-To: <1194907804.4738d89c57a24@webmail.unibas.ch>
+References: <1194907804.4738d89c57a24@webmail.unibas.ch>
+Message-ID: <18232.57331.695950.321497@ron.nulle.part>
+
+
+Katharina,
+
+On 12 November 2007 at 23:50, Katharina Manderscheid wrote:
+| is there a way to make r open the help file in a separate window?
+
+How did you start R?  In a terminal window like xterm, konsole, ... ?
+
+| i'm quite new to linux(kubuntu) and used to work with r under windows...
+
+A few things come to mind:
+
+i)   Cheap:  Just open another xterm, konsole, ... and run R there to
+     invoke help()
+
+ii)  Still cheap:  call    help.start()   to launch a browser, and look
+     at the help via the browser
+
+iii) Fancier: Try using Emacs and ESS, help will then be in another buffer
+
+iv)  Alternatively:  Use another program as the pager via the PAGER 
+     environment variable, or via options()
+
+v)   Harder: Use JGR, but that is not trivial to set up, though it is 
+     possible on Debian and Ubuntu.
+
+Cheers, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From jranke at uni-bremen.de  Tue Nov 13 02:34:09 2007
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Tue, 13 Nov 2007 02:34:09 +0100
+Subject: [R-sig-Debian] separate window for help/newbie
+In-Reply-To: <18232.57331.695950.321497@ron.nulle.part>
+References: <1194907804.4738d89c57a24@webmail.unibas.ch>
+	<18232.57331.695950.321497@ron.nulle.part>
+Message-ID: <20071113013409.GA24839@mail.uni-bremen.de>
+
+Hi Katharina and Dirk,
+
+just one KDE-specific addition which might be interesting on Kubuntu
+under option ii):
+
+* Dirk Eddelbuettel <edd at debian.org> [071113 01:00]:
+> 
+> Katharina,
+> 
+> On 12 November 2007 at 23:50, Katharina Manderscheid wrote:
+> | is there a way to make r open the help file in a separate window?
+> 
+> How did you start R?  In a terminal window like xterm, konsole, ... ?
+> 
+> | i'm quite new to linux(kubuntu) and used to work with r under windows...
+> 
+> A few things come to mind:
+> 
+> i)   Cheap:  Just open another xterm, konsole, ... and run R there to
+>      invoke help()
+> 
+> ii)  Still cheap:  call    help.start()   to launch a browser, and look
+>      at the help via the browser
+
+if you have the line
+
+	options("browser"="kfmclient newTab")
+
+in your .Rprofile, you will have a tabbed help browser at now extra
+cost after calling help.start() :)
+
+Cheers,
+
+Johannes
+
+> iii) Fancier: Try using Emacs and ESS, help will then be in another buffer
+> 
+> iv)  Alternatively:  Use another program as the pager via the PAGER 
+>      environment variable, or via options()
+> 
+> v)   Harder: Use JGR, but that is not trivial to set up, though it is 
+>      possible on Debian and Ubuntu.
+> 
+> Cheers, Dirk
+> 
+> -- 
+> Three out of two people have difficulties with fractions.
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de     Key ID: F649AF90
+UFT Bremen, Leobenerstr. 1         +49 421 218 63373
+D-28359 Bremen                     http://www.uft.uni-bremen.de/chemie/ranke
+
+
+From dusa.adrian at gmail.com  Tue Nov 13 17:32:23 2007
+From: dusa.adrian at gmail.com (Adrian Dusa)
+Date: Tue, 13 Nov 2007 18:32:23 +0200
+Subject: [R-sig-Debian] separate window for help/newbie
+In-Reply-To: <20071113013409.GA24839@mail.uni-bremen.de>
+References: <1194907804.4738d89c57a24@webmail.unibas.ch>
+	<18232.57331.695950.321497@ron.nulle.part>
+	<20071113013409.GA24839@mail.uni-bremen.de>
+Message-ID: <200711131832.23433.dusa.adrian@gmail.com>
+
+Dear Johannes,
+
+On Tuesday 13 November 2007, Johannes Ranke wrote:
+> [...]
+> if you have the line
+>
+> 	options("browser"="kfmclient newTab")
+>
+> in your .Rprofile, you will have a tabbed help browser at now extra
+> cost after calling help.start() :)
+
+There is an option for browser in Renviron (R-2.6.0 under Kubuntu):
+R_BROWSER=${R_BROWSER-'sensible-browser'}
+
+I tried changing "sensible-browser" to "kfmclient newTab", but it does not 
+perform anything different (it does not open Konqueror in a new tab).
+I even tried creating .Rprofile, but I cannot replicate your outcome.
+
+In R (restarted), typing ?somefunction will still present the help in the 
+terminal...
+
+Adrian
+
+
+-- 
+Adrian Dusa
+Romanian Social Data Archive
+1, Schitu Magureanu Bd
+050025 Bucharest sector 5
+Romania
+Tel./Fax: +40 21 3126618 \
+          +40 21 3120210 / int.101
+
+
+From edd at debian.org  Tue Nov 13 17:56:38 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 13 Nov 2007 10:56:38 -0600
+Subject: [R-sig-Debian] separate window for help/newbie
+In-Reply-To: <200711131832.23433.dusa.adrian@gmail.com>
+References: <1194907804.4738d89c57a24@webmail.unibas.ch>
+	<18232.57331.695950.321497@ron.nulle.part>
+	<20071113013409.GA24839@mail.uni-bremen.de>
+	<200711131832.23433.dusa.adrian@gmail.com>
+Message-ID: <18233.55110.641740.966784@ron.nulle.part>
+
+
+Adrian,
+
+On 13 November 2007 at 18:32, Adrian Dusa wrote:
+| Dear Johannes,
+| 
+| On Tuesday 13 November 2007, Johannes Ranke wrote:
+| > [...]
+| > if you have the line
+| >
+| > 	options("browser"="kfmclient newTab")
+| >
+| > in your .Rprofile, you will have a tabbed help browser at now extra
+| > cost after calling help.start() :)
+| 
+| There is an option for browser in Renviron (R-2.6.0 under Kubuntu):
+| R_BROWSER=${R_BROWSER-'sensible-browser'}
+
+Yes, that is a compile-time default I set given that Debian / Ubuntu have the
+usual 'default' of the sensible-brower wrapper.   What Johannes does is to
+simply override this choice to something he likes better.
+ 
+| I tried changing "sensible-browser" to "kfmclient newTab", but it does not 
+| perform anything different (it does not open Konqueror in a new tab).
+| I even tried creating .Rprofile, but I cannot replicate your outcome.
+|
+| In R (restarted), typing ?somefunction will still present the help in the 
+| terminal...
+
+I suspect you misunderstood this:  "browser" is for the web browser, and only
+affects help.start() et al.  What you are looking for is 
+
+	options("pager") 
+
+as that is used to 'page' the help output.  And I just tried this, so if you do
+
+	options("pager"="kfmclient newTab")
+
+any subsequent call for help will go to Konqueror and R even makes that explicit:
+
+   > ?help
+   Help for ‘help’ is shown in browser kfmclient newTab ...
+   Use
+           help("help", htmlhelp = FALSE)
+   or
+          options(htmlhelp = FALSE)
+   to revert.
+
+And this is of course more general than what Johannes said: It'll work
+whereever Konqueror is installed, and not just on Kubuntu.  [ Or so I hope,
+my test right now was done under Kubuntu Gutsy. ]
+
+Hope this helps,  Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From dusa.adrian at gmail.com  Tue Nov 13 18:26:01 2007
+From: dusa.adrian at gmail.com (Adrian Dusa)
+Date: Tue, 13 Nov 2007 19:26:01 +0200
+Subject: [R-sig-Debian] separate window for help/newbie
+In-Reply-To: <18233.55110.641740.966784@ron.nulle.part>
+References: <1194907804.4738d89c57a24@webmail.unibas.ch>
+	<200711131832.23433.dusa.adrian@gmail.com>
+	<18233.55110.641740.966784@ron.nulle.part>
+Message-ID: <200711131926.01509.dusa.adrian@gmail.com>
+
+On Tuesday 13 November 2007, Dirk Eddelbuettel wrote:
+> I suspect you misunderstood this: ?"browser" is for the web browser, and
+> only affects help.start() et al. ?What you are looking for is
+>
+> ????????options("pager")
+>
+> as that is used to 'page' the help output. ?And I just tried this, so if
+> you do
+>
+> ????????options("pager"="kfmclient newTab")
+
+Ah-haa... thanks for this.
+However, it still does not seem to work for me :(
+
+I changed in Renviron, from
+PAGER=${PAGER-'/usr/bin/pager'}
+to
+PAGER=${PAGER-'kfmclient newTab'}
+
+All I get when typing for example ?plot is a new Konqueror window with my home 
+folder.
+
+Then I created .Rprofile (in both /usr/lib/R/etc/ and /etc/R/) with 
+options("pager"="kfmclient newTab")
+
+but still the same result.
+It is like Konqueror doesn't know where to look for the help files, so it only 
+displays my home folder instead.
+
+The strange thing is, even though I modified both Renviron and .Rprofile, when 
+starting R the option for pager looks like:
+> options("pager")
+$pager
+[1] "/usr/lib/R/bin/pager"
+
+This feature seems to be useful and I'd like to enable it. Should I check 
+anything else in the configuration file?
+
+Thanks in advance,
+Adrian
+
+-- 
+Adrian Dusa
+Romanian Social Data Archive
+1, Schitu Magureanu Bd
+050025 Bucharest sector 5
+Romania
+Tel./Fax: +40 21 3126618 \
+          +40 21 3120210 / int.101
+
+
+From edd at debian.org  Tue Nov 13 18:47:29 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 13 Nov 2007 11:47:29 -0600
+Subject: [R-sig-Debian] separate window for help/newbie
+In-Reply-To: <200711131926.01509.dusa.adrian@gmail.com>
+References: <1194907804.4738d89c57a24@webmail.unibas.ch>
+	<200711131832.23433.dusa.adrian@gmail.com>
+	<18233.55110.641740.966784@ron.nulle.part>
+	<200711131926.01509.dusa.adrian@gmail.com>
+Message-ID: <18233.58161.414955.255636@ron.nulle.part>
+
+
+On 13 November 2007 at 19:26, Adrian Dusa wrote:
+| However, it still does not seem to work for me :(
+[...]
+| Then I created .Rprofile (in both /usr/lib/R/etc/ and /etc/R/) with 
+
+( Redundant, should be the same file by virtue of symbolic links. )
+
+| options("pager"="kfmclient newTab")
+| 
+| but still the same result.
+| It is like Konqueror doesn't know where to look for the help files, so it only 
+| displays my home folder instead.
+| 
+| The strange thing is, even though I modified both Renviron and .Rprofile, when 
+| starting R the option for pager looks like:
+| > options("pager")
+| $pager
+| [1] "/usr/lib/R/bin/pager"
+| 
+| This feature seems to be useful and I'd like to enable it. Should I check 
+| anything else in the configuration file?
+
+As per   help(Startup)   the site-global file is Rprofile.site, not
+.Rprofile.
+
+Also note how it tells you 
+
+	 do not change '$R_HOME/etc/Renviron' itself
+
+Renviron is, AFAIK, a reflection of compile-time settings.  
+
+Things have always worked fine for me with the either the ~/.Rprofile and
+~/.Renviron files, or their *.site variants below /etc.  
+
+Hope this helps,  Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From dusa.adrian at gmail.com  Tue Nov 13 19:16:12 2007
+From: dusa.adrian at gmail.com (Adrian Dusa)
+Date: Tue, 13 Nov 2007 20:16:12 +0200
+Subject: [R-sig-Debian] separate window for help/newbie
+In-Reply-To: <18233.58161.414955.255636@ron.nulle.part>
+References: <1194907804.4738d89c57a24@webmail.unibas.ch>
+	<200711131926.01509.dusa.adrian@gmail.com>
+	<18233.58161.414955.255636@ron.nulle.part>
+Message-ID: <200711132016.12229.dusa.adrian@gmail.com>
+
+On Tuesday 13 November 2007, Dirk Eddelbuettel wrote:
+> On 13 November 2007 at 19:26, Adrian Dusa wrote:
+> [...]
+>
+> | Then I created .Rprofile (in both /usr/lib/R/etc/ and /etc/R/) with
+>
+> ( Redundant, should be the same file by virtue of symbolic links. )
+
+Yes it's true, i just needed to make sure it reads it.
+
+
+> [..]
+>
+> As per   help(Startup)   the site-global file is Rprofile.site, not
+> .Rprofile.
+>
+> Also note how it tells you
+>
+> 	 do not change '$R_HOME/etc/Renviron' itself
+>
+> Renviron is, AFAIK, a reflection of compile-time settings.
+>
+> Things have always worked fine for me with the either the ~/.Rprofile and
+> ~/.Renviron files, or their *.site variants below /etc.
+
+OK, one step forward. So that's the difference between .Rprofile 
+and .Rprofile.site
+
+This option can be manually set in R; I have also tried that last times and 
+Konqueror still displays the home folder instead of the help file.
+
+With .Rprofile.site in /etc/R/ (and/or .Rprofile in the home folder) the 
+result is the same.
+
+The question is how to persuade Konqueror to display the help file. In R:
+> options("pager")
+$pager
+[1] "kfmclient newTab"
+
+Thanks,
+Adrian
+
+-- 
+Adrian Dusa
+Romanian Social Data Archive
+1, Schitu Magureanu Bd
+050025 Bucharest sector 5
+Romania
+Tel./Fax: +40 21 3126618 \
+          +40 21 3120210 / int.101
+
+
+From edd at debian.org  Wed Nov 14 00:14:55 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 13 Nov 2007 17:14:55 -0600
+Subject: [R-sig-Debian] separate window for help/newbie
+In-Reply-To: <473A1B05.9080403@web.de>
+References: <1194907804.4738d89c57a24@webmail.unibas.ch>
+	<200711131832.23433.dusa.adrian@gmail.com>
+	<18233.55110.641740.966784@ron.nulle.part>
+	<200711131926.01509.dusa.adrian@gmail.com>
+	<18233.58161.414955.255636@ron.nulle.part>
+	<473A1B05.9080403@web.de>
+Message-ID: <18234.12271.812026.895639@ron.nulle.part>
+
+
+Hi again,
+
+On 13 November 2007 at 21:45, Katharina Manderscheid wrote:
+| sorry, i need further assistance:
+| i thought it would be nice to use Kate as texteditor which opens help.
+
+Yes, many people like that editor. 
+
+| but if i try
+| options("pager"="Kate")
+| and then
+| options("pager")
+| i get
+| $pager
+| [1] "Kate"
+| but when i try the help
+| help(help)
+| i get
+| sh: Kate not found
+
+Well, "Kate" != "kate", start with
+
+	options("pager"="kate")
+
+However, you seem to assume that because you can edit with kate, kate should
+also be able to 'receive' help files for display.  I am not sure if that is
+true as I am not really a kate user-- if I were you, I'd try kate as an
+editor, but use Johannes' suggestion (from below) of getting help into
+konqueror.
+
+Hope this helps, Dirk
+
+
+| so i suppose (don't laugh, as i said, i'm linux-newbie), i have to put 
+| in something else for kate to open...
+| thanks,
+| katharina
+| 
+| 
+| Dirk Eddelbuettel wrote:
+| > On 13 November 2007 at 19:26, Adrian Dusa wrote:
+| > | However, it still does not seem to work for me :(
+| > [...]
+| > | Then I created .Rprofile (in both /usr/lib/R/etc/ and /etc/R/) with 
+| >
+| > ( Redundant, should be the same file by virtue of symbolic links. )
+| >
+| > | options("pager"="kfmclient newTab")
+| > | 
+| > | but still the same result.
+| > | It is like Konqueror doesn't know where to look for the help files, so it only 
+| > | displays my home folder instead.
+| > | 
+| > | The strange thing is, even though I modified both Renviron and .Rprofile, when 
+| > | starting R the option for pager looks like:
+| > | > options("pager")
+| > | $pager
+| > | [1] "/usr/lib/R/bin/pager"
+| > | 
+| > | This feature seems to be useful and I'd like to enable it. Should I check 
+| > | anything else in the configuration file?
+| >
+| > As per   help(Startup)   the site-global file is Rprofile.site, not
+| > .Rprofile.
+| >
+| > Also note how it tells you 
+| >
+| > 	 do not change '$R_HOME/etc/Renviron' itself
+| >
+| > Renviron is, AFAIK, a reflection of compile-time settings.  
+| >
+| > Things have always worked fine for me with the either the ~/.Rprofile and
+| > ~/.Renviron files, or their *.site variants below /etc.  
+| >
+| > Hope this helps,  Dirk
+| >
+| >   
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From Katharina.Manderscheid at unibas.ch  Wed Nov 14 10:49:04 2007
+From: Katharina.Manderscheid at unibas.ch (Katharina Manderscheid)
+Date: Wed, 14 Nov 2007 10:49:04 +0100
+Subject: [R-sig-Debian] separate window for help/newbie
+In-Reply-To: <200711132016.12229.dusa.adrian@gmail.com>
+References: <1194907804.4738d89c57a24@webmail.unibas.ch>
+	<200711131926.01509.dusa.adrian@gmail.com>
+	<18233.58161.414955.255636@ron.nulle.part>
+	<200711132016.12229.dusa.adrian@gmail.com>
+Message-ID: <1195033744.473ac490b86c1@webmail.unibas.ch>
+
+sorry, i need further assistance:
+i thought it would be nice to use Kate as texteditor which opens help.
+but if i try
+options("pager"="Kate")
+and then
+options("pager")
+i get
+$pager
+[1] "Kate"
+but when i try the help
+help(help)
+i get
+sh: Kate not found
+so i suppose (don't laugh, as i said, i'm linux-newbie), i have to put in
+something else for kate to open...
+thanks,
+katharina
+--
+
+dr. katharina manderscheid
+
+research visitor
+centre of mobilities research
+department of sociology
+bowland north
+lancaster university
+lancaster la1 4yt
+uk
+
+
+Zitat von Adrian Dusa <dusa.adrian at gmail.com>:
+
+> On Tuesday 13 November 2007, Dirk Eddelbuettel wrote:
+> > On 13 November 2007 at 19:26, Adrian Dusa wrote:
+> > [...]
+> >
+> > | Then I created .Rprofile (in both /usr/lib/R/etc/ and /etc/R/) with
+> >
+> > ( Redundant, should be the same file by virtue of symbolic links. )
+>
+> Yes it's true, i just needed to make sure it reads it.
+>
+>
+> > [..]
+> >
+> > As per   help(Startup)   the site-global file is Rprofile.site, not
+> > .Rprofile.
+> >
+> > Also note how it tells you
+> >
+> > 	 do not change '$R_HOME/etc/Renviron' itself
+> >
+> > Renviron is, AFAIK, a reflection of compile-time settings.
+> >
+> > Things have always worked fine for me with the either the ~/.Rprofile and
+> > ~/.Renviron files, or their *.site variants below /etc.
+>
+> OK, one step forward. So that's the difference between .Rprofile
+> and .Rprofile.site
+>
+> This option can be manually set in R; I have also tried that last times and
+> Konqueror still displays the home folder instead of the help file.
+>
+> With .Rprofile.site in /etc/R/ (and/or .Rprofile in the home folder) the
+> result is the same.
+>
+> The question is how to persuade Konqueror to display the help file. In R:
+> > options("pager")
+> $pager
+> [1] "kfmclient newTab"
+>
+> Thanks,
+> Adrian
+>
+> --
+> Adrian Dusa
+> Romanian Social Data Archive
+> 1, Schitu Magureanu Bd
+> 050025 Bucharest sector 5
+> Romania
+> Tel./Fax: +40 21 3126618 \
+>           +40 21 3120210 / int.101
+>
+
+
+From jranke at uni-bremen.de  Wed Nov 14 12:51:02 2007
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Wed, 14 Nov 2007 12:51:02 +0100
+Subject: [R-sig-Debian] separate window for help/newbie
+In-Reply-To: <18234.12271.812026.895639@ron.nulle.part>
+References: <1194907804.4738d89c57a24@webmail.unibas.ch>
+	<200711131832.23433.dusa.adrian@gmail.com>
+	<18233.55110.641740.966784@ron.nulle.part>
+	<200711131926.01509.dusa.adrian@gmail.com>
+	<18233.58161.414955.255636@ron.nulle.part>
+	<473A1B05.9080403@web.de>
+	<18234.12271.812026.895639@ron.nulle.part>
+Message-ID: <20071114115102.GA31104@mail.uni-bremen.de>
+
+Hi again,
+
+I just tried to use konqueror as a pager as well - it just opens showing
+my home folder, as Adrian described. It might be because the help
+contents are piped into the pager. Konqueror (and its alias kfmclient)
+is not a pager, althought it is a lot of other things.
+
+I suggest to use HTML help, at least if you happen to use KDE as a
+desktop environment. Either you just issue the command help.start() from
+within your R session, or you can make HTML help the default. I just
+recalled that there is this R option, and I now have following lines in
+my .Rprofile:
+
+	options(htmlhelp=TRUE)
+	options(browser="kfmclient newTab")
+
+Cheers,
+
+Johannes Ranke
+
+* Dirk Eddelbuettel <edd at debian.org> [071114 00:20]:
+> 
+> Hi again,
+> 
+> On 13 November 2007 at 21:45, Katharina Manderscheid wrote:
+> | sorry, i need further assistance:
+> | i thought it would be nice to use Kate as texteditor which opens help.
+> 
+> Yes, many people like that editor. 
+> 
+> | but if i try
+> | options("pager"="Kate")
+> | and then
+> | options("pager")
+> | i get
+> | $pager
+> | [1] "Kate"
+> | but when i try the help
+> | help(help)
+> | i get
+> | sh: Kate not found
+> 
+> Well, "Kate" != "kate", start with
+> 
+> 	options("pager"="kate")
+> 
+> However, you seem to assume that because you can edit with kate, kate should
+> also be able to 'receive' help files for display.  I am not sure if that is
+> true as I am not really a kate user-- if I were you, I'd try kate as an
+> editor, but use Johannes' suggestion (from below) of getting help into
+> konqueror.
+> 
+> Hope this helps, Dirk
+> 
+> 
+> | so i suppose (don't laugh, as i said, i'm linux-newbie), i have to put 
+> | in something else for kate to open...
+> | thanks,
+> | katharina
+> | 
+> | 
+> | Dirk Eddelbuettel wrote:
+> | > On 13 November 2007 at 19:26, Adrian Dusa wrote:
+> | > | However, it still does not seem to work for me :(
+> | > [...]
+> | > | Then I created .Rprofile (in both /usr/lib/R/etc/ and /etc/R/) with 
+> | >
+> | > ( Redundant, should be the same file by virtue of symbolic links. )
+> | >
+> | > | options("pager"="kfmclient newTab")
+> | > | 
+> | > | but still the same result.
+> | > | It is like Konqueror doesn't know where to look for the help files, so it only 
+> | > | displays my home folder instead.
+> | > | 
+> | > | The strange thing is, even though I modified both Renviron and .Rprofile, when 
+> | > | starting R the option for pager looks like:
+> | > | > options("pager")
+> | > | $pager
+> | > | [1] "/usr/lib/R/bin/pager"
+> | > | 
+> | > | This feature seems to be useful and I'd like to enable it. Should I check 
+> | > | anything else in the configuration file?
+> | >
+> | > As per   help(Startup)   the site-global file is Rprofile.site, not
+> | > .Rprofile.
+> | >
+> | > Also note how it tells you 
+> | >
+> | > 	 do not change '$R_HOME/etc/Renviron' itself
+> | >
+> | > Renviron is, AFAIK, a reflection of compile-time settings.  
+> | >
+> | > Things have always worked fine for me with the either the ~/.Rprofile and
+> | > ~/.Renviron files, or their *.site variants below /etc.  
+> | >
+> | > Hope this helps,  Dirk
+> | >
+> | >   
+> 
+> -- 
+> Three out of two people have difficulties with fractions.
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de     Key ID: F649AF90
+UFT Bremen, Leobenerstr. 1         +49 421 218 63373
+D-28359 Bremen                     http://www.uft.uni-bremen.de/chemie/ranke
+
+
+From dusa.adrian at gmail.com  Wed Nov 14 14:11:26 2007
+From: dusa.adrian at gmail.com (Adrian Dusa)
+Date: Wed, 14 Nov 2007 15:11:26 +0200
+Subject: [R-sig-Debian] separate window for help/newbie
+In-Reply-To: <20071114115102.GA31104@mail.uni-bremen.de>
+References: <1194907804.4738d89c57a24@webmail.unibas.ch>
+	<18234.12271.812026.895639@ron.nulle.part>
+	<20071114115102.GA31104@mail.uni-bremen.de>
+Message-ID: <200711141511.27008.dusa.adrian@gmail.com>
+
+On Wednesday 14 November 2007, Johannes Ranke wrote:
+> Hi again,
+>
+> I just tried to use konqueror as a pager as well - it just opens showing
+> my home folder, as Adrian described. It might be because the help
+> contents are piped into the pager. Konqueror (and its alias kfmclient)
+> is not a pager, althought it is a lot of other things.
+>
+> I suggest to use HTML help, at least if you happen to use KDE as a
+> desktop environment. Either you just issue the command help.start() from
+> within your R session, or you can make HTML help the default. I just
+> recalled that there is this R option, and I now have following lines in
+> my .Rprofile:
+>
+> 	options(htmlhelp=TRUE)
+> 	options(browser="kfmclient newTab")
+>
+
+Brilliant, thanks very much Johannes that solves it.
+All the best,
+Adrian
+
+
+-- 
+Adrian Dusa
+Romanian Social Data Archive
+1, Schitu Magureanu Bd
+050025 Bucharest sector 5
+Romania
+Tel./Fax: +40 21 3126618 \
+          +40 21 3120210 / int.101
+
+
+From Robert.King at newcastle.edu.au  Fri Nov 16 00:14:16 2007
+From: Robert.King at newcastle.edu.au (Robert King)
+Date: Fri, 16 Nov 2007 10:14:16 +1100
+Subject: [R-sig-Debian] separate window for help/newbie
+In-Reply-To: <200711141511.27008.dusa.adrian@gmail.com>
+References: <1194907804.4738d89c57a24@webmail.unibas.ch>
+	<20071114115102.GA31104@mail.uni-bremen.de>
+	<200711141511.27008.dusa.adrian@gmail.com>
+Message-ID: <200711161014.16653.robert.king@newcastle.edu.au>
+
+While we're on the KDE magic, how can I get help.start() to open a new 
+konqueror window, then have following help calls open new tabs in *that* 
+window.  I tried
+
+> help.start()
+Making links in per-session dir ...
+If 'sensible-browser' is already running, it is *not* restarted, and
+    you must switch to its window.
+Otherwise, be patient ...
+> options(browser="kfmclient newTab")
+> ?help.start
+
+but this opened a new tab for the help.start help in another konqueror window 
+on the current desktop, rather than the one that just opened.  (the same 
+happened with
+
+> help.start(browser="kfmclient")
+Changing the default browser (as specified by the 'browser' option) to
+    the given browser so that it gets used for all future help
+    requests.
+Making links in per-session dir ...
+If 'kfmclient' is already running, it is *not* restarted, and you must
+    switch to its window.
+Otherwise, be patient ...
+> options(browser="kfmclient newTab")
+> ?help.start
+
+Thanks,
+Robert.
+
+On Thursday 15 November 2007 0:11, Adrian Dusa wrote:
+> On Wednesday 14 November 2007, Johannes Ranke wrote:
+> > Hi again,
+> >
+> > I just tried to use konqueror as a pager as well - it just opens showing
+> > my home folder, as Adrian described. It might be because the help
+> > contents are piped into the pager. Konqueror (and its alias kfmclient)
+> > is not a pager, althought it is a lot of other things.
+> >
+> > I suggest to use HTML help, at least if you happen to use KDE as a
+> > desktop environment. Either you just issue the command help.start() from
+> > within your R session, or you can make HTML help the default. I just
+> > recalled that there is this R option, and I now have following lines in
+> > my .Rprofile:
+> >
+> > 	options(htmlhelp=TRUE)
+> > 	options(browser="kfmclient newTab")
+>
+> Brilliant, thanks very much Johannes that solves it.
+> All the best,
+> Adrian
+
+-- 
+Robert King, Statistics, School of Mathematical & Physical Sciences,
+University of Newcastle, Australia (CRICOS Provider Number: 00109J)
+Room V133  ph +61 2 4921 5548
+Robert.King at newcastle.edu.au   http://tolstoy.newcastle.edu.au/~rking/
+
+ "It might be in the basement,         
+ I'll go upstairs and check .." Escher
+
+
+From jranke at uni-bremen.de  Fri Nov 16 09:08:08 2007
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Fri, 16 Nov 2007 09:08:08 +0100
+Subject: [R-sig-Debian] separate window for help/newbie
+In-Reply-To: <200711161014.16653.robert.king@newcastle.edu.au>
+References: <1194907804.4738d89c57a24@webmail.unibas.ch>
+	<20071114115102.GA31104@mail.uni-bremen.de>
+	<200711141511.27008.dusa.adrian@gmail.com>
+	<200711161014.16653.robert.king@newcastle.edu.au>
+Message-ID: <20071116080808.GB8463@mail.uni-bremen.de>
+
+Hi Robert,
+
+Over here, if I issue help.start() and I have a running konqueror on the
+current virtual desktop, then the R intro page is shown in a new tab on that
+window, and subsequent help calls open tabs in that window. So I usually
+don't have the situation that R would have to choose to which konqueror
+window to send the help pages.
+
+However, if I deliberately start a new konqueror window, this new one is
+being used by kfmclient newTab. If you have three konqueror windows on
+your virtual desktop, things get complicated :) My suggestion would be
+to stick to one konqueror window per virtual desktop.
+
+Johannes
+
+* Robert King <Robert.King at newcastle.edu.au> [071116 00:20]:
+> While we're on the KDE magic, how can I get help.start() to open a new 
+> konqueror window, then have following help calls open new tabs in *that* 
+> window.  I tried
+> 
+> > help.start()
+> Making links in per-session dir ...
+> If 'sensible-browser' is already running, it is *not* restarted, and
+>     you must switch to its window.
+> Otherwise, be patient ...
+> > options(browser="kfmclient newTab")
+> > ?help.start
+> 
+> but this opened a new tab for the help.start help in another konqueror window 
+> on the current desktop, rather than the one that just opened.  (the same 
+> happened with
+> 
+> > help.start(browser="kfmclient")
+> Changing the default browser (as specified by the 'browser' option) to
+>     the given browser so that it gets used for all future help
+>     requests.
+> Making links in per-session dir ...
+> If 'kfmclient' is already running, it is *not* restarted, and you must
+>     switch to its window.
+> Otherwise, be patient ...
+> > options(browser="kfmclient newTab")
+> > ?help.start
+> 
+> Thanks,
+> Robert.
+> 
+> On Thursday 15 November 2007 0:11, Adrian Dusa wrote:
+> > On Wednesday 14 November 2007, Johannes Ranke wrote:
+> > > Hi again,
+> > >
+> > > I just tried to use konqueror as a pager as well - it just opens showing
+> > > my home folder, as Adrian described. It might be because the help
+> > > contents are piped into the pager. Konqueror (and its alias kfmclient)
+> > > is not a pager, althought it is a lot of other things.
+> > >
+> > > I suggest to use HTML help, at least if you happen to use KDE as a
+> > > desktop environment. Either you just issue the command help.start() from
+> > > within your R session, or you can make HTML help the default. I just
+> > > recalled that there is this R option, and I now have following lines in
+> > > my .Rprofile:
+> > >
+> > > 	options(htmlhelp=TRUE)
+> > > 	options(browser="kfmclient newTab")
+> >
+> > Brilliant, thanks very much Johannes that solves it.
+> > All the best,
+> > Adrian
+> 
+> -- 
+> Robert King, Statistics, School of Mathematical & Physical Sciences,
+> University of Newcastle, Australia (CRICOS Provider Number: 00109J)
+> Room V133  ph +61 2 4921 5548
+> Robert.King at newcastle.edu.au   http://tolstoy.newcastle.edu.au/~rking/
+> 
+>  "It might be in the basement,         
+>  I'll go upstairs and check .." Escher
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de     Key ID: F649AF90
+UFT Bremen, Leobenerstr. 1         +49 421 218 63373
+D-28359 Bremen                     http://www.uft.uni-bremen.de/chemie/ranke
+
+
+From jranke at uni-bremen.de  Fri Nov 16 11:29:18 2007
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Fri, 16 Nov 2007 11:29:18 +0100
+Subject: [R-sig-Debian] Backport of rkward
+Message-ID: <20071116102918.GA661@mail.uni-bremen.de>
+
+Dear list,
+
+I would like to announce the availability of a backport of rkward to 
+Debian etch (i386 and amd64). It will migrate to CRAN today. Thanks to
+Thomas Friedrichsmeier for developing rkward and for making the backport
+just a simple recompile with additional support from Meik Michalke.
+Thanks also to Roland Rutschmann for sponsoring rkward for the official
+Debian distribution.
+
+Best regards,
+
+Johannes
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de     Key ID: F649AF90
+UFT Bremen, Leobenerstr. 1         +49 421 218 63373
+D-28359 Bremen                     http://www.uft.uni-bremen.de/chemie/ranke
+
+
+From spluque at gmail.com  Sat Nov 17 22:16:19 2007
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Sat, 17 Nov 2007 15:16:19 -0600
+Subject: [R-sig-Debian] littler usage
+Message-ID: <87d4u87eu4.fsf@patagonia.sebmags.homelinux.org>
+
+Hi,
+
+I've been using r (the little, but sweet one!), and recently found out
+about the magic argv vector of the rest of arguments passed to it.  How
+can we process an argument that represents elements of a vector:
+
+$ r littler_ex.R 14 '3, 2'
+Error in ff * ss : non-numeric argument to binary operator
+
+where:
+
+,-----[ cat ~/scripts/R/littler_ex.R ]
+| ff <- as.numeric(argv[1])
+| ss <- c(argv[2])
+| print(ff * ss)
+`-----
+
+
+Cheers,
+
+-- 
+Seb
+
+
+From edd at debian.org  Sat Nov 17 22:47:42 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 17 Nov 2007 15:47:42 -0600
+Subject: [R-sig-Debian] littler usage
+In-Reply-To: <87d4u87eu4.fsf@patagonia.sebmags.homelinux.org>
+References: <87d4u87eu4.fsf@patagonia.sebmags.homelinux.org>
+Message-ID: <18239.24958.126506.855@ron.nulle.part>
+
+
+Seb, 
+
+On 17 November 2007 at 15:16, Sebastian P. Luque wrote:
+| Hi,
+| 
+| I've been using r (the little, but sweet one!), and recently found out
+
+It's also way cuter than the ugly Rscript. But heck, I'm one of the parents,
+so I had to say that :)
+
+| about the magic argv vector of the rest of arguments passed to it.  How
+| can we process an argument that represents elements of a vector:
+| 
+| $ r littler_ex.R 14 '3, 2'
+| Error in ff * ss : non-numeric argument to binary operator
+| 
+| where:
+| 
+| ,-----[ cat ~/scripts/R/littler_ex.R ]
+| | ff <- as.numeric(argv[1])
+| | ss <- c(argv[2])
+| | print(ff * ss)
+| `-----
+
+You're almost there -- just use 'as.numeric' on ss too:
+
+edd at ron:~> cat /tmp/seb.r
+#!/usr/bin/env r
+
+ff <- as.numeric(argv[1])
+ss <- as.numeric(argv[2])
+print(ff * ss)
+edd at ron:~> /tmp/seb.r 2 3
+[1] 6
+edd at ron:~>    
+
+There are a few examples of argv use in the examples directory:
+
+edd at ron:~> grep -c argv /usr/share/doc/littler/examples/*r
+/usr/share/doc/littler/examples/fsizes.r:0
+/usr/share/doc/littler/examples/install.r:2
+/usr/share/doc/littler/examples/mph.r:2
+/usr/share/doc/littler/examples/pace.r:3
+/usr/share/doc/littler/examples/update.r:0
+
+Hope this helps,  Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From spluque at gmail.com  Sat Nov 17 23:12:17 2007
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Sat, 17 Nov 2007 16:12:17 -0600
+Subject: [R-sig-Debian] littler usage
+References: <87d4u87eu4.fsf@patagonia.sebmags.homelinux.org>
+	<18239.24958.126506.855@ron.nulle.part>
+Message-ID: <874pfk7c8u.fsf@patagonia.sebmags.homelinux.org>
+
+On Sat, 17 Nov 2007 15:47:42 -0600,
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+[...]
+
+> You're almost there -- just use 'as.numeric' on ss too:
+
+> edd at ron:~> cat /tmp/seb.r #!/usr/bin/env r
+
+> ff <- as.numeric(argv[1])
+> ss <- as.numeric(argv[2])
+> print(ff * ss)
+> edd at ron:~> /tmp/seb.r 2 3
+> [1] 6
+> edd at ron:~>
+
+Thanks Dirk!  However, I'm trying to pass several numbers as a single
+argument, which should be turned into a numeric vector, and doing
+as.numeric() fails:
+
+$ r littler_ex.R 14 '3, 2'
+[1] NA
+
+,-----[ cat ~/scripts/R/littler_ex.R ]
+| ff <- as.numeric(argv[1])
+| ss <- as.numeric(argv[2])
+| print(ff * ss)
+`-----
+
+I know I could simply pass each number as a separate arg, but I already
+have 6 args to handle.  I didn't find an example for this situation in the
+examples.  Thanks.
+
+
+-- 
+Seb
+
+
+From edd at debian.org  Sun Nov 18 00:18:39 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 17 Nov 2007 17:18:39 -0600
+Subject: [R-sig-Debian] littler usage
+In-Reply-To: <874pfk7c8u.fsf@patagonia.sebmags.homelinux.org>
+References: <87d4u87eu4.fsf@patagonia.sebmags.homelinux.org>
+	<18239.24958.126506.855@ron.nulle.part>
+	<874pfk7c8u.fsf@patagonia.sebmags.homelinux.org>
+Message-ID: <18239.30415.908895.515435@ron.nulle.part>
+
+
+On 17 November 2007 at 16:12, Sebastian P. Luque wrote:
+| On Sat, 17 Nov 2007 15:47:42 -0600,
+| Dirk Eddelbuettel <edd at debian.org> wrote:
+| 
+| [...]
+| 
+| > You're almost there -- just use 'as.numeric' on ss too:
+| 
+| > edd at ron:~> cat /tmp/seb.r #!/usr/bin/env r
+| 
+| > ff <- as.numeric(argv[1])
+| > ss <- as.numeric(argv[2])
+| > print(ff * ss)
+| > edd at ron:~> /tmp/seb.r 2 3
+| > [1] 6
+| > edd at ron:~>
+| 
+| Thanks Dirk!  However, I'm trying to pass several numbers as a single
+| argument, which should be turned into a numeric vector, and doing
+| as.numeric() fails:
+| 
+| $ r littler_ex.R 14 '3, 2'
+| [1] NA
+
+No different from splittin a string in R, ie strsplit and do.call("rbind")
+should do.
+
+Gotta run,   Dirk
+
+| ,-----[ cat ~/scripts/R/littler_ex.R ]
+| | ff <- as.numeric(argv[1])
+| | ss <- as.numeric(argv[2])
+| | print(ff * ss)
+| `-----
+| 
+| I know I could simply pass each number as a separate arg, but I already
+| have 6 args to handle.  I didn't find an example for this situation in the
+| examples.  Thanks.
+| 
+| 
+| -- 
+| Seb
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From edd at debian.org  Sun Nov 18 04:16:25 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 17 Nov 2007 21:16:25 -0600
+Subject: [R-sig-Debian] littler usage
+In-Reply-To: <18239.30415.908895.515435@ron.nulle.part>
+References: <87d4u87eu4.fsf@patagonia.sebmags.homelinux.org>
+	<18239.24958.126506.855@ron.nulle.part>
+	<874pfk7c8u.fsf@patagonia.sebmags.homelinux.org>
+	<18239.30415.908895.515435@ron.nulle.part>
+Message-ID: <18239.44681.903618.215260@ron.nulle.part>
+
+
+On 17 November 2007 at 17:18, Dirk Eddelbuettel wrote:
+| 
+| On 17 November 2007 at 16:12, Sebastian P. Luque wrote:
+| | On Sat, 17 Nov 2007 15:47:42 -0600,
+| | Dirk Eddelbuettel <edd at debian.org> wrote:
+| | 
+| | [...]
+| | 
+| | > You're almost there -- just use 'as.numeric' on ss too:
+| | 
+| | > edd at ron:~> cat /tmp/seb.r #!/usr/bin/env r
+| | 
+| | > ff <- as.numeric(argv[1])
+| | > ss <- as.numeric(argv[2])
+| | > print(ff * ss)
+| | > edd at ron:~> /tmp/seb.r 2 3
+| | > [1] 6
+| | > edd at ron:~>
+| | 
+| | Thanks Dirk!  However, I'm trying to pass several numbers as a single
+| | argument, which should be turned into a numeric vector, and doing
+| | as.numeric() fails:
+| | 
+| | $ r littler_ex.R 14 '3, 2'
+| | [1] NA
+| 
+| No different from splittin a string in R, ie strsplit and do.call("rbind")
+| should do.
+
+This should do 
+	as.numeric(strsplit(arg[1], " ")[[1]]))
+
+Dirk
+
+| 
+| Gotta run,   Dirk
+| 
+| | ,-----[ cat ~/scripts/R/littler_ex.R ]
+| | | ff <- as.numeric(argv[1])
+| | | ss <- as.numeric(argv[2])
+| | | print(ff * ss)
+| | `-----
+| | 
+| | I know I could simply pass each number as a separate arg, but I already
+| | have 6 args to handle.  I didn't find an example for this situation in the
+| | examples.  Thanks.
+| | 
+| | 
+| | -- 
+| | Seb
+| | 
+| | _______________________________________________
+| | R-SIG-Debian mailing list
+| | R-SIG-Debian at r-project.org
+| | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| 
+| -- 
+| Three out of two people have difficulties with fractions.
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From spluque at gmail.com  Fri Nov 23 17:48:38 2007
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Fri, 23 Nov 2007 10:48:38 -0600
+Subject: [R-sig-Debian] littler usage
+References: <87d4u87eu4.fsf@patagonia.sebmags.homelinux.org>
+	<18239.24958.126506.855@ron.nulle.part>
+	<874pfk7c8u.fsf@patagonia.sebmags.homelinux.org>
+	<18239.30415.908895.515435@ron.nulle.part>
+	<18239.44681.903618.215260@ron.nulle.part>
+Message-ID: <87tzncucux.fsf@patagonia.sebmags.homelinux.org>
+
+Thanks Dirk for feedback on this.
+
+I'm also trying to take two arguments from stdin and do a simple
+computation.  I'm looking for something like:
+
+echo 1 10 | r -e "print(pretty(c(as.numeric(argv[1]), as.numeric(argv[2]))))"
+
+which of course doesn't work.  Any tips?
+
+
+Cheers,
+
+-- 
+Seb
+
+
+From edd at debian.org  Sat Nov 24 15:47:30 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 24 Nov 2007 08:47:30 -0600
+Subject: [R-sig-Debian] littler usage
+In-Reply-To: <87tzncucux.fsf@patagonia.sebmags.homelinux.org>
+References: <87d4u87eu4.fsf@patagonia.sebmags.homelinux.org>
+	<18239.24958.126506.855@ron.nulle.part>
+	<874pfk7c8u.fsf@patagonia.sebmags.homelinux.org>
+	<18239.30415.908895.515435@ron.nulle.part>
+	<18239.44681.903618.215260@ron.nulle.part>
+	<87tzncucux.fsf@patagonia.sebmags.homelinux.org>
+Message-ID: <18248.14722.691744.682323@ron.nulle.part>
+
+
+On 23 November 2007 at 10:48, Sebastian P. Luque wrote:
+| Thanks Dirk for feedback on this.
+| 
+| I'm also trying to take two arguments from stdin and do a simple
+| computation.  I'm looking for something like:
+| 
+| echo 1 10 | r -e "print(pretty(c(as.numeric(argv[1]), as.numeric(argv[2]))))"
+| 
+| which of course doesn't work.  Any tips?
+
+You have a logical inconsitency here. The string 
+
+  echo 1 10 | r -e "print(pretty(c(as.numeric(argv[1]), as.numeric(argv[2]))))"
+
+go from your shell to the OS.  Who should get argv now -- echo or r ?  
+
+The way to get what you want is to forget about argv and to read from stdin
+in the classic Unix filter tradition. 
+
+The example 'fsizes.r' in the littler sources does just that using
+readLines().  As we write in the docs:
+
+    $ ls -l /boot | awk '!/^total/ {print $5}' | \
+                             r -e 'fsizes <- as.integer(readLines());
+                                    print(summary(fsizes)); stem(fsizes)'
+
+so you get to your example via
+
+   $ echo 1 10 | r -e 'print(readLines())'    
+
+which gets you a single input line "1 10" which you can break, eg via
+strsplit, and then turn to integer and consume:
+
+   $ echo 1 10 | r -e 'print(sum(as.integer(strsplit(readLines(), " ")[[1]])))'
+   [1] 11
+
+
+
+Cheers, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From edd at debian.org  Sat Nov 24 16:55:59 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 24 Nov 2007 09:55:59 -0600
+Subject: [R-sig-Debian] littler usage
+In-Reply-To: <18248.14722.691744.682323@ron.nulle.part>
+References: <87d4u87eu4.fsf@patagonia.sebmags.homelinux.org>
+	<18239.24958.126506.855@ron.nulle.part>
+	<874pfk7c8u.fsf@patagonia.sebmags.homelinux.org>
+	<18239.30415.908895.515435@ron.nulle.part>
+	<18239.44681.903618.215260@ron.nulle.part>
+	<87tzncucux.fsf@patagonia.sebmags.homelinux.org>
+	<18248.14722.691744.682323@ron.nulle.part>
+Message-ID: <18248.18831.22934.94874@ron.nulle.part>
+
+
+On 24 November 2007 at 08:47, Dirk Eddelbuettel wrote:
+| 
+| On 23 November 2007 at 10:48, Sebastian P. Luque wrote:
+| | Thanks Dirk for feedback on this.
+| | 
+| | I'm also trying to take two arguments from stdin and do a simple
+| | computation.  I'm looking for something like:
+| | 
+| | echo 1 10 | r -e "print(pretty(c(as.numeric(argv[1]), as.numeric(argv[2]))))"
+| | 
+| | which of course doesn't work.  Any tips?
+| 
+| You have a logical inconsitency here. The string 
+| 
+|   echo 1 10 | r -e "print(pretty(c(as.numeric(argv[1]), as.numeric(argv[2]))))"
+| 
+| go from your shell to the OS.  Who should get argv now -- echo or r ?  
+
+Sorry, I think I am wrong here. It is not the 'compound command from issue'
+but rather the fact that r is used in a pipe.  In that case you need stdin
+processing as used below rather than argv processing.
+
+Dirk
+ 
+| The way to get what you want is to forget about argv and to read from stdin
+| in the classic Unix filter tradition. 
+| 
+| The example 'fsizes.r' in the littler sources does just that using
+| readLines().  As we write in the docs:
+| 
+|     $ ls -l /boot | awk '!/^total/ {print $5}' | \
+|                              r -e 'fsizes <- as.integer(readLines());
+|                                     print(summary(fsizes)); stem(fsizes)'
+| 
+| so you get to your example via
+| 
+|    $ echo 1 10 | r -e 'print(readLines())'    
+| 
+| which gets you a single input line "1 10" which you can break, eg via
+| strsplit, and then turn to integer and consume:
+| 
+|    $ echo 1 10 | r -e 'print(sum(as.integer(strsplit(readLines(), " ")[[1]])))'
+|    [1] 11
+| 
+| 
+| 
+| Cheers, Dirk
+| 
+| -- 
+| Three out of two people have difficulties with fractions.
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From spluque at gmail.com  Sat Nov 24 18:10:05 2007
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Sat, 24 Nov 2007 11:10:05 -0600
+Subject: [R-sig-Debian] littler usage
+References: <87d4u87eu4.fsf@patagonia.sebmags.homelinux.org>
+	<18239.24958.126506.855@ron.nulle.part>
+	<874pfk7c8u.fsf@patagonia.sebmags.homelinux.org>
+	<18239.30415.908895.515435@ron.nulle.part>
+	<18239.44681.903618.215260@ron.nulle.part>
+	<87tzncucux.fsf@patagonia.sebmags.homelinux.org>
+	<18248.14722.691744.682323@ron.nulle.part>
+	<18248.18831.22934.94874@ron.nulle.part>
+Message-ID: <873auvd0ya.fsf@patagonia.sebmags.homelinux.org>
+
+On Sat, 24 Nov 2007 09:55:59 -0600,
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+> On 24 November 2007 at 08:47, Dirk Eddelbuettel wrote:
+>> 
+| On 23 November 2007 at 10:48, Sebastian P. Luque wrote:
+| | Thanks Dirk for feedback on this.
+>> | 
+>> | I'm also trying to take two arguments from stdin and do a simple |
+>> computation.  I'm looking for something like:
+>> | 
+>> | echo 1 10 | r -e "print(pretty(c(as.numeric(argv[1]),
+>> as.numeric(argv[2]))))"
+>> | 
+>> | which of course doesn't work.  Any tips?
+>> 
+>> You have a logical inconsitency here. The string
+>> 
+>> echo 1 10 | r -e "print(pretty(c(as.numeric(argv[1]),
+>> as.numeric(argv[2]))))"
+>> 
+>> go from your shell to the OS.  Who should get argv now -- echo or r ?
+
+> Sorry, I think I am wrong here. It is not the 'compound command from
+> issue' but rather the fact that r is used in a pipe.  In that case you
+> need stdin processing as used below rather than argv processing.
+
+[...]
+
+Thanks Dirk.  I think my confusion came from the fact that I needed to do
+this inside an ugly pipe, which I ended up coding as in:
+
+somecommand ${SOMEFILE} | \
+    awk '{printf "cat(diff(pretty(c(%s,%s)))[1])", $6, $7}' | r -
+
+which of course could have been done as you described by awk'ing only the
+2 numbers from SOMEFILE and do the processing inside r.  I get it now!
+
+Thanks again,
+
+-- 
+Seb
+
+
+From edd at debian.org  Mon Nov 26 20:21:20 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 26 Nov 2007 13:21:20 -0600
+Subject: [R-sig-Debian] R 2.6.1
+Message-ID: <18251.7344.223668.259666@ron.nulle.part>
+
+
+R 2.6.1 is on its way to Debian unstable. I removed the references to
+gcc-4.2, so backporting should be easier. One thing I lfet in was the
+shlibs.local which will make R depend on tk8.4 newer than what testing and
+Ubuntu have, so Johannes and Vincent may need to remove the file.
+
+Debian testing users cannot run the unstable binaries as libc6 is ahead on
+unstable. We'll have to wait for libc6, or for Johannes' backports :)
+
+Cheers, Dirk
+
+
+r-base (2.6.1-1) unstable; urgency=low
+
+  * New upstream version released this morning
+  
+  * debian/rules: As gcc-4.2 is now, unset suffix '-4.2' on gcc et al
+  * debian/control: Likewise, removed '-4.2' from gcc et al in Build-Depends 
+    and Depends for r-base-dev and used versioned Depends (>= 4:4.1.0) 
+    which are also suitable for backports and Ubuntu port -- and Debian
+    will get 4.2 anyway as it is the default in testing and unstable
+
+  * debian/rules: Define FC=gfortran as the Fortran95 compiler for packages
+
+  * debian/r-base-core.shlibs: Point libR.so and libRlapack.so to r-base-core
+  
+ -- Dirk Eddelbuettel <edd at debian.org>  Mon, 26 Nov 2007 11:20:57 -0600
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From tyler.smith at mail.mcgill.ca  Mon Nov 26 20:44:08 2007
+From: tyler.smith at mail.mcgill.ca (Tyler Smith)
+Date: Mon, 26 Nov 2007 15:44:08 -0400
+Subject: [R-sig-Debian] R 2.6.1
+In-Reply-To: <18251.7344.223668.259666@ron.nulle.part>
+References: <18251.7344.223668.259666@ron.nulle.part>
+Message-ID: <20071126194408.GY1337@blackbart.mynetwork>
+
+On Mon, Nov 26, 2007 at 01:21:20PM -0600, Dirk Eddelbuettel wrote:
+> 
+> Debian testing users cannot run the unstable binaries as libc6 is ahead on
+> unstable. We'll have to wait for libc6, or for Johannes' backports :)
+
+Any idea when 2.6.0 will make it into testing? If I read the PTS
+info right, it's been hung up on some sort of circular conflict with
+rpy for some weeks.
+
+Thanks,
+
+Tyler
+
+> 
+> Cheers, Dirk
+> 
+> 
+> r-base (2.6.1-1) unstable; urgency=low
+> 
+>   * New upstream version released this morning
+>   
+>   * debian/rules: As gcc-4.2 is now, unset suffix '-4.2' on gcc et al
+>   * debian/control: Likewise, removed '-4.2' from gcc et al in Build-Depends 
+>     and Depends for r-base-dev and used versioned Depends (>= 4:4.1.0) 
+>     which are also suitable for backports and Ubuntu port -- and Debian
+>     will get 4.2 anyway as it is the default in testing and unstable
+> 
+>   * debian/rules: Define FC=gfortran as the Fortran95 compiler for packages
+> 
+>   * debian/r-base-core.shlibs: Point libR.so and libRlapack.so to r-base-core
+>   
+>  -- Dirk Eddelbuettel <edd at debian.org>  Mon, 26 Nov 2007 11:20:57 -0600
+> 
+> -- 
+> Three out of two people have difficulties with fractions.
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+                                             
+   _/                _/                      
+_/_/_/_/  _/    _/  _/    _/_/    _/  _/_/   
+ _/      _/    _/  _/  _/_/_/_/  _/_/        
+_/      _/    _/  _/  _/        _/           
+ _/_/    _/_/_/  _/    _/_/_/  _/            
+            _/                               
+       _/_/
+
+
+From tyler.smith at mail.mcgill.ca  Mon Nov 26 20:44:08 2007
+From: tyler.smith at mail.mcgill.ca (Tyler Smith)
+Date: Mon, 26 Nov 2007 15:44:08 -0400
+Subject: [R-sig-Debian] R 2.6.1
+In-Reply-To: <18251.7344.223668.259666@ron.nulle.part>
+References: <18251.7344.223668.259666@ron.nulle.part>
+Message-ID: <20071126194408.GY1337@blackbart.mynetwork>
+
+On Mon, Nov 26, 2007 at 01:21:20PM -0600, Dirk Eddelbuettel wrote:
+> 
+> Debian testing users cannot run the unstable binaries as libc6 is ahead on
+> unstable. We'll have to wait for libc6, or for Johannes' backports :)
+
+Any idea when 2.6.0 will make it into testing? If I read the PTS
+info right, it's been hung up on some sort of circular conflict with
+rpy for some weeks.
+
+Thanks,
+
+Tyler
+
+> 
+> Cheers, Dirk
+> 
+> 
+> r-base (2.6.1-1) unstable; urgency=low
+> 
+>   * New upstream version released this morning
+>   
+>   * debian/rules: As gcc-4.2 is now, unset suffix '-4.2' on gcc et al
+>   * debian/control: Likewise, removed '-4.2' from gcc et al in Build-Depends 
+>     and Depends for r-base-dev and used versioned Depends (>= 4:4.1.0) 
+>     which are also suitable for backports and Ubuntu port -- and Debian
+>     will get 4.2 anyway as it is the default in testing and unstable
+> 
+>   * debian/rules: Define FC=gfortran as the Fortran95 compiler for packages
+> 
+>   * debian/r-base-core.shlibs: Point libR.so and libRlapack.so to r-base-core
+>   
+>  -- Dirk Eddelbuettel <edd at debian.org>  Mon, 26 Nov 2007 11:20:57 -0600
+> 
+> -- 
+> Three out of two people have difficulties with fractions.
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+                                             
+   _/                _/                      
+_/_/_/_/  _/    _/  _/    _/_/    _/  _/_/   
+ _/      _/    _/  _/  _/_/_/_/  _/_/        
+_/      _/    _/  _/  _/        _/           
+ _/_/    _/_/_/  _/    _/_/_/  _/            
+            _/                               
+       _/_/
+
+
+From edd at debian.org  Mon Nov 26 21:36:33 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 26 Nov 2007 14:36:33 -0600
+Subject: [R-sig-Debian] R 2.6.1
+In-Reply-To: <20071126194408.GY1337@blackbart.mynetwork>
+References: <18251.7344.223668.259666@ron.nulle.part>
+	<20071126194408.GY1337@blackbart.mynetwork>
+Message-ID: <18251.11857.631652.537038@ron.nulle.part>
+
+
+
+On 26 November 2007 at 15:44, Tyler Smith wrote:
+| On Mon, Nov 26, 2007 at 01:21:20PM -0600, Dirk Eddelbuettel wrote:
+| > 
+| > Debian testing users cannot run the unstable binaries as libc6 is ahead on
+| > unstable. We'll have to wait for libc6, or for Johannes' backports :)
+| 
+| Any idea when 2.6.0 will make it into testing? If I read the PTS
+| info right, it's been hung up on some sort of circular conflict with
+| rpy for some weeks.
+
+Yes, very frustrating. At least you can (soon: could) grab either from
+unstable and just use them on testing. 
+
+I will no longer let rpy block R like that. Rpy has too few users -- if it
+breaks because I forgot to rebuild it, so be it.  The wait for R has been too
+long. And of course, the counter now gets reset as we have the new package.
+
+Dirk
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From edd at debian.org  Mon Nov 26 21:36:33 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 26 Nov 2007 14:36:33 -0600
+Subject: [R-sig-Debian] R 2.6.1
+In-Reply-To: <20071126194408.GY1337@blackbart.mynetwork>
+References: <18251.7344.223668.259666@ron.nulle.part>
+	<20071126194408.GY1337@blackbart.mynetwork>
+Message-ID: <18251.11857.631652.537038@ron.nulle.part>
+
+
+
+On 26 November 2007 at 15:44, Tyler Smith wrote:
+| On Mon, Nov 26, 2007 at 01:21:20PM -0600, Dirk Eddelbuettel wrote:
+| > 
+| > Debian testing users cannot run the unstable binaries as libc6 is ahead on
+| > unstable. We'll have to wait for libc6, or for Johannes' backports :)
+| 
+| Any idea when 2.6.0 will make it into testing? If I read the PTS
+| info right, it's been hung up on some sort of circular conflict with
+| rpy for some weeks.
+
+Yes, very frustrating. At least you can (soon: could) grab either from
+unstable and just use them on testing. 
+
+I will no longer let rpy block R like that. Rpy has too few users -- if it
+breaks because I forgot to rebuild it, so be it.  The wait for R has been too
+long. And of course, the counter now gets reset as we have the new package.
+
+Dirk
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From jranke at uni-bremen.de  Thu Nov 29 18:34:28 2007
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Thu, 29 Nov 2007 18:34:28 +0100
+Subject: [R-sig-Debian] R 2.6.1
+In-Reply-To: <18251.7344.223668.259666@ron.nulle.part>
+References: <18251.7344.223668.259666@ron.nulle.part>
+Message-ID: <20071129173428.GA28026@mail.uni-bremen.de>
+
+Hi Dirk, dear all,
+
+I just finished backporting 2.6.1 to etch, and the backport just got
+picked up by CRAN. I also included a rebuild of littler 0.0.11 from
+unstable. The rkward backport is still working fine, as far as I can
+tell, so I didn't rebuild.
+
+Best regards,
+
+Johannes
+
+P.S.: BTW, Vincent was really fast and already uploaded R 2.6.1 binaries
+for Ubuntu three days ago!
+
+
+
+
+
+* Dirk Eddelbuettel <edd at debian.org> [071126 20:30]:
+> 
+> R 2.6.1 is on its way to Debian unstable. I removed the references to
+> gcc-4.2, so backporting should be easier. One thing I lfet in was the
+> shlibs.local which will make R depend on tk8.4 newer than what testing and
+> Ubuntu have, so Johannes and Vincent may need to remove the file.
+> 
+> Debian testing users cannot run the unstable binaries as libc6 is ahead on
+> unstable. We'll have to wait for libc6, or for Johannes' backports :)
+> 
+> Cheers, Dirk
+> 
+> 
+> r-base (2.6.1-1) unstable; urgency=low
+> 
+>   * New upstream version released this morning
+>   
+>   * debian/rules: As gcc-4.2 is now, unset suffix '-4.2' on gcc et al
+>   * debian/control: Likewise, removed '-4.2' from gcc et al in Build-Depends 
+>     and Depends for r-base-dev and used versioned Depends (>= 4:4.1.0) 
+>     which are also suitable for backports and Ubuntu port -- and Debian
+>     will get 4.2 anyway as it is the default in testing and unstable
+> 
+>   * debian/rules: Define FC=gfortran as the Fortran95 compiler for packages
+> 
+>   * debian/r-base-core.shlibs: Point libR.so and libRlapack.so to r-base-core
+>   
+>  -- Dirk Eddelbuettel <edd at debian.org>  Mon, 26 Nov 2007 11:20:57 -0600
+> 
+> -- 
+> Three out of two people have difficulties with fractions.
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de     Key ID: F649AF90
+UFT Bremen, Leobenerstr. 1         +49 421 218 63373
+D-28359 Bremen                     http://www.uft.uni-bremen.de/chemie/ranke
+
+
+From vincent.goulet at act.ulaval.ca  Fri Nov 30 04:57:20 2007
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Thu, 29 Nov 2007 22:57:20 -0500
+Subject: [R-sig-Debian] R 2.6.1
+In-Reply-To: <20071129173428.GA28026@mail.uni-bremen.de>
+References: <18251.7344.223668.259666@ron.nulle.part>
+	<20071129173428.GA28026@mail.uni-bremen.de>
+Message-ID: <7586EC0C-AB2B-41DF-B9AA-F9B27258BD89@act.ulaval.ca>
+
+Le jeu. 29 nov. ? 12:34, Johannes Ranke a ?crit :
+
+> Hi Dirk, dear all,
+>
+> I just finished backporting 2.6.1 to etch, and the backport just got
+> picked up by CRAN. I also included a rebuild of littler 0.0.11 from
+> unstable. The rkward backport is still working fine, as far as I can
+> tell, so I didn't rebuild.
+>
+> Best regards,
+>
+> Johannes
+>
+> P.S.: BTW, Vincent was really fast and already uploaded R 2.6.1  
+> binaries
+> for Ubuntu three days ago!
+
+:-D
+
+Building also went fine over here. I only had to remove the dependency  
+on {gcc,g++,gfortran} >= 4:4.1.0 for Dapper (which has 4.0.3). What's  
+the reason for the minimum version number?
+
+Cheers,
+
+Vincent
+
+
+> * Dirk Eddelbuettel <edd at debian.org> [071126 20:30]:
+>>
+>> R 2.6.1 is on its way to Debian unstable. I removed the references to
+>> gcc-4.2, so backporting should be easier. One thing I lfet in was the
+>> shlibs.local which will make R depend on tk8.4 newer than what  
+>> testing and
+>> Ubuntu have, so Johannes and Vincent may need to remove the file.
+>>
+>> Debian testing users cannot run the unstable binaries as libc6 is  
+>> ahead on
+>> unstable. We'll have to wait for libc6, or for Johannes' backports :)
+>>
+>> Cheers, Dirk
+>>
+>>
+>> r-base (2.6.1-1) unstable; urgency=low
+>>
+>>  * New upstream version released this morning
+>>
+>>  * debian/rules: As gcc-4.2 is now, unset suffix '-4.2' on gcc et al
+>>  * debian/control: Likewise, removed '-4.2' from gcc et al in Build- 
+>> Depends
+>>    and Depends for r-base-dev and used versioned Depends (>= 4:4.1.0)
+>>    which are also suitable for backports and Ubuntu port -- and  
+>> Debian
+>>    will get 4.2 anyway as it is the default in testing and unstable
+>>
+>>  * debian/rules: Define FC=gfortran as the Fortran95 compiler for  
+>> packages
+>>
+>>  * debian/r-base-core.shlibs: Point libR.so and libRlapack.so to r- 
+>> base-core
+>>
+>> -- Dirk Eddelbuettel <edd at debian.org>  Mon, 26 Nov 2007 11:20:57  
+>> -0600
+>>
+>> -- 
+>> Three out of two people have difficulties with fractions.
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+> -- 
+> Dr. Johannes Ranke                 jranke at uni-bremen.de     Key ID:  
+> F649AF90
+> UFT Bremen, Leobenerstr. 1         +49 421 218 63373
+> D-28359 Bremen                     http://www.uft.uni-bremen.de/chemie/ranke
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From mwkimpel at gmail.com  Fri Nov 30 05:53:08 2007
+From: mwkimpel at gmail.com (Mark W Kimpel)
+Date: Thu, 29 Nov 2007 23:53:08 -0500
+Subject: [R-sig-Debian] R 2.7.0 building with Ubuntu Gutsy
+Message-ID: <474F9734.409@gmail.com>
+
+Seeing that the backport to R 2.6.1 has come along nicely, I thought I 
+would try to build 2.7.0 on my AMD64 Gutsy laptop. About a month ago I 
+tried to build 2.6.0 and failed. I got the binaries running instead.
+
+Not sure why 2.7.0 worked for me this time. I used no special compiler 
+flags at all. Obviously my system has downloaded some updates over the 
+past month and 2.7.0 is not 2.6.0.
+
+I just thought I would share this for anyone else out there who may be 
+curious about 2.7.0, especially with a 64-bit build of Ubuntu.
+
+If there is any specific information that I can share with developers 
+that would be helpful, let me know. Just trying to give a little 
+something back.
+
+Mark
+-- 
+
+Mark W. Kimpel MD  ** Neuroinformatics ** Dept. of Psychiatry
+Indiana University School of Medicine
+
+15032 Hunter Court, Westfield, IN  46074
+
+(317) 490-5129 Work, & Mobile & VoiceMail
+(317) 204-4202 Home (no voice mail please)
+
+mwkimpel<at>gmail<dot>com
+
+
+From mwkimpel at gmail.com  Fri Nov  2 21:01:35 2007
+From: mwkimpel at gmail.com (Mark W Kimpel)
+Date: Fri, 02 Nov 2007 20:01:35 -0000
+Subject: [R-sig-Debian] trouble installing building packages from source
+ using R 2.6.0 on Ubuntu Gutsy AMD64
+Message-ID: <472B8209.8020705@gmail.com>
+
+First off, if this is a duplicate post, I apologize as I am reposting 
+after getting a kick-back from the mail-server after changing email 
+addresses.
+
+Several days ago I posted a query as to how to get R-2.6.0 installed on
+Ubuntu Gutsy AMD64 build. With helpful suggestions from others on the
+list, I have come up with the following script which may be helpful to
+those who have some experience with R and BioConductor but, like me, are
+novices with Debian/Ubuntu. Development of the script was not a linear
+process, and it is possible that something is missing, so please let me
+know via the list if you encounter problems.
+
+Mark
+
+#########################################################
+#Making R and BioC on Ubuntu Gutsy with AMD64-bit OS
+
+#Add this to /etc/apt/sources.list and update apt
+deb-src http://cran.r-project.org/bin/linux/debian etch/
+apt-get update
+
+#make a directory for deb source files
+mkdir /home/USER/r-2.6.0-deb
+cd /home/USER/r-2.6.0-deb
+
+#get the source files and unpack them
+sudo apt-get source r-base
+sudo dpkg-source -x r-base_2.6.0-1~etchcran.1.dsc
+
+#cd into r-base-VERSION
+cd r-base-2.6.0
+
+#compile the package, this may be un-necessary, but I did it
+sudo dpkg-buildpackage -rfakeroot -b -us -uc -tc
+
+#get some libraries need for building R
+apt-get install build-essential # fail and will produce a suggestion to
+do the following command, DO IT
+# Dirk says this represents a possible bug, the following did work for
+me, but may be dangerous
+apt-get -f install
+
+#install the package from .deb
+sudo dpkg -i ../r-base-core_2.6.0-1~etchcran.1_amd64.deb
+
+#install some development libraries for building packages
+sudo apt-get install r-base-dev
+
+## to get rgl to install into R with Ubuntu Gutsy AMD64
+apt-get install freeglut3 freeglut3-dev libgl1-mesa-dev libglu1-mesa-dev
+libice-dev libsm-dev libx11-dev libxau-dev libxdmcp-dev libxext-dev
+libxt-dev mesa-common-dev x11proto-core-dev x11proto-input-dev
+x11proto-kb-dev x11proto-xext-dev xlibmesa-gl-dev xtrans-dev
+##OR, after R is installed, do sudo apt-get build-dep r-cran-rgl
+(edd at debian.org)
+
+## to get Rgraphviz to install
+apt-get install graphviz graphviz-dev
+##NO sudo apt-get build-dep r-cran-rgraphviz available
+
+## to get XML to install
+apt-get install xml2 libxml2-dev libxml2-utils libxml2 libxml++2.6-dev
+libxml++2.6c2a
+##OR, after R is installed, do sudo apt-get build-dep r-cran-xml
+(edd at debian.org)
+
+## to get RCurl to install
+apt-get install libcurl4-gnutls-dev libcurl3-gnutls libcurl3
+##No sudo apt-get build-dep r-cran-rcurl available
+
+#Now, if you are upgrading from an X_86 architecture to AMD64, replace
+site-library with an empty one for new packages
+cd R_HOME #if not made, make it
+mv site-library site-library-X_86 #if you have an old site-library you
+want to save
+mkdir site-library
+
+#if have packages in old library that you want installed in new one
+cd site-library-X_86
+ls > ../my.packages.txt
+
+#to .Rprofile add at beginning:
+.libPaths(new= "~/R_HOME/site-library") #tell R where site-library is
+
+export PATH:$PATH:/usr
+
+#Start R
+#install.packages from appropriate repositories, may read in old package
+names from old library using:
+packages.to.install <- read.delim("~/R_HOME/my.packages.txt", as.is =
+TRUE)[,1]
+source("http://bioconductor.org/biocLite.R")
+biocLite(packages.to.install)
+my.new.packages <- c( dir("~/R_HOME/site-library"),
+dir("/usr/lib/R/library"))
+yet.to.install <- setdiff(packages.to.install, my.new.packages)
+biocLite(yet.to.install, dependencies = TRUE)
+
+#After everything else installs, this works
+install.packages("RSPerl", repos="http://www.omegahat.org/R",
+dependencies = TRUE)
+install.packages("RSPython", repos="http://www.omegahat.org/R",
+dependencies = TRUE)
+
+# "TMat" not available in any repos, dc/d?
+
+These all installed without problems with R-2.6.0 on 11.1.2007
+
+my.new.packages
+  [1] "acepack"               "affxparser"
+"affy"
+  [4] "affycomp"              "affycoretools"
+"affydata"
+  [7] "affyio"                "affypdnn"
+"affyPLM"
+[10] "affyQCReport"          "akima"
+"ALL"
+[13] "altcdfenvs"            "amap"
+"annaffy"
+[16] "AnnBuilder"            "annotate"
+"AnnotationDbi"
+[19] "annotationTools"       "aroma.light"
+"arrayMagic"
+[22] "aws"                   "Biobase"
+"biocViews"
+[25] "bioDist"               "biomaRt"
+"Biostrings"
+[28] "boot"                  "BSgenome"
+"BufferedMatrix"
+[31] "BufferedMatrixMethods" "CALIB"
+"car"
+[34] "Category"              "cellHTS"
+"ChromoViz"
+[37] "chron"                 "class"
+"cluster"
+[40] "clusterStab"           "CoCiteStats"
+"coda"
+[43] "codelink"              "codetools"
+"colorspace"
+[46] "combinat"              "convert"
+"copa"
+[49] "corpcor"               "cosmo"
+"cosmoGUI"
+[52] "DAAG"                  "DBI"
+"DEDS"
+[55] "Design"                "diffGeneAnalysis"
+"digest"
+[58] "DynDoc"                "dynlm"
+"e1071"
+[61] "EBarrays"              "Ecdat"
+"edd"
+[64] "EMV"                   "factDesign"
+"fBasics"
+[67] "fCalendar"             "fdrtool"
+"fEcofin"
+[70] "fibroEset"             "fields"
+"fImport"
+[73] "foreign"               "fSeries"
+"fUtilities"
+[76] "gam"                   "gcrma"
+"gdata"
+[79] "GeneCycle"             "genefilter"
+"GeneMeta"
+[82] "GeneNet"               "geneplotter"
+"GeneR"
+[85] "geneRecommender"       "GeneTS"
+"GEOquery"
+[88] "GLAD"                  "GlobalAncova"
+"globaltest"
+[91] "gmodels"               "GO"
+"GO.db"
+[94] "golubEsets"            "GOstats"
+"goTools"
+[97] "gplots"                "gpls"
+"graph"
+[100] "GraphAT"               "gregmisc"
+"gridBase"
+[103] "GSEABase"              "gtools"
+"Harshlight"
+[106] "Heatplus"              "hexbin"
+"hgfocus"
+[109] "hgfocuscdf"            "hgu133a"
+"hgu133acdf"
+[112] "hgu133aprobe"          "hgu133plus2"
+"hgu95acdf"
+[115] "hgu95av2"              "hgu95av2cdf"
+"hgu95av2.db"
+[118] "hgu95av2probe"         "Hmisc"
+"hopach"
+[121] "hsahomology"           "hu6800"
+"hu6800cdf"
+[124] "hu6800probe"           "humanLLMappings"
+"hypergraph"
+[127] "Icens"                 "idiogram"
+"impute"
+[130] "ipred"                 "its"
+"KEGG"
+[133] "KEGG.db"               "keggorth"
+"KernSmooth"
+[136] "lapmix"                "lattice"
+"LBE"
+[139] "leaps"                 "limma"
+"lme4"
+[142] "LMGene"                "lmtest"
+"locfdr"
+[145] "locfit"                "lodplot"
+"longitudinal"
+[148] "LPE"                   "maanova"
+"macat"
+[151] "maCorrPlot"            "makecdfenv"
+"makePlatformDesign"
+[154] "MantelCorr"            "mapproj"
+"maps"
+[157] "marray"                "maSigPro"
+"MASS"
+[160] "matchprobes"           "Matrix"
+"mclust"
+[163] "MCMCpack"              "mda"
+"MergeMaid"
+[166] "metaArray"             "Mfuzz"
+"mgcv"
+[169] "mgu74av2"              "minpack.lm"
+"MiPP"
+[172] "mlbench"               "MLInterfaces"
+"mlmRev"
+[175] "multtest"              "MVCClass"
+"mvtnorm"
+[178] "nlme"                  "nnet"
+"nnNorm"
+[181] "odesolve"              "odfWeave"
+"oligo"
+[184] "oligoClasses"          "ontoTools"
+"OrderedList"
+[187] "oz"                    "pamr"
+"panp"
+[190] "pcaMethods"            "pcot2"
+"pdInfoBuilder"
+[193] "pdmclass"              "pickgene"
+"pixmap"
+[196] "pkgDepTools"           "plier"
+"plotrix"
+[199] "pls"                   "prada"
+"preprocessCore"
+[202] "PROcess"               "qtl"
+"quadprog"
+[205] "quantreg"              "quantsmooth"
+"qvalue"
+[208] "R2HTML"                "rae230a"
+"rae230aprobe"
+[211] "rama"                  "randomForest"
+"RankProd"
+[214] "rat2302"               "rat2302cdf"
+"RbcBook1"
+[217] "RBGL"                  "RColorBrewer"
+"rcompgen"
+[220] "R.css"                 "RCurl"
+"rda"
+[223] "Rdbi"                  "reb"
+"RefPlus"
+[226] "Resourcerer"           "rgl"
+"Rgraphviz"
+[229] "rgu34a"                "rgu34acdf"
+"rlecuyer"
+[232] "RLMM"                  "RMAPPER"
+"robustbase"
+[235] "ROC"                   "R.oo"
+"rpart"
+[238] "rrcov"                 "RSNPper"
+"RSPerl"
+[241] "RSPython"              "RSQLite"
+"RSvgDevice"
+[244] "RUnit"                 "R.utils"
+"Ruuid"
+[247] "safe"                  "SAGx"
+"sandwich"
+[250] "SBMLR"                 "scatterplot3d"
+"sem"
+[253] "SemSim"                "seqLogo"
+"sgeostat"
+[256] "siggenes"              "sigPathway"
+"simpleaffy"
+[259] "sizepower"             "sma"
+"snow"
+[262] "SparseM"               "spatial"
+"splots"
+[265] "ssize"                 "statmod"
+"stepNorm"
+[268] "strucchange"           "survival"
+"systemfit"
+[271] "TeachingDemos"         "time"
+"tkrplot"
+[274] "tkWidgets"             "topGO"
+"tripack"
+[277] "tseries"               "tweedie"
+"twilight"
+[280] "TypeInfo"              "vsn"
+"weaver"
+[283] "widgetTools"           "xgobi"
+"XML"
+[286] "xtable"                "zoo"
+"base"
+[289] "boot"                  "class"
+"cluster"
+[292] "codetools"             "datasets"
+"foreign"
+[295] "graphics"              "grDevices"
+"grid"
+[298] "KernSmooth"            "lattice"
+"MASS"
+[301] "methods"               "mgcv"
+"nlme"
+[304] "nnet"                  "rcompgen"
+"R.css"
+[307] "rpart"                 "spatial"
+"splines"
+[310] "stats"                 "stats4"
+"survival"
+[313] "tcltk"                 "tools"                 "utils"
+
+
+
+Mark W. Kimpel MD  ** Neuroinformatics ** Dept. of Psychiatry
+Indiana University School of Medicine
+
+15032 Hunter Court, Westfield, IN  46074
+
+(317) 490-5129 Work, & Mobile & VoiceMail
+(317) 204-4202 Home (no voice mail please)
+
+mwkimpel<at>gmail<dot>com
+
+
+From res90sx5 at verizon.net  Sun Nov 18 09:59:31 2007
+From: res90sx5 at verizon.net (Daniel Nordlund)
+Date: Sun, 18 Nov 2007 08:59:31 -0000
+Subject: [R-sig-Debian] failure to update package on Ubuntu 7.10
+Message-ID: <011a01c829c1$2c3ef6d0$0201a8c0@Aragorn>
+
+I am running R-2.6.0 on Ubuntu 7.10.  I have successfully installed and updated packages on Ubuntu 6.10 and 7.04.  I think I have also successfully updated packages after upgrading to 7.10.  However, today I tried to update Hmisc, mgcv, and tseries, and received the following error message:
+
+/usr/bin/ld: cannot find -lgfortran
+
+As far as I can tell I have gfortran installed.  I don't know R or Ubuntu well enough to track down the problem.  Is this a known problem, or do I have to set an environment variable or specify a special parameter to make to tell R where to find gfortran.  Any suggestions would be greatly appreciated.
+
+Thanks,
+
+Dan
+
+Daniel Nordlund
+Bothell, WA USA
+
+

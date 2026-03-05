@@ -1,0 +1,761 @@
+From vincent.goulet at act.ulaval.ca  Wed Jul  5 17:53:42 2006
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Wed, 5 Jul 2006 11:53:42 -0400
+Subject: [R-sig-Debian] Compilation of R packages
+In-Reply-To: <17579.49519.417497.5072@basebud.nulle.part>
+References: <200607042327.22974.vincent.goulet@act.ulaval.ca>
+	<17579.49519.417497.5072@basebud.nulle.part>
+Message-ID: <200607051153.42207.vincent.goulet@act.ulaval.ca>
+
+Le Mercredi 5 Juillet 2006 09:41, Dirk Eddelbuettel a ?crit?:
+> Salut Vincent,
+>
+> On 4 July 2006 at 23:27, Vincent Goulet wrote:
+> | I'm currently following your procedure suggested on R-SIG-Debian
+> | (https://stat.ethz.ch/pipermail/r-sig-debian/2006-June/000095.html) to
+> | compile and install the latest version of R on Kubuntu. It is my
+> | understanding that I can't just use Debian unstable's binary packages
+> | (which is too bad).
+>
+> It may be worth trying. Debian unstable may well be ahead in terms of
+> certain libraries but you can try.
+
+Just tried installing r-base from Debian unstable. It requires updating libc6 
+(from 2.3.6-0ubuntu20 to 2.3.6-15). I cancelled the operation in fear of 
+wrecking my newly installed system havoc.
+
+> I run Kubuntu at home on the `terminal/workstation' machine that has my
+> screen and keyboard, but I tend not to run R on that one but rather on a
+> Debian testing server I also keep around.  At work, I run Ubuntu and just
+> downloaded the sources from Debian unstable onto Ubuntu 5.10 and rebuilt
+> (which required one change in debian/control to remove the Depends and
+> Build-Depends on gfortran from a versioned Depends to an unversioned
+> Depends).
+
+This is exactly what I did (except the modifications to debian/control) and 
+triggered my question. Building r-base builds r-recommended, but not the 
+r-cran-* packages r-recommended depends on. Then it seems that building of 
+the r-cran-* packages must be done in a specific order.
+
+> | All went well for the r-base* packages. Compiling the packages
+> | r-recommended depends on seems to be another piece of cake. First, I had
+> | to download the source packages one by one (boot, cluster, ..., vr).
+> | Second, it looks like the packages have to be compiled and installed in a
+> | very specific order to solve dependency problems.
+> |
+> | Would you be kind enough to outline the specific procedure you follow to
+> | compile all the R packages for debian? Perhaps do you even have a script
+> | I might use.
+>
+> The r-sig-debian message you reference is 'defensive' in the sense that it
+> works on Debian stable and other other releases with compilers, libraries,
+> ... that may be a few months and releases old.  You didn't say which
+> Kubuntu you are running 
+
+The latest, Dapper Drake (6.06).
+
+> -- but you may not have to follow Christian's way 
+> as implemeneted in the stable port (and hence his way of dealing with
+> r-recommended as a big 'sumo' package). You could just install the CRAN
+> packages directly, or build from my Debian unstable sources (instead of
+> rebuilding on CRAN) -- a more 'offensive' approach.
+>
+> Anyway, as to why that particular way failed and what you may do about it
+> ... let me CC this to Christian who is probably in a better position to
+> answer this.
+>
+> And as a general rule, may be better to ask this on r-sig-debian as other
+> may have $0.02 (Canadian :) to chip in as well.
+
+This reply is CCed to the list.
+
+> Lastly, we should probably update the README on the CRAN site with some
+> recommendations for Ubuntu users. Something to discuss on r-sig-debian?
+
+As (K)Ubuntu seem to become increasingly popular flavours of Debian, it would 
+certainly be worth adding a note. Or perhaps someone might be interested to 
+maintain up-to-date Ubuntu packages of R?
+
+...
+
+Look, 
+
+1) I have no experience whatsoever in maintaining Debian/Ubuntu packages;
+2) I do not know exactly how more recent versions of packages are distributed 
+for Ubuntu;
+
+however, if nobody else with more experience than I is interested to maintain 
+such packages, I might try to do my part. I'll just need a mentor. ;-)
+
+Bye!   Vincent
+
+> Dirk
+>
+> | Thanks a lot in advance!
+> |
+> | Cordialement,
+> |
+> | --
+> |   Vincent Goulet, Professeur agr?g?
+> |   ?cole d'actuariat
+> |   Universit? Laval, Qu?bec
+> |   Vincent.Goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+
+-- 
+  Vincent Goulet, Associate Professor
+  ?cole d'actuariat
+  Universit? Laval, Qu?bec 
+  Vincent.Goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+
+
+From cts at debian.org  Wed Jul  5 22:55:23 2006
+From: cts at debian.org (Christian T. Steigies)
+Date: Wed, 5 Jul 2006 22:55:23 +0200
+Subject: [R-sig-Debian] Compilation of R packages
+In-Reply-To: <200607051153.42207.vincent.goulet@act.ulaval.ca>
+References: <200607042327.22974.vincent.goulet@act.ulaval.ca>
+	<17579.49519.417497.5072@basebud.nulle.part>
+	<200607051153.42207.vincent.goulet@act.ulaval.ca>
+Message-ID: <20060705205523.GA6827@chumley.earth.sol>
+
+On Wed, Jul 05, 2006 at 11:53:42AM -0400, Vincent Goulet wrote:
+> Le Mercredi 5 Juillet 2006 09:41, Dirk Eddelbuettel a ?crit?:
+> > Salut Vincent,
+> >
+> > On 4 July 2006 at 23:27, Vincent Goulet wrote:
+> > | I'm currently following your procedure suggested on R-SIG-Debian
+> > | (https://stat.ethz.ch/pipermail/r-sig-debian/2006-June/000095.html) to
+> > | compile and install the latest version of R on Kubuntu. It is my
+> > | understanding that I can't just use Debian unstable's binary packages
+> > | (which is too bad).
+> >
+> > It may be worth trying. Debian unstable may well be ahead in terms of
+> > certain libraries but you can try.
+> 
+> Just tried installing r-base from Debian unstable. It requires updating libc6 
+> (from 2.3.6-0ubuntu20 to 2.3.6-15). I cancelled the operation in fear of 
+> wrecking my newly installed system havoc.
+
+Did you try to install the sarge backport packages? Those do not require
+updated libc6 packages, so perhaps they work on ubuntu?
+
+> This is exactly what I did (except the modifications to debian/control) and 
+> triggered my question. Building r-base builds r-recommended, but not the 
+> r-cran-* packages r-recommended depends on. Then it seems that building of 
+> the r-cran-* packages must be done in a specific order.
+[...]
+> As (K)Ubuntu seem to become increasingly popular flavours of Debian, it would 
+> certainly be worth adding a note. Or perhaps someone might be interested to 
+> maintain up-to-date Ubuntu packages of R?
+
+I did not see the question/problem? 
+
+> Look, 
+> 
+> 1) I have no experience whatsoever in maintaining Debian/Ubuntu packages;
+> 2) I do not know exactly how more recent versions of packages are distributed 
+> for Ubuntu;
+> 
+> however, if nobody else with more experience than I is interested to maintain 
+> such packages, I might try to do my part. I'll just need a mentor. ;-)
+
+I don't have an Ubuntu box, as I do not use Ubuntu at all. I guess I might
+find the space to setup an ubuntu chroot, but that would require some more
+convincing and time (so definetely not before sunday)!
+
+I think the sarge backported packages should be installable on ubuntu
+systems, and if not, you could simply use the sources I prepared for the
+backports and try building with them on Ubuntu. That's exactly what I would
+do if I had an Ubunto chroot.
+Get the source from your favourite CRAN mirror or directly from my debian
+page, this should work in /etc/apt/sources.list
+deb-src http://people.debian.org/~cts/debian stable/
+
+apt-get source r-base, install the build-depends, and build the package
+(dpkg-buildpackage -rfakeroot or debuild). As Dirk said, I changed the
+r-recommended package to include all r-cran-* packages to make the
+maintenance of the backport easier for me. Actually, Dirk suggested this
+when I started the backport. This is a little tricky for upgrading since
+r-cran-* packages are only overwritten but not removed, but I think we
+solved most problems there (just an installation problem, no problems with
+running the packages). If you run into those problems, the cleanest way is
+to remove the currently installed r-recommended (and with it r-base), and then
+install the packages from the backport.
+
+BChristian
+
+
+From edd at debian.org  Thu Jul  6 00:40:59 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 5 Jul 2006 17:40:59 -0500
+Subject: [R-sig-Debian] Compilation of R packages
+In-Reply-To: <200607051153.42207.vincent.goulet@act.ulaval.ca>
+References: <200607042327.22974.vincent.goulet@act.ulaval.ca>
+	<17579.49519.417497.5072@basebud.nulle.part>
+	<200607051153.42207.vincent.goulet@act.ulaval.ca>
+Message-ID: <17580.16379.387462.120750@basebud.nulle.part>
+
+
+On 5 July 2006 at 11:53, Vincent Goulet wrote:
+| Le Mercredi 5 Juillet 2006 09:41, Dirk Eddelbuettel a ?crit?:
+| > Salut Vincent,
+| >
+| > On 4 July 2006 at 23:27, Vincent Goulet wrote:
+| > | I'm currently following your procedure suggested on R-SIG-Debian
+| > | (https://stat.ethz.ch/pipermail/r-sig-debian/2006-June/000095.html) to
+| > | compile and install the latest version of R on Kubuntu. It is my
+| > | understanding that I can't just use Debian unstable's binary packages
+| > | (which is too bad).
+| >
+| > It may be worth trying. Debian unstable may well be ahead in terms of
+| > certain libraries but you can try.
+| 
+| Just tried installing r-base from Debian unstable. It requires updating libc6 
+| (from 2.3.6-0ubuntu20 to 2.3.6-15). I cancelled the operation in fear of 
+| wrecking my newly installed system havoc.
+
+Probably prudent. I still don't have a good feel for where/how Ubuntu and
+Debian are apart in their binary underlyings (and also somewhat frustrated
+Ubuntu deviated, but that's for another time, and I even run Ubuntu on some
+boxen).
+ 
+| > I run Kubuntu at home on the `terminal/workstation' machine that has my
+| > screen and keyboard, but I tend not to run R on that one but rather on a
+| > Debian testing server I also keep around.  At work, I run Ubuntu and just
+| > downloaded the sources from Debian unstable onto Ubuntu 5.10 and rebuilt
+| > (which required one change in debian/control to remove the Depends and
+| > Build-Depends on gfortran from a versioned Depends to an unversioned
+| > Depends).
+| 
+| This is exactly what I did (except the modifications to debian/control) and 
+| triggered my question. Building r-base builds r-recommended, but not the 
+| r-cran-* packages r-recommended depends on.
+
+Yes.
+
+A few years ago I decided to decouple r-base and r-recommended. I now update
+r-cran-* whenever new files ones appear on CRAN, and that includes the
+package that the 'virtual' r-recommended Depends on.  So in short: you don't
+get the underlying r-recommended packages when you build r-base from
+_unstable_ or _testing_.
+
+You do get them if you rebuild from the Debian stable backport at CRAN that
+Christian takes care of.  
+
+| Then it seems that building of 
+| the r-cran-* packages must be done in a specific order.
+
+Yes. At the R package level there is a tricky net of interdependence. You
+need to figure that out.
+
+Or, as I suggested to your first email, forget all the futzing and just use
+R itself as in 
+
+	install.packages(c("nlme", "VR", "boot", "lattice", ...),
+                         depend=TRUE)
+
+and R will sort it out.  As r-base-core only 'Recommends: r-recommended" you
+should be fine.
+
+
+| > | All went well for the r-base* packages. Compiling the packages
+| > | r-recommended depends on seems to be another piece of cake. First, I had
+| > | to download the source packages one by one (boot, cluster, ..., vr).
+| > | Second, it looks like the packages have to be compiled and installed in a
+| > | very specific order to solve dependency problems.
+| > |
+| > | Would you be kind enough to outline the specific procedure you follow to
+| > | compile all the R packages for debian? Perhaps do you even have a script
+| > | I might use.
+| >
+| > The r-sig-debian message you reference is 'defensive' in the sense that it
+| > works on Debian stable and other other releases with compilers, libraries,
+| > ... that may be a few months and releases old.  You didn't say which
+| > Kubuntu you are running 
+| 
+| The latest, Dapper Drake (6.06).
+| 
+| > -- but you may not have to follow Christian's way 
+| > as implemeneted in the stable port (and hence his way of dealing with
+| > r-recommended as a big 'sumo' package). You could just install the CRAN
+| > packages directly, or build from my Debian unstable sources (instead of
+| > rebuilding on CRAN) -- a more 'offensive' approach.
+| >
+| > Anyway, as to why that particular way failed and what you may do about it
+| > ... let me CC this to Christian who is probably in a better position to
+| > answer this.
+| >
+| > And as a general rule, may be better to ask this on r-sig-debian as other
+| > may have $0.02 (Canadian :) to chip in as well.
+| 
+| This reply is CCed to the list.
+| 
+| > Lastly, we should probably update the README on the CRAN site with some
+| > recommendations for Ubuntu users. Something to discuss on r-sig-debian?
+| 
+| As (K)Ubuntu seem to become increasingly popular flavours of Debian, it would 
+| certainly be worth adding a note. Or perhaps someone might be interested to 
+| maintain up-to-date Ubuntu packages of R?
+
+Volunteers are always welcome.  This may be as easy as taking Christian's
+fairly self-contained 'Debian stable' packages from CRAN and re-building
+those on (K)Ubuntu 06.06 for CRAN...
+ 
+| ...
+| 
+| Look, 
+| 
+| 1) I have no experience whatsoever in maintaining Debian/Ubuntu packages;
+| 2) I do not know exactly how more recent versions of packages are distributed 
+| for Ubuntu;
+| 
+| however, if nobody else with more experience than I is interested to maintain 
+| such packages, I might try to do my part. I'll just need a mentor. ;-)
+
+I think Christian and I would be happy to mentor you.  It;s all pretty
+scriptable and based on things that are documented somewhere. The key is
+knowing where :)
+
+Dirk
+
+ 
+| Bye!   Vincent
+| 
+| > Dirk
+| >
+| > | Thanks a lot in advance!
+| > |
+| > | Cordialement,
+| > |
+| > | --
+| > |   Vincent Goulet, Professeur agr?g?
+| > |   ?cole d'actuariat
+| > |   Universit? Laval, Qu?bec
+| > |   Vincent.Goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+| 
+| -- 
+|   Vincent Goulet, Associate Professor
+|   ?cole d'actuariat
+|   Universit? Laval, Qu?bec 
+|   Vincent.Goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From edd at debian.org  Thu Jul  6 00:51:46 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 5 Jul 2006 17:51:46 -0500
+Subject: [R-sig-Debian] Compilation of R packages
+In-Reply-To: <20060705205523.GA6827@chumley.earth.sol>
+References: <200607042327.22974.vincent.goulet@act.ulaval.ca>
+	<17579.49519.417497.5072@basebud.nulle.part>
+	<200607051153.42207.vincent.goulet@act.ulaval.ca>
+	<20060705205523.GA6827@chumley.earth.sol>
+Message-ID: <17580.17026.25429.49562@basebud.nulle.part>
+
+
+On 5 July 2006 at 22:55, Christian T. Steigies wrote:
+| On Wed, Jul 05, 2006 at 11:53:42AM -0400, Vincent Goulet wrote:
+| > Le Mercredi 5 Juillet 2006 09:41, Dirk Eddelbuettel a ?crit?:
+| > > Salut Vincent,
+| > >
+| > > On 4 July 2006 at 23:27, Vincent Goulet wrote:
+| > > | I'm currently following your procedure suggested on R-SIG-Debian
+| > > | (https://stat.ethz.ch/pipermail/r-sig-debian/2006-June/000095.html) to
+| > > | compile and install the latest version of R on Kubuntu. It is my
+| > > | understanding that I can't just use Debian unstable's binary packages
+| > > | (which is too bad).
+| > >
+| > > It may be worth trying. Debian unstable may well be ahead in terms of
+| > > certain libraries but you can try.
+| > 
+| > Just tried installing r-base from Debian unstable. It requires updating libc6 
+| > (from 2.3.6-0ubuntu20 to 2.3.6-15). I cancelled the operation in fear of 
+| > wrecking my newly installed system havoc.
+| 
+| Did you try to install the sarge backport packages? Those do not require
+| updated libc6 packages, so perhaps they work on ubuntu?
+
+Good point. I think they definitely worked for Ubuntu 05.10 (== Oct 2005)
+and it may indeed work on Ubuntu 06.06.
+ 
+| > This is exactly what I did (except the modifications to debian/control) and 
+| > triggered my question. Building r-base builds r-recommended, but not the 
+| > r-cran-* packages r-recommended depends on. Then it seems that building of 
+| > the r-cran-* packages must be done in a specific order.
+| [...]
+| > As (K)Ubuntu seem to become increasingly popular flavours of Debian, it would 
+| > certainly be worth adding a note. Or perhaps someone might be interested to 
+| > maintain up-to-date Ubuntu packages of R?
+| 
+| I did not see the question/problem? 
+| 
+| > Look, 
+| > 
+| > 1) I have no experience whatsoever in maintaining Debian/Ubuntu packages;
+| > 2) I do not know exactly how more recent versions of packages are distributed 
+| > for Ubuntu;
+| > 
+| > however, if nobody else with more experience than I is interested to maintain 
+| > such packages, I might try to do my part. I'll just need a mentor. ;-)
+| 
+| I don't have an Ubuntu box, as I do not use Ubuntu at all. I guess I might
+| find the space to setup an ubuntu chroot, but that would require some more
+| convincing and time (so definetely not before sunday)!
+| 
+| I think the sarge backported packages should be installable on ubuntu
+| systems, and if not, you could simply use the sources I prepared for the
+| backports and try building with them on Ubuntu. That's exactly what I would
+| do if I had an Ubunto chroot.
+| Get the source from your favourite CRAN mirror or directly from my debian
+| page, this should work in /etc/apt/sources.list
+| deb-src http://people.debian.org/~cts/debian stable/
+| 
+| apt-get source r-base, install the build-depends, and build the package
+| (dpkg-buildpackage -rfakeroot or debuild). As Dirk said, I changed the
+| r-recommended package to include all r-cran-* packages to make the
+| maintenance of the backport easier for me. Actually, Dirk suggested this
+| when I started the backport. This is a little tricky for upgrading since
+| r-cran-* packages are only overwritten but not removed, but I think we
+| solved most problems there (just an installation problem, no problems with
+| running the packages). If you run into those problems, the cleanest way is
+| to remove the currently installed r-recommended (and with it r-base), and then
+| install the packages from the backport.
+
+We're certainly getting better at this over time :)
+
+Dirk
+ 
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From vincent.goulet at act.ulaval.ca  Mon Jul 10 16:33:48 2006
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Mon, 10 Jul 2006 10:33:48 -0400
+Subject: [R-sig-Debian] Compilation of R packages
+In-Reply-To: <17580.17026.25429.49562@basebud.nulle.part>
+References: <200607042327.22974.vincent.goulet@act.ulaval.ca>
+	<20060705205523.GA6827@chumley.earth.sol>
+	<17580.17026.25429.49562@basebud.nulle.part>
+Message-ID: <200607101033.48658.vincent.goulet@act.ulaval.ca>
+
+Le Mercredi 5 Juillet 2006 18:51, Dirk Eddelbuettel a ?crit?:
+> On 5 July 2006 at 22:55, Christian T. Steigies wrote:
+> | On Wed, Jul 05, 2006 at 11:53:42AM -0400, Vincent Goulet wrote:
+> | > Le Mercredi 5 Juillet 2006 09:41, Dirk Eddelbuettel a ?crit?:
+> | > > Salut Vincent,
+> | > >
+> | > > On 4 July 2006 at 23:27, Vincent Goulet wrote:
+> | > > | I'm currently following your procedure suggested on R-SIG-Debian
+> | > > | (https://stat.ethz.ch/pipermail/r-sig-debian/2006-June/000095.html)
+> | > > | to compile and install the latest version of R on Kubuntu. It is my
+> | > > | understanding that I can't just use Debian unstable's binary
+> | > > | packages (which is too bad).
+> | > >
+> | > > It may be worth trying. Debian unstable may well be ahead in terms of
+> | > > certain libraries but you can try.
+> | >
+> | > Just tried installing r-base from Debian unstable. It requires updating
+> | > libc6 (from 2.3.6-0ubuntu20 to 2.3.6-15). I cancelled the operation in
+> | > fear of wrecking my newly installed system havoc.
+> |
+> | Did you try to install the sarge backport packages? Those do not require
+> | updated libc6 packages, so perhaps they work on ubuntu?
+>
+> Good point. I think they definitely worked for Ubuntu 05.10 (== Oct 2005)
+> and it may indeed work on Ubuntu 06.06.
+
+Althought I did very little testing, I can confirm that the sarge (stable) 
+backport packages of R 2.3.1 available from CRAN install and seem to work 
+flawlessly with Ubuntu 6.06.
+
+That said, I am still wondering if there would be any use for 
+up-to-date/backport Ubuntu packages of R. Perhaps the current situation of 
+Debian stable packages working with the latest Ubuntu is not guaranteed to 
+hold for future releases?
+
+I remain interested to maintain such packages if needs be. Before going any 
+further, though, I would need to clarify two things.
+
+1) What are the differences between the *sources* of the Debian unstable 
+packages (of R) and the Debian stable backport packages from CRAN (other than 
+the r-recommended Depends field). Perhaps just a different set of rules?
+
+2) It seems to me even simpler to just start from the unstable packages. But 
+then, I have the problem of compiling the r-cran-* packages in the correct 
+order. This brings me back to my original question, addressed to Dirk 
+privately: what is the correct order? Dirk, I thought you "knew" since you 
+compile the packages for unstable and testing. How do you proceed?
+
+Sorry if this thread is becoming too long. And please keep in mind that I am 
+mostly an end-user, not a Debian developer of maintainer.
+
+Best,
+
+Vincent
+
+> | > This is exactly what I did (except the modifications to debian/control)
+> | > and triggered my question. Building r-base builds r-recommended, but
+> | > not the r-cran-* packages r-recommended depends on. Then it seems that
+> | > building of the r-cran-* packages must be done in a specific order.
+> |
+> | [...]
+> |
+> | > As (K)Ubuntu seem to become increasingly popular flavours of Debian, it
+> | > would certainly be worth adding a note. Or perhaps someone might be
+> | > interested to maintain up-to-date Ubuntu packages of R?
+> |
+> | I did not see the question/problem?
+> |
+> | > Look,
+> | >
+> | > 1) I have no experience whatsoever in maintaining Debian/Ubuntu
+> | > packages; 2) I do not know exactly how more recent versions of packages
+> | > are distributed for Ubuntu;
+> | >
+> | > however, if nobody else with more experience than I is interested to
+> | > maintain such packages, I might try to do my part. I'll just need a
+> | > mentor. ;-)
+> |
+> | I don't have an Ubuntu box, as I do not use Ubuntu at all. I guess I
+> | might find the space to setup an ubuntu chroot, but that would require
+> | some more convincing and time (so definetely not before sunday)!
+> |
+> | I think the sarge backported packages should be installable on ubuntu
+> | systems, and if not, you could simply use the sources I prepared for the
+> | backports and try building with them on Ubuntu. That's exactly what I
+> | would do if I had an Ubunto chroot.
+> | Get the source from your favourite CRAN mirror or directly from my debian
+> | page, this should work in /etc/apt/sources.list
+> | deb-src http://people.debian.org/~cts/debian stable/
+> |
+> | apt-get source r-base, install the build-depends, and build the package
+> | (dpkg-buildpackage -rfakeroot or debuild). As Dirk said, I changed the
+> | r-recommended package to include all r-cran-* packages to make the
+> | maintenance of the backport easier for me. Actually, Dirk suggested this
+> | when I started the backport. This is a little tricky for upgrading since
+> | r-cran-* packages are only overwritten but not removed, but I think we
+> | solved most problems there (just an installation problem, no problems
+> | with running the packages). If you run into those problems, the cleanest
+> | way is to remove the currently installed r-recommended (and with it
+> | r-base), and then install the packages from the backport.
+>
+> We're certainly getting better at this over time :)
+>
+> Dirk
+
+-- 
+  Vincent Goulet, Associate Professor
+  ?cole d'actuariat
+  Universit? Laval, Qu?bec 
+  Vincent.Goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+
+
+From cts at debian.org  Mon Jul 10 21:26:31 2006
+From: cts at debian.org (Christian T. Steigies)
+Date: Mon, 10 Jul 2006 21:26:31 +0200
+Subject: [R-sig-Debian] Compilation of R packages
+In-Reply-To: <200607101033.48658.vincent.goulet@act.ulaval.ca>
+References: <200607042327.22974.vincent.goulet@act.ulaval.ca>
+	<20060705205523.GA6827@chumley.earth.sol>
+	<17580.17026.25429.49562@basebud.nulle.part>
+	<200607101033.48658.vincent.goulet@act.ulaval.ca>
+Message-ID: <20060710192630.GA17146@chumley.earth.sol>
+
+On Mon, Jul 10, 2006 at 10:33:48AM -0400, Vincent Goulet wrote:
+> 
+> 1) What are the differences between the *sources* of the Debian unstable 
+> packages (of R) and the Debian stable backport packages from CRAN (other than 
+> the r-recommended Depends field). Perhaps just a different set of rules?
+
+http://probability.ca/cran/bin/linux/debian/sarge/r.diff
+ 
+> 2) It seems to me even simpler to just start from the unstable packages. But 
+> then, I have the problem of compiling the r-cran-* packages in the correct 
+> order. This brings me back to my original question, addressed to Dirk 
+> privately: what is the correct order? Dirk, I thought you "knew" since you 
+> compile the packages for unstable and testing. How do you proceed?
+
+I would, actually I do, build r-recommended as a real package, which
+requires just a handful of changes, as you can see in the diff. There are
+two changes for the fortran compiler, and the other half of the diff is just
+the changelog entry, so I don't think it is too hard to do.
+
+I am not sure how difficult it is to set up an ubuntu chroot, but not that I
+finally got my 6.06 CDs, and that the world cup is over, maybe I can give it
+a whirl. But I am not promising anything...
+
+Christian
+
+
+From oscar.moreno at att.net  Mon Jul 24 17:44:58 2006
+From: oscar.moreno at att.net (oscar.moreno at att.net)
+Date: Mon, 24 Jul 2006 15:44:58 +0000
+Subject: [R-sig-Debian] Repository entry in sources.list
+Message-ID: <072420061544.14283.44C4EAFA0006B151000037CB216046664801020A9D0103D29D0E0C9C01@att.net>
+
+I'd like to use APT to install the latest edition of R in my Ubuntu 6.06 OS.  What is the entry that goes in the sources.list file?  Please spell it to me as clearly as possible.  I'm going nuts trying to download and install with APT to no avail.  TIA Oscar
+
+
+From edd at debian.org  Wed Jul 26 13:53:29 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 26 Jul 2006 06:53:29 -0500
+Subject: [R-sig-Debian] Repository entry in sources.list
+In-Reply-To: <072420061544.14283.44C4EAFA0006B151000037CB216046664801020A9D0103D29D0E0C9C01@att.net>
+References: <072420061544.14283.44C4EAFA0006B151000037CB216046664801020A9D0103D29D0E0C9C01@att.net>
+Message-ID: <17607.22457.80327.883472@basebud.nulle.part>
+
+
+Oscar,
+
+On 24 July 2006 at 15:44, oscar.moreno at att.net wrote:
+| I'd like to use APT to install the latest edition of R in my Ubuntu 6.06 OS.  What is the entry that goes in the sources.list file?  Please spell it to me as clearly as possible.  I'm going nuts trying to download and install with APT to no avail.  TIA Oscar
+
+[ As an aside: you posted without being subscribed which means that I had to
+hand-approve your post. I am unlikely to do that reliably (as it gives the
+wrong incentives) so please consider subscribing before you post again. ]
+
+All relevant URLs should be in the R FAQ. Thanks to the unfatigiable
+Christian, we now have 'backports' of the current R to both Debian stable and
+Ubunto 6.06.
+
+Lastly, if apt doesn't want to play with you, send it into a quiet corner,
+download the file by hand and point 'dpkg -i' at it.
+
+Hope this helps,  Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From cts at debian.org  Wed Jul 26 14:28:32 2006
+From: cts at debian.org (Christian T. Steigies)
+Date: Wed, 26 Jul 2006 14:28:32 +0200
+Subject: [R-sig-Debian] Repository entry in sources.list
+In-Reply-To: <17607.22457.80327.883472@basebud.nulle.part>
+References: <072420061544.14283.44C4EAFA0006B151000037CB216046664801020A9D0103D29D0E0C9C01@att.net>
+	<17607.22457.80327.883472@basebud.nulle.part>
+Message-ID: <20060726122832.GA19786@chumley.earth.sol>
+
+On Wed, Jul 26, 2006 at 06:53:29AM -0500, Dirk Eddelbuettel wrote:
+> 
+> Oscar,
+> 
+> On 24 July 2006 at 15:44, oscar.moreno at att.net wrote:
+> | I'd like to use APT to install the latest edition of R in my Ubuntu 6.06 OS.  What is the entry that goes in the sources.list file?  Please spell it to me as clearly as possible.  I'm going nuts trying to download and install with APT to no avail.  TIA Oscar
+> 
+> [ As an aside: you posted without being subscribed which means that I had to
+> hand-approve your post. I am unlikely to do that reliably (as it gives the
+> wrong incentives) so please consider subscribing before you post again. ]
+> 
+> All relevant URLs should be in the R FAQ. Thanks to the unfatigiable
+> Christian, we now have 'backports' of the current R to both Debian stable and
+> Ubunto 6.06.
+
+I guess the FAQ has not been updated for Ubuntu yet... you should be able to
+use the debian packages, but maybe the ubuntu packages are better suited,
+thats why I built them. Am I spoiling the users when I cite the FAQ?
+
+I have no idea which is the closest CRAN mirror to you, so I picked one
+semi-randomly:
+
+http://cran.stat.ucla.edu/doc/FAQ/R-FAQ.html#Are-there-Unix-binaries-for-R_003f
+
+It tells you to add this to sources.list:
+deb http://cran.R-project.org/bin/linux/debian stable/
+
+For ubuntu, replace debian by ubuntu and stable by dapper and it should
+work. BTW on my etch systems I now have sources.list.d directories, so we
+could also provide the correct entry (adjusted for the mirror?) in one file
+which users would just have to drop into that directory to make it work.
+
+Disclaimer: I do not use ubuntu, so I have no idea if it actually works. And
+no, there are no AMD64 binaries (yet). I haven't heard of anybody running a
+desktop OS on a server, is there demand for AMD64 binaries for Ubuntu?
+
+Christian
+
+
+From vincent.goulet at act.ulaval.ca  Wed Jul 26 16:32:56 2006
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Wed, 26 Jul 2006 10:32:56 -0400
+Subject: [R-sig-Debian] Repository entry in sources.list
+In-Reply-To: <20060726122832.GA19786@chumley.earth.sol>
+References: <072420061544.14283.44C4EAFA0006B151000037CB216046664801020A9D0103D29D0E0C9C01@att.net>
+	<17607.22457.80327.883472@basebud.nulle.part>
+	<20060726122832.GA19786@chumley.earth.sol>
+Message-ID: <200607261032.56759.vincent.goulet@act.ulaval.ca>
+
+Le Mercredi 26 Juillet 2006 08:28, Christian T. Steigies a ?crit?:
+> On Wed, Jul 26, 2006 at 06:53:29AM -0500, Dirk Eddelbuettel wrote:
+> > Oscar,
+> >
+> > On 24 July 2006 at 15:44, oscar.moreno at att.net wrote:
+> > | I'd like to use APT to install the latest edition of R in my Ubuntu
+> > | 6.06 OS.  What is the entry that goes in the sources.list file?  Please
+> > | spell it to me as clearly as possible.  I'm going nuts trying to
+> > | download and install with APT to no avail.  TIA Oscar
+> >
+> > [ As an aside: you posted without being subscribed which means that I had
+> > to hand-approve your post. I am unlikely to do that reliably (as it gives
+> > the wrong incentives) so please consider subscribing before you post
+> > again. ]
+> >
+> > All relevant URLs should be in the R FAQ. Thanks to the unfatigiable
+> > Christian, we now have 'backports' of the current R to both Debian stable
+> > and Ubunto 6.06.
+>
+> I guess the FAQ has not been updated for Ubuntu yet... you should be able
+> to use the debian packages, but maybe the ubuntu packages are better
+> suited, thats why I built them. Am I spoiling the users when I cite the
+> FAQ?
+>
+> I have no idea which is the closest CRAN mirror to you, so I picked one
+> semi-randomly:
+>
+> http://cran.stat.ucla.edu/doc/FAQ/R-FAQ.html#Are-there-Unix-binaries-for-R_
+>003f
+>
+> It tells you to add this to sources.list:
+> deb http://cran.R-project.org/bin/linux/debian stable/
+>
+> For ubuntu, replace debian by ubuntu and stable by dapper and it should
+> work. 
+
+Oh, so the Ubuntu packages are on CRAN now? Great! I have been using them 
+happily for the last couple of weeks. Thanks again, Christian.
+
+> BTW on my etch systems I now have sources.list.d directories, so we 
+> could also provide the correct entry (adjusted for the mirror?) in one file
+> which users would just have to drop into that directory to make it work.
+>
+> Disclaimer: I do not use ubuntu, so I have no idea if it actually works.
+> And no, there are no AMD64 binaries (yet). 
+
+Funny, just minutes ago I read Martin Maechler's post on r-help 
+(https://stat.ethz.ch/pipermail/r-help/2006-July/109954.html) in which he 
+states using Ubuntu 6.06 on dual Opterons!
+
+> I haven't heard of anybody 
+> running a desktop OS on a server, is there demand for AMD64 binaries for
+> Ubuntu?
+>
+> Christian
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+  Vincent Goulet, Associate Professor
+  ?cole d'actuariat
+  Universit? Laval, Qu?bec 
+  Vincent.Goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+
+

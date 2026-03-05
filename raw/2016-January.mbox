@@ -1,0 +1,336 @@
+From dstr7320 at uni.sydney.edu.au  Sat Jan  2 01:00:07 2016
+From: dstr7320 at uni.sydney.edu.au (Dario Strbenac)
+Date: Sat, 2 Jan 2016 00:00:07 +0000
+Subject: [R-sig-Debian] Default R Font Changed After Upgrade to Debian 8
+In-Reply-To: <2601066.jp8fUjuYAM@tux>
+References: <SN1PR0101MB1439037784A1662411267AD0CDE00@SN1PR0101MB1439.prod.exchangelabs.com>
+	<22131.25628.503882.356617@max.nulle.part>
+	<SN1PR0101MB1439E7AFED15A52EED8E605ECDFD0@SN1PR0101MB1439.prod.exchangelabs.com>,
+	<2601066.jp8fUjuYAM@tux>
+Message-ID: <SN1PR0101MB143964687C081EE4253E9918CDFF0@SN1PR0101MB1439.prod.exchangelabs.com>
+
+Good day,
+
+The code is :
+
+png("grainy.png", h = 600, w = 900)
+plot(1:10, main = "abcedfghijklmnopqrstuvwxyz", cex.main = 4, cex.lab = 4, cex.axis = 4)
+dev.off()
+
+and the server has the characteristics :
+
+> getOption("bitmapType")
+[1] "cairo"
+
+> sessionInfo()
+R version 3.2.3 (2015-12-10)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Debian GNU/Linux 8 (jessie)
+
+locale:
+ [1] LC_CTYPE=C.UTF-8       LC_NUMERIC=C           LC_TIME=C.UTF-8       
+ [4] LC_COLLATE=C.UTF-8     LC_MONETARY=C.UTF-8    LC_MESSAGES=C.UTF-8   
+ [7] LC_PAPER=C.UTF-8       LC_NAME=C              LC_ADDRESS=C          
+[10] LC_TELEPHONE=C         LC_MEASUREMENT=C.UTF-8 LC_IDENTIFICATION=C   
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base
+
+> capabilities()
+       jpeg         png        tiff       tcltk         X11        aqua 
+       TRUE        TRUE        TRUE        TRUE        TRUE       FALSE 
+   http/ftp     sockets      libxml        fifo      cledit       iconv 
+       TRUE        TRUE        TRUE        TRUE        TRUE        TRUE 
+        NLS     profmem       cairo         ICU long.double     libcurl 
+       TRUE       FALSE        TRUE        TRUE        TRUE        TRUE
+
+~$ dpkg -l | grep cairo
+ii  libcairo-gobject2:amd64                                     1.14.0-2.1                              amd64        Cairo 2D vector graphics library (GObject library)
+ii  libcairo-perl                                               1.104-2                                 amd64        Perl interface to the Cairo graphics library
+ii  libcairo-script-interpreter2:amd64                          1.14.0-2.1                              amd64        Cairo 2D vector graphics library (script interpreter)
+ii  libcairo2:amd64                                             1.14.0-2.1                              amd64        Cairo 2D vector graphics library
+ii  libcairo2-dev                                               1.14.0-2.1                              amd64        Development files for the Cairo 2D graphics library
+ii  libmono-cairo2.0-cil                                        3.2.8+dfsg-10                           all          Mono Cairo library (for CLI 2.0)
+ii  libmono-cairo4.0-cil                                        3.2.8+dfsg-10                           all          Mono Cairo library (for CLI 4.0)
+ii  libpangocairo-1.0-0:amd64                                   1.36.8-3                                amd64        Layout and rendering of internationalized text
+ii  libpixman-1-0:amd64                                         0.32.6-3                                amd64        pixel-manipulation library for X and cairo
+ii  libpixman-1-dev                                             0.32.6-3                                amd64        pixel-manipulation library for X and cairo (development files)
+ii  python-cairo                                                1.8.8-1+b2                              amd64        Python bindings for the Cairo vector graphics library
+ii  python-gi-cairo                                             3.14.0-1                                amd64        Python Cairo bindings for the GObject library
+ii  python3-cairo                                               1.10.0+dfsg-4+b1                        amd64        Python 3 bindings for the Cairo vector graphics library
+ii  python3-gi-cairo                                            3.14.0-1                                amd64        Python 3 Cairo bindings for the GObject library
+
+I recently noticed it also affects other software, like Firefox internet browser.
+
+--------------------------------------
+Dario Strbenac
+PhD Student
+University of Sydney
+Camperdown NSW 2050
+Australia
+
+From jranke at uni-bremen.de  Sat Jan  2 09:27:11 2016
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Sat, 02 Jan 2016 09:27:11 +0100
+Subject: [R-sig-Debian] Default R Font Changed After Upgrade to Debian 8
+In-Reply-To: <SN1PR0101MB143964687C081EE4253E9918CDFF0@SN1PR0101MB1439.prod.exchangelabs.com>
+References: <SN1PR0101MB1439037784A1662411267AD0CDE00@SN1PR0101MB1439.prod.exchangelabs.com>
+	<2601066.jp8fUjuYAM@tux>
+	<SN1PR0101MB143964687C081EE4253E9918CDFF0@SN1PR0101MB1439.prod.exchangelabs.com>
+Message-ID: <3844869.kiyrAlnoCD@tux>
+
+Dario,
+
+thanks for the additional information. I can not reproduce this here, the 
+fonts look nice and smooth on my system, which otherwise has pretty much the 
+same characteristics as your system, with the same cario version, but some 
+small, presumably irrelevant differences in the installed packages:
+
+dpkg -l | grep cairo
+ii  libcairo-gobject2:amd64                1.14.0-2.1                           
+amd64        Cairo 2D vector graphics library (GObject library)
+ii  libcairo-script-interpreter2:amd64     1.14.0-2.1                           
+amd64        Cairo 2D vector graphics library (script interpreter)
+ii  libcairo2:amd64                        1.14.0-2.1                           
+amd64        Cairo 2D vector graphics library
+ii  libcairo2-dev                          1.14.0-2.1                           
+amd64        Development files for the Cairo 2D graphics library
+ii  libcairomm-1.0-1                       1.10.0-1.1                           
+amd64        C++ wrappers for Cairo (shared libraries)
+ii  libpangocairo-1.0-0:amd64              1.36.8-3                             
+amd64        Layout and rendering of internationalized text
+ii  libpixman-1-0:amd64                    0.32.6-3                             
+amd64        pixel-manipulation library for X and cairo
+ii  libpixman-1-dev                        0.32.6-3                             
+amd64        pixel-manipulation library for X and cairo (development files)
+ii  python-cairo                           1.8.8-1+b2                           
+amd64        Python bindings for the Cairo vector graphics library
+ii  python-gi-cairo                        3.14.0-1                             
+amd64        Python Cairo bindings for the GObject library
+
+
+Kind regards,
+
+Johannes
+
+Am Samstag, 2. Januar 2016, 00:00:07 schrieb Dario Strbenac:
+> Good day,
+> 
+> The code is :
+> 
+> png("grainy.png", h = 600, w = 900)
+> plot(1:10, main = "abcedfghijklmnopqrstuvwxyz", cex.main = 4, cex.lab = 4,
+> cex.axis = 4) dev.off()
+> 
+> and the server has the characteristics :
+> > getOption("bitmapType")
+> 
+> [1] "cairo"
+> 
+> > sessionInfo()
+> 
+> R version 3.2.3 (2015-12-10)
+> Platform: x86_64-pc-linux-gnu (64-bit)
+> Running under: Debian GNU/Linux 8 (jessie)
+> 
+> locale:
+>  [1] LC_CTYPE=C.UTF-8       LC_NUMERIC=C           LC_TIME=C.UTF-8
+>  [4] LC_COLLATE=C.UTF-8     LC_MONETARY=C.UTF-8    LC_MESSAGES=C.UTF-8
+>  [7] LC_PAPER=C.UTF-8       LC_NAME=C              LC_ADDRESS=C
+> [10] LC_TELEPHONE=C         LC_MEASUREMENT=C.UTF-8 LC_IDENTIFICATION=C
+> 
+> attached base packages:
+> [1] stats     graphics  grDevices utils     datasets  methods   base
+> 
+> > capabilities()
+> 
+>        jpeg         png        tiff       tcltk         X11        aqua
+>        TRUE        TRUE        TRUE        TRUE        TRUE       FALSE
+>    http/ftp     sockets      libxml        fifo      cledit       iconv
+>        TRUE        TRUE        TRUE        TRUE        TRUE        TRUE
+>         NLS     profmem       cairo         ICU long.double     libcurl
+>        TRUE       FALSE        TRUE        TRUE        TRUE        TRUE
+> 
+> ~$ dpkg -l | grep cairo
+> ii  libcairo-gobject2:amd64                                     1.14.0-2.1  
+>                            amd64        Cairo 2D vector graphics library
+> (GObject library) ii  libcairo-perl                                        
+>       1.104-2                                 amd64        Perl interface
+> to the Cairo graphics library ii  libcairo-script-interpreter2:amd64       
+>                   1.14.0-2.1                              amd64       
+> Cairo 2D vector graphics library (script interpreter) ii  libcairo2:amd64  
+>                                           1.14.0-2.1                       
+>       amd64        Cairo 2D vector graphics library ii  libcairo2-dev      
+>                                         1.14.0-2.1                         
+>     amd64        Development files for the Cairo 2D graphics library ii 
+> libmono-cairo2.0-cil                                        3.2.8+dfsg-10  
+>                         all          Mono Cairo library (for CLI 2.0) ii 
+> libmono-cairo4.0-cil                                        3.2.8+dfsg-10  
+>                         all          Mono Cairo library (for CLI 4.0) ii 
+> libpangocairo-1.0-0:amd64                                   1.36.8-3       
+>                         amd64        Layout and rendering of
+> internationalized text ii  libpixman-1-0:amd64                             
+>            0.32.6-3                                amd64       
+> pixel-manipulation library for X and cairo ii  libpixman-1-dev             
+>                                0.32.6-3                               
+> amd64        pixel-manipulation library for X and cairo (development files)
+> ii  python-cairo                                                1.8.8-1+b2 
+>                             amd64        Python bindings for the Cairo
+> vector graphics library ii  python-gi-cairo                                
+>             3.14.0-1                                amd64        Python
+> Cairo bindings for the GObject library ii  python3-cairo                   
+>                            1.10.0+dfsg-4+b1                        amd64   
+>     Python 3 bindings for the Cairo vector graphics library ii 
+> python3-gi-cairo                                            3.14.0-1       
+>                         amd64        Python 3 Cairo bindings for the
+> GObject library
+> 
+> I recently noticed it also affects other software, like Firefox internet
+> browser.
+> 
+> --------------------------------------
+> Dario Strbenac
+> PhD Student
+> University of Sydney
+> Camperdown NSW 2050
+> Australia
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+-- 
+PD Dr. Johannes Ranke
+Kronacher Str. 8
+79639 Grenzach-Wyhlen
+
+
+From klerer at sxmail.de  Mon Jan  4 19:25:03 2016
+From: klerer at sxmail.de (klerer at sxmail.de)
+Date: Mon, 4 Jan 2016 19:25:03 +0100
+Subject: [R-sig-Debian] R package update on Kubuntu
+Message-ID: <21c29aae2527cca6427207d12f563854@www.sxmail.de>
+
+Dear list,[1]I use a current and continuously updated Linux
+ distribution (Kubuntu, 14.XY < LTS < 15.10) and since not so long I decided to 
+venture into R statistical programming by means of an editor suitable 
+for KDE called "rkward"; the R version installed on that Linux machine 
+is version 3.0.2.[2]I experienced problems concerning the installation 
+of R packages and R packages' updates as well as editor updates (you don't 
+have to worry to deal with the latter as I have still to contact the 
+"rkward" team on that issue) lately. [3]My most important problem by now is that I
+ apparently were using one mirror (a "https://" mirror of a University 
+in my home country) too often and that grew into a problem in so far as 
+package updates via my GUI of choice ("rkward") are now not possible anymore.[4]Do you know a way/ ways out? I especially contact you because Kubuntu is a Debian flavour so that an answer (or hint) to the problem('s resolution) presented in [3] could perhaps require knowledge that would exceed that of a "helping hand's" abilities.Best regards,Markus Hofstetter
+
+
+	[[alternative HTML version deleted]]
+
+
+From marutter at gmail.com  Mon Jan  4 19:36:39 2016
+From: marutter at gmail.com (Michael Rutter)
+Date: Mon, 4 Jan 2016 13:36:39 -0500
+Subject: [R-sig-Debian] R package update on Kubuntu
+In-Reply-To: <21c29aae2527cca6427207d12f563854@www.sxmail.de>
+References: <21c29aae2527cca6427207d12f563854@www.sxmail.de>
+Message-ID: <568ABBB7.8020704@gmail.com>
+
+
+
+On 01/04/2016 01:25 PM, klerer at sxmail.de wrote:
+> Dear list,[1]I use a current and continuously updated Linux
+>   distribution (Kubuntu, 14.XY < LTS < 15.10) and since not so long I decided to
+> venture into R statistical programming by means of an editor suitable
+> for KDE called "rkward"; the R version installed on that Linux machine
+> is version 3.0.2.[2]I experienced problems concerning the installation
+> of R packages and R packages' updates as well as editor updates (you don't
+> have to worry to deal with the latter as I have still to contact the
+> "rkward" team on that issue) lately. [3]My most important problem by now is that I
+>   apparently were using one mirror (a "https://" mirror of a University
+> in my home country) too often and that grew into a problem in so far as
+> package updates via my GUI of choice ("rkward") are now not possible anymore.[4]Do you know a way/ ways out? I especially contact you because Kubuntu is a Debian flavour so that an answer (or hint) to the problem('s resolution) presented in [3] could perhaps require knowledge that would exceed that of a "helping hand's" abilities.Best regards,Markus Hofstetter
+
+Markus,
+
+My suggestion would be to use the following series of PPA's to keep 
+up-to date on the packages:
+
+Base R: https://launchpad.net/~marutter/+archive/ubuntu/rrutter
+Additional Packages: https://launchpad.net/~marutter/+archive/ubuntu/c2d4u
+RKWard: 
+https://launchpad.net/~rkward-devel/+archive/ubuntu/rkward-stable-cran
+
+If you install those PPA's and then install packages as you would a 
+regular Ubuntu package (apt-get, for example) then all will be updated 
+automatically.
+
+Michael
+
+
+>
+> 	[[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From edd at debian.org  Mon Jan  4 19:38:23 2016
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 4 Jan 2016 12:38:23 -0600
+Subject: [R-sig-Debian] R package update on Kubuntu
+In-Reply-To: <21c29aae2527cca6427207d12f563854@www.sxmail.de>
+References: <21c29aae2527cca6427207d12f563854@www.sxmail.de>
+Message-ID: <22154.48159.102275.404174@max.nulle.part>
+
+
+Markus,
+
+First off, there is no tax or fee on spaces or newlines.
+
+Your email would be a lot more readable if you inserted some breaks.
+
+On 4 January 2016 at 19:25, klerer at sxmail.de wrote:
+| Dear list,[1]I use a current and continuously updated Linux
+|  distribution (Kubuntu, 14.XY < LTS < 15.10) and since not so long I decided to 
+| venture into R statistical programming by means of an editor suitable 
+| for KDE called "rkward"; the R version installed on that Linux machine 
+| is version 3.0.2.[2]I experienced problems concerning the installation 
+| of R packages and R packages' updates as well as editor updates (you don't 
+| have to worry to deal with the latter as I have still to contact the 
+| "rkward" team on that issue) lately. [3]My most important problem by now is that I
+|  apparently were using one mirror (a "https://" mirror of a University 
+| in my home country) too often and that grew into a problem in so far as 
+| package updates via my GUI of choice ("rkward") are now not possible anymore.[4]Do you know a way/ ways out? I especially contact you because Kubuntu is a Debian flavour so that an answer (or hint) to the problem('s resolution) presented in [3] could perhaps require knowledge that would exceed that of a "helping hand's" abilities.Best regards,Markus Hofstetter
+
+You could try contacting the rkward team and see if
+
+ - someone has backported the current version to your Ubuntu release
+
+ - can lend you hand otherwise
+
+In open source land, the usual recommendation is to start from the source so
+maybe just maybe you have to consider building it locally.  I also had some
+luck with having Ubuntu/Canonical build packages for me via http://launchpad.net
+but it helps if you already know the basic of packaging...
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From klerer at sxmail.de  Sun Jan 17 03:07:26 2016
+From: klerer at sxmail.de (klerer at sxmail.de)
+Date: Sun, 17 Jan 2016 03:07:26 +0100
+Subject: [R-sig-Debian] care TIMES two
+Message-ID: <ec3282379bcacc498e1d21dee0fe5ba6@www.sxmail.de>
+
+Dear list,[1] recently when searching the list of Kubuntu (14.04 LTS)-available software packages via "synaptic" I was quite surprised to find that a package called "caret" had a strong similarity in name with an R (version 3.0.2 installed) package mentioned in a book on R which I read.[2] As there was no indication to the existence of a CRAN package really called "r(-****)-caret" but to that of a "general" (K)ubuntu package of quite the same name that is furthermore and to-date uninstalled on my system, the following question arose to me:[3] When there was a package in R (run on a Kubuntu system) whose name "coincided" with that of a (K)ubuntu software package also available to (K)ubuntu users, would it hence be necessary to install that "general" package OF BOTH LIKEWISE-NAMED ONES first on that very Linux system so that upon importing and unpacking the .gz.zip file containing the corresponding package from a trustable source (CRAN) the latter step (import+unpacking of the
+compressed file) could at all bear fruits in that THE SAME-NAME EARMARKED R PACKAGE would operate on the R-hosting Linux system at all?[4] I have to admit that which ran through my mind and materialised as item [3] of this email could appear confusing; the "fear" of not being able to use an R functionality on my Linux OS without enabling the latter to allow for the operation of software capability imported and therewith plugged in to unfold its power within the bounds of the former (R) is the simple reason to turn to you.Best regards,Markus Hofstetter
+
+
+	[[alternative HTML version deleted]]
+
+

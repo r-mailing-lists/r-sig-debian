@@ -1,0 +1,2134 @@
+From spluque at gmail.com  Mon Jun  1 20:06:23 2009
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Mon, 01 Jun 2009 13:06:23 -0500
+Subject: [R-sig-Debian] piping to littler
+Message-ID: <87r5y3n80w.fsf@patagonia.sebmags.homelinux.org>
+
+Hi,
+
+This code used to work well until a few months ago (I haven't used it
+since), but now it's giving this:
+
+---<--------------------cut here---------------start------------------->---
+$ cat <<EOF | r -
+locs <- read.csv(list.files(pattern="ds_.+_.+\\.csv"),
+                 colClasses=c(rep("character", 2), "numeric", "character",
+                 rep("numeric", 2), rep("character", 4), rep("numeric", 3),
+                 rep("logical", 4)))
+EOF
+> > > > > Loading required package: methods
+littler: Incomplete Line! Need more code!
+---<--------------------cut here---------------end--------------------->---
+
+It seems like a quoting issue but I can't pinpoint it.  Thanks.
+
+
+Cheers,
+
+-- 
+Seb
+
+
+From edd at debian.org  Mon Jun  1 20:53:54 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 1 Jun 2009 13:53:54 -0500
+Subject: [R-sig-Debian] piping to littler
+In-Reply-To: <87r5y3n80w.fsf@patagonia.sebmags.homelinux.org>
+References: <87r5y3n80w.fsf@patagonia.sebmags.homelinux.org>
+Message-ID: <18980.9154.556199.733952@ron.nulle.part>
+
+
+On 1 June 2009 at 13:06, Sebastian P. Luque wrote:
+| Hi,
+| 
+| This code used to work well until a few months ago (I haven't used it
+| since), but now it's giving this:
+| 
+| ---<--------------------cut here---------------start------------------->---
+| $ cat <<EOF | r -
+| locs <- read.csv(list.files(pattern="ds_.+_.+\\.csv"),
+|                  colClasses=c(rep("character", 2), "numeric", "character",
+|                  rep("numeric", 2), rep("character", 4), rep("numeric", 3),
+|                  rep("logical", 4)))
+| EOF
+| > > > > > Loading required package: methods
+| littler: Incomplete Line! Need more code!
+| ---<--------------------cut here---------------end--------------------->---
+| 
+| It seems like a quoting issue but I can't pinpoint it.  Thanks.
+
+Maybe it is something else.  Did you change shells?  
+
+Reading from '-' still works for me when needed. Here is a quick throw-away
+example using awk to pick file size from a directory listing and letting r
+summarize it [1]
+
+edd at ron:~$ ls -l /etc | awk '/^-/ {print $5}' | r -e'print(summary(as.numeric(readLines())))' -
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+      0     272     843    7980    2540  219000 
+edd at ron:~$ 
+
+Dirk
+
+[1] Not that great an example otherwise...
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From spluque at gmail.com  Mon Jun  1 23:38:31 2009
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Mon, 01 Jun 2009 16:38:31 -0500
+Subject: [R-sig-Debian] piping to littler
+References: <87r5y3n80w.fsf@patagonia.sebmags.homelinux.org>
+	<18980.9154.556199.733952@ron.nulle.part>
+Message-ID: <87iqjfmy7c.fsf@patagonia.sebmags.homelinux.org>
+
+On Mon, 1 Jun 2009 13:53:54 -0500,
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+> On 1 June 2009 at 13:06, Sebastian P. Luque wrote:
+>> Hi,
+>> 
+>> This code used to work well until a few months ago (I haven't used it
+>> since), but now it's giving this:
+>> 
+>> ---<--------------------cut
+>> here---------------start------------------->--- $ cat <<EOF | r -
+>> locs <- read.csv(list.files(pattern="ds_.+_.+\\.csv"),
+>> colClasses=c(rep("character", 2), "numeric", "character",
+>> rep("numeric", 2), rep("character", 4), rep("numeric", 3),
+>> rep("logical", 4))) EOF > > > > > Loading required package: methods
+>> littler: Incomplete Line! Need more code!
+>> ---<--------------------cut
+>> here---------------end--------------------->---
+>> 
+>> It seems like a quoting issue but I can't pinpoint it.  Thanks.
+
+> Maybe it is something else.  Did you change shells?
+
+No I didn't, I still use bash with the same ~/.bashrc.
+
+
+> Reading from '-' still works for me when needed. Here is a quick
+> throw-away example using awk to pick file size from a directory
+> listing and letting r summarize it [1]
+
+> edd at ron:~$ ls -l /etc | awk '/^-/ {print $5}' | r
+> -e'print(summary(as.numeric(readLines())))' - Min. 1st Qu.  Median
+> Mean 3rd Qu.  Max.  0 272 843 7980 2540 219000 edd at ron:~$
+
+Yes, there's no problems with that here either, nor with:
+
+---<--------------------cut here---------------start------------------->---
+$ cat <<EOF | r -
+print(summary(read.csv("ds_060910_090528.csv", colClasses=c(rep("character", 2), "numeric", "character", rep("numeric", 2), rep("character", 4), rep("numeric", 3), rep("logical", 4)))))
+EOF
+> > Loading required package: methods
+      id              prognum              locid           ptt           
+ Length:15284       Length:15284       Min.   :    1   Length:15284      
+ Class :character   Class :character   1st Qu.:21168   Class :character  
+ Mode  :character   Mode  :character   Median :26996   Mode  :character  
+                                       Mean   :24264                     
+                                       3rd Qu.:33271                     
+                                       Max.   :37566                     
+                                       NA's   :   32                     
+     nlines        nsensors      satname              date          
+ Min.   : 4.0   Min.   : 3.0   Length:15284       Length:15284      
+ 1st Qu.: 8.0   1st Qu.:11.0   Class :character   Class :character  
+ Median :10.0   Median :15.0   Mode  :character   Mode  :character  
+ Mean   :11.7   Mean   :17.6                                        
+ 3rd Qu.:14.0   3rd Qu.:31.0                                        
+ Max.   :59.0   Max.   :31.0                                        
+ NA's   :32.0   NA's   :32.0                                        
+     time              class                lon             lat      
+ Length:15284       Length:15284       Min.   :-94.6   Min.   :54.4  
+ Class :character   Class :character   1st Qu.:-80.0   1st Qu.:56.6  
+ Mode  :character   Mode  :character   Median :-79.8   Median :56.8  
+                                       Mean   :-78.7   Mean   :57.2  
+                                       3rd Qu.:-79.5   3rd Qu.:57.1  
+                                       Max.   :-61.2   Max.   :65.0  
+                                                                     
+   transfreq         tripRMS        firstPass       secondPass     
+ Min.   :4.02e+08   Mode :logical   Mode :logical   Mode :logical  
+ 1st Qu.:4.02e+08   FALSE:1966      FALSE:101       FALSE:3072     
+ Median :4.02e+08   TRUE :13318     TRUE :15183     TRUE :12212    
+ Mean   :4.02e+08   NA's :0         NA's :0         NA's :0        
+ 3rd Qu.:4.02e+08                                                  
+ Max.   :4.02e+08                                                  
+ NA's   :3.20e+01                                                  
+ thirdPass      
+ Mode :logical  
+ FALSE:128      
+ TRUE :15156    
+ NA's :0        
+---<--------------------cut here---------------end--------------------->---
+
+which only differs by list.files() with the problem code.  But check
+this:
+
+---<--------------------cut here---------------start------------------->---
+$ cat <<EOF | r -
+print(summary(read.csv("ds_060910_090528.csv",
+> > colClasses=c(rep("character", 2), "numeric", "character", rep("numeric", 2), rep("character", 4), rep("numeric", 3), rep("logical", 4)))))
+EOF
+> Loading required package: methods
+littler: Incomplete Line! Need more code!
+---<--------------------cut here---------------end--------------------->---
+
+which differs by the newline in read.csv() compared to above code.  It
+seems as if now the expression should be complete on the first line?
+
+
+-- 
+Seb
+
+
+From jsweeney at spss.com  Wed Jun  3 17:28:16 2009
+From: jsweeney at spss.com (Sweeney, Jeff)
+Date: Wed, 3 Jun 2009 10:28:16 -0500
+Subject: [R-sig-Debian] install R 2.8 on Debian etch?
+Message-ID: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7C4D@MIAEMAILEVS1.spss.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20090603/35028596/attachment.pl>
+
+From edd at debian.org  Wed Jun  3 18:01:30 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 3 Jun 2009 11:01:30 -0500
+Subject: [R-sig-Debian] install R 2.8 on Debian etch?
+In-Reply-To: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7C4D@MIAEMAILEVS1.spss.com>
+References: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7C4D@MIAEMAILEVS1.spss.com>
+Message-ID: <18982.40538.684222.634242@ron.nulle.part>
+
+
+On 3 June 2009 at 10:28, Sweeney, Jeff wrote:
+| How do I install R 2.8 on Debian etch? Are there mirrors for older versions of R? Where are they?
+
+The porting volunteers generally support the newest versions (e.g. right now
+2.9.0) on the most recent releases, e.g. stable (codename 'lenny') and
+testing (codename 'squeeze').
+
+But if you want a neither-current-nor-from-distro version on an older
+release, you are outside the supported matrix of disto and R version and
+hence on your own.  
+
+Now, it is not hard to locally build a package based on the packaging sources
+(esp if you know a little about Unix and/or Debian). If you want to try that,
+we could probably walk you trough that.
+
+Otherwise, you can also try the lenny version of R 2.9.0 plus whichever
+library updates your etch system needs.
+
+Hth, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From jsweeney at spss.com  Wed Jun  3 18:09:13 2009
+From: jsweeney at spss.com (Sweeney, Jeff)
+Date: Wed, 3 Jun 2009 11:09:13 -0500
+Subject: [R-sig-Debian] install R 2.8 on Debian etch?
+In-Reply-To: <18982.40538.684222.634242@ron.nulle.part>
+References: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7C4D@MIAEMAILEVS1.spss.com>
+	<18982.40538.684222.634242@ron.nulle.part>
+Message-ID: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7D80@MIAEMAILEVS1.spss.com>
+
+I understand. I need 2.8 for compatibility with another application so I'll build it.
+Thanks,
+
+-----Original Message-----
+From: Dirk Eddelbuettel [mailto:edd at debian.org] 
+Sent: Wednesday, June 03, 2009 11:02 AM
+To: Sweeney, Jeff
+Cc: r-sig-debian at r-project.org
+Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+
+
+On 3 June 2009 at 10:28, Sweeney, Jeff wrote:
+| How do I install R 2.8 on Debian etch? Are there mirrors for older versions of R? Where are they?
+
+The porting volunteers generally support the newest versions (e.g. right now
+2.9.0) on the most recent releases, e.g. stable (codename 'lenny') and
+testing (codename 'squeeze').
+
+But if you want a neither-current-nor-from-distro version on an older
+release, you are outside the supported matrix of disto and R version and
+hence on your own.  
+
+Now, it is not hard to locally build a package based on the packaging sources
+(esp if you know a little about Unix and/or Debian). If you want to try that,
+we could probably walk you trough that.
+
+Otherwise, you can also try the lenny version of R 2.9.0 plus whichever
+library updates your etch system needs.
+
+Hth, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From edd at debian.org  Wed Jun  3 18:37:59 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 3 Jun 2009 11:37:59 -0500
+Subject: [R-sig-Debian] install R 2.8 on Debian etch?
+In-Reply-To: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7D80@MIAEMAILEVS1.spss.com>
+References: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7C4D@MIAEMAILEVS1.spss.com>
+	<18982.40538.684222.634242@ron.nulle.part>
+	<6CD9B6A6B6CCBA4FA497F07182F4EE83020E7D80@MIAEMAILEVS1.spss.com>
+Message-ID: <18982.42727.719987.602696@ron.nulle.part>
+
+
+On 3 June 2009 at 11:09, Sweeney, Jeff wrote:
+| I understand. I need 2.8 for compatibility with another application 
+
+Starting with S and ending in PSS, maybe?  ;-)
+
+| so I'll build it.
+
+I'd still go for apt-get source r-base, copy the debian/ directory you get
+that way to your 2.8.0 source (or 2.8.1, rather -- why not use known bug
+fixes...) and then run 'dpkg-buildpackage -us -uc -tc -rfakeroot' over it [
+these options mean no gpg signing of anything, clean and use fakeroot for
+faked su permissions while building ]  One day I write a proper document on
+that process...
+
+Dirk
+
+| Thanks,
+| 
+| -----Original Message-----
+| From: Dirk Eddelbuettel [mailto:edd at debian.org] 
+| Sent: Wednesday, June 03, 2009 11:02 AM
+| To: Sweeney, Jeff
+| Cc: r-sig-debian at r-project.org
+| Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+| 
+| 
+| On 3 June 2009 at 10:28, Sweeney, Jeff wrote:
+| | How do I install R 2.8 on Debian etch? Are there mirrors for older versions of R? Where are they?
+| 
+| The porting volunteers generally support the newest versions (e.g. right now
+| 2.9.0) on the most recent releases, e.g. stable (codename 'lenny') and
+| testing (codename 'squeeze').
+| 
+| But if you want a neither-current-nor-from-distro version on an older
+| release, you are outside the supported matrix of disto and R version and
+| hence on your own.  
+| 
+| Now, it is not hard to locally build a package based on the packaging sources
+| (esp if you know a little about Unix and/or Debian). If you want to try that,
+| we could probably walk you trough that.
+| 
+| Otherwise, you can also try the lenny version of R 2.9.0 plus whichever
+| library updates your etch system needs.
+| 
+| Hth, Dirk
+| 
+| -- 
+| Three out of two people have difficulties with fractions.
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From jsweeney at spss.com  Wed Jun  3 18:46:10 2009
+From: jsweeney at spss.com (Sweeney, Jeff)
+Date: Wed, 3 Jun 2009 11:46:10 -0500
+Subject: [R-sig-Debian] install R 2.8 on Debian etch?
+In-Reply-To: <18982.42727.719987.602696@ron.nulle.part>
+References: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7C4D@MIAEMAILEVS1.spss.com><18982.40538.684222.634242@ron.nulle.part><6CD9B6A6B6CCBA4FA497F07182F4EE83020E7D80@MIAEMAILEVS1.spss.com>
+	<18982.42727.719987.602696@ron.nulle.part>
+Message-ID: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7E48@MIAEMAILEVS1.spss.com>
+
+Well, it *was* SPSS, the same as the Company name. We rebranded the application to 'Statistics' for various reasons. Statistics 18 requires R 2.8. I would like to say it requires R 2.8 or later but I don't think I will have much luck lobbying for that.
+
+-----Original Message-----
+From: Dirk Eddelbuettel [mailto:edd at debian.org] 
+Sent: Wednesday, June 03, 2009 11:38 AM
+To: Sweeney, Jeff
+Cc: r-sig-debian at r-project.org
+Subject: RE: [R-sig-Debian] install R 2.8 on Debian etch?
+
+
+On 3 June 2009 at 11:09, Sweeney, Jeff wrote:
+| I understand. I need 2.8 for compatibility with another application 
+
+Starting with S and ending in PSS, maybe?  ;-)
+
+| so I'll build it.
+
+I'd still go for apt-get source r-base, copy the debian/ directory you get
+that way to your 2.8.0 source (or 2.8.1, rather -- why not use known bug
+fixes...) and then run 'dpkg-buildpackage -us -uc -tc -rfakeroot' over it [
+these options mean no gpg signing of anything, clean and use fakeroot for
+faked su permissions while building ]  One day I write a proper document on
+that process...
+
+Dirk
+
+| Thanks,
+| 
+| -----Original Message-----
+| From: Dirk Eddelbuettel [mailto:edd at debian.org] 
+| Sent: Wednesday, June 03, 2009 11:02 AM
+| To: Sweeney, Jeff
+| Cc: r-sig-debian at r-project.org
+| Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+| 
+| 
+| On 3 June 2009 at 10:28, Sweeney, Jeff wrote:
+| | How do I install R 2.8 on Debian etch? Are there mirrors for older versions of R? Where are they?
+| 
+| The porting volunteers generally support the newest versions (e.g. right now
+| 2.9.0) on the most recent releases, e.g. stable (codename 'lenny') and
+| testing (codename 'squeeze').
+| 
+| But if you want a neither-current-nor-from-distro version on an older
+| release, you are outside the supported matrix of disto and R version and
+| hence on your own.  
+| 
+| Now, it is not hard to locally build a package based on the packaging sources
+| (esp if you know a little about Unix and/or Debian). If you want to try that,
+| we could probably walk you trough that.
+| 
+| Otherwise, you can also try the lenny version of R 2.9.0 plus whichever
+| library updates your etch system needs.
+| 
+| Hth, Dirk
+| 
+| -- 
+| Three out of two people have difficulties with fractions.
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From jsweeney at spss.com  Wed Jun  3 19:15:01 2009
+From: jsweeney at spss.com (Sweeney, Jeff)
+Date: Wed, 3 Jun 2009 12:15:01 -0500
+Subject: [R-sig-Debian] install R 2.8 on Debian etch?
+In-Reply-To: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7E48@MIAEMAILEVS1.spss.com>
+References: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7C4D@MIAEMAILEVS1.spss.com><18982.40538.684222.634242@ron.nulle.part><6CD9B6A6B6CCBA4FA497F07182F4EE83020E7D80@MIAEMAILEVS1.spss.com><18982.42727.719987.602696@ron.nulle.part>
+	<6CD9B6A6B6CCBA4FA497F07182F4EE83020E7E48@MIAEMAILEVS1.spss.com>
+Message-ID: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7ED3@MIAEMAILEVS1.spss.com>
+
+An update. Statistics 18 works with R 2.8 and *probably* works with 2.9. We just haven't allocated QA resources to test with 2.9.
+
+-----Original Message-----
+From: r-sig-debian-bounces at r-project.org [mailto:r-sig-debian-bounces at r-project.org] On Behalf Of Sweeney, Jeff
+Sent: Wednesday, June 03, 2009 11:46 AM
+To: Dirk Eddelbuettel
+Cc: r-sig-debian at r-project.org
+Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+
+Well, it *was* SPSS, the same as the Company name. We rebranded the application to 'Statistics' for various reasons. Statistics 18 requires R 2.8. I would like to say it requires R 2.8 or later but I don't think I will have much luck lobbying for that.
+
+-----Original Message-----
+From: Dirk Eddelbuettel [mailto:edd at debian.org] 
+Sent: Wednesday, June 03, 2009 11:38 AM
+To: Sweeney, Jeff
+Cc: r-sig-debian at r-project.org
+Subject: RE: [R-sig-Debian] install R 2.8 on Debian etch?
+
+
+On 3 June 2009 at 11:09, Sweeney, Jeff wrote:
+| I understand. I need 2.8 for compatibility with another application 
+
+Starting with S and ending in PSS, maybe?  ;-)
+
+| so I'll build it.
+
+I'd still go for apt-get source r-base, copy the debian/ directory you get
+that way to your 2.8.0 source (or 2.8.1, rather -- why not use known bug
+fixes...) and then run 'dpkg-buildpackage -us -uc -tc -rfakeroot' over it [
+these options mean no gpg signing of anything, clean and use fakeroot for
+faked su permissions while building ]  One day I write a proper document on
+that process...
+
+Dirk
+
+| Thanks,
+| 
+| -----Original Message-----
+| From: Dirk Eddelbuettel [mailto:edd at debian.org] 
+| Sent: Wednesday, June 03, 2009 11:02 AM
+| To: Sweeney, Jeff
+| Cc: r-sig-debian at r-project.org
+| Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+| 
+| 
+| On 3 June 2009 at 10:28, Sweeney, Jeff wrote:
+| | How do I install R 2.8 on Debian etch? Are there mirrors for older versions of R? Where are they?
+| 
+| The porting volunteers generally support the newest versions (e.g. right now
+| 2.9.0) on the most recent releases, e.g. stable (codename 'lenny') and
+| testing (codename 'squeeze').
+| 
+| But if you want a neither-current-nor-from-distro version on an older
+| release, you are outside the supported matrix of disto and R version and
+| hence on your own.  
+| 
+| Now, it is not hard to locally build a package based on the packaging sources
+| (esp if you know a little about Unix and/or Debian). If you want to try that,
+| we could probably walk you trough that.
+| 
+| Otherwise, you can also try the lenny version of R 2.9.0 plus whichever
+| library updates your etch system needs.
+| 
+| Hth, Dirk
+| 
+| -- 
+| Three out of two people have difficulties with fractions.
+
+-- 
+Three out of two people have difficulties with fractions.
+
+_______________________________________________
+R-SIG-Debian mailing list
+R-SIG-Debian at r-project.org
+https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From jranke at uni-bremen.de  Wed Jun  3 22:52:52 2009
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Wed, 3 Jun 2009 22:52:52 +0200
+Subject: [R-sig-Debian] install R 2.8 on Debian etch?
+In-Reply-To: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7ED3@MIAEMAILEVS1.spss.com>
+References: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7E48@MIAEMAILEVS1.spss.com>
+	<6CD9B6A6B6CCBA4FA497F07182F4EE83020E7ED3@MIAEMAILEVS1.spss.com>
+Message-ID: <20090603205252.GB7684@localdomain>
+
+Hi Jeff,
+
+I have built R 2.8 on Debian etch in the past, and the debs are in my
+non-public subversion repository. I just extracted an appropriate
+version of the etch-cran archive and placed it here temporarily:
+
+  deb http://chem.uft.uni-bremen.de/r-cran_2.8.1 etch-cran/
+
+Hope it helps,
+
+Johannes
+
+* Sweeney, Jeff <jsweeney at spss.com> [090603 19:20]:
+> An update. Statistics 18 works with R 2.8 and *probably* works with 2.9. We just haven't allocated QA resources to test with 2.9.
+> 
+> -----Original Message-----
+> From: r-sig-debian-bounces at r-project.org [mailto:r-sig-debian-bounces at r-project.org] On Behalf Of Sweeney, Jeff
+> Sent: Wednesday, June 03, 2009 11:46 AM
+> To: Dirk Eddelbuettel
+> Cc: r-sig-debian at r-project.org
+> Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+> 
+> Well, it *was* SPSS, the same as the Company name. We rebranded the application to 'Statistics' for various reasons. Statistics 18 requires R 2.8. I would like to say it requires R 2.8 or later but I don't think I will have much luck lobbying for that.
+> 
+> -----Original Message-----
+> From: Dirk Eddelbuettel [mailto:edd at debian.org] 
+> Sent: Wednesday, June 03, 2009 11:38 AM
+> To: Sweeney, Jeff
+> Cc: r-sig-debian at r-project.org
+> Subject: RE: [R-sig-Debian] install R 2.8 on Debian etch?
+> 
+> 
+> On 3 June 2009 at 11:09, Sweeney, Jeff wrote:
+> | I understand. I need 2.8 for compatibility with another application 
+> 
+> Starting with S and ending in PSS, maybe?  ;-)
+> 
+> | so I'll build it.
+> 
+> I'd still go for apt-get source r-base, copy the debian/ directory you get
+> that way to your 2.8.0 source (or 2.8.1, rather -- why not use known bug
+> fixes...) and then run 'dpkg-buildpackage -us -uc -tc -rfakeroot' over it [
+> these options mean no gpg signing of anything, clean and use fakeroot for
+> faked su permissions while building ]  One day I write a proper document on
+> that process...
+> 
+> Dirk
+> 
+> | Thanks,
+> | 
+> | -----Original Message-----
+> | From: Dirk Eddelbuettel [mailto:edd at debian.org] 
+> | Sent: Wednesday, June 03, 2009 11:02 AM
+> | To: Sweeney, Jeff
+> | Cc: r-sig-debian at r-project.org
+> | Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+> | 
+> | 
+> | On 3 June 2009 at 10:28, Sweeney, Jeff wrote:
+> | | How do I install R 2.8 on Debian etch? Are there mirrors for older versions of R? Where are they?
+> | 
+> | The porting volunteers generally support the newest versions (e.g. right now
+> | 2.9.0) on the most recent releases, e.g. stable (codename 'lenny') and
+> | testing (codename 'squeeze').
+> | 
+> | But if you want a neither-current-nor-from-distro version on an older
+> | release, you are outside the supported matrix of disto and R version and
+> | hence on your own.  
+> | 
+> | Now, it is not hard to locally build a package based on the packaging sources
+> | (esp if you know a little about Unix and/or Debian). If you want to try that,
+> | we could probably walk you trough that.
+> | 
+> | Otherwise, you can also try the lenny version of R 2.9.0 plus whichever
+> | library updates your etch system needs.
+> | 
+> | Hth, Dirk
+> | 
+> | -- 
+> | Three out of two people have difficulties with fractions.
+> 
+> -- 
+> Three out of two people have difficulties with fractions.
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+
+From jsweeney at spss.com  Thu Jun  4 15:35:49 2009
+From: jsweeney at spss.com (Sweeney, Jeff)
+Date: Thu, 4 Jun 2009 08:35:49 -0500
+Subject: [R-sig-Debian] install R 2.8 on Debian etch?
+In-Reply-To: <20090603205252.GB7684@localdomain>
+References: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7E48@MIAEMAILEVS1.spss.com>
+	<6CD9B6A6B6CCBA4FA497F07182F4EE83020E7ED3@MIAEMAILEVS1.spss.com>
+	<20090603205252.GB7684@localdomain>
+Message-ID: <6CD9B6A6B6CCBA4FA497F07182F4EE8302139F9C@MIAEMAILEVS1.spss.com>
+
+Thank you. That is very kind. I have built a version that serves my purposes so it may not be worth pursuing this further. I try the 2.8.1 package and get this r-recommended dependency problem:
+
+JSS> apt-get install r-base=2.8.1-1~etchcran.0
+...
+The following packages have unmet dependencies:
+  r-base: Depends: r-recommended (= 2.8.1-1~etchcran.0) but 2.9.0-4 is to be installed
+E: Broken packages
+
+-----Original Message-----
+From: Johannes Ranke [mailto:jranke at uni-bremen.de] 
+Sent: Wednesday, June 03, 2009 3:53 PM
+To: Sweeney, Jeff
+Cc: Dirk Eddelbuettel; r-sig-debian at r-project.org
+Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+
+Hi Jeff,
+
+I have built R 2.8 on Debian etch in the past, and the debs are in my
+non-public subversion repository. I just extracted an appropriate
+version of the etch-cran archive and placed it here temporarily:
+
+  deb http://chem.uft.uni-bremen.de/r-cran_2.8.1 etch-cran/
+
+Hope it helps,
+
+Johannes
+
+* Sweeney, Jeff <jsweeney at spss.com> [090603 19:20]:
+> An update. Statistics 18 works with R 2.8 and *probably* works with 2.9. We just haven't allocated QA resources to test with 2.9.
+> 
+> -----Original Message-----
+> From: r-sig-debian-bounces at r-project.org [mailto:r-sig-debian-bounces at r-project.org] On Behalf Of Sweeney, Jeff
+> Sent: Wednesday, June 03, 2009 11:46 AM
+> To: Dirk Eddelbuettel
+> Cc: r-sig-debian at r-project.org
+> Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+> 
+> Well, it *was* SPSS, the same as the Company name. We rebranded the application to 'Statistics' for various reasons. Statistics 18 requires R 2.8. I would like to say it requires R 2.8 or later but I don't think I will have much luck lobbying for that.
+> 
+> -----Original Message-----
+> From: Dirk Eddelbuettel [mailto:edd at debian.org] 
+> Sent: Wednesday, June 03, 2009 11:38 AM
+> To: Sweeney, Jeff
+> Cc: r-sig-debian at r-project.org
+> Subject: RE: [R-sig-Debian] install R 2.8 on Debian etch?
+> 
+> 
+> On 3 June 2009 at 11:09, Sweeney, Jeff wrote:
+> | I understand. I need 2.8 for compatibility with another application 
+> 
+> Starting with S and ending in PSS, maybe?  ;-)
+> 
+> | so I'll build it.
+> 
+> I'd still go for apt-get source r-base, copy the debian/ directory you get
+> that way to your 2.8.0 source (or 2.8.1, rather -- why not use known bug
+> fixes...) and then run 'dpkg-buildpackage -us -uc -tc -rfakeroot' over it [
+> these options mean no gpg signing of anything, clean and use fakeroot for
+> faked su permissions while building ]  One day I write a proper document on
+> that process...
+> 
+> Dirk
+> 
+> | Thanks,
+> | 
+> | -----Original Message-----
+> | From: Dirk Eddelbuettel [mailto:edd at debian.org] 
+> | Sent: Wednesday, June 03, 2009 11:02 AM
+> | To: Sweeney, Jeff
+> | Cc: r-sig-debian at r-project.org
+> | Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+> | 
+> | 
+> | On 3 June 2009 at 10:28, Sweeney, Jeff wrote:
+> | | How do I install R 2.8 on Debian etch? Are there mirrors for older versions of R? Where are they?
+> | 
+> | The porting volunteers generally support the newest versions (e.g. right now
+> | 2.9.0) on the most recent releases, e.g. stable (codename 'lenny') and
+> | testing (codename 'squeeze').
+> | 
+> | But if you want a neither-current-nor-from-distro version on an older
+> | release, you are outside the supported matrix of disto and R version and
+> | hence on your own.  
+> | 
+> | Now, it is not hard to locally build a package based on the packaging sources
+> | (esp if you know a little about Unix and/or Debian). If you want to try that,
+> | we could probably walk you trough that.
+> | 
+> | Otherwise, you can also try the lenny version of R 2.9.0 plus whichever
+> | library updates your etch system needs.
+> | 
+> | Hth, Dirk
+> | 
+> | -- 
+> | Three out of two people have difficulties with fractions.
+> 
+> -- 
+> Three out of two people have difficulties with fractions.
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+
+From jsweeney at spss.com  Thu Jun  4 15:43:34 2009
+From: jsweeney at spss.com (Sweeney, Jeff)
+Date: Thu, 4 Jun 2009 08:43:34 -0500
+Subject: [R-sig-Debian] install R 2.8 on Debian etch?
+References: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7E48@MIAEMAILEVS1.spss.com>
+	<6CD9B6A6B6CCBA4FA497F07182F4EE83020E7ED3@MIAEMAILEVS1.spss.com>
+	<20090603205252.GB7684@localdomain> 
+Message-ID: <6CD9B6A6B6CCBA4FA497F07182F4EE8302139FC0@MIAEMAILEVS1.spss.com>
+
+Ah Ha! This works:
+
+JSS> apt-get install r-recommended=2.8.1-1~etchcran.0
+JSS> apt-get install r-base=2.8.1-1~etchcran.0
+
+I thought the package manager would install the correct version of r-recommended auto-magically but I guess not when versions are specified. Thanks very much!
+
+-----Original Message-----
+From: Sweeney, Jeff 
+Sent: Thursday, June 04, 2009 8:36 AM
+To: 'Johannes Ranke'
+Cc: Dirk Eddelbuettel; r-sig-debian at r-project.org
+Subject: RE: [R-sig-Debian] install R 2.8 on Debian etch?
+
+Thank you. That is very kind. I have built a version that serves my purposes so it may not be worth pursuing this further. I try the 2.8.1 package and get this r-recommended dependency problem:
+
+JSS> apt-get install r-base=2.8.1-1~etchcran.0
+...
+The following packages have unmet dependencies:
+  r-base: Depends: r-recommended (= 2.8.1-1~etchcran.0) but 2.9.0-4 is to be installed
+E: Broken packages
+
+-----Original Message-----
+From: Johannes Ranke [mailto:jranke at uni-bremen.de] 
+Sent: Wednesday, June 03, 2009 3:53 PM
+To: Sweeney, Jeff
+Cc: Dirk Eddelbuettel; r-sig-debian at r-project.org
+Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+
+Hi Jeff,
+
+I have built R 2.8 on Debian etch in the past, and the debs are in my
+non-public subversion repository. I just extracted an appropriate
+version of the etch-cran archive and placed it here temporarily:
+
+  deb http://chem.uft.uni-bremen.de/r-cran_2.8.1 etch-cran/
+
+Hope it helps,
+
+Johannes
+
+* Sweeney, Jeff <jsweeney at spss.com> [090603 19:20]:
+> An update. Statistics 18 works with R 2.8 and *probably* works with 2.9. We just haven't allocated QA resources to test with 2.9.
+> 
+> -----Original Message-----
+> From: r-sig-debian-bounces at r-project.org [mailto:r-sig-debian-bounces at r-project.org] On Behalf Of Sweeney, Jeff
+> Sent: Wednesday, June 03, 2009 11:46 AM
+> To: Dirk Eddelbuettel
+> Cc: r-sig-debian at r-project.org
+> Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+> 
+> Well, it *was* SPSS, the same as the Company name. We rebranded the application to 'Statistics' for various reasons. Statistics 18 requires R 2.8. I would like to say it requires R 2.8 or later but I don't think I will have much luck lobbying for that.
+> 
+> -----Original Message-----
+> From: Dirk Eddelbuettel [mailto:edd at debian.org] 
+> Sent: Wednesday, June 03, 2009 11:38 AM
+> To: Sweeney, Jeff
+> Cc: r-sig-debian at r-project.org
+> Subject: RE: [R-sig-Debian] install R 2.8 on Debian etch?
+> 
+> 
+> On 3 June 2009 at 11:09, Sweeney, Jeff wrote:
+> | I understand. I need 2.8 for compatibility with another application 
+> 
+> Starting with S and ending in PSS, maybe?  ;-)
+> 
+> | so I'll build it.
+> 
+> I'd still go for apt-get source r-base, copy the debian/ directory you get
+> that way to your 2.8.0 source (or 2.8.1, rather -- why not use known bug
+> fixes...) and then run 'dpkg-buildpackage -us -uc -tc -rfakeroot' over it [
+> these options mean no gpg signing of anything, clean and use fakeroot for
+> faked su permissions while building ]  One day I write a proper document on
+> that process...
+> 
+> Dirk
+> 
+> | Thanks,
+> | 
+> | -----Original Message-----
+> | From: Dirk Eddelbuettel [mailto:edd at debian.org] 
+> | Sent: Wednesday, June 03, 2009 11:02 AM
+> | To: Sweeney, Jeff
+> | Cc: r-sig-debian at r-project.org
+> | Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+> | 
+> | 
+> | On 3 June 2009 at 10:28, Sweeney, Jeff wrote:
+> | | How do I install R 2.8 on Debian etch? Are there mirrors for older versions of R? Where are they?
+> | 
+> | The porting volunteers generally support the newest versions (e.g. right now
+> | 2.9.0) on the most recent releases, e.g. stable (codename 'lenny') and
+> | testing (codename 'squeeze').
+> | 
+> | But if you want a neither-current-nor-from-distro version on an older
+> | release, you are outside the supported matrix of disto and R version and
+> | hence on your own.  
+> | 
+> | Now, it is not hard to locally build a package based on the packaging sources
+> | (esp if you know a little about Unix and/or Debian). If you want to try that,
+> | we could probably walk you trough that.
+> | 
+> | Otherwise, you can also try the lenny version of R 2.9.0 plus whichever
+> | library updates your etch system needs.
+> | 
+> | Hth, Dirk
+> | 
+> | -- 
+> | Three out of two people have difficulties with fractions.
+> 
+> -- 
+> Three out of two people have difficulties with fractions.
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+
+From edd at debian.org  Thu Jun  4 15:54:26 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 4 Jun 2009 08:54:26 -0500
+Subject: [R-sig-Debian] install R 2.8 on Debian etch?
+In-Reply-To: <6CD9B6A6B6CCBA4FA497F07182F4EE8302139FC0@MIAEMAILEVS1.spss.com>
+References: <6CD9B6A6B6CCBA4FA497F07182F4EE83020E7E48@MIAEMAILEVS1.spss.com>
+	<6CD9B6A6B6CCBA4FA497F07182F4EE83020E7ED3@MIAEMAILEVS1.spss.com>
+	<20090603205252.GB7684@localdomain>
+	<6CD9B6A6B6CCBA4FA497F07182F4EE8302139FC0@MIAEMAILEVS1.spss.com>
+Message-ID: <18983.53778.909158.459012@ron.nulle.part>
+
+
+On 4 June 2009 at 08:43, Sweeney, Jeff wrote:
+| Ah Ha! This works:
+| 
+| JSS> apt-get install r-recommended=2.8.1-1~etchcran.0
+| JSS> apt-get install r-base=2.8.1-1~etchcran.0
+| 
+| I thought the package manager would install the correct version of r-recommended auto-magically but I guess not when versions are specified. Thanks very much!
+
+The package manager is configurable. If you don't say anything else, all
+repositories are treated equal. It then sorts by version number (and the sort
+has some specific quirks, see dpkg --help for access to the operators /
+comparisons).  Here you must have had an archive that that r-rec'ed at 2.9.0
+and that version won.
+
+In general, this "look at a repo but don't necessarily install from it"
+feature is very useful -- many of us run one flavour (i.e. testing) yet still
+look at another (i.e. unstable) so that we can pick particular packages if
+and when we choose to do so.  All this goes under the label 'apt-pinning' and
+Google et al will hopefully guide to some more detailed
+tutorials. Recommended.
+
+Dirk
+
+| 
+| -----Original Message-----
+| From: Sweeney, Jeff 
+| Sent: Thursday, June 04, 2009 8:36 AM
+| To: 'Johannes Ranke'
+| Cc: Dirk Eddelbuettel; r-sig-debian at r-project.org
+| Subject: RE: [R-sig-Debian] install R 2.8 on Debian etch?
+| 
+| Thank you. That is very kind. I have built a version that serves my purposes so it may not be worth pursuing this further. I try the 2.8.1 package and get this r-recommended dependency problem:
+| 
+| JSS> apt-get install r-base=2.8.1-1~etchcran.0
+| ...
+| The following packages have unmet dependencies:
+|   r-base: Depends: r-recommended (= 2.8.1-1~etchcran.0) but 2.9.0-4 is to be installed
+| E: Broken packages
+| 
+| -----Original Message-----
+| From: Johannes Ranke [mailto:jranke at uni-bremen.de] 
+| Sent: Wednesday, June 03, 2009 3:53 PM
+| To: Sweeney, Jeff
+| Cc: Dirk Eddelbuettel; r-sig-debian at r-project.org
+| Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+| 
+| Hi Jeff,
+| 
+| I have built R 2.8 on Debian etch in the past, and the debs are in my
+| non-public subversion repository. I just extracted an appropriate
+| version of the etch-cran archive and placed it here temporarily:
+| 
+|   deb http://chem.uft.uni-bremen.de/r-cran_2.8.1 etch-cran/
+| 
+| Hope it helps,
+| 
+| Johannes
+| 
+| * Sweeney, Jeff <jsweeney at spss.com> [090603 19:20]:
+| > An update. Statistics 18 works with R 2.8 and *probably* works with 2.9. We just haven't allocated QA resources to test with 2.9.
+| > 
+| > -----Original Message-----
+| > From: r-sig-debian-bounces at r-project.org [mailto:r-sig-debian-bounces at r-project.org] On Behalf Of Sweeney, Jeff
+| > Sent: Wednesday, June 03, 2009 11:46 AM
+| > To: Dirk Eddelbuettel
+| > Cc: r-sig-debian at r-project.org
+| > Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+| > 
+| > Well, it *was* SPSS, the same as the Company name. We rebranded the application to 'Statistics' for various reasons. Statistics 18 requires R 2.8. I would like to say it requires R 2.8 or later but I don't think I will have much luck lobbying for that.
+| > 
+| > -----Original Message-----
+| > From: Dirk Eddelbuettel [mailto:edd at debian.org] 
+| > Sent: Wednesday, June 03, 2009 11:38 AM
+| > To: Sweeney, Jeff
+| > Cc: r-sig-debian at r-project.org
+| > Subject: RE: [R-sig-Debian] install R 2.8 on Debian etch?
+| > 
+| > 
+| > On 3 June 2009 at 11:09, Sweeney, Jeff wrote:
+| > | I understand. I need 2.8 for compatibility with another application 
+| > 
+| > Starting with S and ending in PSS, maybe?  ;-)
+| > 
+| > | so I'll build it.
+| > 
+| > I'd still go for apt-get source r-base, copy the debian/ directory you get
+| > that way to your 2.8.0 source (or 2.8.1, rather -- why not use known bug
+| > fixes...) and then run 'dpkg-buildpackage -us -uc -tc -rfakeroot' over it [
+| > these options mean no gpg signing of anything, clean and use fakeroot for
+| > faked su permissions while building ]  One day I write a proper document on
+| > that process...
+| > 
+| > Dirk
+| > 
+| > | Thanks,
+| > | 
+| > | -----Original Message-----
+| > | From: Dirk Eddelbuettel [mailto:edd at debian.org] 
+| > | Sent: Wednesday, June 03, 2009 11:02 AM
+| > | To: Sweeney, Jeff
+| > | Cc: r-sig-debian at r-project.org
+| > | Subject: Re: [R-sig-Debian] install R 2.8 on Debian etch?
+| > | 
+| > | 
+| > | On 3 June 2009 at 10:28, Sweeney, Jeff wrote:
+| > | | How do I install R 2.8 on Debian etch? Are there mirrors for older versions of R? Where are they?
+| > | 
+| > | The porting volunteers generally support the newest versions (e.g. right now
+| > | 2.9.0) on the most recent releases, e.g. stable (codename 'lenny') and
+| > | testing (codename 'squeeze').
+| > | 
+| > | But if you want a neither-current-nor-from-distro version on an older
+| > | release, you are outside the supported matrix of disto and R version and
+| > | hence on your own.  
+| > | 
+| > | Now, it is not hard to locally build a package based on the packaging sources
+| > | (esp if you know a little about Unix and/or Debian). If you want to try that,
+| > | we could probably walk you trough that.
+| > | 
+| > | Otherwise, you can also try the lenny version of R 2.9.0 plus whichever
+| > | library updates your etch system needs.
+| > | 
+| > | Hth, Dirk
+| > | 
+| > | -- 
+| > | Three out of two people have difficulties with fractions.
+| > 
+| > -- 
+| > Three out of two people have difficulties with fractions.
+| > 
+| > _______________________________________________
+| > R-SIG-Debian mailing list
+| > R-SIG-Debian at r-project.org
+| > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| > 
+| > _______________________________________________
+| > R-SIG-Debian mailing list
+| > R-SIG-Debian at r-project.org
+| > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| 
+| -- 
+| Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From bates at stat.wisc.edu  Fri Jun 12 18:25:10 2009
+From: bates at stat.wisc.edu (Douglas Bates)
+Date: Fri, 12 Jun 2009 11:25:10 -0500
+Subject: [R-sig-Debian] Adjusting Mime types for files with extensions .R or
+	.Rout
+Message-ID: <40e66e0b0906120925w136983d9qaa56c69ccc40f12@mail.gmail.com>
+
+I'm not sure if this is a Debian/Ubuntu question related to R or a
+Gmail question related to R so I thought I would start with this
+mailing list.
+
+I often wish to email R scripts and the result of a R CMD BATCH run of
+the script.  I wish them to be enclosures of mime type text/plain so
+they are easier to handle and so they can be included in the archives
+of mailing lists.  I use the web interface to Gmail for composing mail
+but would be willing to use another client like Thunderbird with a POP
+or IMAP connection to my Gmail account if that would be easier to
+configure.  Most computers I use run Ubuntu and a
+Debian/Ubuntu-specific method would be sufficient for my needs.
+
+Do I need to configure the mime.types file or is it better to
+configure the mail client application?
+
+
+From spluque at gmail.com  Fri Jun 12 19:04:36 2009
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Fri, 12 Jun 2009 12:04:36 -0500
+Subject: [R-sig-Debian] Adjusting Mime types for files with extensions
+	.R or .Rout
+References: <40e66e0b0906120925w136983d9qaa56c69ccc40f12@mail.gmail.com>
+Message-ID: <87d499v0wr.fsf@kolob.sebmags.homelinux.org>
+
+On Fri, 12 Jun 2009 11:25:10 -0500,
+Douglas Bates <bates at stat.wisc.edu> wrote:
+
+> I'm not sure if this is a Debian/Ubuntu question related to R or a
+> Gmail question related to R so I thought I would start with this
+> mailing list.
+
+> I often wish to email R scripts and the result of a R CMD BATCH run of
+> the script.  I wish them to be enclosures of mime type text/plain so
+> they are easier to handle and so they can be included in the archives
+> of mailing lists.  I use the web interface to Gmail for composing mail
+> but would be willing to use another client like Thunderbird with a POP
+> or IMAP connection to my Gmail account if that would be easier to
+> configure.  Most computers I use run Ubuntu and a
+> Debian/Ubuntu-specific method would be sufficient for my needs.
+
+> Do I need to configure the mime.types file or is it better to
+> configure the mail client application?
+
+This works for me (in Gnus under Emacs):
+
+type=text/plain		exts="r"
+type=text/plain		exts="rout"
+
+The mail client app might have a template for easy editing with more
+options, but I'm not familiar with Thunderbird.  I've been using
+Fetchmail for a long time to collect mail from a few sources (Gmail and
+a couple of IMAP servers), which is then handled by the system's MTA
+(exim4 in Debian) and put together in /var/mail/myuser.  Your MUA
+(e.g. Thunderbird, or whatever) can easily get messages from there.
+This requires setting up a ~/.fetchmailrc.  My entry for Gmail is:
+
+---<--------------------cut here---------------start------------------->---
+set daemon 600				   # check mail every 10 min
+set logfile "/home/myuser/.fetchmail.log"  # log results here
+
+poll pop.gmail.com
+protocol pop3
+username "user at gmail.com"
+password "secret"
+is myuser
+ssl				# Gmail requires ssl protocol
+fetchall
+---<--------------------cut here---------------end--------------------->---
+
+
+-- 
+Seb
+
+
+From myotisone at gmail.com  Sat Jun 13 23:53:35 2009
+From: myotisone at gmail.com (Graham Smith)
+Date: Sat, 13 Jun 2009 22:53:35 +0100
+Subject: [R-sig-Debian] Installing and maintaining R on Ubuntu 9.04 - best
+	practice
+Message-ID: <2c75873c0906131453i791859c5k12f6e90d7bdfd02d@mail.gmail.com>
+
+Is there a best practice for installing and updating R on Ubuntu ?
+
+I've had to clean install Ubuntu so I am starting from fresh.  I have
+picked up various comments about ONLY using Synaptic OR only using
+apt-get  OR only running update from inside R.
+
+Being new to Ubuntu this is a bit confusing. Last time round I
+installed  via Synaptic, but not all packages were available so
+installed packages and run updates from R, but it was suggested this
+bad practice. So before I start afresh, can anyone give me some
+pointers on the best way of doing this.
+
+Many thanks,
+
+Graham
+
+
+From nashjc at uottawa.ca  Sun Jun 14 15:23:51 2009
+From: nashjc at uottawa.ca (John C Nash)
+Date: Sun, 14 Jun 2009 09:23:51 -0400
+Subject: [R-sig-Debian]  Installing and maintaining R on Ubuntu 9.04 -,
+ best practice
+In-Reply-To: <mailman.21.1244973606.29770.r-sig-debian@r-project.org>
+References: <mailman.21.1244973606.29770.r-sig-debian@r-project.org>
+Message-ID: <4A34F9E7.4030803@uottawa.ca>
+
+I had an exchange of ideas on this with Dirk E. a couple of months ago. 
+He can correct this if I state it wrongly, but
+1) we agreed that using apt/Synaptic structure was best, but sometimes 
+the packages are not available
+2) also that using install.packages when there is a .deb can lead to 
+some "confusion" (the package database on the
+local system does not know about an R package installed from R)
+
+We disagreed on whether a variant of install.packages (and related 
+scripts) was worthwhile so that users could
+ALWAYS use that version of install.packages and it would do the right 
+thing and go to apt as needed. That is, one
+can take the view that on Debian systems, one should always try the apt 
+approach first. I feel that it is better to
+offer a single gateway that then sorts things out behind the curtain. I 
+prepared a reasonably effective
+trial script that tested the concept. An issue is detecting the 
+availability of an appropriate and viable .deb package
+and returning proper information on success or failure to the user so 
+they know how to proceed. Dirk had some
+comments on the possible difficulties in doing that. He has more 
+knowledge of Debian internals than I do.
+
+As usual, the fly in the ointment is that folk who know how to prepare 
+such a script clearly don't need it, while
+those who need it don't have the expertise to prepare it. However, 
+perhaps a small group of us could make an
+attempt.  Or maybe someone has already done it for their own research group.
+
+JN
+
+> Date: Sat, 13 Jun 2009 22:53:35 +0100
+> From: Graham Smith <myotisone at gmail.com>
+> Subject: [R-sig-Debian] Installing and maintaining R on Ubuntu 9.04 -
+> 	best	practice
+> To: r-sig-debian at r-project.org
+> Message-ID:
+> 	<2c75873c0906131453i791859c5k12f6e90d7bdfd02d at mail.gmail.com>
+> Content-Type: text/plain; charset=UTF-8
+>
+> Is there a best practice for installing and updating R on Ubuntu ?
+>
+> I've had to clean install Ubuntu so I am starting from fresh.  I have
+> picked up various comments about ONLY using Synaptic OR only using
+> apt-get  OR only running update from inside R.
+>
+> Being new to Ubuntu this is a bit confusing. Last time round I
+> installed  via Synaptic, but not all packages were available so
+> installed packages and run updates from R, but it was suggested this
+> bad practice. So before I start afresh, can anyone give me some
+> pointers on the best way of doing this.
+>
+> Many thanks,
+>
+> Graham
+>
+>
+
+
+From edd at debian.org  Sun Jun 14 15:41:46 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 14 Jun 2009 08:41:46 -0500
+Subject: [R-sig-Debian] Installing and maintaining R on Ubuntu 9.04 -,
+ best practice
+In-Reply-To: <4A34F9E7.4030803@uottawa.ca>
+References: <mailman.21.1244973606.29770.r-sig-debian@r-project.org>
+	<4A34F9E7.4030803@uottawa.ca>
+Message-ID: <18996.65050.386439.830174@ron.nulle.part>
+
+
+On 14 June 2009 at 09:23, John C Nash wrote:
+| I had an exchange of ideas on this with Dirk E. a couple of months ago. 
+| He can correct this if I state it wrongly, but
+| 1) we agreed that using apt/Synaptic structure was best, but sometimes 
+| the packages are not available
+
+There are no simple one-sentence summaries. I happen to think
+
+a) that package management is a good thing (cf 15 years of Debian using tens
+of thousands of packages, as well as 10 years of R/CRAN with now 1700
+packages)
+
+b) that we have no code right now that 'mixes' Debian's dpkg / apt-get and R'
+install.packages(), both systems are independent of each other and may
+trample on each other unless you're careful -- which is why we set R_LIBS in
+Debian / Ubuntu to at least have non-overlapping archives
+
+c) all this is _underdocumented_ and someone should just go to, say, the R
+Wiki and start the 'best practices' document there so that we do not have to
+re-hash it fifteen times over; the mailing list archives (esp of
+r-sig-debian) have ample fodder of prior discussion
+ 
+d) last and least importantly, that starting every discussion in the name of
+the front-end is misleading -- I personally never use synaptic or aptitude
+directly (I use wajig by Debian and R user/author Graham Williams of rattle
+fame) so I don't see the point of always calling 'use synaptic'. 
+
+| 2) also that using install.packages when there is a .deb can lead to 
+| some "confusion" (the package database on the
+| local system does not know about an R package installed from R)
+
+It all depends. See above. R_LIBS splits things so that 'R CMD INSTALL ...'
+and remove will operate on /usr/local/lib/R/site-library leaving your apt /
+dpkg managed packages alone.
+ 
+| We disagreed on whether a variant of install.packages (and related 
+| scripts) was worthwhile so that users could
+
+I very much think it is both worthwhile, inevitable, and in need of
+improvements.  With Debian offering ~ 100 packages and CRAN offering ~ 1700,
+you inevitably end up mixing things,
+
+| ALWAYS use that version of install.packages and it would do the right 
+| thing and go to apt as needed. That is, one
+| can take the view that on Debian systems, one should always try the apt 
+| approach first. I feel that it is better to
+
+Yes, sure, esp if the Debian-maintained packages is current.
+
+| offer a single gateway that then sorts things out behind the curtain. I 
+| prepared a reasonably effective
+| trial script that tested the concept. An issue is detecting the 
+| availability of an appropriate and viable .deb package
+| and returning proper information on success or failure to the user so 
+| they know how to proceed. Dirk had some
+| comments on the possible difficulties in doing that. He has more 
+| knowledge of Debian internals than I do.
+
+... and remains sceptical of the effectivenes of a simple script given that
+the whole of the packaging infrastrucure is highly complex. That said, if you
+(John) have time to design, develop, test, refine, ... such a script I'd be
+the last person stopping you. 
+
+Dirk
+
+
+
+| As usual, the fly in the ointment is that folk who know how to prepare 
+| such a script clearly don't need it, while
+| those who need it don't have the expertise to prepare it. However, 
+| perhaps a small group of us could make an
+| attempt.  Or maybe someone has already done it for their own research group.
+| 
+| JN
+| 
+| > Date: Sat, 13 Jun 2009 22:53:35 +0100
+| > From: Graham Smith <myotisone at gmail.com>
+| > Subject: [R-sig-Debian] Installing and maintaining R on Ubuntu 9.04 -
+| > 	best	practice
+| > To: r-sig-debian at r-project.org
+| > Message-ID:
+| > 	<2c75873c0906131453i791859c5k12f6e90d7bdfd02d at mail.gmail.com>
+| > Content-Type: text/plain; charset=UTF-8
+| >
+| > Is there a best practice for installing and updating R on Ubuntu ?
+| >
+| > I've had to clean install Ubuntu so I am starting from fresh.  I have
+| > picked up various comments about ONLY using Synaptic OR only using
+| > apt-get  OR only running update from inside R.
+| >
+| > Being new to Ubuntu this is a bit confusing. Last time round I
+| > installed  via Synaptic, but not all packages were available so
+| > installed packages and run updates from R, but it was suggested this
+| > bad practice. So before I start afresh, can anyone give me some
+| > pointers on the best way of doing this.
+| >
+| > Many thanks,
+| >
+| > Graham
+| >
+| >
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From myotisone at gmail.com  Sun Jun 14 18:09:24 2009
+From: myotisone at gmail.com (Graham Smith)
+Date: Sun, 14 Jun 2009 17:09:24 +0100
+Subject: [R-sig-Debian] Installing and maintaining R on Ubuntu 9.04 -,
+	best practice
+In-Reply-To: <4A34F9E7.4030803@uottawa.ca>
+References: <mailman.21.1244973606.29770.r-sig-debian@r-project.org>
+	<4A34F9E7.4030803@uottawa.ca>
+Message-ID: <2c75873c0906140909n4f245ad3y6d9b219a9fc0c74e@mail.gmail.com>
+
+John and Dirk
+
+Thanks you both for this, I did search the archives (probably using
+the wrong terms) and only found vague mention to the issue, but a Wiki
+entry giving the sort of overviw you have just given might be useful.
+
+It's seems you are forced to do a bit of mix and match becuase if
+where the differenet packages are available.
+
+Graham
+
+
+From edd at debian.org  Sun Jun 14 18:33:24 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 14 Jun 2009 11:33:24 -0500
+Subject: [R-sig-Debian] Installing and maintaining R on Ubuntu 9.04 -,
+	best practice
+In-Reply-To: <2c75873c0906140909n4f245ad3y6d9b219a9fc0c74e@mail.gmail.com>
+References: <mailman.21.1244973606.29770.r-sig-debian@r-project.org>
+	<4A34F9E7.4030803@uottawa.ca>
+	<2c75873c0906140909n4f245ad3y6d9b219a9fc0c74e@mail.gmail.com>
+Message-ID: <18997.9812.51980.136142@ron.nulle.part>
+
+
+On 14 June 2009 at 17:09, Graham Smith wrote:
+| John and Dirk
+| 
+| Thanks you both for this, I did search the archives (probably using
+| the wrong terms) and only found vague mention to the issue, but a Wiki
+| entry giving the sort of overviw you have just given might be useful.
+| 
+| It's seems you are forced to do a bit of mix and match becuase if
+| where the differenet packages are available.
+
+Correct. And that was never 'best practices' because anybody thought it would
+be best that way.  It just evolved...
+
+On Ubuntu you have the added problem / benefit of the bi-annual releases. So
+even though there are more and more r-cran-* packages they may not be
+current. OTOH building locally from source via R using either R CMD INSTALL
+... or install.packages() stumps a lot of people b/c of build-depends etc.  
+
+"It all depends", and not in small part of the user's skill level and
+expertise.  We are trying to make it easier but it takes a while.
+
+So with that: a wiki discussion may help provided people find and read it.
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From myotisone at gmail.com  Sun Jun 14 18:59:03 2009
+From: myotisone at gmail.com (Graham Smith)
+Date: Sun, 14 Jun 2009 17:59:03 +0100
+Subject: [R-sig-Debian] Installing and maintaining R on Ubuntu 9.04 -,
+	best practice
+In-Reply-To: <18997.9812.51980.136142@ron.nulle.part>
+References: <mailman.21.1244973606.29770.r-sig-debian@r-project.org>
+	<4A34F9E7.4030803@uottawa.ca>
+	<2c75873c0906140909n4f245ad3y6d9b219a9fc0c74e@mail.gmail.com>
+	<18997.9812.51980.136142@ron.nulle.part>
+Message-ID: <2c75873c0906140959w2e2443aek3eaba06cc187f214@mail.gmail.com>
+
+Dirk,
+
+> So with that: a wiki discussion may help provided people find and read it.
+
+Errm, yes  as always finding the information is half the battle.
+
+Graham
+
+
+From pauljohn32 at gmail.com  Mon Jun 15 15:49:42 2009
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Mon, 15 Jun 2009 08:49:42 -0500
+Subject: [R-sig-Debian] ubuntu configuration problem "Couldnt get a file
+	descriptior referring to the console"
+Message-ID: <13e802630906150649u2f5c5f9bjdb274941c17a98eb@mail.gmail.com>
+
+Greetings to everybody in r-sig-debian land.
+
+I hope I have found the right place to ask this. If not, please refer me on...
+
+I run R 2.9 on Ubuntu 9.04.   I believe many people have seen this
+problem, but because the error message is hard to understand, they
+have not traced it back to the R install in the distribution.  I think
+it ought to be fixed in the R packaging process, but I do not know if
+the problem begins with the Debian packaging or if someone at Ubuntu
+has caused it.
+
+As far as I can see, any program that tries to spawn a pdf viewer
+fails with this somewhat uninformative error message:
+
+> RShowDoc("frame", package="grid")
+> Couldnt get a file descriptor referring to the console
+
+I've traced this back to  a setting in /etc/R/Renviron:
+
+## Default PDF viewer
+R_PDFVIEWER=${R_PDFVIEWER-'/bin/open'}
+
+That setting causes the trouble--if it is changed to a valid pdf
+viewer, then the strange error message does not appear.  If your
+system has the OpenDesktop mime system in place, this setting will
+work:
+
+# Default PDF viewer
+R_PDFVIEWER=${R_PDFVIEWER-'/usr/bin/xdg-open'}
+
+I've also learned that within a session a pdf viewer can be set with options:
+
+options(pdfviewer = "evince")
+
+Why does the existing configuration refer to /bin/open?  Can this be
+fixed by the packager so that users don't have to make this change?
+
+
+Here is the post that says this is a debian-sig issue:
+http://www.nabble.com/Re:-unable-to-view-vignette-in-R-p20522903.html
+And I believe this problem has existed for a long time because:
+https://stat.ethz.ch/pipermail/r-help/2007-September/141178.html
+PJ
+
+-- 
+Paul E. Johnson
+Professor, Political Science
+1541 Lilac Lane, Room 504
+University of Kansas
+
+
+From edd at debian.org  Mon Jun 15 16:18:46 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 15 Jun 2009 09:18:46 -0500
+Subject: [R-sig-Debian] ubuntu configuration problem "Couldnt get a
+	file	descriptior referring to the console"
+In-Reply-To: <13e802630906150649u2f5c5f9bjdb274941c17a98eb@mail.gmail.com>
+References: <13e802630906150649u2f5c5f9bjdb274941c17a98eb@mail.gmail.com>
+Message-ID: <18998.22598.418102.643752@ron.nulle.part>
+
+
+Paul,
+
+On 15 June 2009 at 08:49, Paul Johnson wrote:
+| Greetings to everybody in r-sig-debian land.
+| 
+| I hope I have found the right place to ask this. If not, please refer me on...
+
+No this is the right place. So welcome!
+ 
+| I run R 2.9 on Ubuntu 9.04.  
+
+That was 'a little underspecified'. "Whose R"? I.e. where did the binary come
+from?  CRAN? Or from sources and you built it yourself?  What is the
+architecture?
+
+[ Ok, I figured it out comparing amd64 (at work) to i386 (at home). My
+R-on-Ubuntu at home has the same problem. ]
+
+| I believe many people have seen this
+| problem, but because the error message is hard to understand, they
+| have not traced it back to the R install in the distribution.  I think
+| it ought to be fixed in the R packaging process, but I do not know if
+| the problem begins with the Debian packaging or if someone at Ubuntu
+| has caused it.
+| 
+| As far as I can see, any program that tries to spawn a pdf viewer
+| fails with this somewhat uninformative error message:
+| 
+| > RShowDoc("frame", package="grid")
+| > Couldnt get a file descriptor referring to the console
+| 
+| I've traced this back to  a setting in /etc/R/Renviron:
+| 
+| ## Default PDF viewer
+| R_PDFVIEWER=${R_PDFVIEWER-'/bin/open'}
+
+On my Ubuntu system at work (amd64, 2.9.0 binaries from CRAN using Vicent and
+Michael's "Ubuntu re-builds" of my Debian packages) I have
+
+$ grep -i pdf /etc/R/Renviron
+R_PDFLATEXCMD=${R_PDFLATEXCMD-${PDFLATEX-'/usr/bin/pdflatex'}}
+R_RD4PDF=${R_RD4PDF-'times,hyper'}
+## Default PDF viewer
+R_PDFVIEWER=${R_PDFVIEWER-'/usr/bin/xpdf'}
+$
+
+The '/usr/bin/xpdf' is actually an explicit setting, and we ensure xpdf is
+present at built time.
+
+On my Ubuntu system at home (i386, binaries from CRAN as well) I have the
+same problem you diagnosed.  Now, I don;t use that machine much for R so I
+never noticed...
+
+This seems to be a genuine bug in the i386 CRAN builds, and I trust Vincent
+and Michael will try to fix it.
+
+| That setting causes the trouble--if it is changed to a valid pdf
+| viewer, then the strange error message does not appear.  If your
+| system has the OpenDesktop mime system in place, this setting will
+| work:
+| 
+| # Default PDF viewer
+| R_PDFVIEWER=${R_PDFVIEWER-'/usr/bin/xdg-open'}
+| 
+| I've also learned that within a session a pdf viewer can be set with options:
+| 
+| options(pdfviewer = "evince")
+
+See help(Startup) -- you can also make that 'permanent' via the files in
+either $(HOME) or below /etc/R/.
+
+| Why does the existing configuration refer to /bin/open?  Can this be
+| fixed by the packager so that users don't have to make this change?
+
+We sure should try to fix it, esp as it comes from a pre-packaged binary.
+
+Thanks,  Dirk
+
+
+ 
+| Here is the post that says this is a debian-sig issue:
+| http://www.nabble.com/Re:-unable-to-view-vignette-in-R-p20522903.html
+| And I believe this problem has existed for a long time because:
+| https://stat.ethz.ch/pipermail/r-help/2007-September/141178.html
+| PJ
+| 
+| -- 
+| Paul E. Johnson
+| Professor, Political Science
+| 1541 Lilac Lane, Room 504
+| University of Kansas
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From pauljohn32 at gmail.com  Mon Jun 15 19:34:24 2009
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Mon, 15 Jun 2009 12:34:24 -0500
+Subject: [R-sig-Debian] ubuntu configuration problem "Couldnt get a file
+	descriptior referring to the console"
+In-Reply-To: <18998.22598.418102.643752@ron.nulle.part>
+References: <13e802630906150649u2f5c5f9bjdb274941c17a98eb@mail.gmail.com>
+	<18998.22598.418102.643752@ron.nulle.part>
+Message-ID: <13e802630906151034t4e9fbda3pf49bbc453c13a1e1@mail.gmail.com>
+
+On Mon, Jun 15, 2009 at 9:18 AM, Dirk Eddelbuettel<edd at debian.org> wrote:
+>
+> Paul,
+>
+> On 15 June 2009 at 08:49, Paul Johnson wrote:
+> | Greetings to everybody in r-sig-debian land.
+> |
+> | I hope I have found the right place to ask this. If not, please refer me on...
+>
+> No this is the right place. So welcome!
+>
+> | I run R 2.9 on Ubuntu 9.04.
+>
+> That was 'a little underspecified'. "Whose R"? I.e. where did the binary come
+> from? ?CRAN? Or from sources and you built it yourself? ?What is the
+> architecture?
+>
+
+Ah, I'm using the ubuntu package from CRAN, I think. I download it
+from the Iowa state mirror:
+
+deb http://rh-mirror.linux.iastate.edu/CRAN/bin/linux/ubuntu jaunty/ #iastate R
+
+> [ Ok, I figured it out comparing amd64 (at work) to i386 (at home). My
+> R-on-Ubuntu at home has the same problem. ]
+>
+
+I've downloaded the R source code and I see where the problem
+originates.  I think the DEB packages for ubuntu must be built on a
+system that does not have any of the expected pdf viewers.  If you
+look in the R configure script, it sets a macro variable for the
+viewer
+
+## PDF viewer
+for ac_prog in ${R_PDFVIEWER} acroread acroread4 evince xpdf gv
+gnome-gv ggv kghostview open gpdf
+
+When I buld R on my system, it finds acroread and that gets put into
+the /etc/R/Renviron file for the  PDFVIEWER.
+
+On the system where R is built for CRAN, it must not find acroread,
+evince, or anything until "open".
+
+I *THINK* it might be slightly more "in style" to make the preferred
+pdf viewer xdg-open.  I've had some ups and downs with xdg-open
+because it is poorly documented (that's another trauma discussed
+elsewhere).  But, if you are going by the Ubuntu community standard,
+xdg-open should be first.
+
+pj
+
+
+-- 
+Paul E. Johnson
+Professor, Political Science
+1541 Lilac Lane, Room 504
+University of Kansas
+
+
+From nashjc at uottawa.ca  Tue Jun 16 05:14:20 2009
+From: nashjc at uottawa.ca (John C Nash)
+Date: Mon, 15 Jun 2009 23:14:20 -0400
+Subject: [R-sig-Debian] myinstall.packages to attempt merger of Debian and R
+ installation approaches
+Message-ID: <4A370E0C.9030903@uottawa.ca>
+
+
+Following Dirk's exhortation, I've started a Wiki item from the Debian 
+page, i.e.,
+
+http://wiki.r-project.org/rwiki/doku.php?id=getting-started:installation:debian
+
+John Nash
+
+
+From lauraalazar at yahoo.com  Wed Jun 24 17:10:01 2009
+From: lauraalazar at yahoo.com (Laura Salazar)
+Date: Wed, 24 Jun 2009 08:10:01 -0700 (PDT)
+Subject: [R-sig-Debian] Rgraphviz and R 2.9 in ubuntu jaunty
+Message-ID: <56367.38370.qm@web32702.mail.mud.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20090624/3db0083d/attachment.pl>
+
+From mar36 at psu.edu  Wed Jun 24 17:37:23 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Wed, 24 Jun 2009 11:37:23 -0400
+Subject: [R-sig-Debian] Rgraphviz and R 2.9 in ubuntu jaunty
+In-Reply-To: <56367.38370.qm@web32702.mail.mud.yahoo.com>
+References: <56367.38370.qm@web32702.mail.mud.yahoo.com>
+Message-ID: <4A424833.7030004@psu.edu>
+
+Laura,
+
+My first suggestion would be to go here:
+
+http://cran.r-project.org/bin/linux/ubuntu/
+
+This will give you instructions on how to make sure you are using the
+most recent version of R in Ubuntu.  Once you have upgraded to 9.2
+(which I think is a good thing if you are using biocondctor), then try 
+to get Rgaphviz.  Updating to 2.9 may also fix the biocinstall issue.
+
+I have not used Rgraphviz before, so I am going to make a couple of 
+general suggestions.  First, make sure you run install command as "sudo 
+R CMD INSTALL Rgraphviz --configure-args="--with-graphviz=/usr/share" ", 
+as you will need root access.  I also do not think you need the 
+--with-graphviz option, because under Ubuntu, that is where prts of it 
+are installed.
+
+If you installed graphviz from source, I would recommend the Ubuntu 
+packages.  You may also need graphviz-dev and libgraphviz-dev packages 
+installed in order to compile things under R.
+
+Let us know if you have further questions,
+Michael
+
+Laura Salazar wrote:
+> Dear people,
+> 
+> I'm new here, so this is my first try. I have ubuntu 9.04 installed
+> with R 2.8 (which surprises me because I realized that the last
+> version R 2.9 is available but in the Synaptic Package Manager 2.8
+> appears as the last one). I have also graphviz 2.20.2. I have been
+> trying to install Rgraphviz either from R running
+> "biocLite("Rgraphviz")" and from the shell running "R CMD INSTALL
+> Rgraphviz --configure-args="--with-graphviz=/usr/share" "
+> 
+> This is the error in both cases:
+> 
+> configure: Using Graphviz dir '/usr/share' configure: error:
+> /usr/share/bin/dot not found.  Check Graphviz installation. ERROR:
+> configuration failed for package 'Rgraphviz' ** Removing
+> '/home/laura/R/i486-pc-linux-gnu-library/2.8/Rgraphviz' I specify the
+> directory /usr/share because there is where graphviz was installed
+> (or at least is located there).
+> 
+> I also get this warning in R: Running biocinstall version 2.3.13 with
+> R version 2.8.1 Your version of R requires version 2.3 of
+> Bioconductor.
+> 
+> But even if I download manually and try to install R 2.9, the version
+> taht it runs is 2.8.
+> 
+> Well, two problems in one: Rgraphviz package and R update.
+> 
+> I appreciate any help. I'm sorry if I'm skipping something obvious,
+> but I still don't get it.
+> 
+> Thanks!
+> 
+> Laura
+> 
+> 
+> 
+> 
+> 
+> [[alternative HTML version deleted]]
+> 
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> 
+> _______________________________________________ R-SIG-Debian mailing
+> list R-SIG-Debian at r-project.org 
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From judson0423 at gmail.com  Fri Jun 26 19:10:20 2009
+From: judson0423 at gmail.com (Judson)
+Date: Fri, 26 Jun 2009 13:10:20 -0400
+Subject: [R-sig-Debian] Installing Packages in R - slight bump in the road
+Message-ID: <75f11af0906261010m157c5459udb2b5864f940d0a2@mail.gmail.com>
+
+Hi,
+
+sorry this is so basic but I feel I'm so close to being able to sit
+quietly in a corner and do exactly what I planned from the start that
+I thought I would ask.  All I want is to do is to run R (2.9.0 finally
+up and running!, struggling a bit with ESS but I'll get there) and use
+it to learn Bayesian analysis and some similar stuff.  Actually I
+bought Peter Dalgaard's "Introductory Statistics with R? yesterday
+figuring the refresh - and R practice - would be good before starting
+Jim Albert's book.  So all I really need now is to install the
+packages ISwR and LearnBayes (actually would like to throw in LearnEDA
+also).
+
+Now I have downloaded all three packages.  But R doesn't recognize
+then and won't install them.  I have approximately 30 other packages
+(some standard of course) that are downloaded and installed.  Maybe
+the following information can be used.
+
+Although some of the function.packages() have a lib.loc argument I
+don't see it for install.packages().  install.packages() does have a
+lib argument - which defaults to .libPaths()[1].
+
+The value of my .libPaths() is
+
+[1] "/home/my_name/R/i486-pc-linux-gnu-library/2.9"
+[2] "/usr/local/lib/R/site-library"
+[3] "/usr/lib/R/site-library"
+[4] "/usr/lib/R/library"
+
+Copies of all of my downloaded packages (count=29) are in [4]
+(including LearnBayes, LearnEDA, and ISwR but more on that).  In fact,
+R recognizes all packages in [4] except those three.  23 of the 29
+(including my 3 of interest) are in [2].  Only something called
+"Matrix" is in [3].  In [1] are 2 copies each of LearnBayes and
+LearnEDA.
+
+Perhaps of use also is that (because I had already experienced trouble
+getting LearnBayes/EDA recognized) I downloaded the source code
+(rather than binary) for ISwR and extracted it to [4].
+
+So I have copies of all three - I just can't get R to recognize them.
+Also, if helpful, my
+
+.Library value is "/usr/lib/R/library";
+
+hence R "likes" most of the packages there.  Also, my
+
+Sys.getenv("R_LIB_USER") is ~/R/i486-pc-linux-gnu-library/2.9 (i.e.
+same as .libPaths()[1]).
+
+If you have ideas, please tell me.  Also, if you suggest
+re-downloading after a little switcheroo like
+
+.libPaths()[5] <-.libPaths()[1]; .LibPaths()[1] <-.libPaths()[4]
+
+that makes (conceptual) sense to me but because the character string
+name starts with "." I wouldn't know how to find it.  I'm trying but I
+know nothing.  And at the very least, thanks for your patience.
+
+Also, I hope it doesn?t matter right now but my Synaptic has started
+?failing to fetch? a lot of stuff from my sources.list file and I need
+to go to a Dell group to figure that one out so I would have a lot of
+work to go to a direct system install (which I can?t figure out how R
+would recognize any way).  Thanks.
+
+Judson
+
+
+From pauljohn32 at gmail.com  Sun Jun 28 21:40:46 2009
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Sun, 28 Jun 2009 14:40:46 -0500
+Subject: [R-sig-Debian] sprof works on your Debian/Ubuntu ?
+Message-ID: <13e802630906281240u794d35e9l9e0dba466153e341@mail.gmail.com>
+
+I'm asking here, rather than R-devel, because it seems to be a Linux
+specific question and because I'm using Ubuntu-9.04.
+
+I'm trying to profile an package, and got errors, so I decided to
+follow BDR's (http://tolstoy.newcastle.edu.au/R/devel/06/02/4254.html)
+example exactly, and got same problem.
+
+Can anyone replicate?
+
+$ sudo mkdir -p /var/tmp//usr/lib/R/library/stats/libs
+
+$ chown -R pauljohn.pauljohn /var/tmp/usr/lib/R
+
+$ export LD_PROFILE=/usr/lib/R/library/stats/libs/stats.so
+
+$ R
+
+### in R session, type
+>example(smooth.spline)
+> q()
+
+Observe that does create the profile file:
+
+$ ls -la /var/tmp/usr/lib/R/library/stats/libs
+total 20
+drwxr-xr-x 2 pauljohn pauljohn    4096 2009-06-28 14:26 .
+drwxr-xr-x 3 pauljohn pauljohn    4096 2009-06-28 14:25 ..
+-rw-r--r-- 1 pauljohn pauljohn 1356800 2009-06-28 14:26 stats.so.profile
+
+$ sprof /usr/lib/R/library/stats/libs/stats.so
+/var/tmp/usr/lib/R/library/stats/libs/stats.so.profile
+Inconsistency detected by ld.so: dl-open.c: 652: _dl_open: Assertion
+`_dl_debug_initialize (0, args.nsid)->r_state == RT_CONSISTENT'
+failed!
+pauljohn at pols124:Siena-Profiling$ sudo sprof /usr/lib/R/library/stats/
+libs/stats.so /var/tmp/usr/lib/R/library/stats/libs/stats.so.profile
+Inconsistency detected by ld.so: dl-open.c: 652: _dl_open: Assertion
+`_dl_debug_initialize (0, args.nsid)->r_state == RT_CONSISTENT'
+failed!
+
+I Google to find one discussion that there's a bug in glibc that was
+unearthed in 2008 and there was debate on whether "sprof" is now
+deprecated.  I don't understand the details completely.
+(http://sources.redhat.com/ml/libc-alpha/2008-08/msg00013.html)
+
+Nobody on Ubuntu has tried it lately?
+
+Instead of sprof, I'll try oprofile, I guess.
+
+I already tried to do this with gprof applied to the specific package,
+but no profile is produced.  I believe that means I need to re-build
+all of R with the -pg flag, and I'm a bit reluctant to break
+everything by doing that.
+
+pj
+
+-- 
+Paul E. Johnson
+Professor, Political Science
+1541 Lilac Lane, Room 504
+University of Kansas
+
+
+From edd at debian.org  Sun Jun 28 22:04:58 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 28 Jun 2009 15:04:58 -0500
+Subject: [R-sig-Debian] sprof works on your Debian/Ubuntu ?
+In-Reply-To: <13e802630906281240u794d35e9l9e0dba466153e341@mail.gmail.com>
+References: <13e802630906281240u794d35e9l9e0dba466153e341@mail.gmail.com>
+Message-ID: <19015.52458.624263.911752@ron.nulle.part>
+
+
+Paul,
+
+On 28 June 2009 at 14:40, Paul Johnson wrote:
+| I'm asking here, rather than R-devel, because it seems to be a Linux
+| specific question and because I'm using Ubuntu-9.04.
+
+Quite right!
+
+| I'm trying to profile an package, and got errors, so I decided to
+| follow BDR's (http://tolstoy.newcastle.edu.au/R/devel/06/02/4254.html)
+| example exactly, and got same problem.
+| 
+| Can anyone replicate?
+| 
+| $ sudo mkdir -p /var/tmp//usr/lib/R/library/stats/libs
+| 
+| $ chown -R pauljohn.pauljohn /var/tmp/usr/lib/R
+| 
+| $ export LD_PROFILE=/usr/lib/R/library/stats/libs/stats.so
+| 
+| $ R
+| 
+| ### in R session, type
+| >example(smooth.spline)
+| > q()
+| 
+| Observe that does create the profile file:
+| 
+| $ ls -la /var/tmp/usr/lib/R/library/stats/libs
+| total 20
+| drwxr-xr-x 2 pauljohn pauljohn    4096 2009-06-28 14:26 .
+| drwxr-xr-x 3 pauljohn pauljohn    4096 2009-06-28 14:25 ..
+| -rw-r--r-- 1 pauljohn pauljohn 1356800 2009-06-28 14:26 stats.so.profile
+| 
+| $ sprof /usr/lib/R/library/stats/libs/stats.so
+| /var/tmp/usr/lib/R/library/stats/libs/stats.so.profile
+| Inconsistency detected by ld.so: dl-open.c: 652: _dl_open: Assertion
+| `_dl_debug_initialize (0, args.nsid)->r_state == RT_CONSISTENT'
+| failed!
+| pauljohn at pols124:Siena-Profiling$ sudo sprof /usr/lib/R/library/stats/
+| libs/stats.so /var/tmp/usr/lib/R/library/stats/libs/stats.so.profile
+| Inconsistency detected by ld.so: dl-open.c: 652: _dl_open: Assertion
+| `_dl_debug_initialize (0, args.nsid)->r_state == RT_CONSISTENT'
+| failed!
+| 
+| I Google to find one discussion that there's a bug in glibc that was
+| unearthed in 2008 and there was debate on whether "sprof" is now
+| deprecated.  I don't understand the details completely.
+| (http://sources.redhat.com/ml/libc-alpha/2008-08/msg00013.html)
+| 
+| Nobody on Ubuntu has tried it lately?
+| 
+| Instead of sprof, I'll try oprofile, I guess.
+
+No, sorry. While I mention both sprof and oprofile in my tutorial notes on
+'an introduction to high-performance computing with R', I actually stress
+Google's profiling tool with a worked example. On Debian and Ubuntu, this
+tool is in package libgoogle-perftools0 with frontend /usr/bin/google-pprof.
+
+The last release version of the tutorial notes is 
+	http://dirk.eddelbuettel.com/papers/bocDec2008introHPCwithR.pdf 
+and there is likely to be an updated version following UseR 2009 and the
+tutorial session there.
+
+| I already tried to do this with gprof applied to the specific package,
+| but no profile is produced.  I believe that means I need to re-build
+| all of R with the -pg flag, and I'm a bit reluctant to break
+| everything by doing that.
+
+Yes, rebuilding only the parts you want to profile using google-perftools is
+easier. 
+
+Hope this helps, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From pauljohn32 at gmail.com  Tue Jun 30 21:03:30 2009
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Tue, 30 Jun 2009 14:03:30 -0500
+Subject: [R-sig-Debian] sprof works on your Debian/Ubuntu ?
+In-Reply-To: <13e802630906301109q6abfe7d5n7dac2a2a09fedca@mail.gmail.com>
+References: <13e802630906281240u794d35e9l9e0dba466153e341@mail.gmail.com>
+	<19015.52458.624263.911752@ron.nulle.part>
+	<13e802630906301109q6abfe7d5n7dac2a2a09fedca@mail.gmail.com>
+Message-ID: <13e802630906301203g7d584316o9cc337a0a6aab7a5@mail.gmail.com>
+
+On Tue, Jun 30, 2009 at 1:09 PM, Paul Johnson<pauljohn32 at gmail.com> wrote:
+> On Sun, Jun 28, 2009 at 3:04 PM, Dirk Eddelbuettel<edd at debian.org> wrote:
+>>
+>> Paul,
+>
+>>
+>> Yes, rebuilding only the parts you want to profile using google-perftools is
+>> easier.
+>>
+>> Hope this helps, Dirk
+>
+
+
+Hello Dirk and others:
+
+I wonder about the small r in your notes.  What is that?
+
+In Ubuntu 9.04, I installed "libgoogle-perftool0" and
+"libgoogle-perftools-dev" from the Ubuntu archive.  The version of
+google perftools that Ubuntu repositories provide is  old.  The
+Version is: 0.98, but i see on their homepage it is now up to 1.3.
+(http://code.google.com/p/google-perftools/)  I run into the same
+problem with either one.
+
+This happens:
+
+$ LD_PRELOAD="/usr/lib/libprofiler.so.0.0.0" CPUPROFILE=/tmp/rprof3.log R
+Profiling timer expired
+
+I am in the thin air now..
+
+Hm. I just noticed I can run the same with "sudo" and it does not stop
+with "Profiling timer expired".
+
+Do you have to run this as root as well? (Same problem I encountered
+with oprofile, incidentally).
+
+I can link my package with -lprofile. I suppose I could rebuild R.
+Would root access be needed to start the profile collector?
+
+
+> --
+> Paul E. Johnson
+> Professor, Political Science
+> 1541 Lilac Lane, Room 504
+> University of Kansas
+>
+
+
+
+-- 
+Paul E. Johnson
+Professor, Political Science
+1541 Lilac Lane, Room 504
+University of Kansas
+
+
+From edd at debian.org  Tue Jun 30 21:16:21 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 30 Jun 2009 14:16:21 -0500
+Subject: [R-sig-Debian] sprof works on your Debian/Ubuntu ?
+In-Reply-To: <13e802630906301203g7d584316o9cc337a0a6aab7a5@mail.gmail.com>
+References: <13e802630906281240u794d35e9l9e0dba466153e341@mail.gmail.com>
+	<19015.52458.624263.911752@ron.nulle.part>
+	<13e802630906301109q6abfe7d5n7dac2a2a09fedca@mail.gmail.com>
+	<13e802630906301203g7d584316o9cc337a0a6aab7a5@mail.gmail.com>
+Message-ID: <19018.25733.84674.139295@ron.nulle.part>
+
+
+On 30 June 2009 at 14:03, Paul Johnson wrote:
+| On Tue, Jun 30, 2009 at 1:09 PM, Paul Johnson<pauljohn32 at gmail.com> wrote:
+| > On Sun, Jun 28, 2009 at 3:04 PM, Dirk Eddelbuettel<edd at debian.org> wrote:
+| >>
+| >> Paul,
+| >
+| >>
+| >> Yes, rebuilding only the parts you want to profile using google-perftools is
+| >> easier.
+| >>
+| >> Hope this helps, Dirk
+| >
+| 
+| 
+| Hello Dirk and others:
+| 
+| I wonder about the small r in your notes.  What is that?
+
+Please see e.g. http://dirk.eddelbuettel.com/code/littler.html and just run
+'sudo apt-get install littler' on your system to get it.
+
+| In Ubuntu 9.04, I installed "libgoogle-perftool0" and
+| "libgoogle-perftools-dev" from the Ubuntu archive.  The version of
+| google perftools that Ubuntu repositories provide is  old.  The
+| Version is: 0.98, but i see on their homepage it is now up to 1.3.
+| (http://code.google.com/p/google-perftools/)  I run into the same
+| problem with either one.
+| 
+| This happens:
+| 
+| $ LD_PRELOAD="/usr/lib/libprofiler.so.0.0.0" CPUPROFILE=/tmp/rprof3.log R
+| Profiling timer expired
+
+
+I suspect you need something like 
+
+   $ LD_PRELOAD="/usr/lib/libprofiler.so.0.0.0"  \    # enable profiling
+     CPUPROFILE=/tmp/rprof3.log R		 \    # provides a logfile
+     R CMD BATCH someScriptToRun.R
+
+as R would otherwise just sit there and wait for your input, no?
+
+| I am in the thin air now..
+| 
+| Hm. I just noticed I can run the same with "sudo" and it does not stop
+| with "Profiling timer expired".
+
+I believe all example I tried with google perftools worked as a regular user.
+
+| Do you have to run this as root as well? (Same problem I encountered
+| with oprofile, incidentally).
+
+No, oprofile, if memory serves, is kernel-level so that's why root comes in.
+
+| I can link my package with -lprofile. I suppose I could rebuild R.
+
+You don't have to... if you're happy enough with the LD_PRELOAD trick.
+
+| Would root access be needed to start the profile collector?
+
+Not that I know but I may of course be missing something.
+
+Hth, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+

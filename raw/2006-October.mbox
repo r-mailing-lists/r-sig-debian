@@ -1,0 +1,1246 @@
+From tyler.smith at mail.mcgill.ca  Thu Oct  5 02:04:28 2006
+From: tyler.smith at mail.mcgill.ca (Tyler Smith)
+Date: Wed, 04 Oct 2006 21:04:28 -0300
+Subject: [R-sig-Debian] R 2.4 needed for packages in testing _now_?
+Message-ID: <45244C0C.20206@mail.mcgill.ca>
+
+Hi,
+
+I'm running testing, freshly updated, and I've now got a version of MASS 
+installed that depends on R >=2.4. How long until 2.4 gets into testing, 
+and is there anything I can do in the meantime to correct this?
+
+Cheers,
+
+Tyler
+
+
+From edd at debian.org  Thu Oct  5 02:41:40 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 4 Oct 2006 19:41:40 -0500
+Subject: [R-sig-Debian] R 2.4 needed for packages in testing _now_?
+In-Reply-To: <45244C0C.20206@mail.mcgill.ca>
+References: <45244C0C.20206@mail.mcgill.ca>
+Message-ID: <17700.21700.209564.704282@basebud.nulle.part>
+
+
+Tyler,
+
+On 4 October 2006 at 21:04, Tyler Smith wrote:
+| Hi,
+| 
+| I'm running testing, freshly updated, and I've now got a version of MASS 
+| installed that depends on R >=2.4.
+
+Yup -- my mistake.  I updated all (my Debian-maintained) packages from CRAN
+the day they came out using the 2.4.0 release candidates and a Depends: of
+the form (>> 2.3.1) and I misunderstood that 2.3.1-$x would satisfy it for
+any value of $x.  
+
+Meaning that the packages would not be blocked from going to testing, and
+hence creating the problem you (and possibly others) are now seeing before R
+2.4.0 gets into testing.
+
+| How long until 2.4 gets into testing, and is there anything I can do in the
+| meantime to correct this?
+
+The are two basic ways: "backwards" and "forwards":
+
+-- backwards by fetching the previous r-cran-vr package (providing MASS) from
+   snaphot.debian.net via this /etc/apt/sources.list line:
+         deb http://snapshot.debian.net/archive pool vr
+   or directly from 
+         http://snapshot.debian.net/archive/2006/05/18/debian/pool/main/v/vr/
+   for the May release
+
+-- forwards by using the R 2.4.0 from unstable -- it runs fine on testing
+   The most 'high-end' solution is apt-get using pinning as described
+   in package apt-howto-en leading to
+         # apt-get -t unstable install r-base-core
+
+I'd go with the second solution but if you find it confusing or suspect,
+please try the first.
+
+My aplogies for upsetting your Debian system, and creating extra work. That
+wasn't the intend, but I hope I learned how to avoid it come R 2.4.1, 2.5.0,
+... and other versions.  
+
+Cheers, Dirk
+ 
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From tyler.smith at mail.mcgill.ca  Thu Oct  5 03:18:51 2006
+From: tyler.smith at mail.mcgill.ca (Tyler Smith)
+Date: Wed, 04 Oct 2006 22:18:51 -0300
+Subject: [R-sig-Debian] R 2.4 needed for packages in testing _now_?
+In-Reply-To: <17700.21700.209564.704282@basebud.nulle.part>
+References: <45244C0C.20206@mail.mcgill.ca>
+	<17700.21700.209564.704282@basebud.nulle.part>
+Message-ID: <45245D7B.8040604@mail.mcgill.ca>
+
+Dirk Eddelbuettel wrote:
+> -- forwards by using the R 2.4.0 from unstable -- it runs fine on testing
+>    The most 'high-end' solution is apt-get using pinning as described
+>    in package apt-howto-en leading to
+>          # apt-get -t unstable install r-base-core
+
+Forward it is then! Everything's up and running fine now, and I've got 
+2.4.0 ten days ahead of schedule as compensation for my time.
+
+> 
+> My aplogies for upsetting your Debian system, and creating extra work. That
+> wasn't the intend, but I hope I learned how to avoid it come R 2.4.1, 2.5.0,
+> ... and other versions.  
+> 
+> Cheers, Dirk
+>  
+
+No problem at all. Thanks for your ongoing efforts in making R 
+apt-get-able for the rest of us with (almost always) no trouble at all.
+
+Cheers,
+
+Tyler
+
+
+From edd at debian.org  Sat Oct  7 17:03:51 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 7 Oct 2006 10:03:51 -0500
+Subject: [R-sig-Debian] GUI for R
+In-Reply-To: <200610071544.59098.Janno.Tuulik@nateko.lu.se>
+References: <4527995E.3050002@katamail.com>
+	<200610071544.59098.Janno.Tuulik@nateko.lu.se>
+Message-ID: <17703.49623.827325.714467@basebud.nulle.part>
+
+
+
+On 7 October 2006 at 15:44, Janno Tuulik wrote:
+| Hei Cristiano,
+| 
+| Take a look at RKWard (http://rkward.sourceforge.net) 
+
+I would not (yet ?) recommend RKWard as it is in very stages and has fairly
+incomplete coverage of R.
+
+| (http://rosuda.org/JGR/). Unfortunately, I have never tried to install those 
+| on sarge. 
+
+The excellent JGR is a very good choice.  As Janno said, it may be tricky on
+stable.  It just became a lot easier to install on unstable (and I still have
+to post a short writeup) using R 2.4.0 and its new 'R CMD javareconf' which
+can update R's knowledge of where your Java installation is. 
+
+Unfortunately, JGR is still somewhat outside Debian as it wants Sun's Java
+JDK so I don't think I'll ever package it directly.  Now, if someone wanted
+to outside of Debian ...  In fact, the CRAN maintainers mention that
+idea. Maybe one day.
+
+| On Saturday 07 October 2006 14:11, Cristiano Natt?ro wrote:
+| > Hello everybody,
+| >
+| >    I'm trying to use GNU R on a debian stable but I didn't manage to
+| > make any GUI work. Then I saw that:
+| >
+| >
+| > $ apt-cache show r-gnome
+| > <snip>
+| > As of R 2.1.0, this interface is no longer provided with the upstream
+| > sources. As such, this package is now an empty stub that will be removed
+| > in a subsequent revision of the Debian package.
+| > ...
+| >
+| >
+| >    Can you help me, please? I'm not keen on Gnome, any working GUI would
+| > be fine.
+
+As I tried to say here, the Gnome gui for R is no longer included upstream
+and hence no longer packages for Debian.
+
+The code does exist, though, on CRAN, so you could just fire up R and say
+
+   > install.packages("gnomeGUI")
+
+but note that you will have to take care of all the Build-Depends.
+Alternatively, download the tarball yourself outside of R from
+    
+   http://cran.r-project.org/src/contrib/gnomeGUI_2.3.0-3.tar.gz
+
+and say
+
+   $ sudo R CMD INSTALL gnome
+
+All that said, this (old) Gnome GUI is not all that powerful. JGR is current,
+maintained, and offers a number of things standard R hasn't.
+
+| > (BTW, is this the right place? If not where can I ask?)
+
+It really isn't all that on-topic here.  We are running a small Debian
+mailing list called r-sig-debian off the R mail server as well. That is
+probably the most topical list and I'll CC it now.
+
+Hope this helps,  Dirk (wearing his R maintainer hat)
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From edd at debian.org  Sat Oct  7 17:07:08 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 7 Oct 2006 10:07:08 -0500
+Subject: [R-sig-Debian] GUI for R
+In-Reply-To: <200610071544.59098.Janno.Tuulik@nateko.lu.se>
+References: <4527995E.3050002@katamail.com>
+	<200610071544.59098.Janno.Tuulik@nateko.lu.se>
+Message-ID: <17703.49820.598564.513434@basebud.nulle.part>
+
+
+[ resending with 8-bit clean mail header, and one fix below --edd ]
+
+On 7 October 2006 at 15:44, Janno Tuulik wrote:
+| Hei Cristiano,
+| 
+| Take a look at RKWard (http://rkward.sourceforge.net) 
+
+I would not (yet ?) recommend RKWard as it is in very stages and has fairly
+incomplete coverage of R.
+
+| (http://rosuda.org/JGR/). Unfortunately, I have never tried to install those 
+| on sarge. 
+
+The excellent JGR is a very good choice.  As Janno said, it may be tricky on
+stable.  It just became a lot easier to install on unstable (and I still have
+to post a short writeup) using R 2.4.0 and its new 'R CMD javareconf' which
+can update R's knowledge of where your Java installation is. 
+
+Unfortunately, JGR is still somewhat outside Debian as it wants Sun's Java
+JDK so I don't think I'll ever package it directly.  Now, if someone wanted
+to outside of Debian ...  In fact, the CRAN maintainers mention that
+idea. Maybe one day.
+
+| On Saturday 07 October 2006 14:11, Cristiano Natt?ro wrote:
+| > Hello everybody,
+| >
+| >    I'm trying to use GNU R on a debian stable but I didn't manage to
+| > make any GUI work. Then I saw that:
+| >
+| >
+| > $ apt-cache show r-gnome
+| > <snip>
+| > As of R 2.1.0, this interface is no longer provided with the upstream
+| > sources. As such, this package is now an empty stub that will be removed
+| > in a subsequent revision of the Debian package.
+| > ...
+| >
+| >
+| >    Can you help me, please? I'm not keen on Gnome, any working GUI would
+| > be fine.
+
+As I tried to say here, the Gnome gui for R is no longer included upstream
+and hence no longer packages for Debian.
+
+The code does exist, though, on CRAN, so you could just fire up R and say
+
+   > install.packages("gnomeGUI")
+
+but note that you will have to take care of all the Build-Depends.
+Alternatively, download the tarball yourself outside of R from
+    
+   http://cran.r-project.org/src/contrib/gnomeGUI_2.3.0-3.tar.gz
+
+and say
+
+   $ sudo R CMD INSTALL gnomeGUI_2.3.0-3.tar.gz
+
+All that said, this (old) Gnome GUI is not all that powerful. JGR is current,
+maintained, and offers a number of things standard R hasn't.
+
+| > (BTW, is this the right place? If not where can I ask?)
+
+It really isn't all that on-topic here.  We are running a small Debian
+mailing list called r-sig-debian off the R mail server as well. That is
+probably the most topical list and I'll CC it now.
+
+Hope this helps,  Dirk (wearing his R maintainer hat)
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From tyler.smith at mail.mcgill.ca  Mon Oct  9 13:22:44 2006
+From: tyler.smith at mail.mcgill.ca (Tyler Smith)
+Date: Mon, 09 Oct 2006 08:22:44 -0300
+Subject: [R-sig-Debian] GUI for R
+In-Reply-To: <17703.49820.598564.513434@basebud.nulle.part>
+References: <4527995E.3050002@katamail.com>
+	<200610071544.59098.Janno.Tuulik@nateko.lu.se>
+	<17703.49820.598564.513434@basebud.nulle.part>
+Message-ID: <452A3104.7030102@mail.mcgill.ca>
+
+> | >
+> | >    Can you help me, please? I'm not keen on Gnome, any working GUI would
+> | > be fine.
+
+If you are spending any significant time working in R I would highly 
+recommend emacs with ESS. Both are apt-gettable for stable, testing and 
+unstable. It does require a bit of time on your part, to run through the 
+emacs tutorial and then the basics of ESS. However, once you do that you 
+can do just about anything with it.
+
+I started out with the very basic commands - moving around, cutting and 
+pasting from a script into R. Whenever I found I was doing the same 
+thing over and over I poked around until I found the emacs way to make 
+it easier - Ctrl-a to jump to the beginning of a line, Ctrl-c Ctrl-f to 
+send a function from a script into R, Ctrl-c Ctrl-v to open a help 
+window etc.
+
+If you already know how to use emacs then you should run, not walk, over 
+to the repositories to install ESS. If you don't know emacs, it might be 
+worth learning just for ESS.
+
+Cheers,
+
+Tyler
+
+
+From gregor.gorjanc at bfro.uni-lj.si  Mon Oct  9 14:11:55 2006
+From: gregor.gorjanc at bfro.uni-lj.si (Gregor Gorjanc)
+Date: Mon, 09 Oct 2006 14:11:55 +0200
+Subject: [R-sig-Debian] GUI for R
+In-Reply-To: <452A3104.7030102@mail.mcgill.ca>
+References: <4527995E.3050002@katamail.com>
+	<200610071544.59098.Janno.Tuulik@nateko.lu.se>
+	<17703.49820.598564.513434@basebud.nulle.part>
+	<452A3104.7030102@mail.mcgill.ca>
+Message-ID: <452A3C8B.5020702@bfro.uni-lj.si>
+
+Tyler Smith wrote:
+>> | >
+>> | >    Can you help me, please? I'm not keen on Gnome, any working GUI
+>> would
+>> | > be fine.
+> 
+> If you are spending any significant time working in R I would highly
+> recommend emacs with ESS. Both are apt-gettable for stable, testing and
+> unstable. It does require a bit of time on your part, to run through the
+> emacs tutorial and then the basics of ESS. However, once you do that you
+> can do just about anything with it.
+> 
+> I started out with the very basic commands - moving around, cutting and
+> pasting from a script into R. Whenever I found I was doing the same
+> thing over and over I poked around until I found the emacs way to make
+> it easier - Ctrl-a to jump to the beginning of a line, Ctrl-c Ctrl-f to
+> send a function from a script into R, Ctrl-c Ctrl-v to open a help
+> window etc.
+> 
+> If you already know how to use emacs then you should run, not walk, over
+> to the repositories to install ESS. If you don't know emacs, it might be
+> worth learning just for ESS.
+
+I also agree with Tyler. If you do not know Emacs it might be a bit of
+overkill from the beginning, however it does pay-off in long term.
+Wherever I go I really miss emacs and lately also ESS.
+
+-- 
+Lep pozdrav / With regards,
+    Gregor Gorjanc
+----------------------------------------------------------------------
+University of Ljubljana     PhD student
+Biotechnical Faculty
+Zootechnical Department     URI: http://www.bfro.uni-lj.si/MR/ggorjan
+Groblje 3                   mail: gregor.gorjanc <at> bfro.uni-lj.si
+
+SI-1230 Domzale             tel: +386 (0)1 72 17 861
+Slovenia, Europe            fax: +386 (0)1 72 17 888
+
+----------------------------------------------------------------------
+"One must learn by doing the thing; for though you think you know it,
+ you have no certainty until you try." Sophocles ~ 450 B.C.
+
+
+From edd at debian.org  Mon Oct  9 15:37:38 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 9 Oct 2006 08:37:38 -0500
+Subject: [R-sig-Debian] GUI for R
+In-Reply-To: <452A3C8B.5020702@bfro.uni-lj.si>
+References: <4527995E.3050002@katamail.com>
+	<200610071544.59098.Janno.Tuulik@nateko.lu.se>
+	<17703.49820.598564.513434@basebud.nulle.part>
+	<452A3104.7030102@mail.mcgill.ca> <452A3C8B.5020702@bfro.uni-lj.si>
+Message-ID: <17706.20642.235621.651987@basebud.nulle.part>
+
+
+On 9 October 2006 at 14:11, Gregor Gorjanc wrote:
+| Tyler Smith wrote:
+| > If you are spending any significant time working in R I would highly
+| > recommend emacs with ESS. Both are apt-gettable for stable, testing and
+[...]
+| I also agree with Tyler. If you do not know Emacs it might be a bit of
+| overkill from the beginning, however it does pay-off in long term.
+| Wherever I go I really miss emacs and lately also ESS.
+
+Yes and yes but not that this is 
+
+a) now fairly clearly off-topic on debian-science, and 
+
+b) covered in the R FAQ as my favourite Q and A:
+
+       6.2 Should I run R from within Emacs?
+       =====================================
+
+       Yes, _definitely_. [....]
+
+   where all three questions in section 6 are about R and Emacs.
+
+Cheers, Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From spluque at gmail.com  Wed Oct 11 17:55:16 2006
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Wed, 11 Oct 2006 10:55:16 -0500
+Subject: [R-sig-Debian] pinning R packages to unstable?
+Message-ID: <87d58ysv8b.fsf@patagonia.sebmags.homelinux.org>
+
+Dear Debian R users,
+
+This is more of an apt question rather than R.  I have a testing Debian
+system, but would like to use the unstable packages for R, *without* using
+the -t flag in apt-get.  I think this is done by using a 'pin' rule in
+/etc/apt/apt.conf, but don't understand how this should be done.  Can
+somebody provide an example please?
+
+
+Cheers,
+
+-- 
+Seb
+
+
+From edd at debian.org  Wed Oct 11 18:12:22 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 11 Oct 2006 11:12:22 -0500
+Subject: [R-sig-Debian] pinning R packages to unstable?
+In-Reply-To: <87d58ysv8b.fsf@patagonia.sebmags.homelinux.org>
+References: <87d58ysv8b.fsf@patagonia.sebmags.homelinux.org>
+Message-ID: <17709.6118.517830.987489@basebud.nulle.part>
+
+
+On 11 October 2006 at 10:55, Sebastian P. Luque wrote:
+| This is more of an apt question rather than R.  I have a testing Debian
+| system, but would like to use the unstable packages for R, *without* using
+| the -t flag in apt-get.  I think this is done by using a 'pin' rule in
+| /etc/apt/apt.conf, but don't understand how this should be done.  Can
+| somebody provide an example please?
+
+Beats me, but I'd use it too if I knew how to :)  
+
+Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From markus.jantti at iki.fi  Wed Oct 11 22:35:35 2006
+From: markus.jantti at iki.fi (=?ISO-8859-1?Q?Markus_J=E4ntti?=)
+Date: Wed, 11 Oct 2006 23:35:35 +0300
+Subject: [R-sig-Debian] pinning R packages to unstable?
+In-Reply-To: <87d58ysv8b.fsf@patagonia.sebmags.homelinux.org>
+References: <87d58ysv8b.fsf@patagonia.sebmags.homelinux.org>
+Message-ID: <452D5597.7070003@iki.fi>
+
+Sebastian P. Luque wrote:
+> Dear Debian R users,
+> 
+> This is more of an apt question rather than R.  I have a testing Debian
+> system, but would like to use the unstable packages for R, *without* using
+> the -t flag in apt-get.  I think this is done by using a 'pin' rule in
+> /etc/apt/apt.conf, but don't understand how this should be done.  Can
+> somebody provide an example please?
+
+See section 3.10 in
+
+http://www.debian.org/doc/manuals/apt-howto/ch-apt-get.en.html
+
+Regards,
+
+markus
+> 
+> 
+> Cheers,
+> 
+
+
+-- 
+Markus Jantti
+Abo Akademi University
+markus.jantti at iki.fi
+http://www.iki.fi/~mjantti
+
+
+From edd at debian.org  Wed Oct 11 23:35:28 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 11 Oct 2006 16:35:28 -0500
+Subject: [R-sig-Debian] pinning R packages to unstable?
+In-Reply-To: <452D5597.7070003@iki.fi>
+References: <87d58ysv8b.fsf@patagonia.sebmags.homelinux.org>
+	<452D5597.7070003@iki.fi>
+Message-ID: <17709.25504.838313.691645@basebud.nulle.part>
+
+
+On 11 October 2006 at 23:35, Markus J?ntti wrote:
+| Sebastian P. Luque wrote:
+| > Dear Debian R users,
+| > 
+| > This is more of an apt question rather than R.  I have a testing Debian
+| > system, but would like to use the unstable packages for R, *without* using
+| > the -t flag in apt-get.  I think this is done by using a 'pin' rule in
+| > /etc/apt/apt.conf, but don't understand how this should be done.  Can
+| > somebody provide an example please?
+| 
+| See section 3.10 in
+| 
+| http://www.debian.org/doc/manuals/apt-howto/ch-apt-get.en.html
+
+For some bizarre reason that web version is older than both the apt-howto-en
+versions in testing and unstable, neither one of which still contains that
+subsection you mention.
+
+The key would be to derive a regexp for all CRAN packages. Simply using
+
+Package: r-cran-*
+Pin: release a=unstable
+Pin-Priority: 900
+
+in /etc/apt/prefences does not do the trick.
+
+Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From edd at debian.org  Thu Oct 12 14:12:02 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 12 Oct 2006 07:12:02 -0500
+Subject: [R-sig-Debian] Problems with package foreign (r-cran-foreign)
+In-Reply-To: <452E20AC.9030907@bfro.uni-lj.si>
+References: <452E20AC.9030907@bfro.uni-lj.si>
+Message-ID: <17710.12562.668646.474152@basebud.nulle.part>
+
+
+On 12 October 2006 at 13:02, Gregor Gorjanc wrote:
+| Hello!
+| 
+| I encounter the following problem when I try to load package foreign
+| 
+| library(foreign)
+| Error in dyn.load(x, as.logical(local), as.logical(now)) :
+| 	unable to load shared library '/usr/lib/R/library/foreign/libs/foreign.so':
+|   /usr/lib/R/library/foreign/libs/foreign.so: undefined symbol:
+| Rf_allocString
+| Error: package/namespace load failed for 'foreign'
+| 
+| I have installed R as deb packages and I get above behaviour in 2.4.0-1.
+|  I have tried to reinstall r-cran-foreign but got the same behaviour.
+| However, if I install package foreign via install.packages() there is no
+| such problem. CRAN version of package is 0.8-17, while r-cran-foreign is
+| 0.8-15 and it seems that it needs to be updated.
+
+Yes, please see http://bugs.debian.org/392084  
+
+I forgot to actually upload foreign, but that has been done now. Tip: install
+the devscripts package and try
+
+$ rmadison foreign		# shows source pkg
+$ rmadison r-cran-foreign	# shows binary per arch.
+
+Also, too many packages in testing depend on R 2.4.0 --- so you may want R
+2.4.0 from testing.  I'm CCing r-sig-debian as a heads up.
+
+Thanks for the report,  Dirk
+
+| 
+| Thanks!
+| 
+| -- 
+| Lep pozdrav / With regards,
+|     Gregor Gorjanc
+| ----------------------------------------------------------------------
+| University of Ljubljana     PhD student
+| Biotechnical Faculty
+| Zootechnical Department     URI: http://www.bfro.uni-lj.si/MR/ggorjan
+| Groblje 3                   mail: gregor.gorjanc <at> bfro.uni-lj.si
+| 
+| SI-1230 Domzale             tel: +386 (0)1 72 17 861
+| Slovenia, Europe            fax: +386 (0)1 72 17 888
+| 
+| ----------------------------------------------------------------------
+| "One must learn by doing the thing; for though you think you know it,
+|  you have no certainty until you try." Sophocles ~ 450 B.C.
+| ----------------------------------------------------------------------
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From f.calboli at imperial.ac.uk  Fri Oct 13 12:51:40 2006
+From: f.calboli at imperial.ac.uk (Federico Calboli)
+Date: Fri, 13 Oct 2006 11:51:40 +0100
+Subject: [R-sig-Debian] cannot load MASS in Etch
+Message-ID: <452F6FBC.4070100@imperial.ac.uk>
+
+Hi All,
+
+I hate to do this (because I always found the R/Debian combo exceptional and I 
+never had the time to ontribute --sorry about that--), BUT, the latest r-cran-vr 
+for Etch (testing) is
+
+dpkg -l | grep r-cran-vr
+ii  r-cran-vr                        7.2.29-1                    GNU R package 
+accompanying the Venables and Ripley book on S
+
+and I get the following error if I try to load MASS in R:
+
+Error: This is R 2.3.1, package 'MASS' needs >= 2.4.0
+
+And Etch is still at R 2.3.1 and R 2.4 has not reached it yet! The dependency 
+seems to be broken...
+
+Cheers,
+
+Fede
+
+-- 
+Federico C. F. Calboli
+Department of Epidemiology and Public Health
+Imperial College, St Mary's Campus
+Norfolk Place, London W2 1PG
+
+Tel  +44 (0)20 7594 1602     Fax (+44) 020 7594 3193
+
+f.calboli [.a.t] imperial.ac.uk
+f.calboli [.a.t] gmail.com
+
+
+From edd at debian.org  Fri Oct 13 13:50:14 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 13 Oct 2006 06:50:14 -0500
+Subject: [R-sig-Debian] cannot load MASS in Etch
+In-Reply-To: <452F6FBC.4070100@imperial.ac.uk>
+References: <452F6FBC.4070100@imperial.ac.uk>
+Message-ID: <17711.32118.952173.606749@basebud.nulle.part>
+
+
+On 13 October 2006 at 11:51, Federico Calboli wrote:
+| Hi All,
+| 
+| I hate to do this (because I always found the R/Debian combo exceptional and I 
+| never had the time to ontribute --sorry about that--), BUT, the latest r-cran-vr 
+| for Etch (testing) is
+| 
+| dpkg -l | grep r-cran-vr
+| ii  r-cran-vr                        7.2.29-1                    GNU R package 
+| accompanying the Venables and Ripley book on S
+| 
+| and I get the following error if I try to load MASS in R:
+| 
+| Error: This is R 2.3.1, package 'MASS' needs >= 2.4.0
+| 
+| And Etch is still at R 2.3.1 and R 2.4 has not reached it yet! The dependency 
+| seems to be broken...
+
+Yes -- I am sorry. I got a Depends: comparison wrong and several packages
+built with R 2.4.0 release candidates, which therefore require an R later
+than 2.3.1, slipped into testing before R 2.4.0 itself.  These packages will
+not work with R 2.3.1. 
+
+You can either
+
+1) go to Debian unstable and install r-base-core, r-base-dev, r-mathlib, ...
+   from the 2.4.0 release manually (or semi-automatically using the pinning
+   feature of apt-get), or
+
+2) go to snapshot.debian.net and get the previous version of the failing
+   package (here r-cran-vr), or
+
+3) use install.packages() or update.packages() within R to overwrite
+   to package
+
+4) wait for R 2.4.0 to hit testing.
+
+I recommend the first choice, esp with apt-get pinning which makes it quite
+easy.  Choice 2 is probably the least scary if 'pinning' is a bit
+much. Choice 3 may be the easiest. Choice 4 obviously stinks.
+
+Again, sorry about this.  I'll try hard not to do that again.
+
+Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From vincent.goulet at act.ulaval.ca  Fri Oct 13 16:08:13 2006
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Fri, 13 Oct 2006 10:08:13 -0400
+Subject: [R-sig-Debian] 2.4.0 packages for (K)Ubuntu
+Message-ID: <200610131008.13756.vincent.goulet@act.ulaval.ca>
+
+Hi,
+
+May I ask what are the plans for R 2.4.0 packages for (K)Ubuntu? Will 
+Christian yet again agree to provide packages as he did for 2.3.1?
+
+I will renew my offer to contribute, if needed.
+
+Thanks in advance!
+
+-- 
+  Vincent Goulet, Associate Professor
+  ?cole d'actuariat
+  Universit? Laval, Qu?bec 
+  Vincent.Goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+
+
+From edd at debian.org  Fri Oct 13 17:02:06 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 13 Oct 2006 10:02:06 -0500
+Subject: [R-sig-Debian] 2.4.0 packages for (K)Ubuntu
+In-Reply-To: <200610131008.13756.vincent.goulet@act.ulaval.ca>
+References: <200610131008.13756.vincent.goulet@act.ulaval.ca>
+Message-ID: <17711.43630.769808.896066@basebud.nulle.part>
+
+
+Salut Vincent,
+
+On 13 October 2006 at 10:08, Vincent Goulet wrote:
+| May I ask what are the plans for R 2.4.0 packages for (K)Ubuntu? Will 
+| Christian yet again agree to provide packages as he did for 2.3.1?
+| 
+| I will renew my offer to contribute, if needed.
+
+That would be great. I can try to walk you though any pitfalls.  
+
+That said, I built those on Kubuntu Dapper at work and for use at work, and
+it is trivial as Dapper is so close to testing.  No change needed to debian/*
+apart from a changelog entry to set it apart.
+
+[ There often is a little bit involved for Debian stable as the packages are
+older, and/or because Christian also builds the r-recommended packages.  That
+last change may matter. ]
+
+Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From gregor.gorjanc at bfro.uni-lj.si  Sun Oct 15 02:42:49 2006
+From: gregor.gorjanc at bfro.uni-lj.si (Gregor Gorjanc)
+Date: Sun, 15 Oct 2006 02:42:49 +0200
+Subject: [R-sig-Debian] Problems with package foreign (r-cran-foreign)
+In-Reply-To: <17710.12562.668646.474152@basebud.nulle.part>
+References: <452E20AC.9030907@bfro.uni-lj.si>
+	<17710.12562.668646.474152@basebud.nulle.part>
+Message-ID: <45318409.3020405@bfro.uni-lj.si>
+
+Dirk Eddelbuettel wrote:
+> On 12 October 2006 at 13:02, Gregor Gorjanc wrote:
+...
+> I forgot to actually upload foreign, but that has been done now. Tip: install
+> the devscripts package and try
+> 
+> $ rmadison foreign		# shows source pkg
+> $ rmadison r-cran-foreign	# shows binary per arch.
+> 
+> Also, too many packages in testing depend on R 2.4.0 --- so you may want R
+> 2.4.0 from testing.  I'm CCing r-sig-debian as a heads up.
+> 
+
+I apologize for late response. Yes,
+
+aptitude install -t unstable r-cran-foreign
+
+solves my problem. Thank you Dirk for this and also other Debian-R
+related work. rmadison command rocks. I was always wondering how one
+could easily get info that rmadison spits out so nicely and fast!
+
+-- 
+Lep pozdrav / With regards,
+    Gregor Gorjanc
+----------------------------------------------------------------------
+University of Ljubljana     PhD student
+Biotechnical Faculty
+Zootechnical Department     URI: http://www.bfro.uni-lj.si/MR/ggorjan
+Groblje 3                   mail: gregor.gorjanc <at> bfro.uni-lj.si
+
+SI-1230 Domzale             tel: +386 (0)1 72 17 861
+Slovenia, Europe            fax: +386 (0)1 72 17 888
+
+----------------------------------------------------------------------
+"One must learn by doing the thing; for though you think you know it,
+ you have no certainty until you try." Sophocles ~ 450 B.C.
+
+
+From blomsp at ozemail.com.au  Tue Oct 17 06:57:11 2006
+From: blomsp at ozemail.com.au (Simon Blomberg)
+Date: Tue, 17 Oct 2006 14:57:11 +1000
+Subject: [R-sig-Debian] [R] New package Ryacas
+In-Reply-To: <971536df0610162021j30768697o9d446aa86c53d638@mail.gmail.com>
+References: <20061017024625.555.qmail@web30607.mail.mud.yahoo.com>
+	<971536df0610162021j30768697o9d446aa86c53d638@mail.gmail.com>
+Message-ID: <453462A7.9080306@ozemail.com.au>
+
+Hi Gabor,
+
+I'm running Quantian (Debian) inside a VMware virtual machine, on a 
+Windows XP host.
+
+I installed the latest version of yacas from the source tarball. I 
+remembered to ./configure --enable-server to allow server connections. 
+make and make install worked ok, after some fiddling. I checked that the 
+yacas server option worked, by doing yacas --server 3333, and then 
+telnet'ing to 127.0.0.1 3333 to check. It worked fine. I installed 
+Ryacas. I then tried it out and got the following error:
+
+ > library(Ryacas)
+Loading required package: XML
+ > yacas('Integrate(x)x;')
+[1] "Starting Yacas!"
+Error in socketConnection(host = "127.0.0.1", port = 9734, server = 
+FALSE,  :
+       unable to open connection
+In addition: Warning message:
+127.0.0.1:9734 cannot be opened
+ > Accepting requests from port 9734
+
+I tried again (stubborn, I guess):                                       
+
+ > yacas('Integrate(x)x;')
+ [1] "Starting Yacas!"
+ Accepting requests from port 9734
+ YacasServer Could not bind to the socket
+ : Address already in use
+ /usr/local/lib/R/site-library/Ryacas/yacdir/R.ys(1) : File not found
+ CommandLine(1) : Expecting ) closing bracket for sub-expression, but 
+got x instead
+
+Any ideas where I may be going wrong? I don't know anything about 
+sockets. I've cross-posted to r-sig-debian. They may be interested.
+
+Cheers,
+
+Simon.
+
+-- 
+Simon Blomberg, B.Sc.(Hons.), Ph.D, M.App.Stat. 
+Centre for Resource and Environmental Studies
+The Australian National University              
+Canberra ACT 0200                               
+Australia                                       
+T: +61 2 6125 7800 email: Simon.Blomberg_at_anu.edu.au
+F: +61 2 6125 0757
+CRICOS Provider # 00120C
+
+The combination of some data and an aching desire for 
+an answer does not ensure that a reasonable answer 
+can be extracted from a given body of data.
+- John Tukey.
+
+
+From e.pebesma at geo.uu.nl  Fri Oct 20 11:12:11 2006
+From: e.pebesma at geo.uu.nl (Edzer J. Pebesma)
+Date: Fri, 20 Oct 2006 11:12:11 +0200
+Subject: [R-sig-Debian] foreign
+Message-ID: <453892EB.2060907@geo.uu.nl>
+
+I get on debian/etch the following, with foreign installed from 
+r-cran-foreign:
+
+ > library(foreign)
+Error in dyn.load(x, as.logical(local), as.logical(now)) :
+        unable to load shared library 
+'/usr/lib/R/library/foreign/libs/foreign.so':
+  /usr/lib/R/library/foreign/libs/foreign.so: undefined symbol: 
+Rf_allocString
+Error: package/namespace load failed for 'foreign'
+
+Local installation works fine.
+
+Bests,
+--
+Edzer
+
+
+From gregor.gorjanc at bfro.uni-lj.si  Fri Oct 20 12:43:06 2006
+From: gregor.gorjanc at bfro.uni-lj.si (Gregor Gorjanc)
+Date: Fri, 20 Oct 2006 10:43:06 +0000 (UTC)
+Subject: [R-sig-Debian] foreign
+References: <453892EB.2060907@geo.uu.nl>
+Message-ID: <loom.20061020T124235-237@post.gmane.org>
+
+Edzer J. Pebesma <e.pebesma <at> geo.uu.nl> writes:
+
+> 
+> I get on debian/etch the following, with foreign installed from 
+> r-cran-foreign:
+
+Check the archives!
+
+Gregor
+
+
+From edd at debian.org  Fri Oct 20 14:04:07 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 20 Oct 2006 07:04:07 -0500
+Subject: [R-sig-Debian] foreign
+In-Reply-To: <loom.20061020T124235-237@post.gmane.org>
+References: <453892EB.2060907@geo.uu.nl>
+	<loom.20061020T124235-237@post.gmane.org>
+Message-ID: <17720.47927.63242.235312@basebud.nulle.part>
+
+
+On 20 October 2006 at 11:12, Edzer J. Pebesma wrote:
+| I get on debian/etch the following, with foreign installed from 
+| r-cran-foreign:
+| 
+|  > library(foreign)
+| Error in dyn.load(x, as.logical(local), as.logical(now)) :
+|         unable to load shared library 
+| '/usr/lib/R/library/foreign/libs/foreign.so':
+|   /usr/lib/R/library/foreign/libs/foreign.so: undefined symbol: 
+| Rf_allocString
+| Error: package/namespace load failed for 'foreign'
+| 
+| Local installation works fine.
+
+Install R 2.4.0 that is now in testing and you should be fine. 
+
+A Depends: was too weak and let foreign into testing before R 2.4.0.
+
+Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From edd at debian.org  Mon Oct 23 22:36:02 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 23 Oct 2006 15:36:02 -0500
+Subject: [R-sig-Debian] Poll: Does R_PAPERSIZE in /etc/R/Renviron matter?
+Message-ID: <17725.10162.343528.822046@basebud.nulle.part>
+
+
+A heuristic runs via the r-base-core package postinst. It is intended
+to use the result from Debian's paperconf(1) toool, and to update the R
+environment variable R_PAPERSIZE accordingly.  This apparently broke some
+time ago when R changed to a dual variable setup, and my regexp didn't
+notice. 
+
+Does anybody use this, or is it ok if I simply disable this in Debian?  In
+that case we simply do what everybody else does, so you all get to live by
+the 'letter' setting that comes from my compile-time choice.  It is easy
+enough to override either in /etc/R/Renviron or in ~/.Renviron.
+
+Opinions either way? Let me know. For now, I intend to simply comment this
+out in the next release (presumably a rc for 2.4.1).
+
+Thanks, Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From Robert.King at newcastle.edu.au  Tue Oct 24 05:55:35 2006
+From: Robert.King at newcastle.edu.au (Robert King)
+Date: Tue, 24 Oct 2006 13:55:35 +1000
+Subject: [R-sig-Debian] Poll: Does R_PAPERSIZE in /etc/R/Renviron matter?
+In-Reply-To: <17725.10162.343528.822046@basebud.nulle.part>
+References: <17725.10162.343528.822046@basebud.nulle.part>
+Message-ID: <200610241355.35714.Robert.King@newcastle.edu.au>
+
+I use it.
+
+Thanks,
+Robert.
+
+On Tue, 24 Oct 2006 06:36, Dirk Eddelbuettel wrote:
+> A heuristic runs via the r-base-core package postinst. It is intended
+> to use the result from Debian's paperconf(1) toool, and to update the R
+> environment variable R_PAPERSIZE accordingly.  This apparently broke some
+> time ago when R changed to a dual variable setup, and my regexp didn't
+> notice.
+>
+> Does anybody use this, or is it ok if I simply disable this in Debian?  In
+> that case we simply do what everybody else does, so you all get to live by
+> the 'letter' setting that comes from my compile-time choice.  It is easy
+> enough to override either in /etc/R/Renviron or in ~/.Renviron.
+>
+> Opinions either way? Let me know. For now, I intend to simply comment this
+> out in the next release (presumably a rc for 2.4.1).
+>
+> Thanks, Dirk
+
+-- 
+Robert King, Statistics, School of Mathematical & Physical Sciences,
+University of Newcastle, Australia
+Room V133  ph +61 2 4921 5548
+Robert.King at newcastle.edu.au   http://tolstoy.newcastle.edu.au/~rking/
+
+
+From markus.jantti at iki.fi  Tue Oct 24 07:40:09 2006
+From: markus.jantti at iki.fi (=?ISO-8859-1?Q?Markus_J=E4ntti?=)
+Date: Tue, 24 Oct 2006 08:40:09 +0300
+Subject: [R-sig-Debian] Poll: Does R_PAPERSIZE in /etc/R/Renviron matter?
+In-Reply-To: <17725.10162.343528.822046@basebud.nulle.part>
+References: <17725.10162.343528.822046@basebud.nulle.part>
+Message-ID: <453DA739.6060609@iki.fi>
+
+I had not noticed it was broken, so don't seem to use the papersize 
+setting much.
+
+Markus
+
+Dirk Eddelbuettel wrote:
+> A heuristic runs via the r-base-core package postinst. It is intended
+> to use the result from Debian's paperconf(1) toool, and to update the R
+> environment variable R_PAPERSIZE accordingly.  This apparently broke some
+> time ago when R changed to a dual variable setup, and my regexp didn't
+> notice. 
+> 
+> Does anybody use this, or is it ok if I simply disable this in Debian?  In
+> that case we simply do what everybody else does, so you all get to live by
+> the 'letter' setting that comes from my compile-time choice.  It is easy
+> enough to override either in /etc/R/Renviron or in ~/.Renviron.
+> 
+> Opinions either way? Let me know. For now, I intend to simply comment this
+> out in the next release (presumably a rc for 2.4.1).
+> 
+> Thanks, Dirk
+> 
+
+
+-- 
+Markus Jantti
+Abo Akademi University
+markus.jantti at iki.fi
+http://www.iki.fi/~mjantti
+
+
+From gregor.gorjanc at bfro.uni-lj.si  Tue Oct 24 09:31:10 2006
+From: gregor.gorjanc at bfro.uni-lj.si (Gregor Gorjanc)
+Date: Tue, 24 Oct 2006 07:31:10 +0000 (UTC)
+Subject: [R-sig-Debian]
+	=?utf-8?q?Poll=3A_Does_R=5FPAPERSIZE_in_/etc/R/Ren?=
+	=?utf-8?q?viron_matter=3F?=
+References: <17725.10162.343528.822046@basebud.nulle.part>
+Message-ID: <loom.20061024T092850-404@post.gmane.org>
+
+Dirk Eddelbuettel <edd <at> debian.org> writes:
+
+> A heuristic runs via the r-base-core package postinst. It is intended
+> to use the result from Debian's paperconf(1) toool, and to update the R
+> environment variable R_PAPERSIZE accordingly.  This apparently broke some
+> time ago when R changed to a dual variable setup, and my regexp didn't
+> notice. 
+> 
+> Does anybody use this, or is it ok if I simply disable this in Debian?  In
+> that case we simply do what everybody else does, so you all get to live by
+> the 'letter' setting that comes from my compile-time choice.  It is easy
+> enough to override either in /etc/R/Renviron or in ~/.Renviron.
+> 
+> Opinions either way? Let me know. For now, I intend to simply comment this
+> out in the next release (presumably a rc for 2.4.1).
+
+What it is actually used for? Living in Europe I "hate" letter, but never
+noticed any effect of that setup. Uff, I have papersize="a4" in options() in
+~/.Rprofile so that is probably the reason that I do not care.
+
+Gregor
+
+
+From edd at debian.org  Tue Oct 24 14:37:21 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 24 Oct 2006 07:37:21 -0500
+Subject: [R-sig-Debian] Poll: Does R_PAPERSIZE in /etc/R/Renviron matter?
+In-Reply-To: <17725.10162.343528.822046@basebud.nulle.part>
+References: <17725.10162.343528.822046@basebud.nulle.part>
+Message-ID: <17726.2305.557969.55993@basebud.nulle.part>
+
+
+On 23 October 2006 at 15:36, Dirk Eddelbuettel wrote:
+| 
+| A heuristic runs via the r-base-core package postinst. It is intended
+| to use the result from Debian's paperconf(1) toool, and to update the R
+| environment variable R_PAPERSIZE accordingly.  This apparently broke some
+| time ago when R changed to a dual variable setup, and my regexp didn't
+| notice. 
+| 
+| Does anybody use this, or is it ok if I simply disable this in Debian?  In
+| that case we simply do what everybody else does, so you all get to live by
+| the 'letter' setting that comes from my compile-time choice.  It is easy
+| enough to override either in /etc/R/Renviron or in ~/.Renviron.
+| 
+| Opinions either way? Let me know. For now, I intend to simply comment this
+| out in the next release (presumably a rc for 2.4.1).
+
+My thanks to those who answered already. For those who are perplexed, I
+should have add the following few paragraphs.
+
+Run
+
+	$ echo 'print(options("papersize"))' | R --slave
+
+to see your current setting. 
+
+R 2.4.0 has a new heuristic based on the locale:
+
+	The way option("papersize") is set has been changed.  On
+	platforms which support the LC_PAPER locale category, the
+	setting is taken first from the R_PAPERSIZE environment
+	variable at run time, then from the LC_PAPER category
+	("letter" for _US and _CA locales and "a4" otherwise).	On
+	other platforms (including Windows and older Unixen), the
+	choice is unchanged.
+
+which should get it right for most people.  If not, the easiest per-user
+override is in ~/.Renviron, and system-wide could be done in
+/etc/R/Renviron. 
+
+Thanks, Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From spluque at gmail.com  Tue Oct 24 15:18:10 2006
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Tue, 24 Oct 2006 08:18:10 -0500
+Subject: [R-sig-Debian] Poll: Does R_PAPERSIZE in /etc/R/Renviron matter?
+References: <17725.10162.343528.822046@basebud.nulle.part>
+Message-ID: <87k62pvoml.fsf@patagonia.sebmags.homelinux.org>
+
+On Mon, 23 Oct 2006 15:36:02 -0500,
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+[...]
+
+> Does anybody use this, or is it ok if I simply disable this in Debian?
+> In that case we simply do what everybody else does, so you all get to
+> live by the 'letter' setting that comes from my compile-time choice.  It
+> is easy enough to override either in /etc/R/Renviron or in ~/.Renviron.
+
+I also have to use 'letter' here (but feel much like Gregor ;-) ), so
+hadn't noticed the change.
+
+I think it would be good to rely on paperconf, to keep the Debianness.
+
+
+Cheers,
+
+-- 
+Seb
+
+
+From edd at debian.org  Tue Oct 24 15:55:07 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 24 Oct 2006 08:55:07 -0500
+Subject: [R-sig-Debian] Poll: Does R_PAPERSIZE in /etc/R/Renviron matter?
+In-Reply-To: <87k62pvoml.fsf@patagonia.sebmags.homelinux.org>
+References: <17725.10162.343528.822046@basebud.nulle.part>
+	<87k62pvoml.fsf@patagonia.sebmags.homelinux.org>
+Message-ID: <17726.6971.857967.833674@basebud.nulle.part>
+
+
+On 24 October 2006 at 08:18, Sebastian P. Luque wrote:
+| On Mon, 23 Oct 2006 15:36:02 -0500,
+| Dirk Eddelbuettel <edd at debian.org> wrote:
+| > Does anybody use this, or is it ok if I simply disable this in Debian?
+| > In that case we simply do what everybody else does, so you all get to
+| > live by the 'letter' setting that comes from my compile-time choice.  It
+| > is easy enough to override either in /etc/R/Renviron or in ~/.Renviron.
+| 
+| I also have to use 'letter' here (but feel much like Gregor ;-) ), so
+| hadn't noticed the change.
+| 
+| I think it would be good to rely on paperconf, to keep the Debianness.
+
+I know, I know, I also like to feel smug that we this so much better than
+everybody else.  
+
+So maybe I will change the original 
+
+  ## Default printer paper size: first record if user set R_PAPERSIZE
+  R_PAPERSIZE_USER=${R_PAPERSIZE}
+  R_PAPERSIZE=${R_PAPERSIZE-'@R_PAPERSIZE@'}
+
+to something where the right-hand side ${R_PAPERSIZE} gets replaced in
+postinst by what paperconf finds.  I can't seem to find a way to have
+/etc/R/Renviron do anything dynamically, i.e. even something like
+
+R_PAPERSIZE:=$(shell paperconf)
+
+fails.
+
+Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From cts at debian.org  Mon Oct 30 19:27:12 2006
+From: cts at debian.org (Christian T. Steigies)
+Date: Mon, 30 Oct 2006 19:27:12 +0100
+Subject: [R-sig-Debian] [R-gui] R GUI for Linux (using Java)
+In-Reply-To: <17733.62766.599961.988626@basebud.nulle.part>
+References: <4544A145.1050103@tlen.pl> <4544EE7C.6010402@cesmail.net>
+	<17732.62291.210619.430331@basebud.nulle.part>
+	<200610301242.58868.dusa.adrian@gmail.com>
+	<17733.62766.599961.988626@basebud.nulle.part>
+Message-ID: <20061030182712.GC9716@chumley.earth.sol>
+
+On Mon, Oct 30, 2006 at 06:50:54AM -0600, Dirk Eddelbuettel wrote:
+> 
+> Adrian,
+> 
+> On 30 October 2006 at 12:42, Adrian Dusa wrote:
+> | 
+> | I've been looking for r-base-core_2.4.0 for Ubuntu on CRAN... any chance to 
+> | appear there soon? Kind of gave up on my habbit of compiling R from sources, 
+> | I was hoping to use Synaptic to install the most recent version.
+> 
+> I am actually not the volunteer in charge of that, see the R FAQ for details.
+> It is also the wrong list as r-sig-debian is more on topic.  CC'ed and MFT
+> set accordingly.
+
+I built it today, it already appeared on the main CRAN server:
+
+ftp://cran.r-project.org/pub/R/bin/linux/ubuntu/dapper/Packages
+
+I hope I did not introduce new bugs.
+
+Sorry it took a little longer, there was a funny format error in the
+changelog I could not figure out. And then my linksys router recently
+acquired the habit of freezing every two hours instead of only once per
+day...
+
+Christian
+
+

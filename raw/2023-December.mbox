@@ -1,0 +1,940 @@
+From rd|@z02 @end|ng |rom gm@||@com  Sat Dec 30 18:37:06 2023
+From: rd|@z02 @end|ng |rom gm@||@com (Ramon Diaz-Uriarte)
+Date: Sat, 30 Dec 2023 18:37:06 +0100
+Subject: [R-sig-Debian] custom built R will not change BLAS/LAPACK with
+ update-alternatives
+Message-ID: <878r5binzk.fsf@gmail.com>
+
+Dear All,
+
+I am building R from source[1], following what is done in "rules" for building Debian's R. But the R I generate, in contrast to the standard Debian's R, will not change the BLAS and LAPACK libraries it uses when I change them via "update-alternatives". I have no idea what I am doing wrong (but, somehow, I've been quite capable of making the same mistake(s) in three different machines).
+
+I can "solve" the issue by running configure with
+--with-blas="-lblas"
+--with-lapack="-llapack"
+
+but I do not understand why I need to do this, when Dirk's configure in rules is using just
+--with-blas
+--with-lapack
+
+(and this is also what I understand I should be doing from section A.3.1 of "R Installation and Administration" ---https://cran.r-project.org/doc/manuals/r-release/R-admin.html#BLAS).
+
+This concerns me in so far as it suggests that I am missing something rather obvious.
+
+Thanks,
+
+R.
+
+
+Details of the steps I am following.
+
+1. update-alternatives: use Atlas (lower priority than OpenBLAS)
+
+   update-alternatives --config libblas.so.3-x86_64-linux-gnu 
+  There are 3 choices for the alternative libblas.so.3-x86_64-linux-gnu (providing /usr/lib/x86_64-linux-gnu/li
+
+  Selection    Path                                                    Priority   Status
+------------------------------------------------------------
+  0            /usr/lib/x86_64-linux-gnu/openblas-openmp/libblas.so.3   95        auto mode
+ * 1            /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3             35        manual mode
+  2            /usr/lib/x86_64-linux-gnu/blas/libblas.so.3              10        manual mode
+  3            /usr/lib/x86_64-linux-gnu/openblas-openmp/libblas.so.3   95        manual mode
+
+update-alternatives --config liblapack.so.3-x86_64-linux-gnu 
+There are 3 choices for the alternative liblapack.so.3-x86_64-linux-gnu (providing /usr/lib/x86_64-linux-gnu/
+3).
+
+  Selection    Path                                                      Priority   Status
+------------------------------------------------------------
+  0            /usr/lib/x86_64-linux-gnu/openblas-openmp/liblapack.so.3   95        auto mode
+ * 1            /usr/lib/x86_64-linux-gnu/atlas/liblapack.so.3             35        manual mode
+  2            /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3            10        manual mode
+  3            /usr/lib/x86_64-linux-gnu/openblas-openmp/liblapack.so.3   95        manual mode
+
+
+
+2. Just in case, run /sbin/ldconfig
+
+3. No LD_LIBRARY_PATH in env.
+
+
+4. Configure: ./configure --with-blas --with-lapack --enable-R-shlib --without-recommended-packages
+
+5. Interestingly, this picks up OpenBLAS:
+
+ configure: searching for an external BLAS
+configure: searching for BLAS in default libraries
+checking for dgemm_... no
+configure: searching for OpenBLAS
+
+and
+
+R is now configured for x86_64-pc-linux-gnu
+(...)
+External libraries:          pcre2, readline, BLAS(OpenBLAS), LAPACK(in blas), curl
+Options enabled:             shared R library, R profiling
+(...)
+Options not enabled:         shared BLAS, memory profiling
+
+
+6. After make is finished, ldd:
+libblas.so.3 => /usr/lib/x86_64-linux-gnu/libblas.so.3 (0x00007f01b1ac2000)
+libatlas.so.3 => /usr/lib/x86_64-linux-gnu/libatlas.so.3 (0x00007f01b0f57000)
+
+And no openblas in any line.
+
+7. sessionInfo shows it is using OpenBLAS
+
+  Matrix products: default
+BLAS/LAPACK: /usr/lib/x86_64-linux-gnu/openblas-openmp/libopenblasp-r0.3.25.so;  LAPACK version 3.11.0
+
+8. R CMD config shows difference in the configuration
+- My build:
+     ./R CMD config BLAS_LIBS: -lopenblas
+   - ./R CMD config LAPACK_LIBS: nothing
+- Debian's R
+   - /usr/bin/R CMD config BLAS_LIBS: -lblas
+   - /usr/bin/R CMD config LAPACK_LIBS: -llapack
+
+
+
+[1] Why am I building from source? To match the exact version in BioConductor devel and for a cluster where I am playing with some compiler options
+
+
+
+-- 
+Ramon Diaz-Uriarte
+Department of Biochemistry, Lab B-31
+Facultad de Medicina 
+Universidad Aut?noma de Madrid 
+Arzobispo Morcillo, 4
+28029 Madrid
+Spain
+
+Phone: +34-91-497-2412
+
+Email: rdiaz02 at gmail.com
+       r.diaz at uam.es
+       ramon.diaz at iib.uam.es
+
+https://ligarto.org/rdiaz
+
+
+
+From edd @end|ng |rom deb|@n@org  Sat Dec 30 19:16:42 2023
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Sat, 30 Dec 2023 12:16:42 -0600
+Subject: [R-sig-Debian] custom built R will not change BLAS/LAPACK with
+ update-alternatives
+In-Reply-To: <878r5binzk.fsf@gmail.com>
+References: <878r5binzk.fsf@gmail.com>
+Message-ID: <26000.24202.193738.595159@rob.eddelbuettel.com>
+
+
+If you match the exact build-deps I use and the exact options from
+debian/rules you should end up with the exact same output. As that is whay
+you desire but do not get we need to drill down into where it deviates. FWIW
+last time I build the Debian the (relevant) part (of the large) configure log
+was below.  What do you get for BLAS/LAPACK?
+
+
+R is now configured for x86_64-pc-linux-gnu
+
+  Source directory:            .
+  Installation directory:      /usr
+
+  C compiler:                  gcc  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+  Fortran fixed-form compiler: gfortran  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -fcf-protection
+
+  Default C++ compiler:        g++ -std=gnu++17  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+  C++11 compiler:              g++ -std=gnu++11  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+  C++14 compiler:              g++ -std=gnu++14  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+  C++17 compiler:              g++ -std=gnu++17  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+  C++20 compiler:              g++ -std=gnu++20  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+  C++23 compiler:              g++ -std=gnu++23  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+  Fortran free-form compiler:  gfortran  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -fcf-protection
+  Obj-C compiler:	        
+
+  Interfaces supported:        X11, tcltk
+  External libraries:          pcre2, readline, BLAS(generic), LAPACK(generic), curl
+  Additional capabilities:     PNG, JPEG, TIFF, NLS, cairo, ICU
+  Options enabled:             shared R library, R profiling, memory profiling
+
+  Capabilities skipped:        
+  Options not enabled:         shared BLAS
+
+  Recommended packages:        no
+
+
+Despite the display of 'shared BLAS' not enabled, I still have
+
+root at fb498fe53700:/# ldd /usr/lib/R/modules/lapack.so 
+        linux-vdso.so.1 (0x00007ffcb09c7000)
+        libR.so => /lib/libR.so (0x00007ff7dd7f1000)
+        liblapack.so.3 => /lib/x86_64-linux-gnu/liblapack.so.3 (0x00007ff7dd0f6000)
+        libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007ff7dd017000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007ff7dce36000)
+        libblas.so.3 => /lib/x86_64-linux-gnu/libblas.so.3 (0x00007ff7dcdd3000)
+        libreadline.so.8 => /lib/x86_64-linux-gnu/libreadline.so.8 (0x00007ff7dcd7b000)
+        libpcre2-8.so.0 => /lib/x86_64-linux-gnu/libpcre2-8.so.0 (0x00007ff7dccdf000)
+        liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007ff7dccb0000)
+        libbz2.so.1.0 => /lib/x86_64-linux-gnu/libbz2.so.1.0 (0x00007ff7dcc9d000)
+        libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007ff7dcc7e000)
+        libtirpc.so.3 => /lib/x86_64-linux-gnu/libtirpc.so.3 (0x00007ff7dcc50000)
+        libicuuc.so.72 => /lib/x86_64-linux-gnu/libicuuc.so.72 (0x00007ff7dca52000)
+        libicui18n.so.72 => /lib/x86_64-linux-gnu/libicui18n.so.72 (0x00007ff7dc726000)
+        libgomp.so.1 => /lib/x86_64-linux-gnu/libgomp.so.1 (0x00007ff7dc6de000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007ff7ddc74000)
+        libopenblas.so.0 => /lib/x86_64-linux-gnu/libopenblas.so.0 (0x00007ff7da3f0000)
+        libgfortran.so.5 => /lib/x86_64-linux-gnu/libgfortran.so.5 (0x00007ff7da126000)
+        libtinfo.so.6 => /lib/x86_64-linux-gnu/libtinfo.so.6 (0x00007ff7da0f3000)
+        libgssapi_krb5.so.2 => /lib/x86_64-linux-gnu/libgssapi_krb5.so.2 (0x00007ff7da0a1000)
+        libicudata.so.72 => /lib/x86_64-linux-gnu/libicudata.so.72 (0x00007ff7d82cf000)
+        libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007ff7d80b5000)
+        libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007ff7d8095000)
+        libquadmath.so.0 => /lib/x86_64-linux-gnu/libquadmath.so.0 (0x00007ff7d804e000)
+        libkrb5.so.3 => /lib/x86_64-linux-gnu/libkrb5.so.3 (0x00007ff7d7f74000)
+        libk5crypto.so.3 => /lib/x86_64-linux-gnu/libk5crypto.so.3 (0x00007ff7d7f47000)
+        libcom_err.so.2 => /lib/x86_64-linux-gnu/libcom_err.so.2 (0x00007ff7d7f41000)
+        libkrb5support.so.0 => /lib/x86_64-linux-gnu/libkrb5support.so.0 (0x00007ff7d7f33000)
+        libkeyutils.so.1 => /lib/x86_64-linux-gnu/libkeyutils.so.1 (0x00007ff7d7f2c000)
+        libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x00007ff7d7f1b000)
+root at fb498fe53700:/# ls -l /lib/x86_64-linux-gnu/liblapack.so.3
+lrwxrwxrwx 1 root root 49 Nov 27  2022 /lib/x86_64-linux-gnu/liblapack.so.3 -> /etc/alternatives/liblapack.so.3-x86_64-linux-gnu
+root at fb498fe53700:/# ls -l /lib/x86_64-linux-gnu/libblas.so.3
+lrwxrwxrwx 1 root root 47 Nov 27  2022 /lib/x86_64-linux-gnu/libblas.so.3 -> /etc/alternatives/libblas.so.3-x86_64-linux-gnu
+root at fb498fe53700:/# 
+
+the /etc/alternatives mechanism you are after. (That was from rocker/r-base,
+a quick way for me to get to clean and current Debian build.)
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From kry|ov@r00t @end|ng |rom gm@||@com  Sat Dec 30 19:57:10 2023
+From: kry|ov@r00t @end|ng |rom gm@||@com (Ivan Krylov)
+Date: Sat, 30 Dec 2023 21:57:10 +0300
+Subject: [R-sig-Debian] custom built R will not change BLAS/LAPACK with
+ update-alternatives
+In-Reply-To: <878r5binzk.fsf@gmail.com>
+References: <878r5binzk.fsf@gmail.com>
+Message-ID: <20231230215710.4b9cc085@Tarkus>
+
+On Sat, 30 Dec 2023 18:37:06 +0100
+Ramon Diaz-Uriarte <rdiaz02 at gmail.com> wrote:
+
+>  configure: searching for an external BLAS
+> configure: searching for BLAS in default libraries
+> checking for dgemm_... no
+> configure: searching for OpenBLAS
+
+The code implementing this logic is in m4/R.m4, starting around line
+2600. If --with-blas is given without an argument, the configure script
+goes searching for various BLASes. It happens to try -lopenblas before
+-lblas, so that's what ends up being linked.
+
+Does it help to use --with-blas=blas or --with-blas=-lblas so that the
+configure script doesn't try to detect it automatically?
+
+-- 
+Best regards,
+Ivan
+
+
+From edd @end|ng |rom deb|@n@org  Sat Dec 30 20:24:49 2023
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Sat, 30 Dec 2023 13:24:49 -0600
+Subject: [R-sig-Debian] custom built R will not change BLAS/LAPACK with
+ update-alternatives
+In-Reply-To: <20231230215710.4b9cc085@Tarkus>
+References: <878r5binzk.fsf@gmail.com>
+	<20231230215710.4b9cc085@Tarkus>
+Message-ID: <26000.28289.257597.506886@rob.eddelbuettel.com>
+
+
+On 30 December 2023 at 21:57, Ivan Krylov wrote:
+| On Sat, 30 Dec 2023 18:37:06 +0100
+| Ramon Diaz-Uriarte <rdiaz02 at gmail.com> wrote:
+| 
+| >  configure: searching for an external BLAS
+| > configure: searching for BLAS in default libraries
+| > checking for dgemm_... no
+| > configure: searching for OpenBLAS
+| 
+| The code implementing this logic is in m4/R.m4, starting around line
+| 2600. If --with-blas is given without an argument, the configure script
+| goes searching for various BLASes. It happens to try -lopenblas before
+| -lblas, so that's what ends up being linked.
+
+Yes. My hint about the build-dependencies aimed at that.
+ 
+| Does it help to use --with-blas=blas or --with-blas=-lblas so that the
+| configure script doesn't try to detect it automatically?
+
+I used to set it that way (still commented out in debian/rules) but it is not
+needed AFAICT provided one has suitable packages to build against installed
+(in the chroot, or container, or on the machine).
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From rd|@z02 @end|ng |rom gm@||@com  Sat Dec 30 19:51:58 2023
+From: rd|@z02 @end|ng |rom gm@||@com (Ramon Diaz-Uriarte)
+Date: Sat, 30 Dec 2023 19:51:58 +0100
+Subject: [R-sig-Debian] custom built R will not change BLAS/LAPACK with
+ update-alternatives
+In-Reply-To: <26000.24202.193738.595159@rob.eddelbuettel.com>
+References: <878r5binzk.fsf@gmail.com>
+ <26000.24202.193738.595159@rob.eddelbuettel.com>
+Message-ID: <874jfzig9z.fsf@gmail.com>
+
+
+Thanks. I answer below.
+
+And now I realize I must have read this not paying enough attention: "You can specify a particular BLAS library via a value for the configuration option --with-blas. If this is given with no =, its value is taken from the environment variable BLAS_LIBS, set for example in config.site. If neither the option nor the environment variable supply a value, a search is made for a suitable59 BLAS." (https://cran.r-project.org/doc/manuals/r-devel/R-admin.html#BLAS ), and footnote 59 says: "The search order is currently OpenBLAS, BLIS, ATLAS, platform-specific choices (see below) and finally a generic libblas." It is in the configure script of R: line 46396 searches for OpenBLAS, on 46453 it looks for BLIS, later (46510) for ATLAS, etc.
+
+Indeed, that is what I see looking more carefully at the output.  If I have OpenBLAS, then it locates it immediately:
+
+configure: searching for an external BLAS
+configure: searching for BLAS in default libraries
+checking for dgemm_... no
+configure: searching for OpenBLAS
+checking for sgemm_ in -lopenblas... yes
+checking whether double complex BLAS can be used... yes
+
+
+If I don't, but I  have ATLAS, it does this (OpenBLAS, then BLIS, then ATLAS)
+
+configure: searching for an external BLAS
+configure: searching for BLAS in default libraries
+checking for dgemm_... no
+configure: searching for OpenBLAS
+checking for sgemm_ in -lopenblas... no
+configure: searching for BLIS
+checking for sgemm_ in -lblis... no
+configure: searching for ATLAS
+checking for ATL_xerbla in -latlas... yes
+
+
+So I think what I am seeing is expected. But this would suggest your build machine did not have OpenBLAS, but it seems it did (from your ldd output); or else, maybe your machine had a config.site or BLAS_LIBS? 
+
+
+On Sat, 30-December-2023, at 19:16:42, Dirk Eddelbuettel <edd at debian.org> wrote:
+> If you match the exact build-deps I use and the exact options from
+> debian/rules you should end up with the exact same output. As that is whay
+> you desire but do not get we need to drill down into where it deviates. FWIW
+> last time I build the Debian the (relevant) part (of the large) configure log
+> was below.  What do you get for BLAS/LAPACK?
+>
+>
+> R is now configured for x86_64-pc-linux-gnu
+>
+>   Source directory:            .
+>   Installation directory:      /usr
+>
+>   C compiler:                  gcc  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+>   Fortran fixed-form compiler: gfortran  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -fcf-protection
+>
+>   Default C++ compiler:        g++ -std=gnu++17  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+>   C++11 compiler:              g++ -std=gnu++11  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+>   C++14 compiler:              g++ -std=gnu++14  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+>   C++17 compiler:              g++ -std=gnu++17  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+>   C++20 compiler:              g++ -std=gnu++20  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+>   C++23 compiler:              g++ -std=gnu++23  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+>   Fortran free-form compiler:  gfortran  -g -O2 -ffile-prefix-map=/build/r-base-4.3.2=. -fstack-protector-strong -fstack-clash-protection -fcf-protection
+>   Obj-C compiler:	        
+>
+>   Interfaces supported:        X11, tcltk
+>   External libraries:          pcre2, readline, BLAS(generic), LAPACK(generic), curl
+>   Additional capabilities:     PNG, JPEG, TIFF, NLS, cairo, ICU
+>   Options enabled:             shared R library, R profiling, memory profiling
+>
+>   Capabilities skipped:        
+>   Options not enabled:         shared BLAS
+>
+>   Recommended packages:        no
+>
+>
+
+
+
+My configure log (from my "for real" builds)
+==============================================
+
+R is now configured for x86_64-pc-linux-gnu
+
+  Source directory:            .
+  Installation directory:      /usr/local
+
+  C compiler:                  gcc  -O2 -g -march=native -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+  Fortran fixed-form compiler: gfortran  -g -O2 -march=native -fstack-protector-strong -fstack-clash-protection -fcf-protection
+
+  Default C++ compiler:        g++ -std=gnu++17  -O2 -g -march=native -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+  C++11 compiler:              g++ -std=gnu++11  -O2 -g -march=native -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+  C++14 compiler:              g++ -std=gnu++14  -O2 -g -march=native -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+  C++17 compiler:              g++ -std=gnu++17  -O2 -g -march=native -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+  C++20 compiler:              g++ -std=gnu++20  -O2 -g -march=native -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+  C++23 compiler:              g++ -std=gnu++23  -O2 -g -march=native -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -Wdate-time -D_FORTIFY_SOURCE=2
+  Fortran free-form compiler:  gfortran  -g -O2 -march=native -fstack-protector-strong -fstack-clash-protection -fcf-protection
+  Obj-C compiler:	        
+
+  Interfaces supported:        X11, tcltk
+  External libraries:          pcre2, readline, BLAS(OpenBLAS), LAPACK(in blas), curl
+  Additional capabilities:     PNG, JPEG, TIFF, NLS, cairo, ICU
+  Options enabled:             shared R library, R profiling
+
+  Capabilities skipped:        
+  Options not enabled:         shared BLAS, memory profiling
+
+  Recommended packages:        yes
+
+
+Key differences:
+================
+
+- I am not using "-ffile-prefix-map" (but I can't imagine that being the cause of the issue)
+- I am configuring without memory profiling (but enabling memory profiling did not change things)
+- I am using "march=native" (but this is not the cause, since removing it gives me the same issues)
+- And the OpenBLAS, of course.
+
+
+> Despite the display of 'shared BLAS' not enabled, I still have
+>
+> root at fb498fe53700:/# ldd /usr/lib/R/modules/lapack.so 
+>         linux-vdso.so.1 (0x00007ffcb09c7000)
+>         libR.so => /lib/libR.so (0x00007ff7dd7f1000)
+>         liblapack.so.3 => /lib/x86_64-linux-gnu/liblapack.so.3 (0x00007ff7dd0f6000)
+>         libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007ff7dd017000)
+>         libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007ff7dce36000)
+>         libblas.so.3 => /lib/x86_64-linux-gnu/libblas.so.3 (0x00007ff7dcdd3000)
+>         libreadline.so.8 => /lib/x86_64-linux-gnu/libreadline.so.8 (0x00007ff7dcd7b000)
+>         libpcre2-8.so.0 => /lib/x86_64-linux-gnu/libpcre2-8.so.0 (0x00007ff7dccdf000)
+>         liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007ff7dccb0000)
+>         libbz2.so.1.0 => /lib/x86_64-linux-gnu/libbz2.so.1.0 (0x00007ff7dcc9d000)
+>         libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007ff7dcc7e000)
+>         libtirpc.so.3 => /lib/x86_64-linux-gnu/libtirpc.so.3 (0x00007ff7dcc50000)
+>         libicuuc.so.72 => /lib/x86_64-linux-gnu/libicuuc.so.72 (0x00007ff7dca52000)
+>         libicui18n.so.72 => /lib/x86_64-linux-gnu/libicui18n.so.72 (0x00007ff7dc726000)
+>         libgomp.so.1 => /lib/x86_64-linux-gnu/libgomp.so.1 (0x00007ff7dc6de000)
+>         /lib64/ld-linux-x86-64.so.2 (0x00007ff7ddc74000)
+>         libopenblas.so.0 => /lib/x86_64-linux-gnu/libopenblas.so.0 (0x00007ff7da3f0000)
+>         libgfortran.so.5 => /lib/x86_64-linux-gnu/libgfortran.so.5 (0x00007ff7da126000)
+>         libtinfo.so.6 => /lib/x86_64-linux-gnu/libtinfo.so.6 (0x00007ff7da0f3000)
+>         libgssapi_krb5.so.2 => /lib/x86_64-linux-gnu/libgssapi_krb5.so.2 (0x00007ff7da0a1000)
+>         libicudata.so.72 => /lib/x86_64-linux-gnu/libicudata.so.72 (0x00007ff7d82cf000)
+>         libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007ff7d80b5000)
+>         libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007ff7d8095000)
+>         libquadmath.so.0 => /lib/x86_64-linux-gnu/libquadmath.so.0 (0x00007ff7d804e000)
+>         libkrb5.so.3 => /lib/x86_64-linux-gnu/libkrb5.so.3 (0x00007ff7d7f74000)
+>         libk5crypto.so.3 => /lib/x86_64-linux-gnu/libk5crypto.so.3 (0x00007ff7d7f47000)
+>         libcom_err.so.2 => /lib/x86_64-linux-gnu/libcom_err.so.2 (0x00007ff7d7f41000)
+>         libkrb5support.so.0 => /lib/x86_64-linux-gnu/libkrb5support.so.0 (0x00007ff7d7f33000)
+>         libkeyutils.so.1 => /lib/x86_64-linux-gnu/libkeyutils.so.1 (0x00007ff7d7f2c000)
+>         libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x00007ff7d7f1b000)
+> root at fb498fe53700:/# ls -l /lib/x86_64-linux-gnu/liblapack.so.3
+> lrwxrwxrwx 1 root root 49 Nov 27  2022 /lib/x86_64-linux-gnu/liblapack.so.3 -> /etc/alternatives/liblapack.so.3-x86_64-linux-gnu
+> root at fb498fe53700:/# ls -l /lib/x86_64-linux-gnu/libblas.so.3
+> lrwxrwxrwx 1 root root 47 Nov 27  2022 /lib/x86_64-linux-gnu/libblas.so.3 -> /etc/alternatives/libblas.so.3-x86_64-linux-gnu
+> root at fb498fe53700:/# 
+
+~/tmp/R4/R-4.3.2-85742/modules $ ldd lapack.so 
+	linux-vdso.so.1 (0x00007ffd96786000)
+	libR.so => /usr/lib/libR.so (0x00007f9d9d174000)
+	libopenblas.so.0 => /usr/lib/x86_64-linux-gnu/libopenblas.so.0 (0x00007f9d9ace0000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f9d9ac01000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f9d9aa1f000)
+	libblas.so.3 => /usr/lib/x86_64-linux-gnu/libblas.so.3 (0x00007f9d9a9a8000)
+	libreadline.so.8 => /lib/x86_64-linux-gnu/libreadline.so.8 (0x00007f9d9a951000)
+	libpcre2-8.so.0 => /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0 (0x00007f9d9a8b9000)
+	liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007f9d9a891000)
+	libbz2.so.1.0 => /lib/x86_64-linux-gnu/libbz2.so.1.0 (0x00007f9d9a87e000)
+	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f9d9a861000)
+	libtirpc.so.3 => /lib/x86_64-linux-gnu/libtirpc.so.3 (0x00007f9d9a832000)
+	libicuuc.so.72 => /usr/lib/x86_64-linux-gnu/libicuuc.so.72 (0x00007f9d9a62b000)
+	libicui18n.so.72 => /usr/lib/x86_64-linux-gnu/libicui18n.so.72 (0x00007f9d9a2ef000)
+	libgomp.so.1 => /usr/lib/x86_64-linux-gnu/libgomp.so.1 (0x00007f9d9a29e000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f9d9d60d000)
+	libgfortran.so.5 => /usr/lib/x86_64-linux-gnu/libgfortran.so.5 (0x00007f9d99fcb000)
+	libtinfo.so.6 => /lib/x86_64-linux-gnu/libtinfo.so.6 (0x00007f9d99f9a000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f9d99f93000)
+	libgssapi_krb5.so.2 => /usr/lib/x86_64-linux-gnu/libgssapi_krb5.so.2 (0x00007f9d99f40000)
+	libicudata.so.72 => /usr/lib/x86_64-linux-gnu/libicudata.so.72 (0x00007f9d9816e000)
+	libstdc++.so.6 => /usr/lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f9d97f18000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f9d97ef4000)
+	libkrb5.so.3 => /usr/lib/x86_64-linux-gnu/libkrb5.so.3 (0x00007f9d97e17000)
+	libk5crypto.so.3 => /usr/lib/x86_64-linux-gnu/libk5crypto.so.3 (0x00007f9d97de7000)
+	libcom_err.so.2 => /lib/x86_64-linux-gnu/libcom_err.so.2 (0x00007f9d97de1000)
+	libkrb5support.so.0 => /usr/lib/x86_64-linux-gnu/libkrb5support.so.0 (0x00007f9d97dd2000)
+	libkeyutils.so.1 => /lib/x86_64-linux-gnu/libkeyutils.so.1 (0x00007f9d97dcb000)
+	libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x00007f9d97db8000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f9d97db3000)
+
+Interesting, you also have libopenblas.so.0 (in a different position).
+
+>
+> the /etc/alternatives mechanism you are after. (That was from rocker/r-base,
+> a quick way for me to get to clean and current Debian build.)
+
+ls -l /usr/lib/x86_64-linux-gnu/liblapack.so.3
+lrwxrwxrwx 1 root root 49 Mar 28  2022 /usr/lib/x86_64-linux-gnu/liblapack.so.3 -> /etc/alternatives/liblapack.so.3-x86_64-linux-gnu
+
+And that is the one from OpenBLAS
+ls -l /etc/alternatives/liblapack.so.3-x86_64-linux-gnu
+lrwxrwxrwx 1 root root 56 Dec 30 20:44 /etc/alternatives/liblapack.so.3-x86_64-linux-gnu -> /usr/lib/x86_64-linux-gnu/openblas-openmp/liblapack.so.3
+
+
+For libblas:
+ls -l /usr/lib/x86_64-linux-gnu/libblas.so.3
+lrwxrwxrwx 1 root root 47 Mar 28  2022 /usr/lib/x86_64-linux-gnu/libblas.so.3 -> /etc/alternatives/libblas.so.3-x86_64-linux-gnu
+
+ls -l /etc/alternatives/libblas.so.3-x86_64-linux-gnu
+lrwxrwxrwx 1 root root 54 Dec 30 20:44 /etc/alternatives/libblas.so.3-x86_64-linux-gnu -> /usr/lib/x86_64-linux-gnu/openblas-openmp/libblas.so.3
+
+
+
+To further try to understand, I've uninstalled openblas, but left atlas:
+
+
+  Selection    Path                                          Priority   Status
+------------------------------------------------------------
+* 0            /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3   35        auto mode
+  1            /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3   35        manual mode
+  2            /usr/lib/x86_64-linux-gnu/blas/libblas.so.3    10        manual mode
+
+
+And then, configure shows its looking for this. 
+configure: searching for an external BLAS
+configure: searching for BLAS in default libraries
+checking for dgemm_... no
+configure: searching for OpenBLAS
+checking for sgemm_ in -lopenblas... no
+configure: searching for BLIS
+checking for sgemm_ in -lblis... no
+configure: searching for ATLAS
+checking for ATL_xerbla in -latlas... yes
+
+And
+
+
+External libraries:          pcre2, readline, BLAS(ATLAS), LAPACK(generic), curl
+
+
+ldd now shows
+
+~/tmp/Rpt/R-patched/modules $ ldd lapack.so 
+	linux-vdso.so.1 (0x00007ffd83045000)
+	libR.so => /usr/lib/libR.so (0x00007f89196e9000)
+	liblapack.so.3 => /usr/lib/x86_64-linux-gnu/liblapack.so.3 (0x00007f8918fb5000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f8918ed6000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f8918cf4000)
+	libblas.so.3 => /usr/lib/x86_64-linux-gnu/libblas.so.3 (0x00007f8918cb2000)
+	libreadline.so.8 => /lib/x86_64-linux-gnu/libreadline.so.8 (0x00007f8918c59000)
+	libpcre2-8.so.0 => /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0 (0x00007f8918bc1000)
+	liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007f8918b99000)
+	libbz2.so.1.0 => /lib/x86_64-linux-gnu/libbz2.so.1.0 (0x00007f8918b86000)
+	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f8918b69000)
+	libtirpc.so.3 => /lib/x86_64-linux-gnu/libtirpc.so.3 (0x00007f8918b3a000)
+	libicuuc.so.72 => /usr/lib/x86_64-linux-gnu/libicuuc.so.72 (0x00007f8918933000)
+	libicui18n.so.72 => /usr/lib/x86_64-linux-gnu/libicui18n.so.72 (0x00007f89185f7000)
+	libgomp.so.1 => /usr/lib/x86_64-linux-gnu/libgomp.so.1 (0x00007f89185a6000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f8919b82000)
+	libatlas.so.3 => /usr/lib/x86_64-linux-gnu/libatlas.so.3 (0x00007f8918226000)
+	libgfortran.so.5 => /usr/lib/x86_64-linux-gnu/libgfortran.so.5 (0x00007f8917f53000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f8917f2d000)
+	libtinfo.so.6 => /lib/x86_64-linux-gnu/libtinfo.so.6 (0x00007f8917efc000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f8917ef7000)
+	libgssapi_krb5.so.2 => /usr/lib/x86_64-linux-gnu/libgssapi_krb5.so.2 (0x00007f8917ea4000)
+	libicudata.so.72 => /usr/lib/x86_64-linux-gnu/libicudata.so.72 (0x00007f89160d2000)
+	libstdc++.so.6 => /usr/lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f8915e7a000)
+	libkrb5.so.3 => /usr/lib/x86_64-linux-gnu/libkrb5.so.3 (0x00007f8915d9f000)
+	libk5crypto.so.3 => /usr/lib/x86_64-linux-gnu/libk5crypto.so.3 (0x00007f8915d6f000)
+	libcom_err.so.2 => /lib/x86_64-linux-gnu/libcom_err.so.2 (0x00007f8915d69000)
+	libkrb5support.so.0 => /usr/lib/x86_64-linux-gnu/libkrb5support.so.0 (0x00007f8915d5a000)
+	libkeyutils.so.1 => /lib/x86_64-linux-gnu/libkeyutils.so.1 (0x00007f8915d51000)
+	libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x00007f8915d40000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f8915d3b000)
+
+
+Now we see libatlas.
+
+R.
+
+
+>
+> Dirk
+
+
+-- 
+Ramon Diaz-Uriarte
+Department of Biochemistry, Lab B-31
+Facultad de Medicina 
+Universidad Aut?noma de Madrid 
+Arzobispo Morcillo, 4
+28029 Madrid
+Spain
+
+Phone: +34-91-497-2412
+
+Email: rdiaz02 at gmail.com
+       r.diaz at uam.es
+       ramon.diaz at iib.uam.es
+
+https://ligarto.org/rdiaz
+
+
+
+From rd|@z02 @end|ng |rom gm@||@com  Sat Dec 30 22:20:09 2023
+From: rd|@z02 @end|ng |rom gm@||@com (Ramon Diaz-Uriarte)
+Date: Sat, 30 Dec 2023 22:20:09 +0100
+Subject: [R-sig-Debian] custom built R will not change BLAS/LAPACK with
+ update-alternatives
+In-Reply-To: <20231230215710.4b9cc085@Tarkus>
+References: <878r5binzk.fsf@gmail.com> <20231230215710.4b9cc085@Tarkus>
+Message-ID: <87zfxrgzb5.fsf@gmail.com>
+
+
+On Sat, 30-December-2023, at 19:57:10, Ivan Krylov <krylov.r00t at gmail.com> wrote:
+> On Sat, 30 Dec 2023 18:37:06 +0100
+> Ramon Diaz-Uriarte <rdiaz02 at gmail.com> wrote:
+>
+>>  configure: searching for an external BLAS
+>> configure: searching for BLAS in default libraries
+>> checking for dgemm_... no
+>> configure: searching for OpenBLAS
+>
+> The code implementing this logic is in m4/R.m4, starting around line
+> 2600. If --with-blas is given without an argument, the configure script
+> goes searching for various BLASes. It happens to try -lopenblas before
+> -lblas, so that's what ends up being linked.
+>
+
+Thanks. Yes, I just realized that (see message I just sent).
+
+> Does it help to use --with-blas=blas or --with-blas=-lblas so that the
+> configure script doesn't try to detect it automatically?
+
+Yes, it does: if I use
+
+--with-blas="-lblas"
+--with-lapack="-llapack"
+
+then I can later change the library used via update-alternatives.
+
+R.
+
+
+-- 
+Ramon Diaz-Uriarte
+Department of Biochemistry, Lab B-31
+Facultad de Medicina 
+Universidad Aut?noma de Madrid 
+Arzobispo Morcillo, 4
+28029 Madrid
+Spain
+
+Phone: +34-91-497-2412
+
+Email: rdiaz02 at gmail.com
+       r.diaz at uam.es
+       ramon.diaz at iib.uam.es
+
+https://ligarto.org/rdiaz
+
+
+
+From rd|@z02 @end|ng |rom gm@||@com  Sat Dec 30 22:23:41 2023
+From: rd|@z02 @end|ng |rom gm@||@com (Ramon Diaz-Uriarte)
+Date: Sat, 30 Dec 2023 22:23:41 +0100
+Subject: [R-sig-Debian] custom built R will not change BLAS/LAPACK with
+ update-alternatives
+In-Reply-To: <26000.28289.257597.506886@rob.eddelbuettel.com>
+References: <878r5binzk.fsf@gmail.com> <20231230215710.4b9cc085@Tarkus>
+ <26000.28289.257597.506886@rob.eddelbuettel.com>
+Message-ID: <87v88fgz0l.fsf@gmail.com>
+
+
+On Sat, 30-December-2023, at 20:24:49, Dirk Eddelbuettel <edd at debian.org> wrote:
+> On 30 December 2023 at 21:57, Ivan Krylov wrote:
+> | On Sat, 30 Dec 2023 18:37:06 +0100
+> | Ramon Diaz-Uriarte <rdiaz02 at gmail.com> wrote:
+> | 
+> | >  configure: searching for an external BLAS
+> | > configure: searching for BLAS in default libraries
+> | > checking for dgemm_... no
+> | > configure: searching for OpenBLAS
+> | 
+> | The code implementing this logic is in m4/R.m4, starting around line
+> | 2600. If --with-blas is given without an argument, the configure script
+> | goes searching for various BLASes. It happens to try -lopenblas before
+> | -lblas, so that's what ends up being linked.
+>
+> Yes. My hint about the build-dependencies aimed at that.
+>  
+> | Does it help to use --with-blas=blas or --with-blas=-lblas so that the
+> | configure script doesn't try to detect it automatically?
+>
+> I used to set it that way (still commented out in debian/rules) but it is not
+> needed AFAICT provided one has suitable packages to build against installed
+> (in the chroot, or container, or on the machine).
+
+But I do not see how it can work if the machine has, in addition to the build dependencies, OpenBLAS or ATLAS: it should pick those first (and it does for me), and then those no longer change when changing update-alternatives.
+
+Anyway, the solution for me is easy enough (use --with-blas=-lblas).
+
+
+R.
+
+>
+> Dirk
+
+
+-- 
+Ramon Diaz-Uriarte
+Department of Biochemistry, Lab B-31
+Facultad de Medicina 
+Universidad Aut?noma de Madrid 
+Arzobispo Morcillo, 4
+28029 Madrid
+Spain
+
+Phone: +34-91-497-2412
+
+Email: rdiaz02 at gmail.com
+       r.diaz at uam.es
+       ramon.diaz at iib.uam.es
+
+https://ligarto.org/rdiaz
+
+
+
+From edd @end|ng |rom deb|@n@org  Sat Dec 30 22:45:12 2023
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Sat, 30 Dec 2023 15:45:12 -0600
+Subject: [R-sig-Debian] custom built R will not change BLAS/LAPACK with
+ update-alternatives
+In-Reply-To: <874jfzig9z.fsf@gmail.com>
+References: <878r5binzk.fsf@gmail.com>
+ <26000.24202.193738.595159@rob.eddelbuettel.com>
+ <874jfzig9z.fsf@gmail.com>
+Message-ID: <26000.36712.918301.622379@rob.eddelbuettel.com>
+
+
+What blas/lapack -dev libraries do you installed when you build?  I varied
+this over the two+ decades for the Debian build but any consistent pair of
+LAPACK and BLAS should work. From the aforementioned build log:
+
+Get: 150 http://ftp.us.debian.org/debian sid/main amd64 libblas3 amd64 3.11.0-2 [149 kB]
+Get: 151 http://ftp.us.debian.org/debian sid/main amd64 libblas-dev amd64 3.11.0-2 [158 kB]
+[...]
+Get: 227 http://ftp.us.debian.org/debian sid/main amd64 liblapack3 amd64 3.11.0-2 [2323 kB]
+Get: 228 http://ftp.us.debian.org/debian sid/main amd64 liblapack-dev amd64 3.11.0-2 [4631 kB]
+[...]
+Setting up libblas3:amd64 (3.11.0-2) ...
+
+update-alternatives: using /usr/lib/x86_64-linux-gnu/blas/libblas.so.3 to provide /usr/lib/x86_64-linux-gnu/libblas.so.3 (libblas.so.3-x86_64-linux-gnu) in auto mode
+
+[...]
+Setting up liblapack3:amd64 (3.11.0-2) ...
+
+update-alternatives: using /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3 to provide /usr/lib/x86_64-linux-gnu/liblapack.so.3 (liblapack.so.3-x86_64-linux-gnu) in auto mode
+
+
+I use
+
+  libblas-dev, liblapack-dev
+
+as the Build-Depends in the chroot.  I think these are the generic one, they
+provide a fallback. (And run-time I think I am defaulting to OpenBLAS most of
+the time.)
+
+
+FWIW I always found
+
+  --with-blas="-lblas"
+  --with-lapack="-llapack"
+
+a little suspicious, but maybe that is just me if this works for you we are
+where we wanted to be and all is good?
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+From rd|@z02 @end|ng |rom gm@||@com  Sat Dec 30 23:49:40 2023
+From: rd|@z02 @end|ng |rom gm@||@com (Ramon Diaz-Uriarte)
+Date: Sat, 30 Dec 2023 23:49:40 +0100
+Subject: [R-sig-Debian] custom built R will not change BLAS/LAPACK with
+ update-alternatives
+In-Reply-To: <26000.36712.918301.622379@rob.eddelbuettel.com>
+References: <878r5binzk.fsf@gmail.com>
+ <26000.24202.193738.595159@rob.eddelbuettel.com>
+ <874jfzig9z.fsf@gmail.com>
+ <26000.36712.918301.622379@rob.eddelbuettel.com>
+Message-ID: <87r0j3guvy.fsf@gmail.com>
+
+On Sat, 30-December-2023, at 22:45:12, Dirk Eddelbuettel <edd at debian.org> wrote:
+> What blas/lapack -dev libraries do you installed when you build?  I varied
+> this over the two+ decades for the Debian build but any consistent pair of
+> LAPACK and BLAS should work. From the aforementioned build log:
+>
+> Get: 150 http://ftp.us.debian.org/debian sid/main amd64 libblas3 amd64 3.11.0-2 [149 kB]
+> Get: 151 http://ftp.us.debian.org/debian sid/main amd64 libblas-dev amd64 3.11.0-2 [158 kB]
+> [...]
+> Get: 227 http://ftp.us.debian.org/debian sid/main amd64 liblapack3 amd64 3.11.0-2 [2323 kB]
+> Get: 228 http://ftp.us.debian.org/debian sid/main amd64 liblapack-dev amd64 3.11.0-2 [4631 kB]
+> [...]
+> Setting up libblas3:amd64 (3.11.0-2) ...
+> update-alternatives: using /usr/lib/x86_64-linux-gnu/blas/libblas.so.3 to provide /usr/lib/x86_64-linux-gnu/libblas.so.3 (libblas.so.3-x86_64-linux-gnu) in auto mode
+> [...]
+> Setting up liblapack3:amd64 (3.11.0-2) ...
+> update-alternatives: using /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3 to provide /usr/lib/x86_64-linux-gnu/liblapack.so.3 (liblapack.so.3-x86_64-linux-gnu) in auto mode
+>
+> I use
+>
+>   libblas-dev, liblapack-dev
+>
+> as the Build-Depends in the chroot.  I think these are the generic one, they
+> provide a fallback.
+
+I have those same four.  But right now also atlas and openblas (and this in pthreads and openmp versions), and I don't build in a chroot (it is just for my own consumption).  So this is the source of the differences: these extra ones are picked (and then BLAS_LIBS set to "-lwhatever") before the generic ones.
+
+Mystery solved :-)  
+
+> (And run-time I think I am defaulting to OpenBLAS most of
+> the time.)
+>
+>
+> FWIW I always found
+>
+>   --with-blas="-lblas"
+>   --with-lapack="-llapack"
+>
+> a little suspicious, but maybe that is just me if this works for you we are
+> where we wanted to be and all is good?
+>
+
+All is good. (Just for the sake of curiosity, and if you have the time: why did you find those incantations suspicious?)
+
+Thanks a lot again to both you and Ivan.
+
+Best,
+
+R.
+
+> Dirk
+
+
+-- 
+Ramon Diaz-Uriarte
+Department of Biochemistry, Lab B-31
+Facultad de Medicina 
+Universidad Aut?noma de Madrid 
+Arzobispo Morcillo, 4
+28029 Madrid
+Spain
+
+Phone: +34-91-497-2412
+
+Email: rdiaz02 at gmail.com
+       r.diaz at uam.es
+       ramon.diaz at iib.uam.es
+
+https://ligarto.org/rdiaz
+
+
+
+From edd @end|ng |rom deb|@n@org  Sun Dec 31 01:05:43 2023
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Sat, 30 Dec 2023 18:05:43 -0600
+Subject: [R-sig-Debian] custom built R will not change BLAS/LAPACK with
+ update-alternatives
+In-Reply-To: <87r0j3guvy.fsf@gmail.com>
+References: <878r5binzk.fsf@gmail.com>
+ <26000.24202.193738.595159@rob.eddelbuettel.com>
+ <874jfzig9z.fsf@gmail.com>
+ <26000.36712.918301.622379@rob.eddelbuettel.com>
+ <87r0j3guvy.fsf@gmail.com>
+Message-ID: <26000.45143.468774.912626@rob.eddelbuettel.com>
+
+
+On 30 December 2023 at 23:49, Ramon Diaz-Uriarte wrote:
+| All is good. (Just for the sake of curiosity, and if you have the time: why did you find those incantations suspicious?)
+
+Memory is fuzzy and no ECC in my wetware :)  but as I seem to recall it had
+to do with my fears over filenames not being standardized enough / this
+interfering with the update-alternatives mechanism. May well have been
+unfounded (I don't recall), may well have bitten me at some point (I don't
+recall either).  So ... ?\_(?)_/?
+
+Glad you have what you want working as "The rest is details." 
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From rd|@z02 @end|ng |rom gm@||@com  Sun Dec 31 12:02:04 2023
+From: rd|@z02 @end|ng |rom gm@||@com (Ramon Diaz-Uriarte)
+Date: Sun, 31 Dec 2023 12:02:04 +0100
+Subject: [R-sig-Debian] custom built R will not change BLAS/LAPACK with
+ update-alternatives
+In-Reply-To: <26000.45143.468774.912626@rob.eddelbuettel.com>
+References: <878r5binzk.fsf@gmail.com>
+ <26000.24202.193738.595159@rob.eddelbuettel.com>
+ <874jfzig9z.fsf@gmail.com>
+ <26000.36712.918301.622379@rob.eddelbuettel.com>
+ <87r0j3guvy.fsf@gmail.com>
+ <26000.45143.468774.912626@rob.eddelbuettel.com>
+Message-ID: <87mstqhbwd.fsf@gmail.com>
+
+On Sun, 31-December-2023, at 01:05:43, Dirk Eddelbuettel <edd at debian.org> wrote:
+> On 30 December 2023 at 23:49, Ramon Diaz-Uriarte wrote:
+> | All is good. (Just for the sake of curiosity, and if you have the time: why did you find those incantations suspicious?)
+>
+> Memory is fuzzy and no ECC in my wetware :)
+
+;-) ;-)
+
+> but as I seem to recall it had
+> to do with my fears over filenames not being standardized enough / this
+> interfering with the update-alternatives mechanism. May well have been
+> unfounded (I don't recall), may well have bitten me at some point (I don't
+> recall either).  So ... ?\_(?)_/?
+>
+> Glad you have what you want working as "The rest is details." 
+>
+
+Thanks again.
+
+R.
+
+> Dirk
+
+
+-- 
+Ramon Diaz-Uriarte
+Department of Biochemistry, Lab B-31
+Facultad de Medicina 
+Universidad Aut?noma de Madrid 
+Arzobispo Morcillo, 4
+28029 Madrid
+Spain
+
+Phone: +34-91-497-2412
+
+Email: rdiaz02 at gmail.com
+       r.diaz at uam.es
+       ramon.diaz at iib.uam.es
+
+https://ligarto.org/rdiaz
+
+
+

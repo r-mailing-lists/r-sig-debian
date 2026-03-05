@@ -1,0 +1,394 @@
+From cboettig at gmail.com  Fri Jan 16 22:44:25 2015
+From: cboettig at gmail.com (Carl Boettiger)
+Date: Fri, 16 Jan 2015 21:44:25 +0000
+Subject: [R-sig-Debian] Unable to install R 3.1.2 on Debian:Testing
+Message-ID: <CAN_1p9yxtxgBHre2QedRx45XF_4V-YWJhdnw36ZyBQLKNShBhQ@mail.gmail.com>
+
+Dear Johannes, R-sig-debian list,
+
+Along with Dirk Eddelbuettel I've been maintaining Debian-based Docker
+containers for R. Recently our container installing r-base has started to
+fail. This seems to be due to a problem with the libjpeg dependencies. The
+example I show below was working with debian:jessie on Jan 5th, but has
+been failing since then.  (https://registry.hub.docker.com/u/rocker/r-base/
+)
+
+>From a vanilla install of debian:testing (or jessie or squeeze) I add the
+CRAN repository for the latest R version for debian, and then I then try to
+install `r-base-core` 3.1.2:
+
+    apt-key adv --keyserver keys.gnupg.net --recv-key 381BA480
+    echo "deb http://cran.rstudio.com/bin/linux/debian wheezy-cran3/" >
+/etc/apt/sources.list.d/r-cran.list
+
+    apt-get install r-base-core=3.1.2*
+
+and I get the error:
+
+
+
+
+
+
+
+
+*Selected version '3.1.2-1~wheezycran3.0' (CRAN Backports:wheezy-cran3
+[amd64]) for 'r-base-core'Some packages could not be installed. This may
+mean that you haverequested an impossible situation or if you are using the
+unstabledistribution that some required packages have not yet been
+createdor been moved out of Incoming.The following information may help to
+resolve the situation:*
+
+*The following packages have unmet dependencies: r-base-core : Depends:
+libjpeg8 (>= 8c) but it is not installable*
+
+
+Note that `apt-cache show r-base-core` shows three versions are available:
+3.1.2~wheezycran3.0, 3.1.1+b2, and 3.1.0~wheezycran3.0, and that the
+`wheezycran3.0` versions (e.g. R 3.1.2 and 3.1.0) cannot be installed
+because they depend on libjpeg8, which is not available, while 3.1.1
+depends on libjpeg62-turbo-dev.
+
+I'm not sure why the libjpeg dependency has changed or how to address this
+so that I can install r-base=3.1.2 on Debian.
+
+
+Thanks for your help,
+
+Carl
+
+	[[alternative HTML version deleted]]
+
+
+From jranke at uni-bremen.de  Sun Jan 18 20:47:49 2015
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Sun, 18 Jan 2015 20:47:49 +0100
+Subject: [R-sig-Debian] Unable to install R 3.1.2 on Debian:Testing
+In-Reply-To: <CAN_1p9yxtxgBHre2QedRx45XF_4V-YWJhdnw36ZyBQLKNShBhQ@mail.gmail.com>
+References: <CAN_1p9yxtxgBHre2QedRx45XF_4V-YWJhdnw36ZyBQLKNShBhQ@mail.gmail.com>
+Message-ID: <1935092.O8W2t9TXIG@stiller>
+
+Dear Carl,
+
+the CRAN repository does not support Debian testing. I did think of adding support for jessie, 
+as it is frozen now, but did not get around to do it yet.
+
+I believe you would have no problem when using Debian stable.
+
+Am Freitag, 16. Januar 2015, 21:44:25 schrieb Carl Boettiger:
+> Dear Johannes, R-sig-debian list,
+> 
+> Along with Dirk Eddelbuettel I've been maintaining Debian-based Docker
+> containers for R. Recently our container installing r-base has started to
+> fail. This seems to be due to a problem with the libjpeg dependencies. The
+> example I show below was working with debian:jessie on Jan 5th, but has
+> been failing since then.  (https://registry.hub.docker.com/u/rocker/r-base/
+> )
+> 
+> From a vanilla install of debian:testing (or jessie or squeeze) I add the
+
+Well, testing and jessie are the same. For squeeze you would have to add squeezecran 
+sources.
+
+> CRAN repository for the latest R version for debian, and then I then try to
+> install `r-base-core` 3.1.2:
+ 
+...
+...
+
+> Note that `apt-cache show r-base-core` shows three versions are available:
+
+I should clean this up - generally I only have the latest released version in the repository.
+
+> 3.1.2~wheezycran3.0, 3.1.1+b2, and 3.1.0~wheezycran3.0, and that the
+> `wheezycran3.0` versions (e.g. R 3.1.2 and 3.1.0) cannot be installed
+> because they depend on libjpeg8, which is not available, while 3.1.1
+> depends on libjpeg62-turbo-dev.
+> 
+> I'm not sure why the libjpeg dependency has changed or how to address this
+> so that I can install r-base=3.1.2 on Debian.
+
+At the moment you are on your own with R 3.1.2 on jessie. The easiest safe bet in my opinion 
+would be to install from the Debian sources in unstable, i.e. add a deb-src entry for unstable 
+to your sources.list, do an apt-get build-dep r-base and then apt-get source --build r-base 
+and install the packages with dpkg.
+
+> Thanks for your help,
+> 
+> Carl
+
+Hope it helps.
+
+Johannes
+
+
+
+	[[alternative HTML version deleted]]
+
+
+From edd at debian.org  Sun Jan 18 21:14:28 2015
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 18 Jan 2015 14:14:28 -0600
+Subject: [R-sig-Debian] Unable to install R 3.1.2 on Debian:Testing
+In-Reply-To: <1935092.O8W2t9TXIG@stiller>
+References: <CAN_1p9yxtxgBHre2QedRx45XF_4V-YWJhdnw36ZyBQLKNShBhQ@mail.gmail.com>
+	<1935092.O8W2t9TXIG@stiller>
+Message-ID: <21692.5156.915155.182312@max.nulle.part>
+
+
+Hi Johannes,
+
+On 18 January 2015 at 20:47, Johannes Ranke wrote:
+| At the moment you are on your own with R 3.1.2 on jessie. The easiest safe bet in my opinion 
+| would be to install from the Debian sources in unstable, i.e. add a deb-src entry for unstable 
+| to your sources.list, do an apt-get build-dep r-base and then apt-get source --build r-base 
+| and install the packages with dpkg.
+
+Ok. I will set up a new toolchain for testing then. We need this for Rocker
+all the time---eg I just put something marvelous into littler which I need in
+Rocker, yet Debian is frozen with no timeline for release. And it is silly
+for us to keep rebuilding all these things when building containers.
+
+The three of us should (will !!) work something out that will allow us proper
+testing support via CRAN, which we can fold into your existing mirror
+structure.  Plan?
+
+Cheers, Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd at debian.org  Sun Jan 18 21:55:39 2015
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 18 Jan 2015 14:55:39 -0600
+Subject: [R-sig-Debian] Unable to install R 3.1.2 on Debian:Testing
+In-Reply-To: <21692.5156.915155.182312@max.nulle.part>
+References: <CAN_1p9yxtxgBHre2QedRx45XF_4V-YWJhdnw36ZyBQLKNShBhQ@mail.gmail.com>
+	<1935092.O8W2t9TXIG@stiller>
+	<21692.5156.915155.182312@max.nulle.part>
+Message-ID: <21692.7627.794681.713694@max.nulle.part>
+
+
+On 18 January 2015 at 14:14, Dirk Eddelbuettel wrote:
+| Ok. I will set up a new toolchain for testing then. We need this for Rocker
+| all the time---eg I just put something marvelous into littler which I need in
+| Rocker, yet Debian is frozen with no timeline for release. And it is silly
+| for us to keep rebuilding all these things when building containers.
+| 
+| The three of us should (will !!) work something out that will allow us proper
+| testing support via CRAN, which we can fold into your existing mirror
+| structure.  Plan?
+
+Or maybe we just stick with "testing" and set up "unstable" via apt pinning
+for surgical per-package updates. One of many HOWTOs:
+
+   http://jaqque.sbih.org/kplug/apt-pinning.html
+
+I've used this quite a bit in the past and it "Just Work (TM)".
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From cboettig at gmail.com  Sun Jan 18 22:21:42 2015
+From: cboettig at gmail.com (Carl Boettiger)
+Date: Sun, 18 Jan 2015 21:21:42 +0000
+Subject: [R-sig-Debian] Unable to install R 3.1.2 on Debian:Testing
+References: <CAN_1p9yxtxgBHre2QedRx45XF_4V-YWJhdnw36ZyBQLKNShBhQ@mail.gmail.com>
+	<1935092.O8W2t9TXIG@stiller> <21692.5156.915155.182312@max.nulle.part>
+	<21692.7627.794681.713694@max.nulle.part>
+Message-ID: <CAN_1p9x1hOVOmEN09p4fA4Vk3Ky2BE0U7ux88qYCcrTMNRxqxA@mail.gmail.com>
+
+>
+> Or maybe we just stick with "testing" and set up "unstable" via apt pinning
+> for surgical per-package updates. One of many HOWTOs:
+>
+>    http://jaqque.sbih.org/kplug/apt-pinning.html
+>
+> Nice, that looks very promising.
+
+
+> --
+> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+	[[alternative HTML version deleted]]
+
+
+From basille.web at ase-research.org  Mon Jan 19 02:37:05 2015
+From: basille.web at ase-research.org (Mathieu Basille)
+Date: Sun, 18 Jan 2015 20:37:05 -0500
+Subject: [R-sig-Debian] Unable to install R 3.1.2 on Debian:Testing
+In-Reply-To: <21692.7627.794681.713694@max.nulle.part>
+References: <CAN_1p9yxtxgBHre2QedRx45XF_4V-YWJhdnw36ZyBQLKNShBhQ@mail.gmail.com>	<1935092.O8W2t9TXIG@stiller>	<21692.5156.915155.182312@max.nulle.part>
+	<21692.7627.794681.713694@max.nulle.part>
+Message-ID: <54BC5FC1.50003@ase-research.org>
+
+Le 18/01/2015 15:55, Dirk Eddelbuettel a ?crit :
+>
+> On 18 January 2015 at 14:14, Dirk Eddelbuettel wrote:
+> | Ok. I will set up a new toolchain for testing then. We need this for Rocker
+> | all the time---eg I just put something marvelous into littler which I need in
+> | Rocker, yet Debian is frozen with no timeline for release. And it is silly
+> | for us to keep rebuilding all these things when building containers.
+> |
+> | The three of us should (will !!) work something out that will allow us proper
+> | testing support via CRAN, which we can fold into your existing mirror
+> | structure.  Plan?
+>
+> Or maybe we just stick with "testing" and set up "unstable" via apt pinning
+> for surgical per-package updates. One of many HOWTOs:
+>
+>     http://jaqque.sbih.org/kplug/apt-pinning.html
+>
+> I've used this quite a bit in the past and it "Just Work (TM)".
+
+Using testing as my regular Debian, this is how I do it: apt pinning on 
+stable/testing/unstable, with testing on 900, stable on 800, unstable on 
+90, and every priority package on > 900.
+
+Then a selection of R packages from official Debian unstable repositories 
+are also set up with 900 (I may have missed a few since I didn't update the 
+list for a while):
+
+Package: r-base r-base-core r-base-dev r-recommended r-cran-boot 
+r-cran-cluster r-cran-class r-cran-codetools r-cran-foreign 
+r-cran-kernsmooth r-cran-lattice r-cran-mass r-cran-matrix r-cran-mgcv 
+r-cran-nlme r-cran-nnet r-cran-rmatrix r-cran-rpart r-cran-spatial 
+r-cran-survival r-cran-tkrplot littler
+Pin: release o=Debian,a=unstable,l=Debian
+Pin-Priority: 900
+
+Works like a charm... R 3.1.2 from SID.
+
+Hope this helps! (I can provide a more detailed source.list/preferences if 
+necessary)
+Mathieu.
+
+
+>
+> Dirk
+>
+
+-- 
+
+~$ whoami
+Mathieu Basille
+http://ase-research.org/basille
+
+~$ locate --details
+University of Florida \\
+Fort Lauderdale Research and Education Center
+(+1) 954-577-6314
+
+~$ fortune
+? Le tout est de tout dire, et je manque de mots
+Et je manque de temps, et je manque d'audace. ?
+  -- Paul ?luard
+
+
+From jranke at uni-bremen.de  Mon Jan 19 09:05:58 2015
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 19 Jan 2015 09:05:58 +0100
+Subject: [R-sig-Debian] Unable to install R 3.1.2 on Debian:Testing
+In-Reply-To: <54BC5FC1.50003@ase-research.org>
+References: <CAN_1p9yxtxgBHre2QedRx45XF_4V-YWJhdnw36ZyBQLKNShBhQ@mail.gmail.com>
+	<21692.7627.794681.713694@max.nulle.part>
+	<54BC5FC1.50003@ase-research.org>
+Message-ID: <2612662.jB1hZ5s96d@stiller>
+
+Hi Mathieu,
+
+thanks for contributing your tips on apt pinning on Debian testing. I have 
+included similar instructions in the Debian README for the situation where 
+testing was frozen. This time I thought I would get around to provide proper 
+binaries for testing quickly enough, but I need to get some other work done, 
+so I am lagging behind here.
+
+If someone could provide some lines with nice pinning instructions of text for 
+the Debian README on CRAN, I would be happy to incorporate them, otherwise I 
+will only have time in the weekend to do something (amend the README or set up 
+a new repo for jessie) on the weekend.
+
+Cheers,
+
+Johannes
+
+Am Sonntag, 18. Januar 2015, 20:37:05 schrieb Mathieu Basille:
+> Le 18/01/2015 15:55, Dirk Eddelbuettel a ?crit :
+> > On 18 January 2015 at 14:14, Dirk Eddelbuettel wrote:
+> > | Ok. I will set up a new toolchain for testing then. We need this for
+> > | Rocker
+> > | all the time---eg I just put something marvelous into littler which I
+> > | need in Rocker, yet Debian is frozen with no timeline for release. And
+> > | it is silly for us to keep rebuilding all these things when building
+> > | containers.
+> > | 
+> > | The three of us should (will !!) work something out that will allow us
+> > | proper testing support via CRAN, which we can fold into your existing
+> > | mirror structure.  Plan?
+> > 
+> > Or maybe we just stick with "testing" and set up "unstable" via apt
+> > pinning
+> > 
+> > for surgical per-package updates. One of many HOWTOs:
+> >     http://jaqque.sbih.org/kplug/apt-pinning.html
+> > 
+> > I've used this quite a bit in the past and it "Just Work (TM)".
+> 
+> Using testing as my regular Debian, this is how I do it: apt pinning on
+> stable/testing/unstable, with testing on 900, stable on 800, unstable on
+> 90, and every priority package on > 900.
+> 
+> Then a selection of R packages from official Debian unstable repositories
+> are also set up with 900 (I may have missed a few since I didn't update the
+> list for a while):
+> 
+> Package: r-base r-base-core r-base-dev r-recommended r-cran-boot
+> r-cran-cluster r-cran-class r-cran-codetools r-cran-foreign
+> r-cran-kernsmooth r-cran-lattice r-cran-mass r-cran-matrix r-cran-mgcv
+> r-cran-nlme r-cran-nnet r-cran-rmatrix r-cran-rpart r-cran-spatial
+> r-cran-survival r-cran-tkrplot littler
+> Pin: release o=Debian,a=unstable,l=Debian
+> Pin-Priority: 900
+> 
+> Works like a charm... R 3.1.2 from SID.
+> 
+> Hope this helps! (I can provide a more detailed source.list/preferences if
+> necessary)
+> Mathieu.
+> 
+> > Dirk
+
+-- 
+PD Dr. Johannes Ranke
+Kronacher Str. 8
+79639 Grenzach-Wyhlen
+
+
+From jranke at uni-bremen.de  Sat Jan 24 22:35:37 2015
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Sat, 24 Jan 2015 22:35:37 +0100
+Subject: [R-sig-Debian] Unable to install R 3.1.2 on Debian:Testing
+In-Reply-To: <2612662.jB1hZ5s96d@stiller>
+References: <CAN_1p9yxtxgBHre2QedRx45XF_4V-YWJhdnw36ZyBQLKNShBhQ@mail.gmail.com>
+	<54BC5FC1.50003@ase-research.org> <2612662.jB1hZ5s96d@stiller>
+Message-ID: <11230443.tdiyj4DROC@stiller>
+
+> otherwise I will only have time in the weekend to do something (amend the
+> README or set up a new repo for jessie) on the weekend.
+
+The repository for jessie is in the works - but don't expect it to be up 
+before next weekend.
+
+Johannes
+
+

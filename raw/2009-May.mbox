@@ -1,0 +1,4978 @@
+From armstrong.whit at gmail.com  Mon May  4 01:52:18 2009
+From: armstrong.whit at gmail.com (Whit Armstrong)
+Date: Sun, 3 May 2009 19:52:18 -0400
+Subject: [R-sig-Debian] JAVA_CPPFLAGS == ~autodetect~
+Message-ID: <8ec76080905031652v790134bclb8d8500f72a6c85b@mail.gmail.com>
+
+This is happening to me with R 2.9 and 2.8 on jaunty.
+
+whit at spartan:~$ R CMD config JAVA_CPPFLAGS
+~autodetect~
+whit at spartan:~$
+
+
+I can see the "~autodetect~" strings here:
+https://svn.r-project.org/R/trunk/m4/java.m4
+
+but JAVA_LIBS ends up being the correct value in my installation:
+
+whit at spartan:~/dvl/R.packages$ R CMD config JAVA_LIBS
+-L/usr/lib/jvm/java-6-openjdk/jre/lib/amd64/server
+-L/usr/lib/jvm/java-6-openjdk/jre/lib/amd64
+-L/usr/lib/jvm/java-6-openjdk/jre/../lib/amd64 -L/usr/local/lib64
+-L/usr/java/packages/lib/amd64 -L/usr/lib64 -L/lib64 -L/lib -L/usr/lib
+-ljvm
+whit at spartan:~/dvl/R.packages$ R CMD config JAVA_CPPFLAGS
+~autodetect~
+whit at spartan:~/dvl/R.packages$
+
+-Whit
+
+
+From mar36 at psu.edu  Mon May  4 23:53:00 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 4 May 2009 17:53:00 -0400
+Subject: [R-sig-Debian] JAVA_CPPFLAGS == ~autodetect~
+In-Reply-To: <8ec76080905031652v790134bclb8d8500f72a6c85b@mail.gmail.com>
+References: <8ec76080905031652v790134bclb8d8500f72a6c85b@mail.gmail.com>
+Message-ID: <fce144590905041453t3536bf4boc9b962fd8be8b2c2@mail.gmail.com>
+
+Whit,
+
+I ran the same command on my Jaunty system and got the following:
+
+mrutter at yorick ~/D/R_Stuff> R CMD config JAVA_CPPFLAGS
+-I/usr/lib/jvm/java-6-openjdk/jre/../include
+
+A quick check of my java related packages:
+
+ca-certificates-java				install
+java-common					install
+libaccess-bridge-java				install
+sun-java6-bin					install
+sun-java6-jre					install
+tzdata-java					install
+
+Maybe this will help.
+
+Micheal
+
+On Sun, May 3, 2009 at 7:52 PM, Whit Armstrong <armstrong.whit at gmail.com> wrote:
+> This is happening to me with R 2.9 and 2.8 on jaunty.
+>
+> whit at spartan:~$ R CMD config JAVA_CPPFLAGS
+> ~autodetect~
+> whit at spartan:~$
+>
+>
+> I can see the "~autodetect~" strings here:
+> https://svn.r-project.org/R/trunk/m4/java.m4
+>
+> but JAVA_LIBS ends up being the correct value in my installation:
+>
+> whit at spartan:~/dvl/R.packages$ R CMD config JAVA_LIBS
+> -L/usr/lib/jvm/java-6-openjdk/jre/lib/amd64/server
+> -L/usr/lib/jvm/java-6-openjdk/jre/lib/amd64
+> -L/usr/lib/jvm/java-6-openjdk/jre/../lib/amd64 -L/usr/local/lib64
+> -L/usr/java/packages/lib/amd64 -L/usr/lib64 -L/lib64 -L/lib -L/usr/lib
+> -ljvm
+> whit at spartan:~/dvl/R.packages$ R CMD config JAVA_CPPFLAGS
+> ~autodetect~
+> whit at spartan:~/dvl/R.packages$
+>
+> -Whit
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From armstrong.whit at gmail.com  Tue May  5 03:29:03 2009
+From: armstrong.whit at gmail.com (Whit Armstrong)
+Date: Mon, 4 May 2009 21:29:03 -0400
+Subject: [R-sig-Debian] JAVA_CPPFLAGS == ~autodetect~
+In-Reply-To: <fce144590905041453t3536bf4boc9b962fd8be8b2c2@mail.gmail.com>
+References: <8ec76080905031652v790134bclb8d8500f72a6c85b@mail.gmail.com>
+	<fce144590905041453t3536bf4boc9b962fd8be8b2c2@mail.gmail.com>
+Message-ID: <8ec76080905041829j3fe0fdf7j4c496a856670b6e5@mail.gmail.com>
+
+Thanks, Michael.
+
+Is that after compiling form source? or a version of R from ubnutu/apt-get?
+
+My issues were from R 2.9 and 2.8 compiled from source.  However, this
+has never been a problem before.
+
+-Whit
+
+On Mon, May 4, 2009 at 5:53 PM, Michael Rutter <mar36 at psu.edu> wrote:
+> Whit,
+>
+> I ran the same command on my Jaunty system and got the following:
+>
+> mrutter at yorick ~/D/R_Stuff> R CMD config JAVA_CPPFLAGS
+> -I/usr/lib/jvm/java-6-openjdk/jre/../include
+>
+> A quick check of my java related packages:
+>
+> ca-certificates-java ? ? ? ? ? ? ? ? ? ? ? ? ? ?install
+> java-common ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? install
+> libaccess-bridge-java ? ? ? ? ? ? ? ? ? ? ? ? ? install
+> sun-java6-bin ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? install
+> sun-java6-jre ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? install
+> tzdata-java ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? install
+>
+> Maybe this will help.
+>
+> Micheal
+>
+> On Sun, May 3, 2009 at 7:52 PM, Whit Armstrong <armstrong.whit at gmail.com> wrote:
+>> This is happening to me with R 2.9 and 2.8 on jaunty.
+>>
+>> whit at spartan:~$ R CMD config JAVA_CPPFLAGS
+>> ~autodetect~
+>> whit at spartan:~$
+>>
+>>
+>> I can see the "~autodetect~" strings here:
+>> https://svn.r-project.org/R/trunk/m4/java.m4
+>>
+>> but JAVA_LIBS ends up being the correct value in my installation:
+>>
+>> whit at spartan:~/dvl/R.packages$ R CMD config JAVA_LIBS
+>> -L/usr/lib/jvm/java-6-openjdk/jre/lib/amd64/server
+>> -L/usr/lib/jvm/java-6-openjdk/jre/lib/amd64
+>> -L/usr/lib/jvm/java-6-openjdk/jre/../lib/amd64 -L/usr/local/lib64
+>> -L/usr/java/packages/lib/amd64 -L/usr/lib64 -L/lib64 -L/lib -L/usr/lib
+>> -ljvm
+>> whit at spartan:~/dvl/R.packages$ R CMD config JAVA_CPPFLAGS
+>> ~autodetect~
+>> whit at spartan:~/dvl/R.packages$
+>>
+>> -Whit
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+>
+>
+>
+> --
+> Dr. Michael A. Rutter
+> School of Science
+> Penn State Erie, The Behrend College
+> Station Road
+> Erie, PA 16563
+> http://math.bd.psu.edu/faculty/rutter
+>
+
+
+From mar36 at psu.edu  Tue May  5 04:16:32 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 4 May 2009 22:16:32 -0400
+Subject: [R-sig-Debian] JAVA_CPPFLAGS == ~autodetect~
+In-Reply-To: <8ec76080905041829j3fe0fdf7j4c496a856670b6e5@mail.gmail.com>
+References: <8ec76080905031652v790134bclb8d8500f72a6c85b@mail.gmail.com>
+	<fce144590905041453t3536bf4boc9b962fd8be8b2c2@mail.gmail.com>
+	<8ec76080905041829j3fe0fdf7j4c496a856670b6e5@mail.gmail.com>
+Message-ID: <fce144590905041916y44168cddn5d55c54f53055cf@mail.gmail.com>
+
+Whit,
+
+Those results came for the apt-get binaries available on CRAN.  I
+would recommend those, as we update them very quickly and there are
+fewer issues like the one you are having.
+
+Michael
+
+On Mon, May 4, 2009 at 9:29 PM, Whit Armstrong <armstrong.whit at gmail.com> wrote:
+> Thanks, Michael.
+>
+> Is that after compiling form source? or a version of R from ubnutu/apt-get?
+>
+> My issues were from R 2.9 and 2.8 compiled from source. ?However, this
+> has never been a problem before.
+>
+> -Whit
+>
+> On Mon, May 4, 2009 at 5:53 PM, Michael Rutter <mar36 at psu.edu> wrote:
+>> Whit,
+>>
+>> I ran the same command on my Jaunty system and got the following:
+>>
+>> mrutter at yorick ~/D/R_Stuff> R CMD config JAVA_CPPFLAGS
+>> -I/usr/lib/jvm/java-6-openjdk/jre/../include
+>>
+>> A quick check of my java related packages:
+>>
+>> ca-certificates-java ? ? ? ? ? ? ? ? ? ? ? ? ? ?install
+>> java-common ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? install
+>> libaccess-bridge-java ? ? ? ? ? ? ? ? ? ? ? ? ? install
+>> sun-java6-bin ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? install
+>> sun-java6-jre ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? install
+>> tzdata-java ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? install
+>>
+>> Maybe this will help.
+>>
+>> Micheal
+>>
+>> On Sun, May 3, 2009 at 7:52 PM, Whit Armstrong <armstrong.whit at gmail.com> wrote:
+>>> This is happening to me with R 2.9 and 2.8 on jaunty.
+>>>
+>>> whit at spartan:~$ R CMD config JAVA_CPPFLAGS
+>>> ~autodetect~
+>>> whit at spartan:~$
+>>>
+>>>
+>>> I can see the "~autodetect~" strings here:
+>>> https://svn.r-project.org/R/trunk/m4/java.m4
+>>>
+>>> but JAVA_LIBS ends up being the correct value in my installation:
+>>>
+>>> whit at spartan:~/dvl/R.packages$ R CMD config JAVA_LIBS
+>>> -L/usr/lib/jvm/java-6-openjdk/jre/lib/amd64/server
+>>> -L/usr/lib/jvm/java-6-openjdk/jre/lib/amd64
+>>> -L/usr/lib/jvm/java-6-openjdk/jre/../lib/amd64 -L/usr/local/lib64
+>>> -L/usr/java/packages/lib/amd64 -L/usr/lib64 -L/lib64 -L/lib -L/usr/lib
+>>> -ljvm
+>>> whit at spartan:~/dvl/R.packages$ R CMD config JAVA_CPPFLAGS
+>>> ~autodetect~
+>>> whit at spartan:~/dvl/R.packages$
+>>>
+>>> -Whit
+>>>
+>>> _______________________________________________
+>>> R-SIG-Debian mailing list
+>>> R-SIG-Debian at r-project.org
+>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>>
+>>
+>>
+>>
+>> --
+>> Dr. Michael A. Rutter
+>> School of Science
+>> Penn State Erie, The Behrend College
+>> Station Road
+>> Erie, PA 16563
+>> http://math.bd.psu.edu/faculty/rutter
+>>
+>
+
+
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From judson0423 at gmail.com  Thu May  7 16:50:43 2009
+From: judson0423 at gmail.com (Judson)
+Date: Thu, 7 May 2009 10:50:43 -0400
+Subject: [R-sig-Debian] Running R in Ubuntu...really basic..sorry
+Message-ID: <75f11af0905070750y73c71f3bo275b5682080fab89@mail.gmail.com>
+
+Hi, I've actually run R quite a bit in Windows.  I've had a release
+8.04 of Ubuntu running a laptop for 3 days now.  After struggling for
+much of that time to install R, I finally figured out that Dell
+shipped with the sources.list obsolete or just plain wrong.  So I
+finally got it installed last night (for some reason v2.6.2, not
+v2.9.x).  This morning I was able to download and install the
+LearnBayes package.  My biggest problem right now is that I don't know
+how to run R except as a local-directory command in the Terminal.
+Certain R commands cause the terminal to go into some changed state
+and not take any more commands.  Right now for example I ahve a last
+line that is darkened in over (END) and it's sitting there. Any
+advice?
+
+Oh, if you suspect something in your sources.list (specific to Dell)
+email ma and I'll explain.  Thanks.  Room533
+
+
+From mar36 at psu.edu  Thu May  7 17:01:07 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Thu, 7 May 2009 11:01:07 -0400
+Subject: [R-sig-Debian] Running R in Ubuntu...really basic..sorry
+In-Reply-To: <75f11af0905070750y73c71f3bo275b5682080fab89@mail.gmail.com>
+References: <75f11af0905070750y73c71f3bo275b5682080fab89@mail.gmail.com>
+Message-ID: <fce144590905070801n474e12d5lf3ab19b3a76f3c08@mail.gmail.com>
+
+I would make sure that you have the following line in your /etc/apt/sources.list
+
+deb http://cran.case.edu/bin/linux/ubuntu hardy/
+
+That will get you the R 9.2.0.  Then I would also run the following:
+
+sudo apt-get install ess
+
+That will install emacs (an editor) and some extra code for running R
+(and S plus).  As long as your file has a .R extension (foo.R, for
+example), you will see some R related buttons and menus.  Look up
+"emacs speaks statistics" via google for more information.  Using ess
+is the best way to enter and debug code, IMO.
+
+Hope this helps,
+Michael
+
+
+
+
+
+On Thu, May 7, 2009 at 10:50 AM, Judson <judson0423 at gmail.com> wrote:
+> Hi, I've actually run R quite a bit in Windows. ?I've had a release
+> 8.04 of Ubuntu running a laptop for 3 days now. ?After struggling for
+> much of that time to install R, I finally figured out that Dell
+> shipped with the sources.list obsolete or just plain wrong. ?So I
+> finally got it installed last night (for some reason v2.6.2, not
+> v2.9.x). ?This morning I was able to download and install the
+> LearnBayes package. ?My biggest problem right now is that I don't know
+> how to run R except as a local-directory command in the Terminal.
+> Certain R commands cause the terminal to go into some changed state
+> and not take any more commands. ?Right now for example I ahve a last
+> line that is darkened in over (END) and it's sitting there. Any
+> advice?
+>
+> Oh, if you suspect something in your sources.list (specific to Dell)
+> email ma and I'll explain. ?Thanks. ?Room533
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From gkerns at ysu.edu  Thu May  7 17:28:07 2009
+From: gkerns at ysu.edu (G. Jay Kerns)
+Date: Thu, 7 May 2009 11:28:07 -0400
+Subject: [R-sig-Debian] build dependencies was Re: [R] problem with rgl
+	package
+Message-ID: <a695148b0905070828s40a13000se6c01f227b8212df@mail.gmail.com>
+
+Dear R-SIG-Debian,
+
+>
+> a) You still haven't explained why you need to rebuild it when
+> ? ? ? sudo apt-get install r-cran-rgl
+> ? gets you a binary
+
+I  do not want to answer for the OP, but for myself, two things:
+
+1)  I maintain a personal library in my HOME folder - for a few
+reasons - and one of the benefits is that I can  install/update R
+packages without needing to run R as root.
+
+2) the list of supported packages in Synaptic is long enough to be
+*too long* to remember, but short enough that it doesn't have many of
+the packages I regularly use.  Rather than try to keep track of CRAN
+vs Synaptic, it is easier to just use CRAN and forget about it.
+
+I have been interested in learning about building Debian packages
+myself, but haven't had the time to investigate yet. In addition, my
+understanding from earlier messages on the mailing list is that work
+is already underway to significantly lengthen the Synaptic list...
+
+
+ >
+> b) Yes, as
+> ? ? ? sudo apt-get build-dep r-cran-rgl
+> ? would have found out for you.
+
+
+
+Is there any way to include some form of this information on the
+README page of the Ubuntu section on CRAN? Here's how it reads right
+now, under "ADMINISTRATION AND MAINTENANCE OF R PACKAGES":
+
+"Installing R packages not provided with Ubuntu first requires tools
+to compile the packages from source. These tools are installed via the
+R development package with
+
+   sudo apt-get install r-base-dev"
+
+
+
+The above is, of course, true, but not the whole story.  In
+particular, for a supported R package like rgl there are additional
+tools needed to build it, which are not in r-base-dev, but which can
+be obtained with "sudo apt-get build-dep r-cran-rgl".  Perhaps there
+are other (supported) packages that require tools which aren't in
+r-base-dev.
+
+
+Under  "ADMINISTRATION AND MAINTENANCE OF R PACKAGES", how about something like:
+
+"Installing R packages not provided with Ubuntu first requires tools
+to compile the packages from source. *For the majority of R packages
+these* tools may be installed via the R development package with
+
+   sudo apt-get install r-base-dev
+
+Please note, however, that some packages may require tools not
+contained in r-base-dev, and the user must find and install these on
+an individual basis.  But in the case that R package 'foo' is
+supported (with an Ubuntu package r-cran-foo), then the following will
+identify and install such dependencies:
+
+  sudo apt-get build-dep r-cran-foo"
+
+
+I am sure that there are other people who could say what I am trying
+to say in a much better and more accurate way.  I would invite and
+welcome improvements.  I could imagine a similar statement or
+reference in SUPPORTED PACKAGES.
+
+
+Some may rightly argue that those experienced with Ubuntu will already
+know about "sudo apt-get build-dep" and it does not need to be posted
+on CRAN Ubuntu README.  But I was introduced to Ubuntu by way of R,
+and not the other way around.  For people like me, this would be
+great.
+
+
+
+>
+> We do _a lot of work_ for R on Debian/Ubuntu. Use it, you even have a
+> money-back guarantee. And ...
+
+
+Yes... I myself appreciate very much all of the hard work by Dirk,
+Doug, Vincent, and Michael, all.  Both off-list administration and
+on-list troubleshooting.  Thank you.
+
+
+Best,
+Jay
+
+
+
+
+
+
+
+***************************************************
+G. Jay Kerns, Ph.D.
+Associate Professor
+Department of Mathematics & Statistics
+Youngstown State University
+Youngstown, OH 44555-0002 USA
+Office: 1035 Cushwa Hall
+Phone: (330) 941-3310 Office (voice mail)
+-3302 Department
+-3170 FAX
+E-mail: gkerns at ysu.edu
+http://www.cc.ysu.edu/~gjkerns/
+
+
+From edd at debian.org  Thu May  7 17:59:05 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 7 May 2009 10:59:05 -0500
+Subject: [R-sig-Debian] build dependencies was Re: [R] problem with rgl
+	package
+In-Reply-To: <a695148b0905070828s40a13000se6c01f227b8212df@mail.gmail.com>
+References: <a695148b0905070828s40a13000se6c01f227b8212df@mail.gmail.com>
+Message-ID: <18947.1353.7924.725879@ron.nulle.part>
+
+
+Howdy,
+
+On 7 May 2009 at 11:28, G. Jay Kerns wrote:
+| Dear R-SIG-Debian,
+| 
+| >
+| > a) You still haven't explained why you need to rebuild it when
+| >       sudo apt-get install r-cran-rgl
+| >   gets you a binary
+| 
+| I  do not want to answer for the OP, but for myself, two things:
+| 
+| 1)  I maintain a personal library in my HOME folder - for a few
+| reasons - and one of the benefits is that I can  install/update R
+| packages without needing to run R as root.
+
+I do that by setting the group mode of /usr/local/lib/R/site-library to, say,
+'staff' and 'group-write mode' (numeric 0775).  I also share that
+/usr/local/lib/R tree over NFS at work across a few machines.
+
+As an aside, this point is orthogonal to the OP having problems compiling
+something by hand that exists pre-compiled.
+
+| 2) the list of supported packages in Synaptic is long enough to be
+| *too long* to remember, but short enough that it doesn't have many of
+| the packages I regularly use.  Rather than try to keep track of CRAN
+| vs Synaptic, it is easier to just use CRAN and forget about it.
+
+Synaptic is just one of many interfaces to the packaging system. At the end
+of the day, both 20,000 Debian packages and 1,700 CRAN packages are hard to
+search nomatter what you do.  
+
+Debian has several front-end, a system called 'tags' and intelligent
+searching.  I personally still mostly do 'apt-cache search foo' and some
+grepping.  Also, my personal favourite is 'wajig' which calles out to dpkg,
+apt-get, aptitude, ... as needed and provides a single interface.
+
+| I have been interested in learning about building Debian packages
+| myself, but haven't had the time to investigate yet. In addition, my
+| understanding from earlier messages on the mailing list is that work
+| is already underway to significantly lengthen the Synaptic list...
+
+Yes. But presumably via another external repository, most likely on CRAN, and
+probably first for Debian before we get to Ubuntu.
+
+|  >
+| > b) Yes, as
+| >       sudo apt-get build-dep r-cran-rgl
+| >   would have found out for you.
+| 
+| 
+| 
+| Is there any way to include some form of this information on the
+| README page of the Ubuntu section on CRAN? Here's how it reads right
+| now, under "ADMINISTRATION AND MAINTENANCE OF R PACKAGES":
+| 
+| "Installing R packages not provided with Ubuntu first requires tools
+| to compile the packages from source. These tools are installed via the
+| R development package with
+| 
+|    sudo apt-get install r-base-dev"
+| 
+| 
+| 
+| The above is, of course, true, but not the whole story.  In
+| particular, for a supported R package like rgl there are additional
+| tools needed to build it, which are not in r-base-dev, but which can
+| be obtained with "sudo apt-get build-dep r-cran-rgl".  Perhaps there
+| are other (supported) packages that require tools which aren't in
+| r-base-dev.
+
+Good point!  Patches welcome. Vincent and Michael read this list too so maybe
+that is something we can take off-list for some constructive work?
+
+| Under  "ADMINISTRATION AND MAINTENANCE OF R PACKAGES", how about something like:
+| 
+| "Installing R packages not provided with Ubuntu first requires tools
+| to compile the packages from source. *For the majority of R packages
+| these* tools may be installed via the R development package with
+| 
+|    sudo apt-get install r-base-dev
+| 
+| Please note, however, that some packages may require tools not
+| contained in r-base-dev, and the user must find and install these on
+| an individual basis.  But in the case that R package 'foo' is
+| supported (with an Ubuntu package r-cran-foo), then the following will
+| identify and install such dependencies:
+| 
+|   sudo apt-get build-dep r-cran-foo"
+
+Not bad, but if 'apt-get install r-cran-foo' works, why do we need to explain
+how to re-compile it ?
+ 
+| I am sure that there are other people who could say what I am trying
+| to say in a much better and more accurate way.  I would invite and
+| welcome improvements.  I could imagine a similar statement or
+| reference in SUPPORTED PACKAGES.
+| 
+| 
+| Some may rightly argue that those experienced with Ubuntu will already
+| know about "sudo apt-get build-dep" and it does not need to be posted
+| on CRAN Ubuntu README.  But I was introduced to Ubuntu by way of R,
+| and not the other way around.  For people like me, this would be
+| great.
+
+Generally speaking, there are too many little tips and tricks so there is
+always scope to do better, learn more, teach more, ...
+ 
+| >
+| > We do _a lot of work_ for R on Debian/Ubuntu. Use it, you even have a
+| > money-back guarantee. And ...
+| 
+| 
+| Yes... I myself appreciate very much all of the hard work by Dirk,
+| Doug, Vincent, and Michael, all.  Both off-list administration and
+| on-list troubleshooting.  Thank you.
+
+Always a pleasure, especially when we see that it actually helps other
+people.
+
+Dirk
+
+| 
+| 
+| Best,
+| Jay
+| 
+| 
+| 
+| 
+| 
+| 
+| 
+| ***************************************************
+| G. Jay Kerns, Ph.D.
+| Associate Professor
+| Department of Mathematics & Statistics
+| Youngstown State University
+| Youngstown, OH 44555-0002 USA
+| Office: 1035 Cushwa Hall
+| Phone: (330) 941-3310 Office (voice mail)
+| -3302 Department
+| -3170 FAX
+| E-mail: gkerns at ysu.edu
+| http://www.cc.ysu.edu/~gjkerns/
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From jranke at uni-bremen.de  Thu May  7 21:28:12 2009
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Thu, 7 May 2009 21:28:12 +0200
+Subject: [R-sig-Debian] build dependencies was Re: [R] problem with
+	rgl	package
+In-Reply-To: <18947.1353.7924.725879@ron.nulle.part>
+References: <a695148b0905070828s40a13000se6c01f227b8212df@mail.gmail.com>
+	<18947.1353.7924.725879@ron.nulle.part>
+Message-ID: <20090507192812.GA13309@localdomain>
+
+Hi,
+
+* Dirk Eddelbuettel <edd at debian.org> [090507 18:00]:
+> 
+> Howdy,
+> 
+> On 7 May 2009 at 11:28, G. Jay Kerns wrote:
+> | Dear R-SIG-Debian,
+
+...
+
+> | Is there any way to include some form of this information on the
+> | README page of the Ubuntu section on CRAN? Here's how it reads right
+> | now, under "ADMINISTRATION AND MAINTENANCE OF R PACKAGES":
+> | 
+> | "Installing R packages not provided with Ubuntu first requires tools
+> | to compile the packages from source. These tools are installed via the
+> | R development package with
+> | 
+> |    sudo apt-get install r-base-dev"
+> | 
+> | 
+> | 
+> | The above is, of course, true, but not the whole story.  In
+> | particular, for a supported R package like rgl there are additional
+> | tools needed to build it, which are not in r-base-dev, but which can
+> | be obtained with "sudo apt-get build-dep r-cran-rgl".  Perhaps there
+> | are other (supported) packages that require tools which aren't in
+> | r-base-dev.
+
+In the Debian README, it currently says:
+
+You only need r-base-dev if you want to compile R packages yourself or other
+software depending on R (see section below on administration and maintenance).
+
+So I am thinking to add the following:
+
+"Be aware that you may also have to install additional build dependencies
+(typically -dev packages containing headers). The list r-sig-debian is a
+good place to ask if you run into problems. If you are using these
+backports from CRAN, and just want to update a package r-cran-foo that
+is part of Debian, you can get the build dependencies by 
+
+    apt-get build-dep r-cran-foo"
+
+How does that sound? Improvements welcome.
+
+Johannes
+
+> Good point!  Patches welcome. Vincent and Michael read this list too so maybe
+> that is something we can take off-list for some constructive work?
+> 
+> | Under  "ADMINISTRATION AND MAINTENANCE OF R PACKAGES", how about something like:
+> | 
+> | "Installing R packages not provided with Ubuntu first requires tools
+> | to compile the packages from source. *For the majority of R packages
+> | these* tools may be installed via the R development package with
+> | 
+> |    sudo apt-get install r-base-dev
+> | 
+> | Please note, however, that some packages may require tools not
+> | contained in r-base-dev, and the user must find and install these on
+> | an individual basis.  But in the case that R package 'foo' is
+> | supported (with an Ubuntu package r-cran-foo), then the following will
+> | identify and install such dependencies:
+> | 
+> |   sudo apt-get build-dep r-cran-foo"
+> 
+> Not bad, but if 'apt-get install r-cran-foo' works, why do we need to explain
+> how to re-compile it ?
+>  
+> | I am sure that there are other people who could say what I am trying
+> | to say in a much better and more accurate way.  I would invite and
+> | welcome improvements.  I could imagine a similar statement or
+> | reference in SUPPORTED PACKAGES.
+> | 
+> | 
+> | Some may rightly argue that those experienced with Ubuntu will already
+> | know about "sudo apt-get build-dep" and it does not need to be posted
+> | on CRAN Ubuntu README.  But I was introduced to Ubuntu by way of R,
+> | and not the other way around.  For people like me, this would be
+> | great.
+> 
+> Generally speaking, there are too many little tips and tricks so there is
+> always scope to do better, learn more, teach more, ...
+>  
+> | >
+> | > We do _a lot of work_ for R on Debian/Ubuntu. Use it, you even have a
+> | > money-back guarantee. And ...
+> | 
+> | 
+> | Yes... I myself appreciate very much all of the hard work by Dirk,
+> | Doug, Vincent, and Michael, all.  Both off-list administration and
+> | on-list troubleshooting.  Thank you.
+> 
+> Always a pleasure, especially when we see that it actually helps other
+> people.
+> 
+> Dirk
+> 
+> | 
+> | 
+> | Best,
+> | Jay
+> | 
+> | 
+> | 
+> | 
+> | 
+> | 
+> | 
+> | ***************************************************
+> | G. Jay Kerns, Ph.D.
+> | Associate Professor
+> | Department of Mathematics & Statistics
+> | Youngstown State University
+> | Youngstown, OH 44555-0002 USA
+> | Office: 1035 Cushwa Hall
+> | Phone: (330) 941-3310 Office (voice mail)
+> | -3302 Department
+> | -3170 FAX
+> | E-mail: gkerns at ysu.edu
+> | http://www.cc.ysu.edu/~gjkerns/
+> 
+> -- 
+> Three out of two people have difficulties with fractions.
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+
+From gkerns at ysu.edu  Fri May  8 15:31:56 2009
+From: gkerns at ysu.edu (G. Jay Kerns)
+Date: Fri, 8 May 2009 09:31:56 -0400
+Subject: [R-sig-Debian] build dependencies was Re: [R] problem with rgl
+	package
+In-Reply-To: <18947.1353.7924.725879@ron.nulle.part>
+References: <a695148b0905070828s40a13000se6c01f227b8212df@mail.gmail.com> 
+	<18947.1353.7924.725879@ron.nulle.part>
+Message-ID: <a695148b0905080631s50709078m25f463367cd10d86@mail.gmail.com>
+
+Dirk,
+
+Thanks for the prompt response.
+
+
+2009/5/7 Dirk Eddelbuettel <edd at debian.org>:
+> I do that by setting the group mode of /usr/local/lib/R/site-library to, say,
+> 'staff' and 'group-write mode' (numeric 0775). ?I also share that
+> /usr/local/lib/R tree over NFS at work across a few machines.
+>
+> As an aside, this point is orthogonal to the OP having problems compiling
+> something by hand that exists pre-compiled.
+
+Yes, you are right.
+
+>
+> | 2) the list of supported packages in Synaptic is long enough to be
+> | *too long* to remember, but short enough that it doesn't have many of
+> | the packages I regularly use. ?Rather than try to keep track of CRAN
+> | vs Synaptic, it is easier to just use CRAN and forget about it.
+>
+> Synaptic is just one of many interfaces to the packaging system. At the end
+> of the day, both 20,000 Debian packages and 1,700 CRAN packages are hard to
+> search nomatter what you do.
+>
+> Debian has several front-end, a system called 'tags' and intelligent
+> searching. ?I personally still mostly do 'apt-cache search foo' and some
+> grepping. ?Also, my personal favourite is 'wajig' which calles out to dpkg,
+> apt-get, aptitude, ... as needed and provides a single interface.
+>
+
+I haven't tried any of the above, but they look pretty cool.
+
+
+>
+> Good point! ?Patches welcome. Vincent and Michael read this list too so maybe
+> that is something we can take off-list for some constructive work?
+>
+> | Under ?"ADMINISTRATION AND MAINTENANCE OF R PACKAGES", how about something like:
+> |
+> | "Installing R packages not provided with Ubuntu first requires tools
+> | to compile the packages from source. *For the majority of R packages
+> | these* tools may be installed via the R development package with
+> |
+> | ? ?sudo apt-get install r-base-dev
+> |
+> | Please note, however, that some packages may require tools not
+> | contained in r-base-dev, and the user must find and install these on
+> | an individual basis. ?But in the case that R package 'foo' is
+> | supported (with an Ubuntu package r-cran-foo), then the following will
+> | identify and install such dependencies:
+> |
+> | ? sudo apt-get build-dep r-cran-foo"
+>
+> Not bad, but if 'apt-get install r-cran-foo' works, why do we need to explain
+> how to re-compile it ?
+
+Yes, and it looks like Johannes' version is better than mine.
+
+
+> | and not the other way around. ?For people like me, this would be
+> | great.
+>
+> Generally speaking, there are too many little tips and tricks so there is
+> always scope to do better, learn more, teach more, ...
+
+Definitely true.
+
+Thanks again!
+Jay
+
+
+From gkerns at ysu.edu  Fri May  8 15:44:46 2009
+From: gkerns at ysu.edu (G. Jay Kerns)
+Date: Fri, 8 May 2009 09:44:46 -0400
+Subject: [R-sig-Debian] build dependencies was Re: [R] problem with rgl
+	package
+In-Reply-To: <20090507192812.GA13309@localdomain>
+References: <a695148b0905070828s40a13000se6c01f227b8212df@mail.gmail.com> 
+	<18947.1353.7924.725879@ron.nulle.part>
+	<20090507192812.GA13309@localdomain>
+Message-ID: <a695148b0905080644i15dcae9dse82aa44007eb17de@mail.gmail.com>
+
+Johannes,
+
+> In the Debian README, it currently says:
+>
+> You only need r-base-dev if you want to compile R packages yourself or other
+> software depending on R (see section below on administration and maintenance).
+>
+> So I am thinking to add the following:
+>
+> "Be aware that you may also have to install additional build dependencies
+> (typically -dev packages containing headers). The list r-sig-debian is a
+> good place to ask if you run into problems. If you are using these
+> backports from CRAN, and just want to update a package r-cran-foo that
+> is part of Debian, you can get the build dependencies by
+>
+> ? ?apt-get build-dep r-cran-foo"
+>
+> How does that sound? Improvements welcome.
+>
+> Johannes
+>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+> --
+> Dr. Johannes Ranke ? ? ? ? ? ? ? ? jranke at uni-bremen.de
+>
+
+
+What you wrote sounds better than what I wrote, and appears to capture
+my original sentiment. Thanks for the polishinGood writin'.  :-)
+
+Best,
+Jay
+
+
+-- 
+
+***************************************************
+G. Jay Kerns, Ph.D.
+Associate Professor
+Department of Mathematics & Statistics
+Youngstown State University
+Youngstown, OH 44555-0002 USA
+Office: 1035 Cushwa Hall
+Phone: (330) 941-3310 Office (voice mail)
+-3302 Department
+-3170 FAX
+E-mail: gkerns at ysu.edu
+http://www.cc.ysu.edu/~gjkerns/
+
+
+From pvera at health.usf.edu  Fri May  8 23:39:33 2009
+From: pvera at health.usf.edu (Vera, Pedro L.)
+Date: Fri, 8 May 2009 17:39:33 -0400
+Subject: [R-sig-Debian] Running R in Ubuntu...really basic..sorry
+In-Reply-To: <75f11af0905070750y73c71f3bo275b5682080fab89@mail.gmail.com>
+References: <75f11af0905070750y73c71f3bo275b5682080fab89@mail.gmail.com>
+Message-ID: <33C44E04D25FE54C906EB61FBAA4B9CD7C9A44FABD@MAILSERVER3.hscnet.hsc.usf.edu>
+
+I meant to send a reply to this post to the list, but because I didn't pay attention, it just went to the original poster. I apologize for that. Here's my post:
+
+I've been running R in linux (Antix; a MEPIS derivative; Debian Unstable) for some time now without any problems (even from the terminal window). Recently though, I've switched to vim (a very useful text editor) which can be made (with a use of a plugin) to call up an R window and send commands (actually entire blocks of commands) to R. I've been very impressed with this option and I would recommend it. Unfortunately, there's a learning curve (almost as steep as R's) for vim as well. However, I think the results are well worth the effort.
+
+I hope this helps.
+
+Best regards,
+Pedro
+
+________________________________________
+From: r-sig-debian-bounces at r-project.org [r-sig-debian-bounces at r-project.org] On Behalf Of Judson [judson0423 at gmail.com]
+Sent: Thursday, May 07, 2009 10:50 AM
+To: r-sig-debian at r-project.org
+Subject: [R-sig-Debian] Running R in Ubuntu...really basic..sorry
+
+Hi, I've actually run R quite a bit in Windows.  I've had a release
+8.04 of Ubuntu running a laptop for 3 days now.  After struggling for
+much of that time to install R, I finally figured out that Dell
+shipped with the sources.list obsolete or just plain wrong.  So I
+finally got it installed last night (for some reason v2.6.2, not
+v2.9.x).  This morning I was able to download and install the
+LearnBayes package.  My biggest problem right now is that I don't know
+how to run R except as a local-directory command in the Terminal.
+Certain R commands cause the terminal to go into some changed state
+and not take any more commands.  Right now for example I ahve a last
+line that is darkened in over (END) and it's sitting there. Any
+advice?
+
+Oh, if you suspect something in your sources.list (specific to Dell)
+email ma and I'll explain.  Thanks.  Room533
+
+_______________________________________________
+R-SIG-Debian mailing list
+R-SIG-Debian at r-project.org
+https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From kapatp at gmail.com  Sat May  9 00:17:09 2009
+From: kapatp at gmail.com (Prasenjit Kapat)
+Date: Fri, 8 May 2009 18:17:09 -0400
+Subject: [R-sig-Debian] Running R in Ubuntu...really basic..sorry
+In-Reply-To: <75f11af0905070750y73c71f3bo275b5682080fab89@mail.gmail.com>
+References: <75f11af0905070750y73c71f3bo275b5682080fab89@mail.gmail.com>
+Message-ID: <de8c7cb40905081517r2b412b1egaee8cb3390bfd1a3@mail.gmail.com>
+
+Hi,
+
+On Thu, May 7, 2009 at 10:50 AM, Judson <judson0423 at gmail.com> wrote:
+> Hi, I've actually run R quite a bit in Windows. ?I've had a release
+> 8.04 of Ubuntu running a laptop for 3 days now. ?After struggling for
+> much of that time to install R, I finally figured out that Dell
+> shipped with the sources.list obsolete or just plain wrong. ?So I
+> finally got it installed last night (for some reason v2.6.2, not
+> v2.9.x). ?This morning I was able to download and install the
+> LearnBayes package. ?My biggest problem right now is that I don't know
+> how to run R except as a local-directory command in the Terminal.
+> Certain R commands cause the terminal to go into some changed state
+> and not take any more commands. ?Right now for example I ahve a last
+> line that is darkened in over (END) and it's sitting there. Any
+> advice?
+
+I am not quite sure of the exact question here, but looking at the two
+replies, I think it has something to do with a "gui". If not then this
+short reply from me is moot. If so, then take look here:
+http://www.sciviews.org/_rgui/
+
+I am personally involved in Rkward - it is a KDE based GUI which does
+most of the basic stuff nicely. We are about to make a new release, so
+if you are interested join the rkward-users at lists.sourceforge.net
+mailing list. For a quick "screenshot" see here:
+http://apps.sourceforge.net/mediawiki/rkward/index.php?title=Screenshots
+
+Hope this plug is not too objectionable to the list!
+-- 
+Prasenjit
+
+
+From jranke at uni-bremen.de  Mon May 11 23:39:35 2009
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 11 May 2009 23:39:35 +0200
+Subject: [R-sig-Debian] Running R in Ubuntu...really basic..sorry
+In-Reply-To: <33C44E04D25FE54C906EB61FBAA4B9CD7C9A44FABD@MAILSERVER3.hscnet.hsc.usf.edu>
+References: <75f11af0905070750y73c71f3bo275b5682080fab89@mail.gmail.com>
+	<33C44E04D25FE54C906EB61FBAA4B9CD7C9A44FABD@MAILSERVER3.hscnet.hsc.usf.edu>
+Message-ID: <20090511213935.GC5336@localdomain>
+
+Hi Pedro,
+
+I really like your post, as I am a passionate user of the vim R plugin
+for Linux as well :) Actually, an improved derivative has just been
+posted to vim.org
+(http://www.vim.org/scripts/script.php?script_id=2628), with omni
+completion, some GUI Menu items and some more additional features, in
+case anyone is interested. I haven't tested it, but it may be worth the
+upgrade.
+
+Johannes
+
+* Vera, Pedro L. <pvera at health.usf.edu> [090510 19:30]:
+> I meant to send a reply to this post to the list, but because I didn't pay attention, it just went to the original poster. I apologize for that. Here's my post:
+> 
+> I've been running R in linux (Antix; a MEPIS derivative; Debian Unstable) for some time now without any problems (even from the terminal window). Recently though, I've switched to vim (a very useful text editor) which can be made (with a use of a plugin) to call up an R window and send commands (actually entire blocks of commands) to R. I've been very impressed with this option and I would recommend it. Unfortunately, there's a learning curve (almost as steep as R's) for vim as well. However, I think the results are well worth the effort.
+> 
+> I hope this helps.
+> 
+> Best regards,
+> Pedro
+> 
+> ________________________________________
+> From: r-sig-debian-bounces at r-project.org [r-sig-debian-bounces at r-project.org] On Behalf Of Judson [judson0423 at gmail.com]
+> Sent: Thursday, May 07, 2009 10:50 AM
+> To: r-sig-debian at r-project.org
+> Subject: [R-sig-Debian] Running R in Ubuntu...really basic..sorry
+> 
+> Hi, I've actually run R quite a bit in Windows.  I've had a release
+> 8.04 of Ubuntu running a laptop for 3 days now.  After struggling for
+> much of that time to install R, I finally figured out that Dell
+> shipped with the sources.list obsolete or just plain wrong.  So I
+> finally got it installed last night (for some reason v2.6.2, not
+> v2.9.x).  This morning I was able to download and install the
+> LearnBayes package.  My biggest problem right now is that I don't know
+> how to run R except as a local-directory command in the Terminal.
+> Certain R commands cause the terminal to go into some changed state
+> and not take any more commands.  Right now for example I ahve a last
+> line that is darkened in over (END) and it's sitting there. Any
+> advice?
+> 
+> Oh, if you suspect something in your sources.list (specific to Dell)
+> email ma and I'll explain.  Thanks.  Room533
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+
+From p.leo at uq.edu.au  Tue May 12 06:52:22 2009
+From: p.leo at uq.edu.au (Paul Leo)
+Date: Tue, 12 May 2009 14:52:22 +1000
+Subject: [R-sig-Debian] Running R in Ubuntu...really basic..sorry
+In-Reply-To: <20090511213935.GC5336@localdomain>
+References: <75f11af0905070750y73c71f3bo275b5682080fab89@mail.gmail.com>
+	<33C44E04D25FE54C906EB61FBAA4B9CD7C9A44FABD@MAILSERVER3.hscnet.hsc.usf.edu>
+	<20090511213935.GC5336@localdomain>
+Message-ID: <1242103942.7148.15.camel@BIOINFORM01-ubuntu>
+
+
+I think the most popular way of running R is using emacs with the ESS
+plugin. Following links under   http://cran.r-project.org/ , Ubuntu has
+ess and emacs precompiled due to their popularity, other distributions
+may . Once you have R installed you can install emacs (which you may
+already have) and the ess plugin.
+
+ess has it's own web site.. you can google ...and a active email
+distribution.
+
+Cheers
+Paul 
+
+
+
+-----Original Message-----
+From: Johannes Ranke <jranke at uni-bremen.de>
+To: Vera, Pedro L. <pvera at health.usf.edu>
+Cc: r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Running R in Ubuntu...really basic..sorry
+Date: Mon, 11 May 2009 23:39:35 +0200
+
+Hi Pedro,
+
+I really like your post, as I am a passionate user of the vim R plugin
+for Linux as well :) Actually, an improved derivative has just been
+posted to vim.org
+(http://www.vim.org/scripts/script.php?script_id=2628), with omni
+completion, some GUI Menu items and some more additional features, in
+case anyone is interested. I haven't tested it, but it may be worth the
+upgrade.
+
+Johannes
+
+* Vera, Pedro L. <pvera at health.usf.edu> [090510 19:30]:
+> I meant to send a reply to this post to the list, but because I didn't
+pay attention, it just went to the original poster. I apologize for
+that. Here's my post:
+> 
+> I've been running R in linux (Antix; a MEPIS derivative; Debian
+Unstable) for some time now without any problems (even from the terminal
+window). Recently though, I've switched to vim (a very useful text
+editor) which can be made (with a use of a plugin) to call up an R
+window and send commands (actually entire blocks of commands) to R. I've
+been very impressed with this option and I would recommend it.
+Unfortunately, there's a learning curve (almost as steep as R's) for vim
+as well. However, I think the results are well worth the effort.
+> 
+> I hope this helps.
+> 
+> Best regards,
+> Pedro
+> 
+> ________________________________________
+> From: r-sig-debian-bounces at r-project.org
+[r-sig-debian-bounces at r-project.org] On Behalf Of Judson
+[judson0423 at gmail.com]
+> Sent: Thursday, May 07, 2009 10:50 AM
+> To: r-sig-debian at r-project.org
+> Subject: [R-sig-Debian] Running R in Ubuntu...really basic..sorry
+> 
+> Hi, I've actually run R quite a bit in Windows.  I've had a release
+> 8.04 of Ubuntu running a laptop for 3 days now.  After struggling for
+> much of that time to install R, I finally figured out that Dell
+> shipped with the sources.list obsolete or just plain wrong.  So I
+> finally got it installed last night (for some reason v2.6.2, not
+> v2.9.x).  This morning I was able to download and install the
+> LearnBayes package.  My biggest problem right now is that I don't know
+> how to run R except as a local-directory command in the Terminal.
+> Certain R commands cause the terminal to go into some changed state
+> and not take any more commands.  Right now for example I ahve a last
+> line that is darkened in over (END) and it's sitting there. Any
+> advice?
+> 
+> Oh, if you suspect something in your sources.list (specific to Dell)
+> email ma and I'll explain.  Thanks.  Room533
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From maechler at stat.math.ethz.ch  Tue May 12 11:45:12 2009
+From: maechler at stat.math.ethz.ch (Martin Maechler)
+Date: Tue, 12 May 2009 11:45:12 +0200
+Subject: [R-sig-Debian] ubuntu problem with 'r-cran-robustbase' [FWD Agustin
+	Lobo]
+Message-ID: <18953.17704.527898.355877@lynne.math.ethz.ch>
+
+Agustin, posted on R-help.
+I think the problem is one of the debian/ubuntu package
+'r-cran-robustbase' and its setup or (missing?) dependencies.
+
+I can confirm Agustin's problem, working on Ubuntu 8.04.2
+(8.04 is a "LTS" = long time support version).
+
+  apt-get install r-cran-robustbase
+
+works fine, but when trying to load the package,
+there's a DLL - dependency on libRlapack.so 
+which is not fulfilled (and not fulfillable: There's *no*
+libRlapack.so).
+
+For me,
+
+  $ /usr/bin/R CMD config LAPACK_LIBS
+  -llapack
+
+and lapack.so is found inside /usr/lib/R/modules/ 
+and liblapack.so from the 'lapack3' Debian/Ubuntu package 
+is simply in /usr/lib/libpack.so  
+
+Could it be that this is caused by an Ubuntu / Debian 
+mismatch?
+
+Thank you in advance,
+
+Martin Maechler, ETH Zurich
+
+------- start of forwarded message -------
+From: Agustin Lobo <aloboaleu at gmail.com>
+To: "r-help at r-project.org" <r-help at r-project.org>
+Subject: [R] robustbase: cannot install
+Date: Mon, 11 May 2009 18:20:14 +0200
+
+This is really odd,
+I've installed the binary of robustbase through synaptic on an ubuntu 
+8.04 machine and get:
+ > library(robustbase)
+Error in dyn.load(file, DLLpath = DLLpath, ...) :
+   unable to load shared library 
+'/usr/lib/R/site-library/robustbase/libs/robustbase.so':
+   libRlapack.so: cannot open shared object file: No such file or directory
+Error: package/namespace load failed for 'robustbase'
+ >
+
+The package is where it is suposed to be:
+/usr/lib/R/site-library/robustbase
+
+is this not a problem at compiling?
+
+The problem is that if I try to install the source with 
+install.packages("robustbase"), I get:
+gcc -std=gnu99 -shared -o robustbase.so R-rng4ftn.o init.o lmrob.o mc.o 
+qn_sn.o rf-common.o rffastmcd.o rfltsreg.o wgt_himed.o -L/usr/lib/R/lib 
+-lRlapack -lblas -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm 
+-L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm -L/usr/lib/R/lib -lR
+/usr/bin/ld: cannot find -lRlapack
+collect2: ld returned 1 exit status
+
+Despite the fact that I do have Rlapack:
+~$ R CMD config LAPACK_LIBS
+-L/usr/lib/R/lib -lRlapack
+
+Am I doing something wrong?
+
+Thanks
+
+Agus
+-- 
+Dr. Agustin Lobo
+Institut de Ciencies de la Terra "Jaume Almera" (CSIC)
+LLuis Sole Sabaris s/n
+08028 Barcelona
+Spain
+Tel. 34 934095410
+Fax. 34 934110012
+email: Agustin.Lobo at ija.csic.es
+http://www.ija.csic.es/gt/obster
+
+______________________________________________
+R-help at r-project.org mailing list
+https://stat.ethz.ch/mailman/listinfo/r-help
+PLEASE do read the posting guide http://www.R-project.org/posting-guide.html
+and provide commented, minimal, self-contained, reproducible code.
+------- end of forwarded message -------
+
+
+From alobolistas at gmail.com  Tue May 12 11:58:19 2009
+From: alobolistas at gmail.com (Agustin Lobo)
+Date: Tue, 12 May 2009 11:58:19 +0200
+Subject: [R-sig-Debian] [Fwd: Re: Problem at instaling robustbase (Rlapack)]
+Message-ID: <4A09483B.10006@gmail.com>
+
+Dear list,
+
+I'm forwarding these 2 messages as suggested by the package
+developer.
+
+My system is
+> sessionInfo()
+R version 2.9.0 (2009-04-17)
+i486-pc-linux-gnu
+
+on Ubuntu 8.04, with r-base-core, r-base-dev and r-recommended
+installed from binaries through Synaptic. I normally install the rest
+of packages using install.packages() from within R (started
+from an xterminal by su)
+
+Agus
+
+-----Message 1-----
+> Dear Martin,
+> I'm trying to install packages robustbase and mvoutlier on ubuntu 8.04
+> but get the following problem:
+> gcc -std=gnu99 -shared -o robustbase.so R-rng4ftn.o init.o lmrob.o mc.o qn_sn.o rf-common.o rffastmcd.o rfltsreg.o wgt_himed.o -L/usr/lib/R/lib -lRlapack -lblas -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm -L/usr/lib/R/lib -lR
+> /usr/bin/ld: cannot find -lRlapack
+> collect2: ld returned 1 exit status
+> 
+> Nevertheless, I do have Rlapack:
+> ~$ R CMD config LAPACK_LIBS
+> -L/usr/lib/R/lib -lRlapack
+> 
+
+----Message 2------
+-------- Original Message --------
+Subject: Re: Problem at instaling robustbase (Rlapack)
+Date: Mon, 11 May 2009 19:06:34 +0200
+From: Agustin Lobo <Agustin.Lobo at ija.csic.es>
+Reply-To: Agustin.Lobo at ija.csic.es
+To: Martin Maechler <maechler at stat.math.ethz.ch>
+References: <4A084A73.10201 at gmail.com>
+<18952.22171.706662.231993 at lynne.math.ethz.ch>
+
+Martin,
+
+Thanks for your prompt answer.
+
+1.I've used
+> install.packages("robustbase")
+
+I've verified
+~$ R CMD config LAPACK_LIBS
+-L/usr/lib/R/lib -lRlapack
+
+Then I've seen that I actually do not have Rlapack:
+# ls -l /usr/lib/R/modules
+total 596
+-rw-r--r-- 1 root root  44912 2009-04-17 18:44 internet.so
+-rw-r--r-- 1 root root  30980 2009-04-17 18:44 lapack.so
+-rw-r--r-- 1 root root 136812 2009-04-17 18:44 R_X11.so
+-rw-r--r-- 1 root root 383056 2009-04-17 18:44 vfonts.so
+
+Which seems in contradiction with the R CMD command.
+
+Then I've done:
+cd /usr/lib/R/modules
+sudo ln -sf ./lapack.so ./libRlapack.so
+
+But this does not solve the problem
+
+2. I've seen that there's a binary in Synaptic, I've installed it,
+seems ok, but then I get:
+
+> require(robustbase)
+Loading required package: robustbase
+Error in dyn.load(file, DLLpath = DLLpath, ...) :
+   unable to load shared library
+'/usr/lib/R/site-library/robustbase/libs/robustbase.so':
+   libRlapack.so: cannot open shared object file: No such file or directory
+
+unless I actually start R from within /usr/lib/R/modules, in which case
+it works but cannot install mvoutlier (my ultimate goal) anyway:
+>  install.packages("mvoutlier")
+Warning in install.packages("mvoutlier") :
+   argument 'lib' is missing: using '/usr/local/lib/R/site-library'
+trying URL 'http://cran.es.r-project.org/src/contrib/mvoutlier_1.4.tar.gz'
+Content type 'application/x-gzip' length 678736 bytes (662 Kb)
+opened URL
+==================================================
+downloaded 662 Kb
+
+* Installing *source* package ?mvoutlier? ...
+** R
+** data
+** preparing package for lazy loading
+Error in dyn.load(file, DLLpath = DLLpath, ...) :
+   unable to load shared library
+'/usr/lib/R/site-library/robustbase/libs/robustbase.so':
+   libRlapack.so: cannot open shared object file: No such file or directory
+Error : package 'robustbase' could not be loaded
+ERROR: lazy loading failed for package ?mvoutlier?
+* Removing ?/usr/local/lib/R/site-library/mvoutlier?
+
+The downloaded packages are in
+	?/tmp/RtmpP0QfJ6/downloaded_packages?
+Warning message:
+In install.packages("mvoutlier") :
+   installation of package 'mvoutlier' had non-zero exit status
+
+
+3. # R CMD INSTALL robustbase
+Warning: invalid package ?robustbase?
+
+Agus
+
+From alobolistas at gmail.com  Tue May 12 12:00:27 2009
+From: alobolistas at gmail.com (Agustin Lobo)
+Date: Tue, 12 May 2009 12:00:27 +0200
+Subject: [R-sig-Debian] [Fwd: Re: Problem at instaling robustbase (Rlapack)
+	(2)]
+Message-ID: <4A0948BB.2060502@gmail.com>
+
+Martin,
+
+Although
+I did remove the ln
+libRlapack.so -> ./lapack.so
+
+and
+sudo apt-get install r-cran-robustbase
+
+went fine (as does if the installation is done through Synaptic), once I
+start R I get:
+
+> require(robustbase)
+Loading required package: robustbase
+Error in dyn.load(file, DLLpath = DLLpath, ...) :
+   unable to load shared library
+'/usr/lib/R/site-library/robustbase/libs/robustbase.so':
+   libRlapack.so: cannot open shared object file: No such file or directory
+
+Agus
+
+
+Martin Maechler wrote:
+>>>>>> "AgusL" == Agustin Lobo <Agustin.Lobo at ija.csic.es>
+>>>>>>     on Mon, 11 May 2009 19:08:05 +0200 writes:
+> 
+>     AgusL> Sorry, I forgot this:
+>     >> sessionInfo()
+>     AgusL> R version 2.9.0 (2009-04-17) i486-pc-linux-gnu
+> 
+> 
+>     AgusL> ubuntu 8.04
+> 
+> One thing I forgot:
+> 
+>     apt-get install r-cran-robustbase
+> 
+> get's the robustbase R package as a Debian/Ubuntu package,
+> automagically, with all necessary library-dependencies !!
+> 
+> I hope this solves the problem!
+> Martin
+> 
+
+-- 
+Dr. Agustin Lobo
+Institut de Ciencies de la Terra "Jaume Almera" (CSIC)
+LLuis Sole Sabaris s/n
+08028 Barcelona
+Spain
+Tel. 34 934095410
+Fax. 34 934110012
+email: Agustin.Lobo at ija.csic.es
+http://www.ija.csic.es/gt/obster
+
+
+From edd at debian.org  Tue May 12 13:21:06 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 12 May 2009 06:21:06 -0500
+Subject: [R-sig-Debian] ubuntu problem with 'r-cran-robustbase' [FWD
+	Agustin	Lobo]
+In-Reply-To: <18953.17704.527898.355877@lynne.math.ethz.ch>
+References: <18953.17704.527898.355877@lynne.math.ethz.ch>
+Message-ID: <18953.23458.954016.424944@ron.nulle.part>
+
+
+On 12 May 2009 at 11:45, Martin Maechler wrote:
+| Agustin, posted on R-help.
+| I think the problem is one of the debian/ubuntu package
+| 'r-cran-robustbase' and its setup or (missing?) dependencies.
+| 
+| I can confirm Agustin's problem, working on Ubuntu 8.04.2
+| (8.04 is a "LTS" = long time support version).
+| 
+|   apt-get install r-cran-robustbase
+| 
+| works fine, but when trying to load the package,
+| there's a DLL - dependency on libRlapack.so 
+| which is not fulfilled (and not fulfillable: There's *no*
+| libRlapack.so).
+| 
+| For me,
+| 
+|   $ /usr/bin/R CMD config LAPACK_LIBS
+|   -llapack
+| 
+| and lapack.so is found inside /usr/lib/R/modules/ 
+| and liblapack.so from the 'lapack3' Debian/Ubuntu package 
+| is simply in /usr/lib/libpack.so  
+| 
+| Could it be that this is caused by an Ubuntu / Debian 
+| mismatch?
+
+Scratch Debian here. It works there:
+
+edd at ron:~> echo 'library(robustbase);cat("Hi\n")' | R --silent --no-save
+R> library(robustbase);cat("Hi\n")
+Hi
+R>
+edd at ron:~>
+
+It looks like Ubuntu failed to rebuild the package. The Rlapack.so vs
+lapack.so is an old one from the Atlas 3.6 / gfortran transition well over a
+year ago and had affected other package.
+
+So on Ubuntu, uninstall r-cran-robustbase and re-install robustbase from CRAN
+sources.  And file a bug report with Ubuntu.
+
+Dirk
+
+
+| Thank you in advance,
+| 
+| Martin Maechler, ETH Zurich
+| 
+| ------- start of forwarded message -------
+| From: Agustin Lobo <aloboaleu at gmail.com>
+| To: "r-help at r-project.org" <r-help at r-project.org>
+| Subject: [R] robustbase: cannot install
+| Date: Mon, 11 May 2009 18:20:14 +0200
+| 
+| This is really odd,
+| I've installed the binary of robustbase through synaptic on an ubuntu 
+| 8.04 machine and get:
+|  > library(robustbase)
+| Error in dyn.load(file, DLLpath = DLLpath, ...) :
+|    unable to load shared library 
+| '/usr/lib/R/site-library/robustbase/libs/robustbase.so':
+|    libRlapack.so: cannot open shared object file: No such file or directory
+| Error: package/namespace load failed for 'robustbase'
+|  >
+| 
+| The package is where it is suposed to be:
+| /usr/lib/R/site-library/robustbase
+| 
+| is this not a problem at compiling?
+| 
+| The problem is that if I try to install the source with 
+| install.packages("robustbase"), I get:
+| gcc -std=gnu99 -shared -o robustbase.so R-rng4ftn.o init.o lmrob.o mc.o 
+| qn_sn.o rf-common.o rffastmcd.o rfltsreg.o wgt_himed.o -L/usr/lib/R/lib 
+| -lRlapack -lblas -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm 
+| -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm -L/usr/lib/R/lib -lR
+| /usr/bin/ld: cannot find -lRlapack
+| collect2: ld returned 1 exit status
+| 
+| Despite the fact that I do have Rlapack:
+| ~$ R CMD config LAPACK_LIBS
+| -L/usr/lib/R/lib -lRlapack
+| 
+| Am I doing something wrong?
+| 
+| Thanks
+| 
+| Agus
+| -- 
+| Dr. Agustin Lobo
+| Institut de Ciencies de la Terra "Jaume Almera" (CSIC)
+| LLuis Sole Sabaris s/n
+| 08028 Barcelona
+| Spain
+| Tel. 34 934095410
+| Fax. 34 934110012
+| email: Agustin.Lobo at ija.csic.es
+| http://www.ija.csic.es/gt/obster
+| 
+| ______________________________________________
+| R-help at r-project.org mailing list
+| https://stat.ethz.ch/mailman/listinfo/r-help
+| PLEASE do read the posting guide http://www.R-project.org/posting-guide.html
+| and provide commented, minimal, self-contained, reproducible code.
+| ------- end of forwarded message -------
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From edd at debian.org  Tue May 12 14:09:49 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 12 May 2009 07:09:49 -0500
+Subject: [R-sig-Debian] ubuntu problem with 'r-cran-robustbase' [FWD
+ Agustin Lobo]
+In-Reply-To: <4A095DE9.4060908@gmail.com>
+References: <18953.17704.527898.355877@lynne.math.ethz.ch>
+	<18953.23458.954016.424944@ron.nulle.part>
+	<4A095DE9.4060908@gmail.com>
+Message-ID: <18953.26381.722326.753648@ron.nulle.part>
+
+
+On 12 May 2009 at 13:30, Agustin Lobo wrote:
+| Dirk,
+|  > So on Ubuntu, uninstall r-cran-robustbase and re-install robustbase 
+| from CRAN
+|  > sources.  And file a bug report with Ubuntu.
+| 
+| That's the first thing I did: tried to install using 
+| install.packages("robustbase"), which downloads the source and tries to
+| compile. But the gcc step fails:
+| gcc -std=gnu99 -shared -o robustbase.so R-rng4ftn.o init.o lmrob.o mc.o
+| qn_sn.o rf-common.o rffastmcd.o rfltsreg.o wgt_himed.o -L/usr/lib/R/lib
+| -lRlapack -lblas -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm
+| -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm -L/usr/lib/R/lib -lR
+| /usr/bin/ld: cannot find -lRlapack
+| collect2: ld returned 1 exit status
+
+Where is your R from?  Which Ubuntu release?  Which R release?
+
+On a just-upgraded Ubuntu 9.04 which CRAN-port-for-Ubuntu packages thanks to
+Vincent and Michael, I have
+
+edd at joe:~$ ldd /usr/lib/R/bin/exec/R
+        linux-gate.so.1 =>  (0xb7f07000)
+        libR.so => /usr/lib/R/lib/libR.so (0xb7bd9000)
+        libc.so.6 => /lib/tls/i686/cmov/libc.so.6 (0xb7a76000)
+        libblas.so.3gf => /usr/lib/atlas/libblas.so.3gf (0xb76f9000)
+        libgfortran.so.3 => /usr/lib/libgfortran.so.3 (0xb7645000)
+        libm.so.6 => /lib/tls/i686/cmov/libm.so.6 (0xb761f000)
+        libreadline.so.5 => /lib/libreadline.so.5 (0xb75ed000)
+        libpcre.so.3 => /lib/libpcre.so.3 (0xb75bb000)
+        libbz2.so.1.0 => /lib/libbz2.so.1.0 (0xb75aa000)
+        libz.so.1 => /lib/libz.so.1 (0xb7593000)
+        libdl.so.2 => /lib/tls/i686/cmov/libdl.so.2 (0xb758f000)
+        /lib/ld-linux.so.2 (0xb7f08000)
+        libgcc_s.so.1 => /lib/libgcc_s.so.1 (0xb7580000)
+        libncurses.so.5 => /lib/libncurses.so.5 (0xb754e000)
+edd at joe:~$
+
+As I recall, Rlapack.so disappeared from my system a long time ago.  You may
+need to sort some things out on your system.
+
+And with that, here is the test I should have done earlier but didn't for
+lack of time:
+
+edd at joe:~$ wajig install r-cran-robustbase
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following packages were automatically installed and are no longer required:
+  [...]
+Use 'apt-get autoremove' to remove them.
+The following NEW packages will be installed:
+  r-cran-robustbase
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 639kB of archives.
+After this operation, 2187kB of additional disk space will be used.
+Get:1 http://ron jaunty/universe r-cran-robustbase 0.4-3-1 [639kB]
+Fetched 639kB in 6s (94.9kB/s)
+Selecting previously deselected package r-cran-robustbase.
+(Reading database ... 345584 files and directories currently installed.)
+Unpacking r-cran-robustbase (from .../r-cran-robustbase_0.4-3-1_i386.deb) ...
+Setting up r-cran-robustbase (0.4-3-1) ...
+edd at joe:~$  echo 'library(robustbase);cat("Hi\n")' | R --silent --no-save
+> library(robustbase);cat("Hi\n")
+Hi
+>
+edd at joe:~$
+
+So scratch Ubuntu too.  The error is local to Augustin's system, and as per
+Martin, possibly other older Ubuntu sytems.  Just upgrade.
+ 
+| Also, when you say "fill a bug with Ubuntu", is there an r-sig-ubuntu or
+| the Launchpad for general bug reports in Ubuntu?
+
+Launchpad.  But first get your ducks in a row. You may just have done
+something to your system. Frankly, mails like your earlier 
+
+	  Although
+	  I did remove the ln
+	  libRlapack.so -> ./lapack.so
+
+don't install a lot of confidence in me that your system is still standard
+enough for us to diagnose in a meaningful way. If you break it, you get to
+keep the pieces.  Can you upgrade to 9.04 ?
+
+So to sum up:  No bug on current Debian testing or Ubuntu jaunty.
+
+Dirk
+
+| 
+| Thanks
+| 
+| Agus
+| 
+| 
+| Dirk Eddelbuettel escribi :
+| > On 12 May 2009 at 11:45, Martin Maechler wrote:
+| > | Agustin, posted on R-help.
+| > | I think the problem is one of the debian/ubuntu package
+| > | 'r-cran-robustbase' and its setup or (missing?) dependencies.
+| > | 
+| > | I can confirm Agustin's problem, working on Ubuntu 8.04.2
+| > | (8.04 is a "LTS" = long time support version).
+| > | 
+| > |   apt-get install r-cran-robustbase
+| > | 
+| > | works fine, but when trying to load the package,
+| > | there's a DLL - dependency on libRlapack.so 
+| > | which is not fulfilled (and not fulfillable: There's *no*
+| > | libRlapack.so).
+| > | 
+| > | For me,
+| > | 
+| > |   $ /usr/bin/R CMD config LAPACK_LIBS
+| > |   -llapack
+| > | 
+| > | and lapack.so is found inside /usr/lib/R/modules/ 
+| > | and liblapack.so from the 'lapack3' Debian/Ubuntu package 
+| > | is simply in /usr/lib/libpack.so  
+| > | 
+| > | Could it be that this is caused by an Ubuntu / Debian 
+| > | mismatch?
+| > 
+| > Scratch Debian here. It works there:
+| > 
+| > edd at ron:~> echo 'library(robustbase);cat("Hi\n")' | R --silent --no-save
+| > R> library(robustbase);cat("Hi\n")
+| > Hi
+| > R>
+| > edd at ron:~>
+| > 
+| > It looks like Ubuntu failed to rebuild the package. The Rlapack.so vs
+| > lapack.so is an old one from the Atlas 3.6 / gfortran transition well over a
+| > year ago and had affected other package.
+| > 
+| > So on Ubuntu, uninstall r-cran-robustbase and re-install robustbase from CRAN
+| > sources.  And file a bug report with Ubuntu.
+| > 
+| > Dirk
+| > 
+| > 
+| > | Thank you in advance,
+| > | 
+| > | Martin Maechler, ETH Zurich
+| > | 
+| > | ------- start of forwarded message -------
+| > | From: Agustin Lobo <aloboaleu at gmail.com>
+| > | To: "r-help at r-project.org" <r-help at r-project.org>
+| > | Subject: [R] robustbase: cannot install
+| > | Date: Mon, 11 May 2009 18:20:14 +0200
+| > | 
+| > | This is really odd,
+| > | I've installed the binary of robustbase through synaptic on an ubuntu 
+| > | 8.04 machine and get:
+| > |  > library(robustbase)
+| > | Error in dyn.load(file, DLLpath = DLLpath, ...) :
+| > |    unable to load shared library 
+| > | '/usr/lib/R/site-library/robustbase/libs/robustbase.so':
+| > |    libRlapack.so: cannot open shared object file: No such file or directory
+| > | Error: package/namespace load failed for 'robustbase'
+| > |  >
+| > | 
+| > | The package is where it is suposed to be:
+| > | /usr/lib/R/site-library/robustbase
+| > | 
+| > | is this not a problem at compiling?
+| > | 
+| > | The problem is that if I try to install the source with 
+| > | install.packages("robustbase"), I get:
+| > | gcc -std=gnu99 -shared -o robustbase.so R-rng4ftn.o init.o lmrob.o mc.o 
+| > | qn_sn.o rf-common.o rffastmcd.o rfltsreg.o wgt_himed.o -L/usr/lib/R/lib 
+| > | -lRlapack -lblas -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm 
+| > | -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm -L/usr/lib/R/lib -lR
+| > | /usr/bin/ld: cannot find -lRlapack
+| > | collect2: ld returned 1 exit status
+| > | 
+| > | Despite the fact that I do have Rlapack:
+| > | ~$ R CMD config LAPACK_LIBS
+| > | -L/usr/lib/R/lib -lRlapack
+| > | 
+| > | Am I doing something wrong?
+| > | 
+| > | Thanks
+| > | 
+| > | Agus
+| > | -- 
+| > | Dr. Agustin Lobo
+| > | Institut de Ciencies de la Terra "Jaume Almera" (CSIC)
+| > | LLuis Sole Sabaris s/n
+| > | 08028 Barcelona
+| > | Spain
+| > | Tel. 34 934095410
+| > | Fax. 34 934110012
+| > | email: Agustin.Lobo at ija.csic.es
+| > | http://www.ija.csic.es/gt/obster
+| > | 
+| > | ______________________________________________
+| > | R-help at r-project.org mailing list
+| > | https://stat.ethz.ch/mailman/listinfo/r-help
+| > | PLEASE do read the posting guide http://www.R-project.org/posting-guide.html
+| > | and provide commented, minimal, self-contained, reproducible code.
+| > | ------- end of forwarded message -------
+| > | 
+| > | _______________________________________________
+| > | R-SIG-Debian mailing list
+| > | R-SIG-Debian at r-project.org
+| > | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| > 
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From maechler at stat.math.ethz.ch  Tue May 12 14:41:58 2009
+From: maechler at stat.math.ethz.ch (Martin Maechler)
+Date: Tue, 12 May 2009 14:41:58 +0200
+Subject: [R-sig-Debian] ubuntu problem with 'r-cran-robustbase' [FWD
+	Agustin Lobo]
+In-Reply-To: <18953.23458.954016.424944@ron.nulle.part>
+References: <18953.17704.527898.355877@lynne.math.ethz.ch>
+	<18953.23458.954016.424944@ron.nulle.part>
+Message-ID: <18953.28310.507548.101966@lynne.math.ethz.ch>
+
+>>>>> "DE" == Dirk Eddelbuettel <edd at debian.org>
+>>>>>     on Tue, 12 May 2009 06:21:06 -0500 writes:
+
+    DE> On 12 May 2009 at 11:45, Martin Maechler wrote:
+    DE> | Agustin, posted on R-help.
+    DE> | I think the problem is one of the debian/ubuntu package
+    DE> | 'r-cran-robustbase' and its setup or (missing?) dependencies.
+    DE> | 
+    DE> | I can confirm Agustin's problem, working on Ubuntu 8.04.2
+    DE> | (8.04 is a "LTS" = long time support version).
+    DE> | 
+    DE> |   apt-get install r-cran-robustbase
+    DE> | 
+    DE> | works fine, but when trying to load the package,
+    DE> | there's a DLL - dependency on libRlapack.so 
+    DE> | which is not fulfilled (and not fulfillable: There's *no*
+    DE> | libRlapack.so).
+    DE> | 
+    DE> | For me,
+    DE> | 
+    DE> |   $ /usr/bin/R CMD config LAPACK_LIBS
+    DE> |   -llapack
+    DE> | 
+    DE> | and lapack.so is found inside /usr/lib/R/modules/ 
+    DE> | and liblapack.so from the 'lapack3' Debian/Ubuntu package 
+    DE> | is simply in /usr/lib/libpack.so  
+    DE> | 
+    DE> | Could it be that this is caused by an Ubuntu / Debian 
+    DE> | mismatch?
+
+    DE> Scratch Debian here. It works there:
+
+    DE> edd at ron:~> echo 'library(robustbase);cat("Hi\n")' | R --silent --no-save
+        R> library(robustbase);cat("Hi\n")
+    DE> Hi
+        R> 
+    DE> edd at ron:~>
+
+That's exactly what I meant with  "Ubuntu / Debian mismatch":
+
+Namely that Ubuntu is not matching Debian in its setup/behavior,
+as indeed, knowing the Debian maintainer Dirk E. a bit, I had
+already assumed that it would work fine in Debian.
+
+
+    DE> It looks like Ubuntu failed to rebuild the package. The Rlapack.so vs
+    DE> lapack.so is an old one from the Atlas 3.6 / gfortran transition well over a
+    DE> year ago and had affected other package.
+
+    DE> So on Ubuntu, uninstall r-cran-robustbase and re-install robustbase from CRAN
+    DE> sources.  And file a bug report with Ubuntu.
+
+indeed.  Thank you, Dirk!  
+
+However, I guess that Agustin should also install R itself
+differently, namely using the CRAN-ubuntu repository rather than
+the standard Ubuntu ones, since he told me his version of R gives
+something like
+
+    $ /usr/bin/R CMD config LAPACK_LIBS
+    -L/usr/lib/R/libs -lRlapack
+
+whereas I get the more reasonable
+
+    $ /usr/bin/R CMD config LAPACK_LIBS
+    -llapack
+
+But, as I said, even my (two servers at work) 
+Ubuntu 8.04 -- AMD64 (!) -- systems
+get a non-working  r-cran-robustbase 
+*from* the CRAN-ubuntu-repository.
+
+However, I now understand why: The 'hardy' (8.04)  CRAN ubuntu
+directory does *not* contain  r-cran-robustbase.
+(the master is http://cran.r-project.org/bin/linux/ubuntu/hardy/ )
+
+Maybe that could be changed (by Vincent IIRC)?
+
+Regards,
+Martin
+
+
+From pmilin at ff.uns.ac.rs  Tue May 12 15:00:22 2009
+From: pmilin at ff.uns.ac.rs (Petar Milin)
+Date: Tue, 12 May 2009 15:00:22 +0200
+Subject: [R-sig-Debian] Plugins for R and more...
+In-Reply-To: <mailman.29.1242122409.30389.r-sig-debian@r-project.org>
+References: <mailman.29.1242122409.30389.r-sig-debian@r-project.org>
+Message-ID: <1242133222.4324.9.camel@pmilin>
+
+Hello!
+I saw this discussion regarding vim plugin for R and just wonder if
+there exists something similar for Gedit. I use Debian and I really like
+Gedit. I know a lot of plugins but not for R.
+
+Another thing is a bit stupid cause I know there has been discussion
+about repositories for R. I recently converted a friend from Windows to
+Debian and he is confused should he use:
+ deb http://cran.at.r-project.org/bin/linux/debian/ lenny-cran/
+or simply:
+ deb http://http.us.debian.org/debian/ unstable main contrib non-free
+and then:
+ apt-get -t unstable install r-<package>
+Thing is that I am a bit confused too, although I use apt-pinning
+(second option). Hence, what to advice?
+
+Best,
+PM
+
+
+From alobolistas at gmail.com  Tue May 12 15:31:05 2009
+From: alobolistas at gmail.com (Agustin Lobo)
+Date: Tue, 12 May 2009 15:31:05 +0200
+Subject: [R-sig-Debian] [Fwd: Re: ubuntu problem with 'r-cran-robustbase'
+ [FWD Agustin Lobo]]
+Message-ID: <4A097A19.2010404@gmail.com>
+
+Subject: Re: [R-sig-Debian] ubuntu problem with 'r-cran-robustbase' [FWD
+Agustin Lobo]
+Date: Tue, 12 May 2009 13:30:49 +0200
+From: Agustin Lobo <aloboaleu at gmail.com>
+Reply-To: aloboaleu at gmail.com
+To: Dirk Eddelbuettel <edd at debian.org>
+CC: Martin Maechler <maechler at stat.math.ethz.ch>,
+R-SIG-Debian at stat.math.ethz.ch
+References: <18953.17704.527898.355877 at lynne.math.ethz.ch>
+<18953.23458.954016.424944 at ron.nulle.part>
+
+Dirk,
+> So on Ubuntu, uninstall r-cran-robustbase and re-install robustbase 
+from CRAN
+> sources.  And file a bug report with Ubuntu.
+
+That's the first thing I did: tried to install using
+install.packages("robustbase"), which downloads the source and tries to
+compile. But the gcc step fails:
+gcc -std=gnu99 -shared -o robustbase.so R-rng4ftn.o init.o lmrob.o mc.o
+qn_sn.o rf-common.o rffastmcd.o rfltsreg.o wgt_himed.o -L/usr/lib/R/lib
+-lRlapack -lblas -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm
+-L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm -L/usr/lib/R/lib -lR
+/usr/bin/ld: cannot find -lRlapack
+collect2: ld returned 1 exit status
+
+Also, when you say "fill a bug with Ubuntu", is there an r-sig-ubuntu or
+the Launchpad for general bug reports in Ubuntu?
+
+Thanks
+
+Agus
+
+
+Dirk Eddelbuettel escribi?:
+> On 12 May 2009 at 11:45, Martin Maechler wrote:
+> | Agustin, posted on R-help.
+> | I think the problem is one of the debian/ubuntu package
+> | 'r-cran-robustbase' and its setup or (missing?) dependencies.
+> | 
+> | I can confirm Agustin's problem, working on Ubuntu 8.04.2
+> | (8.04 is a "LTS" = long time support version).
+> | 
+> |   apt-get install r-cran-robustbase
+> | 
+> | works fine, but when trying to load the package,
+> | there's a DLL - dependency on libRlapack.so 
+> | which is not fulfilled (and not fulfillable: There's *no*
+> | libRlapack.so).
+> | 
+> | For me,
+> | 
+> |   $ /usr/bin/R CMD config LAPACK_LIBS
+> |   -llapack
+> | 
+> | and lapack.so is found inside /usr/lib/R/modules/ 
+> | and liblapack.so from the 'lapack3' Debian/Ubuntu package 
+> | is simply in /usr/lib/libpack.so  
+> | 
+> | Could it be that this is caused by an Ubuntu / Debian 
+> | mismatch?
+> 
+> Scratch Debian here. It works there:
+> 
+> edd at ron:~> echo 'library(robustbase);cat("Hi\n")' | R --silent --no-save
+> R> library(robustbase);cat("Hi\n")
+> Hi
+> R>
+> edd at ron:~>
+> 
+> It looks like Ubuntu failed to rebuild the package. The Rlapack.so vs
+> lapack.so is an old one from the Atlas 3.6 / gfortran transition well over a
+> year ago and had affected other package.
+> 
+> So on Ubuntu, uninstall r-cran-robustbase and re-install robustbase from CRAN
+> sources.  And file a bug report with Ubuntu.
+> 
+> Dirk
+> 
+> 
+> | Thank you in advance,
+> | 
+> | Martin Maechler, ETH Zurich
+> | 
+> | ------- start of forwarded message -------
+> | From: Agustin Lobo <aloboaleu at gmail.com>
+> | To: "r-help at r-project.org" <r-help at r-project.org>
+> | Subject: [R] robustbase: cannot install
+> | Date: Mon, 11 May 2009 18:20:14 +0200
+> | 
+> | This is really odd,
+> | I've installed the binary of robustbase through synaptic on an ubuntu 
+> | 8.04 machine and get:
+> |  > library(robustbase)
+> | Error in dyn.load(file, DLLpath = DLLpath, ...) :
+> |    unable to load shared library 
+> | '/usr/lib/R/site-library/robustbase/libs/robustbase.so':
+> |    libRlapack.so: cannot open shared object file: No such file or directory
+> | Error: package/namespace load failed for 'robustbase'
+> |  >
+> | 
+> | The package is where it is suposed to be:
+> | /usr/lib/R/site-library/robustbase
+> | 
+> | is this not a problem at compiling?
+> | 
+> | The problem is that if I try to install the source with 
+> | install.packages("robustbase"), I get:
+> | gcc -std=gnu99 -shared -o robustbase.so R-rng4ftn.o init.o lmrob.o mc.o 
+> | qn_sn.o rf-common.o rffastmcd.o rfltsreg.o wgt_himed.o -L/usr/lib/R/lib 
+> | -lRlapack -lblas -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm 
+> | -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm -L/usr/lib/R/lib -lR
+> | /usr/bin/ld: cannot find -lRlapack
+> | collect2: ld returned 1 exit status
+> | 
+> | Despite the fact that I do have Rlapack:
+> | ~$ R CMD config LAPACK_LIBS
+> | -L/usr/lib/R/lib -lRlapack
+> | 
+> | Am I doing something wrong?
+> | 
+> | Thanks
+> | 
+> | Agus
+> | -- 
+> | Dr. Agustin Lobo
+> | Institut de Ciencies de la Terra "Jaume Almera" (CSIC)
+> | LLuis Sole Sabaris s/n
+> | 08028 Barcelona
+> | Spain
+> | Tel. 34 934095410
+> | Fax. 34 934110012
+> | email: Agustin.Lobo at ija.csic.es
+> | http://www.ija.csic.es/gt/obster
+> | 
+> | ______________________________________________
+> | R-help at r-project.org mailing list
+> | https://stat.ethz.ch/mailman/listinfo/r-help
+> | PLEASE do read the posting guide http://www.R-project.org/posting-guide.html
+> | and provide commented, minimal, self-contained, reproducible code.
+> | ------- end of forwarded message -------
+> | 
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+
+
+From alobolistas at gmail.com  Tue May 12 16:18:51 2009
+From: alobolistas at gmail.com (Agustin Lobo)
+Date: Tue, 12 May 2009 16:18:51 +0200
+Subject: [R-sig-Debian] ubuntu problem with 'r-cran-robustbase' [FWD
+ Agustin Lobo]
+In-Reply-To: <18953.26381.722326.753648@ron.nulle.part>
+References: <18953.17704.527898.355877@lynne.math.ethz.ch>	<18953.23458.954016.424944@ron.nulle.part>	<4A095DE9.4060908@gmail.com>
+	<18953.26381.722326.753648@ron.nulle.part>
+Message-ID: <4A09854B.8040109@gmail.com>
+
+Dirk Eddelbuettel wrote:
+> On 12 May 2009 at 13:30, Agustin Lobo wrote:
+> | Dirk,
+> |  > So on Ubuntu, uninstall r-cran-robustbase and re-install robustbase 
+> | from CRAN
+> |  > sources.  And file a bug report with Ubuntu.
+> | 
+> | That's the first thing I did: tried to install using 
+> | install.packages("robustbase"), which downloads the source and tries to
+> | compile. But the gcc step fails:
+> | gcc -std=gnu99 -shared -o robustbase.so R-rng4ftn.o init.o lmrob.o mc.o
+> | qn_sn.o rf-common.o rffastmcd.o rfltsreg.o wgt_himed.o -L/usr/lib/R/lib
+> | -lRlapack -lblas -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm
+> | -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm -L/usr/lib/R/lib -lR
+> | /usr/bin/ld: cannot find -lRlapack
+> | collect2: ld returned 1 exit status
+> 
+> Where is your R from?  
+Synaptic
+repository http://cran.r-project.org/bin/linux/ubuntu hardy
+
+> Which Ubuntu release?  
+Ubuntu 8.04
+
+> Which R release?
+R version 2.9.0 (2009-04-17)
+i486-pc-linux-gnu
+
+> 
+> On a just-upgraded Ubuntu 9.04 which CRAN-port-for-Ubuntu packages thanks to
+> Vincent and Michael, I have
+> 
+> edd at joe:~$ ldd /usr/lib/R/bin/exec/R
+>         linux-gate.so.1 =>  (0xb7f07000)
+>         libR.so => /usr/lib/R/lib/libR.so (0xb7bd9000)
+>         libc.so.6 => /lib/tls/i686/cmov/libc.so.6 (0xb7a76000)
+>         libblas.so.3gf => /usr/lib/atlas/libblas.so.3gf (0xb76f9000)
+>         libgfortran.so.3 => /usr/lib/libgfortran.so.3 (0xb7645000)
+>         libm.so.6 => /lib/tls/i686/cmov/libm.so.6 (0xb761f000)
+>         libreadline.so.5 => /lib/libreadline.so.5 (0xb75ed000)
+>         libpcre.so.3 => /lib/libpcre.so.3 (0xb75bb000)
+>         libbz2.so.1.0 => /lib/libbz2.so.1.0 (0xb75aa000)
+>         libz.so.1 => /lib/libz.so.1 (0xb7593000)
+>         libdl.so.2 => /lib/tls/i686/cmov/libdl.so.2 (0xb758f000)
+>         /lib/ld-linux.so.2 (0xb7f08000)
+>         libgcc_s.so.1 => /lib/libgcc_s.so.1 (0xb7580000)
+>         libncurses.so.5 => /lib/libncurses.so.5 (0xb754e000)
+> edd at joe:~$
+> 
+And I have:
+alobo at alobo-laptop:~$ ldd /usr/lib/R/bin/exec/R
+	linux-gate.so.1 =>  (0xb7f44000)
+	libR.so => /usr/lib/R/lib/libR.so (0xb7c21000)
+	libc.so.6 => /lib/tls/i686/cmov/libc.so.6 (0xb7ad2000)
+	libblas.so.3gf => /usr/lib/libblas.so.3gf (0xb7a53000)
+	libgfortran.so.2 => /usr/lib/libgfortran.so.2 (0xb79bc000)
+	libm.so.6 => /lib/tls/i686/cmov/libm.so.6 (0xb7997000)
+	libreadline.so.5 => /lib/libreadline.so.5 (0xb7966000)
+	libpcre.so.3 => /usr/lib/libpcre.so.3 (0xb793f000)
+	libz.so.1 => /usr/lib/libz.so.1 (0xb792a000)
+	libdl.so.2 => /lib/tls/i686/cmov/libdl.so.2 (0xb7926000)
+	/lib/ld-linux.so.2 (0xb7f45000)
+	libncurses.so.5 => /lib/libncurses.so.5 (0xb78f5000)
+
+> As I recall, Rlapack.so disappeared from my system a long time ago.  You may
+> need to sort some things out on your system.
+> 
+> And with that, here is the test I should have done earlier but didn't for
+> lack of time:
+> 
+> edd at joe:~$ wajig install r-cran-robustbase
+> Reading package lists... Done
+> Building dependency tree
+> Reading state information... Done
+> The following packages were automatically installed and are no longer required:
+>   [...]
+> Use 'apt-get autoremove' to remove them.
+> The following NEW packages will be installed:
+>   r-cran-robustbase
+> 0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+> Need to get 639kB of archives.
+> After this operation, 2187kB of additional disk space will be used.
+> Get:1 http://ron jaunty/universe r-cran-robustbase 0.4-3-1 [639kB]
+> Fetched 639kB in 6s (94.9kB/s)
+> Selecting previously deselected package r-cran-robustbase.
+> (Reading database ... 345584 files and directories currently installed.)
+> Unpacking r-cran-robustbase (from .../r-cran-robustbase_0.4-3-1_i386.deb) ...
+> Setting up r-cran-robustbase (0.4-3-1) ...
+
+If I do the same, I just get:
+
+$ sudo wajig install r-cran-robustbase
+[sudo] password for alobo:
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+r-cran-robustbase is already the newest version.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+> edd at joe:~$  echo 'library(robustbase);cat("Hi\n")' | R --silent --no-save
+>> library(robustbase);cat("Hi\n")
+> Hi
+> edd at joe:~$
+>
+In my case:
+$ echo 'library(robustbase);cat("Hi\n")' | R --silent --no-save
+> library(robustbase);cat("Hi\n")
+Error in dyn.load(file, DLLpath = DLLpath, ...) :
+  unable to load shared library
+'/usr/lib/R/site-library/robustbase/libs/robustbase.so':
+  libRlapack.so: cannot open shared object file: No such file or directory
+Error: package/namespace load failed for 'robustbase'
+Execution halted
+
+> So scratch Ubuntu too.  The error is local to Augustin's system, and as per
+> Martin, possibly other older Ubuntu sytems.  Just upgrade.
+
+Ubuntu 8.04 is an LTS
+
+> | Also, when you say "fill a bug with Ubuntu", is there an r-sig-ubuntu or
+> | the Launchpad for general bug reports in Ubuntu?
+> 
+> Launchpad.  But first get your ducks in a row. You may just have done
+> something to your system. Frankly, mails like your earlier 
+> 
+> 	  Although
+> 	  I did remove the ln
+> 	  libRlapack.so -> ./lapack.so
+> 
+> don't install a lot of confidence in me that your system is still standard
+> enough for us to diagnose in a meaningful way. If you break it, you get to
+> keep the pieces.  
+
+I did not break anything. I made the link because a (bad) advice here:
+https://stat.ethz.ch/pipermail/r-sig-debian/2009-March/000650.html
+
+and then just removed it because I was told this was not a good idea.
+
+Can you upgrade to 9.04 ?
+
+I could, but rather put my time on other things, this is why I stick to
+LTS distributions. So if there is no alternative, I'll have to do it.
+
+> So to sum up:  No bug on current Debian testing or Ubuntu jaunty.
+
+No. The complete summary must include: + bug on Ubuntu 8.04
+
+Thanks
+Agus
+
+> Dirk
+> 
+> | 
+> | Thanks
+> | 
+> | Agus
+> | 
+> | 
+> | Dirk Eddelbuettel escribi :
+> | > On 12 May 2009 at 11:45, Martin Maechler wrote:
+> | > | Agustin, posted on R-help.
+> | > | I think the problem is one of the debian/ubuntu package
+> | > | 'r-cran-robustbase' and its setup or (missing?) dependencies.
+> | > | 
+> | > | I can confirm Agustin's problem, working on Ubuntu 8.04.2
+> | > | (8.04 is a "LTS" = long time support version).
+> | > | 
+> | > |   apt-get install r-cran-robustbase
+> | > | 
+> | > | works fine, but when trying to load the package,
+> | > | there's a DLL - dependency on libRlapack.so 
+> | > | which is not fulfilled (and not fulfillable: There's *no*
+> | > | libRlapack.so).
+> | > | 
+> | > | For me,
+> | > | 
+> | > |   $ /usr/bin/R CMD config LAPACK_LIBS
+> | > |   -llapack
+> | > | 
+> | > | and lapack.so is found inside /usr/lib/R/modules/ 
+> | > | and liblapack.so from the 'lapack3' Debian/Ubuntu package 
+> | > | is simply in /usr/lib/libpack.so  
+> | > | 
+> | > | Could it be that this is caused by an Ubuntu / Debian 
+> | > | mismatch?
+> | > 
+> | > Scratch Debian here. It works there:
+> | > 
+> | > edd at ron:~> echo 'library(robustbase);cat("Hi\n")' | R --silent --no-save
+> | > R> library(robustbase);cat("Hi\n")
+> | > Hi
+> | > R>
+> | > edd at ron:~>
+> | > 
+> | > It looks like Ubuntu failed to rebuild the package. The Rlapack.so vs
+> | > lapack.so is an old one from the Atlas 3.6 / gfortran transition well over a
+> | > year ago and had affected other package.
+> | > 
+> | > So on Ubuntu, uninstall r-cran-robustbase and re-install robustbase from CRAN
+> | > sources.  And file a bug report with Ubuntu.
+> | > 
+> | > Dirk
+> | > 
+> | > 
+> | > | Thank you in advance,
+> | > | 
+> | > | Martin Maechler, ETH Zurich
+> | > | 
+> | > | ------- start of forwarded message -------
+> | > | From: Agustin Lobo <aloboaleu at gmail.com>
+> | > | To: "r-help at r-project.org" <r-help at r-project.org>
+> | > | Subject: [R] robustbase: cannot install
+> | > | Date: Mon, 11 May 2009 18:20:14 +0200
+> | > | 
+> | > | This is really odd,
+> | > | I've installed the binary of robustbase through synaptic on an ubuntu 
+> | > | 8.04 machine and get:
+> | > |  > library(robustbase)
+> | > | Error in dyn.load(file, DLLpath = DLLpath, ...) :
+> | > |    unable to load shared library 
+> | > | '/usr/lib/R/site-library/robustbase/libs/robustbase.so':
+> | > |    libRlapack.so: cannot open shared object file: No such file or directory
+> | > | Error: package/namespace load failed for 'robustbase'
+> | > |  >
+> | > | 
+> | > | The package is where it is suposed to be:
+> | > | /usr/lib/R/site-library/robustbase
+> | > | 
+> | > | is this not a problem at compiling?
+> | > | 
+> | > | The problem is that if I try to install the source with 
+> | > | install.packages("robustbase"), I get:
+> | > | gcc -std=gnu99 -shared -o robustbase.so R-rng4ftn.o init.o lmrob.o mc.o 
+> | > | qn_sn.o rf-common.o rffastmcd.o rfltsreg.o wgt_himed.o -L/usr/lib/R/lib 
+> | > | -lRlapack -lblas -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm 
+> | > | -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm -L/usr/lib/R/lib -lR
+> | > | /usr/bin/ld: cannot find -lRlapack
+> | > | collect2: ld returned 1 exit status
+> | > | 
+> | > | Despite the fact that I do have Rlapack:
+> | > | ~$ R CMD config LAPACK_LIBS
+> | > | -L/usr/lib/R/lib -lRlapack
+> | > | 
+> | > | Am I doing something wrong?
+> | > | 
+> | > | Thanks
+> | > | 
+> | > | Agus
+> | > | -- 
+> | > | Dr. Agustin Lobo
+> | > | Institut de Ciencies de la Terra "Jaume Almera" (CSIC)
+> | > | LLuis Sole Sabaris s/n
+> | > | 08028 Barcelona
+> | > | Spain
+> | > | Tel. 34 934095410
+> | > | Fax. 34 934110012
+> | > | email: Agustin.Lobo at ija.csic.es
+> | > | http://www.ija.csic.es/gt/obster
+> | > | 
+> | > | ______________________________________________
+> | > | R-help at r-project.org mailing list
+> | > | https://stat.ethz.ch/mailman/listinfo/r-help
+> | > | PLEASE do read the posting guide http://www.R-project.org/posting-guide.html
+> | > | and provide commented, minimal, self-contained, reproducible code.
+> | > | ------- end of forwarded message -------
+> | > | 
+> | > | _______________________________________________
+> | > | R-SIG-Debian mailing list
+> | > | R-SIG-Debian at r-project.org
+> | > | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> | > 
+> 
+
+
+From mar36 at psu.edu  Tue May 12 16:27:04 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Tue, 12 May 2009 10:27:04 -0400
+Subject: [R-sig-Debian] [Fwd: Re: ubuntu problem with
+ 'r-cran-robustbase' [FWD Agustin Lobo]]
+In-Reply-To: <4A097A19.2010404@gmail.com>
+References: <4A097A19.2010404@gmail.com>
+Message-ID: <4A098738.80301@psu.edu>
+
+Agus,
+
+robustbase just installed fine on my stock 8.04 system.  Please make 
+sure that you have added all the repositories and packages suggested on 
+this page:
+
+http://cran.r-project.org/bin/linux/ubuntu/
+
+Backports are important, and make sure you have r-base-dev
+installed.  You may also need to be root (via sudo) to install, although 
+there are instructions for local installation.  You can run the 
+following commands to see what R related packages you have installed.
+
+dpkg --get-selections | grep r-base
+dpkg --get-selections | grep r-cran
+
+Michael
+
+Agustin Lobo wrote:
+> Subject: Re: [R-sig-Debian] ubuntu problem with 'r-cran-robustbase' [FWD
+> Agustin Lobo]
+> Date: Tue, 12 May 2009 13:30:49 +0200
+> From: Agustin Lobo <aloboaleu at gmail.com>
+> Reply-To: aloboaleu at gmail.com
+> To: Dirk Eddelbuettel <edd at debian.org>
+> CC: Martin Maechler <maechler at stat.math.ethz.ch>,
+> R-SIG-Debian at stat.math.ethz.ch
+> References: <18953.17704.527898.355877 at lynne.math.ethz.ch>
+> <18953.23458.954016.424944 at ron.nulle.part>
+> 
+> Dirk,
+>> So on Ubuntu, uninstall r-cran-robustbase and re-install robustbase 
+> from CRAN
+>> sources.  And file a bug report with Ubuntu.
+> 
+> That's the first thing I did: tried to install using
+> install.packages("robustbase"), which downloads the source and tries to
+> compile. But the gcc step fails:
+> gcc -std=gnu99 -shared -o robustbase.so R-rng4ftn.o init.o lmrob.o mc.o
+> qn_sn.o rf-common.o rffastmcd.o rfltsreg.o wgt_himed.o -L/usr/lib/R/lib
+> -lRlapack -lblas -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm
+> -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm -L/usr/lib/R/lib -lR
+> /usr/bin/ld: cannot find -lRlapack
+> collect2: ld returned 1 exit status
+> 
+> Also, when you say "fill a bug with Ubuntu", is there an r-sig-ubuntu or
+> the Launchpad for general bug reports in Ubuntu?
+> 
+> Thanks
+> 
+> Agus
+> 
+> 
+> Dirk Eddelbuettel escribi?:
+>> On 12 May 2009 at 11:45, Martin Maechler wrote:
+>> | Agustin, posted on R-help.
+>> | I think the problem is one of the debian/ubuntu package
+>> | 'r-cran-robustbase' and its setup or (missing?) dependencies.
+>> | | I can confirm Agustin's problem, working on Ubuntu 8.04.2
+>> | (8.04 is a "LTS" = long time support version).
+>> | |   apt-get install r-cran-robustbase
+>> | | works fine, but when trying to load the package,
+>> | there's a DLL - dependency on libRlapack.so | which is not fulfilled 
+>> (and not fulfillable: There's *no*
+>> | libRlapack.so).
+>> | | For me,
+>> | |   $ /usr/bin/R CMD config LAPACK_LIBS
+>> |   -llapack
+>> | | and lapack.so is found inside /usr/lib/R/modules/ | and 
+>> liblapack.so from the 'lapack3' Debian/Ubuntu package | is simply in 
+>> /usr/lib/libpack.so  | | Could it be that this is caused by an Ubuntu 
+>> / Debian | mismatch?
+>>
+>> Scratch Debian here. It works there:
+>>
+>> edd at ron:~> echo 'library(robustbase);cat("Hi\n")' | R --silent --no-save
+>> R> library(robustbase);cat("Hi\n")
+>> Hi
+>> R>
+>> edd at ron:~>
+>>
+>> It looks like Ubuntu failed to rebuild the package. The Rlapack.so vs
+>> lapack.so is an old one from the Atlas 3.6 / gfortran transition well 
+>> over a
+>> year ago and had affected other package.
+>>
+>> So on Ubuntu, uninstall r-cran-robustbase and re-install robustbase 
+>> from CRAN
+>> sources.  And file a bug report with Ubuntu.
+>>
+>> Dirk
+>>
+>>
+>> | Thank you in advance,
+>> | | Martin Maechler, ETH Zurich
+>> | | ------- start of forwarded message -------
+>> | From: Agustin Lobo <aloboaleu at gmail.com>
+>> | To: "r-help at r-project.org" <r-help at r-project.org>
+>> | Subject: [R] robustbase: cannot install
+>> | Date: Mon, 11 May 2009 18:20:14 +0200
+>> | | This is really odd,
+>> | I've installed the binary of robustbase through synaptic on an 
+>> ubuntu | 8.04 machine and get:
+>> |  > library(robustbase)
+>> | Error in dyn.load(file, DLLpath = DLLpath, ...) :
+>> |    unable to load shared library | 
+>> '/usr/lib/R/site-library/robustbase/libs/robustbase.so':
+>> |    libRlapack.so: cannot open shared object file: No such file or 
+>> directory
+>> | Error: package/namespace load failed for 'robustbase'
+>> |  >
+>> | | The package is where it is suposed to be:
+>> | /usr/lib/R/site-library/robustbase
+>> | | is this not a problem at compiling?
+>> | | The problem is that if I try to install the source with | 
+>> install.packages("robustbase"), I get:
+>> | gcc -std=gnu99 -shared -o robustbase.so R-rng4ftn.o init.o lmrob.o 
+>> mc.o | qn_sn.o rf-common.o rffastmcd.o rfltsreg.o wgt_himed.o 
+>> -L/usr/lib/R/lib | -lRlapack -lblas -L/usr/lib/gcc/i486-linux-gnu/4.2 
+>> -lgfortran -lm | -L/usr/lib/gcc/i486-linux-gnu/4.2 -lgfortran -lm 
+>> -L/usr/lib/R/lib -lR
+>> | /usr/bin/ld: cannot find -lRlapack
+>> | collect2: ld returned 1 exit status
+>> | | Despite the fact that I do have Rlapack:
+>> | ~$ R CMD config LAPACK_LIBS
+>> | -L/usr/lib/R/lib -lRlapack
+>> | | Am I doing something wrong?
+>> | | Thanks
+>> | | Agus
+>> | -- | Dr. Agustin Lobo
+>> | Institut de Ciencies de la Terra "Jaume Almera" (CSIC)
+>> | LLuis Sole Sabaris s/n
+>> | 08028 Barcelona
+>> | Spain
+>> | Tel. 34 934095410
+>> | Fax. 34 934110012
+>> | email: Agustin.Lobo at ija.csic.es
+>> | http://www.ija.csic.es/gt/obster
+>> | | ______________________________________________
+>> | R-help at r-project.org mailing list
+>> | https://stat.ethz.ch/mailman/listinfo/r-help
+>> | PLEASE do read the posting guide 
+>> http://www.R-project.org/posting-guide.html
+>> | and provide commented, minimal, self-contained, reproducible code.
+>> | ------- end of forwarded message -------
+>> | | _______________________________________________
+>> | R-SIG-Debian mailing list
+>> | R-SIG-Debian at r-project.org
+>> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From alobolistas at gmail.com  Tue May 12 19:05:00 2009
+From: alobolistas at gmail.com (Agustin Lobo)
+Date: Tue, 12 May 2009 19:05:00 +0200
+Subject: [R-sig-Debian] [Fwd: Re: ubuntu problem with
+ 'r-cran-robustbase' [FWD Agustin Lobo]]
+In-Reply-To: <4A099BD2.3010907@psu.edu>
+References: <4A097A19.2010404@gmail.com> <4A098738.80301@psu.edu>
+	<4A099307.4010907@gmail.com> <4A0995DF.1050608@psu.edu>
+	<4A099924.6040406@ija.csic.es> <4A099BD2.3010907@psu.edu>
+Message-ID: <4A09AC3C.2060203@gmail.com>
+
+Good (but astonishing) news:
+1. (As noted in previous message)
+After having removed r-base-core and
+installed back r-base and r-base-dev
+the binary installation of robustbase
+apt-get install r-cran-robustbase
+
+still gives in R the same error as before:
+> require(robustbase)
+Loading required package: robustbase
+Error in dyn.load(file, DLLpath = DLLpath, ...) :
+   unable to load shared library
+'/usr/lib/R/site-library/robustbase/libs/robustbase.so':
+   libRlapack.so: cannot open shared object file: No such file or directory
+
+2. After removing the binary
+apt-get remove r-cran-robustbase
+
+The source installation using install.packages("robustbase") from within
+R works fine. The gcc step now works using lapack:
+
+gcc -std=gnu99 -shared -o robustbase.so R-rng4ftn.o init.o lmrob.o mc.o
+qn_sn.o rf-common.o rffastmcd.o rfltsreg.o wgt_himed.o -llapack -lblas
+-lgfortran -lm -lgfortran -lm -L/usr/lib/R/lib -lR
+
+Thank you all.
+
+Agus
+
+
+Michael Rutter wrote:
+> Once you have reinstalled the packages, you should re-install robustbase.
+> 
+> sudo R
+> install.packages("robustbase")
+> 
+> If at that point it fails, I'm not sure what can be done.  It would seem 
+> you system has a flaw and a re-install would be best.  Jaunty (9.04) 
+> installs very quickly and works great.  I would give that a try.
+> 
+> Michael
+> 
+> Agustin Lobo wrote:
+>> No. What I have is what is listed in
+>> http://cran.r-project.org/bin/linux/ubuntu/
+>>
+>> deb http://<my.favorite.cran.mirror>/bin/linux/ubuntu hardy/
+>>
+>> which in my case is
+>>
+>> deb http://cran.r-project.org/bin/linux/ubuntu hardy/
+>>
+>> Should I include the one you suggest? Should I replace the one
+>> I have with this one?
+>>
+>> Agus
+>>
+>> Michael Rutter wrote:
+>>> Agus,
+>>>
+>>> Do you have this in your sources list:
+>>>
+>>> deb http://lib.stat.cmu.edu/R/CRAN/bin/linux/ubuntu hardy/
+>>>
+>>> The address could/should be a different mirror, but there needs to be 
+>>> a cran mirror in you list somewhere.
+>>>
+>>> Michael
+>>>
+>>> Agustin Lobo wrote:
+>>>> Michael:
+>>>>
+>>>> I do have the backports activated. This is the entry in my 
+>>>> sources.list:
+>>>> deb http://archive.ubuntu.com/ubuntu/ hardy-backports restricted 
+>>>> main multiverse universe
+>>>> deb-src http://archive.ubuntu.com/ubuntu/ hardy-backports restricted 
+>>>> main multiverse universe
+>>>>
+>>>> And this is the output to what you suggested.
+>>>>
+>>>> root at alobo-laptop:/home/alobo# dpkg --get-selections | grep r-base
+>>>> r-base-core                    install
+>>>> r-base-dev                    install
+>>>> r-base-html                    install
+>>>> root at alobo-laptop:/home/alobo# dpkg --get-selections | grep r-cran
+>>>> r-cran-abind                    deinstall
+>>>> r-cran-boot                    install
+>>>> r-cran-cluster                    install
+>>>> r-cran-codetools                install
+>>>> r-cran-effects                    deinstall
+>>>> r-cran-foreign                    install
+>>>> r-cran-kernsmooth                install
+>>>> r-cran-lattice                    install
+>>>> r-cran-matrix                    install
+>>>> r-cran-mgcv                    install
+>>>> r-cran-nlme                    install
+>>>> r-cran-relimp                    deinstall
+>>>> r-cran-robustbase                install
+>>>> r-cran-rpart                    install
+>>>> r-cran-survival                    install
+>>>> r-cran-vr                    install
+>>>>
+>>>> My system is uptodate, I regularly install what I'm told by Update 
+>>>> Manager.
+>>>>
+>>>> I'm going to uninstall and install back r-base from Synaptic.
+>>>> If I keep having the same problem afterwards, do you expect
+>>>> that installing everything from sources could solve the problem? 
+>>>> Will it be hard ?
+>>>> How much time should I pre-allocate?
+>>>>
+>>>> Thanks
+>>>>
+>>>> Agus
+>>>>
+>>>>
+>>>>
+>>>>
+>>>> Michael Rutter wrote:
+>>>>> Agus,
+>>>>>
+>>>>> robustbase just installed fine on my stock 8.04 system.  Please 
+>>>>> make sure that you have added all the repositories and packages 
+>>>>> suggested on this page:
+>>>>>
+>>>>> http://cran.r-project.org/bin/linux/ubuntu/
+>>>>>
+>>>>> Backports are important, and make sure you have r-base-dev
+>>>>> installed.  You may also need to be root (via sudo) to install, 
+>>>>> although there are instructions for local installation.  You can 
+>>>>> run the following commands to see what R related packages you have 
+>>>>> installed.
+>>>>>
+>>>>> dpkg --get-selections | grep r-base
+>>>>> dpkg --get-selections | grep r-cran
+>>>>>
+>>>>> Michael
+>>>>>
+>>>>
+>>>
+>>
+> 
+
+From jranke at uni-bremen.de  Tue May 12 21:05:30 2009
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Tue, 12 May 2009 21:05:30 +0200
+Subject: [R-sig-Debian] Plugins for R and more...
+In-Reply-To: <1242133222.4324.9.camel@pmilin>
+References: <mailman.29.1242122409.30389.r-sig-debian@r-project.org>
+	<1242133222.4324.9.camel@pmilin>
+Message-ID: <20090512190530.GA5658@localdomain>
+
+Hi,
+
+Citing http://www.sciviews.org/_rgui/ :
+
+"gedit, the "standard" Gnome text editor also has a syntax highlighting
+feature for R code."
+
+So it seems like there is no real plugin.
+
+Regarding the Debian repositories: If you run unstable (sid), you don't
+need anything else. I you run lenny or oldstable (etch) I recommend the
+backports from CRAN, or, if you are already pinning, you can see how
+long it works without pulling in more packages from sid.
+
+Kind regards,
+
+Johannes
+
+* Petar Milin <pmilin at ff.uns.ac.rs> [090512 19:30]:
+> Hello!
+> I saw this discussion regarding vim plugin for R and just wonder if
+> there exists something similar for Gedit. I use Debian and I really like
+> Gedit. I know a lot of plugins but not for R.
+> 
+> Another thing is a bit stupid cause I know there has been discussion
+> about repositories for R. I recently converted a friend from Windows to
+> Debian and he is confused should he use:
+>  deb http://cran.at.r-project.org/bin/linux/debian/ lenny-cran/
+> or simply:
+>  deb http://http.us.debian.org/debian/ unstable main contrib non-free
+> and then:
+>  apt-get -t unstable install r-<package>
+> Thing is that I am a bit confused too, although I use apt-pinning
+> (second option). Hence, what to advice?
+> 
+> Best,
+> PM
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+
+From pmilin at ff.uns.ac.rs  Tue May 12 21:44:52 2009
+From: pmilin at ff.uns.ac.rs (Petar Milin)
+Date: Tue, 12 May 2009 21:44:52 +0200
+Subject: [R-sig-Debian] Plugins for R and more...
+In-Reply-To: <20090512190530.GA5658@localdomain>
+References: <mailman.29.1242122409.30389.r-sig-debian@r-project.org>
+	<1242133222.4324.9.camel@pmilin>  <20090512190530.GA5658@localdomain>
+Message-ID: <1242157492.3595.5.camel@pmilin>
+
+On Tue, 2009-05-12 at 21:05 +0200, Johannes Ranke wrote:
+
+> "gedit, the "standard" Gnome text editor also has a syntax highlighting
+> feature for R code."
+> So it seems like there is no real plugin.
+
+Yes, however, highlighting is nice and I am used to do copy to console.
+
+> Regarding the Debian repositories: If you run unstable (sid), you don't
+> need anything else. I you run lenny or oldstable (etch) I recommend the
+> backports from CRAN
+
+Meaning exactly:
+ deb http://cran.at.r-project.org/bin/linux/debian/ lenny-cran/
+
+> or, if you are already pinning, you can see how
+> long it works without pulling in more packages from sid.
+
+Meaning to switch to sid? Yes, I know the temptation... :-)
+
+Thank you so much,
+Petar
+
+
+From jranke at uni-bremen.de  Tue May 12 21:56:22 2009
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Tue, 12 May 2009 21:56:22 +0200
+Subject: [R-sig-Debian] Plugins for R and more...
+In-Reply-To: <1242157492.3595.5.camel@pmilin>
+References: <mailman.29.1242122409.30389.r-sig-debian@r-project.org>
+	<1242133222.4324.9.camel@pmilin>
+	<20090512190530.GA5658@localdomain>
+	<1242157492.3595.5.camel@pmilin>
+Message-ID: <20090512195622.GA7487@localdomain>
+
+* Petar Milin <pmilin at ff.uns.ac.rs> [090512 21:50]:
+> On Tue, 2009-05-12 at 21:05 +0200, Johannes Ranke wrote:
+> 
+> > "gedit, the "standard" Gnome text editor also has a syntax highlighting
+> > feature for R code."
+> > So it seems like there is no real plugin.
+> 
+> Yes, however, highlighting is nice and I am used to do copy to console.
+> 
+> > Regarding the Debian repositories: If you run unstable (sid), you don't
+> > need anything else. I you run lenny or oldstable (etch) I recommend the
+> > backports from CRAN
+> 
+> Meaning exactly:
+>  deb http://cran.at.r-project.org/bin/linux/debian/ lenny-cran/
+
+Or any other CRAN mirror near you.
+ 
+> > or, if you are already pinning, you can see how
+> > long it works without pulling in more packages from sid.
+> 
+> Meaning to switch to sid? Yes, I know the temptation... :-)
+
+Oh, nice misunderstanding :) I was talking about a new upload of R to
+sid pulling in more sid packages when you use pinning. But it is always
+tempting to upgrade to sid - I have run sid for several years, and only
+very recently settled for lenny...
+
+Johannes
+
+
+From pmilin at ff.uns.ac.rs  Tue May 12 22:14:52 2009
+From: pmilin at ff.uns.ac.rs (Petar Milin)
+Date: Tue, 12 May 2009 22:14:52 +0200
+Subject: [R-sig-Debian] Plugins for R and more...
+In-Reply-To: <20090512195622.GA7487@localdomain>
+References: <mailman.29.1242122409.30389.r-sig-debian@r-project.org>
+	<1242133222.4324.9.camel@pmilin> <20090512190530.GA5658@localdomain>
+	<1242157492.3595.5.camel@pmilin>  <20090512195622.GA7487@localdomain>
+Message-ID: <1242159292.3595.14.camel@pmilin>
+
+On Tue, 2009-05-12 at 21:56 +0200, Johannes Ranke wrote:
+ 
+> > > or, if you are already pinning, you can see how
+> > > long it works without pulling in more packages from sid.
+> > 
+> > Meaning to switch to sid? Yes, I know the temptation... :-)
+> 
+> Oh, nice misunderstanding :) I was talking about a new upload of R to
+> sid pulling in more sid packages when you use pinning. But it is always
+> tempting to upgrade to sid - I have run sid for several years, and only
+> very recently settled for lenny...
+
+:-) Yes, nice! I am using testing, and I was so very happy switching
+from Ubuntu (I think it was 8.04), until recently, when I started to
+experience problems and shaky behavior of Debian. I was advised to
+install testing, but now I really think to go for stable, since, as
+Murphy would predict, this is really a very bad moment for me to have
+non-stable system. Nevertheless, this is not an issue here; I am just
+explaining why I might been primed to Debian releases. :-)
+
+Thanks again,
+PM
+
+
+From judson0423 at gmail.com  Fri May 15 21:08:10 2009
+From: judson0423 at gmail.com (Judson)
+Date: Fri, 15 May 2009 15:08:10 -0400
+Subject: [R-sig-Debian] I simply cannot install R on Ubuntu. I don't know
+	why.
+Message-ID: <75f11af0905151208v4dac4446q1a238023de6eaa59@mail.gmail.com>
+
+I don't mind using sudo apt-get update/upgrade/install buit I get into
+crazy loops (hours) that clearly can't be trusted.  But when I use
+Synaptic (reload/mark for install R-base) every time I get some list
+of things things it want to install as well and syas "Mark" which it
+does not do and when I go forward with the Synaptic install of R-base
+I get this (and abort) every time:
+
+r-base:
+  Depends: r-base-core (>=2.9.0-2hardy0) but 2.6.2-2 is to be installed
+ Depends: r-recommended but it is not going to be installed
+
+I cannot get a pre-install of either of these.   I got greedy a week
+ago and tried to install R_2.9.0 over my R_2.6.2-2 and now I have
+nothing.  I have a Dell-Mini Ubuntu 8.04 for 15 days.  I don't get it.
+ Any ideas?  I'm embarrassed to say this is my second trip through on
+R (to this forum).  Thanks.
+
+Room533
+
+
+From mar36 at psu.edu  Fri May 15 21:53:37 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Fri, 15 May 2009 15:53:37 -0400
+Subject: [R-sig-Debian] I simply cannot install R on Ubuntu. I don't
+	know why.
+In-Reply-To: <75f11af0905151208v4dac4446q1a238023de6eaa59@mail.gmail.com>
+References: <75f11af0905151208v4dac4446q1a238023de6eaa59@mail.gmail.com>
+Message-ID: <fce144590905151253t6f737a26hfd86146716bb2ca0@mail.gmail.com>
+
+Judson,
+
+Two questions:
+
+1)  What line did you add to sources.list to get access to R 2.9?
+Sometimes the mirrors are slow to populate, and if only half the files
+are available you will get a message similar to the one you have.  If
+you get the same message in 12 hours, this is likely not the cause.
+
+2) When in synaptic, go to the "r-base" entry.  There are two version
+numbers, one for the installed version and one for the latest version.
+ What are those version numbers?
+
+That will help figure out the problem.
+
+Michael
+
+
+On Fri, May 15, 2009 at 3:08 PM, Judson <judson0423 at gmail.com> wrote:
+> I don't mind using sudo apt-get sted.  But when I use
+> Synaptic (reload/mark for install R-base) eupdate/upgrade/install buit I get into
+> crazy loops (hours) that clearly can't be truvery time I get some list
+> of things things it want to install as well and syas "Mark" which it
+> does not do and when I go forward with the Synaptic install of R-base
+> I get this (and abort) every time:
+>
+> r-base:
+> ?Depends: r-base-core (>=2.9.0-2hardy0) but 2.6.2-2 is to be installed
+> ?Depends: r-recommended but it is not going to be installed
+>
+> I cannot get a pre-install of either of these. ? I got greedy a week
+> ago and tried to install R_2.9.0 over my R_2.6.2-2 and now I have
+> nothing. ?I have a Dell-Mini Ubuntu 8.04 for 15 days. ?I don't get it.
+> ?Any ideas? ?I'm embarrassed to say this is my second trip through on
+> R (to this forum). ?Thanks.
+>
+> Room533
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From kapatp at gmail.com  Sat May 16 00:24:54 2009
+From: kapatp at gmail.com (Prasenjit Kapat)
+Date: Fri, 15 May 2009 18:24:54 -0400
+Subject: [R-sig-Debian] I simply cannot install R on Ubuntu. I don't
+	know why.
+In-Reply-To: <75f11af0905151208v4dac4446q1a238023de6eaa59@mail.gmail.com>
+References: <75f11af0905151208v4dac4446q1a238023de6eaa59@mail.gmail.com>
+Message-ID: <de8c7cb40905151524w1b2da491sbfc226d2040a67e6@mail.gmail.com>
+
+On Fri, May 15, 2009 at 3:08 PM, Judson <judson0423 at gmail.com> wrote:
+> I don't mind using sudo apt-get update/upgrade/install buit I get into
+> crazy loops (hours) that clearly can't be trusted. ?But when I use
+> Synaptic (reload/mark for install R-base) every time I get some list
+> of things things it want to install as well and syas "Mark" which it
+> does not do and when I go forward with the Synaptic install of R-base
+> I get this (and abort) every time:
+>
+> r-base:
+> ?Depends: r-base-core (>=2.9.0-2hardy0) but 2.6.2-2 is to be installed
+> ?Depends: r-recommended but it is not going to be installed
+>
+> I cannot get a pre-install of either of these. ? I got greedy a week
+> ago and tried to install R_2.9.0 over my R_2.6.2-2 and now I have
+> nothing. ?I have a Dell-Mini Ubuntu 8.04 for 15 days. ?I don't get it.
+> ?Any ideas? ?I'm embarrassed to say this is my second trip through on
+> R (to this forum). ?Thanks.
+
+This should rarely happen. Can you copy paste only the lines that
+start with "deb " from /etc/apt/sources.list and any other relevant
+/etc/apt/sources.list.d/*.list files. Also provide
+/etc/apt/preferences, if it exists.
+
+While you are at it, what does the following show:
+
+$ apt-cache policy r-base r-base-core r-recommended
+
+-- 
+Prasenjit
+
+
+From judson0423 at gmail.com  Sat May 16 01:13:57 2009
+From: judson0423 at gmail.com (Judson)
+Date: Fri, 15 May 2009 19:13:57 -0400
+Subject: [R-sig-Debian] I simply cannot install R on Ubuntu. I don't
+	know why.
+In-Reply-To: <de8c7cb40905151524w1b2da491sbfc226d2040a67e6@mail.gmail.com>
+References: <75f11af0905151208v4dac4446q1a238023de6eaa59@mail.gmail.com>
+	<de8c7cb40905151524w1b2da491sbfc226d2040a67e6@mail.gmail.com>
+Message-ID: <75f11af0905151613j286a39aarb5ddb6983ab65826@mail.gmail.com>
+
+Hi Prasenjit: thanks.  Here's what I found.  There's only one line in
+sources.list that's not Dell-mini specific and it is
+
+deb http://lib.stat.cmu.edu/R/CRAN/bin/linux/ubuntu hardy/
+
+If I understand the output and asked correctly -- /etc/apt/preferences
+does not exist ("no such file or directory").
+
+But my goodness, look at the output to your third question!  Thanks.  Judson
+r-base:
+  Installed: (none)
+  Candidate: 2.9.0-2hardy0
+  Version table:
+     2.9.0-2hardy0 0
+        500 http://lib.stat.cmu.edu hardy/ Packages
+     2.6.2-2 0
+        500 http://dell-mini.archive.canonical.com hardy/universe Packages
+r-base-core:
+  Installed: 2.6.2-2
+  Candidate: 2.6.2-2
+  Version table:
+ *** 2.6.2-2 0
+        500 http://dell-mini.archive.canonical.com hardy/universe Packages
+        100 /var/lib/dpkg/status
+r-recommended:
+  Installed: (none)
+  Candidate: 2.9.0-2hardy0
+  Version table:
+     2.9.0-2hardy0 0
+        500 http://lib.stat.cmu.edu hardy/ Packages
+     2.6.2-2 0
+        500 http://dell-mini.archive.canonical.com hardy/universe Pack
+
+
+On Fri, May 15, 2009 at 6:24 PM, Prasenjit Kapat <kapatp at gmail.com> wrote:
+> On Fri, May 15, 2009 at 3:08 PM, Judson <judson0423 at gmail.com> wrote:
+>> I don't mind using sudo apt-get update/upgrade/install buit I get into
+>> crazy loops (hours) that clearly can't be trusted.  But when I use
+>> Synaptic (reload/mark for install R-base) every time I get some list
+>> of things things it want to install as well and syas "Mark" which it
+>> does not do and when I go forward with the Synaptic install of R-base
+>> I get this (and abort) every time:
+>>
+>> r-base:
+>>  Depends: r-base-core (>=2.9.0-2hardy0) but 2.6.2-2 is to be installed
+>>  Depends: r-recommended but it is not going to be installed
+>>
+>> I cannot get a pre-install of either of these.   I got greedy a week
+>> ago and tried to install R_2.9.0 over my R_2.6.2-2 and now I have
+>> nothing.  I have a Dell-Mini Ubuntu 8.04 for 15 days.  I don't get it.
+>>  Any ideas?  I'm embarrassed to say this is my second trip through on
+>> R (to this forum).  Thanks.
+>
+> This should rarely happen. Can you copy paste only the lines that
+> start with "deb " from /etc/apt/sources.list and any other relevant
+> /etc/apt/sources.list.d/*.list files. Also provide
+> /etc/apt/preferences, if it exists.
+>
+> While you are at it, what does the following show:
+>
+> $ apt-cache policy r-base r-base-core r-recommended
+>
+> --
+> Prasenjit
+>
+
+
+From mar36 at psu.edu  Sat May 16 01:40:29 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Fri, 15 May 2009 19:40:29 -0400
+Subject: [R-sig-Debian] I simply cannot install R on Ubuntu. I don't
+	know why.
+In-Reply-To: <75f11af0905151613j286a39aarb5ddb6983ab65826@mail.gmail.com>
+References: <75f11af0905151208v4dac4446q1a238023de6eaa59@mail.gmail.com>
+	<de8c7cb40905151524w1b2da491sbfc226d2040a67e6@mail.gmail.com>
+	<75f11af0905151613j286a39aarb5ddb6983ab65826@mail.gmail.com>
+Message-ID: <fce144590905151640k4a89181ck86525e23a772f564@mail.gmail.com>
+
+On Fri, May 15, 2009 at 7:13 PM, Judson <judson0423 at gmail.com> wrote:
+
+> r-base-core:
+> ?Installed: 2.6.2-2
+> ?Candidate: 2.6.2-2
+> ?Version table:
+> ?*** 2.6.2-2 0
+> ? ? ? ?500 http://dell-mini.archive.canonical.com hardy/universe Packages
+> ? ? ? ?100 /var/lib/dpkg/status
+
+That is strange.  I am looking at the CMU website right now, and
+r-base-core_2.9.0-2hardy0_i386.deb is in the directory.  I have a 64
+bit version of hardy that uses the same mirror and it lists 2.9.0-2.
+Hmmm...
+
+I would re-run apt-get update.  If 2.9 is still not listed via
+"apt-cache policy r-base-core" option one would be to change mirrors.
+The other option would be to go directly to the mirror's website and
+download the package manually.   You can then install the file by
+double clicking on it in a file manager or by  "sudo dpkg -i
+r-base-core-dbg_2.9.0-2hardy0_i386.deb".
+
+Maybe that will do it.
+Michael
+
+> On Fri, May 15, 2009 at 6:24 PM, Prasenjit Kapat <kapatp at gmail.com> wrote:
+>> On Fri, May 15, 2009 at 3:08 PM, Judson <judson0423 at gmail.com> wrote:
+>>> I don't mind using sudo apt-get update/upgrade/install buit I get into
+>>> crazy loops (hours) that clearly can't be trusted. ?But when I use
+>>> Synaptic (reload/mark for install R-base) every time I get some list
+>>> of things things it want to install as well and syas "Mark" which it
+>>> does not do and when I go forward with the Synaptic install of R-base
+>>> I get this (and abort) every time:
+>>>
+>>> r-base:
+>>> ?Depends: r-base-core (>=2.9.0-2hardy0) but 2.6.2-2 is to be installed
+>>> ?Depends: r-recommended but it is not going to be installed
+>>>
+>>> I cannot get a pre-install of either of these. ? I got greedy a week
+>>> ago and tried to install R_2.9.0 over my R_2.6.2-2 and now I have
+>>> nothing. ?I have a Dell-Mini Ubuntu 8.04 for 15 days. ?I don't get it.
+>>> ?Any ideas? ?I'm embarrassed to say this is my second trip through on
+>>> R (to this forum). ?Thanks.
+>>
+>> This should rarely happen. Can you copy paste only the lines that
+>> start with "deb " from /etc/apt/sources.list and any other relevant
+>> /etc/apt/sources.list.d/*.list files. Also provide
+>> /etc/apt/preferences, if it exists.
+>>
+>> While you are at it, what does the following show:
+>>
+>> $ apt-cache policy r-base r-base-core r-recommended
+>>
+>> --
+>> Prasenjit
+>>
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From pmilin at ff.uns.ac.rs  Sat May 16 08:54:27 2009
+From: pmilin at ff.uns.ac.rs (Petar Milin)
+Date: Sat, 16 May 2009 08:54:27 +0200
+Subject: [R-sig-Debian] rgl install failed...
+Message-ID: <4A0E6323.2000304@ff.uns.ac.rs>
+
+Hello!
+Interesting thing is that I cannot install rgl. It reports:
+  checking for X... no
+  configure: error: X11 not found but required, configure aborted.
+  ERROR: configuration failed for package ?rgl?
+  * Removing ?/usr/local/lib/R/site-library/rgl?
+
+I am pretty sure that my X11 is fine. Does anyone know why I got this 
+error message?
+
+Best,
+PM
+
+
+From mar36 at psu.edu  Sat May 16 12:50:10 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Sat, 16 May 2009 06:50:10 -0400
+Subject: [R-sig-Debian] rgl install failed...
+In-Reply-To: <4A0E6323.2000304@ff.uns.ac.rs>
+References: <4A0E6323.2000304@ff.uns.ac.rs>
+Message-ID: <4A0E9A62.2020906@psu.edu>
+
+Petar,
+
+Before we can answer your question, we need more information about your 
+system.  What version of R are you using?  What version of 
+Debian/Ubuntu?  I was able to run rgl just fine on my Ubuntu jaunty 
+64bit with R 2.9.
+
+Michael
+
+Petar Milin wrote:
+> Hello!
+> Interesting thing is that I cannot install rgl. It reports:
+>  checking for X... no
+>  configure: error: X11 not found but required, configure aborted.
+>  ERROR: configuration failed for package ?rgl?
+>  * Removing ?/usr/local/lib/R/site-library/rgl?
+> 
+> I am pretty sure that my X11 is fine. Does anyone know why I got this 
+> error message?
+> 
+> Best,
+> PM
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From pmilin at ff.uns.ac.rs  Sat May 16 13:21:37 2009
+From: pmilin at ff.uns.ac.rs (Petar Milin)
+Date: Sat, 16 May 2009 13:21:37 +0200
+Subject: [R-sig-Debian] rgl install failed...
+In-Reply-To: <4A0E9A62.2020906@psu.edu>
+References: <4A0E6323.2000304@ff.uns.ac.rs> <4A0E9A62.2020906@psu.edu>
+Message-ID: <4A0EA1C1.6050100@ff.uns.ac.rs>
+
+Thanks and sorry!
+I am using: R version 2.9.0 (2009-04-17), on Debian testing with 
+apt-pinning for R base packages.
+
+Best,
+PM
+
+Michael Rutter wrote:
+> Petar,
+> 
+> Before we can answer your question, we need more information about your 
+> system.  What version of R are you using?  What version of 
+> Debian/Ubuntu?  I was able to run rgl just fine on my Ubuntu jaunty 
+> 64bit with R 2.9.
+> 
+> Michael
+> 
+> Petar Milin wrote:
+>> Hello!
+>> Interesting thing is that I cannot install rgl. It reports:
+>>  checking for X... no
+>>  configure: error: X11 not found but required, configure aborted.
+>>  ERROR: configuration failed for package ?rgl?
+>>  * Removing ?/usr/local/lib/R/site-library/rgl?
+>>
+>> I am pretty sure that my X11 is fine. Does anyone know why I got this 
+>> error message?
+>>
+>> Best,
+>> PM
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From edd at debian.org  Sat May 16 13:44:16 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 16 May 2009 06:44:16 -0500
+Subject: [R-sig-Debian] rgl install failed...
+In-Reply-To: <4A0EA1C1.6050100@ff.uns.ac.rs>
+References: <4A0E6323.2000304@ff.uns.ac.rs> <4A0E9A62.2020906@psu.edu>
+	<4A0EA1C1.6050100@ff.uns.ac.rs>
+Message-ID: <18958.42768.859961.518018@ron.nulle.part>
+
+
+On 16 May 2009 at 13:21, Petar Milin wrote:
+| Thanks and sorry!
+| I am using: R version 2.9.0 (2009-04-17), on Debian testing with 
+| apt-pinning for R base packages.
+
+Very well. So why don't you just do
+
+    sudo apt-get install r-cran-rgl
+
+and use the pre-built binary.
+
+If you must rebuild from source, use
+
+    sudo apt-get build-dep r-cran-rgl
+
+which gets you all required packages to then run install.packages("rgl") from
+R. 
+
+Hth, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From pmilin at ff.uns.ac.rs  Sat May 16 14:04:34 2009
+From: pmilin at ff.uns.ac.rs (Petar Milin)
+Date: Sat, 16 May 2009 14:04:34 +0200
+Subject: [R-sig-Debian] rgl install failed...
+In-Reply-To: <18958.42768.859961.518018@ron.nulle.part>
+References: <4A0E6323.2000304@ff.uns.ac.rs>	<4A0E9A62.2020906@psu.edu>	<4A0EA1C1.6050100@ff.uns.ac.rs>
+	<18958.42768.859961.518018@ron.nulle.part>
+Message-ID: <4A0EABD2.8000505@ff.uns.ac.rs>
+
+Thanks, again! But can that be "messy" if I start installing via apt-get 
+instead of using something like:
+install.packages() or
+R CMD INSTALL
+
+I installed via apt-get only r-base and r-base-dev, and everything else 
+via R itself.
+
+Best,
+PM
+
+Dirk Eddelbuettel wrote:
+> On 16 May 2009 at 13:21, Petar Milin wrote:
+> | Thanks and sorry!
+> | I am using: R version 2.9.0 (2009-04-17), on Debian testing with 
+> | apt-pinning for R base packages.
+> 
+> Very well. So why don't you just do
+> 
+>     sudo apt-get install r-cran-rgl
+> 
+> and use the pre-built binary.
+> 
+> If you must rebuild from source, use
+> 
+>     sudo apt-get build-dep r-cran-rgl
+> 
+> which gets you all required packages to then run install.packages("rgl") from
+> R. 
+> 
+> Hth, Dirk
+>
+
+
+From jranke at uni-bremen.de  Sat May 16 14:31:17 2009
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Sat, 16 May 2009 14:31:17 +0200
+Subject: [R-sig-Debian] rgl install failed...
+In-Reply-To: <4A0EABD2.8000505@ff.uns.ac.rs>
+References: <4A0E6323.2000304@ff.uns.ac.rs> <4A0E9A62.2020906@psu.edu>
+	<4A0EA1C1.6050100@ff.uns.ac.rs>
+	<18958.42768.859961.518018@ron.nulle.part>
+	<4A0EABD2.8000505@ff.uns.ac.rs>
+Message-ID: <20090516123117.GB5117@localdomain>
+
+Hi,
+
+You could try pinning your R packages like r-cran-rgl as well, if you
+want them to be compatible to your r-base from sid. 
+
+Generally, I think your approach is reasonable, as long as we don't
+provide all the r-cran-* packages that Dirk maintains on CRAN.
+
+Johannes
+
+* Petar Milin <pmilin at ff.uns.ac.rs> [090516 14:10]:
+> Thanks, again! But can that be "messy" if I start installing via apt-get  
+> instead of using something like:
+> install.packages() or
+> R CMD INSTALL
+>
+> I installed via apt-get only r-base and r-base-dev, and everything else  
+> via R itself.
+>
+> Best,
+> PM
+>
+> Dirk Eddelbuettel wrote:
+>> On 16 May 2009 at 13:21, Petar Milin wrote:
+>> | Thanks and sorry!
+>> | I am using: R version 2.9.0 (2009-04-17), on Debian testing with | 
+>> apt-pinning for R base packages.
+>>
+>> Very well. So why don't you just do
+>>
+>>     sudo apt-get install r-cran-rgl
+>>
+>> and use the pre-built binary.
+>>
+>> If you must rebuild from source, use
+>>
+>>     sudo apt-get build-dep r-cran-rgl
+>>
+>> which gets you all required packages to then run install.packages("rgl") from
+>> R. 
+>>
+>> Hth, Dirk
+>>
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+
+From edd at debian.org  Sat May 16 15:05:53 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 16 May 2009 08:05:53 -0500
+Subject: [R-sig-Debian] rgl install failed...
+In-Reply-To: <20090516123117.GB5117@localdomain>
+References: <4A0E6323.2000304@ff.uns.ac.rs> <4A0E9A62.2020906@psu.edu>
+	<4A0EA1C1.6050100@ff.uns.ac.rs>
+	<18958.42768.859961.518018@ron.nulle.part>
+	<4A0EABD2.8000505@ff.uns.ac.rs> <20090516123117.GB5117@localdomain>
+Message-ID: <18958.47665.138208.120433@ron.nulle.part>
+
+
+On 16 May 2009 at 14:31, Johannes Ranke wrote:
+| Hi,
+| 
+| You could try pinning your R packages like r-cran-rgl as well, if you
+| want them to be compatible to your r-base from sid. 
+| 
+| Generally, I think your approach is reasonable, as long as we don't
+| provide all the r-cran-* packages that Dirk maintains on CRAN.
+
+It is perfectly reasonable, especially if one understands just the basics of
+apt and the R package system.  Which is after all why we maintain packages.
+If it was 'messy' why would we provide them?
+
+And exactly what does the original poster mean by 'messy'?  The worst that
+could happen is that one has package foo installed twice.  And given that
+/etc/R/Renvironment has
+
+	  R_LIBS_SITE=${R_LIBS_SITE-'/usr/local/lib/R/site-library:\
+			/usr/lib/R/site-library:/usr/lib/R/library'}
+
+one could end up with an older version in /usr/local/lib shadowing a newer
+version.  But if you keep your R-installed packages current, and hence newer
+versions being found first, there is little downside.
+
+And on the upside you get e.g. a working rgl. Wasn't that the goal?
+
+| Johannes
+| 
+| * Petar Milin <pmilin at ff.uns.ac.rs> [090516 14:10]:
+| > Thanks, again! But can that be "messy" if I start installing via apt-get  
+| > instead of using something like:
+
+Nope. I fear you got that wrong.
+
+Dirk
+
+| > install.packages() or
+| > R CMD INSTALL
+| >
+| > I installed via apt-get only r-base and r-base-dev, and everything else  
+| > via R itself.
+| >
+| > Best,
+| > PM
+| >
+| > Dirk Eddelbuettel wrote:
+| >> On 16 May 2009 at 13:21, Petar Milin wrote:
+| >> | Thanks and sorry!
+| >> | I am using: R version 2.9.0 (2009-04-17), on Debian testing with | 
+| >> apt-pinning for R base packages.
+| >>
+| >> Very well. So why don't you just do
+| >>
+| >>     sudo apt-get install r-cran-rgl
+| >>
+| >> and use the pre-built binary.
+| >>
+| >> If you must rebuild from source, use
+| >>
+| >>     sudo apt-get build-dep r-cran-rgl
+| >>
+| >> which gets you all required packages to then run install.packages("rgl") from
+| >> R. 
+| >>
+| >> Hth, Dirk
+| >>
+| >
+| > _______________________________________________
+| > R-SIG-Debian mailing list
+| > R-SIG-Debian at r-project.org
+| > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| 
+| -- 
+| Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From pmilin at ff.uns.ac.rs  Sat May 16 15:25:46 2009
+From: pmilin at ff.uns.ac.rs (Petar Milin)
+Date: Sat, 16 May 2009 15:25:46 +0200
+Subject: [R-sig-Debian] rgl install failed...
+In-Reply-To: <18958.47788.534825.889609@ron.nulle.part>
+References: <4A0E6323.2000304@ff.uns.ac.rs>	<4A0E9A62.2020906@psu.edu>	<4A0EA1C1.6050100@ff.uns.ac.rs>	<18958.42768.859961.518018@ron.nulle.part>	<4A0EABD2.8000505@ff.uns.ac.rs>
+	<18958.47788.534825.889609@ron.nulle.part>
+Message-ID: <4A0EBEDA.5080106@ff.uns.ac.rs>
+
+No, no, sorry: I did read and tried, but no success, again. Failed at 
+exactly the same spot.
+
+However, at least I have rgl via apt-get.
+
+PM
+
+Dirk Eddelbuettel wrote:
+> On 16 May 2009 at 14:04, Petar Milin wrote:
+> | Thanks, again! But can that be "messy" if I start installing via apt-get 
+> | instead of using something like:
+> | install.packages() or
+> | R CMD INSTALL
+> 
+> I already told you that this what not so.
+> 
+> You also failed to read to the end of my mail for the second suggestion.
+> 
+> Dirk
+>  
+> | I installed via apt-get only r-base and r-base-dev, and everything else 
+> | via R itself.
+> | 
+> | Best,
+> | PM
+> | 
+> | Dirk Eddelbuettel wrote:
+> | > On 16 May 2009 at 13:21, Petar Milin wrote:
+> | > | Thanks and sorry!
+> | > | I am using: R version 2.9.0 (2009-04-17), on Debian testing with 
+> | > | apt-pinning for R base packages.
+> | > 
+> | > Very well. So why don't you just do
+> | > 
+> | >     sudo apt-get install r-cran-rgl
+> | > 
+> | > and use the pre-built binary.
+> | > 
+> | > If you must rebuild from source, use
+> | > 
+> | >     sudo apt-get build-dep r-cran-rgl
+> | > 
+> | > which gets you all required packages to then run install.packages("rgl") from
+> | > R. 
+> | > 
+> | > Hth, Dirk
+> | > 
+>
+
+
+From kapatp at gmail.com  Sat May 16 21:57:20 2009
+From: kapatp at gmail.com (Prasenjit Kapat)
+Date: Sat, 16 May 2009 15:57:20 -0400
+Subject: [R-sig-Debian] I simply cannot install R on Ubuntu. I don't
+	know why.
+In-Reply-To: <75f11af0905151613j286a39aarb5ddb6983ab65826@mail.gmail.com>
+References: <75f11af0905151208v4dac4446q1a238023de6eaa59@mail.gmail.com>
+	<de8c7cb40905151524w1b2da491sbfc226d2040a67e6@mail.gmail.com>
+	<75f11af0905151613j286a39aarb5ddb6983ab65826@mail.gmail.com>
+Message-ID: <de8c7cb40905161257n5d201da4l169bbc93ff96fcd7@mail.gmail.com>
+
+On 5/15/09, Judson <judson0423 at gmail.com> wrote:
+> Hi Prasenjit: thanks.  Here's what I found.  There's only one line in
+> sources.list that's not Dell-mini specific and it is
+>
+> deb http://lib.stat.cmu.edu/R/CRAN/bin/linux/ubuntu hardy/
+>
+> If I understand the output and asked correctly -- /etc/apt/preferences
+> does not exist ("no such file or directory").
+
+Fine. So, there is no apparent reason for r-base-core to be "pinned" at 2.6.2-2.
+
+> r-base-core:
+>   Installed: 2.6.2-2
+>   Candidate: 2.6.2-2
+>   Version table:
+>  *** 2.6.2-2 0
+>         500 http://dell-mini.archive.canonical.com hardy/universe Packages
+>         100 /var/lib/dpkg/status
+
+As Michael noted, cmu has r-base-core_2.9.0-2hardy0_{i386,amd64}.deb.
+Do the following:
+
+$ sudo apt-get update
+
+If you get any signature/security warning, follow the steps under
+"SECURE APT" as provided here:
+http://lib.stat.cmu.edu/R/CRAN/bin/linux/ubuntu/
+Then (again) run:
+
+$ sudo apt-get update
+
+Finally:
+$ apt-cache policy r-base-core
+
+If the candidate version is correct, do
+
+$ sudo apt-get install r-base-core
+
+r-base and r-recommended can be ignored for now. If nothing else, then
+you can brute force the process as Michael described.
+
+>
+> On Fri, May 15, 2009 at 6:24 PM, Prasenjit Kapat <kapatp at gmail.com> wrote:
+>> On Fri, May 15, 2009 at 3:08 PM, Judson <judson0423 at gmail.com> wrote:
+>>> I don't mind using sudo apt-get update/upgrade/install buit I get into
+>>> crazy loops (hours) that clearly can't be trusted.  But when I use
+>>> Synaptic (reload/mark for install R-base) every time I get some list
+>>> of things things it want to install as well and syas "Mark" which it
+>>> does not do and when I go forward with the Synaptic install of R-base
+>>> I get this (and abort) every time:
+>>>
+>>> r-base:
+>>>  Depends: r-base-core (>=2.9.0-2hardy0) but 2.6.2-2 is to be installed
+>>>  Depends: r-recommended but it is not going to be installed
+>>>
+>>> I cannot get a pre-install of either of these.   I got greedy a week
+>>> ago and tried to install R_2.9.0 over my R_2.6.2-2 and now I have
+>>> nothing.  I have a Dell-Mini Ubuntu 8.04 for 15 days.  I don't get it.
+>>>  Any ideas?  I'm embarrassed to say this is my second trip through on
+>>> R (to this forum).  Thanks.
+>>
+>> This should rarely happen. Can you copy paste only the lines that
+>> start with "deb " from /etc/apt/sources.list and any other relevant
+>> /etc/apt/sources.list.d/*.list files. Also provide
+>> /etc/apt/preferences, if it exists.
+>>
+>> While you are at it, what does the following show:
+>>
+>> $ apt-cache policy r-base r-base-core r-recommended
+>>
+>> --
+>> Prasenjit
+>>
+>
+
+
+-- 
+Prasenjit
+
+
+From judson0423 at gmail.com  Sat May 16 21:57:57 2009
+From: judson0423 at gmail.com (Judson)
+Date: Sat, 16 May 2009 15:57:57 -0400
+Subject: [R-sig-Debian] Installing R on Ubuntu8.04; episode 3184
+Message-ID: <75f11af0905161257k64c42e21x39b1db0744e9aded@mail.gmail.com>
+
+Thanks to everyone who has responded (esp. Michael, I greatly
+appreciate but also recognize that getting R on my machine is not your
+career).  Your last response was (basically) uninstall, reboot, retry
+Synaptic, if no good try:
+
+judson at judson:~$ sudo wget
+http://cran.r-project.org/bin/linux/ubuntu/hardy/r-base-core_2.9.0-2hardy0_i386.deb
+
+I GOT
+
+--15:03:02--  http://cran.r-project.org/bin/linux/ubuntu/hardy/r-base-core_2.9.0-2hardy0_i386.deb
+           => `r-base-core_2.9.0-2hardy0_i386.deb.1'
+Resolving cran.r-project.org... 137.208.57.37
+Connecting to cran.r-project.org|137.208.57.37|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 10,742,580 (10M) [application/x-debian-package]
+
+100%[====================================>] 10,742,580   237.44K/s    ETA 00:00
+
+15:04:12 (149.96 KB/s) - `r-base-core_2.9.0-2hardy0_i386.deb.1' saved
+[10742580/10742580]
+
+I FOLLOWED
+
+judson at judson:~$ sudo dpkg -i r-base-core_2.9.0-2hardy0_i386.deb
+
+I GOT
+
+dpkg: error processing r-base-core_2.9.0-2hardy0_i386.deb (--install):
+ package architecture (i386) does not match system (lpia)
+
+How is this?  I'm way underprepared here but it's a Dell Inspiron Mini
+9", Intel Atom ~1.7 ghz
+
+This message is hiding something else.  The Atom is in the i386
+lineage as surely as Mine That Bird comes down from Seattle Slew, no?
+Thanks everyone.  Judson
+
+
+From edd at debian.org  Sat May 16 22:16:31 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 16 May 2009 15:16:31 -0500
+Subject: [R-sig-Debian] Installing R on Ubuntu8.04; episode 3184
+In-Reply-To: <75f11af0905161257k64c42e21x39b1db0744e9aded@mail.gmail.com>
+References: <75f11af0905161257k64c42e21x39b1db0744e9aded@mail.gmail.com>
+Message-ID: <18959.7967.507839.564837@ron.nulle.part>
+
+
+On 16 May 2009 at 15:57, Judson wrote:
+| Thanks to everyone who has responded (esp. Michael, I greatly
+| appreciate but also recognize that getting R on my machine is not your
+| career).  Your last response was (basically) uninstall, reboot, retry
+| Synaptic, if no good try:
+| 
+| judson at judson:~$ sudo wget
+| http://cran.r-project.org/bin/linux/ubuntu/hardy/r-base-core_2.9.0-2hardy0_i386.deb
+| 
+| I GOT
+| 
+| --15:03:02--  http://cran.r-project.org/bin/linux/ubuntu/hardy/r-base-core_2.9.0-2hardy0_i386.deb
+|            => `r-base-core_2.9.0-2hardy0_i386.deb.1'
+| Resolving cran.r-project.org... 137.208.57.37
+| Connecting to cran.r-project.org|137.208.57.37|:80... connected.
+| HTTP request sent, awaiting response... 200 OK
+| Length: 10,742,580 (10M) [application/x-debian-package]
+| 
+| 100%[====================================>] 10,742,580   237.44K/s    ETA 00:00
+| 
+| 15:04:12 (149.96 KB/s) - `r-base-core_2.9.0-2hardy0_i386.deb.1' saved
+| [10742580/10742580]
+| 
+| I FOLLOWED
+| 
+| judson at judson:~$ sudo dpkg -i r-base-core_2.9.0-2hardy0_i386.deb
+| 
+| I GOT
+| 
+| dpkg: error processing r-base-core_2.9.0-2hardy0_i386.deb (--install):
+|  package architecture (i386) does not match system (lpia)
+| 
+| How is this?  I'm way underprepared here but it's a Dell Inspiron Mini
+| 9", Intel Atom ~1.7 ghz
+| 
+| This message is hiding something else.  The Atom is in the i386
+| lineage as surely as Mine That Bird comes down from Seattle Slew, no?
+
+Ohhhhh I once knew that and promptly forgot.  This is the same, apparently,
+for some of the Eee PC netbooks, and possibly other netbooks.
+
+Because your hardware has the magic powersaving functions, "they" decided to
+call it a different hardware platform even though it really is a i386
+(coupled with the cpu frequency scaling or whatever magic they do).
+
+What that means is that ... (wait for it) ... your apt et al (synaptic,
+aptitude, ...) now think you cannot use automatic upgrades.
+
+You did the right thing and you are almost there. You need one more switch
+argument to 'sudo dpkg -i r-base-core*deb' to override the apparent hardware
+mismatch between lpia and i386.
+
+I think, looking at 'dpkg --force-help', that you want 
+
+  sudo dpkg --force-architecture --install r-base-core_2.9.0-2hardy0_i386.deb
+
+Try that, and google around the Debian / Ubuntu netbook help sites, wiki,
+forums, ... to see how you can override that for good so that the 'lpia vs
+i386' issue won't kill you.
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From kapatp at gmail.com  Sat May 16 22:51:38 2009
+From: kapatp at gmail.com (Prasenjit Kapat)
+Date: Sat, 16 May 2009 16:51:38 -0400
+Subject: [R-sig-Debian] Installing R on Ubuntu8.04; episode 3184
+In-Reply-To: <18959.7967.507839.564837@ron.nulle.part>
+References: <75f11af0905161257k64c42e21x39b1db0744e9aded@mail.gmail.com>
+	<18959.7967.507839.564837@ron.nulle.part>
+Message-ID: <de8c7cb40905161351i56008bb9j251f818bfe2a78c3@mail.gmail.com>
+
+On 5/16/09, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> On 16 May 2009 at 15:57, Judson wrote:
+> | Thanks to everyone who has responded (esp. Michael, I greatly
+> | appreciate but also recognize that getting R on my machine is not your
+> | career).  Your last response was (basically) uninstall, reboot, retry
+> | Synaptic, if no good try:
+> |
+> | judson at judson:~$ sudo wget
+> |
+> http://cran.r-project.org/bin/linux/ubuntu/hardy/r-base-core_2.9.0-2hardy0_i386.deb
+> |
+> | I GOT
+> |
+> | --15:03:02--
+> http://cran.r-project.org/bin/linux/ubuntu/hardy/r-base-core_2.9.0-2hardy0_i386.deb
+> |            => `r-base-core_2.9.0-2hardy0_i386.deb.1'
+> | Resolving cran.r-project.org... 137.208.57.37
+> | Connecting to cran.r-project.org|137.208.57.37|:80... connected.
+> | HTTP request sent, awaiting response... 200 OK
+> | Length: 10,742,580 (10M) [application/x-debian-package]
+> |
+> | 100%[====================================>] 10,742,580   237.44K/s    ETA
+> 00:00
+> |
+> | 15:04:12 (149.96 KB/s) - `r-base-core_2.9.0-2hardy0_i386.deb.1' saved
+> | [10742580/10742580]
+> |
+> | I FOLLOWED
+> |
+> | judson at judson:~$ sudo dpkg -i r-base-core_2.9.0-2hardy0_i386.deb
+> |
+> | I GOT
+> |
+> | dpkg: error processing r-base-core_2.9.0-2hardy0_i386.deb (--install):
+> |  package architecture (i386) does not match system (lpia)
+> |
+> | How is this?  I'm way underprepared here but it's a Dell Inspiron Mini
+> | 9", Intel Atom ~1.7 ghz
+> |
+> | This message is hiding something else.  The Atom is in the i386
+> | lineage as surely as Mine That Bird comes down from Seattle Slew, no?
+>
+> Ohhhhh I once knew that and promptly forgot.  This is the same, apparently,
+> for some of the Eee PC netbooks, and possibly other netbooks.
+>
+> Because your hardware has the magic powersaving functions, "they" decided to
+> call it a different hardware platform even though it really is a i386
+> (coupled with the cpu frequency scaling or whatever magic they do).
+>
+> What that means is that ... (wait for it) ... your apt et al (synaptic,
+> aptitude, ...) now think you cannot use automatic upgrades.
+>
+> You did the right thing and you are almost there. You need one more switch
+> argument to 'sudo dpkg -i r-base-core*deb' to override the apparent hardware
+> mismatch between lpia and i386.
+>
+> I think, looking at 'dpkg --force-help', that you want
+>
+>   sudo dpkg --force-architecture --install
+> r-base-core_2.9.0-2hardy0_i386.deb
+>
+> Try that, and google around the Debian / Ubuntu netbook help sites, wiki,
+> forums, ... to see how you can override that for good so that the 'lpia vs
+> i386' issue won't kill you.
+
+Looking here: http://ports.ubuntu.com/pool/universe/r/r-base/  I see
+that r-base-core 2.9.0 is available for the "lpia" arch. But I wonder
+which ubuntu release it is for! Careful use of apt pinning might work.
+
+-- 
+Prasenjit
+
+
+From pmilin at ff.uns.ac.rs  Sun May 17 11:32:37 2009
+From: pmilin at ff.uns.ac.rs (Petar Milin)
+Date: Sun, 17 May 2009 11:32:37 +0200
+Subject: [R-sig-Debian] rgl install failed...
+Message-ID: <4A0FD9B5.7080509@ff.uns.ac.rs>
+
+Hello, again!
+Sorry for being tedious, that's because of having no experience enough, 
+but I really want to learn.
+
+Please, let me know what I am doing wrong now; I did following:
+
+1. apt-get install -t unstable r-cran-rgl
+
+2. then, from R, tried to do install.packages("rgl"), but that failed 
+for same reasons as before:
+    checking for X... no
+    configure: error: X11 not found but required, configure aborted.
+    ERROR: configuration failed for package ?rgl?
+
+3. then, I tried apt-get build-dep r-cran-rgl, and it went fine
+
+4. finally, back to install.packages("rgl"), and now it failed for some 
+other reasons:
+    checking for GL/glu.h... yes
+    checking for glEnd in -lGL... no
+    configure: error: missing required library GL
+    ERROR: configuration failed for package ?rgl?
+
+I think I did everything you said in your previous letters. Please, bear 
+with me and let me learn and fix this.
+
+Thank you. Best,
+PM
+
+
+From erinm.hodgess at gmail.com  Mon May 18 06:55:12 2009
+From: erinm.hodgess at gmail.com (Erin Hodgess)
+Date: Sun, 17 May 2009 23:55:12 -0500
+Subject: [R-sig-Debian] wireless problem
+Message-ID: <7acc7a990905172155i1e5cd3c9r66e1471534979945@mail.gmail.com>
+
+Dear R Debian users:
+
+Could someone recommend a good sig for Debian problems not in R, please?
+
+Thanks,
+Erin
+
+
+-- 
+Erin Hodgess
+Associate Professor
+Department of Computer and Mathematical Sciences
+University of Houston - Downtown
+mailto: erinm.hodgess at gmail.com
+
+
+From piet at bioinf.nl  Mon May 18 14:30:07 2009
+From: piet at bioinf.nl (Piet Plomp)
+Date: Mon, 18 May 2009 14:30:07 +0200
+Subject: [R-sig-Debian] wireless problem
+In-Reply-To: <7acc7a990905172155i1e5cd3c9r66e1471534979945@mail.gmail.com>
+References: <7acc7a990905172155i1e5cd3c9r66e1471534979945@mail.gmail.com>
+Message-ID: <20090518123007.GA4160@bioinf.nl>
+
+
+You could look at http://lists.debian.org/
+Probably the User group of lists is appropriate for you, so clock this.
+
+In that page, search a list; probably the debian-user list is probably the one
+to look at and/or to subscribe to.
+
+Good luck!
+
+Piet
+
+On Sun, May 17, 2009 at 11:55:12PM -0500, Erin Hodgess wrote:
+> Dear R Debian users:
+> 
+> Could someone recommend a good sig for Debian problems not in R, please?
+> 
+> Thanks,
+> Erin
+> 
+> 
+> -- 
+> Erin Hodgess
+> Associate Professor
+> Department of Computer and Mathematical Sciences
+> University of Houston - Downtown
+> mailto: erinm.hodgess at gmail.com
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From edd at debian.org  Mon May 18 15:19:47 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 18 May 2009 08:19:47 -0500
+Subject: [R-sig-Debian] rgl install failed...
+In-Reply-To: <4A0FD9B5.7080509@ff.uns.ac.rs>
+References: <4A0FD9B5.7080509@ff.uns.ac.rs>
+Message-ID: <20090518131947.GA18580@eddelbuettel.com>
+
+On Sun, May 17, 2009 at 11:32:37AM +0200, Petar Milin wrote:
+> Hello, again!
+> Sorry for being tedious, that's because of having no experience enough,  
+> but I really want to learn.
+>
+> Please, let me know what I am doing wrong now; I did following:
+>
+> 1. apt-get install -t unstable r-cran-rgl
+>
+> 2. then, from R, tried to do install.packages("rgl"), but that failed  
+> for same reasons as before:
+>    checking for X... no
+>    configure: error: X11 not found but required, configure aborted.
+>    ERROR: configuration failed for package ?rgl?
+
+To be expected. 
+
+Installing the _binary_ package ensures you can _run_ the code, not
+build the code.
+
+> 3. then, I tried apt-get build-dep r-cran-rgl, and it went fine
+>
+> 4. finally, back to install.packages("rgl"), and now it failed for some  
+> other reasons:
+>    checking for GL/glu.h... yes
+>    checking for glEnd in -lGL... no
+>    configure: error: missing required library GL
+>    ERROR: configuration failed for package ?rgl?
+
+Odd. It works for us, see this log of all automated builds across time:
+
+	https://buildd.debian.org/build.php?pkg=rgl
+
+Given the required packages, rgl builds reliably for us.  Something
+must be different at your end, but given the information you supplied
+it pretty difficult to say what you need to change. 
+
+You may need to debug this locally. 
+
+Dirk
+
+> I think I did everything you said in your previous letters. Please, bear  
+> with me and let me learn and fix this.
+>
+> Thank you. Best,
+> PM
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From jranke at uni-bremen.de  Tue May 19 17:53:46 2009
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Tue, 19 May 2009 17:53:46 +0200
+Subject: [R-sig-Debian] rgl install failed...
+In-Reply-To: <4A0FD9B5.7080509@ff.uns.ac.rs>
+References: <4A0FD9B5.7080509@ff.uns.ac.rs>
+Message-ID: <20090519155346.GA24048@localdomain>
+
+Hi,
+
+* Petar Milin <pmilin at ff.uns.ac.rs> [090517 11:40]:
+> Hello, again!
+> Sorry for being tedious, that's because of having no experience enough,  
+> but I really want to learn.
+>
+> Please, let me know what I am doing wrong now; I did following:
+>
+> 1. apt-get install -t unstable r-cran-rgl
+>
+> 2. then, from R, tried to do install.packages("rgl"), but that failed  
+> for same reasons as before:
+>    checking for X... no
+>    configure: error: X11 not found but required, configure aborted.
+>    ERROR: configuration failed for package ?rgl?
+>
+> 3. then, I tried apt-get build-dep r-cran-rgl, and it went fine
+
+well, what did it install? I just did the same on my machine, and it
+wanted to remove nvidia-glx-dev, which provides the headers for the
+proprietary driver I am using with my nvidia card, and it wanted to
+install mesa headers. So if you use the nvidia driver like me, you
+should not use the above line, but just apt-get install nvidia-glx-dev.
+Works fine over here on lenny, using the R 2.9.0 from CRAN.
+
+Johannes
+
+> 4. finally, back to install.packages("rgl"), and now it failed for some  
+> other reasons:
+>    checking for GL/glu.h... yes
+>    checking for glEnd in -lGL... no
+>    configure: error: missing required library GL
+>    ERROR: configuration failed for package ?rgl?
+>
+> I think I did everything you said in your previous letters. Please, bear  
+> with me and let me learn and fix this.
+>
+> Thank you. Best,
+> PM
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+
+From pmilin at ff.uns.ac.rs  Tue May 19 18:28:08 2009
+From: pmilin at ff.uns.ac.rs (Petar Milin)
+Date: Tue, 19 May 2009 18:28:08 +0200
+Subject: [R-sig-Debian] rgl install failed...
+In-Reply-To: <20090519155346.GA24048@localdomain>
+References: <4A0FD9B5.7080509@ff.uns.ac.rs>
+	<20090519155346.GA24048@localdomain>
+Message-ID: <4A12DE18.4090102@ff.uns.ac.rs>
+
+Hello!
+This last advice completely solved my problems with rgl. So, after 
+apt-get install r-cran-rgl and apt-get build-dep r-cran-rgl, I did 
+apt-get install nvidia-glx-dev, and then I was able to do 
+install.packages("rgl") from R.
+
+Thank you so very much for the patience!
+
+Best,
+PM
+
+Johannes Ranke wrote:
+> Hi,
+> 
+> * Petar Milin <pmilin at ff.uns.ac.rs> [090517 11:40]:
+>> Hello, again!
+>> Sorry for being tedious, that's because of having no experience enough,  
+>> but I really want to learn.
+>>
+>> Please, let me know what I am doing wrong now; I did following:
+>>
+>> 1. apt-get install -t unstable r-cran-rgl
+>>
+>> 2. then, from R, tried to do install.packages("rgl"), but that failed  
+>> for same reasons as before:
+>>    checking for X... no
+>>    configure: error: X11 not found but required, configure aborted.
+>>    ERROR: configuration failed for package ?rgl?
+>>
+>> 3. then, I tried apt-get build-dep r-cran-rgl, and it went fine
+> 
+> well, what did it install? I just did the same on my machine, and it
+> wanted to remove nvidia-glx-dev, which provides the headers for the
+> proprietary driver I am using with my nvidia card, and it wanted to
+> install mesa headers. So if you use the nvidia driver like me, you
+> should not use the above line, but just apt-get install nvidia-glx-dev.
+> Works fine over here on lenny, using the R 2.9.0 from CRAN.
+> 
+> Johannes
+> 
+>> 4. finally, back to install.packages("rgl"), and now it failed for some  
+>> other reasons:
+>>    checking for GL/glu.h... yes
+>>    checking for glEnd in -lGL... no
+>>    configure: error: missing required library GL
+>>    ERROR: configuration failed for package ?rgl?
+>>
+>> I think I did everything you said in your previous letters. Please, bear  
+>> with me and let me learn and fix this.
+>>
+>> Thank you. Best,
+>> PM
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From vincent.goulet at act.ulaval.ca  Wed May 20 03:41:36 2009
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Tue, 19 May 2009 21:41:36 -0400
+Subject: [R-sig-Debian] build dependencies was Re: [R] problem with
+	rgl	package
+In-Reply-To: <20090507192812.GA13309@localdomain>
+References: <a695148b0905070828s40a13000se6c01f227b8212df@mail.gmail.com>
+	<18947.1353.7924.725879@ron.nulle.part>
+	<20090507192812.GA13309@localdomain>
+Message-ID: <3B3706F5-F598-4354-BA68-9FBC4E910758@act.ulaval.ca>
+
+Hi,
+
+A bit late to the party, here. I added the following to the Ubuntu  
+README in the SUPPORTED PACKAGES section:
+
+The other r-cran-* packages are updated with Ubuntu releases only.  
+Users who need to update (by recompiling) one of these R packages (say  
+package foo with the Ubuntu name r-cran-foo) should first make sure to  
+obtain all the required build dependencies with
+
+    sudo apt-get build-dep r-cran-foo
+I wouldn't want to enter into more details on how to (re)compile an  
+Ubuntu package. I hope this will be enough for most users and  
+situations.
+
+Thank you for the excellent suggestions (I think it was originally  
+from Jay).
+
+Best,
+
+Vincent
+
+--
+Vincent Goulet, Associate Professor
+?cole d'actuariat
+Universit? Laval, Qu?bec
+vincent.goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+
+
+Le jeu. 07 mai ? 15:28, Johannes Ranke a ?crit :
+
+> Hi,
+>
+> * Dirk Eddelbuettel <edd at debian.org> [090507 18:00]:
+>>
+>> Howdy,
+>>
+>> On 7 May 2009 at 11:28, G. Jay Kerns wrote:
+>> | Dear R-SIG-Debian,
+>
+> ...
+>
+>> | Is there any way to include some form of this information on the
+>> | README page of the Ubuntu section on CRAN? Here's how it reads  
+>> right
+>> | now, under "ADMINISTRATION AND MAINTENANCE OF R PACKAGES":
+>> |
+>> | "Installing R packages not provided with Ubuntu first requires  
+>> tools
+>> | to compile the packages from source. These tools are installed  
+>> via the
+>> | R development package with
+>> |
+>> |    sudo apt-get install r-base-dev"
+>> |
+>> |
+>> |
+>> | The above is, of course, true, but not the whole story.  In
+>> | particular, for a supported R package like rgl there are additional
+>> | tools needed to build it, which are not in r-base-dev, but which  
+>> can
+>> | be obtained with "sudo apt-get build-dep r-cran-rgl".  Perhaps  
+>> there
+>> | are other (supported) packages that require tools which aren't in
+>> | r-base-dev.
+>
+> In the Debian README, it currently says:
+>
+> You only need r-base-dev if you want to compile R packages yourself  
+> or other
+> software depending on R (see section below on administration and  
+> maintenance).
+>
+> So I am thinking to add the following:
+>
+> "Be aware that you may also have to install additional build  
+> dependencies
+> (typically -dev packages containing headers). The list r-sig-debian  
+> is a
+> good place to ask if you run into problems. If you are using these
+> backports from CRAN, and just want to update a package r-cran-foo that
+> is part of Debian, you can get the build dependencies by
+>
+>    apt-get build-dep r-cran-foo"
+>
+> How does that sound? Improvements welcome.
+>
+> Johannes
+>
+>> Good point!  Patches welcome. Vincent and Michael read this list  
+>> too so maybe
+>> that is something we can take off-list for some constructive work?
+>>
+>> | Under  "ADMINISTRATION AND MAINTENANCE OF R PACKAGES", how about  
+>> something like:
+>> |
+>> | "Installing R packages not provided with Ubuntu first requires  
+>> tools
+>> | to compile the packages from source. *For the majority of R  
+>> packages
+>> | these* tools may be installed via the R development package with
+>> |
+>> |    sudo apt-get install r-base-dev
+>> |
+>> | Please note, however, that some packages may require tools not
+>> | contained in r-base-dev, and the user must find and install these  
+>> on
+>> | an individual basis.  But in the case that R package 'foo' is
+>> | supported (with an Ubuntu package r-cran-foo), then the following  
+>> will
+>> | identify and install such dependencies:
+>> |
+>> |   sudo apt-get build-dep r-cran-foo"
+>>
+>> Not bad, but if 'apt-get install r-cran-foo' works, why do we need  
+>> to explain
+>> how to re-compile it ?
+>>
+>> | I am sure that there are other people who could say what I am  
+>> trying
+>> | to say in a much better and more accurate way.  I would invite and
+>> | welcome improvements.  I could imagine a similar statement or
+>> | reference in SUPPORTED PACKAGES.
+>> |
+>> |
+>> | Some may rightly argue that those experienced with Ubuntu will  
+>> already
+>> | know about "sudo apt-get build-dep" and it does not need to be  
+>> posted
+>> | on CRAN Ubuntu README.  But I was introduced to Ubuntu by way of R,
+>> | and not the other way around.  For people like me, this would be
+>> | great.
+>>
+>> Generally speaking, there are too many little tips and tricks so  
+>> there is
+>> always scope to do better, learn more, teach more, ...
+>>
+>> | >
+>> | > We do _a lot of work_ for R on Debian/Ubuntu. Use it, you even  
+>> have a
+>> | > money-back guarantee. And ...
+>> |
+>> |
+>> | Yes... I myself appreciate very much all of the hard work by Dirk,
+>> | Doug, Vincent, and Michael, all.  Both off-list administration and
+>> | on-list troubleshooting.  Thank you.
+>>
+>> Always a pleasure, especially when we see that it actually helps  
+>> other
+>> people.
+>>
+>> Dirk
+>>
+>> |
+>> |
+>> | Best,
+>> | Jay
+>> |
+>> |
+>> |
+>> |
+>> |
+>> |
+>> |
+>> | ***************************************************
+>> | G. Jay Kerns, Ph.D.
+>> | Associate Professor
+>> | Department of Mathematics & Statistics
+>> | Youngstown State University
+>> | Youngstown, OH 44555-0002 USA
+>> | Office: 1035 Cushwa Hall
+>> | Phone: (330) 941-3310 Office (voice mail)
+>> | -3302 Department
+>> | -3170 FAX
+>> | E-mail: gkerns at ysu.edu
+>> | http://www.cc.ysu.edu/~gjkerns/
+>>
+>> -- 
+>> Three out of two people have difficulties with fractions.
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+> -- 
+> Dr. Johannes Ranke                 jranke at uni-bremen.de
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From gkerns at ysu.edu  Wed May 20 04:30:17 2009
+From: gkerns at ysu.edu (G. Jay Kerns)
+Date: Tue, 19 May 2009 22:30:17 -0400
+Subject: [R-sig-Debian] build dependencies was Re: [R] problem with rgl
+	package
+In-Reply-To: <3B3706F5-F598-4354-BA68-9FBC4E910758@act.ulaval.ca>
+References: <a695148b0905070828s40a13000se6c01f227b8212df@mail.gmail.com> 
+	<18947.1353.7924.725879@ron.nulle.part>
+	<20090507192812.GA13309@localdomain> 
+	<3B3706F5-F598-4354-BA68-9FBC4E910758@act.ulaval.ca>
+Message-ID: <a695148b0905191930j55f52f93obdafc16c7de12275@mail.gmail.com>
+
+On Tue, May 19, 2009 at 9:41 PM, Vincent Goulet
+<vincent.goulet at act.ulaval.ca> wrote:
+> Hi,
+>
+> A bit late to the party, here. I added the following to the Ubuntu README in
+> the SUPPORTED PACKAGES section:
+>
+> The other r-cran-* packages are updated with Ubuntu releases only. Users who
+> need to update (by recompiling) one of these R packages (say package foo
+> with the Ubuntu name r-cran-foo) should first make sure to obtain all the
+> required build dependencies with
+>
+> ? sudo apt-get build-dep r-cran-foo
+> I wouldn't want to enter into more details on how to (re)compile an Ubuntu
+> package. I hope this will be enough for most users and situations.
+>
+> Thank you for the excellent suggestions (I think it was originally from
+> Jay).
+>
+> Best,
+>
+> Vincent
+>
+> --
+> Vincent Goulet, Associate Professor
+> ?cole d'actuariat
+> Universit? Laval, Qu?bec
+> vincent.goulet at act.ulaval.ca ? http://vgoulet.act.ulaval.ca
+>
+
+
+Thank you very much, Vincent.
+
+Thank you, also, to all those who contributed to the discussion.
+
+Regards,
+Jay
+
+
+From pmilin at ff.uns.ac.rs  Wed May 20 20:39:57 2009
+From: pmilin at ff.uns.ac.rs (Petar Milin)
+Date: Wed, 20 May 2009 20:39:57 +0200
+Subject: [R-sig-Debian] build dependencies was Re: [R] problem with rgl
+	package
+Message-ID: <4A144E7D.8090306@ff.uns.ac.rs>
+
+> Thank you very much, Vincent.
+> 
+> Thank you, also, to all those who contributed to the discussion.
+> 
+> Regards,
+> Jay
+
+Hello, again!
+I also would like to thank you all for the help and patience.
+
+Sincerely,
+PM
+
+
+From erinm.hodgess at gmail.com  Mon May 25 03:52:52 2009
+From: erinm.hodgess at gmail.com (Erin Hodgess)
+Date: Sun, 24 May 2009 20:52:52 -0500
+Subject: [R-sig-Debian] [R] vignette problem
+Message-ID: <7acc7a990905241852j36fac84cpdd31e6a5b9e8db15@mail.gmail.com>
+
+Dear R Debian People:
+
+I put this on the "big list" too.  I'm having a problem with the
+vignette function.
+
+> vignette("snowfall")
+sh: /usr/bin/xpdf: not found
+>
+>
+
+This is on Ubuntu Jaunty jackalope, R-2.8.1
+
+thanks,
+Erin
+
+
+
+-- 
+Erin Hodgess
+Associate Professor
+Department of Computer and Mathematical Sciences
+University of Houston - Downtown
+mailto: erinm.hodgess at gmail.com
+
+
+From fernandomayer at gmail.com  Mon May 25 04:29:38 2009
+From: fernandomayer at gmail.com (Fernando Mayer)
+Date: Sun, 24 May 2009 23:29:38 -0300
+Subject: [R-sig-Debian] [R] vignette problem
+In-Reply-To: <7acc7a990905241852j36fac84cpdd31e6a5b9e8db15@mail.gmail.com>
+References: <7acc7a990905241852j36fac84cpdd31e6a5b9e8db15@mail.gmail.com>
+Message-ID: <1243218578.4602.7.camel@deep-house>
+
+Hi,
+
+maybe this happens because you don't have xpdf installed. You can
+install it with
+
+$ sudo apt-get install xpdf
+
+or, use evince (which is the default pdf viewer in Ubuntu). To do this,
+change this option in your R session:
+
+> options(pdfviewer = "/usr/bin/evince")
+
+and try again. You may also want to put this line in your .Rprofile file
+if you want to keep evince the default for all R sessions from now own.
+
+[]s,
+
+-- 
+Fernando Mayer
+Programa de P?s-Gradua??o em Ecologia (PPGE)
+Universidade Federal de Santa Catarina (UFSC)
+URL: http://fernandomayer.googlepages.com
+e-mail: fernandomayer [@] gmail.com
+
+On Sun, 2009-05-24 at 20:52 -0500, Erin Hodgess wrote:
+> Dear R Debian People:
+> 
+> I put this on the "big list" too.  I'm having a problem with the
+> vignette function.
+> 
+> > vignette("snowfall")
+> sh: /usr/bin/xpdf: not found
+> >
+> >
+> 
+> This is on Ubuntu Jaunty jackalope, R-2.8.1
+> 
+> thanks,
+> Erin
+> 
+> 
+>
+
+
+From erinm.hodgess at gmail.com  Mon May 25 04:38:14 2009
+From: erinm.hodgess at gmail.com (Erin Hodgess)
+Date: Sun, 24 May 2009 21:38:14 -0500
+Subject: [R-sig-Debian] [R] vignette problem
+In-Reply-To: <1243218578.4602.7.camel@deep-house>
+References: <7acc7a990905241852j36fac84cpdd31e6a5b9e8db15@mail.gmail.com>
+	<1243218578.4602.7.camel@deep-house>
+Message-ID: <7acc7a990905241938u384d0e75j50153cf77913451a@mail.gmail.com>
+
+Terrific!  It worked like a charm!
+
+Thanks so much!
+Sincerely,
+Erin
+
+
+On Sun, May 24, 2009 at 9:29 PM, Fernando Mayer <fernandomayer at gmail.com> wrote:
+> Hi,
+>
+> maybe this happens because you don't have xpdf installed. You can
+> install it with
+>
+> $ sudo apt-get install xpdf
+>
+> or, use evince (which is the default pdf viewer in Ubuntu). To do this,
+> change this option in your R session:
+>
+>> options(pdfviewer = "/usr/bin/evince")
+>
+> and try again. You may also want to put this line in your .Rprofile file
+> if you want to keep evince the default for all R sessions from now own.
+>
+> []s,
+>
+> --
+> Fernando Mayer
+> Programa de P?s-Gradua??o em Ecologia (PPGE)
+> Universidade Federal de Santa Catarina (UFSC)
+> URL: http://fernandomayer.googlepages.com
+> e-mail: fernandomayer [@] gmail.com
+>
+> On Sun, 2009-05-24 at 20:52 -0500, Erin Hodgess wrote:
+>> Dear R Debian People:
+>>
+>> I put this on the "big list" too. ?I'm having a problem with the
+>> vignette function.
+>>
+>> > vignette("snowfall")
+>> sh: /usr/bin/xpdf: not found
+>> >
+>> >
+>>
+>> This is on Ubuntu Jaunty jackalope, R-2.8.1
+>>
+>> thanks,
+>> Erin
+>>
+>>
+>>
+>
+>
+
+
+
+-- 
+Erin Hodgess
+Associate Professor
+Department of Computer and Mathematical Sciences
+University of Houston - Downtown
+mailto: erinm.hodgess at gmail.com
+
+
+From erinm.hodgess at gmail.com  Mon May 25 06:02:32 2009
+From: erinm.hodgess at gmail.com (Erin Hodgess)
+Date: Sun, 24 May 2009 23:02:32 -0500
+Subject: [R-sig-Debian] lam vs. openmpi
+Message-ID: <7acc7a990905242102s60c242d3q41e7f1afb87fbc8b@mail.gmail.com>
+
+Dear R Debian Users:
+
+I wrote a quick C program (eventually to become R code) and compiled it as:
+
+mpicc -o greet greet.c
+
+So far so good.  Now when I run mpirun, this happens:
+
+
+erin at erin-laptop:~$ mpirun -np 2 greet
+-----------------------------------------------------------------------------
+It seems that there is no lamd running on the host erin-laptop.
+
+This indicates that the LAM/MPI runtime environment is not operating.
+The LAM/MPI runtime environment is necessary for the "mpirun" command.
+
+Please run the "lamboot" command the start the LAM/MPI runtime
+environment.  See the LAM/MPI documentation for how to invoke
+"lamboot" across multiple machines.
+-----------------------------------------------------------------------------
+
+
+I have both lam and openmpi installed on my Ubuntu 9.04.  What should
+I do to eliminate the lam issue, please?
+
+thanks,
+Erin
+
+
+-- 
+Erin Hodgess
+Associate Professor
+Department of Computer and Mathematical Sciences
+University of Houston - Downtown
+mailto: erinm.hodgess at gmail.com
+
+
+From edd at debian.org  Mon May 25 10:08:57 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 25 May 2009 03:08:57 -0500
+Subject: [R-sig-Debian] lam vs. openmpi
+In-Reply-To: <7acc7a990905242102s60c242d3q41e7f1afb87fbc8b@mail.gmail.com>
+References: <7acc7a990905242102s60c242d3q41e7f1afb87fbc8b@mail.gmail.com>
+Message-ID: <18970.21017.877144.766236@ron.nulle.part>
+
+
+On 24 May 2009 at 23:02, Erin Hodgess wrote:
+| Dear R Debian Users:
+| 
+| I wrote a quick C program (eventually to become R code) and compiled it as:
+| 
+| mpicc -o greet greet.c
+| 
+| So far so good.  Now when I run mpirun, this happens:
+| 
+| 
+| erin at erin-laptop:~$ mpirun -np 2 greet
+| -----------------------------------------------------------------------------
+| It seems that there is no lamd running on the host erin-laptop.
+| 
+| This indicates that the LAM/MPI runtime environment is not operating.
+| The LAM/MPI runtime environment is necessary for the "mpirun" command.
+| 
+| Please run the "lamboot" command the start the LAM/MPI runtime
+| environment.  See the LAM/MPI documentation for how to invoke
+| "lamboot" across multiple machines.
+| -----------------------------------------------------------------------------
+| 
+| 
+| I have both lam and openmpi installed on my Ubuntu 9.04.  What should
+| I do to eliminate the lam issue, please?
+
+Either by uninstalling the lam packages, and/or by calling the Open MPI
+programs directly (which overrides the default values of the alternatives
+system).  I.e.
+
+	  mpicc.openmpi			instead of mpicc
+
+	  mpirun.openmpi		instead of mpirun, or just use orterun
+
+But unless you have a reason to use it, I'd just un-install all things lam.
+
+Dirk
+
+
+ 
+| thanks,
+| Erin
+| 
+| 
+| -- 
+| Erin Hodgess
+| Associate Professor
+| Department of Computer and Mathematical Sciences
+| University of Houston - Downtown
+| mailto: erinm.hodgess at gmail.com
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From erinm.hodgess at gmail.com  Mon May 25 14:45:04 2009
+From: erinm.hodgess at gmail.com (Erin Hodgess)
+Date: Mon, 25 May 2009 07:45:04 -0500
+Subject: [R-sig-Debian] lam vs. openmpi
+In-Reply-To: <18970.21017.877144.766236@ron.nulle.part>
+References: <7acc7a990905242102s60c242d3q41e7f1afb87fbc8b@mail.gmail.com>
+	<18970.21017.877144.766236@ron.nulle.part>
+Message-ID: <7acc7a990905250545l254a4262s69ce3783452383d1@mail.gmail.com>
+
+Ok.
+
+You probably know what the next question will be, please:  how do I
+uninstall the lam stuff?
+
+thanks,
+Erin
+
+
+On Mon, May 25, 2009 at 3:08 AM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> On 24 May 2009 at 23:02, Erin Hodgess wrote:
+> | Dear R Debian Users:
+> |
+> | I wrote a quick C program (eventually to become R code) and compiled it as:
+> |
+> | mpicc -o greet greet.c
+> |
+> | So far so good. ?Now when I run mpirun, this happens:
+> |
+> |
+> | erin at erin-laptop:~$ mpirun -np 2 greet
+> | -----------------------------------------------------------------------------
+> | It seems that there is no lamd running on the host erin-laptop.
+> |
+> | This indicates that the LAM/MPI runtime environment is not operating.
+> | The LAM/MPI runtime environment is necessary for the "mpirun" command.
+> |
+> | Please run the "lamboot" command the start the LAM/MPI runtime
+> | environment. ?See the LAM/MPI documentation for how to invoke
+> | "lamboot" across multiple machines.
+> | -----------------------------------------------------------------------------
+> |
+> |
+> | I have both lam and openmpi installed on my Ubuntu 9.04. ?What should
+> | I do to eliminate the lam issue, please?
+>
+> Either by uninstalling the lam packages, and/or by calling the Open MPI
+> programs directly (which overrides the default values of the alternatives
+> system). ?I.e.
+>
+> ? ? ? ? ?mpicc.openmpi ? ? ? ? ? ? ? ? instead of mpicc
+>
+> ? ? ? ? ?mpirun.openmpi ? ? ? ? ? ? ? ?instead of mpirun, or just use orterun
+>
+> But unless you have a reason to use it, I'd just un-install all things lam.
+>
+> Dirk
+>
+>
+>
+> | thanks,
+> | Erin
+> |
+> |
+> | --
+> | Erin Hodgess
+> | Associate Professor
+> | Department of Computer and Mathematical Sciences
+> | University of Houston - Downtown
+> | mailto: erinm.hodgess at gmail.com
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+> --
+> Three out of two people have difficulties with fractions.
+>
+
+
+
+-- 
+Erin Hodgess
+Associate Professor
+Department of Computer and Mathematical Sciences
+University of Houston - Downtown
+mailto: erinm.hodgess at gmail.com
+
+
+From erinm.hodgess at gmail.com  Mon May 25 15:02:51 2009
+From: erinm.hodgess at gmail.com (Erin Hodgess)
+Date: Mon, 25 May 2009 08:02:51 -0500
+Subject: [R-sig-Debian] lam vs. openmpi
+In-Reply-To: <7acc7a990905250545l254a4262s69ce3783452383d1@mail.gmail.com>
+References: <7acc7a990905242102s60c242d3q41e7f1afb87fbc8b@mail.gmail.com>
+	<18970.21017.877144.766236@ron.nulle.part>
+	<7acc7a990905250545l254a4262s69ce3783452383d1@mail.gmail.com>
+Message-ID: <7acc7a990905250602n339b400fi2584c9eddd66821d@mail.gmail.com>
+
+Please ignore the last message.  I got it.
+
+thanks,
+Erin
+
+
+On Mon, May 25, 2009 at 7:45 AM, Erin Hodgess <erinm.hodgess at gmail.com> wrote:
+> Ok.
+>
+> You probably know what the next question will be, please: ?how do I
+> uninstall the lam stuff?
+>
+> thanks,
+> Erin
+>
+>
+> On Mon, May 25, 2009 at 3:08 AM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>>
+>> On 24 May 2009 at 23:02, Erin Hodgess wrote:
+>> | Dear R Debian Users:
+>> |
+>> | I wrote a quick C program (eventually to become R code) and compiled it as:
+>> |
+>> | mpicc -o greet greet.c
+>> |
+>> | So far so good. ?Now when I run mpirun, this happens:
+>> |
+>> |
+>> | erin at erin-laptop:~$ mpirun -np 2 greet
+>> | -----------------------------------------------------------------------------
+>> | It seems that there is no lamd running on the host erin-laptop.
+>> |
+>> | This indicates that the LAM/MPI runtime environment is not operating.
+>> | The LAM/MPI runtime environment is necessary for the "mpirun" command.
+>> |
+>> | Please run the "lamboot" command the start the LAM/MPI runtime
+>> | environment. ?See the LAM/MPI documentation for how to invoke
+>> | "lamboot" across multiple machines.
+>> | -----------------------------------------------------------------------------
+>> |
+>> |
+>> | I have both lam and openmpi installed on my Ubuntu 9.04. ?What should
+>> | I do to eliminate the lam issue, please?
+>>
+>> Either by uninstalling the lam packages, and/or by calling the Open MPI
+>> programs directly (which overrides the default values of the alternatives
+>> system). ?I.e.
+>>
+>> ? ? ? ? ?mpicc.openmpi ? ? ? ? ? ? ? ? instead of mpicc
+>>
+>> ? ? ? ? ?mpirun.openmpi ? ? ? ? ? ? ? ?instead of mpirun, or just use orterun
+>>
+>> But unless you have a reason to use it, I'd just un-install all things lam.
+>>
+>> Dirk
+>>
+>>
+>>
+>> | thanks,
+>> | Erin
+>> |
+>> |
+>> | --
+>> | Erin Hodgess
+>> | Associate Professor
+>> | Department of Computer and Mathematical Sciences
+>> | University of Houston - Downtown
+>> | mailto: erinm.hodgess at gmail.com
+>> |
+>> | _______________________________________________
+>> | R-SIG-Debian mailing list
+>> | R-SIG-Debian at r-project.org
+>> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+>> --
+>> Three out of two people have difficulties with fractions.
+>>
+>
+>
+>
+> --
+> Erin Hodgess
+> Associate Professor
+> Department of Computer and Mathematical Sciences
+> University of Houston - Downtown
+> mailto: erinm.hodgess at gmail.com
+>
+
+
+
+-- 
+Erin Hodgess
+Associate Professor
+Department of Computer and Mathematical Sciences
+University of Houston - Downtown
+mailto: erinm.hodgess at gmail.com
+
+
+From gjaa at de.ufpe.br  Mon May 25 16:48:31 2009
+From: gjaa at de.ufpe.br (Getulio Amaral)
+Date: Mon, 25 May 2009 11:48:31 -0300 (BRT)
+Subject: [R-sig-Debian] dvipdf does not work
+Message-ID: <34471.150.161.44.237.1243262911.squirrel@webmail.de.ufpe.br>
+
+Dear All,
+
+I know it is a R list but please let me ask a question about dvipdfm.
+
+In latex, the command dvipdf file.dvi generates a pdf file. When I use the
+beamer.tex file, the output has different sizes and the slides are not
+suitable for presentation. The dvipfm produces slides with correct sizes
+but some parts of the equations are cut off.
+
+Should I install some program to dvipdfm works properly?
+
+The pdfm does not work well with beamer files?
+
+Sincerely,
+Getulio J. A. Amaral
+Departamento de Estat?stica
+Centro de Ci?ncias Exatas e da Natureza
+Universidade Federal de Pernambuco
+http://www.de.ufpe.br/~gjaa
+
+
+From bates at stat.wisc.edu  Mon May 25 17:10:50 2009
+From: bates at stat.wisc.edu (Douglas Bates)
+Date: Mon, 25 May 2009 10:10:50 -0500
+Subject: [R-sig-Debian] dvipdf does not work
+In-Reply-To: <34471.150.161.44.237.1243262911.squirrel@webmail.de.ufpe.br>
+References: <34471.150.161.44.237.1243262911.squirrel@webmail.de.ufpe.br>
+Message-ID: <40e66e0b0905250810j16eb36cdia417f39d67ca382b@mail.gmail.com>
+
+On Mon, May 25, 2009 at 9:48 AM, Getulio Amaral <gjaa at de.ufpe.br> wrote:
+> Dear All,
+
+> I know it is a R list but please let me ask a question about dvipdfm.
+
+> In latex, the command dvipdf file.dvi generates a pdf file. When I use the
+> beamer.tex file, the output has different sizes and the slides are not
+> suitable for presentation. The dvipfm produces slides with correct sizes
+> but some parts of the equations are cut off.
+
+Is there a reason that you want to produce dvi then convert it to PDF
+instead of producing PDF directly with pdflatex?  For beamer slides I
+usually use the texi2pdf script to ensure pdflatex is run the
+appropriate number of times to resolve all the references.
+
+If you use Sweave and want PDF you should consider calling
+
+R CMD texi2pdf mySlides.Rnw
+
+By prefacing with R CMD you are ensured that the TEXINPUTS environment
+variable is set appropriately to get the Sweave.sty file.
+
+> Should I install some program to dvipdfm works properly?
+>
+> The pdfm does not work well with beamer files?
+>
+> Sincerely,
+> Getulio J. A. Amaral
+> Departamento de Estat?stica
+> Centro de Ci?ncias Exatas e da Natureza
+> Universidade Federal de Pernambuco
+> http://www.de.ufpe.br/~gjaa
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+

@@ -1,0 +1,114 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2024-03",
+  "messages": [
+    {
+      "id": "msg-d16e43cb4e72",
+      "message_id": "<DM5PR1001MB2377B4B211FA3FCC520E4D10AC342@DM5PR1001MB2377.namprd10.prod.outlook.com>",
+      "from_name": "m@rcobi@@chette m@iii@g oii icioud@com",
+      "from_email_hash": "b08feb3cdbf3f077c82f3ba6f24fb92439ffd61d5aee6ac78a5d2da9361682df",
+      "date": "2024-03-27T17:33:23Z",
+      "subject": "[R-sig-Debian] Problem Installing R 4.3.3 on Vanilla based Jammy Ubuntu",
+      "subject_clean": "Problem Installing R 4.3.3 on Vanilla based Jammy Ubuntu",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi r-sig-debian list, first time posting here!\n\nSomething changed with the latest release of the R package for Ubuntu 22.04. When trying to install within a Docker image with base Ubuntu LTS 22.04 (Jammy) using the following Docker file (that I have been using for several years in many projects)  that follows the install step on the CRAN Ubuntu page\n\nFROM ubuntu:22.04\n\nUSER root\n\nENV DEBIAN_FRONTEND noninteractive\n\n## INSTALL R\nRUN apt update \\\n  && apt install -y --no-install-recommends \\\n  software-properties-common \\\n  dirmngr \\\n  gnupg2 \\\n  wget \\\n  && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \\\n  | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \\\n  && add-apt-repository -y \"deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/\"\n\nRUN apt update -y \\\n  && apt install -y r-base\n\nI get the following error message:\n\n$ apt install -y r-base\nReading package lists... Done\nBuilding dependency tree... Done\nReading state information... Done\nSome packages could not be installed. This may mean that you have\nrequested an impossible situation or if you are using the unstable\ndistribution that some required packages have not yet been created\nor been moved out of Incoming.\nThe following information may help to resolve the situation:\n\nThe following packages have unmet dependencies:\nr-base : Depends: r-base-core (>= 4.3.3-1.2204.0) but it is not going to be installed\n          Depends: r-recommended (= 4.3.3-1.2204.0) but it is not going to be installed\n          Recommends: r-base-html but it is not going to be installed\n          Recommends: r-doc-html but it is not going to be installed\nE: Unable to correct problems, you have held broken packages.\n\nSo, something is not working anymore? Seems like I can?t resolve the r-base-core package to Michael Rutter?s repo when within a docker container (built with omitting the apt install r-base step). Looking at the policy for r-base-core, it only resolves to the Ubuntu LTS base repo:\n\n$ apt policy r-base-core\nr-base-core:\n  Installed: (none)\n  Candidate: 4.1.2-1ubuntu2\n  Version table:\n     4.1.2-1ubuntu2 500\n        500 http://ports.ubuntu.com/ubuntu-ports jammy/universe arm64 Packages\n\nWhile looking at the policy for r-base, it resolves to the  cloud.r-project.org/bin/linux/ubuntu<https://cloud.r-project.org/bin/linux/ubuntu> repos:\n\n$ apt policy r-base\nr-base:\n  Installed: (none)\n  Candidate: 4.3.3-1.2204.0\n  Version table:\n     4.3.3-1.2204.0 500\n        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n     4.3.2-1.2204.0 500\n        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n     4.3.1-4.2204.0 500\n        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n     4.3.1-3.2204.0 500\n        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n     4.3.1-2.2204.0 500\n        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n     4.3.1-1.2204.0 500\n        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n     4.3.0-1.2204.0 500\n        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n     4.2.3-1.2204.0 500\n        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n     4.2.2.20221110-1.2204.0 500\n        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n     4.2.2-1.2204.0 500\n        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n     4.2.1-3.2204.0 500\n        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n     4.2.1-2.2204.0 500\n        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n     4.2.1-1.2204.0 500\n        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n     4.2.0-1.2204.0 500\n        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n     4.1.2-1ubuntu2 500\n        500 http://ports.ubuntu.com/ubuntu-ports jammy/universe arm64 Packages\n\n\nFinally, if I change the repos to M. Rutter ppa, it fixes the problem. Here?s a working version of the Dockerfile with the changes\n\nFROM ubuntu:22.04\n\nUSER root\n\nENV DEBIAN_FRONTEND noninteractive\n\n## INSTALL R\nRUN apt update \\\n  && apt install -y --no-install-recommends \\\n  software-properties-common \\\n  dirmngr \\\n  gnupg2 \\\n  wget \\\n  && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \\\n  | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \\\n  && add-apt-repository -y \"ppa:marutter/rrutter4.0\"\n\nRUN apt update -y \\\n  && apt install -y r-base\n\nIf this is the new way of pulling r-base with apt install, the CRAN documentation should be updated but I have a feeling that something basic is broken somewhere that could be easily fixed. I don?t maintain Ubuntu package so this is the extent of my knowledge but I have many deployed pipelines referencing cloud.r-project.org/bin/linux/ubuntu<https://cloud.r-project.org/bin/linux/ubuntu> that will probably need updated?\n\nLooking forward to solutions.\n\nMarco\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Hi r-sig-debian list, first time posting here!\n\nSomething changed with the latest release of the R package for Ubuntu 22.04. When trying to install within a Docker image with base Ubuntu LTS 22.04 (Ja",
+      "thread_id": "thread-d16e43cb4e72",
+      "thread_depth": 0,
+      "month": "2024-03"
+    },
+    {
+      "id": "msg-bb6289c6d207",
+      "message_id": "<ab2210b6-264f-4013-8407-47d470e8b845@gmail.com>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "fa9a311629388b6101be83d3f529d49cb003033a62bdd75c9f3e231ba130973a",
+      "date": "2024-03-27T19:57:42-04:00",
+      "subject": "[R-sig-Debian]  Problem Installing R 4.3.3 on Vanilla based Jammy Ubuntu",
+      "subject_clean": "Problem Installing R 4.3.3 on Vanilla based Jammy Ubuntu",
+      "in_reply_to": "<DM5PR1001MB2377B4B211FA3FCC520E4D10AC342@DM5PR1001MB2377.namprd10.prod.outlook.com>",
+      "references": [
+        "<DM5PR1001MB2377B4B211FA3FCC520E4D10AC342@DM5PR1001MB2377.namprd10.prod.outlook.com>"
+      ],
+      "body_plain": "On 3/27/24 13:33, marcoblanchette at icloud.com wrote:\n> Hi r-sig-debian list, first time posting here!\n> \n> Something changed with the latest release of the R package for Ubuntu 22.04. When trying to install within a Docker image with base Ubuntu LTS 22.04 (Jammy) using the following Docker file (that I have been using for several years in many projects)  that follows the install step on the CRAN Ubuntu page\n> \n\nMarco,\n\nClipping a bunch of the output for clarity.  Found the issue, but I am \nnot a Docker expert or regular user, so I am not going to offer a solution.\n\nI found the issue while using a Jaunty image on a M1 Mac.  The problem \nis that on the Mac, it is looking for ARM packages.  CRAN only has amd64 \nand i386, which is why r-base (which has architecture: All) is correct, \nbut r-base-core only has the original Jaunty ARM build.  Also explains \nwhy my PPA works, as that has ARM builds.\n\nSo this appears to be a hardware issue.  Hope this helps.\nMichael\n\n> $ apt policy r-base\n> r-base:\n>    Installed: (none)\n>    Candidate: 4.3.3-1.2204.0\n>    Version table:\n>       4.3.3-1.2204.0 500\n>          500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>       4.3.2-1.2204.0 500\n>          500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>       4.3.1-4.2204.0 500\n>          500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>       4.3.1-3.2204.0 500\n>          500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>       4.3.1-2.2204.0 500\n>          500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>       4.3.1-1.2204.0 500\n>          500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>       4.3.0-1.2204.0 500\n>          500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>       4.2.3-1.2204.0 500\n>          500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>       4.2.2.20221110-1.2204.0 500\n>          500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>       4.2.2-1.2204.0 500\n>          500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>       4.2.1-3.2204.0 500\n>          500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>       4.2.1-2.2204.0 500\n>          500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>       4.2.1-1.2204.0 500\n>          500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>       4.2.0-1.2204.0 500\n>          500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>       4.1.2-1ubuntu2 500\n>          500 http://ports.ubuntu.com/ubuntu-ports jammy/universe arm64 Packages\n> \n> \n> Finally, if I change the repos to M. Rutter ppa, it fixes the problem. Here?s a working version of the Dockerfile with the changes\n> \n> FROM ubuntu:22.04\n> \n> USER root\n> \n> ENV DEBIAN_FRONTEND noninteractive\n> \n> ## INSTALL R\n> RUN apt update \\\n>    && apt install -y --no-install-recommends \\\n>    software-properties-common \\\n>    dirmngr \\\n>    gnupg2 \\\n>    wget \\\n>    && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \\\n>    | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \\\n>    && add-apt-repository -y \"ppa:marutter/rrutter4.0\"\n> \n> RUN apt update -y \\\n>    && apt install -y r-base\n> \n> If this is the new way of pulling r-base with apt install, the CRAN documentation should be updated but I have a feeling that something basic is broken somewhere that could be easily fixed. I don?t maintain Ubuntu package so this is the extent of my knowledge but I have many deployed pipelines referencing cloud.r-project.org/bin/linux/ubuntu<https://cloud.r-project.org/bin/linux/ubuntu> that will probably need updated?\n> \n> Looking forward to solutions.\n> \n> Marco\n> \n> \t[[alternative HTML version deleted]]\n> \n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "On 3/27/24 13:33, marcoblanchette at icloud.com wrote:\n> Hi r-sig-debian list, first time posting here!\n> \n> Something changed with the latest release of the R package for Ubuntu 22.04. When trying to",
+      "thread_id": "thread-d16e43cb4e72",
+      "thread_depth": 1,
+      "month": "2024-03"
+    },
+    {
+      "id": "msg-012a6be63c50",
+      "message_id": "<88AE637F-B9B6-4B20-BEA4-FAD3A0FC5C7F@icloud.com>",
+      "from_name": "Marco Blanchette",
+      "from_email_hash": "25d4431d39744189a00ef2861d833dd2d5ca5acee72f6ce4333ef3137c79edde",
+      "date": "2024-03-27T17:10:08-07:00",
+      "subject": "[R-sig-Debian]  Problem Installing R 4.3.3 on Vanilla based Jammy Ubuntu",
+      "subject_clean": "Problem Installing R 4.3.3 on Vanilla based Jammy Ubuntu",
+      "in_reply_to": "<ab2210b6-264f-4013-8407-47d470e8b845@gmail.com>",
+      "references": [
+        "<ab2210b6-264f-4013-8407-47d470e8b845@gmail.com>"
+      ],
+      "body_plain": "Ah! You know what, that might explain a lot? I just switched from working full time on AWS instead instances to a personal Mac laptop and I just bumped onto a related platform issues. I?ll follow up but I think your right, my container build is picking up that I?m on a arm64 cpu and is applying some specific switches based on that. News to me but make sense. \n\nI?ll dig up a bit and follow up. Thanks Michael\n\n\n-- Marco\n\n\n\n> On Mar 27, 2024, at 4:58?PM, Michael Rutter <marutter at gmail.com> wrote:\n> \n> ?\n> \n>> On 3/27/24 13:33, marcoblanchette at icloud.com wrote:\n>> Hi r-sig-debian list, first time posting here!\n>> Something changed with the latest release of the R package for Ubuntu 22.04. When trying to install within a Docker image with base Ubuntu LTS 22.04 (Jammy) using the following Docker file (that I have been using for several years in many projects)  that follows the install step on the CRAN Ubuntu page\n> \n> Marco,\n> \n> Clipping a bunch of the output for clarity.  Found the issue, but I am not a Docker expert or regular user, so I am not going to offer a solution.\n> \n> I found the issue while using a Jaunty image on a M1 Mac.  The problem is that on the Mac, it is looking for ARM packages.  CRAN only has amd64 and i386, which is why r-base (which has architecture: All) is correct, but r-base-core only has the original Jaunty ARM build.  Also explains why my PPA works, as that has ARM builds.\n> \n> So this appears to be a hardware issue.  Hope this helps.\n> Michael\n> \n>> $ apt policy r-base\n>> r-base:\n>>   Installed: (none)\n>>   Candidate: 4.3.3-1.2204.0\n>>   Version table:\n>>      4.3.3-1.2204.0 500\n>>         500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>>      4.3.2-1.2204.0 500\n>>         500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>>      4.3.1-4.2204.0 500\n>>         500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>>      4.3.1-3.2204.0 500\n>>         500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>>      4.3.1-2.2204.0 500\n>>         500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>>      4.3.1-1.2204.0 500\n>>         500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>>      4.3.0-1.2204.0 500\n>>         500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>>      4.2.3-1.2204.0 500\n>>         500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>>      4.2.2.20221110-1.2204.0 500\n>>         500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>>      4.2.2-1.2204.0 500\n>>         500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>>      4.2.1-3.2204.0 500\n>>         500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>>      4.2.1-2.2204.0 500\n>>         500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>>      4.2.1-1.2204.0 500\n>>         500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>>      4.2.0-1.2204.0 500\n>>         500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages\n>>      4.1.2-1ubuntu2 500\n>>         500 http://ports.ubuntu.com/ubuntu-ports jammy/universe arm64 Packages\n>> Finally, if I change the repos to M. Rutter ppa, it fixes the problem. Here?s a working version of the Dockerfile with the changes\n>> FROM ubuntu:22.04\n>> USER root\n>> ENV DEBIAN_FRONTEND noninteractive\n>> ## INSTALL R\n>> RUN apt update \\\n>>   && apt install -y --no-install-recommends \\\n>>   software-properties-common \\\n>>   dirmngr \\\n>>   gnupg2 \\\n>>   wget \\\n>>   && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \\\n>>   | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \\\n>>   && add-apt-repository -y \"ppa:marutter/rrutter4.0\"\n>> RUN apt update -y \\\n>>   && apt install -y r-base\n>> If this is the new way of pulling r-base with apt install, the CRAN documentation should be updated but I have a feeling that something basic is broken somewhere that could be easily fixed. I don?t maintain Ubuntu package so this is the extent of my knowledge but I have many deployed pipelines referencing cloud.r-project.org/bin/linux/ubuntu<https://cloud.r-project.org/bin/linux/ubuntu> that will probably need updated?\n>> Looking forward to solutions.\n>> Marco\n>>    [[alternative HTML version deleted]]\n>> _______________________________________________\n>> R-SIG-Debian mailing list\n>> R-SIG-Debian at r-project.org\n>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "Ah! You know what, that might explain a lot? I just switched from working full time on AWS instead instances to a personal Mac laptop and I just bumped onto a related platform issues. I?ll follow up b",
+      "thread_id": "thread-d16e43cb4e72",
+      "thread_depth": 2,
+      "month": "2024-03"
+    },
+    {
+      "id": "msg-eed515261399",
+      "message_id": "<26116.47905.978852.159756@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2024-03-27T19:34:41-05:00",
+      "subject": "[R-sig-Debian]  Problem Installing R 4.3.3 on Vanilla based Jammy Ubuntu",
+      "subject_clean": "Problem Installing R 4.3.3 on Vanilla based Jammy Ubuntu",
+      "in_reply_to": "<88AE637F-B9B6-4B20-BEA4-FAD3A0FC5C7F@icloud.com>",
+      "references": [
+        "<ab2210b6-264f-4013-8407-47d470e8b845@gmail.com>",
+        "<88AE637F-B9B6-4B20-BEA4-FAD3A0FC5C7F@icloud.com>"
+      ],
+      "body_plain": "Marco,\n\nIt usually helps to be aware of one's hardware platform ;-)\n\nThere is an option for Docker command to tell it to switch to x86_64, my\ncolleagues who are on M1 and alike use that to access the generally richer\neco-system of binaries for the Intel world. If on the other hand you prefer\nto fully self-sufficient and compile 'everything' you now at least know that\nthe RRutter PPA gives you R.\n\nMichael:  Should we look into mirroring both architectures?\n\nCheers, Dirk\n\n-- \ndirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "Marco,\n\nIt usually helps to be aware of one's hardware platform ;-)\n\nThere is an option for Docker command to tell it to switch to x86_64, my\ncolleagues who are on M1 and alike use that to access the ",
+      "thread_id": "thread-d16e43cb4e72",
+      "thread_depth": 3,
+      "month": "2024-03"
+    },
+    {
+      "id": "msg-bc86a0053e42",
+      "message_id": "<3C57CB2A-919F-4489-BD1B-3F8F2CF535DF@icloud.com>",
+      "from_name": "Marco Blanchette",
+      "from_email_hash": "25d4431d39744189a00ef2861d833dd2d5ca5acee72f6ce4333ef3137c79edde",
+      "date": "2024-03-27T18:20:27-07:00",
+      "subject": "[R-sig-Debian]  Problem Installing R 4.3.3 on Vanilla based Jammy Ubuntu",
+      "subject_clean": "Problem Installing R 4.3.3 on Vanilla based Jammy Ubuntu",
+      "in_reply_to": "<26116.47905.978852.159756@rob.eddelbuettel.com>",
+      "references": [
+        "<ab2210b6-264f-4013-8407-47d470e8b845@gmail.com>",
+        "<88AE637F-B9B6-4B20-BEA4-FAD3A0FC5C7F@icloud.com>",
+        "<26116.47905.978852.159756@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Dirk, totally right! We used to be extremely sensitized about our hardware flavors 20 years ago! With the advent of cloud based computing (in my case AWS) and the migration of Macs to intel base chip, this kinda find away!!!\n\nOn top, the error thrown during the docker build was far from easy to diagnose. Bottom line is that by specifying an architecture at build time, the CRAN based steps works as advertised\n\nRunning on Mac with M1 chip the following completes as expected. But this is a good wake up call for me who just switched to a new Mac in January, doing consulting works on serverless infrastructure , no more huge AWS based instances to build on!\n\nThanks a lot\n\nWorking solution:\n\n$ docker build -t r-base --platform linux/amd64 .\n\nDockerfile:\nFROM ubuntu:22.04\n\nUSER root\n\nENV DEBIAN_FRONTEND noninteractive\n\n## Configure Ubuntu for R install\nRUN apt update \\\n  && apt install -y --no-install-recommends \\\n  software-properties-common \\\n  dirmngr \\\n  gnupg2 \\\n  wget \\\n  && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \\\n  | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \\\n  && add-apt-repository -y \"deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/\"\n\n## Install R\nRUN apt update -y \\\n  && apt install -y r-base \\\n  && apt clean \\\n  && apt purge \\\n  && rm -rf /var/lib/apt/lists/* /tmp/*\n\n\n\n\n\n> On Mar 27, 2024, at 5:34?PM, Dirk Eddelbuettel <edd at debian.org> wrote:\n> \n> \n> Marco,\n> \n> It usually helps to be aware of one's hardware platform ;-)\n> \n> There is an option for Docker command to tell it to switch to x86_64, my\n> colleagues who are on M1 and alike use that to access the generally richer\n> eco-system of binaries for the Intel world. If on the other hand you prefer\n> to fully self-sufficient and compile 'everything' you now at least know that\n> the RRutter PPA gives you R.\n> \n> Michael:  Should we look into mirroring both architectures?\n> \n> Cheers, Dirk\n> \n> -- \n> dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org\n\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Dirk, totally right! We used to be extremely sensitized about our hardware flavors 20 years ago! With the advent of cloud based computing (in my case AWS) and the migration of Macs to intel base chip,",
+      "thread_id": "thread-d16e43cb4e72",
+      "thread_depth": 4,
+      "month": "2024-03"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-d16e43cb4e72",
+      "subject": "Problem Installing R 4.3.3 on Vanilla based Jammy Ubuntu",
+      "message_count": 5,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Marco Blanchette",
+        "Michael Rutter",
+        "m@rcobi@@chette m@iii@g oii icioud@com"
+      ],
+      "started": "2024-03-27T17:33:23+00:00",
+      "last_reply": "2024-03-27T18:20:27-07:00",
+      "root_message_id": "msg-d16e43cb4e72"
+    }
+  ]
+}

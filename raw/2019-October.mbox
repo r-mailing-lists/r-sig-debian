@@ -1,0 +1,339 @@
+From bog@@o@chr|@to|er @end|ng |rom gm@||@com  Thu Oct 17 13:04:28 2019
+From: bog@@o@chr|@to|er @end|ng |rom gm@||@com (Christofer Bogaso)
+Date: Thu, 17 Oct 2019 16:34:28 +0530
+Subject: [R-sig-Debian] Installing R in Ubuntu
+Message-ID: <CA+dpOJmgBqPHZXQ2J-VpKkNEnpo3xMftx9uHHLWk158qNW=vBQ@mail.gmail.com>
+
+Hi,
+
+I have an Ubuntu server hosted in the cloud, but for security purpose,
+direct internet connection is blocked.
+
+So my question is under this scenario how can I install R in that machine?
+
+I was wondering if I could have some .deb file available then I could
+scp that .deb file from my local computer (this has internet) to that
+Ubuntu server.
+
+But when I reached to
+https://cran.cnr.berkeley.edu/bin/linux/ubuntu/disco-cran35/, I failed
+to identify any deb file.
+
+Could you shed some light on this?
+
+Thanks and regards,
+
+
+From edd @end|ng |rom deb|@n@org  Thu Oct 17 13:15:28 2019
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Thu, 17 Oct 2019 06:15:28 -0500
+Subject: [R-sig-Debian] Installing R in Ubuntu
+In-Reply-To: <CA+dpOJmgBqPHZXQ2J-VpKkNEnpo3xMftx9uHHLWk158qNW=vBQ@mail.gmail.com>
+References: <CA+dpOJmgBqPHZXQ2J-VpKkNEnpo3xMftx9uHHLWk158qNW=vBQ@mail.gmail.com>
+Message-ID: <23976.19792.687618.643545@rob.eddelbuettel.com>
+
+
+On 17 October 2019 at 16:34, Christofer Bogaso wrote:
+| I have an Ubuntu server hosted in the cloud, but for security purpose,
+| direct internet connection is blocked.
+| 
+| So my question is under this scenario how can I install R in that machine?
+
+It is an old, and solved problem. It has come up on StackOverflow a few times
+before as well.  Here is a (nearly) ten-year old answer of mine:
+
+https://stackoverflow.com/questions/4419268/how-do-i-download-a-package-from-apt-get-without-installing-it/4419282#4419282
+
+You want one of those solutions -- and I am sure there are newer ones, so
+maybe try searching on askubuntu.com as well -- as it will pull needed
+dependencies in for you as well.
+
+| I was wondering if I could have some .deb file available then I could
+| scp that .deb file from my local computer (this has internet) to that
+| Ubuntu server.
+| 
+| But when I reached to
+| https://cran.cnr.berkeley.edu/bin/linux/ubuntu/disco-cran35/, I failed
+| to identify any deb file.
+| 
+| Could you shed some light on this?
+
+a) Don't use a per-institution server. The edge-of-cloud CDN ones are
+generally as good or faster _irrespective of your location_ and hence better
+for others.  So https://cloud.r-project.org is better
+
+b) Copying and pasting from http://cloud.r-project.org/bin/linux/ubuntu/disco-cran35/
+
+      [....]
+      r-base-core_3.6.1-3disco_amd64.deb              2019-07-26 13:54   24M  
+      r-base-core_3.6.1-3disco_i386.deb               2019-07-26 14:09   24M  
+      [....]
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From bog@@o@chr|@to|er @end|ng |rom gm@||@com  Thu Oct 17 13:31:09 2019
+From: bog@@o@chr|@to|er @end|ng |rom gm@||@com (Christofer Bogaso)
+Date: Thu, 17 Oct 2019 17:01:09 +0530
+Subject: [R-sig-Debian] Installing R in Ubuntu
+In-Reply-To: <23976.19792.687618.643545@rob.eddelbuettel.com>
+References: <CA+dpOJmgBqPHZXQ2J-VpKkNEnpo3xMftx9uHHLWk158qNW=vBQ@mail.gmail.com>
+ <23976.19792.687618.643545@rob.eddelbuettel.com>
+Message-ID: <CA+dpOJ=m0+AfgxoRtwzr+x1mKiL6JiZg=GYbU5wQ-vqJHQ=GwQ@mail.gmail.com>
+
+Thanks for this.
+
+I have downloaded the r-base-core_3.6.1-3disco_amd64.deb file and
+placed in /var/cache/apt/archives
+
+Next I ran below code in Ubuntu
+
+sudo apt-get install -f /var/cache/apt/archives/r-base-core.deb
+
+But this is failing with below message -
+E: Unsupported file /var/cache/apt/archives/r-base-core.deb given on commandline
+
+Could you please help resolve this?
+
+On Thu, Oct 17, 2019 at 4:45 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+>
+> On 17 October 2019 at 16:34, Christofer Bogaso wrote:
+> | I have an Ubuntu server hosted in the cloud, but for security purpose,
+> | direct internet connection is blocked.
+> |
+> | So my question is under this scenario how can I install R in that machine?
+>
+> It is an old, and solved problem. It has come up on StackOverflow a few times
+> before as well.  Here is a (nearly) ten-year old answer of mine:
+>
+> https://stackoverflow.com/questions/4419268/how-do-i-download-a-package-from-apt-get-without-installing-it/4419282#4419282
+>
+> You want one of those solutions -- and I am sure there are newer ones, so
+> maybe try searching on askubuntu.com as well -- as it will pull needed
+> dependencies in for you as well.
+>
+> | I was wondering if I could have some .deb file available then I could
+> | scp that .deb file from my local computer (this has internet) to that
+> | Ubuntu server.
+> |
+> | But when I reached to
+> | https://cran.cnr.berkeley.edu/bin/linux/ubuntu/disco-cran35/, I failed
+> | to identify any deb file.
+> |
+> | Could you shed some light on this?
+>
+> a) Don't use a per-institution server. The edge-of-cloud CDN ones are
+> generally as good or faster _irrespective of your location_ and hence better
+> for others.  So https://cloud.r-project.org is better
+>
+> b) Copying and pasting from http://cloud.r-project.org/bin/linux/ubuntu/disco-cran35/
+>
+>       [....]
+>       r-base-core_3.6.1-3disco_amd64.deb              2019-07-26 13:54   24M
+>       r-base-core_3.6.1-3disco_i386.deb               2019-07-26 14:09   24M
+>       [....]
+>
+> Dirk
+>
+> --
+> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From gnw||| @end|ng |rom gm@||@com  Thu Oct 17 15:08:45 2019
+From: gnw||| @end|ng |rom gm@||@com (George N. White III)
+Date: Thu, 17 Oct 2019 10:08:45 -0300
+Subject: [R-sig-Debian] Installing R in Ubuntu
+In-Reply-To: <CA+dpOJ=m0+AfgxoRtwzr+x1mKiL6JiZg=GYbU5wQ-vqJHQ=GwQ@mail.gmail.com>
+References: <CA+dpOJmgBqPHZXQ2J-VpKkNEnpo3xMftx9uHHLWk158qNW=vBQ@mail.gmail.com>
+ <23976.19792.687618.643545@rob.eddelbuettel.com>
+ <CA+dpOJ=m0+AfgxoRtwzr+x1mKiL6JiZg=GYbU5wQ-vqJHQ=GwQ@mail.gmail.com>
+Message-ID: <CAKTOP46deJgBZMFc6oWC+1Q5fSGCixE0BoroarWWJLnibEcniw@mail.gmail.com>
+
+On Thu, 17 Oct 2019 at 08:31, Christofer Bogaso <bogaso.christofer at gmail.com>
+wrote:
+
+> Thanks for this.
+>
+> I have downloaded the r-base-core_3.6.1-3disco_amd64.deb file and
+> placed in /var/cache/apt/archives
+>
+> Next I ran below code in Ubuntu
+>
+> sudo apt-get install -f /var/cache/apt/archives/r-base-core.deb
+>
+> But this is failing with below message -
+> E: Unsupported file /var/cache/apt/archives/r-base-core.deb given on
+> commandline
+>
+> Could you please help resolve this?
+>
+
+Use "dpkg".   For details of Debian/Ubuntu package management, see:
+https://www.debian.org/doc/manuals/debian-reference/ch02.en.html
+
+Ubuntu provides the Debian Reference Manual as a package.
+
+
+> On Thu, Oct 17, 2019 at 4:45 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+> >
+> >
+> > On 17 October 2019 at 16:34, Christofer Bogaso wrote:
+> > | I have an Ubuntu server hosted in the cloud, but for security purpose,
+> > | direct internet connection is blocked.
+> > |
+> > | So my question is under this scenario how can I install R in that
+> machine?
+> >
+> > It is an old, and solved problem. It has come up on StackOverflow a few
+> times
+> > before as well.  Here is a (nearly) ten-year old answer of mine:
+> >
+> >
+> https://stackoverflow.com/questions/4419268/how-do-i-download-a-package-from-apt-get-without-installing-it/4419282#4419282
+> >
+> > You want one of those solutions -- and I am sure there are newer ones, so
+> > maybe try searching on askubuntu.com as well -- as it will pull needed
+> > dependencies in for you as well.
+> >
+> > | I was wondering if I could have some .deb file available then I could
+> > | scp that .deb file from my local computer (this has internet) to that
+> > | Ubuntu server.
+> > |
+> > | But when I reached to
+> > | https://cran.cnr.berkeley.edu/bin/linux/ubuntu/disco-cran35/, I failed
+> > | to identify any deb file.
+> > |
+> > | Could you shed some light on this?
+> >
+> > a) Don't use a per-institution server. The edge-of-cloud CDN ones are
+> > generally as good or faster _irrespective of your location_ and hence
+> better
+> > for others.  So https://cloud.r-project.org is better
+> >
+> > b) Copying and pasting from
+> http://cloud.r-project.org/bin/linux/ubuntu/disco-cran35/
+> >
+> >       [....]
+> >       r-base-core_3.6.1-3disco_amd64.deb              2019-07-26 13:54
+>  24M
+> >       r-base-core_3.6.1-3disco_i386.deb               2019-07-26 14:09
+>  24M
+> >       [....]
+> >
+> > Dirk
+> >
+> > --
+> > http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+-- 
+George N. White III
+
+	[[alternative HTML version deleted]]
+
+
+From bog@@o@chr|@to|er @end|ng |rom gm@||@com  Thu Oct 17 22:15:09 2019
+From: bog@@o@chr|@to|er @end|ng |rom gm@||@com (Christofer Bogaso)
+Date: Fri, 18 Oct 2019 01:45:09 +0530
+Subject: [R-sig-Debian] Installing R in Ubuntu
+In-Reply-To: <CAKTOP46deJgBZMFc6oWC+1Q5fSGCixE0BoroarWWJLnibEcniw@mail.gmail.com>
+References: <CA+dpOJmgBqPHZXQ2J-VpKkNEnpo3xMftx9uHHLWk158qNW=vBQ@mail.gmail.com>
+ <23976.19792.687618.643545@rob.eddelbuettel.com>
+ <CA+dpOJ=m0+AfgxoRtwzr+x1mKiL6JiZg=GYbU5wQ-vqJHQ=GwQ@mail.gmail.com>
+ <CAKTOP46deJgBZMFc6oWC+1Q5fSGCixE0BoroarWWJLnibEcniw@mail.gmail.com>
+Message-ID: <CA+dpOJ=L95QisOF_dGLAMdBkdU80STGoBOK90AF0zZ8-5pF5QQ@mail.gmail.com>
+
+Thanks George! It helps. Regards,
+
+On Thu, Oct 17, 2019 at 6:38 PM George N. White III <gnwiii at gmail.com> wrote:
+>
+>
+> On Thu, 17 Oct 2019 at 08:31, Christofer Bogaso <bogaso.christofer at gmail.com> wrote:
+>>
+>> Thanks for this.
+>>
+>> I have downloaded the r-base-core_3.6.1-3disco_amd64.deb file and
+>> placed in /var/cache/apt/archives
+>>
+>> Next I ran below code in Ubuntu
+>>
+>> sudo apt-get install -f /var/cache/apt/archives/r-base-core.deb
+>>
+>> But this is failing with below message -
+>> E: Unsupported file /var/cache/apt/archives/r-base-core.deb given on commandline
+>>
+>> Could you please help resolve this?
+>
+>
+> Use "dpkg".   For details of Debian/Ubuntu package management, see:
+> https://www.debian.org/doc/manuals/debian-reference/ch02.en.html
+>
+> Ubuntu provides the Debian Reference Manual as a package.
+>
+>>
+>> On Thu, Oct 17, 2019 at 4:45 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+>> >
+>> >
+>> > On 17 October 2019 at 16:34, Christofer Bogaso wrote:
+>> > | I have an Ubuntu server hosted in the cloud, but for security purpose,
+>> > | direct internet connection is blocked.
+>> > |
+>> > | So my question is under this scenario how can I install R in that machine?
+>> >
+>> > It is an old, and solved problem. It has come up on StackOverflow a few times
+>> > before as well.  Here is a (nearly) ten-year old answer of mine:
+>> >
+>> > https://stackoverflow.com/questions/4419268/how-do-i-download-a-package-from-apt-get-without-installing-it/4419282#4419282
+>> >
+>> > You want one of those solutions -- and I am sure there are newer ones, so
+>> > maybe try searching on askubuntu.com as well -- as it will pull needed
+>> > dependencies in for you as well.
+>> >
+>> > | I was wondering if I could have some .deb file available then I could
+>> > | scp that .deb file from my local computer (this has internet) to that
+>> > | Ubuntu server.
+>> > |
+>> > | But when I reached to
+>> > | https://cran.cnr.berkeley.edu/bin/linux/ubuntu/disco-cran35/, I failed
+>> > | to identify any deb file.
+>> > |
+>> > | Could you shed some light on this?
+>> >
+>> > a) Don't use a per-institution server. The edge-of-cloud CDN ones are
+>> > generally as good or faster _irrespective of your location_ and hence better
+>> > for others.  So https://cloud.r-project.org is better
+>> >
+>> > b) Copying and pasting from http://cloud.r-project.org/bin/linux/ubuntu/disco-cran35/
+>> >
+>> >       [....]
+>> >       r-base-core_3.6.1-3disco_amd64.deb              2019-07-26 13:54   24M
+>> >       r-base-core_3.6.1-3disco_i386.deb               2019-07-26 14:09   24M
+>> >       [....]
+>> >
+>> > Dirk
+>> >
+>> > --
+>> > http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+>
+>
+> --
+> George N. White III
+>
+
+

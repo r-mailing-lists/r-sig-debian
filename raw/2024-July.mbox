@@ -1,0 +1,1867 @@
+From |@uren@gerber @end|ng |rom he|@|nk|@||  Mon Jul  8 15:07:32 2024
+From: |@uren@gerber @end|ng |rom he|@|nk|@|| (Gerber, Lauren J)
+Date: Mon, 8 Jul 2024 13:07:32 +0000
+Subject: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+Message-ID: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+
+Hi All,
+
+I am building a Docker image that uses Ubuntu 22.04 and am having issues installing the latest version of R (R 4.4.1). The current R version is 4.1.2:
+:/# apt-cache policy r-base-core
+r-base-core:
+  Installed: 4.1.2-1ubuntu2
+  Candidate: 4.1.2-1ubuntu2
+  Version table:
+ *** 4.1.2-1ubuntu2 500
+        500 http://archive.ubuntu.com/ubuntu jammy/universe amd64 Packages
+        100 /var/lib/dpkg/status
+
+I also checked the Ubuntu version (I am not sure if the ?No LSB modules are available? is an issue):
+:/# lsb_release -a
+No LSB modules are available.
+Distributor ID:            Ubuntu
+Description:                 Ubuntu 22.04.4 LTS
+Release:  22.04
+Codename:                  jammy
+
+I have tried referring to these instructions listed here: https://cloud.r-project.org/bin/linux/ubuntu/. Please see below:
+
+When I?m in interactive mode in my Docker container and I try the first line of suggested code, it results in the following:
+:/# apt update -qq
+W: GPG error: https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease: At least one invalid signature was encountered.
+E: The repository 'https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease' is not signed.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: http://security.ubuntu.com/ubuntu jammy-security InRelease: At least one invalid signature was encountered.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: http://archive.ubuntu.com/ubuntu jammy InRelease: At least one invalid signature was encountered.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: http://archive.ubuntu.com/ubuntu jammy-updates InRelease: At least one invalid signature was encountered.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: https://packages.adoptium.net/artifactory/deb jammy InRelease: At least one invalid signature was encountered.
+
+I skipped that line and tried the next line:
+:/# apt install --no-install-recommends software-properties-common dirmngr
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+dirmngr is already the newest version (2.2.27-3ubuntu2.1).
+software-properties-common is already the newest version (0.99.22.9).
+0 upgraded, 0 newly installed, 0 to remove and 4 not upgraded.
+
+Next, I did this:
+:/# wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+                ? This returned the public key.
+
+Then, I checked this:
+:/# gpg --show-keys /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+                ? This showed that Michael Rutter?s key had been added (expiring 2027-09-30)
+
+Then I ran this:
+:/# add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/<https://cloud.r-project.org/bin/linux/ubuntu%20jammy-cran40/>"
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+Repository: 'deb https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/'
+Description:
+Archive for codename: jammy-cran40/ components:
+More info: https://cloud.r-project.org/bin/linux/ubuntu
+Adding repository.
+Press [ENTER] to continue or Ctrl-c to cancel.
+
+This seemed to be an issue when pressing enter:
+Found existing deb entry in /etc/apt/sources.list.d/archive_uri-https_cloud_r-project_org_bin_linux_ubuntu-jammy.list
+Adding deb entry to /etc/apt/sources.list.d/archive_uri-https_cloud_r-project_org_bin_linux_ubuntu-jammy.list
+Found existing deb-src entry in /etc/apt/sources.list.d/archive_uri-https_cloud_r-project_org_bin_linux_ubuntu-jammy.list
+Adding disabled deb-src entry to /etc/apt/sources.list.d/archive_uri-https_cloud_r-project_org_bin_linux_ubuntu-jammy.list
+Get:1 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease [3626 B]
+Get:2 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+Get:3 https://packages.adoptium.net/artifactory/deb jammy InRelease [7504 B]
+Hit:4 http://archive.ubuntu.com/ubuntu jammy InRelease
+Get:5 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+Err:1 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease
+  At least one invalid signature was encountered.
+Err:2 http://security.ubuntu.com/ubuntu jammy-security InRelease
+  At least one invalid signature was encountered.
+Err:3 https://packages.adoptium.net/artifactory/deb jammy InRelease
+  At least one invalid signature was encountered.
+Err:4 http://archive.ubuntu.com/ubuntu jammy InRelease
+  At least one invalid signature was encountered.
+Err:5 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
+  At least one invalid signature was encountered.
+Reading package lists... Done
+W: GPG error: https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease: At least one invalid signature was encountered.
+E: The repository 'https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease' is not signed.
+N: Updating from such a repository can't be done securely, and is therefore disabled by default.
+N: See apt-secure(8) manpage for repository creation and user configuration details.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: http://security.ubuntu.com/ubuntu jammy-security InRelease: At least one invalid signature was encountered.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: https://packages.adoptium.net/artifactory/deb jammy InRelease: At least one invalid signature was encountered.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: http://archive.ubuntu.com/ubuntu jammy InRelease: At least one invalid signature was encountered.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: http://archive.ubuntu.com/ubuntu jammy-updates InRelease: At least one invalid signature was encountered.
+
+Then, I tried this:
+:/# apt install --no-install-recommends r-base
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Suggested packages:
+  elpa-ess r-doc-info | r-doc-pdf
+Recommended packages:
+  r-base-html
+The following NEW packages will be installed:
+  r-base
+0 upgraded, 1 newly installed, 0 to remove and 4 not upgraded.
+Need to get 9288 B of archives.
+After this operation, 63.5 kB of additional disk space will be used.
+E: You don't have enough free space in /var/cache/apt/archives/.
+
+It seems there is an issue with Ubuntu 22.04 and the signature verification, as well as a space issue in /var/cache/apt/archives/.
+
+I am not sure how to resolve these issues when building my Docker image.
+
+Would you please advise?
+
+Thank you.
+
+Br,
+Lauren
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon Jul  8 16:52:24 2024
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 8 Jul 2024 09:52:24 -0500
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+Message-ID: <26251.64808.579771.817660@rob.eddelbuettel.com>
+
+
+Lauren,
+
+Glad you made it over here. I am still 'away' but will be back soon at which
+point I can re-run the sample scripts I use all the time for r2u setups on
+Ubuntu (part of which involves getting R itself).
+
+>From your previous email (to me) I gathered that one issue may be the
+signing key, how to install that key changed between Ubuntu 20.04 and 22.04
+but we do have scripted solutions.
+
+>From your new email here I see that it ends on
+
+   E: You don't have enough free space in /var/cache/apt/archives/.
+
+That is a HARD error message. You are asking your computer to install a
+(large) package (name 'r-base' and its dependencies).  Maybe start with
+
+   sudo apt install --no-install-recommends r-base-core
+
+You can precede it with 'apt-cache policy r-base-core' (as I had mentioned
+before) to see whether you have the right repo and version available.
+
+Overall, I think you are very close in the somewhat technical quest of adding
+the CRAN/R repo to another container.
+
+Good luck,  Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@rcobi@@chette m@iii@g oii icioud@com  Mon Jul  8 18:37:27 2024
+From: m@rcobi@@chette m@iii@g oii icioud@com (m@rcobi@@chette m@iii@g oii icioud@com)
+Date: Mon, 8 Jul 2024 16:37:27 +0000
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+Message-ID: <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+
+Lauren, here?s my Dockerfile I use to build r-base from the repos, it builds on both Arm64 (Mac with Apple M2 chip) and Amd64 (AWS m5.4xlarge instance running Ubuntu 24.04). I rebuilt the docker image this morning and it builds fine with R 4.4.1
+
+The last RUN is for installing a bit of custom configuration as well as the base of Bio Conductor.
+
+Hope this helps (I also have a Dockerfile for building from source if you care to have the minimal footprint in your images).
+
+
+FROM ubuntu:22.04
+
+USER root
+
+ENV DEBIAN_FRONTEND noninteractive
+
+## Configure Ubuntu for R install
+RUN apt-get update \
+    && apt install -y --no-install-recommends \
+    software-properties-common \
+    dirmngr \
+    gnupg2 \
+    wget \
+    build-essential \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+    | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+    && add-apt-repository -y "ppa:marutter/rrutter4.0"
+
+## Install R
+RUN apt-get update -y \
+    && apt-get install -y r-base\
+    && apt-get clean \
+    && apt-get purge \
+    && rm -rf /var/lib/apt/lists/* /tmp/*
+
+## Configure parallel options to use max CPUs by default and install BioC
+RUN /usr/bin/R -e 'options(Ncpus = parallel::detectCores())'\
+    -e 'install.packages("BiocManager")' \
+    -e 'BiocManager::install()'
+
+
+
+From: R-SIG-Debian <r-sig-debian-bounces at r-project.org> on behalf of Gerber, Lauren J <lauren.gerber at helsinki.fi>
+Date: Monday, July 8, 2024 at 6:08?AM
+To: r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+Hi All,
+
+I am building a Docker image that uses Ubuntu 22.04 and am having issues installing the latest version of R (R 4.4.1). The current R version is 4.1.2:
+:/# apt-cache policy r-base-core
+r-base-core:
+  Installed: 4.1.2-1ubuntu2
+  Candidate: 4.1.2-1ubuntu2
+  Version table:
+ *** 4.1.2-1ubuntu2 500
+        500 http://archive.ubuntu.com/ubuntu jammy/universe amd64 Packages
+        100 /var/lib/dpkg/status
+
+I also checked the Ubuntu version (I am not sure if the ?No LSB modules are available? is an issue):
+:/# lsb_release -a
+No LSB modules are available.
+Distributor ID:            Ubuntu
+Description:                 Ubuntu 22.04.4 LTS
+Release:  22.04
+Codename:                  jammy
+
+I have tried referring to these instructions listed here: https://cloud.r-project.org/bin/linux/ubuntu/. Please see below:
+
+When I?m in interactive mode in my Docker container and I try the first line of suggested code, it results in the following:
+:/# apt update -qq
+W: GPG error: https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease: At least one invalid signature was encountered.
+E: The repository 'https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease' is not signed.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: http://security.ubuntu.com/ubuntu jammy-security InRelease: At least one invalid signature was encountered.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: http://archive.ubuntu.com/ubuntu jammy InRelease: At least one invalid signature was encountered.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: http://archive.ubuntu.com/ubuntu jammy-updates InRelease: At least one invalid signature was encountered.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: https://packages.adoptium.net/artifactory/deb jammy InRelease: At least one invalid signature was encountered.
+
+I skipped that line and tried the next line:
+:/# apt install --no-install-recommends software-properties-common dirmngr
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+dirmngr is already the newest version (2.2.27-3ubuntu2.1).
+software-properties-common is already the newest version (0.99.22.9).
+0 upgraded, 0 newly installed, 0 to remove and 4 not upgraded.
+
+Next, I did this:
+:/# wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+                ? This returned the public key.
+
+Then, I checked this:
+:/# gpg --show-keys /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+                ? This showed that Michael Rutter?s key had been added (expiring 2027-09-30)
+
+Then I ran this:
+:/# add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/<https://cloud.r-project.org/bin/linux/ubuntu%20jammy-cran40/>"
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+WARNING:root:system-image-cli failed, using defaults: [Errno 20] Not a directory: 'system-image-cli'
+Repository: 'deb https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/'
+Description:
+Archive for codename: jammy-cran40/ components:
+More info: https://cloud.r-project.org/bin/linux/ubuntu
+Adding repository.
+Press [ENTER] to continue or Ctrl-c to cancel.
+
+This seemed to be an issue when pressing enter:
+Found existing deb entry in /etc/apt/sources.list.d/archive_uri-https_cloud_r-project_org_bin_linux_ubuntu-jammy.list
+Adding deb entry to /etc/apt/sources.list.d/archive_uri-https_cloud_r-project_org_bin_linux_ubuntu-jammy.list
+Found existing deb-src entry in /etc/apt/sources.list.d/archive_uri-https_cloud_r-project_org_bin_linux_ubuntu-jammy.list
+Adding disabled deb-src entry to /etc/apt/sources.list.d/archive_uri-https_cloud_r-project_org_bin_linux_ubuntu-jammy.list
+Get:1 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease [3626 B]
+Get:2 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+Get:3 https://packages.adoptium.net/artifactory/deb jammy InRelease [7504 B]
+Hit:4 http://archive.ubuntu.com/ubuntu jammy InRelease
+Get:5 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+Err:1 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease
+  At least one invalid signature was encountered.
+Err:2 http://security.ubuntu.com/ubuntu jammy-security InRelease
+  At least one invalid signature was encountered.
+Err:3 https://packages.adoptium.net/artifactory/deb jammy InRelease
+  At least one invalid signature was encountered.
+Err:4 http://archive.ubuntu.com/ubuntu jammy InRelease
+  At least one invalid signature was encountered.
+Err:5 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
+  At least one invalid signature was encountered.
+Reading package lists... Done
+W: GPG error: https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease: At least one invalid signature was encountered.
+E: The repository 'https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease' is not signed.
+N: Updating from such a repository can't be done securely, and is therefore disabled by default.
+N: See apt-secure(8) manpage for repository creation and user configuration details.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: http://security.ubuntu.com/ubuntu jammy-security InRelease: At least one invalid signature was encountered.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: https://packages.adoptium.net/artifactory/deb jammy InRelease: At least one invalid signature was encountered.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: http://archive.ubuntu.com/ubuntu jammy InRelease: At least one invalid signature was encountered.
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: http://archive.ubuntu.com/ubuntu jammy-updates InRelease: At least one invalid signature was encountered.
+
+Then, I tried this:
+:/# apt install --no-install-recommends r-base
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Suggested packages:
+  elpa-ess r-doc-info | r-doc-pdf
+Recommended packages:
+  r-base-html
+The following NEW packages will be installed:
+  r-base
+0 upgraded, 1 newly installed, 0 to remove and 4 not upgraded.
+Need to get 9288 B of archives.
+After this operation, 63.5 kB of additional disk space will be used.
+E: You don't have enough free space in /var/cache/apt/archives/.
+
+It seems there is an issue with Ubuntu 22.04 and the signature verification, as well as a space issue in /var/cache/apt/archives/.
+
+I am not sure how to resolve these issues when building my Docker image.
+
+Would you please advise?
+
+Thank you.
+
+Br,
+Lauren
+
+        [[alternative HTML version deleted]]
+
+_______________________________________________
+R-SIG-Debian mailing list
+R-SIG-Debian at r-project.org
+https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon Jul  8 20:56:55 2024
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 8 Jul 2024 13:56:55 -0500
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+Message-ID: <26252.13943.14451.513692@rob.eddelbuettel.com>
+
+
+On 8 July 2024 at 16:37, marcoblanchette at icloud.com wrote:
+| Lauren, here?s my Dockerfile I use to build r-base from the repos, it builds on both Arm64 (Mac with Apple M2 chip) and Amd64 (AWS m5.4xlarge instance running Ubuntu 24.04). I rebuilt the docker image this morning and it builds fine with R 4.4.1
+
+That's very kind but recall that Lauren wants _a pre-made binary_ of R.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@rcobi@@chette m@iii@g oii icioud@com  Mon Jul  8 21:21:01 2024
+From: m@rcobi@@chette m@iii@g oii icioud@com (m@rcobi@@chette m@iii@g oii icioud@com)
+Date: Mon, 8 Jul 2024 19:21:01 +0000
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <26252.13943.14451.513692@rob.eddelbuettel.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.13943.14451.513692@rob.eddelbuettel.com>
+Message-ID: <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+
+Hmm? It?s picking up the pre-made binary from ppa:marutter/rrutter4.0  using apt-get install. Isn?t it what Lauren?s trying to do?
+
+From: Dirk Eddelbuettel <edd at debian.org>
+Date: Monday, July 8, 2024 at 11:57?AM
+To: marcoblanchette at icloud.com <marcoblanchette at icloud.com>
+Cc: Gerber, Lauren J <lauren.gerber at helsinki.fi>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+
+On 8 July 2024 at 16:37, marcoblanchette at icloud.com wrote:
+| Lauren, here?s my Dockerfile I use to build r-base from the repos, it builds on both Arm64 (Mac with Apple M2 chip) and Amd64 (AWS m5.4xlarge instance running Ubuntu 24.04). I rebuilt the docker image this morning and it builds fine with R 4.4.1
+
+That's very kind but recall that Lauren wants _a pre-made binary_ of R.
+
+Dirk
+
+--
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+	[[alternative HTML version deleted]]
+
+
+From m@rcobi@@chette m@iii@g oii icioud@com  Mon Jul  8 21:26:34 2024
+From: m@rcobi@@chette m@iii@g oii icioud@com (m@rcobi@@chette m@iii@g oii icioud@com)
+Date: Mon, 8 Jul 2024 19:26:34 +0000
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.13943.14451.513692@rob.eddelbuettel.com>
+ <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+Message-ID: <DM5PR1001MB23770257ECBB60C2773FC12CACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+
+And sorry for the spam, but I meant to say that the Dockerfile is basically following the steps from https://cloud.r-project.org/bin/linux/ubuntu/ as Lauren was trying to do but start by installing the pre-requisites needed to deploy the r-base package on a Ubuntu 22.04 Docker image (which is NOT a base 22.04 but a minimally striped version of 22.04).
+
+
+
+From: marcoblanchette at icloud.com <marcoblanchette at icloud.com>
+Date: Monday, July 8, 2024 at 12:21?PM
+To: Dirk Eddelbuettel <edd at debian.org>
+Cc: Gerber, Lauren J <lauren.gerber at helsinki.fi>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+Hmm? It?s picking up the pre-made binary from ppa:marutter/rrutter4.0  using apt-get install. Isn?t it what Lauren?s trying to do?
+
+From: Dirk Eddelbuettel <edd at debian.org>
+Date: Monday, July 8, 2024 at 11:57?AM
+To: marcoblanchette at icloud.com <marcoblanchette at icloud.com>
+Cc: Gerber, Lauren J <lauren.gerber at helsinki.fi>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+
+On 8 July 2024 at 16:37, marcoblanchette at icloud.com wrote:
+| Lauren, here?s my Dockerfile I use to build r-base from the repos, it builds on both Arm64 (Mac with Apple M2 chip) and Amd64 (AWS m5.4xlarge instance running Ubuntu 24.04). I rebuilt the docker image this morning and it builds fine with R 4.4.1
+
+That's very kind but recall that Lauren wants _a pre-made binary_ of R.
+
+Dirk
+
+--
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon Jul  8 21:31:43 2024
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 8 Jul 2024 14:31:43 -0500
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.13943.14451.513692@rob.eddelbuettel.com>
+ <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+Message-ID: <26252.16031.608505.7557@rob.eddelbuettel.com>
+
+
+On 8 July 2024 at 19:21, marcoblanchette at icloud.com wrote:
+| Hmm? It?s picking up the pre-made binary from ppa:marutter/rrutter4.0 using 
+
+My bad. Your wording (and I quote) "Dockerfile I use to build r-base" mislead
+me as I read "build" as opposed to "install".  
+
+Anyway, many of us have such Dockerfile variants; I probably published and
+use (in recurrent builds) half a dozen around rocker and rocker/r2u.
+
+Let's try to focus on the README.md at
+
+   https://cloud.r-project.org/bin/linux/ubuntu/
+
+which could be the canonical source for easy-to-follow steps.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@rcobi@@chette m@iii@g oii icioud@com  Mon Jul  8 21:32:30 2024
+From: m@rcobi@@chette m@iii@g oii icioud@com (m@rcobi@@chette m@iii@g oii icioud@com)
+Date: Mon, 8 Jul 2024 19:32:30 +0000
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <DM5PR1001MB23770257ECBB60C2773FC12CACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.13943.14451.513692@rob.eddelbuettel.com>
+ <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB23770257ECBB60C2773FC12CACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+Message-ID: <DM5PR1001MB2377B6A9FB85E9B97D5AABA2ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+
+Oh, again, sorry for the spam but the problem Lauren is seeing is when she is trying to sign the key. Installing gnugpg  usually takes care of that problem.
+
+From: marcoblanchette at icloud.com <marcoblanchette at icloud.com>
+Date: Monday, July 8, 2024 at 12:26?PM
+To: Dirk Eddelbuettel <edd at debian.org>
+Cc: Gerber, Lauren J <lauren.gerber at helsinki.fi>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+And sorry for the spam, but I meant to say that the Dockerfile is basically following the steps from https://cloud.r-project.org/bin/linux/ubuntu/ as Lauren was trying to do but start by installing the pre-requisites needed to deploy the r-base package on a Ubuntu 22.04 Docker image (which is NOT a base 22.04 but a minimally striped version of 22.04).
+
+
+
+From: marcoblanchette at icloud.com <marcoblanchette at icloud.com>
+Date: Monday, July 8, 2024 at 12:21?PM
+To: Dirk Eddelbuettel <edd at debian.org>
+Cc: Gerber, Lauren J <lauren.gerber at helsinki.fi>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+Hmm? It?s picking up the pre-made binary from ppa:marutter/rrutter4.0  using apt-get install. Isn?t it what Lauren?s trying to do?
+
+From: Dirk Eddelbuettel <edd at debian.org>
+Date: Monday, July 8, 2024 at 11:57?AM
+To: marcoblanchette at icloud.com <marcoblanchette at icloud.com>
+Cc: Gerber, Lauren J <lauren.gerber at helsinki.fi>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+
+On 8 July 2024 at 16:37, marcoblanchette at icloud.com wrote:
+| Lauren, here?s my Dockerfile I use to build r-base from the repos, it builds on both Arm64 (Mac with Apple M2 chip) and Amd64 (AWS m5.4xlarge instance running Ubuntu 24.04). I rebuilt the docker image this morning and it builds fine with R 4.4.1
+
+That's very kind but recall that Lauren wants _a pre-made binary_ of R.
+
+Dirk
+
+--
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon Jul  8 21:50:34 2024
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 8 Jul 2024 14:50:34 -0500
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <DM5PR1001MB2377B6A9FB85E9B97D5AABA2ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.13943.14451.513692@rob.eddelbuettel.com>
+ <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB23770257ECBB60C2773FC12CACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB2377B6A9FB85E9B97D5AABA2ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+Message-ID: <26252.17162.770513.287145@rob.eddelbuettel.com>
+
+
+On 8 July 2024 at 19:32, marcoblanchette at icloud.com wrote:
+| Oh, again, sorry for the spam but the problem Lauren is seeing is when she is
+| trying to sign the key. Installing gnugpg  usually takes care of that problem.
+
+I am not sure about that.
+
+For jammy, my current (and used) rocker/r2u:jammy Dockerfile is
+   https://github.com/rocker-org/r2u/blob/master/jammy/Dockerfile
+and it does what Laurent want (plus a bit more: r2u setup) but I have
+been traveling since she first emailed me and have not run it to confirm.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@rcobi@@chette m@iii@g oii icioud@com  Mon Jul  8 23:01:06 2024
+From: m@rcobi@@chette m@iii@g oii icioud@com (m@rcobi@@chette m@iii@g oii icioud@com)
+Date: Mon, 8 Jul 2024 21:01:06 +0000
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <26252.17162.770513.287145@rob.eddelbuettel.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.13943.14451.513692@rob.eddelbuettel.com>
+ <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB23770257ECBB60C2773FC12CACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB2377B6A9FB85E9B97D5AABA2ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.17162.770513.287145@rob.eddelbuettel.com>
+Message-ID: <DM5PR1001MB2377637CFA0FA1133D569064ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+
+No sure why you?re doubting me but if one would like the minimal Dockerfile following the CRAN recommendations at https://cloud.r-project.org/bin/linux/ubuntu/, one would simply do
+
+FROM ubuntu:22.04
+
+USER root
+
+ENV DEBIAN_FRONTEND noninteractive
+
+## Configure Ubuntu for R install
+RUN apt update \
+    && apt install -y --no-install-recommends \
+    software-properties-common \
+    gnupg2 \
+    wget \
+    && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+    | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+    && add-apt-repository -y "ppa:marutter/rrutter4.0"
+
+## Install R
+RUN apt update -y \
+    && apt install -y r-base\
+    && apt clean \
+    && apt purge \
+    && rm -rf /var/lib/apt/lists/* /tmp/*
+
+
+Benefits of using Michael Rutter?s repo is nightly builds but importantly for folks on dual architectures a built for both Amd64 and Arm64, which allows for cross-building for different metal like folks doing development using docker on Macs then pushing to cloud base resources using x86.
+
+However, one would probably want to add a C/C++ compiler to the base (hence build-essential) for downstream package installation as well as frequently used libs in R packages (hence libcurl4-openssl-dev and libxml2-dev).
+
+Just my 2 cents.
+
+From: Dirk Eddelbuettel <edd at debian.org>
+Date: Monday, July 8, 2024 at 12:50?PM
+To: marcoblanchette at icloud.com <marcoblanchette at icloud.com>
+Cc: Dirk Eddelbuettel <edd at debian.org>, Gerber, Lauren J <lauren.gerber at helsinki.fi>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+
+On 8 July 2024 at 19:32, marcoblanchette at icloud.com wrote:
+| Oh, again, sorry for the spam but the problem Lauren is seeing is when she is
+| trying to sign the key. Installing gnugpg  usually takes care of that problem.
+
+I am not sure about that.
+
+For jammy, my current (and used) rocker/r2u:jammy Dockerfile is
+   https://github.com/rocker-org/r2u/blob/master/jammy/Dockerfile
+and it does what Laurent want (plus a bit more: r2u setup) but I have
+been traveling since she first emailed me and have not run it to confirm.
+
+Dirk
+
+--
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Tue Jul  9 08:13:35 2024
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 9 Jul 2024 01:13:35 -0500
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <DM5PR1001MB2377637CFA0FA1133D569064ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.13943.14451.513692@rob.eddelbuettel.com>
+ <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB23770257ECBB60C2773FC12CACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB2377B6A9FB85E9B97D5AABA2ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.17162.770513.287145@rob.eddelbuettel.com>
+ <DM5PR1001MB2377637CFA0FA1133D569064ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+Message-ID: <26252.54543.252615.702703@rob.eddelbuettel.com>
+
+
+On 8 July 2024 at 21:01, marcoblanchette at icloud.com wrote:
+| No sure why you?re doubting me but if one would like the minimal Dockerfile
+| following the CRAN recommendations at https://cloud.r-project.org/bin/linux/
+| ubuntu/, one would simply do
+
+I am aware. I co-wrote those instructions. The Dockerfile I pointed to is
+newer, and regularly used by me and others.
+
+I still think you continue to answer questions that Lauren did not ask:
+nobody has stepped in to replicate _her issue_ starting from a different
+container. But inasmuch as you also try to help it is of course appreciated.
+
+But maybe it is time to wait for Lauren to chime about what works, and what
+doesn't. 
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From |@uren@gerber @end|ng |rom he|@|nk|@||  Tue Jul  9 17:30:45 2024
+From: |@uren@gerber @end|ng |rom he|@|nk|@|| (Gerber, Lauren J)
+Date: Tue, 9 Jul 2024 15:30:45 +0000
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <26252.54543.252615.702703@rob.eddelbuettel.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.13943.14451.513692@rob.eddelbuettel.com>
+ <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB23770257ECBB60C2773FC12CACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB2377B6A9FB85E9B97D5AABA2ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.17162.770513.287145@rob.eddelbuettel.com>
+ <DM5PR1001MB2377637CFA0FA1133D569064ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.54543.252615.702703@rob.eddelbuettel.com>
+Message-ID: <AM0PR07MB5442BBB2219E812CA645B22AE6DB2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+
+Hi Dirk and Marco,
+
+I need to test some of the suggested solutions and circle back here.
+
+Thank you so much for your help.
+
+Br,
+Lauren
+--
+Lauren J. Gerber
+Bioinformatician
+Precision Systems Medicine (Kallioniemi) Research Group
+iCAN ? Digital Precision Cancer Medicine Flagship
+Institute for Molecular Medicine Finland (FIMM)
+Nordic EMBL Partnership for Molecular Medicine
+Biomedicum Helsinki 2U, D301a1
+P.O. Box 20 (Tukholmankatu 8)
+FI-00014 University of Helsinki, Finland
+lauren.gerber at helsinki.fi
+
+From: Dirk Eddelbuettel <edd at debian.org>
+Date: Tuesday, 9. July 2024 at 9.13
+To: marcoblanchette at icloud.com <marcoblanchette at icloud.com>
+Cc: Dirk Eddelbuettel <edd at debian.org>, Gerber, Lauren J <lauren.gerber at helsinki.fi>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+
+On 8 July 2024 at 21:01, marcoblanchette at icloud.com wrote:
+| No sure why you?re doubting me but if one would like the minimal Dockerfile
+| following the CRAN recommendations at https://cloud.r-project.org/bin/linux/
+| ubuntu/, one would simply do
+
+I am aware. I co-wrote those instructions. The Dockerfile I pointed to is
+newer, and regularly used by me and others.
+
+I still think you continue to answer questions that Lauren did not ask:
+nobody has stepped in to replicate _her issue_ starting from a different
+container. But inasmuch as you also try to help it is of course appreciated.
+
+But maybe it is time to wait for Lauren to chime about what works, and what
+doesn't.
+
+Dirk
+
+--
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jul 10 18:09:23 2024
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 10 Jul 2024 11:09:23 -0500
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <AM0PR07MB5442BBB2219E812CA645B22AE6DB2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.13943.14451.513692@rob.eddelbuettel.com>
+ <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB23770257ECBB60C2773FC12CACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB2377B6A9FB85E9B97D5AABA2ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.17162.770513.287145@rob.eddelbuettel.com>
+ <DM5PR1001MB2377637CFA0FA1133D569064ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.54543.252615.702703@rob.eddelbuettel.com>
+ <AM0PR07MB5442BBB2219E812CA645B22AE6DB2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+Message-ID: <26254.45619.465085.815708@rob.eddelbuettel.com>
+
+
+Lauren,
+
+I am now back home where looking into these things is a little easier. From
+your first email to me, I started off with the selenium container you
+mentioned as your starting point.
+
+And that basically is your issue. It is a 'high-level' container, and it sets
+a user. (Essentially) all other Dockerfiles you have seen and been pointed at
+are 'lower-level' and operate as root -- so you need to inject 'sudo' calls.
+Otherwise it really is 'just' getting one key and adding one repo, but it
+helps to have had the same user <-> root issues before ...
+
+So below is a working 'minimal' Dockerfile that gets me R 4.4.1 (validated
+via 'docker exec -ti container_id_here bash' once built). Hope it helps.
+
+Best,  Dirk
+
+
+
+FROM selenium/standalone-firefox:latest
+
+## Following the standard rocker/r2u:jammy Dockerfile, and adapted slightly
+
+RUN sudo apt update \
+##
+## We would normally do
+##   apt install --yes --no-install-recommends ca-certificates locales wget
+## but these are already installed
+##
+## So we skip to the next step of adding the key and repo
+   && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+           | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+   && echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/cran_ubuntu_key.asc] https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/" \
+           | sudo tee -a /etc/apt/sources.list.d/cran.list \
+##
+## Update again and install R
+   && sudo apt update -qqq \
+   && sudo apt install --yes --no-install-recommends r-base-core
+
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From |@uren@gerber @end|ng |rom he|@|nk|@||  Wed Jul 10 18:43:15 2024
+From: |@uren@gerber @end|ng |rom he|@|nk|@|| (Gerber, Lauren J)
+Date: Wed, 10 Jul 2024 16:43:15 +0000
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <26254.45619.465085.815708@rob.eddelbuettel.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.13943.14451.513692@rob.eddelbuettel.com>
+ <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB23770257ECBB60C2773FC12CACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB2377B6A9FB85E9B97D5AABA2ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.17162.770513.287145@rob.eddelbuettel.com>
+ <DM5PR1001MB2377637CFA0FA1133D569064ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.54543.252615.702703@rob.eddelbuettel.com>
+ <AM0PR07MB5442BBB2219E812CA645B22AE6DB2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <26254.45619.465085.815708@rob.eddelbuettel.com>
+Message-ID: <AM0PR07MB54425927FB18F5387CB6EAD6E6A42@AM0PR07MB5442.eurprd07.prod.outlook.com>
+
+Hi Dirk,
+
+Thank you so much for looking into this when you got home. I greatly appreciate it.
+
+I was actually in the midst of writing to everyone the following message:
+?.
+?.
+?.
+
+Hi All,
+
+I have some good news. ? My docker image is now up-to-date with R version 4.4.1.
+
+I first had to clear a bunch of unused data using docker system prune ?force. Apparently, it cleared over 32.53 gigs of data, and seemed to have been interfering with some of the package installations trying to take place.
+
+Next, I tried using part of Marco?s dockerfile and it helped solve the issue:
+
+RUN apt-get update \
+      && apt install -y \
+      software-properties-common \
+      dirmngr \
+      gnupg2 \
+      wget \
+      build-essential \
+      libcurl4-openssl-dev \
+      libxml2-dev \
+      libasound2 \
+      python3 \
+      python3-pip \
+      python3.10-venv \
+      git-all \
+      lsb-release \
+      libxml-twig-perl \
+      libc6-dev \
+      && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+      | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+&& add-apt-repository -y "ppa:marutter/rrutter4.0"
+
+ RUN apt-get update -y \
+     && apt-get install -y r-base\
+     && apt-get clean \
+     && apt-get purge \
+     && rm -rf /var/lib/apt/lists/* /tmp/*
+
+Then I ran my Docker image in interactive mode to check it and it worked ?:
+/# apt-cache policy r-base-core
+r-base-core:
+  Installed: 4.4.1-1.2204.0
+  Candidate: 4.4.1-1.2204.0
+  Version table:
+ *** 4.4.1-1.2204.0 100
+        100 /var/lib/dpkg/status
+
+This is great. Thank you all so much.
+
+Br,
+Lauren
+--
+Lauren J. Gerber
+Bioinformatician
+Precision Systems Medicine (Kallioniemi) Research Group
+iCAN ? Digital Precision Cancer Medicine Flagship
+Institute for Molecular Medicine Finland (FIMM)
+Nordic EMBL Partnership for Molecular Medicine
+Biomedicum Helsinki 2U, D301a1
+P.O. Box 20 (Tukholmankatu 8)
+FI-00014 University of Helsinki, Finland
+lauren.gerber at helsinki.fi
+
+From: Dirk Eddelbuettel <edd at debian.org>
+Date: Wednesday, 10. July 2024 at 19.09
+To: Gerber, Lauren J <lauren.gerber at helsinki.fi>
+Cc: Dirk Eddelbuettel <edd at debian.org>, marcoblanchette at icloud.com <marcoblanchette at icloud.com>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+
+Lauren,
+
+I am now back home where looking into these things is a little easier. From
+your first email to me, I started off with the selenium container you
+mentioned as your starting point.
+
+And that basically is your issue. It is a 'high-level' container, and it sets
+a user. (Essentially) all other Dockerfiles you have seen and been pointed at
+are 'lower-level' and operate as root -- so you need to inject 'sudo' calls.
+Otherwise it really is 'just' getting one key and adding one repo, but it
+helps to have had the same user <-> root issues before ...
+
+So below is a working 'minimal' Dockerfile that gets me R 4.4.1 (validated
+via 'docker exec -ti container_id_here bash' once built). Hope it helps.
+
+Best,  Dirk
+
+
+
+FROM selenium/standalone-firefox:latest
+
+## Following the standard rocker/r2u:jammy Dockerfile, and adapted slightly
+
+RUN sudo apt update \
+##
+## We would normally do
+##   apt install --yes --no-install-recommends ca-certificates locales wget
+## but these are already installed
+##
+## So we skip to the next step of adding the key and repo
+   && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+           | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+   && echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/cran_ubuntu_key.asc] https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/" \
+           | sudo tee -a /etc/apt/sources.list.d/cran.list \
+##
+## Update again and install R
+   && sudo apt update -qqq \
+   && sudo apt install --yes --no-install-recommends r-base-core
+
+
+--
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+	[[alternative HTML version deleted]]
+
+
+From m@rcobi@@chette m@iii@g oii icioud@com  Wed Jul 10 22:17:18 2024
+From: m@rcobi@@chette m@iii@g oii icioud@com (m@rcobi@@chette m@iii@g oii icioud@com)
+Date: Wed, 10 Jul 2024 20:17:18 +0000
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <AM0PR07MB54425927FB18F5387CB6EAD6E6A42@AM0PR07MB5442.eurprd07.prod.outlook.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.13943.14451.513692@rob.eddelbuettel.com>
+ <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB23770257ECBB60C2773FC12CACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB2377B6A9FB85E9B97D5AABA2ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.17162.770513.287145@rob.eddelbuettel.com>
+ <DM5PR1001MB2377637CFA0FA1133D569064ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.54543.252615.702703@rob.eddelbuettel.com>
+ <AM0PR07MB5442BBB2219E812CA645B22AE6DB2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <26254.45619.465085.815708@rob.eddelbuettel.com>
+ <AM0PR07MB54425927FB18F5387CB6EAD6E6A42@AM0PR07MB5442.eurprd07.prod.outlook.com>
+Message-ID: <DM5PR1001MB2377AA4F06C8995DFEB4AE49ACA42@DM5PR1001MB2377.namprd10.prod.outlook.com>
+
+Lauren, little oversight from my Dockerfile, if you want to follow the CRAN steps and get the R from the cloud.r-project.org server, you want to replace
+     && add-apt-repository -y "ppa:marutter/rrutter4.0"
+
+With
+    && add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+
+The ppa repo is Michael Rutter personal repo on launchpad.net, which works just fine but is not the CRAN sanctioned way of getting the R package.
+
+Now, both AMD64 and ARM64 (Intel and Mac chip) binaries for Ubuntu are available on cloud.r-project.org which will allow you to compile your Ubuntu based docker image on either Intel or Mac chipset machines (few months ago only the Intel built was available on cloud.r-project.org which necessitated us to use M. Rutter PPA).
+
+Here?s our current r-base Dockerfile which, as I said, also install a couple commonly used libs in R packages and the step to install Bio Conductor base package (if you don?t use BioC, delete it):
+
+FROM ubuntu:22.04
+
+USER root
+
+ENV DEBIAN_FRONTEND noninteractive
+
+# Configure Ubuntu for R install
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    software-properties-common \
+    gnupg2 \
+    wget \
+    build-essential \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+    | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+    && add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+
+RUN apt-get update -y \
+    && apt-get install -y r-base\
+    && apt-get clean \
+    && apt-get purge \
+    && rm -rf /var/lib/apt/lists/* /tmp/*
+
+## Configure parallel options to use max CPUs by default and install BioC
+RUN /usr/bin/R -e 'options(Ncpus = parallel::detectCores())'\
+    -e 'install.packages("BiocManager")' \
+    -e 'BiocManager::install()'
+
+Marco
+
+From: Gerber, Lauren J <lauren.gerber at helsinki.fi>
+Date: Wednesday, July 10, 2024 at 9:43?AM
+To: Dirk Eddelbuettel <edd at debian.org>
+Cc: Dirk Eddelbuettel <edd at debian.org>, marcoblanchette at icloud.com <marcoblanchette at icloud.com>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+Hi Dirk,
+
+Thank you so much for looking into this when you got home. I greatly appreciate it.
+
+I was actually in the midst of writing to everyone the following message:
+?.
+?.
+?.
+
+Hi All,
+
+I have some good news. ? My docker image is now up-to-date with R version 4.4.1.
+
+I first had to clear a bunch of unused data using docker system prune ?force. Apparently, it cleared over 32.53 gigs of data, and seemed to have been interfering with some of the package installations trying to take place.
+
+Next, I tried using part of Marco?s dockerfile and it helped solve the issue:
+
+RUN apt-get update \
+      && apt install -y \
+      software-properties-common \
+      dirmngr \
+      gnupg2 \
+      wget \
+      build-essential \
+      libcurl4-openssl-dev \
+      libxml2-dev \
+      libasound2 \
+      python3 \
+      python3-pip \
+      python3.10-venv \
+      git-all \
+      lsb-release \
+      libxml-twig-perl \
+      libc6-dev \
+      && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+      | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+&& add-apt-repository -y "ppa:marutter/rrutter4.0"
+
+ RUN apt-get update -y \
+     && apt-get install -y r-base\
+     && apt-get clean \
+     && apt-get purge \
+     && rm -rf /var/lib/apt/lists/* /tmp/*
+
+Then I ran my Docker image in interactive mode to check it and it worked ?:
+/# apt-cache policy r-base-core
+r-base-core:
+  Installed: 4.4.1-1.2204.0
+  Candidate: 4.4.1-1.2204.0
+  Version table:
+ *** 4.4.1-1.2204.0 100
+        100 /var/lib/dpkg/status
+
+This is great. Thank you all so much.
+
+Br,
+Lauren
+--
+Lauren J. Gerber
+Bioinformatician
+Precision Systems Medicine (Kallioniemi) Research Group
+iCAN ? Digital Precision Cancer Medicine Flagship
+Institute for Molecular Medicine Finland (FIMM)
+Nordic EMBL Partnership for Molecular Medicine
+Biomedicum Helsinki 2U, D301a1
+P.O. Box 20 (Tukholmankatu 8)
+FI-00014 University of Helsinki, Finland
+lauren.gerber at helsinki.fi
+
+From: Dirk Eddelbuettel <edd at debian.org>
+Date: Wednesday, 10. July 2024 at 19.09
+To: Gerber, Lauren J <lauren.gerber at helsinki.fi>
+Cc: Dirk Eddelbuettel <edd at debian.org>, marcoblanchette at icloud.com <marcoblanchette at icloud.com>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+
+Lauren,
+
+I am now back home where looking into these things is a little easier. From
+your first email to me, I started off with the selenium container you
+mentioned as your starting point.
+
+And that basically is your issue. It is a 'high-level' container, and it sets
+a user. (Essentially) all other Dockerfiles you have seen and been pointed at
+are 'lower-level' and operate as root -- so you need to inject 'sudo' calls.
+Otherwise it really is 'just' getting one key and adding one repo, but it
+helps to have had the same user <-> root issues before ...
+
+So below is a working 'minimal' Dockerfile that gets me R 4.4.1 (validated
+via 'docker exec -ti container_id_here bash' once built). Hope it helps.
+
+Best,  Dirk
+
+
+
+FROM selenium/standalone-firefox:latest
+
+## Following the standard rocker/r2u:jammy Dockerfile, and adapted slightly
+
+RUN sudo apt update \
+##
+## We would normally do
+##   apt install --yes --no-install-recommends ca-certificates locales wget
+## but these are already installed
+##
+## So we skip to the next step of adding the key and repo
+   && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+           | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+   && echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/cran_ubuntu_key.asc] https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/" \
+           | sudo tee -a /etc/apt/sources.list.d/cran.list \
+##
+## Update again and install R
+   && sudo apt update -qqq \
+   && sudo apt install --yes --no-install-recommends r-base-core
+
+
+--
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+	[[alternative HTML version deleted]]
+
+
+From |@uren@gerber @end|ng |rom he|@|nk|@||  Thu Jul 11 11:21:15 2024
+From: |@uren@gerber @end|ng |rom he|@|nk|@|| (Gerber, Lauren J)
+Date: Thu, 11 Jul 2024 09:21:15 +0000
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <DM5PR1001MB2377AA4F06C8995DFEB4AE49ACA42@DM5PR1001MB2377.namprd10.prod.outlook.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.13943.14451.513692@rob.eddelbuettel.com>
+ <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB23770257ECBB60C2773FC12CACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB2377B6A9FB85E9B97D5AABA2ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.17162.770513.287145@rob.eddelbuettel.com>
+ <DM5PR1001MB2377637CFA0FA1133D569064ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.54543.252615.702703@rob.eddelbuettel.com>
+ <AM0PR07MB5442BBB2219E812CA645B22AE6DB2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <26254.45619.465085.815708@rob.eddelbuettel.com>
+ <AM0PR07MB54425927FB18F5387CB6EAD6E6A42@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377AA4F06C8995DFEB4AE49ACA42@DM5PR1001MB2377.namprd10.prod.outlook.com>
+Message-ID: <AM0PR07MB54427AF419E823E5F4C3D7FBE6A52@AM0PR07MB5442.eurprd07.prod.outlook.com>
+
+Hi Marco,
+
+Thank you for the follow up email.
+
+In the line below, do I replace $(lsb-release -cs) with jammy (Ubuntu 22.04) or leave it alone:
+
+Add-apt-repository ?deb https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/?
+
+It?s good to know about installations for Bioconductor. I am not currently using it, but I may need it in the future for other projects.
+
+Br,
+Lauren
+--
+Lauren J. Gerber
+Bioinformatician
+Precision Systems Medicine (Kallioniemi) Research Group
+iCAN ? Digital Precision Cancer Medicine Flagship
+Institute for Molecular Medicine Finland (FIMM)
+Nordic EMBL Partnership for Molecular Medicine
+Biomedicum Helsinki 2U, D301a1
+P.O. Box 20 (Tukholmankatu 8)
+FI-00014 University of Helsinki, Finland
+lauren.gerber at helsinki.fi
+
+From: marcoblanchette at icloud.com <marcoblanchette at icloud.com>
+Date: Wednesday, 10. July 2024 at 23.17
+To: Gerber, Lauren J <lauren.gerber at helsinki.fi>, Dirk Eddelbuettel <edd at debian.org>
+Cc: Dirk Eddelbuettel <edd at debian.org>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+Lauren, little oversight from my Dockerfile, if you want to follow the CRAN steps and get the R from the cloud.r-project.org server, you want to replace
+     && add-apt-repository -y "ppa:marutter/rrutter4.0"
+
+With
+    && add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+
+The ppa repo is Michael Rutter personal repo on launchpad.net, which works just fine but is not the CRAN sanctioned way of getting the R package.
+
+Now, both AMD64 and ARM64 (Intel and Mac chip) binaries for Ubuntu are available on cloud.r-project.org which will allow you to compile your Ubuntu based docker image on either Intel or Mac chipset machines (few months ago only the Intel built was available on cloud.r-project.org which necessitated us to use M. Rutter PPA).
+
+Here?s our current r-base Dockerfile which, as I said, also install a couple commonly used libs in R packages and the step to install Bio Conductor base package (if you don?t use BioC, delete it):
+
+FROM ubuntu:22.04
+
+USER root
+
+ENV DEBIAN_FRONTEND noninteractive
+
+# Configure Ubuntu for R install
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    software-properties-common \
+    gnupg2 \
+    wget \
+    build-essential \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+    | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+    && add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+
+RUN apt-get update -y \
+    && apt-get install -y r-base\
+    && apt-get clean \
+    && apt-get purge \
+    && rm -rf /var/lib/apt/lists/* /tmp/*
+
+## Configure parallel options to use max CPUs by default and install BioC
+RUN /usr/bin/R -e 'options(Ncpus = parallel::detectCores())'\
+    -e 'install.packages("BiocManager")' \
+    -e 'BiocManager::install()'
+
+Marco
+
+From: Gerber, Lauren J <lauren.gerber at helsinki.fi>
+Date: Wednesday, July 10, 2024 at 9:43?AM
+To: Dirk Eddelbuettel <edd at debian.org>
+Cc: Dirk Eddelbuettel <edd at debian.org>, marcoblanchette at icloud.com <marcoblanchette at icloud.com>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+Hi Dirk,
+
+Thank you so much for looking into this when you got home. I greatly appreciate it.
+
+I was actually in the midst of writing to everyone the following message:
+?.
+?.
+?.
+
+Hi All,
+
+I have some good news. ? My docker image is now up-to-date with R version 4.4.1.
+
+I first had to clear a bunch of unused data using docker system prune ?force. Apparently, it cleared over 32.53 gigs of data, and seemed to have been interfering with some of the package installations trying to take place.
+
+Next, I tried using part of Marco?s dockerfile and it helped solve the issue:
+
+RUN apt-get update \
+      && apt install -y \
+      software-properties-common \
+      dirmngr \
+      gnupg2 \
+      wget \
+      build-essential \
+      libcurl4-openssl-dev \
+      libxml2-dev \
+      libasound2 \
+      python3 \
+      python3-pip \
+      python3.10-venv \
+      git-all \
+      lsb-release \
+      libxml-twig-perl \
+      libc6-dev \
+      && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+      | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+&& add-apt-repository -y "ppa:marutter/rrutter4.0"
+
+ RUN apt-get update -y \
+     && apt-get install -y r-base\
+     && apt-get clean \
+     && apt-get purge \
+     && rm -rf /var/lib/apt/lists/* /tmp/*
+
+Then I ran my Docker image in interactive mode to check it and it worked ?:
+/# apt-cache policy r-base-core
+r-base-core:
+  Installed: 4.4.1-1.2204.0
+  Candidate: 4.4.1-1.2204.0
+  Version table:
+ *** 4.4.1-1.2204.0 100
+        100 /var/lib/dpkg/status
+
+This is great. Thank you all so much.
+
+Br,
+Lauren
+--
+Lauren J. Gerber
+Bioinformatician
+Precision Systems Medicine (Kallioniemi) Research Group
+iCAN ? Digital Precision Cancer Medicine Flagship
+Institute for Molecular Medicine Finland (FIMM)
+Nordic EMBL Partnership for Molecular Medicine
+Biomedicum Helsinki 2U, D301a1
+P.O. Box 20 (Tukholmankatu 8)
+FI-00014 University of Helsinki, Finland
+lauren.gerber at helsinki.fi
+
+From: Dirk Eddelbuettel <edd at debian.org>
+Date: Wednesday, 10. July 2024 at 19.09
+To: Gerber, Lauren J <lauren.gerber at helsinki.fi>
+Cc: Dirk Eddelbuettel <edd at debian.org>, marcoblanchette at icloud.com <marcoblanchette at icloud.com>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+
+Lauren,
+
+I am now back home where looking into these things is a little easier. From
+your first email to me, I started off with the selenium container you
+mentioned as your starting point.
+
+And that basically is your issue. It is a 'high-level' container, and it sets
+a user. (Essentially) all other Dockerfiles you have seen and been pointed at
+are 'lower-level' and operate as root -- so you need to inject 'sudo' calls.
+Otherwise it really is 'just' getting one key and adding one repo, but it
+helps to have had the same user <-> root issues before ...
+
+So below is a working 'minimal' Dockerfile that gets me R 4.4.1 (validated
+via 'docker exec -ti container_id_here bash' once built). Hope it helps.
+
+Best,  Dirk
+
+
+
+FROM selenium/standalone-firefox:latest
+
+## Following the standard rocker/r2u:jammy Dockerfile, and adapted slightly
+
+RUN sudo apt update \
+##
+## We would normally do
+##   apt install --yes --no-install-recommends ca-certificates locales wget
+## but these are already installed
+##
+## So we skip to the next step of adding the key and repo
+   && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+           | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+   && echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/cran_ubuntu_key.asc] https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/" \
+           | sudo tee -a /etc/apt/sources.list.d/cran.list \
+##
+## Update again and install R
+   && sudo apt update -qqq \
+   && sudo apt install --yes --no-install-recommends r-base-core
+
+
+--
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+	[[alternative HTML version deleted]]
+
+
+From m@rcobi@@chette m@iii@g oii icioud@com  Thu Jul 11 19:03:01 2024
+From: m@rcobi@@chette m@iii@g oii icioud@com (m@rcobi@@chette m@iii@g oii icioud@com)
+Date: Thu, 11 Jul 2024 17:03:01 +0000
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <AM0PR07MB54427AF419E823E5F4C3D7FBE6A52@AM0PR07MB5442.eurprd07.prod.outlook.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.13943.14451.513692@rob.eddelbuettel.com>
+ <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB23770257ECBB60C2773FC12CACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB2377B6A9FB85E9B97D5AABA2ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.17162.770513.287145@rob.eddelbuettel.com>
+ <DM5PR1001MB2377637CFA0FA1133D569064ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.54543.252615.702703@rob.eddelbuettel.com>
+ <AM0PR07MB5442BBB2219E812CA645B22AE6DB2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <26254.45619.465085.815708@rob.eddelbuettel.com>
+ <AM0PR07MB54425927FB18F5387CB6EAD6E6A42@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377AA4F06C8995DFEB4AE49ACA42@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <AM0PR07MB54427AF419E823E5F4C3D7FBE6A52@AM0PR07MB5442.eurprd07.prod.outlook.com>
+Message-ID: <DM5PR1001MB2377B2712045C88C775BADABACA52@DM5PR1001MB2377.namprd10.prod.outlook.com>
+
+Yes, keep the $(lsb-release -cs) there. This allows you to change the version of the OS without having to change anything else (for instance we are migrating all of our docker to 24.04 LTS right now, so we only have to modify the FROM entry and all of our Dockerfile will still work).
+
+
+From: Gerber, Lauren J <lauren.gerber at helsinki.fi>
+Date: Thursday, July 11, 2024 at 2:21?AM
+To: marcoblanchette at icloud.com <marcoblanchette at icloud.com>, Dirk Eddelbuettel <edd at debian.org>
+Cc: Dirk Eddelbuettel <edd at debian.org>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+Hi Marco,
+
+Thank you for the follow up email.
+
+In the line below, do I replace $(lsb-release -cs) with jammy (Ubuntu 22.04) or leave it alone:
+
+Add-apt-repository ?deb https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/?
+
+It?s good to know about installations for Bioconductor. I am not currently using it, but I may need it in the future for other projects.
+
+Br,
+Lauren
+--
+Lauren J. Gerber
+Bioinformatician
+Precision Systems Medicine (Kallioniemi) Research Group
+iCAN ? Digital Precision Cancer Medicine Flagship
+Institute for Molecular Medicine Finland (FIMM)
+Nordic EMBL Partnership for Molecular Medicine
+Biomedicum Helsinki 2U, D301a1
+P.O. Box 20 (Tukholmankatu 8)
+FI-00014 University of Helsinki, Finland
+lauren.gerber at helsinki.fi
+
+From: marcoblanchette at icloud.com <marcoblanchette at icloud.com>
+Date: Wednesday, 10. July 2024 at 23.17
+To: Gerber, Lauren J <lauren.gerber at helsinki.fi>, Dirk Eddelbuettel <edd at debian.org>
+Cc: Dirk Eddelbuettel <edd at debian.org>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+Lauren, little oversight from my Dockerfile, if you want to follow the CRAN steps and get the R from the cloud.r-project.org server, you want to replace
+     && add-apt-repository -y "ppa:marutter/rrutter4.0"
+
+With
+    && add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+
+The ppa repo is Michael Rutter personal repo on launchpad.net, which works just fine but is not the CRAN sanctioned way of getting the R package.
+
+Now, both AMD64 and ARM64 (Intel and Mac chip) binaries for Ubuntu are available on cloud.r-project.org which will allow you to compile your Ubuntu based docker image on either Intel or Mac chipset machines (few months ago only the Intel built was available on cloud.r-project.org which necessitated us to use M. Rutter PPA).
+
+Here?s our current r-base Dockerfile which, as I said, also install a couple commonly used libs in R packages and the step to install Bio Conductor base package (if you don?t use BioC, delete it):
+
+FROM ubuntu:22.04
+
+USER root
+
+ENV DEBIAN_FRONTEND noninteractive
+
+# Configure Ubuntu for R install
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    software-properties-common \
+    gnupg2 \
+    wget \
+    build-essential \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+    | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+    && add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+
+RUN apt-get update -y \
+    && apt-get install -y r-base\
+    && apt-get clean \
+    && apt-get purge \
+    && rm -rf /var/lib/apt/lists/* /tmp/*
+
+## Configure parallel options to use max CPUs by default and install BioC
+RUN /usr/bin/R -e 'options(Ncpus = parallel::detectCores())'\
+    -e 'install.packages("BiocManager")' \
+    -e 'BiocManager::install()'
+
+Marco
+
+From: Gerber, Lauren J <lauren.gerber at helsinki.fi>
+Date: Wednesday, July 10, 2024 at 9:43?AM
+To: Dirk Eddelbuettel <edd at debian.org>
+Cc: Dirk Eddelbuettel <edd at debian.org>, marcoblanchette at icloud.com <marcoblanchette at icloud.com>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+Hi Dirk,
+
+Thank you so much for looking into this when you got home. I greatly appreciate it.
+
+I was actually in the midst of writing to everyone the following message:
+?.
+?.
+?.
+
+Hi All,
+
+I have some good news. ? My docker image is now up-to-date with R version 4.4.1.
+
+I first had to clear a bunch of unused data using docker system prune ?force. Apparently, it cleared over 32.53 gigs of data, and seemed to have been interfering with some of the package installations trying to take place.
+
+Next, I tried using part of Marco?s dockerfile and it helped solve the issue:
+
+RUN apt-get update \
+      && apt install -y \
+      software-properties-common \
+      dirmngr \
+      gnupg2 \
+      wget \
+      build-essential \
+      libcurl4-openssl-dev \
+      libxml2-dev \
+      libasound2 \
+      python3 \
+      python3-pip \
+      python3.10-venv \
+      git-all \
+      lsb-release \
+      libxml-twig-perl \
+      libc6-dev \
+      && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+      | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+&& add-apt-repository -y "ppa:marutter/rrutter4.0"
+
+ RUN apt-get update -y \
+     && apt-get install -y r-base\
+     && apt-get clean \
+     && apt-get purge \
+     && rm -rf /var/lib/apt/lists/* /tmp/*
+
+Then I ran my Docker image in interactive mode to check it and it worked ?:
+/# apt-cache policy r-base-core
+r-base-core:
+  Installed: 4.4.1-1.2204.0
+  Candidate: 4.4.1-1.2204.0
+  Version table:
+ *** 4.4.1-1.2204.0 100
+        100 /var/lib/dpkg/status
+
+This is great. Thank you all so much.
+
+Br,
+Lauren
+--
+Lauren J. Gerber
+Bioinformatician
+Precision Systems Medicine (Kallioniemi) Research Group
+iCAN ? Digital Precision Cancer Medicine Flagship
+Institute for Molecular Medicine Finland (FIMM)
+Nordic EMBL Partnership for Molecular Medicine
+Biomedicum Helsinki 2U, D301a1
+P.O. Box 20 (Tukholmankatu 8)
+FI-00014 University of Helsinki, Finland
+lauren.gerber at helsinki.fi
+
+From: Dirk Eddelbuettel <edd at debian.org>
+Date: Wednesday, 10. July 2024 at 19.09
+To: Gerber, Lauren J <lauren.gerber at helsinki.fi>
+Cc: Dirk Eddelbuettel <edd at debian.org>, marcoblanchette at icloud.com <marcoblanchette at icloud.com>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+
+Lauren,
+
+I am now back home where looking into these things is a little easier. From
+your first email to me, I started off with the selenium container you
+mentioned as your starting point.
+
+And that basically is your issue. It is a 'high-level' container, and it sets
+a user. (Essentially) all other Dockerfiles you have seen and been pointed at
+are 'lower-level' and operate as root -- so you need to inject 'sudo' calls.
+Otherwise it really is 'just' getting one key and adding one repo, but it
+helps to have had the same user <-> root issues before ...
+
+So below is a working 'minimal' Dockerfile that gets me R 4.4.1 (validated
+via 'docker exec -ti container_id_here bash' once built). Hope it helps.
+
+Best,  Dirk
+
+
+
+FROM selenium/standalone-firefox:latest
+
+## Following the standard rocker/r2u:jammy Dockerfile, and adapted slightly
+
+RUN sudo apt update \
+##
+## We would normally do
+##   apt install --yes --no-install-recommends ca-certificates locales wget
+## but these are already installed
+##
+## So we skip to the next step of adding the key and repo
+   && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+           | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+   && echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/cran_ubuntu_key.asc] https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/" \
+           | sudo tee -a /etc/apt/sources.list.d/cran.list \
+##
+## Update again and install R
+   && sudo apt update -qqq \
+   && sudo apt install --yes --no-install-recommends r-base-core
+
+
+--
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+	[[alternative HTML version deleted]]
+
+
+From |@uren@gerber @end|ng |rom he|@|nk|@||  Fri Jul 12 14:01:30 2024
+From: |@uren@gerber @end|ng |rom he|@|nk|@|| (Gerber, Lauren J)
+Date: Fri, 12 Jul 2024 12:01:30 +0000
+Subject: [R-sig-Debian] 
+ Issues with Ubuntu 22.04 and Installing the Latest
+ Version of R (R 4.4.1) to Docker Image
+In-Reply-To: <DM5PR1001MB2377B2712045C88C775BADABACA52@DM5PR1001MB2377.namprd10.prod.outlook.com>
+References: <AM0PR07MB544220934694E40050CE7BB5E6DA2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377C3312325E7E6E1BC5340ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.13943.14451.513692@rob.eddelbuettel.com>
+ <DM5PR1001MB2377AC55882200C57A685329ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB23770257ECBB60C2773FC12CACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <DM5PR1001MB2377B6A9FB85E9B97D5AABA2ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.17162.770513.287145@rob.eddelbuettel.com>
+ <DM5PR1001MB2377637CFA0FA1133D569064ACDA2@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <26252.54543.252615.702703@rob.eddelbuettel.com>
+ <AM0PR07MB5442BBB2219E812CA645B22AE6DB2@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <26254.45619.465085.815708@rob.eddelbuettel.com>
+ <AM0PR07MB54425927FB18F5387CB6EAD6E6A42@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377AA4F06C8995DFEB4AE49ACA42@DM5PR1001MB2377.namprd10.prod.outlook.com>
+ <AM0PR07MB54427AF419E823E5F4C3D7FBE6A52@AM0PR07MB5442.eurprd07.prod.outlook.com>
+ <DM5PR1001MB2377B2712045C88C775BADABACA52@DM5PR1001MB2377.namprd10.prod.outlook.com>
+Message-ID: <AM0PR07MB5442FBB6E2354525243FB186E6A62@AM0PR07MB5442.eurprd07.prod.outlook.com>
+
+Hi Marco,
+
+Okay great, thank you for clarifying.
+
+Br,
+Lauren
+--
+Lauren J. Gerber
+Bioinformatician
+Precision Systems Medicine (Kallioniemi) Research Group
+iCAN ? Digital Precision Cancer Medicine Flagship
+Institute for Molecular Medicine Finland (FIMM)
+Nordic EMBL Partnership for Molecular Medicine
+Biomedicum Helsinki 2U, D301a1
+P.O. Box 20 (Tukholmankatu 8)
+FI-00014 University of Helsinki, Finland
+lauren.gerber at helsinki.fi
+
+From: marcoblanchette at icloud.com <marcoblanchette at icloud.com>
+Date: Thursday, 11. July 2024 at 20.03
+To: Gerber, Lauren J <lauren.gerber at helsinki.fi>, Dirk Eddelbuettel <edd at debian.org>
+Cc: Dirk Eddelbuettel <edd at debian.org>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+Yes, keep the $(lsb-release -cs) there. This allows you to change the version of the OS without having to change anything else (for instance we are migrating all of our docker to 24.04 LTS right now, so we only have to modify the FROM entry and all of our Dockerfile will still work).
+
+
+From: Gerber, Lauren J <lauren.gerber at helsinki.fi>
+Date: Thursday, July 11, 2024 at 2:21?AM
+To: marcoblanchette at icloud.com <marcoblanchette at icloud.com>, Dirk Eddelbuettel <edd at debian.org>
+Cc: Dirk Eddelbuettel <edd at debian.org>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+Hi Marco,
+
+Thank you for the follow up email.
+
+In the line below, do I replace $(lsb-release -cs) with jammy (Ubuntu 22.04) or leave it alone:
+
+Add-apt-repository ?deb https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/?
+
+It?s good to know about installations for Bioconductor. I am not currently using it, but I may need it in the future for other projects.
+
+Br,
+Lauren
+--
+Lauren J. Gerber
+Bioinformatician
+Precision Systems Medicine (Kallioniemi) Research Group
+iCAN ? Digital Precision Cancer Medicine Flagship
+Institute for Molecular Medicine Finland (FIMM)
+Nordic EMBL Partnership for Molecular Medicine
+Biomedicum Helsinki 2U, D301a1
+P.O. Box 20 (Tukholmankatu 8)
+FI-00014 University of Helsinki, Finland
+lauren.gerber at helsinki.fi
+
+From: marcoblanchette at icloud.com <marcoblanchette at icloud.com>
+Date: Wednesday, 10. July 2024 at 23.17
+To: Gerber, Lauren J <lauren.gerber at helsinki.fi>, Dirk Eddelbuettel <edd at debian.org>
+Cc: Dirk Eddelbuettel <edd at debian.org>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+Lauren, little oversight from my Dockerfile, if you want to follow the CRAN steps and get the R from the cloud.r-project.org server, you want to replace
+     && add-apt-repository -y "ppa:marutter/rrutter4.0"
+
+With
+    && add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+
+The ppa repo is Michael Rutter personal repo on launchpad.net, which works just fine but is not the CRAN sanctioned way of getting the R package.
+
+Now, both AMD64 and ARM64 (Intel and Mac chip) binaries for Ubuntu are available on cloud.r-project.org which will allow you to compile your Ubuntu based docker image on either Intel or Mac chipset machines (few months ago only the Intel built was available on cloud.r-project.org which necessitated us to use M. Rutter PPA).
+
+Here?s our current r-base Dockerfile which, as I said, also install a couple commonly used libs in R packages and the step to install Bio Conductor base package (if you don?t use BioC, delete it):
+
+FROM ubuntu:22.04
+
+USER root
+
+ENV DEBIAN_FRONTEND noninteractive
+
+# Configure Ubuntu for R install
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    software-properties-common \
+    gnupg2 \
+    wget \
+    build-essential \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+    | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+    && add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+
+RUN apt-get update -y \
+    && apt-get install -y r-base\
+    && apt-get clean \
+    && apt-get purge \
+    && rm -rf /var/lib/apt/lists/* /tmp/*
+
+## Configure parallel options to use max CPUs by default and install BioC
+RUN /usr/bin/R -e 'options(Ncpus = parallel::detectCores())'\
+    -e 'install.packages("BiocManager")' \
+    -e 'BiocManager::install()'
+
+Marco
+
+From: Gerber, Lauren J <lauren.gerber at helsinki.fi>
+Date: Wednesday, July 10, 2024 at 9:43?AM
+To: Dirk Eddelbuettel <edd at debian.org>
+Cc: Dirk Eddelbuettel <edd at debian.org>, marcoblanchette at icloud.com <marcoblanchette at icloud.com>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+Hi Dirk,
+
+Thank you so much for looking into this when you got home. I greatly appreciate it.
+
+I was actually in the midst of writing to everyone the following message:
+?.
+?.
+?.
+
+Hi All,
+
+I have some good news. ? My docker image is now up-to-date with R version 4.4.1.
+
+I first had to clear a bunch of unused data using docker system prune ?force. Apparently, it cleared over 32.53 gigs of data, and seemed to have been interfering with some of the package installations trying to take place.
+
+Next, I tried using part of Marco?s dockerfile and it helped solve the issue:
+
+RUN apt-get update \
+      && apt install -y \
+      software-properties-common \
+      dirmngr \
+      gnupg2 \
+      wget \
+      build-essential \
+      libcurl4-openssl-dev \
+      libxml2-dev \
+      libasound2 \
+      python3 \
+      python3-pip \
+      python3.10-venv \
+      git-all \
+      lsb-release \
+      libxml-twig-perl \
+      libc6-dev \
+      && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+      | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+&& add-apt-repository -y "ppa:marutter/rrutter4.0"
+
+ RUN apt-get update -y \
+     && apt-get install -y r-base\
+     && apt-get clean \
+     && apt-get purge \
+     && rm -rf /var/lib/apt/lists/* /tmp/*
+
+Then I ran my Docker image in interactive mode to check it and it worked ?:
+/# apt-cache policy r-base-core
+r-base-core:
+  Installed: 4.4.1-1.2204.0
+  Candidate: 4.4.1-1.2204.0
+  Version table:
+ *** 4.4.1-1.2204.0 100
+        100 /var/lib/dpkg/status
+
+This is great. Thank you all so much.
+
+Br,
+Lauren
+--
+Lauren J. Gerber
+Bioinformatician
+Precision Systems Medicine (Kallioniemi) Research Group
+iCAN ? Digital Precision Cancer Medicine Flagship
+Institute for Molecular Medicine Finland (FIMM)
+Nordic EMBL Partnership for Molecular Medicine
+Biomedicum Helsinki 2U, D301a1
+P.O. Box 20 (Tukholmankatu 8)
+FI-00014 University of Helsinki, Finland
+lauren.gerber at helsinki.fi
+
+From: Dirk Eddelbuettel <edd at debian.org>
+Date: Wednesday, 10. July 2024 at 19.09
+To: Gerber, Lauren J <lauren.gerber at helsinki.fi>
+Cc: Dirk Eddelbuettel <edd at debian.org>, marcoblanchette at icloud.com <marcoblanchette at icloud.com>, r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] Issues with Ubuntu 22.04 and Installing the Latest Version of R (R 4.4.1) to Docker Image
+
+Lauren,
+
+I am now back home where looking into these things is a little easier. From
+your first email to me, I started off with the selenium container you
+mentioned as your starting point.
+
+And that basically is your issue. It is a 'high-level' container, and it sets
+a user. (Essentially) all other Dockerfiles you have seen and been pointed at
+are 'lower-level' and operate as root -- so you need to inject 'sudo' calls.
+Otherwise it really is 'just' getting one key and adding one repo, but it
+helps to have had the same user <-> root issues before ...
+
+So below is a working 'minimal' Dockerfile that gets me R 4.4.1 (validated
+via 'docker exec -ti container_id_here bash' once built). Hope it helps.
+
+Best,  Dirk
+
+
+
+FROM selenium/standalone-firefox:latest
+
+## Following the standard rocker/r2u:jammy Dockerfile, and adapted slightly
+
+RUN sudo apt update \
+##
+## We would normally do
+##   apt install --yes --no-install-recommends ca-certificates locales wget
+## but these are already installed
+##
+## So we skip to the next step of adding the key and repo
+   && wget -q -O - https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+           | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc  \
+   && echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/cran_ubuntu_key.asc] https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/" \
+           | sudo tee -a /etc/apt/sources.list.d/cran.list \
+##
+## Update again and install R
+   && sudo apt update -qqq \
+   && sudo apt install --yes --no-install-recommends r-base-core
+
+
+--
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+	[[alternative HTML version deleted]]
+
+

@@ -1,0 +1,166 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2024-05",
+  "messages": [
+    {
+      "id": "msg-8bbbccd9a553",
+      "message_id": "<20240510151601.36e4c457@rolf-Latitude-E7470>",
+      "from_name": "Rolf Turner",
+      "from_email_hash": "6427224a321c7c1c59228836936ec40d360970e09540541f84768404589dd444",
+      "date": "2024-05-10T03:16:01Z",
+      "subject": "[R-sig-Debian] Heads-up: r2u installs (only) to /usr/lib/R/site-library.",
+      "subject_clean": "Heads-up: r2u installs (only) to /usr/lib/R/site-library.",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "I started using r2u (see https://eddelbuettel.github.io/r2u) recently\nand thought I was having a problem in that I was getting\nout-of-date versions of packages.  I made enquiries of Dirk\nEddelbuettel about this, and he enlightened me as to what the problem\nreally was.  I was seeing old versions of packages that were stored in\na library, different from /usr/lib/R/site-library. I have a personal\nlibrary /home/rolf/Rlib into which I had previously always installed\ncontributed packages. I had R_LIBS set equal to /home/rolf/Rlib, and\n.libPaths() returned\n\n    [1] \"/home/rolf/Rlib\"               \"/usr/local/lib/R/site-library\"\n    [3] \"/usr/lib/R/site-library\"       \"/usr/lib/R/library\n\nand I just assumed that r2u would install to the first entry of\n.libPaths().  It doesn't (as the subject line of this email says), but\nwhen I invoke library() I get the package that is stored in this\nfirst entry.\n\nDirk thought that there would be merit in drawing this phenomenon to\nthe general attention of users.  There are probably others who, like\nme, have a personal library of R packages.  Such users may need to make\nadjustments to their R_LIBS environment variable and to how .libPaths()\nis set up.\n\nI hope that this message is of some interest.\n\ncheers,\n\nRolf Turner\n\n-- \nHonorary Research Fellow\nDepartment of Statistics\nUniversity of Auckland\nStats. Dep't. (secretaries) phone:\n         +64-9-373-7599 ext. 89622\nHome phone: +64-9-480-4619",
+      "body_snippet": "I started using r2u (see https://eddelbuettel.github.io/r2u) recently\nand thought I was having a problem in that I was getting\nout-of-date versions of packages.  I made enquiries of Dirk\nEddelbuettel ",
+      "thread_id": "thread-8bbbccd9a553",
+      "thread_depth": 0,
+      "month": "2024-05"
+    },
+    {
+      "id": "msg-600f6c09d527",
+      "message_id": "<CABFfbXtniDcjj=vTxyfSuwALbQkJESaVkoS5PswpLX10APDR0w@mail.gmail.com>",
+      "from_name": "Jeroen Ooms",
+      "from_email_hash": "6d6b57f7dfdacdb11068763c49af518a12f1ee23bc379f749098f057c1d6df69",
+      "date": "2024-05-21T13:01:42+02:00",
+      "subject": "[R-sig-Debian] Default CXXFLAGS",
+      "subject_clean": "Default CXXFLAGS",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Compiling packages with C++ code using the default r-base-dev\nconfiguration on debian:sid shows a lot of:\n\n   cc1plus: warning: '-Werror=' argument\n'-Werror=implicit-function-declaration' is not valid for C++\n\nCan this flag be removed from R CMD config CXXFLAGS?",
+      "body_snippet": "Compiling packages with C++ code using the default r-base-dev\nconfiguration on debian:sid shows a lot of:\n\n   cc1plus: warning: '-Werror=' argument\n'-Werror=implicit-function-declaration' is not valid",
+      "thread_id": "thread-600f6c09d527",
+      "thread_depth": 0,
+      "month": "2024-05"
+    },
+    {
+      "id": "msg-39e83b5016a4",
+      "message_id": "<26188.36514.862877.44801@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2024-05-21T07:08:02-05:00",
+      "subject": "[R-sig-Debian] Default CXXFLAGS",
+      "subject_clean": "Default CXXFLAGS",
+      "in_reply_to": "<CABFfbXtniDcjj=vTxyfSuwALbQkJESaVkoS5PswpLX10APDR0w@mail.gmail.com>",
+      "references": [
+        "<CABFfbXtniDcjj=vTxyfSuwALbQkJESaVkoS5PswpLX10APDR0w@mail.gmail.com>"
+      ],
+      "body_plain": "On 21 May 2024 at 13:01, Jeroen Ooms wrote:\n| Compiling packages with C++ code using the default r-base-dev\n| configuration on debian:sid shows a lot of:\n| \n|    cc1plus: warning: '-Werror=' argument\n| '-Werror=implicit-function-declaration' is not valid for C++\n| \n| Can this flag be removed from R CMD config CXXFLAGS?\n\n\"No.\"\n\nThat was quoting Simon Urbanek from a few years ago. You cannot undo what it\nis in R's own /etc/R/Makeconf via a programmatic way via some sort of option\nor alike. It is fixed. You and I know that you can add to the right-hand side\nvia ~/.R/Makeconf and that is about it AFAIK.\n\nOf course you can also call `sed` and alike to modify it (in a container,\nsay). Maybe that is what you really want to do.\n\nActually, it is also a 'conffile' as far as `apt` and friends are concerned.\nSo you can always do `sudo vi ...` it and call it a day. The changes should\npersist in the way changes you the admin made to your config files persist.\n\nI am afraid that is all we have here.\n\nDirk\n\n-- \ndirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 21 May 2024 at 13:01, Jeroen Ooms wrote:\n| Compiling packages with C++ code using the default r-base-dev\n| configuration on debian:sid shows a lot of:\n| \n|    cc1plus: warning: '-Werror=' argument\n",
+      "thread_id": "thread-600f6c09d527",
+      "thread_depth": 1,
+      "month": "2024-05"
+    },
+    {
+      "id": "msg-ae081d2cd225",
+      "message_id": "<20240521154224.7dab9fba@arachnoid>",
+      "from_name": "Ivan Krylov",
+      "from_email_hash": "d5e69509b1e550954e7dc7df9fde68d8fd4a7973fb076b5d966efe67850be3c9",
+      "date": "2024-05-21T15:42:24+03:00",
+      "subject": "[R-sig-Debian] Default CXXFLAGS",
+      "subject_clean": "Default CXXFLAGS",
+      "in_reply_to": "<26188.36514.862877.44801@rob.eddelbuettel.com>",
+      "references": [
+        "<CABFfbXtniDcjj=vTxyfSuwALbQkJESaVkoS5PswpLX10APDR0w@mail.gmail.com>",
+        "<26188.36514.862877.44801@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "On Tue, 21 May 2024 07:08:02 -0500\nDirk Eddelbuettel <edd at debian.org> wrote:\n\n> You cannot undo what it is in R's own /etc/R/Makeconf via a\n> programmatic way via some sort of option or alike.\n\nI think this is about the following line in debian/rules:\n\noptimflags      = `DEB_BUILD_MAINT_OPTIONS=optimize=-lto dpkg-buildflags --get CFLAGS`\n\nhttps://sources.debian.org/src/r-base/4.4.0-2/debian/rules/#L101\n\n...which later propagares to cxxflags\t= $(optimflags) and\neventually CXXFLAGS=\"$(cxxflags)\" ... ./configure.\n\nOn Sid, dpkg-buildflags --get CFLAGS includes\n-Werror=implicit-function-declaration, which g++ doesn't like:\n\nroot at 020af1fe3ba2:/# g++ -Werror=implicit-function-declaration -c ex.cpp\ncc1plus: warning: '-Werror=' argument\n'-Werror=implicit-function-declaration' is not valid for C++\n\n-- \nBest regards,\nIvan",
+      "body_snippet": "On Tue, 21 May 2024 07:08:02 -0500\nDirk Eddelbuettel <edd at debian.org> wrote:\n\n> You cannot undo what it is in R's own /etc/R/Makeconf via a\n> programmatic way via some sort of option or alike.\n\nI t",
+      "thread_id": "thread-600f6c09d527",
+      "thread_depth": 2,
+      "month": "2024-05"
+    },
+    {
+      "id": "msg-34c906767a41",
+      "message_id": "<26188.38960.952507.369546@hornik.net>",
+      "from_name": "Kurt Hornik",
+      "from_email_hash": "38d7001af840d889a64ba1cdcb8ec8beb738b8daf9643622801f3acb78b6052a",
+      "date": "2024-05-21T14:48:48+02:00",
+      "subject": "[R-sig-Debian] Default CXXFLAGS",
+      "subject_clean": "Default CXXFLAGS",
+      "in_reply_to": "<20240521154224.7dab9fba@arachnoid>",
+      "references": [
+        "<CABFfbXtniDcjj=vTxyfSuwALbQkJESaVkoS5PswpLX10APDR0w@mail.gmail.com>",
+        "<26188.36514.862877.44801@rob.eddelbuettel.com>",
+        "<20240521154224.7dab9fba@arachnoid>"
+      ],
+      "body_plain": ">>>>> Ivan Krylov writes:\n\n> On Tue, 21 May 2024 07:08:02 -0500\n> Dirk Eddelbuettel <edd at debian.org> wrote:\n\n>> You cannot undo what it is in R's own /etc/R/Makeconf via a\n>> programmatic way via some sort of option or alike.\n\n> I think this is about the following line in debian/rules:\n\nWithout having looked in much detail, I guess foer the CXXFLAGS we want\ndpkg-buildflags --get CXXFLAGS?\n\nBest\n-k\n\n> optimflags      = `DEB_BUILD_MAINT_OPTIONS=optimize=-lto dpkg-buildflags --get CFLAGS`\n\n> https://sources.debian.org/src/r-base/4.4.0-2/debian/rules/#L101\n\n> ...which later propagares to cxxflags\t= $(optimflags) and\n> eventually CXXFLAGS=\"$(cxxflags)\" ... ./configure.\n\n> On Sid, dpkg-buildflags --get CFLAGS includes\n> -Werror=implicit-function-declaration, which g++ doesn't like:\n\n> root at 020af1fe3ba2:/# g++ -Werror=implicit-function-declaration -c ex.cpp\n> cc1plus: warning: '-Werror=' argument\n> '-Werror=implicit-function-declaration' is not valid for C++\n\n> -- \n> Best regards,\n> Ivan\n\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": ">>>>> Ivan Krylov writes:\n\n> On Tue, 21 May 2024 07:08:02 -0500\n> Dirk Eddelbuettel <edd at debian.org> wrote:\n\n>> You cannot undo what it is in R's own /etc/R/Makeconf via a\n>> programmatic way via s",
+      "thread_id": "thread-600f6c09d527",
+      "thread_depth": 3,
+      "month": "2024-05"
+    },
+    {
+      "id": "msg-44143e331917",
+      "message_id": "<20240521155926.1e23e8d9@arachnoid>",
+      "from_name": "Ivan Krylov",
+      "from_email_hash": "d5e69509b1e550954e7dc7df9fde68d8fd4a7973fb076b5d966efe67850be3c9",
+      "date": "2024-05-21T15:59:26+03:00",
+      "subject": "[R-sig-Debian] Default CXXFLAGS",
+      "subject_clean": "Default CXXFLAGS",
+      "in_reply_to": "<26188.38960.952507.369546@hornik.net>",
+      "references": [
+        "<CABFfbXtniDcjj=vTxyfSuwALbQkJESaVkoS5PswpLX10APDR0w@mail.gmail.com>",
+        "<26188.36514.862877.44801@rob.eddelbuettel.com>",
+        "<20240521154224.7dab9fba@arachnoid>",
+        "<26188.38960.952507.369546@hornik.net>"
+      ],
+      "body_plain": "On Tue, 21 May 2024 14:48:48 +0200\nKurt Hornik <Kurt.Hornik at wu.ac.at> wrote:\n\n> I guess foer the CXXFLAGS we want dpkg-buildflags --get CXXFLAGS?\n\nIt must be the case. It's both the documented option [1] and it\ncurrently differs from CFLAGS in the offending flag:\n\nroot at 93e09ba5b6fb:/# diff -u <(dpkg-buildflags --get CFLAGS | sed 's/ /\\n/g') <(dpkg-buildflags --get CXXFLAGS | sed 's/ /\\n/g')\n--- /dev/fd/63  2024-05-21 12:54:12.275778573 +0000\n+++ /dev/fd/62  2024-05-21 12:54:12.275778573 +0000\n@@ -1,6 +1,5 @@\n -g\n -O2\n--Werror=implicit-function-declaration\n -ffile-prefix-map=/=.\n -fstack-protector-strong\n -fstack-clash-protection\n\n\n-- \nBest regards,\nIvan\n\n[1]\nhttps://manpages.debian.org/bookworm/dpkg-dev/dpkg-buildflags.1.en.html#CXXFLAGS",
+      "body_snippet": "On Tue, 21 May 2024 14:48:48 +0200\nKurt Hornik <Kurt.Hornik at wu.ac.at> wrote:\n\n> I guess foer the CXXFLAGS we want dpkg-buildflags --get CXXFLAGS?\n\nIt must be the case. It's both the documented opti",
+      "thread_id": "thread-600f6c09d527",
+      "thread_depth": 4,
+      "month": "2024-05"
+    },
+    {
+      "id": "msg-76642f42fa17",
+      "message_id": "<26188.41780.850311.775069@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2024-05-21T08:35:48-05:00",
+      "subject": "[R-sig-Debian] Default CXXFLAGS",
+      "subject_clean": "Default CXXFLAGS",
+      "in_reply_to": "<20240521155926.1e23e8d9@arachnoid>",
+      "references": [
+        "<CABFfbXtniDcjj=vTxyfSuwALbQkJESaVkoS5PswpLX10APDR0w@mail.gmail.com>",
+        "<26188.36514.862877.44801@rob.eddelbuettel.com>",
+        "<20240521154224.7dab9fba@arachnoid>",
+        "<26188.38960.952507.369546@hornik.net>",
+        "<20240521155926.1e23e8d9@arachnoid>"
+      ],
+      "body_plain": "On 21 May 2024 at 15:59, Ivan Krylov wrote:\n| On Tue, 21 May 2024 14:48:48 +0200\n| Kurt Hornik <Kurt.Hornik at wu.ac.at> wrote:\n| \n| > I guess foer the CXXFLAGS we want dpkg-buildflags --get CXXFLAGS?\n\nGood catch, and expansion, by both of you.\n\n| It must be the case. It's both the documented option [1] and it\n| currently differs from CFLAGS in the offending flag:\n| \n| root at 93e09ba5b6fb:/# diff -u <(dpkg-buildflags --get CFLAGS | sed 's/ /\\n/g') <(dpkg-buildflags --get CXXFLAGS | sed 's/ /\\n/g')\n| --- /dev/fd/63  2024-05-21 12:54:12.275778573 +0000\n| +++ /dev/fd/62  2024-05-21 12:54:12.275778573 +0000\n| @@ -1,6 +1,5 @@\n|  -g\n|  -O2\n| --Werror=implicit-function-declaration\n|  -ffile-prefix-map=/=.\n|  -fstack-protector-strong\n|  -fstack-clash-protection\n\nDifferently put using a Docker invocation away from my Ubuntu host to a\nDebian setting:\n\n$ docker run --rm -ti rocker/r-base dpkg-buildflags | egrep '^(CXXFLAGS|CFLAGS)'\nCFLAGS=-g -O2 -Werror=implicit-function-declaration -ffile-prefix-map=/=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection\nCFLAGS_FOR_BUILD=-g -O2\nCXXFLAGS=-g -O2 -ffile-prefix-map=/=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection\nCXXFLAGS_FOR_BUILD=-g -O2\n$ \n\nSo it looks like picking the CXXFLAGS will remove the unwanted -Werror=...\n\nThanks all -- I will make that change.\n\nDirk\n\nPS Kurt, it would still be nice if you could let us 'sed-filter' or alike the defaults...\n\n-- \ndirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 21 May 2024 at 15:59, Ivan Krylov wrote:\n| On Tue, 21 May 2024 14:48:48 +0200\n| Kurt Hornik <Kurt.Hornik at wu.ac.at> wrote:\n| \n| > I guess foer the CXXFLAGS we want dpkg-buildflags --get CXXFLAGS?",
+      "thread_id": "thread-600f6c09d527",
+      "thread_depth": 5,
+      "month": "2024-05"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-8bbbccd9a553",
+      "subject": "Heads-up: r2u installs (only) to /usr/lib/R/site-library.",
+      "message_count": 1,
+      "participants": [
+        "Rolf Turner"
+      ],
+      "started": "2024-05-10T03:16:01+00:00",
+      "last_reply": "2024-05-10T03:16:01+00:00",
+      "root_message_id": "msg-8bbbccd9a553"
+    },
+    {
+      "id": "thread-600f6c09d527",
+      "subject": "Default CXXFLAGS",
+      "message_count": 6,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Ivan Krylov",
+        "Jeroen Ooms",
+        "Kurt Hornik"
+      ],
+      "started": "2024-05-21T13:01:42+02:00",
+      "last_reply": "2024-05-21T08:35:48-05:00",
+      "root_message_id": "msg-600f6c09d527"
+    }
+  ]
+}

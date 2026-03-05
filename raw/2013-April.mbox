@@ -1,0 +1,653 @@
+From spluque at gmail.com  Mon Apr  1 21:12:06 2013
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Mon, 01 Apr 2013 14:12:06 -0500
+Subject: [R-sig-Debian] downgrading to R 2.15.1-4 from sid beta 3.0.0
+References: <874nfzifc1.fsf@kolob.subpolar.dyndns.org>
+	<20816.37879.537894.377263@max.nulle.part>
+	<87k3ovi6ek.fsf@kolob.subpolar.dyndns.org>
+	<20130325223535.GA1005@falafel.plessy.net>
+	<20816.58108.310981.663915@max.nulle.part>
+Message-ID: <87wqsmoyk9.fsf@kolob.subpolar.dyndns.org>
+
+On Mon, 25 Mar 2013 18:51:24 -0500,
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+> On 26 March 2013 at 07:35, Charles Plessy wrote:
+>> Le Mon, Mar 25, 2013 at 03:14:11PM -0500, Sebastian P. Luque a ?crit
+>> : > On Mon, 25 Mar 2013 13:14:15 -0500,
+>> > Dirk Eddelbuettel <edd at debian.org> wrote:
+>> > 
+>> > > c) If you must downgrade, I would downgrade to 2.15.3-2 from CRAN
+>> > > rather than 2.15.1.
+>> > 
+>> > Great, doing that right now.
+>> 
+>> Hi Sebastian and everybody,
+>> 
+>> Note (if it helps) that it is also available from
+>> snapshot.debian.org.
+>> 
+>> http://snapshot.debian.org/package/r-base/
+
+> Ace -- thanks for the reminder about snapshot.d.o.
+
+> As for Seb's query about mass-updates: what you do from ESS, I do from
+> shell via littler -- and yes, I usually control via lib.loc(). In this
+> case we may want to force it everywhere... though I can't fully
+> recommend to overwrite files owned by dpkg and apt-*.  If it breaks,
+> you keep the pieces.
+
+> And lastly, this is of course a bug in r-base as it could potentially
+> conflict with its dependents. In practive, I don't see how we could do
+> this easily so the best bet is probably to simply upgrade the .deb
+> packages as fast as possible.
+
+> Dirk
+
+> My ~/bin/update.r is below, with some comments removed. A version is
+> also in the littler sources and Debian package.
+
+Thanks Dirk and Charles for the pointers.  I'm now running a locally
+installed R 2.15.3 and packages until the dust settles with 3.0.0.
+
+I just noticed that many sid packages have now been rebuilt against R
+3.0.0.  Kudos to Dirk and the team!  However, I don't understand how
+this works for packages that have an upstream Depends on R < 3.0.0.  One
+of these is nlme, and yet r-cran-nlme has been rebuilt against R 3.0.0,
+even though it fails to load in this latest R with:
+
+R> library(nlme)
+Error: package ?nlme? was built before R 3.0.0: please re-install it
+
+What am I missing?
+
+Thanks,
+
+-- 
+Seb
+
+
+From edd at debian.org  Mon Apr  1 22:14:46 2013
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 1 Apr 2013 15:14:46 -0500
+Subject: [R-sig-Debian] downgrading to R 2.15.1-4 from sid beta 3.0.0
+In-Reply-To: <87wqsmoyk9.fsf@kolob.subpolar.dyndns.org>
+References: <874nfzifc1.fsf@kolob.subpolar.dyndns.org>
+	<20816.37879.537894.377263@max.nulle.part>
+	<87k3ovi6ek.fsf@kolob.subpolar.dyndns.org>
+	<20130325223535.GA1005@falafel.plessy.net>
+	<20816.58108.310981.663915@max.nulle.part>
+	<87wqsmoyk9.fsf@kolob.subpolar.dyndns.org>
+Message-ID: <20825.60086.541970.53184@max.nulle.part>
+
+
+On 1 April 2013 at 14:12, Sebastian P. Luque wrote:
+| On Mon, 25 Mar 2013 18:51:24 -0500,
+| Dirk Eddelbuettel <edd at debian.org> wrote:
+| 
+| > On 26 March 2013 at 07:35, Charles Plessy wrote:
+| >> Le Mon, Mar 25, 2013 at 03:14:11PM -0500, Sebastian P. Luque a ?crit
+| >> : > On Mon, 25 Mar 2013 13:14:15 -0500,
+| >> > Dirk Eddelbuettel <edd at debian.org> wrote:
+| >> > 
+| >> > > c) If you must downgrade, I would downgrade to 2.15.3-2 from CRAN
+| >> > > rather than 2.15.1.
+| >> > 
+| >> > Great, doing that right now.
+| >> 
+| >> Hi Sebastian and everybody,
+| >> 
+| >> Note (if it helps) that it is also available from
+| >> snapshot.debian.org.
+| >> 
+| >> http://snapshot.debian.org/package/r-base/
+| 
+| > Ace -- thanks for the reminder about snapshot.d.o.
+| 
+| > As for Seb's query about mass-updates: what you do from ESS, I do from
+| > shell via littler -- and yes, I usually control via lib.loc(). In this
+| > case we may want to force it everywhere... though I can't fully
+| > recommend to overwrite files owned by dpkg and apt-*.  If it breaks,
+| > you keep the pieces.
+| 
+| > And lastly, this is of course a bug in r-base as it could potentially
+| > conflict with its dependents. In practive, I don't see how we could do
+| > this easily so the best bet is probably to simply upgrade the .deb
+| > packages as fast as possible.
+| 
+| > Dirk
+| 
+| > My ~/bin/update.r is below, with some comments removed. A version is
+| > also in the littler sources and Debian package.
+| 
+| Thanks Dirk and Charles for the pointers.  I'm now running a locally
+| installed R 2.15.3 and packages until the dust settles with 3.0.0.
+| 
+| I just noticed that many sid packages have now been rebuilt against R
+| 3.0.0.  Kudos to Dirk and the team!  However, I don't understand how
+
+Yes, I kept busy over the weekend.
+
+| this works for packages that have an upstream Depends on R < 3.0.0.  One
+| of these is nlme, and yet r-cran-nlme has been rebuilt against R 3.0.0,
+| even though it fails to load in this latest R with:
+
+I don't see that in the nlme sources. 
+
+Rather, the one I uploaded (3.1-109) has
+
+	Depends: graphics, stats, R (>= 3.0.0)
+
+| R> library(nlme)
+| Error: package ?nlme? was built before R 3.0.0: please re-install it
+| 
+| What am I missing?
+
+I *very strongly* suspect that you have an older r-cran-nlme on your system,
+or that you have older nlme installation ahead of the current r-cran-nlme in
+your .libPaths()
+
+Check the result from installed.packages().
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From spluque at gmail.com  Mon Apr  1 22:37:49 2013
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Mon, 01 Apr 2013 15:37:49 -0500
+Subject: [R-sig-Debian] downgrading to R 2.15.1-4 from sid beta 3.0.0
+References: <874nfzifc1.fsf@kolob.subpolar.dyndns.org>
+	<20816.37879.537894.377263@max.nulle.part>
+	<87k3ovi6ek.fsf@kolob.subpolar.dyndns.org>
+	<20130325223535.GA1005@falafel.plessy.net>
+	<20816.58108.310981.663915@max.nulle.part>
+	<87wqsmoyk9.fsf@kolob.subpolar.dyndns.org>
+	<20825.60086.541970.53184@max.nulle.part>
+Message-ID: <87d2ue3s2q.fsf@kolob.subpolar.dyndns.org>
+
+On Mon, 1 Apr 2013 15:14:46 -0500,
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+> On 1 April 2013 at 14:12, Sebastian P. Luque wrote:
+>> On Mon, 25 Mar 2013 18:51:24 -0500,
+>> Dirk Eddelbuettel <edd at debian.org> wrote:
+>> 
+>> > On 26 March 2013 at 07:35, Charles Plessy wrote:
+>> >> Le Mon, Mar 25, 2013 at 03:14:11PM -0500, Sebastian P. Luque a
+>> ?crit >> : > On Mon, 25 Mar 2013 13:14:15 -0500,
+>> >> > Dirk Eddelbuettel <edd at debian.org> wrote:
+>> >> > 
+>> >> > > c) If you must downgrade, I would downgrade to 2.15.3-2 from
+>> CRAN >> > > rather than 2.15.1.
+>> >> > 
+>> >> > Great, doing that right now.
+>> >> 
+>> >> Hi Sebastian and everybody,
+>> >> 
+>> >> Note (if it helps) that it is also available from >>
+>> snapshot.debian.org.
+>> >> 
+>> >> http://snapshot.debian.org/package/r-base/
+>> 
+>> > Ace -- thanks for the reminder about snapshot.d.o.
+>> 
+>> > As for Seb's query about mass-updates: what you do from ESS, I do
+>> from > shell via littler -- and yes, I usually control via
+>> lib.loc(). In this > case we may want to force it
+>> everywhere... though I can't fully > recommend to overwrite files
+>> owned by dpkg and apt-*.  If it breaks, > you keep the pieces.
+>> 
+>> > And lastly, this is of course a bug in r-base as it could
+>> potentially > conflict with its dependents. In practive, I don't see
+>> how we could do > this easily so the best bet is probably to simply
+>> upgrade the .deb > packages as fast as possible.
+>> 
+>> > Dirk
+>> 
+>> > My ~/bin/update.r is below, with some comments removed. A version
+>> is > also in the littler sources and Debian package.
+>> 
+>> Thanks Dirk and Charles for the pointers.  I'm now running a locally
+>> installed R 2.15.3 and packages until the dust settles with 3.0.0.
+>> 
+>> I just noticed that many sid packages have now been rebuilt against R
+>> 3.0.0.  Kudos to Dirk and the team!  However, I don't understand how
+
+> Yes, I kept busy over the weekend.
+
+>> this works for packages that have an upstream Depends on R < 3.0.0.
+>> One of these is nlme, and yet r-cran-nlme has been rebuilt against R
+>> 3.0.0, even though it fails to load in this latest R with:
+
+> I don't see that in the nlme sources.
+
+> Rather, the one I uploaded (3.1-109) has
+
+> 	Depends: graphics, stats, R (>= 3.0.0)
+
+R> library(nlme)
+>> Error: package ?nlme? was built before R 3.0.0: please re-install it
+>> 
+>> What am I missing?
+
+> I *very strongly* suspect that you have an older r-cran-nlme on your
+> system, or that you have older nlme installation ahead of the current
+> r-cran-nlme in your .libPaths()
+
+> Check the result from installed.packages().
+
+Indeed, that was it!  I somehow forgot to remove the temporary local
+installations of nlme and coda, so they wouldn't be found before the
+Debian packages.  Sorry for the noise.
+
+Again, thanks so much for keeping Debian so neat!
+
+-- 
+Seb
+
+
+From spluque at gmail.com  Mon Apr  1 23:34:04 2013
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Mon, 01 Apr 2013 16:34:04 -0500
+Subject: [R-sig-Debian] checking for duplicate packages (was: downgrading to
+	R 2.15.1-4 from sid beta 3.0.0)
+References: <874nfzifc1.fsf@kolob.subpolar.dyndns.org>
+	<20816.37879.537894.377263@max.nulle.part>
+	<87k3ovi6ek.fsf@kolob.subpolar.dyndns.org>
+	<20130325223535.GA1005@falafel.plessy.net>
+	<20816.58108.310981.663915@max.nulle.part>
+	<87wqsmoyk9.fsf@kolob.subpolar.dyndns.org>
+	<20825.60086.541970.53184@max.nulle.part>
+	<87d2ue3s2q.fsf@kolob.subpolar.dyndns.org>
+Message-ID: <8738va3pgz.fsf_-_@kolob.subpolar.dyndns.org>
+
+On Mon, 01 Apr 2013 15:37:49 -0500,
+"Sebastian P. Luque" <spluque at gmail.com> wrote:
+
+> On Mon, 1 Apr 2013 15:14:46 -0500,
+> Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>> On 1 April 2013 at 14:12, Sebastian P. Luque wrote:
+>>> On Mon, 25 Mar 2013 18:51:24 -0500,
+>>> Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>>> > On 26 March 2013 at 07:35, Charles Plessy wrote:
+>>> >> Le Mon, Mar 25, 2013 at 03:14:11PM -0500, Sebastian P. Luque a
+>>> ?crit >> : > On Mon, 25 Mar 2013 13:14:15 -0500,
+>>> >> > Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>>> >> > > c) If you must downgrade, I would downgrade to 2.15.3-2 from
+>>> CRAN >> > > rather than 2.15.1.
+
+>>> >> > Great, doing that right now.
+
+>>> >> Hi Sebastian and everybody,
+
+>>> >> Note (if it helps) that it is also available from >>
+>>> snapshot.debian.org.
+
+>>> >> http://snapshot.debian.org/package/r-base/
+
+>>> > Ace -- thanks for the reminder about snapshot.d.o.
+
+>>> > As for Seb's query about mass-updates: what you do from ESS, I do
+>>> from > shell via littler -- and yes, I usually control via
+>>> lib.loc(). In this > case we may want to force it
+>>> everywhere... though I can't fully > recommend to overwrite files
+>>> owned by dpkg and apt-*.  If it breaks, > you keep the pieces.
+
+>>> > And lastly, this is of course a bug in r-base as it could
+>>> potentially > conflict with its dependents. In practive, I don't see
+>>> how we could do > this easily so the best bet is probably to simply
+>>> upgrade the .deb > packages as fast as possible.
+
+>>> > Dirk
+
+>>> > My ~/bin/update.r is below, with some comments removed. A version
+>>> is > also in the littler sources and Debian package.
+
+>>> Thanks Dirk and Charles for the pointers.  I'm now running a locally
+>>> installed R 2.15.3 and packages until the dust settles with 3.0.0.
+
+>>> I just noticed that many sid packages have now been rebuilt against
+>>> R 3.0.0.  Kudos to Dirk and the team!  However, I don't understand
+>>> how
+
+>> Yes, I kept busy over the weekend.
+
+>>> this works for packages that have an upstream Depends on R < 3.0.0.
+>>> One of these is nlme, and yet r-cran-nlme has been rebuilt against R
+>>> 3.0.0, even though it fails to load in this latest R with:
+
+>> I don't see that in the nlme sources.
+
+>> Rather, the one I uploaded (3.1-109) has
+
+>> Depends: graphics, stats, R (>= 3.0.0)
+
+R> library(nlme)
+>>> Error: package ?nlme? was built before R 3.0.0: please re-install it
+
+>>> What am I missing?
+
+>> I *very strongly* suspect that you have an older r-cran-nlme on your
+>> system, or that you have older nlme installation ahead of the current
+>> r-cran-nlme in your .libPaths()
+
+>> Check the result from installed.packages().
+
+> Indeed, that was it!  I somehow forgot to remove the temporary local
+> installations of nlme and coda, so they wouldn't be found before the
+> Debian packages.  Sorry for the noise.
+
+> Again, thanks so much for keeping Debian so neat!
+
+This prompted me to write something to check for these things:
+
+---<--------------------cut here---------------start------------------->---
+local.lib <- .libPaths()[1]
+localpkgs <- installed.packages(lib.loc=local.lib)[, 1]
+## The system-wide library:
+sys.lib <- .libPaths()[2]
+syspkgs <- installed.packages(lib.loc=sys.lib)[, 1]
+## All the installed packages in local library that should be removed
+dups <- localpkgs %in% syspkgs
+## Check them out
+localpkgs[dups]
+## Remove them
+if (any(dups)) remove.packages(localpkgs[dups], lib=local.lib)
+---<--------------------cut here---------------end--------------------->---
+
+Assuming the default situation in Debian that .libPaths()[1] is the
+standard /usr/local/lib/R/site-library, where regular users can write.
+It also assumes of course one wants to remove all duplicate packages.
+
+If one has local R versions besides Debian, each using a library under
+say /usr/local/lib/R-VERSION/site-library, then one could have:
+
+R_LIBS_USER="/usr/local/lib/R-%V/site-library"
+
+in ~/.Renviron, then .libPaths()[1] would always correspond to the
+appropriate library, whatever local version of R is running.  This is
+working neatly for me so far.  Debian R ignores ~/.Renviron presumably
+because it has found /etc/R/Renviron first, so .libPaths()[1] is always
+the stock /usr/local/lib/R/site-library.  Am I following this correctly?
+
+
+-- 
+Seb
+
+
+From abhirupkgp at gmail.com  Mon Apr 15 23:50:56 2013
+From: abhirupkgp at gmail.com (abhirup mallik)
+Date: Mon, 15 Apr 2013 16:50:56 -0500
+Subject: [R-sig-Debian] R 3.0 in Ubuntu ?
+Message-ID: <CA+XrHptfxoraHTaeywuZdLWcQJNxCGj4QPPRSHdcuY7WAPKhBA@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130415/e5e6c5fa/attachment.pl>
+
+From tech_dev at wildintellect.com  Tue Apr 16 01:41:23 2013
+From: tech_dev at wildintellect.com (Alex Mandel)
+Date: Mon, 15 Apr 2013 16:41:23 -0700
+Subject: [R-sig-Debian] R 3.0 in Ubuntu ?
+In-Reply-To: <CA+XrHptfxoraHTaeywuZdLWcQJNxCGj4QPPRSHdcuY7WAPKhBA@mail.gmail.com>
+References: <CA+XrHptfxoraHTaeywuZdLWcQJNxCGj4QPPRSHdcuY7WAPKhBA@mail.gmail.com>
+Message-ID: <516C9023.3090406@wildintellect.com>
+
+On 04/15/2013 02:50 PM, abhirup mallik wrote:
+> When will R 3.0 .deb be available for ubuntu apt-get update? For now does
+> ubuntu users have to use the tar.gz in cran site?
+> 
+http://www.personal.psu.edu/mar36/blogs/the_ubuntu_r_blog/2013/03/moving-to-r-300-on-ubuntu.html
+
+
+From abhirupkgp at gmail.com  Tue Apr 16 05:18:09 2013
+From: abhirupkgp at gmail.com (abhirup mallik)
+Date: Mon, 15 Apr 2013 22:18:09 -0500
+Subject: [R-sig-Debian] R 3.0 in Ubuntu ?
+In-Reply-To: <516C9023.3090406@wildintellect.com>
+References: <CA+XrHptfxoraHTaeywuZdLWcQJNxCGj4QPPRSHdcuY7WAPKhBA@mail.gmail.com>
+	<516C9023.3090406@wildintellect.com>
+Message-ID: <CA+XrHptUFwGKQfwiO6wuSaU-nT_0UR4wb2zPsp3KFb3qS0QY8w@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20130415/b1898733/attachment.pl>
+
+From ruju at dtu.dk  Mon Apr 29 11:42:04 2013
+From: ruju at dtu.dk (Rune Juhl)
+Date: Mon, 29 Apr 2013 11:42:04 +0200
+Subject: [R-sig-Debian] r-base-core on Ubuntu 13.04 x86_64
+Message-ID: <CAKxVe7FWUDkLROWX6XPpNuvTERHQDU_5wsunWCYC6xr1cHTopg@mail.gmail.com>
+
+Hi,
+
+r-base-core 3.0.0-2raring2 (among other packages) is only available
+for i386 at the moment. Will the repo be updated in the "nearest"
+future? Is there a problem compiling v3 on x86_64?
+
+Thank you
+
+Rune
+
+
+From mar36 at psu.edu  Mon Apr 29 13:43:18 2013
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 29 Apr 2013 07:43:18 -0400
+Subject: [R-sig-Debian] r-base-core on Ubuntu 13.04 x86_64
+In-Reply-To: <CAKxVe7FWUDkLROWX6XPpNuvTERHQDU_5wsunWCYC6xr1cHTopg@mail.gmail.com>
+References: <CAKxVe7FWUDkLROWX6XPpNuvTERHQDU_5wsunWCYC6xr1cHTopg@mail.gmail.com>
+Message-ID: <517E5CD6.4010801@psu.edu>
+
+
+
+On 04/29/2013 05:42 AM, Rune Juhl wrote:
+> Hi,
+>
+> r-base-core 3.0.0-2raring2 (among other packages) is only available
+> for i386 at the moment. Will the repo be updated in the "nearest"
+> future? Is there a problem compiling v3 on x86_64?
+>
+> Thank you
+>
+> Rune
+
+Rune,
+
+I had one small configuration error in my CRAN setup.  The amd64 builds 
+will appear in the next mirror sync on CRAN.  If you need those deb 
+packages now, head over to the Launchpad PPA:
+
+https://launchpad.net/~marutter/+archive/rrutter
+
+Thanks for finding my error,
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From edd at debian.org  Mon Apr 29 13:55:37 2013
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 29 Apr 2013 06:55:37 -0500
+Subject: [R-sig-Debian] r-base-core on Ubuntu 13.04 x86_64
+In-Reply-To: <CAKxVe7FWUDkLROWX6XPpNuvTERHQDU_5wsunWCYC6xr1cHTopg@mail.gmail.com>
+References: <CAKxVe7FWUDkLROWX6XPpNuvTERHQDU_5wsunWCYC6xr1cHTopg@mail.gmail.com>
+Message-ID: <20862.24505.89669.646382@max.nulle.part>
+
+
+On 29 April 2013 at 11:42, Rune Juhl wrote:
+| r-base-core 3.0.0-2raring2 (among other packages) is only available
+| for i386 at the moment. Will the repo be updated in the "nearest"
+| future? Is there a problem compiling v3 on x86_64?
+
+Yes. All architectures supported by these builder should provide binaries
+if and when they had a chance to catch up.
+
+In the meantime just point to the quantal variant. I have R 3.0.0 from
+those on 32 and 64 bit Ubuntu.
+
+There was an issue with tcl/tk under raring which needed a different
+Build-Depends which is why these are a little behind.  
+
+But it all should catch up.  Michael is doing a very nice job with these
+rebuilds based on my Debian packages, and I am a heavy user of this myself.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From tobias.verbeke at openanalytics.eu  Mon Apr 29 14:53:27 2013
+From: tobias.verbeke at openanalytics.eu (Tobias Verbeke)
+Date: Mon, 29 Apr 2013 14:53:27 +0200 (CEST)
+Subject: [R-sig-Debian] naming r-base files Ubuntu precise builds
+In-Reply-To: <89611115.38450.1367239710715.JavaMail.root@openanalytics.eu>
+Message-ID: <1287722788.38468.1367240007715.JavaMail.root@openanalytics.eu>
+
+L.S.
+
+The Ubuntu precise builds of R 2.15.3 at
+
+http://cran.r-project.org/bin/linux/ubuntu/precise/
+
+have names for the r-base package that seem erroneous
+
+r-base_2.15.3-1precise0precise1.diff.gz	02-Mar-2013 14:09 	79K	 
+r-base_2.15.3-1precise0precise1.dsc	02-Mar-2013 14:09 	2.4K	 
+r-base_2.15.3-1precise0precise1_all.deb	02-Mar-2013 17:49 	37K
+
+Should this be
+
+r-base_2.15.3-1precise1.diff.gz
+r-base_2.15.3-1precise1.dsc
+r-base_2.15.3-1precise1_all.deb
+
+and, if yes, can this be fixed?
+
+Many thanks in advance!
+
+Best wishes,
+Tobias
+
+
+From mar36 at psu.edu  Mon Apr 29 18:27:09 2013
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 29 Apr 2013 12:27:09 -0400
+Subject: [R-sig-Debian] naming r-base files Ubuntu precise builds
+In-Reply-To: <1287722788.38468.1367240007715.JavaMail.root@openanalytics.eu>
+References: <1287722788.38468.1367240007715.JavaMail.root@openanalytics.eu>
+Message-ID: <517E9F5D.6090806@psu.edu>
+
+
+
+On 04/29/2013 08:53 AM, Tobias Verbeke wrote:
+> L.S.
+>
+> The Ubuntu precise builds of R 2.15.3 at
+>
+> http://cran.r-project.org/bin/linux/ubuntu/precise/
+>
+> have names for the r-base package that seem erroneous
+>
+> r-base_2.15.3-1precise0precise1.diff.gz	02-Mar-2013 14:09 	79K	
+> r-base_2.15.3-1precise0precise1.dsc	02-Mar-2013 14:09 	2.4K	
+> r-base_2.15.3-1precise0precise1_all.deb	02-Mar-2013 17:49 	37K
+>
+> Should this be
+>
+> r-base_2.15.3-1precise1.diff.gz
+> r-base_2.15.3-1precise1.dsc
+> r-base_2.15.3-1precise1_all.deb
+>
+> and, if yes, can this be fixed?
+>
+> Many thanks in advance!
+>
+> Best wishes,
+> Tobias
+
+Tobias,
+
+That "feature" of the naming convention is a function of the process 
+used to build the deb packages for Ubuntu.  I use a Launchpad PPA to 
+build the binaries, then mirror them to CRAN.  Using Launchpad allows 
+for the packages to be built on multiple architectures (386 and amd64 
+and others in the future) without me having to maintain all those build 
+machines.
+
+The strange naming is one potential downside.  Every once in a while I 
+need to upload a release of R twice to the PPA in order to fix a bug. 
+Sometimes, this will result in names like you see above.  Once the 
+package is built, I cannot fix the names.  However, it should not be 
+causing any problems as apt/synaptic should install that as the latest 
+version of R.  In my experience, it is only cosmetic and does not effect 
+the upgrade process.
+
+Hope this helps,
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From mar36 at psu.edu  Tue Apr 30 03:44:00 2013
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 29 Apr 2013 21:44:00 -0400
+Subject: [R-sig-Debian] R 3.0.0 and Raring Ringtail (Ubuntu 13.04)
+Message-ID: <517F21E0.2050209@psu.edu>
+
+New .deb packages for R 3.0.0 on Raring Ringtail (13.04) are available 
+on both [CRAN](http://cran.us.r-project.org/bin/linux/ubuntu/) and my 
+[Launchpad PPA](https://launchpad.net/~marutter/+archive/rrutter).  Some 
+notes for this release.
+
+- The initial build for Raring Ringtail did not come with Tcl/Tk being 
+supported.  This issue has been addressed and the current release 
+supports Tcl/Tk.
+
+- Due to a small configuration error on my server, the amd64 packages 
+for Raring Ringtail did not sync to CRAN.  This has been fixed and the 
+64-bit packages should be available soon on a CRAN mirror near you.
+
+- As has been previously discussed, R 3.0.0 requires that all packages 
+be rebuilt against it. Therefore, all the r-cran-* packages found in the 
+Ubuntu universe repository will not work with R 3.0.0.  In an effort to 
+rectify this, I have rebuilt a number of those packages against R 3.0.0 
+and they can be found at the [RRutter 
+PPA](https://launchpad.net/~marutter/+archive/rrutter), but not CRAN.  I 
+am still having issues with a couple of packages, but I am working on those.
+
+- R 3.0.0 is still available for older Ubuntu releases on my [RDev 
+PPA](https://launchpad.net/~marutter/+archive/rdev).  The plan is to 
+upgrade Lucid, Precise, and Quantal this Friday evening (May 3rd, 2013) 
+as well as many of the r-cran-* packages available in universe.  If you 
+do not want to upgrade to R 3.0.0, please remove the appropriate 
+repository from you sources list.
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+4205 College Drive
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+mar36 at psu.edu
+
+

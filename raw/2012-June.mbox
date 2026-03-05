@@ -1,0 +1,461 @@
+From renaud at mancala.cbio.uct.ac.za  Tue Jun 12 13:01:47 2012
+From: renaud at mancala.cbio.uct.ac.za (Renaud Gaujoux)
+Date: Tue, 12 Jun 2012 13:01:47 +0200
+Subject: [R-sig-Debian] [Rd]  Multiple sub-architecture: linking issue
+In-Reply-To: <20437.51745.323755.421851@max.nulle.part>
+References: <4FD1D38B.5040504@cbio.uct.ac.za>
+	<20437.18630.682894.836483@max.nulle.part>
+	<C7975ECC-8085-4A18-9BC8-A18F093F7416@r-project.org>
+	<4FD59F37.4010904@cbio.uct.ac.za>
+	<20437.51745.323755.421851@max.nulle.part>
+Message-ID: <4FD7219B.4000606@cbio.uct.ac.za>
+
+
+This is a follow up of the r-devel post:
+https://stat.ethz.ch/pipermail/r-devel/2012-June/064271.html
+
+On 11/06/2012 12:36, Dirk Eddelbuettel wrote:
+> On 11 June 2012 at 09:33, Renaud Gaujoux wrote:
+> | On 11/06/2012 03:43, Simon Urbanek wrote:
+> |     As far as R is concerned it works equally well on Linux - the problem there is more on the side of distributions, because it is more unusual to have multi-lib Linux (originally it was used on Linux only to get 3rd party [mostly proprietary] 32-bit binaries working on 64-bit systems and that is now less of an issue). As I said in the original post it works reasonably well on Debian (not for all libraries since only a subset is available, but all the basic ones) -- there were shakeups in Ubuntu which were messing with the multilib support, so I don't know the current status but I can check at work tomorrow (probably not for something as ancient as natty, though).
+>
+I upgraded Ubuntu to 12.04 and installation of most packages work, so 
+the issue must have been due to missing system packages as Simon suggested.
+I still have an issue with RCurl though. It appeared when wanting to 
+install 'devtools' but seems to be more general:
+
+```
+* installing *source* package ?devtools? ...
+** package ?devtools? successfully unpacked and MD5 sums checked
+** R
+** inst
+** preparing package for lazy loading
+** help
+*** installing help indices
+** building package indices
+** testing if installed package can be loaded
+*** arch - amd64
+*** arch - i386
+Error in library.dynam(lib, package, package.lib) :
+shared object ?RCurl.so? not found
+Error: loading failed
+Execution halted
+ERROR: loading failed for ?i386?
+* removing ?/home/renaud/bin/R/2.15/lib/R/library/devtools?
+* restoring previous ?/home/renaud/bin/R/2.15/lib/R/library/devtools?
+
+The downloaded source packages are in
+?/tmp/RtmphErtgP/downloaded_packages?
+Updating HTML index of packages in '.Library'
+Making packages.html ... done
+Warning message:
+In install.packages("devtools", repos = "http://cran.r-project.org") :
+installation of package ?devtools? had non-zero exit status
+```
+
+I noticed that when installing RCurl, it seems to only compile for the 
+current session's architecture, while other packages build on both 
+architectures, whether called from a 32 or 64 bits session.
+So RCurl is then typically only available on one architecture, and any 
+install depending on it would fail.
+Is anybody able to reproduce this?
+
+> I usually disagree with statements like this. Debian does this pretty reliably, and
+> I also update all my Ubuntu machines within a few weeks of the releases. And
+> Ubuntu 12.04 has been a rather smooth upgrade on all of them. But if you're
+> several releases behind, maybe you did more 'funky' stuff you now need to
+> consider.
+Ok, I should have been stayed away from such a general statement :)
+While the upgrade or fresh install+restore packages takes a couple of 
+hours, I often spend the rest of the day to get the environment 
+identical to what I had before upgrading. Nothing too funky: re-figure 
+out things like how I to get through an annoying proxy, and deal with 
+surprises in new versions of some apps, etc..
+For sure my upgrade workflow is far from optimal. Upgrades are 
+eventually just a -- frustrating -- day :)
+
+Renaud
+
+
+From renaud at mancala.cbio.uct.ac.za  Tue Jun 12 15:54:15 2012
+From: renaud at mancala.cbio.uct.ac.za (Renaud Gaujoux)
+Date: Tue, 12 Jun 2012 15:54:15 +0200
+Subject: [R-sig-Debian] [Rd]  Multiple sub-architecture: linking issue
+In-Reply-To: <1249C3AF-5F70-40B1-9C21-07738C772F63@r-project.org>
+References: <4FD1D38B.5040504@cbio.uct.ac.za>
+	<20437.18630.682894.836483@max.nulle.part>
+	<C7975ECC-8085-4A18-9BC8-A18F093F7416@r-project.org>
+	<4FD59F37.4010904@cbio.uct.ac.za>
+	<20437.51745.323755.421851@max.nulle.part>
+	<4FD7219B.4000606@cbio.uct.ac.za>
+	<1249C3AF-5F70-40B1-9C21-07738C772F63@r-project.org>
+Message-ID: <4FD74A07.3060407@cbio.uct.ac.za>
+
+
+On 12/06/2012 15:35, Simon Urbanek wrote:
+> On Jun 12, 2012, at 7:01 AM, Renaud Gaujoux wrote:
+> Any package that has configure on Makefile has to be installed in multiple steps - one for each architecture, e.g.:
+>
+> R --arch i386 CMD INSTALL foo_1.2-3.tar.gz
+> R --arch amd64 CMD INSTALL --libs-only foo_1.2-3.tar.gz
+>
+> see R-admin 2.6 Sub-architectures
+> http://r.research.att.com/man/R-admin.html#Sub_002darchitectures
+>
+> Cheers,
+> Simon
+
+Worked perfectly, thank you!
+
+I am sure this is a stupid question, but why aren't these packages 
+installed like this by default?
+
+Renaud
+
+
+From renaud at mancala.cbio.uct.ac.za  Tue Jun 12 16:12:53 2012
+From: renaud at mancala.cbio.uct.ac.za (Renaud Gaujoux)
+Date: Tue, 12 Jun 2012 16:12:53 +0200
+Subject: [R-sig-Debian] [Rd]  Multiple sub-architecture: linking issue
+In-Reply-To: <E0A587CF-1E4D-4FFF-99D8-021F62E32911@r-project.org>
+References: <4FD1D38B.5040504@cbio.uct.ac.za>
+	<20437.18630.682894.836483@max.nulle.part>
+	<C7975ECC-8085-4A18-9BC8-A18F093F7416@r-project.org>
+	<4FD59F37.4010904@cbio.uct.ac.za>
+	<20437.51745.323755.421851@max.nulle.part>
+	<4FD7219B.4000606@cbio.uct.ac.za>
+	<1249C3AF-5F70-40B1-9C21-07738C772F63@r-project.org>
+	<4FD74A07.3060407@cbio.uct.ac.za>
+	<E0A587CF-1E4D-4FFF-99D8-021F62E32911@r-project.org>
+Message-ID: <4FD74E65.6030701@cbio.uct.ac.za>
+
+
+
+On 12/06/2012 16:03, Simon Urbanek wrote:
+> Because INSTALL can be used on directories and that won't work, because the installation will modify the content so you can't run it twice. Technically, it would work on tar balls, and I think there is now --merge-multiarch that will do it. I suspect that the reason to not make it default is that it takes twice as long so it is a bit annoying if you are installing in the development process (but that's just a guess).
+>
+> Cheers,
+> Simon
+>
+>
+
+Understood. I guess it would be possible (nice) to detect such special 
+case where INSTALL is a directory.
+
+I used install.packages('RCurl', libs_only=TRUE) to install RCurl from 
+CRAN from the 64 bit R session after installing it on the 32 bit, and it 
+worked perfectly.
+
+I would say that when a user/admin installs a package she expects it to 
+be available in all its R installations.
+So to me it looks like package installations from anything except 
+directories (repositories, tar balls) could be rather assumed to be 
+multiarch installs by default, with the option of choosing a single 
+architecture. This "install all" behaviour could possible be enabled 
+with an option, for backward compatibility.
+
+Renaud
+
+
+From jrkrideau at inbox.com  Tue Jun 12 20:42:23 2012
+From: jrkrideau at inbox.com (John Kane)
+Date: Tue, 12 Jun 2012 10:42:23 -0800
+Subject: [R-sig-Debian] Attempting to update from R 2.14 to 2.15 on Ubuntu
+Message-ID: <69F2FBE26A2.0000052Djrkrideau@inbox.com>
+
+R-SIG-Debian
+
+I am very new to Linux so I probably am doing something stupid but I cannot seem to update to R 2.15
+Using Ubuntu 12.02 Precise Penguin
+
+I realise that debian packages are not updated regularly so I tried to follow the insructions at the R-site
+
+So far, I have modified /etc/apt/sources.list to read
+## R CRAN added 2012-06-12
+deb http://probability.ca/cran/bin/linux/debian squeeze-cran/
+I also have updated my gpg code as instructed in http://cran.r-project.org/bin/linux/ubuntu/README  (thanks to Dan Nordlund on the R-help list)
+
+Results
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+[sudo] password for john:
+Executing: gpg --ignore-time-conflict --no-options --no-default-keyring --secret-keyring
+/tmp/tmp.28YKFHKFht --trustdb-name /etc/apt/trustdb.gpg --keyring /etc/apt/trusted.gpg
+--primary-keyring /etc/apt/trusted.gpg --keyserver keyserver.ubuntu.com --recv-keys
+E084DAB9
+gpg: requesting key E084DAB9 from hkp server keyserver.ubuntu.com
+gpg: key E084DAB9: public key "Michael Rutter <marutter at gmail.com>" imported
+gpg: Total number processed: 1
+gpg:               imported: 1  (RSA: 1)
+
+
+## So it looks like I have the gpg key but I get the same result as ##before I added the key.
+## I get basically the same result with all the other approachs.
+
+
+W: GPG error: http://probability.ca squeeze-cran/ Release: The following signatures
+couldn't be verified because the public key is not available: NO_PUBKEY 06F90DE5381BA480
+john at john-K53U:~$
+
+
+John Kane
+Kingston ON Canada
+
+____________________________________________________________
+GET FREE SMILEYS FOR YOUR IM & EMAIL - Learn more at http://www.inbox.com/smileys
+Works with AIM?, MSN? Messenger, Yahoo!? Messenger, ICQ?, Google Talk? and most webmails
+
+
+From marutter.psu at gmail.com  Tue Jun 12 22:56:16 2012
+From: marutter.psu at gmail.com (Michael Rutter)
+Date: Tue, 12 Jun 2012 16:56:16 -0400
+Subject: [R-sig-Debian] Attempting to update from R 2.14 to 2.15 on
+	Ubuntu
+In-Reply-To: <69F2FBE26A2.0000052Djrkrideau@inbox.com>
+References: <69F2FBE26A2.0000052Djrkrideau@inbox.com>
+Message-ID: <4FD7ACF0.1000009@gmail.com>
+
+
+
+On 06/12/2012 02:42 PM, John Kane wrote:
+> R-SIG-Debian
+> 
+> I am very new to Linux so I probably am doing something stupid but I cannot seem to update to R 2.15
+> Using Ubuntu 12.02 Precise Penguin
+
+John,
+
+If you are using Ubuntu, don't mix the Debian repositories with Ubuntu
+ones, it has the chance to create issues.
+
+The simplest thing to do is to remove the line from sources.list that
+you added with that ends with squeeze-cran.
+
+Then run the following command, which will add my R PPA from launchpad:
+
+sudo add-apt-repository ppa:marutter/rrutter
+
+This is the PPA that feeds the CRAN mirrors.  Then run
+
+sudo apt-get update
+sudo apt-get upgrade
+
+And the latest versions of R should be installed.
+
+Hope this helps,
+Michael
+
+> I realise that debian packages are not updated regularly so I tried to follow the insructions at the R-site
+> 
+> So far, I have modified /etc/apt/sources.list to read
+> ## R CRAN added 2012-06-12
+> deb http://probability.ca/cran/bin/linux/debian squeeze-cran/
+> I also have updated my gpg code as instructed in http://cran.r-project.org/bin/linux/ubuntu/README  (thanks to Dan Nordlund on the R-help list)
+> 
+> Results
+> sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+> [sudo] password for john:
+> Executing: gpg --ignore-time-conflict --no-options --no-default-keyring --secret-keyring
+> /tmp/tmp.28YKFHKFht --trustdb-name /etc/apt/trustdb.gpg --keyring /etc/apt/trusted.gpg
+> --primary-keyring /etc/apt/trusted.gpg --keyserver keyserver.ubuntu.com --recv-keys
+> E084DAB9
+> gpg: requesting key E084DAB9 from hkp server keyserver.ubuntu.com
+> gpg: key E084DAB9: public key "Michael Rutter <marutter at gmail.com>" imported
+> gpg: Total number processed: 1
+> gpg:               imported: 1  (RSA: 1)
+> 
+> 
+> ## So it looks like I have the gpg key but I get the same result as ##before I added the key.
+> ## I get basically the same result with all the other approachs.
+> 
+> 
+> W: GPG error: http://probability.ca squeeze-cran/ Release: The following signatures
+> couldn't be verified because the public key is not available: NO_PUBKEY 06F90DE5381BA480
+> john at john-K53U:~$
+> 
+> 
+> John Kane
+> Kingston ON Canada
+> 
+> ____________________________________________________________
+> GET FREE SMILEYS FOR YOUR IM & EMAIL - Learn more at http://www.inbox.com/smileys
+> Works with AIM?, MSN? Messenger, Yahoo!? Messenger, ICQ?, Google Talk? and most webmails
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From luridao at gmail.com  Wed Jun 13 15:04:42 2012
+From: luridao at gmail.com (Luis Ridao)
+Date: Wed, 13 Jun 2012 14:04:42 +0100
+Subject: [R-sig-Debian] Error: ... can only copy from 'X11(type="*cairo")'
+	devices
+Message-ID: <CAL09-Ecz7fN93zdHz83y+9vF8dhqXg5d+=OyY4EGcw_xrqCn+A@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120613/a7723b60/attachment.pl>
+
+From jrkrideau at inbox.com  Wed Jun 13 15:43:33 2012
+From: jrkrideau at inbox.com (John Kane)
+Date: Wed, 13 Jun 2012 05:43:33 -0800
+Subject: [R-sig-Debian] Attempting to update from R 2.14 to 2.15 on
+ Ubuntu
+In-Reply-To: <4FD7ACF0.1000009@gmail.com>
+References: <69f2fbe26a2.0000052djrkrideau@inbox.com>
+Message-ID: <73E9A878999.000001ACjrkrideau@inbox.com>
+
+TAHDAH!
+1> sessionInfo()
+R version 2.15.0 (2012-03-30)
+Platform: i686-pc-linux-gnu (32-bit)
+
+Thank you very much indeed.
+
+John Kane
+Kingston ON Canada
+
+
+> -----Original Message-----
+> From: marutter.psu at gmail.com
+> Sent: Tue, 12 Jun 2012 16:56:16 -0400
+> To: jrkrideau at inbox.com
+> Subject: Re: [R-sig-Debian] Attempting to update from R 2.14 to 2.15 on
+> Ubuntu
+> 
+> 
+> 
+> On 06/12/2012 02:42 PM, John Kane wrote:
+>> R-SIG-Debian
+>> 
+>> I am very new to Linux so I probably am doing something stupid but I
+>> cannot seem to update to R 2.15
+>> Using Ubuntu 12.02 Precise Penguin
+> 
+> John,
+> 
+> If you are using Ubuntu, don't mix the Debian repositories with Ubuntu
+> ones, it has the chance to create issues.
+> 
+> The simplest thing to do is to remove the line from sources.list that
+> you added with that ends with squeeze-cran.
+> 
+> Then run the following command, which will add my R PPA from launchpad:
+> 
+> sudo add-apt-repository ppa:marutter/rrutter
+> 
+> This is the PPA that feeds the CRAN mirrors.  Then run
+> 
+> sudo apt-get update
+> sudo apt-get upgrade
+> 
+> And the latest versions of R should be installed.
+> 
+> Hope this helps,
+> Michael
+> 
+>> I realise that debian packages are not updated regularly so I tried to
+>> follow the insructions at the R-site
+>> 
+>> So far, I have modified /etc/apt/sources.list to read
+>> ## R CRAN added 2012-06-12
+>> deb http://probability.ca/cran/bin/linux/debian squeeze-cran/
+>> I also have updated my gpg code as instructed in
+>> http://cran.r-project.org/bin/linux/ubuntu/README  (thanks to Dan
+>> Nordlund on the R-help list)
+>> 
+>> Results
+>> sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+>> [sudo] password for john:
+>> Executing: gpg --ignore-time-conflict --no-options --no-default-keyring
+>> --secret-keyring
+>> /tmp/tmp.28YKFHKFht --trustdb-name /etc/apt/trustdb.gpg --keyring
+>> /etc/apt/trusted.gpg
+>> --primary-keyring /etc/apt/trusted.gpg --keyserver keyserver.ubuntu.com
+>> --recv-keys
+>> E084DAB9
+>> gpg: requesting key E084DAB9 from hkp server keyserver.ubuntu.com
+>> gpg: key E084DAB9: public key "Michael Rutter <marutter at gmail.com>"
+>> imported
+>> gpg: Total number processed: 1
+>> gpg:               imported: 1  (RSA: 1)
+>> 
+>> 
+>> ## So it looks like I have the gpg key but I get the same result as
+>> ##before I added the key.
+>> ## I get basically the same result with all the other approachs.
+>> 
+>> 
+>> W: GPG error: http://probability.ca squeeze-cran/ Release: The following
+>> signatures
+>> couldn't be verified because the public key is not available: NO_PUBKEY
+>> 06F90DE5381BA480
+>> john at john-K53U:~$
+>> 
+>> 
+>> John Kane
+>> Kingston ON Canada
+>> 
+>> ____________________________________________________________
+>> GET FREE SMILEYS FOR YOUR IM & EMAIL - Learn more at
+>> http://www.inbox.com/smileys
+>> Works with AIM?, MSN? Messenger, Yahoo!? Messenger, ICQ?, Google Talk?
+>> and most webmails
+>> 
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+____________________________________________________________
+FREE ONLINE PHOTOSHARING - Share your photos online with your friends and family!
+Visit http://www.inbox.com/photosharing to find out more!
+
+
+From mar36 at psu.edu  Mon Jun 18 01:36:12 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Sun, 17 Jun 2012 19:36:12 -0400
+Subject: [R-sig-Debian] Error: ... can only copy from
+ 'X11(type="*cairo")' devices
+In-Reply-To: <CAL09-Ecz7fN93zdHz83y+9vF8dhqXg5d+=OyY4EGcw_xrqCn+A@mail.gmail.com>
+References: <CAL09-Ecz7fN93zdHz83y+9vF8dhqXg5d+=OyY4EGcw_xrqCn+A@mail.gmail.com>
+Message-ID: <4FDE69EC.5040605@psu.edu>
+
+
+
+On 06/13/2012 09:04 AM, Luis Ridao wrote:
+> Hey,
+>
+> I'm running R in ubuntu 10.10 (R-2.15.0)
+> and when saving a plot i get the following error message:
+>
+>> plot(1:10)
+>> savePlot("test.png",type="png")
+> Error in savePlot("test.png", type = "png") :
+>    can only copy from 'X11(type="*cairo")' devices
+>>
+>
+>
+> Thanks in advance
+
+Luis,
+
+Sorry for the delay in the response.  The issue is that you are not 
+using and X11/cairo device.  For example, if you use RStudio, the 
+savePlot command does not work, but you can save from within RStudio. 
+If you run R from just a terminal, it should work.
+
+Hope this helps,
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+4205 College Drive
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+mar36 at psu.edu
+
+

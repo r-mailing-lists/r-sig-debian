@@ -1,0 +1,3371 @@
+From matthieu.stigler at gmail.com  Sat Jul  3 11:07:27 2010
+From: matthieu.stigler at gmail.com (mat)
+Date: Sat, 03 Jul 2010 11:07:27 +0200
+Subject: [R-sig-Debian] pkg/tests: how to run them with --vanilla
+Message-ID: <4C2EFDCF.2010406@gmail.com>
+
+Hello
+
+I recently submitted an update of a package, and received error reports 
+from CRAN maintainers concerning the pkg/tests section:
+
+> Next time you update, can you please ensure that the .Rout.save files 
+> are generated in English (with LANGUAGE=en set).  R 2.12.x will ensure 
+> that the tests are run in English, and it saves a lot of unnecessary 
+> chatter if the reference results also are.
+>
+> As a further point,
+>
+>> [Sauvegarde de la session pr?c?dente restaur?e]
+>
+> indicates that they were not generated in a vanilla session, and they 
+> should be (as the tests are run with --vanilla --slave).
+>
+> Brian Ripley 
+  I always used to run the .Rout.save files with R CMD BATCH xxx.R So it 
+seems I should rather do it with R --vanilla... I tried:
+cat xxx.R| R --vanilla --slave > xxx.Rout.save
+
+But this gives files without the ">", and then it gets reported in the R 
+CMD check... What would be the good way to do?
+
+Secondly, I always got this error that the R CMD BATCH run in french, 
+but the R CMD check in english. I have been told I should change to 
+language=EN. But how do I do this in Linux? I just added:
+Sys.setlocale("LC_ALL","en_US.UTF8")
+Sys.setlocale("LC_CTYPE","en_US.UTF8")
+Sys.setlocale("LC_MESSAGES","en_US.UTF8")
+
+in the .Rprofile... it this right?
+
+Thanks!!
+
+Matthieu
+
+
+From edd at debian.org  Sat Jul  3 23:13:24 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 3 Jul 2010 16:13:24 -0500
+Subject: [R-sig-Debian] pkg/tests: how to run them with --vanilla
+In-Reply-To: <4C2EFDCF.2010406@gmail.com>
+References: <4C2EFDCF.2010406@gmail.com>
+Message-ID: <19503.42996.819736.587124@ron.nulle.part>
+
+
+On 3 July 2010 at 11:07, mat wrote:
+| Hello
+| 
+| I recently submitted an update of a package, and received error reports 
+| from CRAN maintainers concerning the pkg/tests section:
+| 
+| > Next time you update, can you please ensure that the .Rout.save files 
+| > are generated in English (with LANGUAGE=en set).  R 2.12.x will ensure 
+| > that the tests are run in English, and it saves a lot of unnecessary 
+| > chatter if the reference results also are.
+| >
+| > As a further point,
+| >
+| >> [Sauvegarde de la session pr?c?dente restaur?e]
+| >
+| > indicates that they were not generated in a vanilla session, and they 
+| > should be (as the tests are run with --vanilla --slave).
+| >
+| > Brian Ripley 
+|   I always used to run the .Rout.save files with R CMD BATCH xxx.R So it 
+| seems I should rather do it with R --vanilla... I tried:
+| cat xxx.R| R --vanilla --slave > xxx.Rout.save
+
+See 'R CMD BATCH --help' --- you can pass further options along:
+
+edd at ron:/tmp$ echo "cat(4)" > foo.R
+edd at ron:/tmp$ R CMD BATCH --vanilla --slave /tmp/foo.R
+edd at ron:/tmp$ cat foo.Rout 
+4> proc.time()
+   user  system elapsed 
+  0.352   0.036   0.373 
+edd at ron:/tmp$ R CMD BATCH --vanilla /tmp/foo.R
+edd at ron:/tmp$ cat foo.Rout 
+
+R version 2.11.1 (2010-05-31)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> cat(4)
+4> 
+> proc.time()
+   user  system elapsed 
+   0.34    0.04    0.38 
+edd at ron:/tmp$ 
+
+| But this gives files without the ">", and then it gets reported in the R 
+| CMD check... What would be the good way to do?
+| 
+| Secondly, I always got this error that the R CMD BATCH run in french, 
+| but the R CMD check in english. I have been told I should change to 
+| language=EN. But how do I do this in Linux? I just added:
+| Sys.setlocale("LC_ALL","en_US.UTF8")
+| Sys.setlocale("LC_CTYPE","en_US.UTF8")
+| Sys.setlocale("LC_MESSAGES","en_US.UTF8")
+| 
+| in the .Rprofile... it this right?
+
+Defaults work for me, so I never changed them. Sorry.
+
+-- 
+  Regards, Dirk
+
+
+From matthieu.stigler at gmail.com  Sun Jul  4 10:36:10 2010
+From: matthieu.stigler at gmail.com (mat)
+Date: Sun, 04 Jul 2010 10:36:10 +0200
+Subject: [R-sig-Debian] pkg/tests: how to run them with --vanilla
+In-Reply-To: <19503.42996.819736.587124@ron.nulle.part>
+References: <4C2EFDCF.2010406@gmail.com>
+	<19503.42996.819736.587124@ron.nulle.part>
+Message-ID: <4C3047FA.4080108@gmail.com>
+
+Thanks! But I have then a strange problem:
+-running R CMD BATCH will read in english
+-running R CMD BATCH --vanilla --slave will read in french!
+
+I guess it comes from the fact that R CMD BATCH reads my .Rprofile 
+settings but --vanilla --slave not?
+
+See:
+
+mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ echo 
+"library(sandwich)" > foo.R
+mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH foo.R
+mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout
+
+R version 2.11.1 (2010-05-31)
+[...]
+[Previously saved workspace restored]
+
+ > library(sandwich)
+Loading required package: zoo
+ >
+ > proc.time()
+user system elapsed
+0.630 0.010 0.632
+mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$
+mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH --vanilla 
+--slave foo.R
+mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout
+Le chargement a n?cessit? le package : zoo
+ > proc.time()
+utilisateur syst?me ?coul?
+0.38 0.02 0.38
+
+So it seems I should change the language differently... probably setting 
+the global environment variable? I don't know if this is possible just 
+within the R CMD BATCH? I read from ?BATCH
+
+Additional options can be set by the environment variable
+?R_BATCH_OPTIONS?: these come after ?--restore --save
+--no-readline? and before any options given on the command line
+
+But I did not find any example how to run them...
+
+Thanks!!
+
+Matthieu
+
+
+
+Le 03. 07. 10 23:13, Dirk Eddelbuettel a ?crit :
+> On 3 July 2010 at 11:07, mat wrote:
+> | Hello
+> |
+> | I recently submitted an update of a package, and received error reports
+> | from CRAN maintainers concerning the pkg/tests section:
+> |
+> |>  Next time you update, can you please ensure that the .Rout.save files
+> |>  are generated in English (with LANGUAGE=en set).  R 2.12.x will ensure
+> |>  that the tests are run in English, and it saves a lot of unnecessary
+> |>  chatter if the reference results also are.
+> |>
+> |>  As a further point,
+> |>
+> |>>  [Sauvegarde de la session pr?c?dente restaur?e]
+> |>
+> |>  indicates that they were not generated in a vanilla session, and they
+> |>  should be (as the tests are run with --vanilla --slave).
+> |>
+> |>  Brian Ripley
+> |   I always used to run the .Rout.save files with R CMD BATCH xxx.R So it
+> | seems I should rather do it with R --vanilla... I tried:
+> | cat xxx.R| R --vanilla --slave>  xxx.Rout.save
+>
+> See 'R CMD BATCH --help' --- you can pass further options along:
+>
+> edd at ron:/tmp$ echo "cat(4)">  foo.R
+> edd at ron:/tmp$ R CMD BATCH --vanilla --slave /tmp/foo.R
+> edd at ron:/tmp$ cat foo.Rout
+> 4>  proc.time()
+>     user  system elapsed
+>    0.352   0.036   0.373
+> edd at ron:/tmp$ R CMD BATCH --vanilla /tmp/foo.R
+> edd at ron:/tmp$ cat foo.Rout
+>
+> R version 2.11.1 (2010-05-31)
+> Copyright (C) 2010 The R Foundation for Statistical Computing
+> ISBN 3-900051-07-0
+>
+> R is free software and comes with ABSOLUTELY NO WARRANTY.
+> You are welcome to redistribute it under certain conditions.
+> Type 'license()' or 'licence()' for distribution details.
+>
+>    Natural language support but running in an English locale
+>
+> R is a collaborative project with many contributors.
+> Type 'contributors()' for more information and
+> 'citation()' on how to cite R or R packages in publications.
+>
+> Type 'demo()' for some demos, 'help()' for on-line help, or
+> 'help.start()' for an HTML browser interface to help.
+> Type 'q()' to quit R.
+>
+>    
+>> cat(4)
+>>      
+> 4>
+>    
+>> proc.time()
+>>      
+>     user  system elapsed
+>     0.34    0.04    0.38
+> edd at ron:/tmp$
+>
+> | But this gives files without the ">", and then it gets reported in the R
+> | CMD check... What would be the good way to do?
+> |
+> | Secondly, I always got this error that the R CMD BATCH run in french,
+> | but the R CMD check in english. I have been told I should change to
+> | language=EN. But how do I do this in Linux? I just added:
+> | Sys.setlocale("LC_ALL","en_US.UTF8")
+> | Sys.setlocale("LC_CTYPE","en_US.UTF8")
+> | Sys.setlocale("LC_MESSAGES","en_US.UTF8")
+> |
+> | in the .Rprofile... it this right?
+>
+> Defaults work for me, so I never changed them. Sorry.
+>
+>
+
+
+From edd at debian.org  Sun Jul  4 14:08:42 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 4 Jul 2010 07:08:42 -0500
+Subject: [R-sig-Debian] pkg/tests: how to run them with --vanilla
+In-Reply-To: <4C3047FA.4080108@gmail.com>
+References: <4C2EFDCF.2010406@gmail.com>
+	<19503.42996.819736.587124@ron.nulle.part>
+	<4C3047FA.4080108@gmail.com>
+Message-ID: <19504.31178.563047.178579@ron.nulle.part>
+
+
+On 4 July 2010 at 10:36, mat wrote:
+| Thanks! But I have then a strange problem:
+| -running R CMD BATCH will read in english
+| -running R CMD BATCH --vanilla --slave will read in french!
+| 
+| I guess it comes from the fact that R CMD BATCH reads my .Rprofile 
+| settings but --vanilla --slave not?
+
+Yes, and by design as --vanilla means ignore my ~/.R* files.
+
+So you must change your language in another place, for example in the shell
+in which you are calling R CMD BATCH.  You could just create a 'worker
+script' that sets those variables and then calls R CMD BATCH.
+
+Dirk
+ 
+| See:
+| 
+| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ echo 
+| "library(sandwich)" > foo.R
+| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH foo.R
+| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout
+| 
+| R version 2.11.1 (2010-05-31)
+| [...]
+| [Previously saved workspace restored]
+| 
+|  > library(sandwich)
+| Loading required package: zoo
+|  >
+|  > proc.time()
+| user system elapsed
+| 0.630 0.010 0.632
+| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$
+| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH --vanilla 
+| --slave foo.R
+| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout
+| Le chargement a n?cessit? le package : zoo
+|  > proc.time()
+| utilisateur syst?me ?coul?
+| 0.38 0.02 0.38
+| 
+| So it seems I should change the language differently... probably setting 
+| the global environment variable? I don't know if this is possible just 
+| within the R CMD BATCH? I read from ?BATCH
+| 
+| Additional options can be set by the environment variable
+| ?R_BATCH_OPTIONS?: these come after ?--restore --save
+| --no-readline? and before any options given on the command line
+| 
+| But I did not find any example how to run them...
+| 
+| Thanks!!
+| 
+| Matthieu
+| 
+| 
+| 
+| Le 03. 07. 10 23:13, Dirk Eddelbuettel a ?crit :
+| > On 3 July 2010 at 11:07, mat wrote:
+| > | Hello
+| > |
+| > | I recently submitted an update of a package, and received error reports
+| > | from CRAN maintainers concerning the pkg/tests section:
+| > |
+| > |>  Next time you update, can you please ensure that the .Rout.save files
+| > |>  are generated in English (with LANGUAGE=en set).  R 2.12.x will ensure
+| > |>  that the tests are run in English, and it saves a lot of unnecessary
+| > |>  chatter if the reference results also are.
+| > |>
+| > |>  As a further point,
+| > |>
+| > |>>  [Sauvegarde de la session pr?c?dente restaur?e]
+| > |>
+| > |>  indicates that they were not generated in a vanilla session, and they
+| > |>  should be (as the tests are run with --vanilla --slave).
+| > |>
+| > |>  Brian Ripley
+| > |   I always used to run the .Rout.save files with R CMD BATCH xxx.R So it
+| > | seems I should rather do it with R --vanilla... I tried:
+| > | cat xxx.R| R --vanilla --slave>  xxx.Rout.save
+| >
+| > See 'R CMD BATCH --help' --- you can pass further options along:
+| >
+| > edd at ron:/tmp$ echo "cat(4)">  foo.R
+| > edd at ron:/tmp$ R CMD BATCH --vanilla --slave /tmp/foo.R
+| > edd at ron:/tmp$ cat foo.Rout
+| > 4>  proc.time()
+| >     user  system elapsed
+| >    0.352   0.036   0.373
+| > edd at ron:/tmp$ R CMD BATCH --vanilla /tmp/foo.R
+| > edd at ron:/tmp$ cat foo.Rout
+| >
+| > R version 2.11.1 (2010-05-31)
+| > Copyright (C) 2010 The R Foundation for Statistical Computing
+| > ISBN 3-900051-07-0
+| >
+| > R is free software and comes with ABSOLUTELY NO WARRANTY.
+| > You are welcome to redistribute it under certain conditions.
+| > Type 'license()' or 'licence()' for distribution details.
+| >
+| >    Natural language support but running in an English locale
+| >
+| > R is a collaborative project with many contributors.
+| > Type 'contributors()' for more information and
+| > 'citation()' on how to cite R or R packages in publications.
+| >
+| > Type 'demo()' for some demos, 'help()' for on-line help, or
+| > 'help.start()' for an HTML browser interface to help.
+| > Type 'q()' to quit R.
+| >
+| >    
+| >> cat(4)
+| >>      
+| > 4>
+| >    
+| >> proc.time()
+| >>      
+| >     user  system elapsed
+| >     0.34    0.04    0.38
+| > edd at ron:/tmp$
+| >
+| > | But this gives files without the ">", and then it gets reported in the R
+| > | CMD check... What would be the good way to do?
+| > |
+| > | Secondly, I always got this error that the R CMD BATCH run in french,
+| > | but the R CMD check in english. I have been told I should change to
+| > | language=EN. But how do I do this in Linux? I just added:
+| > | Sys.setlocale("LC_ALL","en_US.UTF8")
+| > | Sys.setlocale("LC_CTYPE","en_US.UTF8")
+| > | Sys.setlocale("LC_MESSAGES","en_US.UTF8")
+| > |
+| > | in the .Rprofile... it this right?
+| >
+| > Defaults work for me, so I never changed them. Sorry.
+| >
+| >    
+| 
+
+-- 
+  Regards, Dirk
+
+
+From ff809 at ncf.ca  Mon Jul  5 01:33:52 2010
+From: ff809 at ncf.ca (Brian Lunergan)
+Date: Sun, 04 Jul 2010 19:33:52 -0400
+Subject: [R-sig-Debian] OT: Problems updating OS to deal with fading R
+	support for Ubuntu	Hardy Heron...
+Message-ID: <1278286432.21859.22.camel@brian-desktop>
+
+Evening folks:
+
+Not sure where this fits into the picture so bear with me for a few
+moments while I think out loud to lay out the particulars of my problem.
+
+-would love to be employed using R for a living but so far I have just
+worked with it on my home machine to develop a basic level of skill with
+it.
+-I run Ubuntu linux 8.04 LTS on a machine with a 2.5GHz Celeron
+processor and 1.2GB of memory. The Heron runs sprightly enough to suit
+on that combination.
+-noted on Cran that with the intro of the newest LTS edition, Lucid
+Lynx, support for the Heron is continued on suffrage only.
+-So, I tried to upgrade. Tried both Kubuntu and Ubuntu. Kubuntu dialled
+out and connected to my ISP but failed to get anywhere after
+authentication, Ubuntu failed to recognize my 3.5" A drive, and they
+were both unbelievably sluggish on my system so out they both go and I'm
+in the process of getting things set back up the way I had them with
+8.04.
+
+I realize this more OS than R, but I thought someone in the group might
+have some ideas or suggestions they'd care to share, off-list of course.
+Is there a way around this situation that doesn't involve huge outlays
+in new hardware? Is there another flavour of Linux that would work with
+my system and allow me to maintain a toe hold in the R camp so that I've
+got it as a marketable skill somewhere down the road? Any thoughts would
+be appreciated.
+
+Regards...
+-- 
+Brian Lunergan
+Nepean, Ontario
+Canada
+
+
+From edd at debian.org  Mon Jul  5 03:33:00 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 4 Jul 2010 20:33:00 -0500
+Subject: [R-sig-Debian] OT: Problems updating OS to deal with fading
+	R	support for Ubuntu	Hardy Heron...
+In-Reply-To: <1278286432.21859.22.camel@brian-desktop>
+References: <1278286432.21859.22.camel@brian-desktop>
+Message-ID: <19505.13900.739227.778656@ron.nulle.part>
+
+
+On 4 July 2010 at 19:33, Brian Lunergan wrote:
+| Evening folks:
+| 
+| Not sure where this fits into the picture so bear with me for a few
+| moments while I think out loud to lay out the particulars of my problem.
+| 
+| -would love to be employed using R for a living but so far I have just
+| worked with it on my home machine to develop a basic level of skill with
+| it.
+| -I run Ubuntu linux 8.04 LTS on a machine with a 2.5GHz Celeron
+| processor and 1.2GB of memory. The Heron runs sprightly enough to suit
+| on that combination.
+| -noted on Cran that with the intro of the newest LTS edition, Lucid
+| Lynx, support for the Heron is continued on suffrage only.
+| -So, I tried to upgrade. Tried both Kubuntu and Ubuntu. Kubuntu dialled
+| out and connected to my ISP but failed to get anywhere after
+| authentication, Ubuntu failed to recognize my 3.5" A drive, and they
+| were both unbelievably sluggish on my system so out they both go and I'm
+| in the process of getting things set back up the way I had them with
+| 8.04.
+| 
+| I realize this more OS than R, but I thought someone in the group might
+| have some ideas or suggestions they'd care to share, off-list of course.
+| Is there a way around this situation that doesn't involve huge outlays
+| in new hardware? Is there another flavour of Linux that would work with
+| my system and allow me to maintain a toe hold in the R camp so that I've
+| got it as a marketable skill somewhere down the road? Any thoughts would
+| be appreciated.
+
+While this is really somewhat off-topic here, I think you would profit from
+some local help and hand-holding for the Unix / Ubuntu aspect of your
+upgrade.  Fellow Ottawa R (and on Ubuntu) users John Nash and Paul Gilbert
+may be able to direct you to some friendly people.
+
+-- 
+  Regards, Dirk
+
+
+From cgb at datanalytics.com  Mon Jul  5 03:56:03 2010
+From: cgb at datanalytics.com (Carlos J. Gil Bellosta )
+Date: Mon, 5 Jul 2010 03:56:03 +0200
+Subject: [R-sig-Debian] OT: Problems updating OS to deal with fading R
+	support for Ubuntu Hardy Heron...
+In-Reply-To: <1278286432.21859.22.camel@brian-desktop>
+References: <1278286432.21859.22.camel@brian-desktop>
+Message-ID: <AANLkTikhAx8-ZiNb10ozSsTriq3lOK25hutH-m_ax254@mail.gmail.com>
+
+Your hardware specifications are not much worse than those of my
+netbook. And I am quite happy with Xubuntu 10.04 on it.
+
+Best regards,
+
+Carlos J. Gil Bellosta
+http://www.datanalytics.com
+
+
+2010/7/5 Brian Lunergan <ff809 at ncf.ca>:
+> Evening folks:
+>
+> Not sure where this fits into the picture so bear with me for a few
+> moments while I think out loud to lay out the particulars of my problem.
+>
+> -would love to be employed using R for a living but so far I have just
+> worked with it on my home machine to develop a basic level of skill with
+> it.
+> -I run Ubuntu linux 8.04 LTS on a machine with a 2.5GHz Celeron
+> processor and 1.2GB of memory. The Heron runs sprightly enough to suit
+> on that combination.
+> -noted on Cran that with the intro of the newest LTS edition, Lucid
+> Lynx, support for the Heron is continued on suffrage only.
+> -So, I tried to upgrade. Tried both Kubuntu and Ubuntu. Kubuntu dialled
+> out and connected to my ISP but failed to get anywhere after
+> authentication, Ubuntu failed to recognize my 3.5" A drive, and they
+> were both unbelievably sluggish on my system so out they both go and I'm
+> in the process of getting things set back up the way I had them with
+> 8.04.
+>
+> I realize this more OS than R, but I thought someone in the group might
+> have some ideas or suggestions they'd care to share, off-list of course.
+> Is there a way around this situation that doesn't involve huge outlays
+> in new hardware? Is there another flavour of Linux that would work with
+> my system and allow me to maintain a toe hold in the R camp so that I've
+> got it as a marketable skill somewhere down the road? Any thoughts would
+> be appreciated.
+>
+> Regards...
+> --
+> Brian Lunergan
+> Nepean, Ontario
+> Canada
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From anand.chirag at gmail.com  Mon Jul  5 06:22:30 2010
+From: anand.chirag at gmail.com (Chirag Anand)
+Date: Mon, 5 Jul 2010 09:52:30 +0530
+Subject: [R-sig-Debian] pkg/tests: how to run them with --vanilla
+In-Reply-To: <19504.31178.563047.178579@ron.nulle.part>
+References: <4C2EFDCF.2010406@gmail.com>
+	<19503.42996.819736.587124@ron.nulle.part>
+	<4C3047FA.4080108@gmail.com>
+	<19504.31178.563047.178579@ron.nulle.part>
+Message-ID: <AANLkTikpdqdbfZr0Kmwh76f584enbygUqdm46WIK4S8h@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100705/94d027d6/attachment.pl>
+
+From Vincent.Goulet at act.ulaval.ca  Mon Jul  5 16:42:52 2010
+From: Vincent.Goulet at act.ulaval.ca (Vincent Goulet)
+Date: Mon, 5 Jul 2010 10:42:52 -0400
+Subject: [R-sig-Debian] OT: Problems updating OS to deal with fading
+	R	support for Ubuntu	Hardy Heron...
+In-Reply-To: <1278286432.21859.22.camel@brian-desktop>
+References: <1278286432.21859.22.camel@brian-desktop>
+Message-ID: <D4B63425-6001-4E85-809A-640F9F4952CF@act.ulaval.ca>
+
+Le dim. 4 juil. ? 19:33, Brian Lunergan a ?crit :
+
+> Evening folks:
+> 
+> Not sure where this fits into the picture so bear with me for a few
+> moments while I think out loud to lay out the particulars of my problem.
+> 
+> -would love to be employed using R for a living but so far I have just
+> worked with it on my home machine to develop a basic level of skill with
+> it.
+> -I run Ubuntu linux 8.04 LTS on a machine with a 2.5GHz Celeron
+> processor and 1.2GB of memory. The Heron runs sprightly enough to suit
+> on that combination.
+> -noted on Cran that with the intro of the newest LTS edition, Lucid
+> Lynx, support for the Heron is continued on suffrage only.
+> -So, I tried to upgrade. Tried both Kubuntu and Ubuntu. Kubuntu dialled
+> out and connected to my ISP but failed to get anywhere after
+> authentication, Ubuntu failed to recognize my 3.5" A drive, and they
+> were both unbelievably sluggish on my system so out they both go and I'm
+> in the process of getting things set back up the way I had them with
+> 8.04.
+> 
+> I realize this more OS than R, but I thought someone in the group might
+> have some ideas or suggestions they'd care to share, off-list of course.
+> Is there a way around this situation that doesn't involve huge outlays
+> in new hardware? Is there another flavour of Linux that would work with
+> my system and allow me to maintain a toe hold in the R camp so that I've
+> got it as a marketable skill somewhere down the road? Any thoughts would
+> be appreciated.
+
+We don't want to guarantee LTS (as per Ubuntu) support of R for Hardy since our past experience in trying to do this for Dapper Drake proved hurtful. However, at the time, both R and Debian/Ubuntu releases changed a lot and we had to manually undo many changes to compile R on Dapper. 
+
+So far, Hardy has been a no brainer. If things continue like that for a while, you should get fresh R binaries regularly. But things may change very quickly. I'm afraid if you want to stay on Hardy, you may eventually have to either live with an older release of R or compile it yourself.
+
+Regards,
+
+Vincent Goulet
+?cole d'actuariat, Universit? Laval
+
+
+From pgilbert at bank-banque-canada.ca  Mon Jul  5 17:04:01 2010
+From: pgilbert at bank-banque-canada.ca (Paul Gilbert)
+Date: Mon, 5 Jul 2010 11:04:01 -0400
+Subject: [R-sig-Debian] OT: Problems updating OS to deal with fading
+	Rsupport for Ubuntu	Hardy Heron...
+In-Reply-To: <1278286432.21859.22.camel@brian-desktop>
+References: <1278286432.21859.22.camel@brian-desktop>
+Message-ID: <D611103AA7EE3B4DAE7F7D49C72B291A02AABFB3@EXMAIL2.bocad.bank-banque-canada.ca>
+
+Brian
+
+I run Ubuntu and Gnome and R on some systems that are much older than
+that, and performance is reasonable.  I ran 8.04, 9.04, and now am
+running 10.04, and several versions of R.  I'm not sure about the 3.5
+disks. My machines have those drives, but I've not recently checked if
+they work.  I'll see if I can find a disk to try.
+
+I think the dial-up Internet may be a problem. At least, I find Gnome is
+very slow when I don't have my Internet connection. I'm not sure what
+the reason is, but some things (orbit? Update?, other applets?) seem to
+check the Internet often, and stall waiting for a response.
+
+Paul 
+
+>-----Original Message-----
+>From: r-sig-debian-bounces at r-project.org
+[mailto:r-sig-debian-bounces at r-
+>project.org] On Behalf Of Brian Lunergan
+>Sent: July 4, 2010 7:34 PM
+>To: R Debian SIG List
+>Subject: [R-sig-Debian] OT: Problems updating OS to deal with fading
+>Rsupport for Ubuntu Hardy Heron...
+>
+>Evening folks:
+>
+>Not sure where this fits into the picture so bear with me for a few
+>moments while I think out loud to lay out the particulars of my
+problem.
+>
+>-would love to be employed using R for a living but so far I have just
+>worked with it on my home machine to develop a basic level of skill
+with
+>it.
+>-I run Ubuntu linux 8.04 LTS on a machine with a 2.5GHz Celeron
+>processor and 1.2GB of memory. The Heron runs sprightly enough to suit
+>on that combination.
+>-noted on Cran that with the intro of the newest LTS edition, Lucid
+>Lynx, support for the Heron is continued on suffrage only.
+>-So, I tried to upgrade. Tried both Kubuntu and Ubuntu. Kubuntu dialled
+>out and connected to my ISP but failed to get anywhere after
+>authentication, Ubuntu failed to recognize my 3.5" A drive, and they
+>were both unbelievably sluggish on my system so out they both go and
+I'm
+>in the process of getting things set back up the way I had them with
+>8.04.
+>
+>I realize this more OS than R, but I thought someone in the group might
+>have some ideas or suggestions they'd care to share, off-list of
+course.
+>Is there a way around this situation that doesn't involve huge outlays
+>in new hardware? Is there another flavour of Linux that would work with
+>my system and allow me to maintain a toe hold in the R camp so that
+I've
+>got it as a marketable skill somewhere down the road? Any thoughts
+would
+>be appreciated.
+>
+>Regards...
+>--
+>Brian Lunergan
+>Nepean, Ontario
+>Canada
+>
+>_______________________________________________
+>R-SIG-Debian mailing list
+>R-SIG-Debian at r-project.org
+>https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+====================================================================================
+
+La version fran?aise suit le texte anglais.
+
+------------------------------------------------------------------------------------
+
+This email may contain privileged and/or confidential information, and the Bank of
+Canada does not waive any related rights. Any distribution, use, or copying of this
+email or the information it contains by other than the intended recipient is
+unauthorized. If you received this email in error please delete it immediately from
+your system and notify the sender promptly by email that you have done so. 
+
+------------------------------------------------------------------------------------
+
+Le pr?sent courriel peut contenir de l'information privil?gi?e ou confidentielle.
+La Banque du Canada ne renonce pas aux droits qui s'y rapportent. Toute diffusion,
+utilisation ou copie de ce courriel ou des renseignements qu'il contient par une
+personne autre que le ou les destinataires d?sign?s est interdite. Si vous recevez
+ce courriel par erreur, veuillez le supprimer imm?diatement et envoyer sans d?lai ?
+l'exp?diteur un message ?lectronique pour l'aviser que vous avez ?limin? de votre
+ordinateur toute copie du courriel re?u.
+
+From matthieu.stigler at gmail.com  Mon Jul  5 21:16:02 2010
+From: matthieu.stigler at gmail.com (mat)
+Date: Mon, 05 Jul 2010 21:16:02 +0200
+Subject: [R-sig-Debian] pkg/tests: how to run them with --vanilla
+In-Reply-To: <alpine.LFD.2.00.1007041354210.1935@gannet.stats.ox.ac.uk>
+References: <4C2EFDCF.2010406@gmail.com>
+	<19503.42996.819736.587124@ron.nulle.part>
+	<4C3047FA.4080108@gmail.com>
+	<19504.31178.563047.178579@ron.nulle.part>
+	<alpine.LFD.2.00.1007041354210.1935@gannet.stats.ox.ac.uk>
+Message-ID: <4C322F72.1050903@gmail.com>
+
+Thanks a lot for your answers!
+
+Actually, I am still a little bit confused, as running R CMD BATCH with 
+the --vanilla --slave options produces a .Rout.save without the > at 
+each code line, and this is then reported in the R CMD check:
+
+checking tests ...
+   Ex?cution ?00SetarAndFriends.R?
+   Comparaison ?00SetarAndFriends.Rout? ? ?00SetarAndFriends.Rout.save? 
+...1,3d0
+<
+<
+< > library(tsDyn)
+12,18d8
+< >
+< > data(zeroyld)
+< > dat<-zeroyld
+
+While if I do just R CMD BATCH, I get another diff report, concerning 
+the startup message:
+checking tests ...
+   Ex?cution ?00SetarAndFriends.R?
+   Comparaison ?00SetarAndFriends.Rout? ? ?00SetarAndFriends.Rout.save? 
+...1a2,19
+ > R version 2.11.1 (2010-05-31)
+ > Copyright (C) 2010 The R Foundation for Statistical Computing
+ > ISBN 3-900051-07-0
+
+So I did not find a way to have a clean R CMD check output... How do you 
+do usually? DOn't you have one of those issues?
+
+Thanks a lot!
+
+Matthieu
+
+
+
+Le 04. 07. 10 15:00, Prof Brian Ripley a ?crit :
+> On Sun, 4 Jul 2010, Dirk Eddelbuettel wrote:
+>
+>>
+>> On 4 July 2010 at 10:36, mat wrote:
+>> | Thanks! But I have then a strange problem:
+>> | -running R CMD BATCH will read in english
+>> | -running R CMD BATCH --vanilla --slave will read in french!
+>> |
+>> | I guess it comes from the fact that R CMD BATCH reads my .Rprofile
+>> | settings but --vanilla --slave not?
+>>
+>> Yes, and by design as --vanilla means ignore my ~/.R* files.
+>>
+>> So you must change your language in another place, for example in the 
+>> shell
+>> in which you are calling R CMD BATCH.  You could just create a 'worker
+>> script' that sets those variables and then calls R CMD BATCH.
+>
+> And as the R-admin manual says and I said, you set the environment 
+> variable LANGUAGE to en: this overrides any other settings for the 
+> language.  So in any shell
+>
+> env LANGUAGE=en R CMD BATCH --vanilla --slave foo.R foo.Rout.save
+>
+> or in bash
+>
+> LANGUAGE=en R CMD BATCH --vanilla --slave foo.R foo.Rout.save
+>
+> How to set environment variables is covered in the rw-FAQ, but Linux 
+> users are expected to know how to use them!
+>
+>>
+>> Dirk
+>>
+>> | See:
+>> |
+>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ echo
+>> | "library(sandwich)" > foo.R
+>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH foo.R
+>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout
+>> |
+>> | R version 2.11.1 (2010-05-31)
+>> | [...]
+>> | [Previously saved workspace restored]
+>> |
+>> | > library(sandwich)
+>> | Loading required package: zoo
+>> | >
+>> | > proc.time()
+>> | user system elapsed
+>> | 0.630 0.010 0.632
+>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$
+>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH --vanilla
+>> | --slave foo.R
+>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout
+>> | Le chargement a n?cessit? le package : zoo
+>> | > proc.time()
+>> | utilisateur syst?me ?coul?
+>> | 0.38 0.02 0.38
+>> |
+>> | So it seems I should change the language differently... probably 
+>> setting
+>> | the global environment variable? I don't know if this is possible just
+>> | within the R CMD BATCH? I read from ?BATCH
+>> |
+>> | Additional options can be set by the environment variable
+>> | ?R_BATCH_OPTIONS?: these come after ?--restore --save
+>> | --no-readline? and before any options given on the command line
+>> |
+>> | But I did not find any example how to run them...
+>> |
+>> | Thanks!!
+>> |
+>> | Matthieu
+>> |
+>> |
+>> |
+>> | Le 03. 07. 10 23:13, Dirk Eddelbuettel a ?crit :
+>> | > On 3 July 2010 at 11:07, mat wrote:
+>> | > | Hello
+>> | > |
+>> | > | I recently submitted an update of a package, and received error 
+>> reports
+>> | > | from CRAN maintainers concerning the pkg/tests section:
+>> | > |
+>> | > |>  Next time you update, can you please ensure that the 
+>> .Rout.save files
+>> | > |>  are generated in English (with LANGUAGE=en set).  R 2.12.x 
+>> will ensure
+>> | > |>  that the tests are run in English, and it saves a lot of 
+>> unnecessary
+>> | > |>  chatter if the reference results also are.
+>> | > |>
+>> | > |>  As a further point,
+>> | > |>
+>> | > |>>  [Sauvegarde de la session pr?c?dente restaur?e]
+>> | > |>
+>> | > |>  indicates that they were not generated in a vanilla session, 
+>> and they
+>> | > |>  should be (as the tests are run with --vanilla --slave).
+>> | > |>
+>> | > |>  Brian Ripley
+>> | > |   I always used to run the .Rout.save files with R CMD BATCH 
+>> xxx.R So it
+>> | > | seems I should rather do it with R --vanilla... I tried:
+>> | > | cat xxx.R| R --vanilla --slave>  xxx.Rout.save
+>> | >
+>> | > See 'R CMD BATCH --help' --- you can pass further options along:
+>> | >
+>> | > edd at ron:/tmp$ echo "cat(4)">  foo.R
+>> | > edd at ron:/tmp$ R CMD BATCH --vanilla --slave /tmp/foo.R
+>> | > edd at ron:/tmp$ cat foo.Rout
+>> | > 4>  proc.time()
+>> | >     user  system elapsed
+>> | >    0.352   0.036   0.373
+>> | > edd at ron:/tmp$ R CMD BATCH --vanilla /tmp/foo.R
+>> | > edd at ron:/tmp$ cat foo.Rout
+>> | >
+>> | > R version 2.11.1 (2010-05-31)
+>> | > Copyright (C) 2010 The R Foundation for Statistical Computing
+>> | > ISBN 3-900051-07-0
+>> | >
+>> | > R is free software and comes with ABSOLUTELY NO WARRANTY.
+>> | > You are welcome to redistribute it under certain conditions.
+>> | > Type 'license()' or 'licence()' for distribution details.
+>> | >
+>> | >    Natural language support but running in an English locale
+>> | >
+>> | > R is a collaborative project with many contributors.
+>> | > Type 'contributors()' for more information and
+>> | > 'citation()' on how to cite R or R packages in publications.
+>> | >
+>> | > Type 'demo()' for some demos, 'help()' for on-line help, or
+>> | > 'help.start()' for an HTML browser interface to help.
+>> | > Type 'q()' to quit R.
+>> | >
+>> | >
+>> | >> cat(4)
+>> | >>
+>> | > 4>
+>> | >
+>> | >> proc.time()
+>> | >>
+>> | >     user  system elapsed
+>> | >     0.34    0.04    0.38
+>> | > edd at ron:/tmp$
+>> | >
+>> | > | But this gives files without the ">", and then it gets reported 
+>> in the R
+>> | > | CMD check... What would be the good way to do?
+>> | > |
+>> | > | Secondly, I always got this error that the R CMD BATCH run in 
+>> french,
+>> | > | but the R CMD check in english. I have been told I should 
+>> change to
+>> | > | language=EN. But how do I do this in Linux? I just added:
+>> | > | Sys.setlocale("LC_ALL","en_US.UTF8")
+>> | > | Sys.setlocale("LC_CTYPE","en_US.UTF8")
+>> | > | Sys.setlocale("LC_MESSAGES","en_US.UTF8")
+>> | > |
+>> | > | in the .Rprofile... it this right?
+>> | >
+>> | > Defaults work for me, so I never changed them. Sorry.
+>> | >
+>> | >
+>> |
+>>
+>> -- 
+>>  Regards, Dirk
+>>
+>
+
+
+From roberto.scotti at gmail.com  Thu Jul  8 16:41:51 2010
+From: roberto.scotti at gmail.com (Scotti Roberto)
+Date: Thu, 08 Jul 2010 16:41:51 +0200
+Subject: [R-sig-Debian] "Graphics history" in UNIX
+In-Reply-To: <AANLkTikn-mASGrGoL0MgrP-_3CYkVdO_3sHyjcG1Sdk7@mail.gmail.com>
+References: <4C0F8536.6080006@gmail.com>
+	<AANLkTim6KNXsB31a8pIn47k9ZkkTnKD7eiBl0g7hesAA@mail.gmail.com>
+	<AANLkTikWbSeJQJCftiRSeawWhmfvs9JyxIR7x3z8RipZ@mail.gmail.com>
+	<AANLkTimsLTbzc4c8nPLPqJhF_s-UBGTxVb_ZWpcmk8iG@mail.gmail.com>
+	<4C227100.4050408@gmail.com>
+	<AANLkTikn-mASGrGoL0MgrP-_3CYkVdO_3sHyjcG1Sdk7@mail.gmail.com>
+Message-ID: <4C35E3AF.4000106@gmail.com>
+
+Hello.
+I understand that, to build from source, you need to have all sources 
+(in the right place and with the right names, and so on),
+but your sentence,
+> To build from source you need to have development files installed.
+stimulates a very basic question: "Is it possible to avoid building from 
+source using R in Kubuntu?
+I shifted over from MS only recently. In Windows I used to easily 
+download packages and use them.
+Now, every time I downloaded a new piece, I had the impression that 
+building from source was necessary.
+Am I wrong?
+Many thanks Roberto
+
+
+Il 24/06/2010 01:36, Liviu Andronic ha scritto:
+> Hello
+>
+> On Wed, Jun 23, 2010 at 9:39 PM, Scotti Roberto
+> <roberto.scotti at gmail.com>  wrote:
+>    
+>> Thanks for caring. With this last fix playwith() could be an optimal
+>> substitution of the Windows "register" graphics tool.
+>> Unfortunately the practical side is quite hard and, up now, unsuccessful.
+>> It takes hours to understand that 'pkg-config' is a system library, not an
+>> R-package,
+>> that installed GTK components are insufficient, you have to guess which one
+>> of the 33 to-be-installed libgtk2 libraries are required
+>> and then finally compilation an linkage start progressing when you discover
+>> that 'cairoDevice()', this time an R component (??), has to be installed by
+>> its self but ... here I am stuck, see error below:  two members of DevDesc
+>> appear as missing!!
+>> Do you have any suggestion on how to proceed?
+>>
+>>      
+> To build from source you need to have development files installed. On
+> Debian-based distros, you will mostly look for *-dev packages. For
+> example, you will probably need to install r-base-dev. For playwith, I
+> expect that you will need at least libgtk2.0-dev. As for cairoDevice
+> [1], you will need libcairo2-dev, I think. Then follow the error
+> messages for potential missing development files.
+>
+> Regards
+> Liviu
+>
+> [1] http://cran.at.r-project.org/web/packages/cairoDevice/index.html
+>
+
+
+From pauljohn32 at gmail.com  Fri Jul  9 00:36:25 2010
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Thu, 8 Jul 2010 17:36:25 -0500
+Subject: [R-sig-Debian] "Graphics history" in UNIX
+In-Reply-To: <4C35E3AF.4000106@gmail.com>
+References: <4C0F8536.6080006@gmail.com>
+	<AANLkTim6KNXsB31a8pIn47k9ZkkTnKD7eiBl0g7hesAA@mail.gmail.com>
+	<AANLkTikWbSeJQJCftiRSeawWhmfvs9JyxIR7x3z8RipZ@mail.gmail.com>
+	<AANLkTimsLTbzc4c8nPLPqJhF_s-UBGTxVb_ZWpcmk8iG@mail.gmail.com>
+	<4C227100.4050408@gmail.com>
+	<AANLkTikn-mASGrGoL0MgrP-_3CYkVdO_3sHyjcG1Sdk7@mail.gmail.com>
+	<4C35E3AF.4000106@gmail.com>
+Message-ID: <AANLkTikX_rPVotNXJj17z845TCroYjaGrSEVDnmUbNEi@mail.gmail.com>
+
+On Thu, Jul 8, 2010 at 9:41 AM, Scotti Roberto <roberto.scotti at gmail.com> wrote:
+> Hello.
+> I understand that, to build from source, you need to have all sources (in
+> the right place and with the right names, and so on),
+> but your sentence,
+>>
+>> To build from source you need to have development files installed.
+>
+> stimulates a very basic question: "Is it possible to avoid building from
+> source using R in Kubuntu?
+
+Personally, my opinion is if you want somebody else to do your work
+for you, you should have stayed with Windows.
+
+Luckily for you, some other people are nice and want to build packages
+for you.  There is a deb archive called "cran2deb"  that does build
+many packages, there's no "guarantee" they will work with all the
+stuff you have installed.
+
+http://dirk.eddelbuettel.com/papers/useR2009cran2deb.pdf
+
+Here's the reason there's no guarantee. Nobody can anticipate whatever
+changes you have made to your system--that's the beauty of Linux. So
+if you build your own, they always fit.  But if you stick with default
+everything, the cran2deb will work.
+
+-- 
+Paul E. Johnson
+Professor, Political Science
+1541 Lilac Lane, Room 504
+University of Kansas
+
+
+From landronimirc at gmail.com  Fri Jul  9 01:26:17 2010
+From: landronimirc at gmail.com (Liviu Andronic)
+Date: Fri, 9 Jul 2010 00:26:17 +0100
+Subject: [R-sig-Debian] "Graphics history" in UNIX
+In-Reply-To: <4C35E3AF.4000106@gmail.com>
+References: <4C0F8536.6080006@gmail.com>
+	<AANLkTim6KNXsB31a8pIn47k9ZkkTnKD7eiBl0g7hesAA@mail.gmail.com> 
+	<AANLkTikWbSeJQJCftiRSeawWhmfvs9JyxIR7x3z8RipZ@mail.gmail.com> 
+	<AANLkTimsLTbzc4c8nPLPqJhF_s-UBGTxVb_ZWpcmk8iG@mail.gmail.com> 
+	<4C227100.4050408@gmail.com>
+	<AANLkTikn-mASGrGoL0MgrP-_3CYkVdO_3sHyjcG1Sdk7@mail.gmail.com> 
+	<4C35E3AF.4000106@gmail.com>
+Message-ID: <AANLkTikBK9psFnCFiqy1jD6jFTwPHu9cRZAoKscJgML6@mail.gmail.com>
+
+Dear Roberto
+
+On Thu, Jul 8, 2010 at 3:41 PM, Scotti Roberto <roberto.scotti at gmail.com> wrote:
+> stimulates a very basic question: "Is it possible to avoid building from
+> source using R in Kubuntu?
+>
+Yes.
+
+> I shifted over from MS only recently. In Windows I used to easily download
+> packages and use them.
+> Now, every time I downloaded a new piece, I had the impression that building
+> from source was necessary.
+> Am I wrong?
+>
+No. Because of the huge diversity of Linux platforms it is not
+practical to provide binaries for all or even most of them. Hence, as
+a general rule, under Linux you need to compile R packages.
+
+On Debian-based distros you can circumvent and use cran2deb (reference
+provided by Paul). Beware though that cran2deb specifically targets
+Debian testing i386 and amd64 (support for the latter is temporarily
+dead). Dirk has repeatedly warned against using them on Ubuntus, but
+there were reports of successful usage so you might want to try it,
+too.
+
+Regards
+Liviu
+
+
+From roberto.scotti at gmail.com  Fri Jul  9 12:40:47 2010
+From: roberto.scotti at gmail.com (Scotti Roberto)
+Date: Fri, 09 Jul 2010 12:40:47 +0200
+Subject: [R-sig-Debian] "Graphics history" in UNIX
+In-Reply-To: <AANLkTikBK9psFnCFiqy1jD6jFTwPHu9cRZAoKscJgML6@mail.gmail.com>
+References: <4C0F8536.6080006@gmail.com>
+	<AANLkTim6KNXsB31a8pIn47k9ZkkTnKD7eiBl0g7hesAA@mail.gmail.com>
+	<AANLkTikWbSeJQJCftiRSeawWhmfvs9JyxIR7x3z8RipZ@mail.gmail.com>
+	<AANLkTimsLTbzc4c8nPLPqJhF_s-UBGTxVb_ZWpcmk8iG@mail.gmail.com>
+	<4C227100.4050408@gmail.com>
+	<AANLkTikn-mASGrGoL0MgrP-_3CYkVdO_3sHyjcG1Sdk7@mail.gmail.com>
+	<4C35E3AF.4000106@gmail.com>
+	<AANLkTikBK9psFnCFiqy1jD6jFTwPHu9cRZAoKscJgML6@mail.gmail.com>
+Message-ID: <4C36FCAF.5080700@gmail.com>
+
+Dear Liviu and Paul, many thanks for answering.
+Up to a certain extent I can spend efforts and time playing around in 
+building the tools I need to work.
+My major concern are the students. If I want them to concentrate on the 
+work, building the tools should be BESIDE THE POINT!
+Maybe Pauls suggestion could help in that case.
+Roberto
+
+Il 09/07/2010 01:26, Liviu Andronic ha scritto:
+> Dear Roberto
+>
+> On Thu, Jul 8, 2010 at 3:41 PM, Scotti Roberto<roberto.scotti at gmail.com>  wrote:
+>    
+>> stimulates a very basic question: "Is it possible to avoid building from
+>> source using R in Kubuntu?
+>>      
+> Yes.
+>    
+>> I shifted over from MS only recently. In Windows I used to easily download
+>> packages and use them.
+>> Now, every time I downloaded a new piece, I had the impression that building
+>> from source was necessary.
+>> Am I wrong?
+>>      
+> No. Because of the huge diversity of Linux platforms it is not
+> practical to provide binaries for all or even most of them. Hence, as
+> a general rule, under Linux you need to compile R packages.
+>
+> On Debian-based distros you can circumvent and use cran2deb (reference
+> provided by Paul). Beware though that cran2deb specifically targets
+> Debian testing i386 and amd64 (support for the latter is temporarily
+> dead). Dirk has repeatedly warned against using them on Ubuntus, but
+> there were reports of successful usage so you might want to try it,
+> too.
+>
+> Regards
+> Liviu
+>
+>    
+Il 09/07/2010 00:36, Paul Johnson ha scritto:
+> On Thu, Jul 8, 2010 at 9:41 AM, Scotti Roberto<roberto.scotti at gmail.com>  wrote:
+>    
+>> Hello.
+>> I understand that, to build from source, you need to have all sources (in
+>> the right place and with the right names, and so on),
+>> but your sentence,
+>>      
+>>> To build from source you need to have development files installed.
+>>>        
+>> stimulates a very basic question: "Is it possible to avoid building from
+>> source using R in Kubuntu?
+>>      
+> Personally, my opinion is if you want somebody else to do your work
+> for you, you should have stayed with Windows.
+>
+> Luckily for you, some other people are nice and want to build packages
+> for you.  There is a deb archive called "cran2deb"  that does build
+> many packages, there's no "guarantee" they will work with all the
+> stuff you have installed.
+>
+> http://dirk.eddelbuettel.com/papers/useR2009cran2deb.pdf
+>
+> Here's the reason there's no guarantee. Nobody can anticipate whatever
+> changes you have made to your system--that's the beauty of Linux. So
+> if you build your own, they always fit.  But if you stick with default
+> everything, the cran2deb will work.
+>
+>
+
+
+From Vincent.Goulet at act.ulaval.ca  Fri Jul  9 16:57:06 2010
+From: Vincent.Goulet at act.ulaval.ca (Vincent Goulet)
+Date: Fri, 9 Jul 2010 10:57:06 -0400
+Subject: [R-sig-Debian] "Graphics history" in UNIX
+In-Reply-To: <4C36FCAF.5080700@gmail.com>
+References: <4C0F8536.6080006@gmail.com>
+	<AANLkTim6KNXsB31a8pIn47k9ZkkTnKD7eiBl0g7hesAA@mail.gmail.com>
+	<AANLkTikWbSeJQJCftiRSeawWhmfvs9JyxIR7x3z8RipZ@mail.gmail.com>
+	<AANLkTimsLTbzc4c8nPLPqJhF_s-UBGTxVb_ZWpcmk8iG@mail.gmail.com>
+	<4C227100.4050408@gmail.com>
+	<AANLkTikn-mASGrGoL0MgrP-_3CYkVdO_3sHyjcG1Sdk7@mail.gmail.com>
+	<4C35E3AF.4000106@gmail.com>
+	<AANLkTikBK9psFnCFiqy1jD6jFTwPHu9cRZAoKscJgML6@mail.gmail.com>
+	<4C36FCAF.5080700@gmail.com>
+Message-ID: <1BA36299-0923-450E-9605-EA2714C3E703@act.ulaval.ca>
+
+Scotti,
+
+Building packages from source is a difficult thing on Windows, but it is trivial on Linux in general and on Debian in particular. (Ok, but for a few "complicated" packages.) As stated in the Ubuntu README on CRAN, installing the r-base-dev package will install all the standard tools you need tom compile R packages. Then, a simple
+
+install.packages("foo")
+
+at the command line will fetch the sources of foo on CRAN, compile the package and install it. It's all completly transparent and no more complicated than installing on Windows, IMO.
+
+Vincent
+
+Le 2010-07-09 ? 06:40, Scotti Roberto a ?crit :
+
+> Dear Liviu and Paul, many thanks for answering.
+> Up to a certain extent I can spend efforts and time playing around in 
+> building the tools I need to work.
+> My major concern are the students. If I want them to concentrate on the 
+> work, building the tools should be BESIDE THE POINT!
+> Maybe Pauls suggestion could help in that case.
+> Roberto
+> 
+> Il 09/07/2010 01:26, Liviu Andronic ha scritto:
+>> Dear Roberto
+>> 
+>> On Thu, Jul 8, 2010 at 3:41 PM, Scotti Roberto<roberto.scotti at gmail.com>  wrote:
+>> 
+>>> stimulates a very basic question: "Is it possible to avoid building from
+>>> source using R in Kubuntu?
+>>> 
+>> Yes.
+>> 
+>>> I shifted over from MS only recently. In Windows I used to easily download
+>>> packages and use them.
+>>> Now, every time I downloaded a new piece, I had the impression that building
+>>> from source was necessary.
+>>> Am I wrong?
+>>> 
+>> No. Because of the huge diversity of Linux platforms it is not
+>> practical to provide binaries for all or even most of them. Hence, as
+>> a general rule, under Linux you need to compile R packages.
+>> 
+>> On Debian-based distros you can circumvent and use cran2deb (reference
+>> provided by Paul). Beware though that cran2deb specifically targets
+>> Debian testing i386 and amd64 (support for the latter is temporarily
+>> dead). Dirk has repeatedly warned against using them on Ubuntus, but
+>> there were reports of successful usage so you might want to try it,
+>> too.
+>> 
+>> Regards
+>> Liviu
+>> 
+>> 
+> Il 09/07/2010 00:36, Paul Johnson ha scritto:
+>> On Thu, Jul 8, 2010 at 9:41 AM, Scotti Roberto<roberto.scotti at gmail.com>  wrote:
+>> 
+>>> Hello.
+>>> I understand that, to build from source, you need to have all sources (in
+>>> the right place and with the right names, and so on),
+>>> but your sentence,
+>>> 
+>>>> To build from source you need to have development files installed.
+>>>> 
+>>> stimulates a very basic question: "Is it possible to avoid building from
+>>> source using R in Kubuntu?
+>>> 
+>> Personally, my opinion is if you want somebody else to do your work
+>> for you, you should have stayed with Windows.
+>> 
+>> Luckily for you, some other people are nice and want to build packages
+>> for you.  There is a deb archive called "cran2deb"  that does build
+>> many packages, there's no "guarantee" they will work with all the
+>> stuff you have installed.
+>> 
+>> http://dirk.eddelbuettel.com/papers/useR2009cran2deb.pdf
+>> 
+>> Here's the reason there's no guarantee. Nobody can anticipate whatever
+>> changes you have made to your system--that's the beauty of Linux. So
+>> if you build your own, they always fit.  But if you stick with default
+>> everything, the cran2deb will work.
+>> 
+>> 
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From info at aghmed.fsnet.co.uk  Fri Jul  9 19:37:38 2010
+From: info at aghmed.fsnet.co.uk (Michael Dewey)
+Date: Fri, 09 Jul 2010 18:37:38 +0100
+Subject: [R-sig-Debian] "Graphics history" in UNIX
+In-Reply-To: <4C35E3AF.4000106@gmail.com>
+References: <4C0F8536.6080006@gmail.com>
+	<AANLkTim6KNXsB31a8pIn47k9ZkkTnKD7eiBl0g7hesAA@mail.gmail.com>
+	<AANLkTikWbSeJQJCftiRSeawWhmfvs9JyxIR7x3z8RipZ@mail.gmail.com>
+	<AANLkTimsLTbzc4c8nPLPqJhF_s-UBGTxVb_ZWpcmk8iG@mail.gmail.com>
+	<4C227100.4050408@gmail.com>
+	<AANLkTikn-mASGrGoL0MgrP-_3CYkVdO_3sHyjcG1Sdk7@mail.gmail.com>
+	<4C35E3AF.4000106@gmail.com>
+Message-ID: <Zen-1OXHWC-0001st-El@smarthost02.mail.zen.net.uk>
+
+At 15:41 08/07/2010, Scotti Roberto wrote:
+
+>Hello.
+>I understand that, to build from source, you need to have all 
+>sources (in the right place and with the right names, and so on),
+>but your sentence,
+>>To build from source you need to have development files installed.
+
+Roberto,
+My experience as a very naive Linux user with mostly Windows 
+experience is that once you have the initial setup right subsequent 
+installation of packages from source works very smoothly. I was quite 
+nervous about the initial setup but the instructions on the welcome 
+pages on CRAN were very helpful. I think when you look back in a few 
+months time you will, like me, wonder why you were concerned in the 
+first place.
+
+If despite that you run into problems I have always found the experts 
+on this list very helpful.
+
+>stimulates a very basic question: "Is it possible to avoid building 
+>from source using R in Kubuntu?
+>I shifted over from MS only recently. In Windows I used to easily 
+>download packages and use them.
+>Now, every time I downloaded a new piece, I had the impression that 
+>building from source was necessary.
+>Am I wrong?
+>Many thanks Roberto
+>
+>
+>Il 24/06/2010 01:36, Liviu Andronic ha scritto:
+>>Hello
+>>
+>>On Wed, Jun 23, 2010 at 9:39 PM, Scotti Roberto
+>><roberto.scotti at gmail.com>  wrote:
+>>
+>>>Thanks for caring. With this last fix playwith() could be an optimal
+>>>substitution of the Windows "register" graphics tool.
+>>>Unfortunately the practical side is quite hard and, up now, unsuccessful.
+>>>It takes hours to understand that 'pkg-config' is a system library, not an
+>>>R-package,
+>>>that installed GTK components are insufficient, you have to guess which one
+>>>of the 33 to-be-installed libgtk2 libraries are required
+>>>and then finally compilation an linkage start progressing when you discover
+>>>that 'cairoDevice()', this time an R component (??), has to be installed by
+>>>its self but ... here I am stuck, see error below:  two members of DevDesc
+>>>appear as missing!!
+>>>Do you have any suggestion on how to proceed?
+>>>
+>>>
+>>To build from source you need to have development files installed. On
+>>Debian-based distros, you will mostly look for *-dev packages. For
+>>example, you will probably need to install r-base-dev. For playwith, I
+>>expect that you will need at least libgtk2.0-dev. As for cairoDevice
+>>[1], you will need libcairo2-dev, I think. Then follow the error
+>>messages for potential missing development files.
+>>
+>>Regards
+>>Liviu
+>>
+>>[1] http://cran.at.r-project.org/web/packages/cairoDevice/index.html
+>
+>_______________________________________________
+>R-SIG-Debian mailing list
+>R-SIG-Debian at r-project.org
+>https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+Michael Dewey
+http://www.aghmed.fsnet.co.uk
+
+
+From ross at biostat.ucsf.edu  Sat Jul 10 20:54:27 2010
+From: ross at biostat.ucsf.edu (Ross Boylan)
+Date: Sat, 10 Jul 2010 11:54:27 -0700
+Subject: [R-sig-Debian] "Graphics history" in UNIX
+In-Reply-To: <4C35E3AF.4000106@gmail.com>
+References: <4C0F8536.6080006@gmail.com>
+	<AANLkTim6KNXsB31a8pIn47k9ZkkTnKD7eiBl0g7hesAA@mail.gmail.com>
+	<AANLkTikWbSeJQJCftiRSeawWhmfvs9JyxIR7x3z8RipZ@mail.gmail.com>
+	<AANLkTimsLTbzc4c8nPLPqJhF_s-UBGTxVb_ZWpcmk8iG@mail.gmail.com>
+	<4C227100.4050408@gmail.com>
+	<AANLkTikn-mASGrGoL0MgrP-_3CYkVdO_3sHyjcG1Sdk7@mail.gmail.com>
+	<4C35E3AF.4000106@gmail.com>
+Message-ID: <1278788067.13300.19.camel@corn.betterworld.us>
+
+On Thu, 2010-07-08 at 16:41 +0200, Scotti Roberto wrote:
+> stimulates a very basic question: "Is it possible to avoid building
+> from 
+> source using R in Kubuntu?
+> I shifted over from MS only recently. In Windows I used to easily 
+> download packages and use them.
+> Now, every time I downloaded a new piece, I had the impression that 
+> building from source was necessary.
+> Am I wrong?
+> Many thanks Roberto
+Generally, building from source is not necessary.  I think the other
+responses agreeing that it is necessary were assuming you were
+interested in some slightly exotic R package (which may be the case).
+
+The point of most distributions is to provide pre-compiled binary
+packages; particularly on Debian these are very good about indicating
+what other packages they require.  If you use a tool like aptitude and
+tell it you want package X, it will automatically pull in all other
+required packages.  Ubuntu is a Debian derivative.
+
+Both R and many of its packages are in Debian.
+
+If you have a package that is not already built you can build it
+yourself or use cran2deb (assuming it's on CRAN).  As others have noted,
+cran2deb is only intended for Debian testing (aka squeeze) on some
+architectures.  It's also currently a bit broken.  You can try using the
+archive in another environment (e.g., Ubuntu), but if you want something
+that is not a gamble for R, running Debian testing (maybe in a VM) would
+be the safest route.  Of course, it's called testing rather than stable
+for a reason.
+
+I think the cran2deb packages, which are generated automatically, are
+less likely to have complete dependency information than those in the
+main distribution.
+
+Finally, you expressed concern for your students.  You can build a
+binary package locally and then your students can use it.  Doing so for
+someone new to Linux is probably a heavy lift.
+
+Ross Boylan
+
+
+From edd at debian.org  Sat Jul 10 21:32:37 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 10 Jul 2010 14:32:37 -0500
+Subject: [R-sig-Debian] "Graphics history" in UNIX
+In-Reply-To: <1278788067.13300.19.camel@corn.betterworld.us>
+References: <4C0F8536.6080006@gmail.com>
+	<AANLkTim6KNXsB31a8pIn47k9ZkkTnKD7eiBl0g7hesAA@mail.gmail.com>
+	<AANLkTikWbSeJQJCftiRSeawWhmfvs9JyxIR7x3z8RipZ@mail.gmail.com>
+	<AANLkTimsLTbzc4c8nPLPqJhF_s-UBGTxVb_ZWpcmk8iG@mail.gmail.com>
+	<4C227100.4050408@gmail.com>
+	<AANLkTikn-mASGrGoL0MgrP-_3CYkVdO_3sHyjcG1Sdk7@mail.gmail.com>
+	<4C35E3AF.4000106@gmail.com>
+	<1278788067.13300.19.camel@corn.betterworld.us>
+Message-ID: <19512.51925.292640.893269@ron.nulle.part>
+
+
+On 10 July 2010 at 11:54, Ross Boylan wrote:
+| On Thu, 2010-07-08 at 16:41 +0200, Scotti Roberto wrote:
+| > stimulates a very basic question: "Is it possible to avoid building
+| > from 
+| > source using R in Kubuntu?
+| > I shifted over from MS only recently. In Windows I used to easily 
+| > download packages and use them.
+| > Now, every time I downloaded a new piece, I had the impression that 
+| > building from source was necessary.
+| > Am I wrong?
+| > Many thanks Roberto
+| Generally, building from source is not necessary.  I think the other
+| responses agreeing that it is necessary were assuming you were
+| interested in some slightly exotic R package (which may be the case).
+| 
+| The point of most distributions is to provide pre-compiled binary
+| packages; particularly on Debian these are very good about indicating
+| what other packages they require.  If you use a tool like aptitude and
+| tell it you want package X, it will automatically pull in all other
+| required packages.  Ubuntu is a Debian derivative.
+| 
+| Both R and many of its packages are in Debian.
+| 
+| If you have a package that is not already built you can build it
+| yourself or use cran2deb (assuming it's on CRAN).  As others have noted,
+| cran2deb is only intended for Debian testing (aka squeeze) on some
+| architectures.  It's also currently a bit broken.  You can try using the
+| archive in another environment (e.g., Ubuntu), but if you want something
+| that is not a gamble for R, running Debian testing (maybe in a VM) would
+| be the safest route.  Of course, it's called testing rather than stable
+| for a reason.
+| 
+| I think the cran2deb packages, which are generated automatically, are
+| less likely to have complete dependency information than those in the
+| main distribution.
+
+Huh?  If the info wasn't complete, they'd break. They don't break, so the
+info appears to complete. Please don't spread misinformation.
+ 
+D.
+
+| Finally, you expressed concern for your students.  You can build a
+| binary package locally and then your students can use it.  Doing so for
+| someone new to Linux is probably a heavy lift.
+| 
+| Ross Boylan
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+  Regards, Dirk
+
+
+From edd at debian.org  Sat Jul 10 21:53:50 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 10 Jul 2010 14:53:50 -0500
+Subject: [R-sig-Debian] "Graphics history" in UNIX
+In-Reply-To: <19512.51925.292640.893269@ron.nulle.part>
+References: <4C0F8536.6080006@gmail.com>
+	<AANLkTim6KNXsB31a8pIn47k9ZkkTnKD7eiBl0g7hesAA@mail.gmail.com>
+	<AANLkTikWbSeJQJCftiRSeawWhmfvs9JyxIR7x3z8RipZ@mail.gmail.com>
+	<AANLkTimsLTbzc4c8nPLPqJhF_s-UBGTxVb_ZWpcmk8iG@mail.gmail.com>
+	<4C227100.4050408@gmail.com>
+	<AANLkTikn-mASGrGoL0MgrP-_3CYkVdO_3sHyjcG1Sdk7@mail.gmail.com>
+	<4C35E3AF.4000106@gmail.com>
+	<1278788067.13300.19.camel@corn.betterworld.us>
+	<19512.51925.292640.893269@ron.nulle.part>
+Message-ID: <19512.53198.200677.454377@ron.nulle.part>
+
+
+On 10 July 2010 at 14:32, Dirk Eddelbuettel wrote:
+| 
+| On 10 July 2010 at 11:54, Ross Boylan wrote:
+| | On Thu, 2010-07-08 at 16:41 +0200, Scotti Roberto wrote:
+| | > stimulates a very basic question: "Is it possible to avoid building
+| | > from 
+| | > source using R in Kubuntu?
+| | > I shifted over from MS only recently. In Windows I used to easily 
+| | > download packages and use them.
+| | > Now, every time I downloaded a new piece, I had the impression that 
+| | > building from source was necessary.
+| | > Am I wrong?
+| | > Many thanks Roberto
+| | Generally, building from source is not necessary.  I think the other
+| | responses agreeing that it is necessary were assuming you were
+| | interested in some slightly exotic R package (which may be the case).
+| | 
+| | The point of most distributions is to provide pre-compiled binary
+| | packages; particularly on Debian these are very good about indicating
+| | what other packages they require.  If you use a tool like aptitude and
+| | tell it you want package X, it will automatically pull in all other
+| | required packages.  Ubuntu is a Debian derivative.
+| | 
+| | Both R and many of its packages are in Debian.
+| | 
+| | If you have a package that is not already built you can build it
+| | yourself or use cran2deb (assuming it's on CRAN).  As others have noted,
+| | cran2deb is only intended for Debian testing (aka squeeze) on some
+| | architectures.  It's also currently a bit broken.  You can try using the
+
+It is not broken; it is disabled for amd64 while we rewrite it. i386 works
+better than ever.  And this has been discussed on this list before.  
+
+Dirk
+
+
+
+| | archive in another environment (e.g., Ubuntu), but if you want something
+| | that is not a gamble for R, running Debian testing (maybe in a VM) would
+| | be the safest route.  Of course, it's called testing rather than stable
+| | for a reason.
+| | 
+| | I think the cran2deb packages, which are generated automatically, are
+| | less likely to have complete dependency information than those in the
+| | main distribution.
+| 
+| Huh?  If the info wasn't complete, they'd break. They don't break, so the
+| info appears to complete. Please don't spread misinformation.
+|  
+| D.
+| 
+| | Finally, you expressed concern for your students.  You can build a
+| | binary package locally and then your students can use it.  Doing so for
+| | someone new to Linux is probably a heavy lift.
+| | 
+| | Ross Boylan
+| | 
+| | _______________________________________________
+| | R-SIG-Debian mailing list
+| | R-SIG-Debian at r-project.org
+| | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| 
+| -- 
+|   Regards, Dirk
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+  Regards, Dirk
+
+
+From roberto.scotti at gmail.com  Sun Jul 11 12:44:27 2010
+From: roberto.scotti at gmail.com (Scotti Roberto)
+Date: Sun, 11 Jul 2010 12:44:27 +0200
+Subject: [R-sig-Debian] "Graphics history" in UNIX --> "R" in Ubuntu for
+ students in applied sciences
+In-Reply-To: <19512.53198.200677.454377@ron.nulle.part>
+References: <4C0F8536.6080006@gmail.com>	<AANLkTim6KNXsB31a8pIn47k9ZkkTnKD7eiBl0g7hesAA@mail.gmail.com>	<AANLkTikWbSeJQJCftiRSeawWhmfvs9JyxIR7x3z8RipZ@mail.gmail.com>	<AANLkTimsLTbzc4c8nPLPqJhF_s-UBGTxVb_ZWpcmk8iG@mail.gmail.com>	<4C227100.4050408@gmail.com>	<AANLkTikn-mASGrGoL0MgrP-_3CYkVdO_3sHyjcG1Sdk7@mail.gmail.com>	<4C35E3AF.4000106@gmail.com>	<1278788067.13300.19.camel@corn.betterworld.us>	<19512.51925.292640.893269@ron.nulle.part>
+	<19512.53198.200677.454377@ron.nulle.part>
+Message-ID: <4C39A08B.40407@gmail.com>
+
+Many thank to everyone.
+I really appreciate your kindness in making the point (or your point) on 
+the topics that come up.
+I am afraid that we completely abandoned the topic in the original 
+subject line and shifted to a topic that is of great importance for me: 
+<"R" in Ubuntu for students in applied sciences>.
+
+For me the root question is related to Paul Johnson opinion.
+ > 09/07/2010 00:36, Paul Johnson:
+ > > "Personally, my opinion is if you want somebody else to do your 
+work for you, you should have stayed with Windows." <<
+To some extent it is necessarily true: choosing OpenSource software you 
+take up the burden of taking care for yourself, if you prefer hanging 
+over that burden to somebody else, you'd better pay him for the service!
+On the other hand, I suppose we can agree that a tool for applied 
+statistics as "R", is really useful if a non-statics-expert like a 
+forestry student can use it having only basic knowledge of computers and 
+informatics (and, obviously, something more than just basics in statistics).
+
+What is the ideal compromise between these bounds?
+
+A -        On 10 July 2010 at 11:54, Ross Boylan:
+"The point of most distributions is to provide pre-compiled binary 
+packages; particularly on Debian these are very good about indicating 
+what other packages they require.  If you use a tool like aptitude and 
+tell it you want package X, it will automatically pull in all other 
+required packages.  Ubuntu is a Debian derivative."
+
+B -        Date: Fri, 09 Jul 2010 18:37:38 +0100, Michael Dewey:
+"My experience as a very naive Linux user with mostly Windows experience 
+is that once you have the initial setup right subsequent installation of 
+packages from source works very smoothly. I was quite nervous about the 
+initial setup but the instructions on the welcome pages on CRAN were 
+very helpful. I think when you look back in a few months time you will, 
+like me, wonder why you were concerned in the first place."
+
+I am very tempted to vote (B) but I am aware of my personal bias in 
+favor of very general (though risky!) solutions.
+I imagine that a common understanding on this point can help focus  
+R-for-debian development.
+Sincerely, Roberto.
+
+
+Il 10/07/2010 21:53, Dirk Eddelbuettel ha scritto:
+> On 10 July 2010 at 14:32, Dirk Eddelbuettel wrote:
+> |
+> | On 10 July 2010 at 11:54, Ross Boylan wrote:
+> | | On Thu, 2010-07-08 at 16:41 +0200, Scotti Roberto wrote:
+> | |>  stimulates a very basic question: "Is it possible to avoid building
+> | |>  from
+> | |>  source using R in Kubuntu?
+> | |>  I shifted over from MS only recently. In Windows I used to easily
+> | |>  download packages and use them.
+> | |>  Now, every time I downloaded a new piece, I had the impression that
+> | |>  building from source was necessary.
+> | |>  Am I wrong?
+> | |>  Many thanks Roberto
+> | | Generally, building from source is not necessary.  I think the other
+> | | responses agreeing that it is necessary were assuming you were
+> | | interested in some slightly exotic R package (which may be the case).
+> | |
+> | | The point of most distributions is to provide pre-compiled binary
+> | | packages; particularly on Debian these are very good about indicating
+> | | what other packages they require.  If you use a tool like aptitude and
+> | | tell it you want package X, it will automatically pull in all other
+> | | required packages.  Ubuntu is a Debian derivative.
+> | |
+> | | Both R and many of its packages are in Debian.
+> | |
+> | | If you have a package that is not already built you can build it
+> | | yourself or use cran2deb (assuming it's on CRAN).  As others have noted,
+> | | cran2deb is only intended for Debian testing (aka squeeze) on some
+> | | architectures.  It's also currently a bit broken.  You can try using the
+>
+> It is not broken; it is disabled for amd64 while we rewrite it. i386 works
+> better than ever.  And this has been discussed on this list before.
+>
+> Dirk
+>
+>
+>
+> | | archive in another environment (e.g., Ubuntu), but if you want something
+> | | that is not a gamble for R, running Debian testing (maybe in a VM) would
+> | | be the safest route.  Of course, it's called testing rather than stable
+> | | for a reason.
+> | |
+> | | I think the cran2deb packages, which are generated automatically, are
+> | | less likely to have complete dependency information than those in the
+> | | main distribution.
+> |
+> | Huh?  If the info wasn't complete, they'd break. They don't break, so the
+> | info appears to complete. Please don't spread misinformation.
+> |
+> | D.
+> |
+> | | Finally, you expressed concern for your students.  You can build a
+> | | binary package locally and then your students can use it.  Doing so for
+> | | someone new to Linux is probably a heavy lift.
+> | |
+> | | Ross Boylan
+> | |
+> | | _______________________________________________
+> | | R-SIG-Debian mailing list
+> | | R-SIG-Debian at r-project.org
+> | | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> |
+> | --
+> |   Regards, Dirk
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+>
+
+
+From dbrion1 at yahoo.fr  Sun Jul 11 15:57:12 2010
+From: dbrion1 at yahoo.fr (denis brion)
+Date: Sun, 11 Jul 2010 13:57:12 +0000 (GMT)
+Subject: [R-sig-Debian] "Graphics history" in UNIX --> "R" in Ubuntu for
+	students in applied sciences
+In-Reply-To: <4C39A08B.40407@gmail.com>
+Message-ID: <845439.15894.qm@web23802.mail.ird.yahoo.com>
+
+
+
+--- En date de?: Dim 11.7.10, Scotti Roberto <roberto.scotti at gmail.com> a ?crit?:
+
+> De: Scotti Roberto <roberto.scotti at gmail.com>
+> Objet: Re: [R-sig-Debian] "Graphics history" in UNIX --> "R" in Ubuntu for students in applied sciences
+> ?: "Dirk Eddelbuettel" <edd at debian.org>
+> Cc: "R-SIG-DEBIAN" <r-sig-debian at r-project.org>, "Iacopo Bernetti" <iacopo.bernetti at unifi.it>
+> Date: Dimanche 11 juillet 2010, 12h44
+> Many thank to everyone.
+> I really appreciate your kindness in making the point (or
+> your point) on the topics that come up.
+> I am afraid that we completely abandoned the topic in the
+> original subject line and shifted to a topic that is of
+> great importance for me: <"R" in Ubuntu for students in
+> applied sciences>.
+> 
+> For me the root question is related to Paul Johnson
+> opinion.
+> > 09/07/2010 00:36, Paul Johnson:
+> > > "Personally, my opinion is if you want somebody
+> else to do your work for you, you should have stayed with
+> Windows." <<
+> To some extent it is necessarily true: choosing OpenSource
+> software you take up the burden of taking care for yourself,
+> if you prefer hanging over that burden to somebody else,
+> you'd better pay him for the service!
+> On the other hand, I suppose we can agree that a tool for
+> applied statistics as "R", is really useful if a
+> non-statics-expert like a forestry student can use it having
+> only basic knowledge of computers and informatics (and,
+> obviously, something more than just basics in statistics).
+> 
+> What is the ideal compromise between these bounds?
+> 
+> A -? ? ? ? On 10 July 2010 at 11:54,
+> Ross Boylan:
+> "The point of most distributions is to provide pre-compiled
+> binary packages; particularly on Debian these are very good
+> about indicating what other packages they require.? If
+> you use a tool like aptitude and tell it you want package X,
+> it will automatically pull in all other required
+> packages.? Ubuntu is a Debian derivative."
+> 
+> B -? ? ? ? Date: Fri, 09 Jul 2010
+> 18:37:38 +0100, Michael Dewey:
+> "My experience as a very naive Linux user with mostly
+> Windows experience is that once you have the initial setup
+> right subsequent installation of packages from source works
+> very smoothly. I was quite nervous about the initial setup
+> but the instructions on the welcome pages on CRAN were very
+> helpful. I think when you look back in a few months time you
+> will, like me, wonder why you were concerned in the first
+> place."
+> 
+> I am very tempted to vote (B) but I am aware of my personal
+> bias in favor of very general (though risky!) solutions.
+> I imagine that a common understanding on this point can
+> help focus? R-for-debian development.
+> Sincerely, Roberto.
+> 
+I do not think the solution B is very risky because :
+
+* R's package building is one of the easiest in the GNU(linux : works under BSD and sometimes AIX, too) world. When I try a new distribution, the first thing I try is to build R from sources; if something is misssing, I try to build it, too ; after it, more complicated softwares can be tried (octave, scilab).
+
+* If it is intended for students, may be they will be happy to know how to install from sources (having a Debian on their linux (if any) computers is not compulsory, is not it? )
+
+* knowing how to make a package and how to document it may be interesting (I wrote professional packages for R{my boss wont GPL them!} , and writing documentation is very easy).
+
+* There are about 1500 functions in R (without libraries); knowing 2 more functions | bash lines is not that tremendous; getting an idea of dependencies and how they are managed is useful if one wants to install/use  any GNU (and even Windows...) software .
+
+* Most linux distribution (not weighted by  audience, I agree) do not have R supplied, nor its dependencies.... Others (I think of Centos and Mandriva) might have late versions of R, and one depends on the distribution's skills and avalaible time... instead of writing 2 bash lines/calling one R function!!!
+
+
+
+
+
+
+From edd at debian.org  Sun Jul 11 16:54:14 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 11 Jul 2010 09:54:14 -0500
+Subject: [R-sig-Debian] "Graphics history" in UNIX --> "R" in Ubuntu
+	for	students in applied sciences
+In-Reply-To: <845439.15894.qm@web23802.mail.ird.yahoo.com>
+References: <4C39A08B.40407@gmail.com>
+	<845439.15894.qm@web23802.mail.ird.yahoo.com>
+Message-ID: <19513.56086.477899.537106@ron.nulle.part>
+
+
+Denis,
+
+On 11 July 2010 at 13:57, denis brion wrote:
+[...]
+| I do not think the solution B is very risky because :
+| 
+| * R's package building is one of the easiest in the GNU(linux : works under BSD and sometimes AIX, too) world. When I try a new distribution, the first thing I try is to build R from sources; if something is misssing, I try to build it, too ; after it, more complicated softwares can be tried (octave, scilab).
+| 
+| * If it is intended for students, may be they will be happy to know how to install from sources (having a Debian on their linux (if any) computers is not compulsory, is not it? )
+| 
+| * knowing how to make a package and how to document it may be interesting (I wrote professional packages for R{my boss wont GPL them!} , and writing documentation is very easy).
+| 
+| * There are about 1500 functions in R (without libraries); knowing 2 more functions | bash lines is not that tremendous; getting an idea of dependencies and how they are managed is useful if one wants to install/use  any GNU (and even Windows...) software .
+| 
+| * Most linux distribution (not weighted by  audience, I agree) do not have R supplied, nor its dependencies.... Others (I think of Centos and Mandriva) might have late versions of R, and one depends on the distribution's skills and avalaible time... instead of writing 2 bash lines/calling one R function!!!
+
+May I ask to stop posting irrelevant stuff: this is r-sig-debian.
+
+Hence it is not the place for conjectures about what may or or may not work
+sometimes or not on unnamed other Linux distributions, or other / older Unix
+variants.
+
+Concrete, on-topic help with relevant details for Debian or Ubuntu will
+always be appreciated.  But it may be preferable to do everything else
+off-list.  
+
+Thank you.
+
+-- 
+  Regards, Dirk
+
+
+From dbrion1 at yahoo.fr  Sun Jul 11 17:10:32 2010
+From: dbrion1 at yahoo.fr (denis brion)
+Date: Sun, 11 Jul 2010 15:10:32 +0000 (GMT)
+Subject: [R-sig-Debian] "Graphics history" in UNIX --> "R" in Ubuntu for
+	students in applied sciences
+In-Reply-To: <19513.56086.477899.537106@ron.nulle.part>
+Message-ID: <805676.72404.qm@web23804.mail.ird.yahoo.com>
+
+
+I quite agree that , in a tolerant world, 
+*****
+Windows (just reread the thread)
+*****
+comparisons do not arouse reactions (did they???)
+.....
+But why is the evocation of Centos 5.5 (released this year) or Mandriva 10.1 RC2 (the final release was yesterday) treated as "old"/"unnamed"???
+
+
+And, in both these distributions (which are(resp  likely will be : else, why RCs are tested?)  used for work), R should be compiled from sources -and dependencies , too : they are too sparse);;;
+
+two lines of scripts instead of 100000 lines of nitpicking or the infamous 1600$ argument (I remember.....!)
+But are we in a fair, tolerant world ????
+
+
+
+
+--- En date de?: Dim 11.7.10, Dirk Eddelbuettel <edd at debian.org> a ?crit?:
+
+> De: Dirk Eddelbuettel <edd at debian.org>
+> Objet: Re: [R-sig-Debian] "Graphics history" in UNIX --> "R" in Ubuntu for students in applied sciences
+> ?: "denis brion" <dbrion1 at yahoo.fr>
+> Cc: scotti at uniss.it, r-sig-debian at r-project.org
+> Date: Dimanche 11 juillet 2010, 16h54
+> 
+> Denis,
+> 
+> On 11 July 2010 at 13:57, denis brion wrote:
+> [...]
+> | I do not think the solution B is very risky because :
+> | 
+> | * R's package building is one of the easiest in the
+> GNU(linux : works under BSD and sometimes AIX, too) world.
+> When I try a new distribution, the first thing I try is to
+> build R from sources; if something is misssing, I try to
+> build it, too ; after it, more complicated softwares can be
+> tried (octave, scilab).
+> | 
+> | * If it is intended for students, may be they will be
+> happy to know how to install from sources (having a Debian
+> on their linux (if any) computers is not compulsory, is not
+> it? )
+> | 
+> | * knowing how to make a package and how to document it
+> may be interesting (I wrote professional packages for R{my
+> boss wont GPL them!} , and writing documentation is very
+> easy).
+> | 
+> | * There are about 1500 functions in R (without
+> libraries); knowing 2 more functions | bash lines is not
+> that tremendous; getting an idea of dependencies and how
+> they are managed is useful if one wants to install/use?
+> any GNU (and even Windows...) software .
+> | 
+> | * Most linux distribution (not weighted by?
+> audience, I agree) do not have R supplied, nor its
+> dependencies.... Others (I think of Centos and Mandriva)
+> might have late versions of R, and one depends on the
+> distribution's skills and avalaible time... instead of
+> writing 2 bash lines/calling one R function!!!
+> 
+> May I ask to stop posting irrelevant stuff: this is
+> r-sig-debian.
+> 
+> Hence it is not the place for conjectures about what may or
+> or may not work
+> sometimes or not on unnamed other Linux distributions, or
+> other / older Unix
+> variants.
+> 
+> Concrete, on-topic help with relevant details for Debian or
+> Ubuntu will
+> always be appreciated.? But it may be preferable to do
+> everything else
+> off-list.? 
+> 
+> Thank you.
+> 
+> -- 
+> ? Regards, Dirk
+> 
+
+
+
+
+
+From Ted.Harding at manchester.ac.uk  Sun Jul 11 18:21:12 2010
+From: Ted.Harding at manchester.ac.uk ( (Ted Harding))
+Date: Sun, 11 Jul 2010 17:21:12 +0100 (BST)
+Subject: [R-sig-Debian] "Graphics history" in UNIX --> "R" in Ubuntu
+In-Reply-To: <19513.56086.477899.537106@ron.nulle.part>
+Message-ID: <XFMail.100711172112.Ted.Harding@manchester.ac.uk>
+
+On 11-Jul-10 14:54:14, Dirk Eddelbuettel wrote:
+> [...]
+> Hence it is not the place for conjectures about what may or may not
+> work sometimes or not on unnamed other Linux distributions, or
+> other / older Unix variants.
+> 
+> Concrete, on-topic help with relevant details for Debian or Ubuntu will
+> always be appreciated.  But it may be preferable to do everything else
+> off-list.  
+> Thank you.
+>   Regards, Dirk
+
+This thread, and Dirk's (fair) comment above, prompt me to post
+something I've been thinking about for a while.
+
+I'm posting it here in the first place because it's a Linux SIG
+(one of two, the other being Fedora which I'm not subscribed to).
+
+I have felt for some time that there is a place for an R SIG on
+Linux generally -- e.g. "r-sig-linux". Linux is not what it used
+to be, and the diverse variety of Linux distributions now available
+raises many questions about which distribution may be best for what.
+
+We all have a common interest in running R, and in the potential
+compilation, installation and updating issues which can arise.
+But we all, in our various ways, have interests in doing other
+things as well, in which the same sort of issues can arise, along
+with issues of availability of other applications and compatibility
+questions. And the answers to such things will vary somewhat
+according to one's Linux distribution.
+
+Therefore I think it would be useful to have a SIG where such
+questions could be discussed without being tied to any specific
+Linux distribution, and where comparative discussions could
+take place.
+
+Therefore I propose such a SIG. I would be willing to be in charge
+of it. and run the list. However, I can find no guidance in the
+R-project website an how to set one up!
+
+So, since this is a SIG and since at least one reader should know
+the answer, let me at least ask the question: How should I set up
+an R Linux SIG?
+
+And, of course, any comments on the suggestion will be welcome.
+
+With thanks,
+Ted.
+
+--------------------------------------------------------------------
+E-Mail: (Ted Harding) <Ted.Harding at manchester.ac.uk>
+Fax-to-email: +44 (0)870 094 0861
+Date: 11-Jul-10                                       Time: 17:21:08
+------------------------------ XFMail ------------------------------
+
+
+From edd at debian.org  Sun Jul 11 18:41:35 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 11 Jul 2010 11:41:35 -0500
+Subject: [R-sig-Debian] "Graphics history" in UNIX --> "R" in Ubuntu
+In-Reply-To: <XFMail.100711172112.Ted.Harding@manchester.ac.uk>
+References: <19513.56086.477899.537106@ron.nulle.part>
+	<XFMail.100711172112.Ted.Harding@manchester.ac.uk>
+Message-ID: <19513.62527.226208.773206@ron.nulle.part>
+
+
+On 11 July 2010 at 17:21, (Ted Harding) wrote:
+| I have felt for some time that there is a place for an R SIG on
+| Linux generally -- e.g. "r-sig-linux". Linux is not what it used
+| to be, and the diverse variety of Linux distributions now available
+| raises many questions about which distribution may be best for what.
+[...]
+| So, since this is a SIG and since at least one reader should know
+| the answer, let me at least ask the question: How should I set up
+| an R Linux SIG?
+
+Via an email to Martin Maechler who is grandmaster and chief of all things R
+and mailing lists at ETH Zuerich. 
+
+One commonly has to offer to be the admin for the list.  
+
+If you do what I do with the few lists I look after / started and and simply
+ignore all the bounces, spam, clueless users, ... emailing the ...-owner
+account then it isn't too much work at all.
+
+-- 
+  Regards, Dirk
+
+
+From ross at biostat.ucsf.edu  Sun Jul 11 20:15:32 2010
+From: ross at biostat.ucsf.edu (Ross Boylan)
+Date: Sun, 11 Jul 2010 11:15:32 -0700
+Subject: [R-sig-Debian] "Graphics history" in UNIX --> "R" in Ubuntu	for
+	students in applied sciences
+In-Reply-To: <4C39A08B.40407@gmail.com>
+References: <4C0F8536.6080006@gmail.com>
+	<AANLkTim6KNXsB31a8pIn47k9ZkkTnKD7eiBl0g7hesAA@mail.gmail.com>
+	<AANLkTikWbSeJQJCftiRSeawWhmfvs9JyxIR7x3z8RipZ@mail.gmail.com>
+	<AANLkTimsLTbzc4c8nPLPqJhF_s-UBGTxVb_ZWpcmk8iG@mail.gmail.com>
+	<4C227100.4050408@gmail.com>
+	<AANLkTikn-mASGrGoL0MgrP-_3CYkVdO_3sHyjcG1Sdk7@mail.gmail.com>
+	<4C35E3AF.4000106@gmail.com>
+	<1278788067.13300.19.camel@corn.betterworld.us>
+	<19512.51925.292640.893269@ron.nulle.part>
+	<19512.53198.200677.454377@ron.nulle.part> <4C39A08B.40407@gmail.com>
+Message-ID: <1278872132.3781.7.camel@corn.betterworld.us>
+
+On Sun, 2010-07-11 at 12:44 +0200, Scotti Roberto wrote:
+> 
+> What is the ideal compromise between these bounds?
+> 
+> A -        On 10 July 2010 at 11:54, Ross Boylan:
+> "The point of most distributions is to provide pre-compiled binary 
+> packages; particularly on Debian these are very good about indicating 
+> what other packages they require.  If you use a tool like aptitude
+> and 
+> tell it you want package X, it will automatically pull in all other 
+> required packages.  Ubuntu is a Debian derivative."
+> 
+> B -        Date: Fri, 09 Jul 2010 18:37:38 +0100, Michael Dewey:
+> "My experience as a very naive Linux user with mostly Windows
+> experience 
+> is that once you have the initial setup right subsequent installation
+> of 
+> packages from source works very smoothly. I was quite nervous about
+> the 
+> initial setup but the instructions on the welcome pages on CRAN were 
+> very helpful. I think when you look back in a few months time you
+> will, 
+> like me, wonder why you were concerned in the first place."
+> 
+> I am very tempted to vote (B) but I am aware of my personal bias in 
+> favor of very general (though risky!) solutions.
+> I imagine that a common understanding on this point can help focus  
+> R-for-debian development.
+> Sincerely, Roberto.
+I think the easiest route is to use a binary when it is available and
+install from source when it isn't.  Since virtually all of CRAN is
+available from cran2deb (subject to the availability issues discussed
+earlier), using it should eliminate most installation from source.  And
+the basic Debian or Ubuntu archives may already have all that you need.
+
+Ross
+
+
+From save.of.ten at gmail.com  Mon Jul 12 08:24:28 2010
+From: save.of.ten at gmail.com (David Rosengarten)
+Date: Mon, 12 Jul 2010 02:24:28 -0400
+Subject: [R-sig-Debian] RInside
+Message-ID: <AANLkTinQbZqWVgEmBmADnA3HCgz-no-bC4KxrRNe37CB@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100712/278ed5dc/attachment.pl>
+
+From dbrion1 at yahoo.fr  Mon Jul 12 10:16:11 2010
+From: dbrion1 at yahoo.fr (denis brion)
+Date: Mon, 12 Jul 2010 08:16:11 +0000 (GMT)
+Subject: [R-sig-Debian] "Graphics history" in UNIX --> "R" in Ubuntu
+In-Reply-To: <XFMail.100711172112.Ted.Harding@manchester.ac.uk>
+Message-ID: <756134.69054.qm@web23801.mail.ird.yahoo.com>
+
+"comments on the suggestion"
+
+a) There are already howtos to install R (and packages, if they depend on external libraries) on various Unices and GNUlinux distributions (sects?) ... in R's wiki.
+
+This is reason *not* to have a redundant list (reading the R's wiki and noticing what is (obsolete|unuseful|with errors|with a bad structure ) might be more pertinent).
+
+
+b) OTOH, once (ca 3 months ago), a poor debian/Ubu user had a NTFS partition, and his data in it and it was not automagically mounted, like in XP.
+ I knew -and verified !!! - checked how to mount it on a Scientific Linux (a Red Hat derived sect), before explaining it (I suppose "mount" exists in Debian, does not it; it exists under BSD and Solaris, but is more complicated than GNU's one)....
+
+ I have no time to find| copy'npaste the commentaries that arose ....
+
+That would be a reason (and quite a different one that linked with distributions/sects specificities) to have a mailing list (though this is a very trivial issue, which makes people duly upset fixing stupid mounts).
+
+
+
+
+
+--- En date de?: Dim 11.7.10, Ted.Harding at manchester.ac.uk <Ted.Harding at manchester.ac.uk> a ?crit?:
+
+> De: Ted.Harding at manchester.ac.uk <Ted.Harding at manchester.ac.uk>
+> Objet: Re: [R-sig-Debian] "Graphics history" in UNIX --> "R" in Ubuntu
+> ?: r-sig-debian at r-project.org
+> Date: Dimanche 11 juillet 2010, 18h21
+> On 11-Jul-10 14:54:14, Dirk
+> Eddelbuettel wrote:
+> > [...]
+> > Hence it is not the place for conjectures about what
+> may or may not
+> > work sometimes or not on unnamed other Linux
+> distributions, or
+> > other / older Unix variants.
+> > 
+> > Concrete, on-topic help with relevant details for
+> Debian or Ubuntu will
+> > always be appreciated.? But it may be preferable
+> to do everything else
+> > off-list.? 
+> > Thank you.
+> >???Regards, Dirk
+> 
+> This thread, and Dirk's (fair) comment above, prompt me to
+> post
+> something I've been thinking about for a while.
+> 
+> I'm posting it here in the first place because it's a Linux
+> SIG
+> (one of two, the other being Fedora which I'm not
+> subscribed to).
+> 
+> I have felt for some time that there is a place for an R
+> SIG on
+> Linux generally -- e.g. "r-sig-linux". Linux is not what it
+> used
+> to be, and the diverse variety of Linux distributions now
+> available
+> raises many questions about which distribution may be best
+> for what.
+> 
+> We all have a common interest in running R, and in the
+> potential
+> compilation, installation and updating issues which can
+> arise.
+> But we all, in our various ways, have interests in doing
+> other
+> things as well, in which the same sort of issues can arise,
+> along
+> with issues of availability of other applications and
+> compatibility
+> questions. And the answers to such things will vary
+> somewhat
+> according to one's Linux distribution.
+> 
+> Therefore I think it would be useful to have a SIG where
+> such
+> questions could be discussed without being tied to any
+> specific
+> Linux distribution, and where comparative discussions
+> could
+> take place.
+> 
+> Therefore I propose such a SIG. I would be willing to be in
+> charge
+> of it. and run the list. However, I can find no guidance in
+> the
+> R-project website an how to set one up!
+> 
+> So, since this is a SIG and since at least one reader
+> should know
+> the answer, let me at least ask the question: How should I
+> set up
+> an R Linux SIG?
+> 
+> And, of course, any comments on the suggestion will be
+> welcome.
+> 
+> With thanks,
+> Ted.
+> 
+> --------------------------------------------------------------------
+> E-Mail: (Ted Harding) <Ted.Harding at manchester.ac.uk>
+> Fax-to-email: +44 (0)870 094 0861
+> Date: 11-Jul-10? ? ? ? ? ?
+> ? ? ? ? ? ? ? ?
+> ? ? ? ? ???Time:
+> 17:21:08
+> ------------------------------ XFMail
+> ------------------------------
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+
+
+
+
+
+From edd at debian.org  Mon Jul 12 13:15:04 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 12 Jul 2010 06:15:04 -0500
+Subject: [R-sig-Debian] RInside
+In-Reply-To: <AANLkTinQbZqWVgEmBmADnA3HCgz-no-bC4KxrRNe37CB@mail.gmail.com>
+References: <AANLkTinQbZqWVgEmBmADnA3HCgz-no-bC4KxrRNe37CB@mail.gmail.com>
+Message-ID: <19514.63800.401496.908856@ron.nulle.part>
+
+
+On 12 July 2010 at 02:24, David Rosengarten wrote:
+| Hi,
+| 
+| I am new to this list and apologize for my lack of experience in the
+| subject.  Does anyone here use RInside?  I am trying to run the examples in
+| /RInside/examples/standard such as rinside_sample_0, but I am getting the
+| error:
+| 
+| error while loading shared libraries: libR.so: cannot open shared object
+| file: No such file or directory
+
+Do you have R itself and the r-base-dev package installed?
+
+Are you Rcpp and RInside source recent and matching? 
+
+Exactly what commands run when you say 'make' in that directory?
+
+We test these regularly when making new Rcpp release (just like days ago for
+Rcpp 0.8.4 currently waiting in CRAN's incoming and already in Debian
+unstable).
+
+| Does anyone know how to deal with this?  I tried searching online and the
+| only things I found didn't help at all.
+
+We invite questions, discussions, etc for both Rcpp and RInside at the
+rcpp-devel list off R-Forge's page for Rcpp.  You need to subscribe to post.
+
+-- 
+  Regards, Dirk
+
+
+From friendly at yorku.ca  Mon Jul 12 17:15:04 2010
+From: friendly at yorku.ca (Michael Friendly)
+Date: Mon, 12 Jul 2010 11:15:04 -0400
+Subject: [R-sig-Debian] errors from update.packages()
+Message-ID: <4C3B3178.80906@yorku.ca>
+
+Running R.2.11.1, debian linux, I tried to update.packages as root 
+within R and get errors
+for cairoDevice and latticeExtra I don't know how to fix.
+For cairoDevice, I don't know what gtk+2.0 is;
+for latticeExtra, I'm surprised that R cannot find RColorBrewer built 
+for R 2.10+
+
+What to do?
+
+
+ > old.packages()  
+             Package        LibPath                   Installed Built 
+cairoDevice  "cairoDevice"  "/usr/lib/R/site-library" "2.8"     "2.7.0"
+latticeExtra "latticeExtra" "/usr/lib/R/site-library" "0.4-1"   "2.7.0"
+             ReposVer Repository                             
+cairoDevice  "2.13"   "http://probability.ca/cran/src/contrib"
+latticeExtra "0.6-11" "http://probability.ca/cran/src/contrib"
+ > update.packages()
+cairoDevice :
+ Version 2.8 installed in /usr/lib/R/site-library
+ Version 2.13 available at http://probability.ca/cran
+Update (y/N/c)?  y
+latticeExtra :
+ Version 0.4-1 installed in /usr/lib/R/site-library
+ Version 0.6-11 available at http://probability.ca/cran
+Update (y/N/c)?  y
+trying URL 'http://probability.ca/cran/src/contrib/cairoDevice_2.13.tar.gz'
+Content type 'application/x-gzip' length 37983 bytes (37 Kb)
+opened URL
+==================================================
+downloaded 37 Kb
+
+trying URL 
+'http://probability.ca/cran/src/contrib/latticeExtra_0.6-11.tar.gz'
+Content type 'application/x-gzip' length 1873863 bytes (1.8 Mb)
+opened URL
+==================================================
+downloaded 1.8 Mb
+
+* installing *source* package 'cairoDevice' ...
+checking for pkg-config... pkg-config
+ERROR: gtk+2.0 not found by pkg-config.
+ERROR: configuration failed for package 'cairoDevice'
+* removing '/usr/lib/R/site-library/cairoDevice'
+* restoring previous '/usr/lib/R/site-library/cairoDevice'
+* installing *source* package 'latticeExtra' ...
+** R
+** data
+** inst
+** preparing package for lazy loading
+Error : package 'RColorBrewer' was built before R 2.10.0: please 
+re-install it
+ERROR: lazy loading failed for package 'latticeExtra'
+* removing '/usr/lib/R/site-library/latticeExtra'
+* restoring previous '/usr/lib/R/site-library/latticeExtra'
+
+The downloaded packages are in
+    '/tmp/Rtmplccsxl/downloaded_packages'
+Warning messages:
+1: In install.packages(update[instlib == l, "Package"], l, contriburl = 
+contriburl,  :
+  installation of package 'cairoDevice' had non-zero exit status
+2: In install.packages(update[instlib == l, "Package"], l, contriburl = 
+contriburl,  :
+  installation of package 'latticeExtra' had non-zero exit status
+ >
+
+
+-- 
+Michael Friendly     Email: friendly at yorku.ca 
+Professor, Psychology Dept.
+York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+4700 Keele Street    http://datavis.ca
+Toronto, ONT  M3J 1P3 CANADA
+
+
+From info at aghmed.fsnet.co.uk  Mon Jul 12 19:38:57 2010
+From: info at aghmed.fsnet.co.uk (Michael Dewey)
+Date: Mon, 12 Jul 2010 18:38:57 +0100
+Subject: [R-sig-Debian] errors from update.packages()
+In-Reply-To: <4C3B3178.80906@yorku.ca>
+References: <4C3B3178.80906@yorku.ca>
+Message-ID: <Zen-1OYMxX-0003H3-Mp@smarthost03.mail.zen.net.uk>
+
+At 16:15 12/07/2010, Michael Friendly wrote:
+
+>Running R.2.11.1, debian linux, I tried to update.packages as root 
+>within R and get errors
+>for cairoDevice and latticeExtra I don't know how to fix.
+>For cairoDevice, I don't know what gtk+2.0 is;
+>for latticeExtra, I'm surprised that R cannot find RColorBrewer 
+>built for R 2.10+
+
+Michael, I suggest you reinstall RColorBrewer and see if that helps. 
+I suspect the version you have is the current version but built under 
+an earlier version of R.
+
+
+>What to do?
+>
+>
+> > old.packages()
+>             Package        LibPath                   Installed 
+> Built cairoDevice  "cairoDevice"  "/usr/lib/R/site-library" "2.8"     "2.7.0"
+>latticeExtra "latticeExtra" "/usr/lib/R/site-library" "0.4-1"   "2.7.0"
+>             ReposVer Repository
+>cairoDevice  "2.13"   "http://probability.ca/cran/src/contrib"
+>latticeExtra "0.6-11" "http://probability.ca/cran/src/contrib"
+> > update.packages()
+>cairoDevice :
+>Version 2.8 installed in /usr/lib/R/site-library
+>Version 2.13 available at http://probability.ca/cran
+>Update (y/N/c)?  y
+>latticeExtra :
+>Version 0.4-1 installed in /usr/lib/R/site-library
+>Version 0.6-11 available at http://probability.ca/cran
+>Update (y/N/c)?  y
+>trying URL 'http://probability.ca/cran/src/contrib/cairoDevice_2.13.tar.gz'
+>Content type 'application/x-gzip' length 37983 bytes (37 Kb)
+>opened URL
+>==================================================
+>downloaded 37 Kb
+>
+>trying URL 'http://probability.ca/cran/src/contrib/latticeExtra_0.6-11.tar.gz'
+>Content type 'application/x-gzip' length 1873863 bytes (1.8 Mb)
+>opened URL
+>==================================================
+>downloaded 1.8 Mb
+>
+>* installing *source* package 'cairoDevice' ...
+>checking for pkg-config... pkg-config
+>ERROR: gtk+2.0 not found by pkg-config.
+>ERROR: configuration failed for package 'cairoDevice'
+>* removing '/usr/lib/R/site-library/cairoDevice'
+>* restoring previous '/usr/lib/R/site-library/cairoDevice'
+>* installing *source* package 'latticeExtra' ...
+>** R
+>** data
+>** inst
+>** preparing package for lazy loading
+>Error : package 'RColorBrewer' was built before R 2.10.0: please re-install it
+>ERROR: lazy loading failed for package 'latticeExtra'
+>* removing '/usr/lib/R/site-library/latticeExtra'
+>* restoring previous '/usr/lib/R/site-library/latticeExtra'
+>
+>The downloaded packages are in
+>    '/tmp/Rtmplccsxl/downloaded_packages'
+>Warning messages:
+>1: In install.packages(update[instlib == l, "Package"], l, 
+>contriburl = contriburl,  :
+>  installation of package 'cairoDevice' had non-zero exit status
+>2: In install.packages(update[instlib == l, "Package"], l, 
+>contriburl = contriburl,  :
+>  installation of package 'latticeExtra' had non-zero exit status
+> >
+>
+>
+>--
+>Michael Friendly     Email: friendly at yorku.ca Professor, Psychology Dept.
+>York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+>4700 Keele Street    http://datavis.ca
+>Toronto, ONT  M3J 1P3 CANADA
+>
+>_______________________________________________
+>R-SIG-Debian mailing list
+>R-SIG-Debian at r-project.org
+>https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+Michael Dewey
+http://www.aghmed.fsnet.co.uk
+
+
+From save.of.ten at gmail.com  Mon Jul 12 19:40:42 2010
+From: save.of.ten at gmail.com (David Rosengarten)
+Date: Mon, 12 Jul 2010 13:40:42 -0400
+Subject: [R-sig-Debian] RInside
+In-Reply-To: <19514.63800.401496.908856@ron.nulle.part>
+References: <AANLkTinQbZqWVgEmBmADnA3HCgz-no-bC4KxrRNe37CB@mail.gmail.com>
+	<19514.63800.401496.908856@ron.nulle.part>
+Message-ID: <AANLkTimImmuXgaOZpoycpf-dTKiQgBE-kNHi5FbGI2V2@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100712/b723c7fe/attachment.pl>
+
+From pauljohn32 at gmail.com  Mon Jul 19 06:43:44 2010
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Sun, 18 Jul 2010 23:43:44 -0500
+Subject: [R-sig-Debian] RInside
+In-Reply-To: <AANLkTimImmuXgaOZpoycpf-dTKiQgBE-kNHi5FbGI2V2@mail.gmail.com>
+References: <AANLkTinQbZqWVgEmBmADnA3HCgz-no-bC4KxrRNe37CB@mail.gmail.com>
+	<19514.63800.401496.908856@ron.nulle.part>
+	<AANLkTimImmuXgaOZpoycpf-dTKiQgBE-kNHi5FbGI2V2@mail.gmail.com>
+Message-ID: <AANLkTim60m_5rc7C9e3ORd2Il_swYCefVZv2P_j-Be9b@mail.gmail.com>
+
+On Mon, Jul 12, 2010 at 12:40 PM, David Rosengarten
+<save.of.ten at gmail.com> wrote:
+> Yes, I have R and r-base-dev installed, and I just did this yesterday so I
+> am working with the newest versions of everything. ?The commands that run
+> when I say 'make' in that directory are:
+
+Hello, David:
+
+I never tried RInside before, but after your post I became curious.  I
+checked your first message, it does not say if you installed R from
+the standard packages.  I think *how* R is built can have a big
+effect. The instructions on RInstall say you must have R installed as
+a shared library in order for this to work.  Do you have a file
+libR.so?  (If not, then you don't) Here's what I have on Ubuntu.
+
+$ ls -la /usr/lib64/R/lib
+total 3376
+drwxr-xr-x 2 root root    4096 2010-07-18 19:59 .
+drwxr-xr-x 8 root root    4096 2010-06-07 11:55 ..
+lrwxrwxrwx 1 root root      36 2010-07-18 19:56 libblas.so ->
+/usr/lib64/libgoto2_penrynp-r1.13.so
+-rw-r--r-- 1 root root  442200 2009-09-14 21:08 libguide.so
+lrwxrwxrwx 1 root root      31 2010-07-18 19:59 liblapack.so ->
+/usr/lib/atlas/liblapack.so.3gf
+-rw-r--r-- 1 root root 3004504 2010-06-06 21:10 libR.so
+
+If your system doesn't have libR.so, there's no happiness in your
+future. Also, I notice that I have a symbolic link from that libR.so
+to /usr/lib64, and if you don't have that, I expect you are in
+trouble:
+
+$ ls -la /usr/lib64/libR.so
+lrwxrwxrwx 1 root root 13 2010-07-18 23:03 /usr/lib64/libR.so -> R/lib/libR.so
+
+It is possible to build R without using the shared library. In fact,
+that is the default.  As far as I know, there may be some performance
+advantage in NOT having libR.so. R Install manual footnote p. 38:
+
+" We have measured 15?20% on ?i686? Linux and around 10% on ?x86_64? Linux."
+
+RInside wants it.
+
+But I am sure that Dirk's packages for R for Ubuntu do have the
+configure line set to create an R shared library.
+
+For me, RInside installed cleanly, but I ran into some trouble
+compiling the examples.  I had been fiddling around building shared
+libRblas.so and changing to the GOTOBLAS2 shared blas, and I think
+that confused the RInside example at runtime.
+
+./rinside_sample3
+./rinside_sample3: error while loading shared libraries: libblas.so:
+cannot open shared object file: No such file or directory
+
+That made me think that I needed to erase /usr/lib64/R/lib altogether,
+make sure all that fiddling around I did was removed, and reinstall
+r-base-core, r-base-dev, and the revolution-mkl package (because I
+have been interested in the Intel Kernel Math library lately).  After
+that, I check to see where R's executable is looking for stuff
+
+$ ldd /usr/lib64/R/bin/exec/R
+        linux-vdso.so.1 =>  (0x00007fff19fff000)
+        libR.so => /usr/lib/libR.so (0x00007f27542ed000)
+        libc.so.6 => /lib/libc.so.6 (0x00007f2753f6a000)
+        libblas.so.3gf => /usr/lib/atlas/libblas.so.3gf (0x00007f27535ce000)
+        libgfortran.so.3 => /usr/lib/libgfortran.so.3 (0x00007f27532e1000)
+        libm.so.6 => /lib/libm.so.6 (0x00007f275305e000)
+        libreadline.so.6 => /lib/libreadline.so.6 (0x00007f2752e1c000)
+        libpcre.so.3 => /lib/libpcre.so.3 (0x00007f2752bee000)
+        libbz2.so.1.0 => /lib/libbz2.so.1.0 (0x00007f27529dd000)
+        libz.so.1 => /lib/libz.so.1 (0x00007f27527c5000)
+        libdl.so.2 => /lib/libdl.so.2 (0x00007f27525c1000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007f275488e000)
+        libgcc_s.so.1 => /lib/libgcc_s.so.1 (0x00007f27523aa000)
+        libncurses.so.5 => /lib/libncurses.so.5 (0x00007f2752166000)
+
+Well, it is not pointing at the Intel math libraries.  Maybe that's a
+good thing. I believe R is compiled against atlas, and it may be that
+substituting the shared blas or lapack was causing trouble. I'll have
+to try to track that down later.
+
+Anyway, after putting R back the way nature intended, now the RInside
+example does run.
+
+Observe:
+
+pauljohn at pols124:standard$ ./rinside_sample0
+Hello, world!
+pauljohn at pols124:standard$ ./rinside_sample1
+Running ls()
+[1] "argv" "M"
+Showing M
+     [,1] [,2] [,3] [,4]
+[1,]    0    1    2    3
+[2,]   10   11   12   13
+[3,]   20   21   22   23
+[4,]   30   31   32   33
+Showing colSums()
+[1] 60 64 68 72
+In C++ element 0 is 60
+In C++ element 1 is 64
+In C++ element 2 is 68
+In C++ element 3 is 72
+
+I'll let you know if I get to the bottom of the runtime "can't find
+libblas.so" error I got before.
+
+
+Oh, in case you wondered, when I compiled the example code before
+reinstalling the R packages, I got the same kind of output you got
+from make in the examples folder. So, clearly, being able to make the
+example does not imply that the compiled example will run.
+
+pauljohn at pols124:standard$ make
+g++ -I/usr/share/R/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib -g -O2
+-Wall  -s  rinside_sample0.cpp  -L/usr/lib64/R/lib -lR -lblas -llapack
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib -lRcpp
+-Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-lRInside -Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-o rinside_sample0
+g++ -I/usr/share/R/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib -g -O2
+-Wall  -s  rinside_sample1.cpp  -L/usr/lib64/R/lib -lR -lblas -llapack
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib -lRcpp
+-Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-lRInside -Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-o rinside_sample1
+g++ -I/usr/share/R/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib -g -O2
+-Wall  -s  rinside_sample2.cpp  -L/usr/lib64/R/lib -lR -lblas -llapack
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib -lRcpp
+-Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-lRInside -Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-o rinside_sample2
+g++ -I/usr/share/R/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib -g -O2
+-Wall  -s  rinside_sample3.cpp  -L/usr/lib64/R/lib -lR -lblas -llapack
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib -lRcpp
+-Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-lRInside -Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-o rinside_sample3
+g++ -I/usr/share/R/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib -g -O2
+-Wall  -s  rinside_sample4.cpp  -L/usr/lib64/R/lib -lR -lblas -llapack
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib -lRcpp
+-Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-lRInside -Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-o rinside_sample4
+g++ -I/usr/share/R/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib -g -O2
+-Wall  -s  rinside_sample5.cpp  -L/usr/lib64/R/lib -lR -lblas -llapack
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib -lRcpp
+-Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-lRInside -Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-o rinside_sample5
+g++ -I/usr/share/R/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib -g -O2
+-Wall  -s  rinside_sample6.cpp  -L/usr/lib64/R/lib -lR -lblas -llapack
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib -lRcpp
+-Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-lRInside -Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-o rinside_sample6
+g++ -I/usr/share/R/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib -g -O2
+-Wall  -s  rinside_sample7.cpp  -L/usr/lib64/R/lib -lR -lblas -llapack
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib -lRcpp
+-Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-lRInside -Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-o rinside_sample7
+g++ -I/usr/share/R/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib -g -O2
+-Wall  -s  rinside_sample8.cpp  -L/usr/lib64/R/lib -lR -lblas -llapack
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib -lRcpp
+-Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-lRInside -Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-o rinside_sample8
+g++ -I/usr/share/R/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib -g -O2
+-Wall  -s  rinside_test0.cpp  -L/usr/lib64/R/lib -lR -lblas -llapack
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib -lRcpp
+-Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-lRInside -Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-o rinside_test0
+g++ -I/usr/share/R/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/include
+-I/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib -g -O2
+-Wall  -s  rinside_test1.cpp  -L/usr/lib64/R/lib -lR -lblas -llapack
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib -lRcpp
+-Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/Rcpp/lib
+-L/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-lRInside -Wl,-rpath,/home/pauljohn/R/x86_64-pc-linux-gnu-library/2.11/RInside/lib
+-o rinside_test1
+pauljohn at pols124:standard$
+
+-- 
+Paul E. Johnson
+Professor, Political Science
+1541 Lilac Lane, Room 504
+University of Kansas
+
+
+From edd at debian.org  Sat Jul 24 19:45:56 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 24 Jul 2010 12:45:56 -0500
+Subject: [R-sig-Debian] RInside
+In-Reply-To: <AANLkTim60m_5rc7C9e3ORd2Il_swYCefVZv2P_j-Be9b@mail.gmail.com>
+References: <AANLkTinQbZqWVgEmBmADnA3HCgz-no-bC4KxrRNe37CB@mail.gmail.com>
+	<19514.63800.401496.908856@ron.nulle.part>
+	<AANLkTimImmuXgaOZpoycpf-dTKiQgBE-kNHi5FbGI2V2@mail.gmail.com>
+	<AANLkTim60m_5rc7C9e3ORd2Il_swYCefVZv2P_j-Be9b@mail.gmail.com>
+Message-ID: <19531.9940.685830.362587@max.nulle.part>
+
+
+Paul,
+
+On 18 July 2010 at 23:43, Paul Johnson wrote:
+| I never tried RInside before, but after your post I became curious.  I
+| checked your first message, it does not say if you installed R from
+| the standard packages.  I think *how* R is built can have a big
+| effect. The instructions on RInstall say you must have R installed as
+| a shared library in order for this to work.  Do you have a file
+| libR.so?  (If not, then you don't) Here's what I have on Ubuntu.
+
+[Lots of stuff deleted]
+
+I am not sure how helpful this post really was. You seem to spend a lot of
+time explaining how to overcome non-standard issue on your system --- which
+happens to be non-standard because of *your* local modifications.  I don't
+believe that really warrants advertising an a list dedicated to helping
+Debian and Ubuntu users employ R which (at least in my book) should default
+to using the package management system.  That is why we all use .deb-based
+systems in the first place.
+
+Generally speaking, on Debian/Ubuntu installing RInside is as simple as first
+installing Rcpp (which could even come from 'apt-get install r-cran-rcpp')
+followed by installing RInside from the respective CRAN sources. The default
+R packages (on Debian and Ubuntu) supports all this out of the box.  After
+all, this is how I develop them, and it's similar for Romain even if he
+doesn't use Debian or Ubuntu.
+
+Regards, Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From michael.wesolowski at gmail.com  Sun Jul 25 23:19:59 2010
+From: michael.wesolowski at gmail.com (Michael Wesolowski)
+Date: Sun, 25 Jul 2010 17:19:59 -0400
+Subject: [R-sig-Debian] X trouble in R on Ubuntu
+Message-ID: <AANLkTinC+PJarXDcggGcMYCgbdSahvNOOhMsrCJpC1aA@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100725/5c576c5a/attachment.pl>
+
+From mar36 at psu.edu  Mon Jul 26 00:22:01 2010
+From: mar36 at psu.edu (Michael Rutter)
+Date: Sun, 25 Jul 2010 18:22:01 -0400
+Subject: [R-sig-Debian] X trouble in R on Ubuntu
+In-Reply-To: <AANLkTinC+PJarXDcggGcMYCgbdSahvNOOhMsrCJpC1aA@mail.gmail.com>
+References: <AANLkTinC+PJarXDcggGcMYCgbdSahvNOOhMsrCJpC1aA@mail.gmail.com>
+Message-ID: <4C4CB909.1090908@psu.edu>
+
+
+
+On 07/25/2010 05:19 PM, Michael Wesolowski wrote:
+> Hello,
+>
+> As per the subject, I am unable to do the following:
+>
+> plot(1);
+>
+> The error message I get is ( as user postgres)
+>
+> No protocol specified
+> Error in X11(d$display, d$width, d$height, d$pointsize, d$gamma,
+> d$colortype,  :
+>    unable to start device X11cairo
+> In addition: Warning message:
+> In function (display = "", width, height, pointsize, gamma, bg,  :
+>    unable to open connection to X11 display ''
+>
+> I have tried looking around before posting to the mailing list, but I don't
+> have the Linux knowledge to make this work.
+>
+> Some helpful information might be the truncated output from capabilities() -
+> the output suggests the probable cause for this error, but I don't know how
+> to fix it.
+>
+> as user postgres:
+>> capabilities()
+> X11     cairo
+> FALSE     TRUE
+>
+>
+> as user root:
+>> capabilities()
+> X11     cairo
+> TRUE     TRUE
+
+More information about you system will be helpful.
+
+What version of Ubuntu?
+What version of R?
+Did you install R as a binary (with apt-get or synaptic, for example) or 
+did you compile from source?
+Is "postgres" a user you created or a creation of installing a database?
+Are you running the command via batch or interactive with an R prompt?
+
+Given the user "postgres" it sounds like you are trying to run an R 
+script for some database functions.  Any general information about what 
+you are trying to do will also be helpful.
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From edd at debian.org  Mon Jul 26 00:30:44 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 25 Jul 2010 17:30:44 -0500
+Subject: [R-sig-Debian] X trouble in R on Ubuntu
+In-Reply-To: <AANLkTinC+PJarXDcggGcMYCgbdSahvNOOhMsrCJpC1aA@mail.gmail.com>
+References: <AANLkTinC+PJarXDcggGcMYCgbdSahvNOOhMsrCJpC1aA@mail.gmail.com>
+Message-ID: <19532.47892.357048.156147@max.nulle.part>
+
+
+On 25 July 2010 at 17:19, Michael Wesolowski wrote:
+| Hello,
+| 
+| As per the subject, I am unable to do the following:
+| 
+| plot(1);
+| 
+| The error message I get is ( as user postgres)
+| 
+| No protocol specified
+| Error in X11(d$display, d$width, d$height, d$pointsize, d$gamma,
+| d$colortype,  :
+|   unable to start device X11cairo
+| In addition: Warning message:
+| In function (display = "", width, height, pointsize, gamma, bg,  :
+|   unable to open connection to X11 display ''
+| 
+| I have tried looking around before posting to the mailing list, but I don't
+| have the Linux knowledge to make this work.
+| 
+| Some helpful information might be the truncated output from capabilities() -
+| the output suggests the probable cause for this error, but I don't know how
+| to fix it.
+| 
+| as user postgres:
+| > capabilities()
+| X11     cairo
+| FALSE     TRUE
+| 
+| 
+| as user root:
+| > capabilities()
+| X11     cairo
+| TRUE     TRUE
+
+Thanks for sending this last bit. It shows that your R version is actually
+fine.
+
+Which leaves your postgres user as the suspect. How did you log into the
+postgres account?  Under *normal* Unix behaviour, only the user at the
+current workstation has x11 rights. In other words, no other user can.  
+
+One known workaround is to explicitly request it, and ssh can help with it.
+If you are logged in as 'you' (as an aside, *never* log in as root), you
+should have x11. You verify this by running an x11 application (I often pick
+xclock as it starts fast) or by starting R and asking for capabilities. 
+
+The try 'ssh -X postgres at localhost' which attempt to log in as user postgres
+on your local machine --- while also granting the x11 permissions you have to
+the postgres user.
+
+Hope this helps, Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From ben.domingue at gmail.com  Mon Jul 26 22:48:00 2010
+From: ben.domingue at gmail.com (Ben Domingue)
+Date: Mon, 26 Jul 2010 14:48:00 -0600
+Subject: [R-sig-Debian] Problem upgrading to 2.11
+Message-ID: <AANLkTimK1fmXhC7XeMPX0Kuy-y7ZsLUqACxNxRCQ3X3k@mail.gmail.com>
+
+Hello,
+I am trying to upgrade to 2.11 from 2.10 in the hopes of gaining
+TCL/TK capabilities (let's pretend for the moment that this should
+work).  I've added "deb http://cran.stat.ucla.edu/bin/linux/ubuntu
+lucid/" to /etc/apt/sources.list as described in the guide and have
+run
+apt-get update
+apt-get install r-base r-base-dev
+Things seem to work.  When I look at the installed packages on my
+machine, I see:
+bd at bd-laptop:~$ apt-show-versions | grep "r-base"
+r-base/unknown uptodate 2.11.1-2lucid0
+r-base-core/unknown uptodate 2.11.1-2lucid0
+r-base-dev/unknown uptodate 2.11.1-2lucid0
+But when I run R, I'm still running 2.10:
+
+> sessionInfo()
+R version 2.10.1 (2009-12-14)
+x86_64-unknown-linux-gnu
+
+locale:
+[1] C
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base
+> R.version
+               _
+platform       x86_64-unknown-linux-gnu
+arch           x86_64
+os             linux-gnu
+system         x86_64, linux-gnu
+status
+major          2
+minor          10.1
+year           2009
+month          12
+day            14
+svn rev        50720
+language       R
+version.string R version 2.10.1 (2009-12-14)
+
+
+What's going on?  Sorry if this has been addressed before; I've been
+unable to find it in the archives.
+
+Ben Domingue
+
+
+From mar36 at psu.edu  Mon Jul 26 23:12:16 2010
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 26 Jul 2010 17:12:16 -0400
+Subject: [R-sig-Debian] Problem upgrading to 2.11
+In-Reply-To: <AANLkTimK1fmXhC7XeMPX0Kuy-y7ZsLUqACxNxRCQ3X3k@mail.gmail.com>
+References: <AANLkTimK1fmXhC7XeMPX0Kuy-y7ZsLUqACxNxRCQ3X3k@mail.gmail.com>
+Message-ID: <4C4DFA30.8020807@psu.edu>
+
+
+
+On 07/26/2010 04:48 PM, Ben Domingue wrote:
+> Hello,
+> I am trying to upgrade to 2.11 from 2.10 in the hopes of gaining
+> TCL/TK capabilities (let's pretend for the moment that this should
+> work).  I've added "deb http://cran.stat.ucla.edu/bin/linux/ubuntu
+> lucid/" to /etc/apt/sources.list as described in the guide and have
+> run
+> apt-get update
+> apt-get install r-base r-base-dev
+> Things seem to work.  When I look at the installed packages on my
+> machine, I see:
+> bd at bd-laptop:~$ apt-show-versions | grep "r-base"
+> r-base/unknown uptodate 2.11.1-2lucid0
+> r-base-core/unknown uptodate 2.11.1-2lucid0
+> r-base-dev/unknown uptodate 2.11.1-2lucid0
+> But when I run R, I'm still running 2.10:
+>
+>> sessionInfo()
+> R version 2.10.1 (2009-12-14)
+> x86_64-unknown-linux-gnu
+>
+> locale:
+> [1] C
+>
+> attached base packages:
+> [1] stats     graphics  grDevices utils     datasets  methods   base
+>> R.version
+>                 _
+> platform       x86_64-unknown-linux-gnu
+> arch           x86_64
+> os             linux-gnu
+> system         x86_64, linux-gnu
+> status
+> major          2
+> minor          10.1
+> year           2009
+> month          12
+> day            14
+> svn rev        50720
+> language       R
+> version.string R version 2.10.1 (2009-12-14)
+>
+>
+> What's going on?  Sorry if this has been addressed before; I've been
+> unable to find it in the archives.
+>
+> Ben Domingue
+
+Ben,
+
+Not sure why you have:
+
+ > r-base/unknown uptodate 2.11.1-2lucid0
+
+You should have:
+
+r-base/lucid uptodate 2.11.1-2lucid0
+
+I think the first thing to do is remove R and then re-install.
+
+sudo apt-get remove r-base r-base-dev
+sudo apt-get update
+sudo apt-get install r-base r-base-dev
+
+If that does not work, resend the what apt-show-versions and R.version 
+return.
+
+Hope this helps,
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From ben.domingue at gmail.com  Mon Jul 26 23:43:31 2010
+From: ben.domingue at gmail.com (Ben Domingue)
+Date: Mon, 26 Jul 2010 15:43:31 -0600
+Subject: [R-sig-Debian] Problem upgrading to 2.11
+In-Reply-To: <4C4DFA30.8020807@psu.edu>
+References: <AANLkTimK1fmXhC7XeMPX0Kuy-y7ZsLUqACxNxRCQ3X3k@mail.gmail.com> 
+	<4C4DFA30.8020807@psu.edu>
+Message-ID: <AANLkTinmWOq5HrshpMSOixyrsNGhGuJL-RTUEwgohx9M@mail.gmail.com>
+
+On Mon, Jul 26, 2010 at 3:12 PM, Michael Rutter <mar36 at psu.edu> wrote:
+>
+>
+> On 07/26/2010 04:48 PM, Ben Domingue wrote:
+>>
+>> Hello,
+>> I am trying to upgrade to 2.11 from 2.10 in the hopes of gaining
+>> TCL/TK capabilities (let's pretend for the moment that this should
+>> work). ?I've added "deb http://cran.stat.ucla.edu/bin/linux/ubuntu
+>> lucid/" to /etc/apt/sources.list as described in the guide and have
+>> run
+>> apt-get update
+>> apt-get install r-base r-base-dev
+>> Things seem to work. ?When I look at the installed packages on my
+>> machine, I see:
+>> bd at bd-laptop:~$ apt-show-versions | grep "r-base"
+>> r-base/unknown uptodate 2.11.1-2lucid0
+>> r-base-core/unknown uptodate 2.11.1-2lucid0
+>> r-base-dev/unknown uptodate 2.11.1-2lucid0
+>> But when I run R, I'm still running 2.10:
+>>
+>>> sessionInfo()
+>>
+>> R version 2.10.1 (2009-12-14)
+>> x86_64-unknown-linux-gnu
+>>
+>> locale:
+>> [1] C
+>>
+>> attached base packages:
+>> [1] stats ? ? graphics ?grDevices utils ? ? datasets ?methods ? base
+>>>
+>>> R.version
+>>
+>> ? ? ? ? ? ? ? ?_
+>> platform ? ? ? x86_64-unknown-linux-gnu
+>> arch ? ? ? ? ? x86_64
+>> os ? ? ? ? ? ? linux-gnu
+>> system ? ? ? ? x86_64, linux-gnu
+>> status
+>> major ? ? ? ? ?2
+>> minor ? ? ? ? ?10.1
+>> year ? ? ? ? ? 2009
+>> month ? ? ? ? ?12
+>> day ? ? ? ? ? ?14
+>> svn rev ? ? ? ?50720
+>> language ? ? ? R
+>> version.string R version 2.10.1 (2009-12-14)
+>>
+>>
+>> What's going on? ?Sorry if this has been addressed before; I've been
+>> unable to find it in the archives.
+>>
+>> Ben Domingue
+>
+> Ben,
+>
+> Not sure why you have:
+>
+>> r-base/unknown uptodate 2.11.1-2lucid0
+>
+> You should have:
+>
+> r-base/lucid uptodate 2.11.1-2lucid0
+>
+> I think the first thing to do is remove R and then re-install.
+>
+> sudo apt-get remove r-base r-base-dev
+> sudo apt-get update
+> sudo apt-get install r-base r-base-dev
+>
+> If that does not work, resend the what apt-show-versions and R.version
+> return.
+>
+> Hope this helps,
+> Michael
+>
+> --
+> Dr. Michael A. Rutter
+> School of Science
+> Penn State Erie, The Behrend College
+> Station Road
+> Erie, PA 16563
+> http://math.bd.psu.edu/faculty/rutter
+>
+
+Thanks Michael.  I did what you suggested, but I still have
+bd at bd-laptop:~$ apt-show-versions | grep "r-base"
+r-base/unknown uptodate 2.11.1-2lucid0
+r-base-core/unknown uptodate 2.11.1-2lucid0
+r-base-dev/unknown uptodate 2.11.1-2lucid0
+r-base-html/unknown uptodate 2.11.1-2lucid0
+
+The only thing I can think is that it may be related to the mirror.
+The line in my sources.list reads:
+deb http://cran.stat.ucla.edu/bin/linux/ubuntu lucid/
+which seems right, but perhaps I'm missing something.  I'm not
+bothering with the key, so perhaps that is part of the problem...
+Here is the R.version:
+> R.version
+               _
+platform       x86_64-unknown-linux-gnu
+arch           x86_64
+os             linux-gnu
+system         x86_64, linux-gnu
+status
+major          2
+minor          10.1
+year           2009
+month          12
+day            14
+svn rev        50720
+language       R
+version.string R version 2.10.1 (2009-12-14)
+
+
+From ben.domingue at gmail.com  Mon Jul 26 23:57:19 2010
+From: ben.domingue at gmail.com (Ben Domingue)
+Date: Mon, 26 Jul 2010 15:57:19 -0600
+Subject: [R-sig-Debian] Problem upgrading to 2.11
+In-Reply-To: <AANLkTinmWOq5HrshpMSOixyrsNGhGuJL-RTUEwgohx9M@mail.gmail.com>
+References: <AANLkTimK1fmXhC7XeMPX0Kuy-y7ZsLUqACxNxRCQ3X3k@mail.gmail.com> 
+	<4C4DFA30.8020807@psu.edu>
+	<AANLkTinmWOq5HrshpMSOixyrsNGhGuJL-RTUEwgohx9M@mail.gmail.com>
+Message-ID: <AANLkTimOZ-GyjL0PXbY8LtfkEMgcRKHJUgmZ8V-P4KcA@mail.gmail.com>
+
+Perhaps this is me missing something obvious, but I've also noticed
+that I'm still able to run R even though none of the r-base packages
+seem to be installed (i.e. nothing is returned by apt-show-versions |
+grep "r-base").  I'm not sure what to make of that, but thought it was
+worth noting.
+
+Ben
+
+On Mon, Jul 26, 2010 at 3:43 PM, Ben Domingue <ben.domingue at gmail.com> wrote:
+> On Mon, Jul 26, 2010 at 3:12 PM, Michael Rutter <mar36 at psu.edu> wrote:
+>>
+>>
+>> On 07/26/2010 04:48 PM, Ben Domingue wrote:
+>>>
+>>> Hello,
+>>> I am trying to upgrade to 2.11 from 2.10 in the hopes of gaining
+>>> TCL/TK capabilities (let's pretend for the moment that this should
+>>> work). ?I've added "deb http://cran.stat.ucla.edu/bin/linux/ubuntu
+>>> lucid/" to /etc/apt/sources.list as described in the guide and have
+>>> run
+>>> apt-get update
+>>> apt-get install r-base r-base-dev
+>>> Things seem to work. ?When I look at the installed packages on my
+>>> machine, I see:
+>>> bd at bd-laptop:~$ apt-show-versions | grep "r-base"
+>>> r-base/unknown uptodate 2.11.1-2lucid0
+>>> r-base-core/unknown uptodate 2.11.1-2lucid0
+>>> r-base-dev/unknown uptodate 2.11.1-2lucid0
+>>> But when I run R, I'm still running 2.10:
+>>>
+>>>> sessionInfo()
+>>>
+>>> R version 2.10.1 (2009-12-14)
+>>> x86_64-unknown-linux-gnu
+>>>
+>>> locale:
+>>> [1] C
+>>>
+>>> attached base packages:
+>>> [1] stats ? ? graphics ?grDevices utils ? ? datasets ?methods ? base
+>>>>
+>>>> R.version
+>>>
+>>> ? ? ? ? ? ? ? ?_
+>>> platform ? ? ? x86_64-unknown-linux-gnu
+>>> arch ? ? ? ? ? x86_64
+>>> os ? ? ? ? ? ? linux-gnu
+>>> system ? ? ? ? x86_64, linux-gnu
+>>> status
+>>> major ? ? ? ? ?2
+>>> minor ? ? ? ? ?10.1
+>>> year ? ? ? ? ? 2009
+>>> month ? ? ? ? ?12
+>>> day ? ? ? ? ? ?14
+>>> svn rev ? ? ? ?50720
+>>> language ? ? ? R
+>>> version.string R version 2.10.1 (2009-12-14)
+>>>
+>>>
+>>> What's going on? ?Sorry if this has been addressed before; I've been
+>>> unable to find it in the archives.
+>>>
+>>> Ben Domingue
+>>
+>> Ben,
+>>
+>> Not sure why you have:
+>>
+>>> r-base/unknown uptodate 2.11.1-2lucid0
+>>
+>> You should have:
+>>
+>> r-base/lucid uptodate 2.11.1-2lucid0
+>>
+>> I think the first thing to do is remove R and then re-install.
+>>
+>> sudo apt-get remove r-base r-base-dev
+>> sudo apt-get update
+>> sudo apt-get install r-base r-base-dev
+>>
+>> If that does not work, resend the what apt-show-versions and R.version
+>> return.
+>>
+>> Hope this helps,
+>> Michael
+>>
+>> --
+>> Dr. Michael A. Rutter
+>> School of Science
+>> Penn State Erie, The Behrend College
+>> Station Road
+>> Erie, PA 16563
+>> http://math.bd.psu.edu/faculty/rutter
+>>
+>
+> Thanks Michael. ?I did what you suggested, but I still have
+> bd at bd-laptop:~$ apt-show-versions | grep "r-base"
+> r-base/unknown uptodate 2.11.1-2lucid0
+> r-base-core/unknown uptodate 2.11.1-2lucid0
+> r-base-dev/unknown uptodate 2.11.1-2lucid0
+> r-base-html/unknown uptodate 2.11.1-2lucid0
+>
+> The only thing I can think is that it may be related to the mirror.
+> The line in my sources.list reads:
+> deb http://cran.stat.ucla.edu/bin/linux/ubuntu lucid/
+> which seems right, but perhaps I'm missing something. ?I'm not
+> bothering with the key, so perhaps that is part of the problem...
+> Here is the R.version:
+>> R.version
+> ? ? ? ? ? ? ? _
+> platform ? ? ? x86_64-unknown-linux-gnu
+> arch ? ? ? ? ? x86_64
+> os ? ? ? ? ? ? linux-gnu
+> system ? ? ? ? x86_64, linux-gnu
+> status
+> major ? ? ? ? ?2
+> minor ? ? ? ? ?10.1
+> year ? ? ? ? ? 2009
+> month ? ? ? ? ?12
+> day ? ? ? ? ? ?14
+> svn rev ? ? ? ?50720
+> language ? ? ? R
+> version.string R version 2.10.1 (2009-12-14)
+>
+
+
+From mar36 at psu.edu  Tue Jul 27 00:00:44 2010
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 26 Jul 2010 18:00:44 -0400
+Subject: [R-sig-Debian] Problem upgrading to 2.11
+In-Reply-To: <AANLkTimOZ-GyjL0PXbY8LtfkEMgcRKHJUgmZ8V-P4KcA@mail.gmail.com>
+References: <AANLkTimK1fmXhC7XeMPX0Kuy-y7ZsLUqACxNxRCQ3X3k@mail.gmail.com>
+	<4C4DFA30.8020807@psu.edu>
+	<AANLkTinmWOq5HrshpMSOixyrsNGhGuJL-RTUEwgohx9M@mail.gmail.com>
+	<AANLkTimOZ-GyjL0PXbY8LtfkEMgcRKHJUgmZ8V-P4KcA@mail.gmail.com>
+Message-ID: <4C4E058C.1040504@psu.edu>
+
+
+
+On 07/26/2010 05:57 PM, Ben Domingue wrote:
+> Perhaps this is me missing something obvious, but I've also noticed
+> that I'm still able to run R even though none of the r-base packages
+> seem to be installed (i.e. nothing is returned by apt-show-versions |
+> grep "r-base").  I'm not sure what to make of that, but thought it was
+> worth noting.
+>
+> Ben
+
+Did you compile R from source before you used apt-get?  If you remove R 
+with apt-get and are still able to run R, something is wrong with your 
+system.  I would remove R with apt-get, reboot the machine, and if you 
+can still run R, try to find where it is located ("which R") and try 
+removing that version as well.
+
+Michael
+
+
+From ben.domingue at gmail.com  Tue Jul 27 17:11:14 2010
+From: ben.domingue at gmail.com (Ben Domingue)
+Date: Tue, 27 Jul 2010 09:11:14 -0600
+Subject: [R-sig-Debian] Problem upgrading to 2.11
+In-Reply-To: <4C4E058C.1040504@psu.edu>
+References: <AANLkTimK1fmXhC7XeMPX0Kuy-y7ZsLUqACxNxRCQ3X3k@mail.gmail.com> 
+	<4C4DFA30.8020807@psu.edu>
+	<AANLkTinmWOq5HrshpMSOixyrsNGhGuJL-RTUEwgohx9M@mail.gmail.com> 
+	<AANLkTimOZ-GyjL0PXbY8LtfkEMgcRKHJUgmZ8V-P4KcA@mail.gmail.com> 
+	<4C4E058C.1040504@psu.edu>
+Message-ID: <AANLkTik==TPPiGtGoMOVWjMSiv9c0L9UJLA2RtUSEnjQ@mail.gmail.com>
+
+That worked.  Thanks!
+
+
+On Mon, Jul 26, 2010 at 4:00 PM, Michael Rutter <mar36 at psu.edu> wrote:
+>
+>
+> On 07/26/2010 05:57 PM, Ben Domingue wrote:
+>>
+>> Perhaps this is me missing something obvious, but I've also noticed
+>> that I'm still able to run R even though none of the r-base packages
+>> seem to be installed (i.e. nothing is returned by apt-show-versions |
+>> grep "r-base"). ?I'm not sure what to make of that, but thought it was
+>> worth noting.
+>>
+>> Ben
+>
+> Did you compile R from source before you used apt-get? ?If you remove R with
+> apt-get and are still able to run R, something is wrong with your system. ?I
+> would remove R with apt-get, reboot the machine, and if you can still run R,
+> try to find where it is located ("which R") and try removing that version as
+> well.
+>
+> Michael
+>
+>
+>
+
+

@@ -1,0 +1,198 @@
+From @y|v@|n@@echerre @end|ng |rom or@nge@|r  Mon Jan 13 19:27:53 2025
+From: @y|v@|n@@echerre @end|ng |rom or@nge@|r (=?UTF-8?Q?Sylvain_S=C3=A9cherre?=)
+Date: Mon, 13 Jan 2025 19:27:53 +0100
+Subject: [R-sig-Debian] Problem with R package while building
+ KDEStateMachineEditor
+Message-ID: <b1b0bf35-1eae-4263-93de-0610b62b7b38@orange.fr>
+
+Hello everyone!
+
+I have a big problem that takes me mad since 3 days...
+
+I try to build KDEStateMachineEditor with cmake. This soft includes 
+GraphViz, which includes himself SWIG which needs R.
+
+With cmake, when I configure KDEStateMachineEditor before a generation, 
+I am told that the R package is missing:
+
+"---------------------------------------------------------------------------------"
+/Checking for module 'R'
+ ??? Package 'R', required by 'virtual:world', not found
+setting -DENABLE_R=OFF/
+
+"---------------------------------------------------------------------------------"
+
+... but every necessary R packages seem to be installed on my computer.
+
+I have found the line of the GraphViz's *CMakeList.txt* involved:
+
+"---------------------------------------------------------------------------------"
+
+/find_package(SWIG COMPONENTS csharp d go guile java javascript lua 
+perl5 php7 python *r* )/
+
+"---------------------------------------------------------------------------------"
+
+After a look at the cmake doc, it seems that I should have a file like 
+FindR.cmake, but there not such a file on my disk. Instead I do have 
+this file : */usr/lib/R/site-library/qtl/contrib/bin/FindRLibs.cmake*
+
+So, what must I do to solve this problem?
+
+Thanks!
+
+Sylvain
+
+(France)
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon Jan 13 19:36:26 2025
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 13 Jan 2025 12:36:26 -0600
+Subject: [R-sig-Debian] Problem with R package while building
+ KDEStateMachineEditor
+In-Reply-To: <b1b0bf35-1eae-4263-93de-0610b62b7b38@orange.fr>
+References: <b1b0bf35-1eae-4263-93de-0610b62b7b38@orange.fr>
+Message-ID: <26501.23850.542863.88950@rob.eddelbuettel.com>
+
+
+Hi Sylvain,
+
+Thanks for posting here (even if this is more of a CMake than a Debian
+question ...).
+
+On 13 January 2025 at 19:27, Sylvain S?cherre via R-SIG-Debian wrote:
+| Hello everyone!
+| 
+| I have a big problem that takes me mad since 3 days...
+| 
+| I try to build KDEStateMachineEditor with cmake. This soft includes 
+| GraphViz, which includes himself SWIG which needs R.
+| 
+| With cmake, when I configure KDEStateMachineEditor before a generation, 
+| I am told that the R package is missing:
+| 
+| "---------------------------------------------------------------------------------"
+| /Checking for module 'R'
+|  ??? Package 'R', required by 'virtual:world', not found
+| setting -DENABLE_R=OFF/
+| 
+| "---------------------------------------------------------------------------------"
+| 
+| ... but every necessary R packages seem to be installed on my computer.
+| 
+| I have found the line of the GraphViz's *CMakeList.txt* involved:
+| 
+| "---------------------------------------------------------------------------------"
+| 
+| /find_package(SWIG COMPONENTS csharp d go guile java javascript lua 
+| perl5 php7 python *r* )/
+| 
+| "---------------------------------------------------------------------------------"
+| 
+| After a look at the cmake doc, it seems that I should have a file like 
+| FindR.cmake, but there not such a file on my disk. Instead I do have 
+| this file : */usr/lib/R/site-library/qtl/contrib/bin/FindRLibs.cmake*
+| 
+| So, what must I do to solve this problem?
+
+Ask CMake experts?  R itself uses GNU autoconf extensively (and fixed scripts
+on Windows).  For the same reason, CMake is not that widely used for R
+package builds.  However, given that more and more _external_ libraries use
+CMake, you see it used in R packages to provide these external libraries.
+
+Now, R is also not that often embedded [1] which may explain why you don't
+find many FindR.cmake or FindRLibs.cmake.
+
+That said, searching at GitHub (a good resource for this!!) find
+
+ 285 hits for FindR.cmake:  https://github.com/search?q=FindR.cmake&type=repositories
+  57 hist for FindRLibs.cmake:  https://github.com/search?q=FindRLibs.cmake&type=code
+
+Maybe those can help you?
+
+Cheers,  Dirk
+
+
+[1] I wrote a package for that: RInside. It's on CRAN and at my GitHub, but
+again no CMake apart for an older contributed examples configuration.
+
+| 
+| Thanks!
+| 
+| Sylvain
+| 
+| (France)
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From |kry|ov @end|ng |rom d|@root@org  Mon Jan 13 21:29:03 2025
+From: |kry|ov @end|ng |rom d|@root@org (Ivan Krylov)
+Date: Mon, 13 Jan 2025 23:29:03 +0300
+Subject: [R-sig-Debian] Problem with R package while building
+ KDEStateMachineEditor
+In-Reply-To: <b1b0bf35-1eae-4263-93de-0610b62b7b38@orange.fr>
+References: <b1b0bf35-1eae-4263-93de-0610b62b7b38@orange.fr>
+Message-ID: <20250113232903.07c44409@Tarkus>
+
+? Mon, 13 Jan 2025 19:27:53 +0100
+Sylvain S?cherre via R-SIG-Debian <r-sig-debian at r-project.org> ?????:
+
+> I try to build KDEStateMachineEditor with cmake. This soft includes 
+> GraphViz, which includes himself SWIG which needs R.
+
+Judging by the CMakeLists.txt belonging to GraphViz [*], it should be
+possible to disable its SWIG support by setting -DENABLE_SWIG=OFF.
+
+The exact check for R is done using pkg-config:
+
+>> if(NOT ENABLE_R STREQUAL "OFF")
+>>   if(PkgConfig_FOUND)
+>>     pkg_check_modules(R R)
+
+The check might be not exactly correct - on my Debian Bookworm
+installation, pkg-config libR succeeds, but pkg-config R doesn't - but
+neither of that should be required to compile GraphViz for the purpose
+of rendering state machine graphs for KDStateMachineEditor. And it
+isn't, CMakeLists.txt just shrugs and moves on:
+
+>>   else()
+>>     message(STATUS "setting -DENABLE_R=OFF")
+>>     set(ENABLE_R OFF)
+>>   endif()
+
+We can see this code working in your CMake log:
+
+>  ??? Package 'R', required by 'virtual:world', not found
+> setting -DENABLE_R=OFF
+
+Does it really fail after that? If not, feel free to ignore this
+message. If yes, the problem must be somewhere below.
+
+I've installed libgraphviz-dev and configured the project with
+
+cmake -S . -DKDSME_INTERNAL_GRAPHVIZ=false -B build
+
+...and it seems to have successfully compiled. 'make test' succeeds
+too, and I can launch build/bin/kdstatemachineeditor and try things in
+the user interface.
+
+-- 
+Best regards,
+Ivan
+
+[*]
+https://gitlab.com/graphviz/graphviz/-/blob/main/CMakeLists.txt?ref_type=heads
+
+

@@ -1,0 +1,101 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2018-02",
+  "messages": [
+    {
+      "id": "msg-fd216b8cff57",
+      "message_id": "<CABFfbXsgz674EmX4jDdCKVF-+W4j+7M5k+YwMK4NNkCb_4-nAQ@mail.gmail.com>",
+      "from_name": "Jeroen Ooms",
+      "from_email_hash": "a265ef4bb03c14ee9d6f00489213486310c7d7bc8d3d2467e6937626fef998e1",
+      "date": "2018-02-03T12:50:41+01:00",
+      "subject": "[R-sig-Debian] broken dependencies on 2cd4u",
+      "subject_clean": "broken dependencies on 2cd4u",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "As of a few days I'm seeing this error on travis:\n\nThe following packages have unmet dependencies:\n libleptonica-dev : Depends: liblept5 (= 1.74.4-1+nmu1ppa1~trusty1)\nbut it is not going to be installed\n\nWhich is caused by:\n\nThe following packages have unmet dependencies:\n liblept5 : Depends: libopenjp2-7 (>= 2.0.0) but it is not installable\n\nThis is caused by the recent update libleptonica on c2d4u. I guess\nthis new version also requires a backport of libopenjp2-7.\n\nMore generally I'm wondering if perhaps c/c++ libs backports should go\ninto a separate PPA? I was assuming c2d4u would only provide r-cran\npackages but not have any side effects on system libs.",
+      "body_snippet": "As of a few days I'm seeing this error on travis:\n\nThe following packages have unmet dependencies:\n libleptonica-dev : Depends: liblept5 (= 1.74.4-1+nmu1ppa1~trusty1)\nbut it is not going to be install",
+      "thread_id": "thread-fd216b8cff57",
+      "thread_depth": 0,
+      "month": "2018-02"
+    },
+    {
+      "id": "msg-efb6e318d89e",
+      "message_id": "<75a157d7-b979-a003-7375-2b2d70a1bebf@gmail.com>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "f32ffdcba6fa19dc2e0eddf45ddb562199f8606163316733b96f1f24318d52ef",
+      "date": "2018-02-03T10:43:32-05:00",
+      "subject": "[R-sig-Debian] broken dependencies on 2cd4u",
+      "subject_clean": "broken dependencies on 2cd4u",
+      "in_reply_to": "<CABFfbXsgz674EmX4jDdCKVF-+W4j+7M5k+YwMK4NNkCb_4-nAQ@mail.gmail.com>",
+      "references": [
+        "<CABFfbXsgz674EmX4jDdCKVF-+W4j+7M5k+YwMK4NNkCb_4-nAQ@mail.gmail.com>"
+      ],
+      "body_plain": "On 02/03/2018 06:50 AM, Jeroen Ooms wrote:\n> As of a few days I'm seeing this error on travis:\n> \n> The following packages have unmet dependencies:\n>   libleptonica-dev : Depends: liblept5 (= 1.74.4-1+nmu1ppa1~trusty1)\n> but it is not going to be installed\n> \n> Which is caused by:\n> \n> The following packages have unmet dependencies:\n>   liblept5 : Depends: libopenjp2-7 (>= 2.0.0) but it is not installable\n> \n> This is caused by the recent update libleptonica on c2d4u. I guess\n> this new version also requires a backport of libopenjp2-7.\n> \n> More generally I'm wondering if perhaps c/c++ libs backports should go\n> into a separate PPA? I was assuming c2d4u would only provide r-cran\n> packages but not have any side effects on system libs.\n\nJeroen,\n\nSorry about this one.  There was an update of the tesseract package, and \nit required a newer version of libleptonica-dev.  I thought I could copy \nin a version from another PPA and have it work cleanly, but this was not \nthe case.\n\nI have deleted both packages, thus putting things back to the way they \nwhere as of January 26th.  Let me know if there are still issues.\n\nMichael\n\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n>",
+      "body_snippet": "On 02/03/2018 06:50 AM, Jeroen Ooms wrote:\n> As of a few days I'm seeing this error on travis:\n> \n> The following packages have unmet dependencies:\n>   libleptonica-dev : Depends: liblept5 (= 1.74.4-1",
+      "thread_id": "thread-fd216b8cff57",
+      "thread_depth": 1,
+      "month": "2018-02"
+    },
+    {
+      "id": "msg-cd5a8f411de9",
+      "message_id": "<CABFfbXt_-hmjQKvh0yqm-ZW7mXra8xZ34D6z29S-ohiaPqm_3A@mail.gmail.com>",
+      "from_name": "Jeroen Ooms",
+      "from_email_hash": "a265ef4bb03c14ee9d6f00489213486310c7d7bc8d3d2467e6937626fef998e1",
+      "date": "2018-02-04T13:49:08+01:00",
+      "subject": "[R-sig-Debian] broken dependencies on 2cd4u",
+      "subject_clean": "broken dependencies on 2cd4u",
+      "in_reply_to": "<75a157d7-b979-a003-7375-2b2d70a1bebf@gmail.com>",
+      "references": [
+        "<CABFfbXsgz674EmX4jDdCKVF-+W4j+7M5k+YwMK4NNkCb_4-nAQ@mail.gmail.com>",
+        "<75a157d7-b979-a003-7375-2b2d70a1bebf@gmail.com>"
+      ],
+      "body_plain": "OK thanks for fixing it :-)\n\nI think it would be useful having a separate PPA where we provide\nbackports of important libs used by R packages. But these should not\nbe in c2d4u, because then enabling c2d4u may have unexpected side\neffects on non-R software.\n\nI maintain backports of imagemagick and jq myself (for the magick and\njqr packages). We could add one for tesseract 4 as well, once it is\nfinal:\n\n https://launchpad.net/~opencpu/+archive/ubuntu/imagemagick\n https://launchpad.net/~opencpu/+archive/ubuntu/jq\n\nJ\n\n\n\n\n\n\nOn Sat, Feb 3, 2018 at 4:43 PM, Michael Rutter <marutter at gmail.com> wrote:\n>\n>\n> On 02/03/2018 06:50 AM, Jeroen Ooms wrote:\n>>\n>> As of a few days I'm seeing this error on travis:\n>>\n>> The following packages have unmet dependencies:\n>>   libleptonica-dev : Depends: liblept5 (= 1.74.4-1+nmu1ppa1~trusty1)\n>> but it is not going to be installed\n>>\n>> Which is caused by:\n>>\n>> The following packages have unmet dependencies:\n>>   liblept5 : Depends: libopenjp2-7 (>= 2.0.0) but it is not installable\n>>\n>> This is caused by the recent update libleptonica on c2d4u. I guess\n>> this new version also requires a backport of libopenjp2-7.\n>>\n>> More generally I'm wondering if perhaps c/c++ libs backports should go\n>> into a separate PPA? I was assuming c2d4u would only provide r-cran\n>> packages but not have any side effects on system libs.\n>\n>\n> Jeroen,\n>\n> Sorry about this one.  There was an update of the tesseract package, and it\n> required a newer version of libleptonica-dev.  I thought I could copy in a\n> version from another PPA and have it work cleanly, but this was not the\n> case.\n>\n> I have deleted both packages, thus putting things back to the way they where\n> as of January 26th.  Let me know if there are still issues.\n>\n> Michael\n>\n>> _______________________________________________\n>> R-SIG-Debian mailing list\n>> R-SIG-Debian at r-project.org\n>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n>>\n>\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "OK thanks for fixing it :-)\n\nI think it would be useful having a separate PPA where we provide\nbackports of important libs used by R packages. But these should not\nbe in c2d4u, because then enabling c",
+      "thread_id": "thread-fd216b8cff57",
+      "thread_depth": 2,
+      "month": "2018-02"
+    },
+    {
+      "id": "msg-0097fccfa250",
+      "message_id": "<CACDEaLmjAPcUXUvJV8KUSyCer0AZSHm0-Z36fuacsth6uegx8g@mail.gmail.com>",
+      "from_name": "Victor Corral",
+      "from_email_hash": "c376abdfed71ca2e668e748a88853b65f5af708dd243465b5811e0b4f826eb77",
+      "date": "2018-02-13T11:04:48-08:00",
+      "subject": "[R-sig-Debian] OpenSourceSoftware",
+      "subject_clean": "OpenSourceSoftware",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "I am the new Copywriter owner of the open source software. Victor Corral\n\n-- \nVictor Corral\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "I am the new Copywriter owner of the open source software. Victor Corral\n\n-- \nVictor Corral\n\n\t[[alternative HTML version deleted]]",
+      "thread_id": "thread-0097fccfa250",
+      "thread_depth": 0,
+      "month": "2018-02"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-fd216b8cff57",
+      "subject": "broken dependencies on 2cd4u",
+      "message_count": 3,
+      "participants": [
+        "Jeroen Ooms",
+        "Michael Rutter"
+      ],
+      "started": "2018-02-03T12:50:41+01:00",
+      "last_reply": "2018-02-04T13:49:08+01:00",
+      "root_message_id": "msg-fd216b8cff57"
+    },
+    {
+      "id": "thread-0097fccfa250",
+      "subject": "OpenSourceSoftware",
+      "message_count": 1,
+      "participants": [
+        "Victor Corral"
+      ],
+      "started": "2018-02-13T11:04:48-08:00",
+      "last_reply": "2018-02-13T11:04:48-08:00",
+      "root_message_id": "msg-0097fccfa250"
+    }
+  ]
+}

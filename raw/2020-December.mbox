@@ -1,0 +1,520 @@
+From kev|n @end|ng |rom dotmon@com  Wed Dec  2 22:45:39 2020
+From: kev|n @end|ng |rom dotmon@com (Kevin Donnelly)
+Date: Wed, 2 Dec 2020 21:45:39 +0000
+Subject: [R-sig-Debian] sjPlot
+Message-ID: <CAKLaWougcKB7G_GxZX8e3KcmPQeGfOmubpxy9T4U_vRjNs_y8w@mail.gmail.com>
+
+I am trying to install sjPlot.  I am running Ubuntu 20.04 and R 4.0.3, and
+I have the following two R repos active:
+https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/
+http://ppa.launchpad.net/c2d4u.team/c2d4u4.0+/ubuntu focal
+
+When I try to install r-cran-sjplot, I get the following error:
+Depends: r-api-3.5
+Depends: r-cran-bayestestr but it is not going to be installed
+Depends: r-cran-effectsize but it is not going to be installed
+Depends: r-cran-ggeffects but it is not going to be installed
+Depends: r-cran-parameters but it is not going to be installed
+Depends: r-cran-performance but it is not going to be installed
+Depends: r-cran-sjmisc but it is not going to be installed
+Depends: r-cran-sjstats but it is not going to be installed
+
+Many of the other packages can be installed (though sjstats has a further
+list of errors), but r-api-3.5 is not available.
+apt-cache show r-cran-sjplot
+seems to show only an Ubuntu distro version (though I'm not sure how it can
+be there if the above two repos are active):
+Package: r-cran-sjplot
+Architecture: all
+Version: 2.8.2-1
+Priority: optional
+Section: universe/gnu-r
+Origin: Ubuntu
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss at lists.ubuntu.com>
+Original-Maintainer: Debian R Packages Maintainers <
+r-pkg-team at alioth-lists.debian.net>
+
+Any suggestions on what I've got wrong here?
+
+Thanks!
+
+-- 
+Pob hwyl / Best wishes
+
+Kevin Donnelly
+kevindonnelly.org.uk/qiezi
+cymraeg.org.uk
+autoglosser.org.uk
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Wed Dec  2 23:16:25 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 2 Dec 2020 16:16:25 -0600
+Subject: [R-sig-Debian] sjPlot
+In-Reply-To: <CAKLaWougcKB7G_GxZX8e3KcmPQeGfOmubpxy9T4U_vRjNs_y8w@mail.gmail.com>
+References: <CAKLaWougcKB7G_GxZX8e3KcmPQeGfOmubpxy9T4U_vRjNs_y8w@mail.gmail.com>
+Message-ID: <24520.4665.183840.787838@rob.eddelbuettel.com>
+
+
+Hi Kevin,
+
+(And also Hi Michael, please see below...)
+
+On 2 December 2020 at 21:45, Kevin Donnelly wrote:
+| I am trying to install sjPlot.  I am running Ubuntu 20.04 and R 4.0.3, and
+| I have the following two R repos active:
+| https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/
+| http://ppa.launchpad.net/c2d4u.team/c2d4u4.0+/ubuntu focal
+| 
+| When I try to install r-cran-sjplot, I get the following error:
+| Depends: r-api-3.5
+
+:-/
+
+The package is in Ubuntu. Ubuntu uses the standard packages, 20.04 is still
+at R 3.6.* so the package _for use within the Ubuntu distro_ is built against
+that R version and hence has 'r-api-3.5' as a (virtual) depends to signal use
+with R 3.6.* (R 3.5.* and R 3.6.* were binary compatible so the label was not
+increased.)
+
+You seem to have one of the rare packages _not_ shadowed by Michael in
+excellent c4d4u4.0+ repo.
+
+So you have to install from source. In which case I would try to mix and
+match and get as much as you can from c2d4u4.0+, and install the rest
+old-school by hand from CRAN.
+
+Dirk
+
+Michael:  Shall we try to mark this as a virtual TODO and maybe use RcppAPT
+or another interface into the package pool to find packages that are in fact
+in Debian/Ubuntu but not in your otherwise excellent and complete repo?
+
+| Depends: r-cran-bayestestr but it is not going to be installed
+| Depends: r-cran-effectsize but it is not going to be installed
+| Depends: r-cran-ggeffects but it is not going to be installed
+| Depends: r-cran-parameters but it is not going to be installed
+| Depends: r-cran-performance but it is not going to be installed
+| Depends: r-cran-sjmisc but it is not going to be installed
+| Depends: r-cran-sjstats but it is not going to be installed
+| 
+| Many of the other packages can be installed (though sjstats has a further
+| list of errors), but r-api-3.5 is not available.
+| apt-cache show r-cran-sjplot
+| seems to show only an Ubuntu distro version (though I'm not sure how it can
+| be there if the above two repos are active):
+| Package: r-cran-sjplot
+| Architecture: all
+| Version: 2.8.2-1
+| Priority: optional
+| Section: universe/gnu-r
+| Origin: Ubuntu
+| Maintainer: Ubuntu Developers <ubuntu-devel-discuss at lists.ubuntu.com>
+| Original-Maintainer: Debian R Packages Maintainers <
+| r-pkg-team at alioth-lists.debian.net>
+| 
+| Any suggestions on what I've got wrong here?
+| 
+| Thanks!
+| 
+| -- 
+| Pob hwyl / Best wishes
+| 
+| Kevin Donnelly
+| kevindonnelly.org.uk/qiezi
+| cymraeg.org.uk
+| autoglosser.org.uk
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@rutter @end|ng |rom gm@||@com  Thu Dec  3 03:39:09 2020
+From: m@rutter @end|ng |rom gm@||@com (Michael Rutter)
+Date: Wed, 2 Dec 2020 21:39:09 -0500
+Subject: [R-sig-Debian] sjPlot
+In-Reply-To: <24520.4665.183840.787838@rob.eddelbuettel.com>
+References: <CAKLaWougcKB7G_GxZX8e3KcmPQeGfOmubpxy9T4U_vRjNs_y8w@mail.gmail.com>
+ <24520.4665.183840.787838@rob.eddelbuettel.com>
+Message-ID: <bcdef49b-1072-62a1-ef36-b147b5c66dc1@gmail.com>
+
+
+
+On 12/2/20 5:16 PM, Dirk Eddelbuettel wrote:
+> 
+> Hi Kevin,
+> 
+> (And also Hi Michael, please see below...)
+> 
+> On 2 December 2020 at 21:45, Kevin Donnelly wrote:
+> | I am trying to install sjPlot.  I am running Ubuntu 20.04 and R 4.0.3, and
+> | I have the following two R repos active:
+> | https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/
+> | http://ppa.launchpad.net/c2d4u.team/c2d4u4.0+/ubuntu focal
+> |
+> | When I try to install r-cran-sjplot, I get the following error:
+> | Depends: r-api-3.5
+> 
+> :-/
+
+This one is on me.  When R 4.0 came out, I wrote scripts to rebuild all 
+the r-cran-* packages, such as r-cran-sjplot, that the main Ubuntu 
+repository supplies so that the upgrade to 4.0 is a painless as possible 
+for users.  I also need to do this so as when I build packages for 
+c2d4u, all the dependencies are satisfied.
+
+It appears I missed this one, and since it hasn't been a dependency for 
+any package I have built since, it didn't come to my attention.  It has 
+been corrected an r-cran-sjplot can be installed on Focal.
+
+
+> The package is in Ubuntu. Ubuntu uses the standard packages, 20.04 is still
+> at R 3.6.* so the package _for use within the Ubuntu distro_ is built against
+> that R version and hence has 'r-api-3.5' as a (virtual) depends to signal use
+> with R 3.6.* (R 3.5.* and R 3.6.* were binary compatible so the label was not
+> increased.)
+> 
+> You seem to have one of the rare packages _not_ shadowed by Michael in
+> excellent c4d4u4.0+ repo.
+> 
+> So you have to install from source. In which case I would try to mix and
+> match and get as much as you can from c2d4u4.0+, and install the rest
+> old-school by hand from CRAN.
+> 
+> Dirk
+> 
+> Michael:  Shall we try to mark this as a virtual TODO and maybe use RcppAPT
+> or another interface into the package pool to find packages that are in fact
+> in Debian/Ubuntu but not in your otherwise excellent and complete repo?
+
+Yes, sounds like a good project to tackle after the semester ends.
+
+Michael
+
+
+> | Depends: r-cran-bayestestr but it is not going to be installed
+> | Depends: r-cran-effectsize but it is not going to be installed
+> | Depends: r-cran-ggeffects but it is not going to be installed
+> | Depends: r-cran-parameters but it is not going to be installed
+> | Depends: r-cran-performance but it is not going to be installed
+> | Depends: r-cran-sjmisc but it is not going to be installed
+> | Depends: r-cran-sjstats but it is not going to be installed
+> |
+> | Many of the other packages can be installed (though sjstats has a further
+> | list of errors), but r-api-3.5 is not available.
+> | apt-cache show r-cran-sjplot
+> | seems to show only an Ubuntu distro version (though I'm not sure how it can
+> | be there if the above two repos are active):
+> | Package: r-cran-sjplot
+> | Architecture: all
+> | Version: 2.8.2-1
+> | Priority: optional
+> | Section: universe/gnu-r
+> | Origin: Ubuntu
+> | Maintainer: Ubuntu Developers <ubuntu-devel-discuss at lists.ubuntu.com>
+> | Original-Maintainer: Debian R Packages Maintainers <
+> | r-pkg-team at alioth-lists.debian.net>
+> |
+> | Any suggestions on what I've got wrong here?
+> |
+> | Thanks!
+> |
+> | --
+> | Pob hwyl / Best wishes
+> |
+> | Kevin Donnelly
+> | kevindonnelly.org.uk/qiezi
+> | cymraeg.org.uk
+> | autoglosser.org.uk
+> |
+> | 	[[alternative HTML version deleted]]
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From edd @end|ng |rom deb|@n@org  Thu Dec  3 04:25:10 2020
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 2 Dec 2020 21:25:10 -0600
+Subject: [R-sig-Debian] sjPlot
+In-Reply-To: <bcdef49b-1072-62a1-ef36-b147b5c66dc1@gmail.com>
+References: <CAKLaWougcKB7G_GxZX8e3KcmPQeGfOmubpxy9T4U_vRjNs_y8w@mail.gmail.com>
+ <24520.4665.183840.787838@rob.eddelbuettel.com>
+ <bcdef49b-1072-62a1-ef36-b147b5c66dc1@gmail.com>
+Message-ID: <24520.23190.498179.882646@rob.eddelbuettel.com>
+
+
+On 2 December 2020 at 21:39, Michael Rutter wrote:
+| 
+| 
+| On 12/2/20 5:16 PM, Dirk Eddelbuettel wrote:
+| > 
+| > Hi Kevin,
+| > 
+| > (And also Hi Michael, please see below...)
+| > 
+| > On 2 December 2020 at 21:45, Kevin Donnelly wrote:
+| > | I am trying to install sjPlot.  I am running Ubuntu 20.04 and R 4.0.3, and
+| > | I have the following two R repos active:
+| > | https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/
+| > | http://ppa.launchpad.net/c2d4u.team/c2d4u4.0+/ubuntu focal
+| > |
+| > | When I try to install r-cran-sjplot, I get the following error:
+| > | Depends: r-api-3.5
+| > 
+| > :-/
+| 
+| This one is on me.  When R 4.0 came out, I wrote scripts to rebuild all 
+| the r-cran-* packages, such as r-cran-sjplot, that the main Ubuntu 
+| repository supplies so that the upgrade to 4.0 is a painless as possible 
+| for users.  I also need to do this so as when I build packages for 
+| c2d4u, all the dependencies are satisfied.
+| 
+| It appears I missed this one, and since it hasn't been a dependency for 
+| any package I have built since, it didn't come to my attention.  It has 
+| been corrected an r-cran-sjplot can be installed on Focal.
+
+Great news! And I see it now via `apt update -qq; apt-cache policy r-cran-sjplot`.
+ 
+| > The package is in Ubuntu. Ubuntu uses the standard packages, 20.04 is still
+| > at R 3.6.* so the package _for use within the Ubuntu distro_ is built against
+| > that R version and hence has 'r-api-3.5' as a (virtual) depends to signal use
+| > with R 3.6.* (R 3.5.* and R 3.6.* were binary compatible so the label was not
+| > increased.)
+| > 
+| > You seem to have one of the rare packages _not_ shadowed by Michael in
+| > excellent c4d4u4.0+ repo.
+| > 
+| > So you have to install from source. In which case I would try to mix and
+| > match and get as much as you can from c2d4u4.0+, and install the rest
+| > old-school by hand from CRAN.
+| > 
+| > Dirk
+| > 
+| > Michael:  Shall we try to mark this as a virtual TODO and maybe use RcppAPT
+| > or another interface into the package pool to find packages that are in fact
+| > in Debian/Ubuntu but not in your otherwise excellent and complete repo?
+| 
+| Yes, sounds like a good project to tackle after the semester ends.
+
+Always easy to schedule commitments "infinitely far away" :)
+
+Thanks again for the quick fix!
+
+Dirk
+ 
+| Michael
+| 
+| 
+| > | Depends: r-cran-bayestestr but it is not going to be installed
+| > | Depends: r-cran-effectsize but it is not going to be installed
+| > | Depends: r-cran-ggeffects but it is not going to be installed
+| > | Depends: r-cran-parameters but it is not going to be installed
+| > | Depends: r-cran-performance but it is not going to be installed
+| > | Depends: r-cran-sjmisc but it is not going to be installed
+| > | Depends: r-cran-sjstats but it is not going to be installed
+| > |
+| > | Many of the other packages can be installed (though sjstats has a further
+| > | list of errors), but r-api-3.5 is not available.
+| > | apt-cache show r-cran-sjplot
+| > | seems to show only an Ubuntu distro version (though I'm not sure how it can
+| > | be there if the above two repos are active):
+| > | Package: r-cran-sjplot
+| > | Architecture: all
+| > | Version: 2.8.2-1
+| > | Priority: optional
+| > | Section: universe/gnu-r
+| > | Origin: Ubuntu
+| > | Maintainer: Ubuntu Developers <ubuntu-devel-discuss at lists.ubuntu.com>
+| > | Original-Maintainer: Debian R Packages Maintainers <
+| > | r-pkg-team at alioth-lists.debian.net>
+| > |
+| > | Any suggestions on what I've got wrong here?
+| > |
+| > | Thanks!
+| > |
+| > | --
+| > | Pob hwyl / Best wishes
+| > |
+| > | Kevin Donnelly
+| > | kevindonnelly.org.uk/qiezi
+| > | cymraeg.org.uk
+| > | autoglosser.org.uk
+| > |
+| > | 	[[alternative HTML version deleted]]
+| > |
+| > | _______________________________________________
+| > | R-SIG-Debian mailing list
+| > | R-SIG-Debian at r-project.org
+| > | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| > 
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From kev|n @end|ng |rom dotmon@com  Thu Dec  3 11:09:02 2020
+From: kev|n @end|ng |rom dotmon@com (Kevin Donnelly)
+Date: Thu, 3 Dec 2020 10:09:02 +0000
+Subject: [R-sig-Debian] sjPlot
+In-Reply-To: <24520.23190.498179.882646@rob.eddelbuettel.com>
+References: <CAKLaWougcKB7G_GxZX8e3KcmPQeGfOmubpxy9T4U_vRjNs_y8w@mail.gmail.com>
+ <24520.4665.183840.787838@rob.eddelbuettel.com>
+ <bcdef49b-1072-62a1-ef36-b147b5c66dc1@gmail.com>
+ <24520.23190.498179.882646@rob.eddelbuettel.com>
+Message-ID: <CAKLaWosQC1JgO0BD5vJ7fZZt4BTND09zEn0=2N2dna4CcYhDVg@mail.gmail.com>
+
+Hi both
+
+Gosh, you guys are amazing!  Thanks for the explanation, Dirk, and I've
+just installed sjPlots, so a big thank-you to Michael (alongside the
+ginormous thank-you for maintaining the repo in the first place).
+
+On Thu, 3 Dec 2020 at 03:25, Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> On 2 December 2020 at 21:39, Michael Rutter wrote:
+> |
+> |
+> | On 12/2/20 5:16 PM, Dirk Eddelbuettel wrote:
+> | >
+> | > Hi Kevin,
+> | >
+> | > (And also Hi Michael, please see below...)
+> | >
+> | > On 2 December 2020 at 21:45, Kevin Donnelly wrote:
+> | > | I am trying to install sjPlot.  I am running Ubuntu 20.04 and R
+> 4.0.3, and
+> | > | I have the following two R repos active:
+> | > | https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/
+> | > | http://ppa.launchpad.net/c2d4u.team/c2d4u4.0+/ubuntu focal
+> | > |
+> | > | When I try to install r-cran-sjplot, I get the following error:
+> | > | Depends: r-api-3.5
+> | >
+> | > :-/
+> |
+> | This one is on me.  When R 4.0 came out, I wrote scripts to rebuild all
+> | the r-cran-* packages, such as r-cran-sjplot, that the main Ubuntu
+> | repository supplies so that the upgrade to 4.0 is a painless as possible
+> | for users.  I also need to do this so as when I build packages for
+> | c2d4u, all the dependencies are satisfied.
+> |
+> | It appears I missed this one, and since it hasn't been a dependency for
+> | any package I have built since, it didn't come to my attention.  It has
+> | been corrected an r-cran-sjplot can be installed on Focal.
+>
+> Great news! And I see it now via `apt update -qq; apt-cache policy
+> r-cran-sjplot`.
+>
+> | > The package is in Ubuntu. Ubuntu uses the standard packages, 20.04 is
+> still
+> | > at R 3.6.* so the package _for use within the Ubuntu distro_ is built
+> against
+> | > that R version and hence has 'r-api-3.5' as a (virtual) depends to
+> signal use
+> | > with R 3.6.* (R 3.5.* and R 3.6.* were binary compatible so the label
+> was not
+> | > increased.)
+> | >
+> | > You seem to have one of the rare packages _not_ shadowed by Michael in
+> | > excellent c4d4u4.0+ repo.
+> | >
+> | > So you have to install from source. In which case I would try to mix
+> and
+> | > match and get as much as you can from c2d4u4.0+, and install the rest
+> | > old-school by hand from CRAN.
+> | >
+> | > Dirk
+> | >
+> | > Michael:  Shall we try to mark this as a virtual TODO and maybe use
+> RcppAPT
+> | > or another interface into the package pool to find packages that are
+> in fact
+> | > in Debian/Ubuntu but not in your otherwise excellent and complete repo?
+> |
+> | Yes, sounds like a good project to tackle after the semester ends.
+>
+> Always easy to schedule commitments "infinitely far away" :)
+>
+> Thanks again for the quick fix!
+>
+> Dirk
+>
+> | Michael
+> |
+> |
+> | > | Depends: r-cran-bayestestr but it is not going to be installed
+> | > | Depends: r-cran-effectsize but it is not going to be installed
+> | > | Depends: r-cran-ggeffects but it is not going to be installed
+> | > | Depends: r-cran-parameters but it is not going to be installed
+> | > | Depends: r-cran-performance but it is not going to be installed
+> | > | Depends: r-cran-sjmisc but it is not going to be installed
+> | > | Depends: r-cran-sjstats but it is not going to be installed
+> | > |
+> | > | Many of the other packages can be installed (though sjstats has a
+> further
+> | > | list of errors), but r-api-3.5 is not available.
+> | > | apt-cache show r-cran-sjplot
+> | > | seems to show only an Ubuntu distro version (though I'm not sure how
+> it can
+> | > | be there if the above two repos are active):
+> | > | Package: r-cran-sjplot
+> | > | Architecture: all
+> | > | Version: 2.8.2-1
+> | > | Priority: optional
+> | > | Section: universe/gnu-r
+> | > | Origin: Ubuntu
+> | > | Maintainer: Ubuntu Developers <ubuntu-devel-discuss at lists.ubuntu.com
+> >
+> | > | Original-Maintainer: Debian R Packages Maintainers <
+> | > | r-pkg-team at alioth-lists.debian.net>
+> | > |
+> | > | Any suggestions on what I've got wrong here?
+> | > |
+> | > | Thanks!
+> | > |
+> | > | --
+> | > | Pob hwyl / Best wishes
+> | > |
+> | > | Kevin Donnelly
+> | > | kevindonnelly.org.uk/qiezi
+> | > | cymraeg.org.uk
+> | > | autoglosser.org.uk
+> | > |
+> | > |   [[alternative HTML version deleted]]
+> | > |
+> | > | _______________________________________________
+> | > | R-SIG-Debian mailing list
+> | > | R-SIG-Debian at r-project.org
+> | > | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> | >
+>
+> --
+> https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+
+-- 
+Pob hwyl / Best wishes
+
+Kevin Donnelly
+kevindonnelly.org.uk/qiezi
+cymraeg.org.uk
+autoglosser.org.uk
+
+	[[alternative HTML version deleted]]
+
+

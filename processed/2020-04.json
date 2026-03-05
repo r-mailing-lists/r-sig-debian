@@ -1,0 +1,718 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2020-04",
+  "messages": [
+    {
+      "id": "msg-356273ed9aa7",
+      "message_id": "<CABFfbXskOajsHbDX4SXkJuS3xC8H+boR=bcJw9vBWGdkn1nQhw@mail.gmail.com>",
+      "from_name": "Jeroen Ooms",
+      "from_email_hash": "6d6b57f7dfdacdb11068763c49af518a12f1ee23bc379f749098f057c1d6df69",
+      "date": "2020-04-25T01:02:38+02:00",
+      "subject": "[R-sig-Debian] Timezone conversion on Ubuntu 20.04",
+      "subject_clean": "Timezone conversion on Ubuntu 20.04",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi all,\n\nI am testing R 4.0 and ran into an issue with timezones on Ubuntu\nFocal: converting a timestamp to another timezone results in NA:\n\n  as.POSIXct(as.POSIXlt(Sys.time(), tz = \"CET\"), tz = \"EST\")\n\nThis only happens on Ubuntu Focal, it seems to work fine on Ubuntu\nBionic. I am the standard ubuntu docker image icw/ r-base from Dirk's\nppa:edd/r-4.0 on both systems.\n\nAm I missing a system dependency for tzone data?\n\nJeroen",
+      "body_snippet": "Hi all,\n\nI am testing R 4.0 and ran into an issue with timezones on Ubuntu\nFocal: converting a timestamp to another timezone results in NA:\n\n  as.POSIXct(as.POSIXlt(Sys.time(), tz = \"CET\"), tz = \"EST\"",
+      "thread_id": "thread-356273ed9aa7",
+      "thread_depth": 0,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-1068a03358e3",
+      "message_id": "<e7403960-2773-1279-ab8d-b13bb82311fa@comcast.net>",
+      "from_name": "David Winsemius",
+      "from_email_hash": "960cf691f34cc2709527dabb6de874fb0a4c64edacd6eb5108b4fb7e2aa36670",
+      "date": "2020-04-24T17:46:00-07:00",
+      "subject": "[R-sig-Debian] Timezone conversion on Ubuntu 20.04",
+      "subject_clean": "Timezone conversion on Ubuntu 20.04",
+      "in_reply_to": "<CABFfbXskOajsHbDX4SXkJuS3xC8H+boR=bcJw9vBWGdkn1nQhw@mail.gmail.com>",
+      "references": [
+        "<CABFfbXskOajsHbDX4SXkJuS3xC8H+boR=bcJw9vBWGdkn1nQhw@mail.gmail.com>"
+      ],
+      "body_plain": "On 4/24/20 4:02 PM, Jeroen Ooms wrote:\n> Hi all,\n>\n> I am testing R 4.0 and ran into an issue with timezones on Ubuntu\n> Focal: converting a timestamp to another timezone results in NA:\n>\n>    as.POSIXct(as.POSIXlt(Sys.time(), tz = \"CET\"), tz = \"EST\")\n>\n> This only happens on Ubuntu Focal, it seems to work fine on Ubuntu\n> Bionic. I am the standard ubuntu docker image icw/ r-base from Dirk's\n> ppa:edd/r-4.0 on both systems.\n>\n> Am I missing a system dependency for tzone data?\n\n\nI don't really know but I do know that \"EST\" is often not a specific \nvalid value. It is used by both the USA and Australia. More valid \ndesignation would probably be \"America/New_York\"\n\nThe vector of valid names is returned by:\n\nOlsonNames(tzdir = NULL)\n\n-- \n\nDavid.\n\n>\n> Jeroen\n>\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "On 4/24/20 4:02 PM, Jeroen Ooms wrote:\n> Hi all,\n>\n> I am testing R 4.0 and ran into an issue with timezones on Ubuntu\n> Focal: converting a timestamp to another timezone results in NA:\n>\n>    as.POSI",
+      "thread_id": "thread-356273ed9aa7",
+      "thread_depth": 1,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-3cf16d60d076",
+      "message_id": "<24227.35856.851303.689831@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-04-24T20:02:08-05:00",
+      "subject": "[R-sig-Debian] Timezone conversion on Ubuntu 20.04",
+      "subject_clean": "Timezone conversion on Ubuntu 20.04",
+      "in_reply_to": "<e7403960-2773-1279-ab8d-b13bb82311fa@comcast.net>",
+      "references": [
+        "<CABFfbXskOajsHbDX4SXkJuS3xC8H+boR=bcJw9vBWGdkn1nQhw@mail.gmail.com>",
+        "<e7403960-2773-1279-ab8d-b13bb82311fa@comcast.net>"
+      ],
+      "body_plain": "On 24 April 2020 at 17:46, David Winsemius wrote:\n| On 4/24/20 4:02 PM, Jeroen Ooms wrote:\n| > I am testing R 4.0 and ran into an issue with timezones on Ubuntu\n| > Focal: converting a timestamp to another timezone results in NA:\n| >\n| >    as.POSIXct(as.POSIXlt(Sys.time(), tz = \"CET\"), tz = \"EST\")\n| >\n| > This only happens on Ubuntu Focal, it seems to work fine on Ubuntu\n| > Bionic. I am the standard ubuntu docker image icw/ r-base from Dirk's\n| > ppa:edd/r-4.0 on both systems.\n| >\n| > Am I missing a system dependency for tzone data?\n\nMaybe. What does `dpkg -s tzdata` say? Installed?  Or not?\n\nThe base images are pretty narrow and may simply not have it installed.\n \n| I don't really know but I do know that \"EST\" is often not a specific \n| valid value. It is used by both the USA and Australia. More valid \n| designation would probably be \"America/New_York\"\n| \n| The vector of valid names is returned by:\n| \n| OlsonNames(tzdir = NULL)\n\nExcellent point by David.\n\nAlso, there are _two_ issues here:\n\n - Does the machine itself have timezone information, ie can you access with\n   anything other than R?  You hinted at that with question about 'tzdata'\n\n - If it does, did R regress?  At some point years ago R was less clever\n   about finding tz info when the /etc/ softlink was not set. I coded up one\n   smarter heuristic in CRAN package 'gettz'; later R itself carried some of\n   that same logic. This obviously needs the system info from the previous\n   question.\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 24 April 2020 at 17:46, David Winsemius wrote:\n| On 4/24/20 4:02 PM, Jeroen Ooms wrote:\n| > I am testing R 4.0 and ran into an issue with timezones on Ubuntu\n| > Focal: converting a timestamp to an",
+      "thread_id": "thread-356273ed9aa7",
+      "thread_depth": 2,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-a46dce8503b2",
+      "message_id": "<4226020.ubvjxC1tA2@ryz>",
+      "from_name": "Johannes Ranke",
+      "from_email_hash": "cd891293693c40cf302d94a23f7e69326a937c8c71c3beac9718c287a16777e7",
+      "date": "2020-04-25T10:30:58+02:00",
+      "subject": "[R-sig-Debian] R 4.0.0 for bullseye and buster",
+      "subject_clean": "R 4.0.0 for bullseye and buster",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Dear all,\n\nI set up new repositories on CRAN for R 4.0.0 and the recommended packages. As \nthe transition will probably still take a while, I also created a repo for \nbullseye. If you would like to use R 4.0.0 from these repos, you first need to \nremove r-base-core which will remove all the Debian packaged extensions, then \ninstall r-base and update your locally installed packages as described here\n\n  https://cran.r-project.org/bin/linux/debian/#debian-bullseye-testing\n\nI am not currently supporting R 4.0.0 on stretch, as I am not using it. Let me \nknow if you need it.\n\nKind regards,\n\nJohannes\n\nP.S.: I forgot to update the repo line for buster at first, the fix is on its \nway. It has to be buster-cran40 of course.",
+      "body_snippet": "Dear all,\n\nI set up new repositories on CRAN for R 4.0.0 and the recommended packages. As \nthe transition will probably still take a while, I also created a repo for \nbullseye. If you would like to us",
+      "thread_id": "thread-a46dce8503b2",
+      "thread_depth": 0,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-c0e77f1aa243",
+      "message_id": "<20101919.Xy7VfupATn@ryz>",
+      "from_name": "Johannes Ranke",
+      "from_email_hash": "cd891293693c40cf302d94a23f7e69326a937c8c71c3beac9718c287a16777e7",
+      "date": "2020-04-25T10:33:49+02:00",
+      "subject": "[R-sig-Debian] Timezone conversion on Ubuntu 20.04",
+      "subject_clean": "Timezone conversion on Ubuntu 20.04",
+      "in_reply_to": "<CABFfbXskOajsHbDX4SXkJuS3xC8H+boR=bcJw9vBWGdkn1nQhw@mail.gmail.com>",
+      "references": [
+        "<CABFfbXskOajsHbDX4SXkJuS3xC8H+boR=bcJw9vBWGdkn1nQhw@mail.gmail.com>"
+      ],
+      "body_plain": "Am Samstag, 25. April 2020, 01:02:38 CEST schrieb Jeroen Ooms:\n> Hi all,\n> \n> I am testing R 4.0 and ran into an issue with timezones on Ubuntu\n> Focal: converting a timestamp to another timezone results in NA:\n> \n>   as.POSIXct(as.POSIXlt(Sys.time(), tz = \"CET\"), tz = \"EST\")\n> \n> This only happens on Ubuntu Focal, it seems to work fine on Ubuntu\n> Bionic. I am the standard ubuntu docker image icw/ r-base from Dirk's\n> ppa:edd/r-4.0 on both systems.\n\nworks fine using the backported R 4.0.0 on Debian buster:\n\nR> as.POSIXct(as.POSIXlt(Sys.time(), tz = \"CET\"), tz = \"EST\")\n[1] \"2020-04-25 10:05:29 EST\"\n\nJohannes\n\n> \n> Am I missing a system dependency for tzone data?\n> \n> Jeroen\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "Am Samstag, 25. April 2020, 01:02:38 CEST schrieb Jeroen Ooms:\n> Hi all,\n> \n> I am testing R 4.0 and ran into an issue with timezones on Ubuntu\n> Focal: converting a timestamp to another timezone resu",
+      "thread_id": "thread-356273ed9aa7",
+      "thread_depth": 1,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-f67fd75aadbf",
+      "message_id": "<CABFfbXv=-hpZg7Lpmqk5Byo983RdJucTwLn1hL+nmQ-cE_Moog@mail.gmail.com>",
+      "from_name": "Jeroen Ooms",
+      "from_email_hash": "6d6b57f7dfdacdb11068763c49af518a12f1ee23bc379f749098f057c1d6df69",
+      "date": "2020-04-26T23:14:47+02:00",
+      "subject": "[R-sig-Debian] Timezone conversion on Ubuntu 20.04",
+      "subject_clean": "Timezone conversion on Ubuntu 20.04",
+      "in_reply_to": "<20101919.Xy7VfupATn@ryz>",
+      "references": [
+        "<CABFfbXskOajsHbDX4SXkJuS3xC8H+boR=bcJw9vBWGdkn1nQhw@mail.gmail.com>",
+        "<20101919.Xy7VfupATn@ryz>"
+      ],
+      "body_plain": "On Sat, Apr 25, 2020 at 10:41 AM Johannes Ranke <johannes.ranke at jrwb.de> wrote:\n>\n> Am Samstag, 25. April 2020, 01:02:38 CEST schrieb Jeroen Ooms:\n> > Hi all,\n> >\n> > I am testing R 4.0 and ran into an issue with timezones on Ubuntu\n> > Focal: converting a timestamp to another timezone results in NA:\n> >\n> >   as.POSIXct(as.POSIXlt(Sys.time(), tz = \"CET\"), tz = \"EST\")\n> >\n> > This only happens on Ubuntu Focal, it seems to work fine on Ubuntu\n> > Bionic. I am the standard ubuntu docker image icw/ r-base from Dirk's\n> > ppa:edd/r-4.0 on both systems.\n>\n> works fine using the backported R 4.0.0 on Debian buster:\n>\n> R> as.POSIXct(as.POSIXlt(Sys.time(), tz = \"CET\"), tz = \"EST\")\n> [1] \"2020-04-25 10:05:29 EST\"\n\nPerhaps the root cause of the change in behavior is that on the\nfocal/bullseye docker images, /usr/bin/timedatectl exists, but it does\nnot work:\n\n   root at focal:/# timedatectl\n   System has not been booted with systemd as init system (PID 1).\nCan't operate.\n   Failed to create bus connection: Host is down\n\nR assumes that if it timedatectl exists, it can be used. On the docker\nimage of bionic and buster, timedatectl simply is not installed so R\ndoes not call it.\n\nThe consequence though, is very subtle changes in behavior of time\nconversion edge cases that I cannot explain. For example we get\ndifferences between \"UTC\" and \"Etc/UTC\":\n\n> Sys.timezone()\n[1] \"Etc/UTC\"\n# System has not been booted with systemd as init system (PID 1). Can't operate.\n# Failed to create bus connection: Host is down\nWarning message:\nIn system(\"timedatectl\", intern = TRUE) :\n  running command 'timedatectl' had status 1\n\nas.POSIXct(strptime(\"24.04.2020 01:00\", format = \"%d.%m.%Y %H:%M\", tz\n= \"CET\"), tz = \"\")\n[1] NA\n\nas.POSIXct(strptime(\"24.04.2020 01:00\", format = \"%d.%m.%Y %H:%M\", tz\n= \"CEST\"), tz = \"\")\n[1] \"2020-04-24 01:00:00 UTC\"\n\n> as.POSIXct(strptime(\"24.04.2020 01:00\", format = \"%d.%m.%Y %H:%M\", tz = \"CET\"), tz = \"Etc/UTC\")\n[1] NA\n\n> as.POSIXct(strptime(\"24.04.2020 01:00\", format = \"%d.%m.%Y %H:%M\", tz = \"CET\"), tz = \"UTC\")\n[1] \"2020-04-24 01:00:00 UTC\"",
+      "body_snippet": "On Sat, Apr 25, 2020 at 10:41 AM Johannes Ranke <johannes.ranke at jrwb.de> wrote:\n>\n> Am Samstag, 25. April 2020, 01:02:38 CEST schrieb Jeroen Ooms:\n> > Hi all,\n> >\n> > I am testing R 4.0 and ran int",
+      "thread_id": "thread-356273ed9aa7",
+      "thread_depth": 2,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-f0b0f7ae720a",
+      "message_id": "<SN6PR05MB4190FEF7DA655ED83A037CD0BFAF0@SN6PR05MB4190.namprd05.prod.outlook.com>",
+      "from_name": "Stanley Lan",
+      "from_email_hash": "258b00c7c6c5a4e3878d6d1b751fee5eb7b1e43014e9853d2ede6931e8f560de",
+      "date": "2020-04-27T22:46:07Z",
+      "subject": "[R-sig-Debian] hash sum mismatch (tested on xenial cran35 repo ) startnig 4/27",
+      "subject_clean": "hash sum mismatch (tested on xenial cran35 repo ) startnig 4/27",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Starting 4/27/2020 I started having issues installing r-base/dev packages on unbuntu 16.04.\n\nHere are the commands I used based on\nhttps://cran.r-project.org/bin/linux/ubuntu/README.html\n\necho \"deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/\" | sudo tee -a /etc/apt/sources.list\ngpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9\ngpg -a --export E298A3A825C0D65DFD57CBB651716619E084DAB9 | sudo apt-key add -\napt-get clean\nrm -r /var/lib/apt/lists/*\napt-get update\napt-get install --yes r-base\n\nHere are the logs from the installation attempt:\n\n# apt-get install r-base\n\nReading package lists... Done\nBuilding dependency tree\nReading state information... Done\nThe following additional packages will be installed:\n  r-base-core r-cran-boot r-cran-class r-cran-cluster r-cran-codetools r-cran-foreign r-cran-kernsmooth r-cran-lattice\n  r-cran-mass r-cran-matrix r-cran-mgcv r-cran-nlme r-cran-nnet r-cran-rpart r-cran-spatial r-cran-survival r-recommended\nSuggested packages:\n  elpa-ess r-doc-info | r-doc-pdf r-mathlib\nThe following packages will be upgraded:\n  r-base r-base-core r-cran-boot r-cran-class r-cran-cluster r-cran-codetools r-cran-foreign r-cran-kernsmooth r-cran-lattice\n  r-cran-mass r-cran-matrix r-cran-mgcv r-cran-nlme r-cran-nnet r-cran-rpart r-cran-spatial r-cran-survival r-recommended\n18 upgraded, 0 newly installed, 0 to remove and 19 not upgraded.\nNeed to get 8,934 kB/45.4 MB of archives.\nAfter this operation, 10.6 MB of additional disk space will be used.\nDo you want to continue? [Y/n] y\nGet:1 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-lattice 0.20-41-1cran1xenial0 [1,177 kB]\nErr:1 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-lattice 0.20-41-1cran1xenial0\n  Hash Sum mismatch\nGet:2 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-matrix 1.2-18-1xenial0 [3,456 kB]\nErr:2 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-matrix 1.2-18-1xenial0\n  Hash Sum mismatch\nGet:3 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-spatial 7.3-11-2xenial0 [127 kB]\nErr:3 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-spatial 7.3-11-2xenial0\n  Writing more data than expected (127700 > 126876)\nGet:4 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-rpart 4.1-15-2xenial0 [697 kB]\nErr:4 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-rpart 4.1-15-2xenial0\n  Hash Sum mismatch\nGet:5 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-mgcv 1.8-31-1cran1xenial0 [2,771 kB]\nErr:5 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-mgcv 1.8-31-1cran1xenial0\n  Hash Sum mismatch\nGet:6 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-kernsmooth 2.23-16-1+1xenial0 [91.7 kB]\nErr:6 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-kernsmooth 2.23-16-1+1xenial0\n  Hash Sum mismatch\nGet:7 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-cluster 2.1.0-2xenial0 [527 kB]\nErr:7 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-cluster 2.1.0-2xenial0\n  Hash Sum mismatch\nGet:8 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-class 7.3-16-1xenial0 [87.9 kB]\nErr:8 https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ r-cran-class 7.3-16-1xenial0\n  Hash Sum mismatch\nFetched 8,726 kB in 0s (15.9 MB/s)\nE: Failed to fetch https://cloud.r-project.org/bin/linux/ubuntu/xenial-cran35/r-cran-lattice_0.20-41-1cran1xenial0_amd64.deb  Hash Sum mismatch\n\nE: Failed to fetch https://cloud.r-project.org/bin/linux/ubuntu/xenial-cran35/r-cran-matrix_1.2-18-1xenial0_amd64.deb  Hash Sum mismatch\n\nE: Failed to fetch https://cloud.r-project.org/bin/linux/ubuntu/xenial-cran35/r-cran-spatial_7.3-11-2xenial0_amd64.deb  Writing more data than expected (127700 > 126876)\n\nE: Failed to fetch https://cloud.r-project.org/bin/linux/ubuntu/xenial-cran35/r-cran-rpart_4.1-15-2xenial0_amd64.deb  Hash Sum mismatch\n\nE: Failed to fetch https://cloud.r-project.org/bin/linux/ubuntu/xenial-cran35/r-cran-mgcv_1.8-31-1cran1xenial0_amd64.deb  Hash Sum mismatch\n\nE: Failed to fetch https://cloud.r-project.org/bin/linux/ubuntu/xenial-cran35/r-cran-kernsmooth_2.23-16-1+1xenial0_amd64.deb  Hash Sum mismatch\n\nE: Failed to fetch https://cloud.r-project.org/bin/linux/ubuntu/xenial-cran35/r-cran-cluster_2.1.0-2xenial0_amd64.deb  Hash Sum mismatch\n\nE: Failed to fetch https://cloud.r-project.org/bin/linux/ubuntu/xenial-cran35/r-cran-class_7.3-16-1xenial0_amd64.deb  Hash Sum mismatch\n\nE: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing\n\nCan someone assist?\n\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Starting 4/27/2020 I started having issues installing r-base/dev packages on unbuntu 16.04.\n\nHere are the commands I used based on\nhttps://cran.r-project.org/bin/linux/ubuntu/README.html\n\necho \"deb ht",
+      "thread_id": "thread-f0b0f7ae720a",
+      "thread_depth": 0,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-75dc6c05255b",
+      "message_id": "<c9777803-0ef7-a82f-5fa7-3de7ce88cd20@gmail.com>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "fa9a311629388b6101be83d3f529d49cb003033a62bdd75c9f3e231ba130973a",
+      "date": "2020-04-27T19:14:52-04:00",
+      "subject": "[R-sig-Debian]  hash sum mismatch (tested on xenial cran35 repo ) startnig 4/27",
+      "subject_clean": "hash sum mismatch (tested on xenial cran35 repo ) startnig 4/27",
+      "in_reply_to": "<SN6PR05MB4190FEF7DA655ED83A037CD0BFAF0@SN6PR05MB4190.namprd05.prod.outlook.com>",
+      "references": [
+        "<SN6PR05MB4190FEF7DA655ED83A037CD0BFAF0@SN6PR05MB4190.namprd05.prod.outlook.com>"
+      ],
+      "body_plain": "On 4/27/20 6:46 PM, Stanley Lan wrote:\n> Starting 4/27/2020 I started having issues installing r-base/dev packages on unbuntu 16.04.\n> \n> Here are the commands I used based on\n> https://cran.r-project.org/bin/linux/ubuntu/README.html\n> \n> echo \"deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/\" | sudo tee -a /etc/apt/sources.list\n> gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9\n> gpg -a --export E298A3A825C0D65DFD57CBB651716619E084DAB9 | sudo apt-key add -\n> apt-get clean\n> rm -r /var/lib/apt/lists/*\n> apt-get update\n> apt-get install --yes r-base\n\n-- Clipped for clarity\n\n> E: Failed to fetch https://cloud.r-project.org/bin/linux/ubuntu/xenial-cran35/r-cran-cluster_2.1.0-2xenial0_amd64.deb  Hash Sum mismatch\n> \n> E: Failed to fetch https://cloud.r-project.org/bin/linux/ubuntu/xenial-cran35/r-cran-class_7.3-16-1xenial0_amd64.deb  Hash Sum mismatch\n> \n> E: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing\n> \n> Can someone assist?\n> \nStanley,\n\nTotally my fault and should fix itself on the next sync.  I created a \nsmall error when working on the deployment of R 4.0 binaries to CRAN. \nDidn't catch it in time for sync.  My apologizes.\n\nIf you need the packages ASAP, use the PPA where they are synced from: \nhttps://launchpad.net/~marutter/+archive/ubuntu/rrutter3.5\n\nYou can replace the echo and gpg commands with:\n\nsudo add-apt-repository -y ppa:marutter/rrutter3.5\n\nMichael",
+      "body_snippet": "On 4/27/20 6:46 PM, Stanley Lan wrote:\n> Starting 4/27/2020 I started having issues installing r-base/dev packages on unbuntu 16.04.\n> \n> Here are the commands I used based on\n> https://cran.r-project",
+      "thread_id": "thread-f0b0f7ae720a",
+      "thread_depth": 1,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-3944d5ac25d6",
+      "message_id": "<SN6PR05MB41904FED7A8ED3E8877550A4BFAC0@SN6PR05MB4190.namprd05.prod.outlook.com>",
+      "from_name": "Stanley Lan",
+      "from_email_hash": "258b00c7c6c5a4e3878d6d1b751fee5eb7b1e43014e9853d2ede6931e8f560de",
+      "date": "2020-04-28T00:20:55Z",
+      "subject": "[R-sig-Debian]  hash sum mismatch (tested on xenial cran35 repo ) startnig 4/27",
+      "subject_clean": "hash sum mismatch (tested on xenial cran35 repo ) startnig 4/27",
+      "in_reply_to": "<c9777803-0ef7-a82f-5fa7-3de7ce88cd20@gmail.com>",
+      "references": [
+        "<SN6PR05MB4190FEF7DA655ED83A037CD0BFAF0@SN6PR05MB4190.namprd05.prod.outlook.com>",
+        "<c9777803-0ef7-a82f-5fa7-3de7ce88cd20@gmail.com>"
+      ],
+      "body_plain": "Great to know it's fixed soon. Thanks.\n\nStanley\n________________________________\nFrom: R-SIG-Debian <r-sig-debian-bounces at r-project.org> on behalf of Michael Rutter <marutter at gmail.com>\nSent: Monday, April 27, 2020 7:14 PM\nTo: r-sig-debian at r-project.org <r-sig-debian at r-project.org>\nSubject: Re: [R-sig-Debian] hash sum mismatch (tested on xenial cran35 repo ) startnig 4/27\n\n\n\nOn 4/27/20 6:46 PM, Stanley Lan wrote:\n> Starting 4/27/2020 I started having issues installing r-base/dev packages on unbuntu 16.04.\n>\n> Here are the commands I used based on\n> https://cran.r-project.org/bin/linux/ubuntu/README.html\n>\n> echo \"deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/\" | sudo tee -a /etc/apt/sources.list\n> gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9\n> gpg -a --export E298A3A825C0D65DFD57CBB651716619E084DAB9 | sudo apt-key add -\n> apt-get clean\n> rm -r /var/lib/apt/lists/*\n> apt-get update\n> apt-get install --yes r-base\n\n-- Clipped for clarity\n\n> E: Failed to fetch https://cloud.r-project.org/bin/linux/ubuntu/xenial-cran35/r-cran-cluster_2.1.0-2xenial0_amd64.deb  Hash Sum mismatch\n>\n> E: Failed to fetch https://cloud.r-project.org/bin/linux/ubuntu/xenial-cran35/r-cran-class_7.3-16-1xenial0_amd64.deb  Hash Sum mismatch\n>\n> E: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing\n>\n> Can someone assist?\n>\nStanley,\n\nTotally my fault and should fix itself on the next sync.  I created a\nsmall error when working on the deployment of R 4.0 binaries to CRAN.\nDidn't catch it in time for sync.  My apologizes.\n\nIf you need the packages ASAP, use the PPA where they are synced from:\nhttps://launchpad.net/~marutter/+archive/ubuntu/rrutter3.5\n\nYou can replace the echo and gpg commands with:\n\nsudo add-apt-repository -y ppa:marutter/rrutter3.5\n\nMichael\n\n_______________________________________________\nR-SIG-Debian mailing list\nR-SIG-Debian at r-project.org\nhttps://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Great to know it's fixed soon. Thanks.\n\nStanley\n________________________________\nFrom: R-SIG-Debian <r-sig-debian-bounces at r-project.org> on behalf of Michael Rutter <marutter at gmail.com>\nSent: Mo",
+      "thread_id": "thread-f0b0f7ae720a",
+      "thread_depth": 2,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-9b3650e9f511",
+      "message_id": "<CAE0zDwAkFbaZct5GhoBA0PTyoutH6edAV=6ALH-gVJzzEJNG5Q@mail.gmail.com>",
+      "from_name": "Greg Siemon",
+      "from_email_hash": "cecbc3ad0c9551b2febf57b4823a401250a942893ee464658ca942c58940b972",
+      "date": "2020-04-28T12:05:00+10:00",
+      "subject": "[R-sig-Debian] CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "subject_clean": "CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "I noticed that R 4.0.0 is now available for ubuntu on CRAN. I attempted to\ndo a clean install on 18.04 using:\n\nsudo apt install r-base\n\nafter adding\n\ndeb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/\n\nto /etc/apt/sources.list.\n\nUnfortunately, apt reports that r-recommend is a dependency and it won't be\ninstalled. Upon inspecting the R4.0 repos r-recommend is missing not only\nfor bionic but also for xenial and focal. It is exists for the 3.5 Repos\nand seems to exist in the Debian R4.0 variants. Perhaps it was missed or is\nit still syncing across?\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "I noticed that R 4.0.0 is now available for ubuntu on CRAN. I attempted to\ndo a clean install on 18.04 using:\n\nsudo apt install r-base\n\nafter adding\n\ndeb https://cloud.r-project.org/bin/linux/ubuntu b",
+      "thread_id": "thread-9b3650e9f511",
+      "thread_depth": 0,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-d53207a28082",
+      "message_id": "<24231.40630.820051.201848@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-04-27T22:10:46-05:00",
+      "subject": "[R-sig-Debian]  CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "subject_clean": "CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "in_reply_to": "<CAE0zDwAkFbaZct5GhoBA0PTyoutH6edAV=6ALH-gVJzzEJNG5Q@mail.gmail.com>",
+      "references": [
+        "<CAE0zDwAkFbaZct5GhoBA0PTyoutH6edAV=6ALH-gVJzzEJNG5Q@mail.gmail.com>"
+      ],
+      "body_plain": "Hi Greg,\n\nOn 28 April 2020 at 12:05, Greg Siemon wrote:\n| I noticed that R 4.0.0 is now available for ubuntu on CRAN. I attempted to\n| do a clean install on 18.04 using:\n| \n| sudo apt install r-base\n| \n| after adding\n| \n| deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/\n| \n| to /etc/apt/sources.list.\n| \n| Unfortunately, apt reports that r-recommend is a dependency and it won't be\n| installed. Upon inspecting the R4.0 repos r-recommend is missing not only\n| for bionic but also for xenial and focal. It is exists for the 3.5 Repos\n| and seems to exist in the Debian R4.0 variants. Perhaps it was missed or is\n| it still syncing across?\n\nThanks for catching that. It is likely a simple oversight which Michael will\nfix shortly as the package does get created.\n\nIn the meantime you can try to not install 'r-base' but just 'r-base-core' in\norder avoid r-recommended. Or you could try to manually inject it from my ppa.\nor even add that PPA for a day or two:\n\n   https://launchpad.net/~edd/+archive/ubuntu/r-4.0\n\nThis PPA should probably not be used instead of the CRAN mirrored one run by\nMichael but may help you in this current situation.\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "Hi Greg,\n\nOn 28 April 2020 at 12:05, Greg Siemon wrote:\n| I noticed that R 4.0.0 is now available for ubuntu on CRAN. I attempted to\n| do a clean install on 18.04 using:\n| \n| sudo apt install r-base\n|",
+      "thread_id": "thread-9b3650e9f511",
+      "thread_depth": 1,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-59c330ed57fc",
+      "message_id": "<CAE0zDwBPwG++GGqdJyiGM_LA_6SSnDC8gBZ7uS7R2CYhj2aJLw@mail.gmail.com>",
+      "from_name": "Greg Siemon",
+      "from_email_hash": "cecbc3ad0c9551b2febf57b4823a401250a942893ee464658ca942c58940b972",
+      "date": "2020-04-28T13:19:49+10:00",
+      "subject": "[R-sig-Debian]  CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "subject_clean": "CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "in_reply_to": "<24231.40630.820051.201848@rob.eddelbuettel.com>",
+      "references": [
+        "<CAE0zDwAkFbaZct5GhoBA0PTyoutH6edAV=6ALH-gVJzzEJNG5Q@mail.gmail.com>",
+        "<24231.40630.820051.201848@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Hi Dirk,\n\nThanks for the suggested workarounds. This was just a VM I had spun up so I\ncould test R4.0.0. I'm happy to wait for Michael to fix it when he has time.\n\nGreg\n\nOn Tue, 28 Apr 2020 at 13:10, Dirk Eddelbuettel <edd at debian.org> wrote:\n\n>\n> Hi Greg,\n>\n> On 28 April 2020 at 12:05, Greg Siemon wrote:\n> | I noticed that R 4.0.0 is now available for ubuntu on CRAN. I attempted\n> to\n> | do a clean install on 18.04 using:\n> |\n> | sudo apt install r-base\n> |\n> | after adding\n> |\n> | deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/\n> |\n> | to /etc/apt/sources.list.\n> |\n> | Unfortunately, apt reports that r-recommend is a dependency and it won't\n> be\n> | installed. Upon inspecting the R4.0 repos r-recommend is missing not only\n> | for bionic but also for xenial and focal. It is exists for the 3.5 Repos\n> | and seems to exist in the Debian R4.0 variants. Perhaps it was missed or\n> is\n> | it still syncing across?\n>\n> Thanks for catching that. It is likely a simple oversight which Michael\n> will\n> fix shortly as the package does get created.\n>\n> In the meantime you can try to not install 'r-base' but just 'r-base-core'\n> in\n> order avoid r-recommended. Or you could try to manually inject it from my\n> ppa.\n> or even add that PPA for a day or two:\n>\n>    https://launchpad.net/~edd/+archive/ubuntu/r-4.0\n>\n> This PPA should probably not be used instead of the CRAN mirrored one run\n> by\n> Michael but may help you in this current situation.\n>\n> Dirk\n>\n> --\n> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org\n>\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Hi Dirk,\n\nThanks for the suggested workarounds. This was just a VM I had spun up so I\ncould test R4.0.0. I'm happy to wait for Michael to fix it when he has time.\n\nGreg\n\nOn Tue, 28 Apr 2020 at 13:10, ",
+      "thread_id": "thread-9b3650e9f511",
+      "thread_depth": 2,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-1d620d234737",
+      "message_id": "<24232.3647.268624.371739@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-04-28T06:06:39-05:00",
+      "subject": "[R-sig-Debian]  CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "subject_clean": "CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "in_reply_to": "<CAE0zDwBPwG++GGqdJyiGM_LA_6SSnDC8gBZ7uS7R2CYhj2aJLw@mail.gmail.com>",
+      "references": [
+        "<CAE0zDwAkFbaZct5GhoBA0PTyoutH6edAV=6ALH-gVJzzEJNG5Q@mail.gmail.com>",
+        "<24231.40630.820051.201848@rob.eddelbuettel.com>",
+        "<CAE0zDwBPwG++GGqdJyiGM_LA_6SSnDC8gBZ7uS7R2CYhj2aJLw@mail.gmail.com>"
+      ],
+      "body_plain": "Greg,\n\nOn 28 April 2020 at 13:19, Greg Siemon wrote:\n| Thanks for the suggested workarounds. This was just a VM I had spun up so I\n| could test R4.0.0. I'm happy to wait for Michael to fix it when he has time.\n\nIt is already there now:\nhttps://cloud.r-project.org/bin/linux/ubuntu/bionic-cran40/r-recommended_4.0.0-1.1804.0_all.deb \n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "Greg,\n\nOn 28 April 2020 at 13:19, Greg Siemon wrote:\n| Thanks for the suggested workarounds. This was just a VM I had spun up so I\n| could test R4.0.0. I'm happy to wait for Michael to fix it when he ",
+      "thread_id": "thread-9b3650e9f511",
+      "thread_depth": 3,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-6d0d87ec3a02",
+      "message_id": "<CAJuCY5z5DFJUbeCZNM2ONVq_Et7v8o9mgoLp4q4E-dhHs6DrHQ@mail.gmail.com>",
+      "from_name": "Thierry Onkelinx",
+      "from_email_hash": "1183e720326bc91ec429d1a20d015e292579537392780a0fcfc24d392942c637",
+      "date": "2020-04-28T13:31:33+02:00",
+      "subject": "[R-sig-Debian]  CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "subject_clean": "CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "in_reply_to": "<24232.3647.268624.371739@rob.eddelbuettel.com>",
+      "references": [
+        "<CAE0zDwAkFbaZct5GhoBA0PTyoutH6edAV=6ALH-gVJzzEJNG5Q@mail.gmail.com>",
+        "<24231.40630.820051.201848@rob.eddelbuettel.com>",
+        "<CAE0zDwBPwG++GGqdJyiGM_LA_6SSnDC8gBZ7uS7R2CYhj2aJLw@mail.gmail.com>",
+        "<24232.3647.268624.371739@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Hi Dirk,\n\nCould there be a typo on\nhttps://cloud.r-project.org/bin/linux/ubuntu/README.html? The installation\nentries mention cran35 for R 4.0. Should that be cran40?\n\nBest regards,\n\nThierry\n\n\nir. Thierry Onkelinx\nStatisticus / Statistician\n\nVlaamse Overheid / Government of Flanders\nINSTITUUT VOOR NATUUR- EN BOSONDERZOEK / RESEARCH INSTITUTE FOR NATURE AND\nFOREST\nTeam Biometrie & Kwaliteitszorg / Team Biometrics & Quality Assurance\nthierry.onkelinx at inbo.be\nHavenlaan 88 bus 73, 1000 Brussel\nwww.inbo.be\n\n///////////////////////////////////////////////////////////////////////////////////////////\nTo call in the statistician after the experiment is done may be no more\nthan asking him to perform a post-mortem examination: he may be able to say\nwhat the experiment died of. ~ Sir Ronald Aylmer Fisher\nThe plural of anecdote is not data. ~ Roger Brinner\nThe combination of some data and an aching desire for an answer does not\nensure that a reasonable answer can be extracted from a given body of data.\n~ John Tukey\n///////////////////////////////////////////////////////////////////////////////////////////\n\n<https://www.inbo.be>\n\n\nOp di 28 apr. 2020 om 13:07 schreef Dirk Eddelbuettel <edd at debian.org>:\n\n>\n> Greg,\n>\n> On 28 April 2020 at 13:19, Greg Siemon wrote:\n> | Thanks for the suggested workarounds. This was just a VM I had spun up\n> so I\n> | could test R4.0.0. I'm happy to wait for Michael to fix it when he has\n> time.\n>\n> It is already there now:\n>\n> https://cloud.r-project.org/bin/linux/ubuntu/bionic-cran40/r-recommended_4.0.0-1.1804.0_all.deb\n>\n> Dirk\n>\n> --\n> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org\n>\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n>\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Hi Dirk,\n\nCould there be a typo on\nhttps://cloud.r-project.org/bin/linux/ubuntu/README.html? The installation\nentries mention cran35 for R 4.0. Should that be cran40?\n\nBest regards,\n\nThierry\n\n\nir. Thi",
+      "thread_id": "thread-9b3650e9f511",
+      "thread_depth": 4,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-a18c5ce29f21",
+      "message_id": "<24232.6245.910719.732987@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-04-28T06:49:57-05:00",
+      "subject": "[R-sig-Debian]  CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "subject_clean": "CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "in_reply_to": "<CAJuCY5z5DFJUbeCZNM2ONVq_Et7v8o9mgoLp4q4E-dhHs6DrHQ@mail.gmail.com>",
+      "references": [
+        "<CAE0zDwAkFbaZct5GhoBA0PTyoutH6edAV=6ALH-gVJzzEJNG5Q@mail.gmail.com>",
+        "<24231.40630.820051.201848@rob.eddelbuettel.com>",
+        "<CAE0zDwBPwG++GGqdJyiGM_LA_6SSnDC8gBZ7uS7R2CYhj2aJLw@mail.gmail.com>",
+        "<24232.3647.268624.371739@rob.eddelbuettel.com>",
+        "<CAJuCY5z5DFJUbeCZNM2ONVq_Et7v8o9mgoLp4q4E-dhHs6DrHQ@mail.gmail.com>"
+      ],
+      "body_plain": "On 28 April 2020 at 13:31, Thierry Onkelinx wrote:\n| Could there be a typo on\n| https://cloud.r-project.org/bin/linux/ubuntu/README.html? The installation\n| entries mention cran35 for R 4.0. Should that be cran40?\n\nThat's a question for Michael who authors this :)  Maybe you can follow up\nwith him?  Possibly send him a patch with suggested edits?\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 28 April 2020 at 13:31, Thierry Onkelinx wrote:\n| Could there be a typo on\n| https://cloud.r-project.org/bin/linux/ubuntu/README.html? The installation\n| entries mention cran35 for R 4.0. Should th",
+      "thread_id": "thread-9b3650e9f511",
+      "thread_depth": 5,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-95085bdae6b4",
+      "message_id": "<CAE0zDwDruoBBB+VDKsnVm30AgdRZZrRu8Lkgvr=obUo8JL5dQA@mail.gmail.com>",
+      "from_name": "Greg Siemon",
+      "from_email_hash": "cecbc3ad0c9551b2febf57b4823a401250a942893ee464658ca942c58940b972",
+      "date": "2020-04-28T21:52:00+10:00",
+      "subject": "[R-sig-Debian]  CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "subject_clean": "CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "in_reply_to": "<24232.3647.268624.371739@rob.eddelbuettel.com>",
+      "references": [
+        "<CAE0zDwAkFbaZct5GhoBA0PTyoutH6edAV=6ALH-gVJzzEJNG5Q@mail.gmail.com>",
+        "<24231.40630.820051.201848@rob.eddelbuettel.com>",
+        "<CAE0zDwBPwG++GGqdJyiGM_LA_6SSnDC8gBZ7uS7R2CYhj2aJLw@mail.gmail.com>",
+        "<24232.3647.268624.371739@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Hi Dirk,\n\nThankyou for letting me know.  I'm up and running now.\n\nGreg\n\n\nOn Tue, 28 Apr 2020 at 21:06, Dirk Eddelbuettel <edd at debian.org> wrote:\n\n>\n> Greg,\n>\n> On 28 April 2020 at 13:19, Greg Siemon wrote:\n> | Thanks for the suggested workarounds. This was just a VM I had spun up\n> so I\n> | could test R4.0.0. I'm happy to wait for Michael to fix it when he has\n> time.\n>\n> It is already there now:\n>\n> https://cloud.r-project.org/bin/linux/ubuntu/bionic-cran40/r-recommended_4.0.0-1.1804.0_all.deb\n>\n> Dirk\n>\n> --\n> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org\n>\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Hi Dirk,\n\nThankyou for letting me know.  I'm up and running now.\n\nGreg\n\n\nOn Tue, 28 Apr 2020 at 21:06, Dirk Eddelbuettel <edd at debian.org> wrote:\n\n>\n> Greg,\n>\n> On 28 April 2020 at 13:19, Greg Siemo",
+      "thread_id": "thread-9b3650e9f511",
+      "thread_depth": 4,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-477ac37d5e07",
+      "message_id": "<ef9e0ea7-c883-a5b5-2f56-842b1ef2ad2d@gmail.com>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "fa9a311629388b6101be83d3f529d49cb003033a62bdd75c9f3e231ba130973a",
+      "date": "2020-04-28T09:55:22-04:00",
+      "subject": "[R-sig-Debian]  CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "subject_clean": "CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "in_reply_to": "<24232.6245.910719.732987@rob.eddelbuettel.com>",
+      "references": [
+        "<CAE0zDwAkFbaZct5GhoBA0PTyoutH6edAV=6ALH-gVJzzEJNG5Q@mail.gmail.com>",
+        "<24231.40630.820051.201848@rob.eddelbuettel.com>",
+        "<CAE0zDwBPwG++GGqdJyiGM_LA_6SSnDC8gBZ7uS7R2CYhj2aJLw@mail.gmail.com>",
+        "<24232.3647.268624.371739@rob.eddelbuettel.com>",
+        "<CAJuCY5z5DFJUbeCZNM2ONVq_Et7v8o9mgoLp4q4E-dhHs6DrHQ@mail.gmail.com>",
+        "<24232.6245.910719.732987@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "On 4/28/20 7:49 AM, Dirk Eddelbuettel wrote:\n> \n> On 28 April 2020 at 13:31, Thierry Onkelinx wrote:\n> | Could there be a typo on\n> | https://cloud.r-project.org/bin/linux/ubuntu/README.html? The installation\n> | entries mention cran35 for R 4.0. Should that be cran40?\n> \n> That's a question for Michael who authors this :)  Maybe you can follow up\n> with him?  Possibly send him a patch with suggested edits?\n> \n> Dirk\n> \n\nResponses to many things in this thread:\n\n- Until I fully test the CRAN site, I strongly suggest using the PPAs \nthat feed the CRAN site.\n\nhttps://launchpad.net/~marutter/+archive/ubuntu/rrutter3.5\n\nor\n\nhttps://launchpad.net/~marutter/+archive/ubuntu/rrutter4.0\n\nI prefer to use the PPAs personally, as one apt-add-repository command \nadds the repository and the gpg key with no chance of typos.  Easy to \nremove,  as well.\n\n- For Xenial (16.04), I failed to build r-cran-nnet, which is why \nr-recommended won't install.  It is trying to use r-cran-nnet built \nagainst R 3.6, which is why it fails.  That has been fixed, and should \nbe available after the next sync.\n\n- I have updated the README, thanks for correction.  Again, change \nshould appear on the next sync.\n\n- The process of building the repository on CRAN has a lot of moving \nparts, mostly of my own doing.  When a new major version is released, it \ntakes some time to create the repository and test it.  Part of the issue \nthat the repository is synced twice a day, so it takes time for changes \nto propagate and to test it.  Different mirrors will have different \ncontents, so it may work on cran.r-project.org but not on \ncloud.r-project.org for a couple of hours.\n\nI try not to break things, but sometimes a small bug creeps in.  My \napologizes for that.\n\nWhen I have tested all the releases to ensure they all work, I will \nannounce it on this list-serv and on twitter.  Hopefully, I will have \nthis finished by the end of the day.\n\nMichael",
+      "body_snippet": "On 4/28/20 7:49 AM, Dirk Eddelbuettel wrote:\n> \n> On 28 April 2020 at 13:31, Thierry Onkelinx wrote:\n> | Could there be a typo on\n> | https://cloud.r-project.org/bin/linux/ubuntu/README.html? The inst",
+      "thread_id": "thread-9b3650e9f511",
+      "thread_depth": 6,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-9a88bbd3b123",
+      "message_id": "<24232.15342.428849.662394@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-04-28T09:21:34-05:00",
+      "subject": "[R-sig-Debian]  CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "subject_clean": "CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "in_reply_to": "<ef9e0ea7-c883-a5b5-2f56-842b1ef2ad2d@gmail.com>",
+      "references": [
+        "<CAE0zDwAkFbaZct5GhoBA0PTyoutH6edAV=6ALH-gVJzzEJNG5Q@mail.gmail.com>",
+        "<24231.40630.820051.201848@rob.eddelbuettel.com>",
+        "<CAE0zDwBPwG++GGqdJyiGM_LA_6SSnDC8gBZ7uS7R2CYhj2aJLw@mail.gmail.com>",
+        "<24232.3647.268624.371739@rob.eddelbuettel.com>",
+        "<CAJuCY5z5DFJUbeCZNM2ONVq_Et7v8o9mgoLp4q4E-dhHs6DrHQ@mail.gmail.com>",
+        "<24232.6245.910719.732987@rob.eddelbuettel.com>",
+        "<ef9e0ea7-c883-a5b5-2f56-842b1ef2ad2d@gmail.com>"
+      ],
+      "body_plain": "On 28 April 2020 at 09:55, Michael Rutter wrote:\n| When I have tested all the releases to ensure they all work, I will \n| announce it on this list-serv and on twitter.  Hopefully, I will have \n| this finished by the end of the day.\n\nBig big BIG thank you from all of us for all this!\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 28 April 2020 at 09:55, Michael Rutter wrote:\n| When I have tested all the releases to ensure they all work, I will \n| announce it on this list-serv and on twitter.  Hopefully, I will have \n| this ",
+      "thread_id": "thread-9b3650e9f511",
+      "thread_depth": 7,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-5f4d7d7e112d",
+      "message_id": "<043306a2-a393-d068-3548-21515db18a38@inmodelia.com>",
+      "from_name": "Patrice Kiener",
+      "from_email_hash": "cf1aa32602150f97ccb1ba97f89371b4fe239803c3a13aa53caab285b4334fd9",
+      "date": "2020-04-28T20:49:31+02:00",
+      "subject": "[R-sig-Debian] R-4.0.0 and Texlive 2020 installed on EmmabuntusDE4 (Debian Bullseye)",
+      "subject_clean": "R-4.0.0 and Texlive 2020 installed on EmmabuntusDE4 (Debian Bullseye)",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Dear all,\n\n\nI whish to relate my installation of R-4.0.0 on Debian.\n\nI am mainly a Windows user and occasionnaly verify the CRAN checks of my \npackages on a second laptop equipped with Linux Mint Debian Edition 3 \n(LMDE3) based on Debian Stretch. On Friday, April 24, it took me a few \nhours to have R-4.0.0 installed on Windows and the sources compiled, \nthanks to the instructions provided by Jeroen Ooms:\n     https://cloud.r-project.org/bin/windows/Rtools/ + links\n\nI decided to repeat the exercise on Debian with a clean SSD disk, a \nrecent Debian distribution, Texlive 2020 and R-4.0.0 to replace the \nobsolete LMDE3. The main difficulty was to find the appropriate \ndistribution that accepts Texlive 2020. I downloaded and tested:\n\n- Debian Buster 10.3 (the current stable version with a few desktops: \nGnome, KDE-Plasma, XFCE, LXDE, LXQt, Mosaic),\n- Netrunner (Debian Buster 10.3 + KDE),\n- Linux Mint LMDE4 (Debian Buster 10.3 + Cinnamon),\n- Emmabunt?s DE3 (Debian Buster 10.3 + XFCE),\n- Xubuntu (Ubuntu + XFCE),\n- Debian Bullseye (the testing version + LXQt),\n- Emmabunt?s DE4 alpha (Debian Bullseye + XFCE + LXQt) published on \nApril 27 (yesterday),\n- Debian sid (the unstable version).\n\n- Once again in four years, I had many difficulties with the independant \ninstall-tl-unix.tar.gz (*.sh) program provided by Texlive and the final \nsteps with the PATH update. The program was not found and tlmgr --gui \ndid not reconnect to the CTAN repository. Once again, I gave up.\n- All distributions based on Buster 10.3 have Texlive 2018 in their \nrepositories. In a few distributions, it is possible to write the sid \n(unstable) repository in the sources.list file:\n     deb http://deb.debian.org/debian/ sid main contrib\n\nThen, a sudo apt-get update and apt search Texlive gives access to \nTexlive 2020. Unfortunately, installing Texlive 2020 this way will \nsuppress Libre Office and numerous libraries, a few of them being used \nby the display manager. This is a sure way to break the distribution at \nthe next startup.\n- Debian Bullseye offers Texlive 2019 in its repository. Writing the sid \n  line in sources.list is again easy. But accessing it is much more \ndifficult as Debian considers it unsecure, throws a warning message and \nrequests some parameter change in another file (which is not clearly \ndesignated) to accept this repository. I kept it as a potential solution.\n- The installation of Debian sid follows other paths. It is a \ndistribution meant for testing and chasing bugs, not for a permanent \nuse. I did not insist.\n\nThe great winner is Emmabunt?s DE4, which can be downloaded from here:\n     https://emmabuntus.org/emmabuntus-de4/\n     http://dl.emma-de4x64.emmabuntus.org/\n \nhttps://emmabuntus.org/on-april-27-2020-emmade4-debian-11-bullseye-is-rolling-out-early/\n\n(Disclaimer: I do not have any ties with the development team. I \ndiscovered the distribution 10 days ago when searching for alternatives \nto Ubuntu and Mint. I tested first DE3 and discovered yesterday by \nsurprise that DE4 was released.)\n\nWith its predecessor DE3, they are very surprising distributions with a \ncompletely different philosophy than the most well-known distributions, \nlike Ubuntu and Mint, on the number of preinstalled packages. They are \nmeant for people who have recent 64 bits or old computers, including 32 \nbits, a poor internet connection but a large usb key. A large audience \nis people in Africa, for instance Togo. When Ubuntu, Netrunner and Mint \ntake 1.6 Go and offer limited software like Libre Office or Thunderbird, \nEmmabunt?s takes 3.3 Go and comes with more than 60 software for all \nusage, most of them being free and a few of them being non-free but \nready to install like Adobe Flash for Firefox, Skype or TeamViewer 14 \n(Jitsi is the recommended free solution). The menus are very long and \nressemble a bazar in a colored environment.\n\nTo ease the configuration, the security has been relaxed and adding the \nsid repository to the sources.list file does not generate any complain, \nas did the pure Debian distribution. I was then able to access and \ndownload the full Texlive 2020. Due to the short period between the \nreleases of Texlive and DE4, no package needs update or removal. This is \na much better situation than the one with Buster 10.3 (see above). The \nfull Texlive 2020 is 3.3 Go when compressed during the transfer and 6.2 \nGo after decompression on the disk. The download from the Debian \nrepository is also much faster than from the CTAN repository: 15 minutes \nagainst 40' with my ADSL line. I completed the installation with \nTexworks, TexStudio and Texmaker, then commented the sid line in the \nsources.list file to revert to the standard Bullseye repositories.\n\nI then follow Johannes Ranke's instructions to install the R binaries:\n     https://cloud.r-project.org/bin/linux/debian/\nJohannes, you should add in the instructions the following line for your \nnew key:\nsudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys \nFCAE2A0E115C3D8A\nThe installation launched by sudo apt install r-base did not start as \nthe package R-recommended-Bullseye-4.0.0-0 is currently blocked by \nDebian. On the other hand, the download from the svn.r-projet.org/R \nrepository and the compilation of R-devel 4.1.0 source code went \nsmoothly, as well the edition of the pdf manuals. I created a .Rprofile \nfile and wrote a value for the site-library. Then, I was able to play \nwith R. As mentionned by Jeroen, the compilation of the XML package \nrequires extra-steps:\n     https://github.com/r-windows/docs/blob/master/packages.md#readme\n\nIn conclusion, I skipped one version and have now R-4.1.0 and Texlive \n2020 on a quasi-Debian machine. I am happy with the Emmabunt?s \ndistribution and will keep it for long. It offers English, French, \nGerman, Italian, Spanish, Portuguese and Arabic languages. It features \nthe XFCE and LXQt desktops which are perfect for a laptop. The numerous \nsoftware creates some confusion or, better, some opportunities to \ndiscover new aspects of Linux. All in one, it is an interesting \ndistribution.\n\nThanks to everybody who made R-4.0.0 a reality.\n\nPatrice",
+      "body_snippet": "Dear all,\n\n\nI whish to relate my installation of R-4.0.0 on Debian.\n\nI am mainly a Windows user and occasionnaly verify the CRAN checks of my \npackages on a second laptop equipped with Linux Mint Debi",
+      "thread_id": "thread-5f4d7d7e112d",
+      "thread_depth": 0,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-fef61e690875",
+      "message_id": "<4249412.ZZktrtEoVu@ryz>",
+      "from_name": "Johannes Ranke",
+      "from_email_hash": "cd891293693c40cf302d94a23f7e69326a937c8c71c3beac9718c287a16777e7",
+      "date": "2020-04-28T22:40:51+02:00",
+      "subject": "[R-sig-Debian]  R-4.0.0 and Texlive 2020 installed on EmmabuntusDE4 (Debian Bullseye)",
+      "subject_clean": "R-4.0.0 and Texlive 2020 installed on EmmabuntusDE4 (Debian Bullseye)",
+      "in_reply_to": "<043306a2-a393-d068-3548-21515db18a38@inmodelia.com>",
+      "references": [
+        "<043306a2-a393-d068-3548-21515db18a38@inmodelia.com>"
+      ],
+      "body_plain": "Dear Patrice,\n\nthanks for sharing your experience with Debian based distributions. It is \namazing how many distros you tested!\n\nIn your situation I would recommend apt pinning for installing texlive 2020 \nfrom Debian sid on Debian bullseye aka testing or related systems. Simply \nadding sid sources as you did will make your system upgrade to sid. It seems \nyou partially upgraded some of your test systems to sid and were left with \nbroken systems.\n\nThis will also apply to emmabunt? - if you just added the sid repository \nwithout editing /etc/apt/preferences, you will always pull packages from sid \nwhich may be ok for your use case, but you should be aware of it.\n\nYou would need to edit /etc/apt/preferences in order to tell apt to just use \ntexlive from sid and the other packages from bullseye.\n\nRegarding the command to add my key, this is actually there, but I believe it \nwas too far down - I just moved the section on secure apt before the section \non the different distributions. Thanks for the hint!\n\nRegarding your attempt to use the backports for bullseye on CRAN for your \nEmmabunt?s system, chances are it would have worked if you would have used the \ncommand I am listing there (of course adding sudo):\n\n  sudo apt install -t bullseye-cran40 r-base\n\ninstead of simply \n\n  sudo apt install r-base\n\nHowever, now you have the newest devel version compiled from sources for \nchecking your packages on Linux which is nice as well!\n\nKind regards,\n\nJohannes\n\n\nAm Dienstag, 28. April 2020, 20:49:31 CEST schrieb Patrice Kiener:\n> Dear all,\n> \n> \n> I whish to relate my installation of R-4.0.0 on Debian.\n> \n> I am mainly a Windows user and occasionnaly verify the CRAN checks of my\n> packages on a second laptop equipped with Linux Mint Debian Edition 3\n> (LMDE3) based on Debian Stretch. On Friday, April 24, it took me a few\n> hours to have R-4.0.0 installed on Windows and the sources compiled,\n> thanks to the instructions provided by Jeroen Ooms:\n>      https://cloud.r-project.org/bin/windows/Rtools/ + links\n> \n> I decided to repeat the exercise on Debian with a clean SSD disk, a\n> recent Debian distribution, Texlive 2020 and R-4.0.0 to replace the\n> obsolete LMDE3. The main difficulty was to find the appropriate\n> distribution that accepts Texlive 2020. I downloaded and tested:\n> \n> - Debian Buster 10.3 (the current stable version with a few desktops:\n> Gnome, KDE-Plasma, XFCE, LXDE, LXQt, Mosaic),\n> - Netrunner (Debian Buster 10.3 + KDE),\n> - Linux Mint LMDE4 (Debian Buster 10.3 + Cinnamon),\n> - Emmabunt?s DE3 (Debian Buster 10.3 + XFCE),\n> - Xubuntu (Ubuntu + XFCE),\n> - Debian Bullseye (the testing version + LXQt),\n> - Emmabunt?s DE4 alpha (Debian Bullseye + XFCE + LXQt) published on\n> April 27 (yesterday),\n> - Debian sid (the unstable version).\n> \n> - Once again in four years, I had many difficulties with the independant\n> install-tl-unix.tar.gz (*.sh) program provided by Texlive and the final\n> steps with the PATH update. The program was not found and tlmgr --gui\n> did not reconnect to the CTAN repository. Once again, I gave up.\n> - All distributions based on Buster 10.3 have Texlive 2018 in their\n> repositories. In a few distributions, it is possible to write the sid\n> (unstable) repository in the sources.list file:\n>      deb http://deb.debian.org/debian/ sid main contrib\n> \n> Then, a sudo apt-get update and apt search Texlive gives access to\n> Texlive 2020. Unfortunately, installing Texlive 2020 this way will\n> suppress Libre Office and numerous libraries, a few of them being used\n> by the display manager. This is a sure way to break the distribution at\n> the next startup.\n> - Debian Bullseye offers Texlive 2019 in its repository. Writing the sid\n>   line in sources.list is again easy. But accessing it is much more\n> difficult as Debian considers it unsecure, throws a warning message and\n> requests some parameter change in another file (which is not clearly\n> designated) to accept this repository. I kept it as a potential solution.\n> - The installation of Debian sid follows other paths. It is a\n> distribution meant for testing and chasing bugs, not for a permanent\n> use. I did not insist.\n> \n> The great winner is Emmabunt?s DE4, which can be downloaded from here:\n>      https://emmabuntus.org/emmabuntus-de4/\n>      http://dl.emma-de4x64.emmabuntus.org/\n> \n> https://emmabuntus.org/on-april-27-2020-emmade4-debian-11-bullseye-is-rollin\n> g-out-early/\n> \n> (Disclaimer: I do not have any ties with the development team. I\n> discovered the distribution 10 days ago when searching for alternatives\n> to Ubuntu and Mint. I tested first DE3 and discovered yesterday by\n> surprise that DE4 was released.)\n> \n> With its predecessor DE3, they are very surprising distributions with a\n> completely different philosophy than the most well-known distributions,\n> like Ubuntu and Mint, on the number of preinstalled packages. They are\n> meant for people who have recent 64 bits or old computers, including 32\n> bits, a poor internet connection but a large usb key. A large audience\n> is people in Africa, for instance Togo. When Ubuntu, Netrunner and Mint\n> take 1.6 Go and offer limited software like Libre Office or Thunderbird,\n> Emmabunt?s takes 3.3 Go and comes with more than 60 software for all\n> usage, most of them being free and a few of them being non-free but\n> ready to install like Adobe Flash for Firefox, Skype or TeamViewer 14\n> (Jitsi is the recommended free solution). The menus are very long and\n> ressemble a bazar in a colored environment.\n> \n> To ease the configuration, the security has been relaxed and adding the\n> sid repository to the sources.list file does not generate any complain,\n> as did the pure Debian distribution. I was then able to access and\n> download the full Texlive 2020. Due to the short period between the\n> releases of Texlive and DE4, no package needs update or removal. This is\n> a much better situation than the one with Buster 10.3 (see above). The\n> full Texlive 2020 is 3.3 Go when compressed during the transfer and 6.2\n> Go after decompression on the disk. The download from the Debian\n> repository is also much faster than from the CTAN repository: 15 minutes\n> against 40' with my ADSL line. I completed the installation with\n> Texworks, TexStudio and Texmaker, then commented the sid line in the\n> sources.list file to revert to the standard Bullseye repositories.\n> \n> I then follow Johannes Ranke's instructions to install the R binaries:\n>      https://cloud.r-project.org/bin/linux/debian/\n> Johannes, you should add in the instructions the following line for your\n> new key:\n> sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys\n> FCAE2A0E115C3D8A\n> The installation launched by sudo apt install r-base did not start as\n> the package R-recommended-Bullseye-4.0.0-0 is currently blocked by\n> Debian. On the other hand, the download from the svn.r-projet.org/R\n> repository and the compilation of R-devel 4.1.0 source code went\n> smoothly, as well the edition of the pdf manuals. I created a .Rprofile\n> file and wrote a value for the site-library. Then, I was able to play\n> with R. As mentionned by Jeroen, the compilation of the XML package\n> requires extra-steps:\n>      https://github.com/r-windows/docs/blob/master/packages.md#readme\n> \n> In conclusion, I skipped one version and have now R-4.1.0 and Texlive\n> 2020 on a quasi-Debian machine. I am happy with the Emmabunt?s\n> distribution and will keep it for long. It offers English, French,\n> German, Italian, Spanish, Portuguese and Arabic languages. It features\n> the XFCE and LXQt desktops which are perfect for a laptop. The numerous\n> software creates some confusion or, better, some opportunities to\n> discover new aspects of Linux. All in one, it is an interesting\n> distribution.\n> \n> Thanks to everybody who made R-4.0.0 a reality.\n> \n> Patrice\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Dear Patrice,\n\nthanks for sharing your experience with Debian based distributions. It is \namazing how many distros you tested!\n\nIn your situation I would recommend apt pinning for installing texlive 2",
+      "thread_id": "thread-5f4d7d7e112d",
+      "thread_depth": 1,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-9b01e1fa48f8",
+      "message_id": "<f9346304-0a5c-feb2-5468-907ccf854633@inmodelia.com>",
+      "from_name": "Patrice Kiener",
+      "from_email_hash": "cf1aa32602150f97ccb1ba97f89371b4fe239803c3a13aa53caab285b4334fd9",
+      "date": "2020-04-29T11:03:56+02:00",
+      "subject": "[R-sig-Debian]  R-4.0.0 and Texlive 2020 installed on EmmabuntusDE4 (Debian Bullseye)",
+      "subject_clean": "R-4.0.0 and Texlive 2020 installed on EmmabuntusDE4 (Debian Bullseye)",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi Johannes,\n\n\nThank you for your comments. I run\n   sudo apt install -t bullseye-cran40 r-base\n\nand have now the current R-4.0.0 in /usr/lib/R with links in the menus \nand R-devel R-4.1.0 in ~/patrice/svn/R/r-devel/build. Perfect.\n\nI used sid just to get the full Texlive 2020. I will probably not update \nit for a while and have already removed (commented) the sid line in \nsources.list as I do not want to break my system with too much fresh \nlibraries. Indeed, we want to be on the edge for a few software (R, \nTexlive) and are conservative for all other parts of the OS. Thanks for \nthe tips on /etc/apt/preferences.\n\nRegarding the key, you can probably move the section at the top of the \ndocumentation as it is a necessary step. The key currently mentionned in \nthe instruction is:\n  sudo apt-key adv --keyserver keys.gnupg.net --recv-key \n'E19F5F87128899B192B1A2C2AD5F960A256A04AF'\n\nbut the one that worked for me (found in one comment in \nhttps://stackoverflow.com/questions/10255082/installing-r-from-cran-ubuntu-repository-no-public-key-error) \nis:\n  sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys\n  FCAE2A0E115C3D8A\n\nThe length of digits is different. Maybe one is the shortest version of \nthe other?\n\nPatrice\n\n\n\n\nDear Patrice,\n\n\nthanks for sharing your experience with Debian based distributions. It \nis amazing how many distros you tested!\n\nIn your situation I would recommend apt pinning for installing texlive \n2020 from Debian sid on Debian bullseye aka testing or related systems. \nSimply adding sid sources as you did will make your system upgrade to \nsid. It seems you partially upgraded some of your test systems to sid \nand were left with broken systems.\n\nThis will also apply to emmabunt? - if you just added the sid repository \nwithout editing /etc/apt/preferences, you will always pull packages from \nsid which may be ok for your use case, but you should be aware of it.\n\nYou would need to edit /etc/apt/preferences in order to tell apt to just \nuse texlive from sid and the other packages from bullseye.\n\nRegarding the command to add my key, this is actually there, but I \nbelieve it was too far down - I just moved the section on secure apt \nbefore the section on the different distributions. Thanks for the hint!\n\nRegarding your attempt to use the backports for bullseye on CRAN for \nyour Emmabunt?s system, chances are it would have worked if you would \nhave used the command I am listing there (of course adding sudo):\n\n   sudo apt install -t bullseye-cran40 r-base\n\ninstead of simply\n\n   sudo apt install r-base\n\nHowever, now you have the newest devel version compiled from sources for \nchecking your packages on Linux which is nice as well!\n\n\nKind regards,\n\n\nJohannes",
+      "body_snippet": "Hi Johannes,\n\n\nThank you for your comments. I run\n   sudo apt install -t bullseye-cran40 r-base\n\nand have now the current R-4.0.0 in /usr/lib/R with links in the menus \nand R-devel R-4.1.0 in ~/patric",
+      "thread_id": "thread-9b01e1fa48f8",
+      "thread_depth": 0,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-f1fce73b8dca",
+      "message_id": "<9806543.tfI7lhHWIx@ryz>",
+      "from_name": "Johannes Ranke",
+      "from_email_hash": "cd891293693c40cf302d94a23f7e69326a937c8c71c3beac9718c287a16777e7",
+      "date": "2020-04-29T11:13:28+02:00",
+      "subject": "[R-sig-Debian]  R-4.0.0 and Texlive 2020 installed on EmmabuntusDE4 (Debian Bullseye)",
+      "subject_clean": "R-4.0.0 and Texlive 2020 installed on EmmabuntusDE4 (Debian Bullseye)",
+      "in_reply_to": "<f9346304-0a5c-feb2-5468-907ccf854633@inmodelia.com>",
+      "references": [
+        "<f9346304-0a5c-feb2-5468-907ccf854633@inmodelia.com>"
+      ],
+      "body_plain": "Hi Patrice,\n\nAm Mittwoch, 29. April 2020, 11:03:56 CEST schrieb Patrice Kiener:\n> Hi Johannes,\n> \n> \n> Thank you for your comments. I run\n>    sudo apt install -t bullseye-cran40 r-base\n> \n> and have now the current R-4.0.0 in /usr/lib/R with links in the menus\n> and R-devel R-4.1.0 in ~/patrice/svn/R/r-devel/build. Perfect.\n\nGreat!\n \n> I used sid just to get the full Texlive 2020. I will probably not update\n> it for a while and have already removed (commented) the sid line in\n> sources.list as I do not want to break my system with too much fresh\n> libraries. Indeed, we want to be on the edge for a few software (R,\n> Texlive) and are conservative for all other parts of the OS. Thanks for\n> the tips on /etc/apt/preferences.\n\nYou're welcome!\n \n> Regarding the key, you can probably move the section at the top of the\n> documentation as it is a necessary step. The key currently mentionned in\n> the instruction is:\n>   sudo apt-key adv --keyserver keys.gnupg.net --recv-key\n> 'E19F5F87128899B192B1A2C2AD5F960A256A04AF'\n> \n> but the one that worked for me (found in one comment in\n> https://stackoverflow.com/questions/10255082/installing-r-from-cran-ubuntu-r\n> epository-no-public-key-error) is:\n>   sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys\n>   FCAE2A0E115C3D8A\n> \n> The length of digits is different. Maybe one is the shortest version of\n> the other?\n\nUsing the full fingerprint prevents forging the repository by uploading a fake \nkey to the keyservers with the same hash string. This is known to have \nhappened to other people.\n\nCheers,\n\nJohannes\n\n\n> \n> Patrice\n> \n> \n> \n> \n> Dear Patrice,\n> \n> \n> thanks for sharing your experience with Debian based distributions. It\n> is amazing how many distros you tested!\n> \n> In your situation I would recommend apt pinning for installing texlive\n> 2020 from Debian sid on Debian bullseye aka testing or related systems.\n> Simply adding sid sources as you did will make your system upgrade to\n> sid. It seems you partially upgraded some of your test systems to sid\n> and were left with broken systems.\n> \n> This will also apply to emmabunt? - if you just added the sid repository\n> without editing /etc/apt/preferences, you will always pull packages from\n> sid which may be ok for your use case, but you should be aware of it.\n> \n> You would need to edit /etc/apt/preferences in order to tell apt to just\n> use texlive from sid and the other packages from bullseye.\n> \n> Regarding the command to add my key, this is actually there, but I\n> believe it was too far down - I just moved the section on secure apt\n> before the section on the different distributions. Thanks for the hint!\n> \n> Regarding your attempt to use the backports for bullseye on CRAN for\n> your Emmabunt?s system, chances are it would have worked if you would\n> have used the command I am listing there (of course adding sudo):\n> \n>    sudo apt install -t bullseye-cran40 r-base\n> \n> instead of simply\n> \n>    sudo apt install r-base\n> \n> However, now you have the newest devel version compiled from sources for\n> checking your packages on Linux which is nice as well!\n> \n> \n> Kind regards,\n> \n> \n> Johannes\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "Hi Patrice,\n\nAm Mittwoch, 29. April 2020, 11:03:56 CEST schrieb Patrice Kiener:\n> Hi Johannes,\n> \n> \n> Thank you for your comments. I run\n>    sudo apt install -t bullseye-cran40 r-base\n> \n> and have ",
+      "thread_id": "thread-9b01e1fa48f8",
+      "thread_depth": 1,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-2f7c24b170c9",
+      "message_id": "<d6c35552-daad-0805-f191-62d08b5fd154@gmail.com>",
+      "from_name": "Samuele Carcagno",
+      "from_email_hash": "92d00dbe33f018f3c29d97ec7e1b1e619fbedc627e9fc8e78be5a15613585305",
+      "date": "2020-04-30T01:24:15+02:00",
+      "subject": "[R-sig-Debian] problem with `viridis` on Ubuntu 20.04",
+      "subject_clean": "problem with `viridis` on Ubuntu 20.04",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "I've hit a bug on Ubuntu 20.04. The issue occurred both with the R \nversion that shipped with Ubuntu last week, and it is occurring now with \nthe CRAN packages from one of the mirros (deb \nhttp://cran.mirror.garr.it/mirrors/CRAN/bin/linux/ubuntu/ \nfocal-cran40/). The issue occurs whether I use the deb package for \nviridis in the Ubuntu repos, or I install it with `install.packages()` in R.\n\nThe issue is that when I call a function from the 'viridis' package \n(e.g. running the first example in the `viridis` vignette: \nhttps://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html) \nR gets stuck indefinitely; the system monitor shows the R process using \nCPU resources but nothing happens at the terminal and I'm also unable to \nstop the function with Ctrl-C.\n\nI did a little digging and simply calling the function `viridis` from \nthe `viridisLite` package causes the same problem, execution gets stuck \nat the line:\n\n     cols <- fn_cols(seq(begin, end, length.out = n)) / 255\n\nwhich is line 177 here: \nhttps://github.com/sjmgarnier/viridisLite/blob/master/R/viridis.R#L177\n\nI'm dual booting Debian Buster on the same machine and no such issue \noccurs with R 4.0.0 and the same versions of the `viridis` and \n`viridisLite` packages. Also no such issue occurs on Windows 10 or on a \nMac both with R 4.0.0 and the latest versions of `viridis` and \n`viridisLite`.\n\nI was not sure where should I report the bug, so I thought of asking for \nadvice here first.\n\nBest,\n\nSam",
+      "body_snippet": "I've hit a bug on Ubuntu 20.04. The issue occurred both with the R \nversion that shipped with Ubuntu last week, and it is occurring now with \nthe CRAN packages from one of the mirros (deb \nhttp://cran",
+      "thread_id": "thread-2f7c24b170c9",
+      "thread_depth": 0,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-306acaf629e8",
+      "message_id": "<24234.4131.572612.1305@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-04-29T18:39:15-05:00",
+      "subject": "[R-sig-Debian] problem with `viridis` on Ubuntu 20.04",
+      "subject_clean": "problem with `viridis` on Ubuntu 20.04",
+      "in_reply_to": "<d6c35552-daad-0805-f191-62d08b5fd154@gmail.com>",
+      "references": [
+        "<d6c35552-daad-0805-f191-62d08b5fd154@gmail.com>"
+      ],
+      "body_plain": "On 30 April 2020 at 01:24, Samuele Carcagno wrote:\n| I've hit a bug on Ubuntu 20.04. The issue occurred both with the R \n| version that shipped with Ubuntu last week, and it is occurring now with \n| the CRAN packages from one of the mirros (deb \n| http://cran.mirror.garr.it/mirrors/CRAN/bin/linux/ubuntu/ \n| focal-cran40/). The issue occurs whether I use the deb package for \n| viridis in the Ubuntu repos, or I install it with `install.packages()` in R.\n| \n| The issue is that when I call a function from the 'viridis' package \n| (e.g. running the first example in the `viridis` vignette: \n| https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html) \n| R gets stuck indefinitely; the system monitor shows the R process using \n| CPU resources but nothing happens at the terminal and I'm also unable to \n| stop the function with Ctrl-C.\n| \n| I did a little digging and simply calling the function `viridis` from \n| the `viridisLite` package causes the same problem, execution gets stuck \n| at the line:\n| \n|      cols <- fn_cols(seq(begin, end, length.out = n)) / 255\n| \n| which is line 177 here: \n| https://github.com/sjmgarnier/viridisLite/blob/master/R/viridis.R#L177\n| \n| I'm dual booting Debian Buster on the same machine and no such issue \n| occurs with R 4.0.0 and the same versions of the `viridis` and \n| `viridisLite` packages. Also no such issue occurs on Windows 10 or on a \n| Mac both with R 4.0.0 and the latest versions of `viridis` and \n| `viridisLite`.\n| \n| I was not sure where should I report the bug, so I thought of asking for \n| advice here first.\n\nCan we make it reproducible, please?  Can you provide a minimal script with\nvalues for begin, end, n, ... etc pp or a concrete call?\n\nI got lost in your description above between what version of R from where you\nran with which package or function.\n\nKeep. It. Simple. And. Concise.\n\nAnd reproducible.\n\nFor what it is worth, it _works for me with R 4.0.0 on Ubuntu 19.10_ with the\nbinary .deb from my PPA (as blogged about, but should be identical to what\nMichael built and ships via CRAN).  Log of a fresh Emacs session below. I\ndouble Ubuntu 20.04 is different but \"one never knows\".\n\nThank you!\n\nDirk\n\nLog below\n\nR version 4.0.0 (2020-04-24) -- \"Arbor Day\"\nCopyright (C) 2020 The R Foundation for Statistical Computing\nPlatform: x86_64-pc-linux-gnu (64-bit)\n\nR is free software and comes with ABSOLUTELY NO WARRANTY.\nYou are welcome to redistribute it under certain conditions.\nType 'license()' or 'licence()' for distribution details.\n\n  Natural language support but running in an English locale\n\nR is a collaborative project with many contributors.\nType 'contributors()' for more information and\n'citation()' on how to cite R or R packages in publications.\n\nType 'demo()' for some demos, 'help()' for on-line help, or\n'help.start()' for an HTML browser interface to help.\nType 'q()' to quit R.\n\n\nThere's an informal tradition that those announcements [about R releases] contain at least one mistake, but apparently I forgot this time, so users have to make up their own....\n   -- Peter Dalgaard (about an apparent non-bug report in his former R-announce message)\n      R-help (December 2009)\n\nR> setwd('/home/edd/')\nR> \nR> library(viridisLite)\nR> example(viridis)\n\nviridsR> library(ggplot2)\n\nviridsR> library(hexbin)\n\nviridsR> dat <- data.frame(x = rnorm(10000), y = rnorm(10000))\n\nviridsR> ggplot(dat, aes(x = x, y = y)) +\nvirids+   geom_hex() + coord_fixed() +\nvirids+   scale_fill_gradientn(colours = viridis(256, option = \"D\"))\nHit <Return> to see next plot: \n\nviridsR> # using code from RColorBrewer to demo the palette\nviridsR> n = 200\n\nviridsR> image(\nvirids+   1:n, 1, as.matrix(1:n),\nvirids+   col = viridis(n, option = \"D\"),\nvirids+   xlab = \"viridis n\", ylab = \"\", xaxt = \"n\", yaxt = \"n\", bty = \"n\"\nvirids+ )\nHit <Return> to see next plot: \nR> \n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 30 April 2020 at 01:24, Samuele Carcagno wrote:\n| I've hit a bug on Ubuntu 20.04. The issue occurred both with the R \n| version that shipped with Ubuntu last week, and it is occurring now with \n| t",
+      "thread_id": "thread-2f7c24b170c9",
+      "thread_depth": 1,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-11bf159bff19",
+      "message_id": "<02c90894-630c-0643-7f4e-6a52e2a368f2@gmail.com>",
+      "from_name": "Samuele Carcagno",
+      "from_email_hash": "92d00dbe33f018f3c29d97ec7e1b1e619fbedc627e9fc8e78be5a15613585305",
+      "date": "2020-04-30T03:05:39+02:00",
+      "subject": "[R-sig-Debian] problem with `viridis` on Ubuntu 20.04",
+      "subject_clean": "problem with `viridis` on Ubuntu 20.04",
+      "in_reply_to": "<24234.4131.572612.1305@rob.eddelbuettel.com>",
+      "references": [
+        "<d6c35552-daad-0805-f191-62d08b5fd154@gmail.com>",
+        "<24234.4131.572612.1305@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Il 30/04/20 01:39, Dirk Eddelbuettel ha scritto:\n> \n> On 30 April 2020 at 01:24, Samuele Carcagno wrote:\n> | I've hit a bug on Ubuntu 20.04. The issue occurred both with the R\n> | version that shipped with Ubuntu last week, and it is occurring now with\n> | the CRAN packages from one of the mirros (deb\n> | http://cran.mirror.garr.it/mirrors/CRAN/bin/linux/ubuntu/\n> | focal-cran40/). The issue occurs whether I use the deb package for\n> | viridis in the Ubuntu repos, or I install it with `install.packages()` in R.\n> |\n> | The issue is that when I call a function from the 'viridis' package\n> | (e.g. running the first example in the `viridis` vignette:\n> | https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html)\n> | R gets stuck indefinitely; the system monitor shows the R process using\n> | CPU resources but nothing happens at the terminal and I'm also unable to\n> | stop the function with Ctrl-C.\n> |\n> | I did a little digging and simply calling the function `viridis` from\n> | the `viridisLite` package causes the same problem, execution gets stuck\n> | at the line:\n> |\n> |      cols <- fn_cols(seq(begin, end, length.out = n)) / 255\n> |\n> | which is line 177 here:\n> | https://github.com/sjmgarnier/viridisLite/blob/master/R/viridis.R#L177\n> |\n> | I'm dual booting Debian Buster on the same machine and no such issue\n> | occurs with R 4.0.0 and the same versions of the `viridis` and\n> | `viridisLite` packages. Also no such issue occurs on Windows 10 or on a\n> | Mac both with R 4.0.0 and the latest versions of `viridis` and\n> | `viridisLite`.\n> |\n> | I was not sure where should I report the bug, so I thought of asking for\n> | advice here first.\n> \n> Can we make it reproducible, please?  Can you provide a minimal script with\n> values for begin, end, n, ... etc pp or a concrete call?\n> \n> I got lost in your description above between what version of R from where you\n> ran with which package or function.\n> \n> Keep. It. Simple. And. Concise.\n> \n> And reproducible.\n\nI've attached a script that triggers the bug on my system. It's just two \nlines, one to load `viridisLite`, and one to call the `viridis` \nfunction. I've also attached the output of `sessionInfo`.\n\nTo sum up all the additional info in my previous e-mail: the bug occurs \non Ubuntu 20.04 with R 4.0.0, but does not occur on Debian, Windows, or \nMac using the same version of R (R 4.0.0), and the same version of \nviridisLite.\n\nBest,\n\nSam\n\n> \n> For what it is worth, it _works for me with R 4.0.0 on Ubuntu 19.10_ with the\n> binary .deb from my PPA (as blogged about, but should be identical to what\n> Michael built and ships via CRAN).  Log of a fresh Emacs session below. I\n> double Ubuntu 20.04 is different but \"one never knows\".\n> \n> Thank you!\n> \n> Dirk\n> \n> Log below\n> \n> R version 4.0.0 (2020-04-24) -- \"Arbor Day\"\n> Copyright (C) 2020 The R Foundation for Statistical Computing\n> Platform: x86_64-pc-linux-gnu (64-bit)\n> \n> R is free software and comes with ABSOLUTELY NO WARRANTY.\n> You are welcome to redistribute it under certain conditions.\n> Type 'license()' or 'licence()' for distribution details.\n> \n>    Natural language support but running in an English locale\n> \n> R is a collaborative project with many contributors.\n> Type 'contributors()' for more information and\n> 'citation()' on how to cite R or R packages in publications.\n> \n> Type 'demo()' for some demos, 'help()' for on-line help, or\n> 'help.start()' for an HTML browser interface to help.\n> Type 'q()' to quit R.\n> \n> \n> There's an informal tradition that those announcements [about R releases] contain at least one mistake, but apparently I forgot this time, so users have to make up their own....\n>     -- Peter Dalgaard (about an apparent non-bug report in his former R-announce message)\n>        R-help (December 2009)\n> \n> R> setwd('/home/edd/')\n> R>\n> R> library(viridisLite)\n> R> example(viridis)\n> \n> viridsR> library(ggplot2)\n> \n> viridsR> library(hexbin)\n> \n> viridsR> dat <- data.frame(x = rnorm(10000), y = rnorm(10000))\n> \n> viridsR> ggplot(dat, aes(x = x, y = y)) +\n> virids+   geom_hex() + coord_fixed() +\n> virids+   scale_fill_gradientn(colours = viridis(256, option = \"D\"))\n> Hit <Return> to see next plot:\n> \n> viridsR> # using code from RColorBrewer to demo the palette\n> viridsR> n = 200\n> \n> viridsR> image(\n> virids+   1:n, 1, as.matrix(1:n),\n> virids+   col = viridis(n, option = \"D\"),\n> virids+   xlab = \"viridis n\", ylab = \"\", xaxt = \"n\", yaxt = \"n\", bty = \"n\"\n> virids+ )\n> Hit <Return> to see next plot:\n> R>\n> \n\n-------------- next part --------------\nAn embedded and charset-unspecified text was scrubbed...\nName: viridis_bug_example.R\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20200430/76ca7904/attachment-0001.ksh>\n\n-------------- next part --------------\nAn embedded and charset-unspecified text was scrubbed...\nName: sessionInfo.txt\nURL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20200430/76ca7904/attachment-0001.txt>",
+      "body_snippet": "Il 30/04/20 01:39, Dirk Eddelbuettel ha scritto:\n> \n> On 30 April 2020 at 01:24, Samuele Carcagno wrote:\n> | I've hit a bug on Ubuntu 20.04. The issue occurred both with the R\n> | version that shipped",
+      "thread_id": "thread-2f7c24b170c9",
+      "thread_depth": 2,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-ac3bc6e63e86",
+      "message_id": "<24234.9848.829324.92111@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-04-29T20:14:32-05:00",
+      "subject": "[R-sig-Debian] problem with `viridis` on Ubuntu 20.04",
+      "subject_clean": "problem with `viridis` on Ubuntu 20.04",
+      "in_reply_to": "<02c90894-630c-0643-7f4e-6a52e2a368f2@gmail.com>",
+      "references": [
+        "<d6c35552-daad-0805-f191-62d08b5fd154@gmail.com>",
+        "<24234.4131.572612.1305@rob.eddelbuettel.com>",
+        "<02c90894-630c-0643-7f4e-6a52e2a368f2@gmail.com>"
+      ],
+      "body_plain": "On 30 April 2020 at 03:05, Samuele Carcagno wrote:\n| Il 30/04/20 01:39, Dirk Eddelbuettel ha scritto:\n| > Keep. It. Simple. And. Concise.\n| > \n| > And reproducible.\n| \n| I've attached a script that triggers the bug on my system. It's just two \n| lines, one to load `viridisLite`, and one to call the `viridis` \n| function. I've also attached the output of `sessionInfo`.\n| \n| To sum up all the additional info in my previous e-mail: the bug occurs \n| on Ubuntu 20.04 with R 4.0.0, but does not occur on Debian, Windows, or \n| Mac using the same version of R (R 4.0.0), and the same version of \n| viridisLite.\n\nCan you decompose it to see if the data generation is the problem (likely R)\nor the drawing (maybe a change in graphics ?)\n\nWhat does capabilities() say? Anything missing?  On 19.10 I have\n\nR> capabilities()\n       jpeg         png        tiff       tcltk         X11 \n       TRUE        TRUE        TRUE        TRUE        TRUE \n       aqua    http/ftp     sockets      libxml        fifo \n      FALSE        TRUE        TRUE        TRUE        TRUE \n     cledit       iconv         NLS     profmem       cairo \n      FALSE        TRUE        TRUE        TRUE        TRUE \n        ICU long.double     libcurl \n       TRUE        TRUE        TRUE \nR> \n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 30 April 2020 at 03:05, Samuele Carcagno wrote:\n| Il 30/04/20 01:39, Dirk Eddelbuettel ha scritto:\n| > Keep. It. Simple. And. Concise.\n| > \n| > And reproducible.\n| \n| I've attached a script that tr",
+      "thread_id": "thread-2f7c24b170c9",
+      "thread_depth": 3,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-14b2e8800bb8",
+      "message_id": "<25669d38-cce8-92f5-38ac-29303586cf1f@gmail.com>",
+      "from_name": "Samuele Carcagno",
+      "from_email_hash": "92d00dbe33f018f3c29d97ec7e1b1e619fbedc627e9fc8e78be5a15613585305",
+      "date": "2020-04-30T03:26:45+02:00",
+      "subject": "[R-sig-Debian] problem with `viridis` on Ubuntu 20.04",
+      "subject_clean": "problem with `viridis` on Ubuntu 20.04",
+      "in_reply_to": "<24234.9848.829324.92111@rob.eddelbuettel.com>",
+      "references": [
+        "<d6c35552-daad-0805-f191-62d08b5fd154@gmail.com>",
+        "<24234.4131.572612.1305@rob.eddelbuettel.com>",
+        "<02c90894-630c-0643-7f4e-6a52e2a368f2@gmail.com>",
+        "<24234.9848.829324.92111@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Il 30/04/20 03:14, Dirk Eddelbuettel ha scritto:\n> \n> On 30 April 2020 at 03:05, Samuele Carcagno wrote:\n> | Il 30/04/20 01:39, Dirk Eddelbuettel ha scritto:\n> | > Keep. It. Simple. And. Concise.\n> | >\n> | > And reproducible.\n> |\n> | I've attached a script that triggers the bug on my system. It's just two\n> | lines, one to load `viridisLite`, and one to call the `viridis`\n> | function. I've also attached the output of `sessionInfo`.\n> |\n> | To sum up all the additional info in my previous e-mail: the bug occurs\n> | on Ubuntu 20.04 with R 4.0.0, but does not occur on Debian, Windows, or\n> | Mac using the same version of R (R 4.0.0), and the same version of\n> | viridisLite.\n> \n> Can you decompose it to see if the data generation is the problem (likely R)\n> or the drawing (maybe a change in graphics ?)\n\nI'm not familiar with the internals of `viridisLite`, so I'm not sure \nI'd be able to help there. I could open a bug report on the \n`viridisLite` repo and see if the author has suggestions on how to \nnarrow down the issue.\n\n> \n> What does capabilities() say? Anything missing?  On 19.10 I have\n\nbelow is the output of `capabilities()` from my system:\n\n > capabilities()\n        jpeg         png        tiff       tcltk         X11        aqua\n        TRUE        TRUE        TRUE        TRUE        TRUE       FALSE\n    http/ftp     sockets      libxml        fifo      cledit       iconv\n        TRUE        TRUE        TRUE        TRUE        TRUE        TRUE\n         NLS     profmem       cairo         ICU long.double     libcurl\n        TRUE        TRUE        TRUE        TRUE        TRUE        TRUE\n\n\n> \n> R> capabilities()\n>         jpeg         png        tiff       tcltk         X11\n>         TRUE        TRUE        TRUE        TRUE        TRUE\n>         aqua    http/ftp     sockets      libxml        fifo\n>        FALSE        TRUE        TRUE        TRUE        TRUE\n>       cledit       iconv         NLS     profmem       cairo\n>        FALSE        TRUE        TRUE        TRUE        TRUE\n>          ICU long.double     libcurl\n>         TRUE        TRUE        TRUE\n> R>\n> \n> Dirk\n>",
+      "body_snippet": "Il 30/04/20 03:14, Dirk Eddelbuettel ha scritto:\n> \n> On 30 April 2020 at 03:05, Samuele Carcagno wrote:\n> | Il 30/04/20 01:39, Dirk Eddelbuettel ha scritto:\n> | > Keep. It. Simple. And. Concise.\n> | ",
+      "thread_id": "thread-2f7c24b170c9",
+      "thread_depth": 4,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-d50d1eb4d6af",
+      "message_id": "<24234.11372.290710.630345@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-04-29T20:39:56-05:00",
+      "subject": "[R-sig-Debian] problem with `viridis` on Ubuntu 20.04",
+      "subject_clean": "problem with `viridis` on Ubuntu 20.04",
+      "in_reply_to": "<25669d38-cce8-92f5-38ac-29303586cf1f@gmail.com>",
+      "references": [
+        "<d6c35552-daad-0805-f191-62d08b5fd154@gmail.com>",
+        "<24234.4131.572612.1305@rob.eddelbuettel.com>",
+        "<02c90894-630c-0643-7f4e-6a52e2a368f2@gmail.com>",
+        "<24234.9848.829324.92111@rob.eddelbuettel.com>",
+        "<25669d38-cce8-92f5-38ac-29303586cf1f@gmail.com>"
+      ],
+      "body_plain": "On 30 April 2020 at 03:26, Samuele Carcagno wrote:\n| I'm not familiar with the internals of `viridisLite`, so I'm not sure \n| I'd be able to help there. I could open a bug report on the \n| `viridisLite` repo and see if the author has suggestions on how to \n| narrow down the issue.\n\nIt would help if someone running Ubuntu 20.04 could reproduce.\n\nI realized I had a prebuilt version as a Docker image here -- it predates the\nactual 20.04 release by just a bit.  But in that too, viridisLite installs\nfine and the call viridis(3) works as well.  So I have no further pointers,\nand no reproduced bug.\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 30 April 2020 at 03:26, Samuele Carcagno wrote:\n| I'm not familiar with the internals of `viridisLite`, so I'm not sure \n| I'd be able to help there. I could open a bug report on the \n| `viridisLit",
+      "thread_id": "thread-2f7c24b170c9",
+      "thread_depth": 5,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-a1f35c3e7b2c",
+      "message_id": "<de0b9373-1a9c-6874-c168-3b3a4f5d377a@gmail.com>",
+      "from_name": "Samuele Carcagno",
+      "from_email_hash": "92d00dbe33f018f3c29d97ec7e1b1e619fbedc627e9fc8e78be5a15613585305",
+      "date": "2020-04-30T12:02:17+02:00",
+      "subject": "[R-sig-Debian] problem with `viridis` on Ubuntu 20.04",
+      "subject_clean": "problem with `viridis` on Ubuntu 20.04",
+      "in_reply_to": "<24234.11372.290710.630345@rob.eddelbuettel.com>",
+      "references": [
+        "<d6c35552-daad-0805-f191-62d08b5fd154@gmail.com>",
+        "<24234.4131.572612.1305@rob.eddelbuettel.com>",
+        "<02c90894-630c-0643-7f4e-6a52e2a368f2@gmail.com>",
+        "<24234.9848.829324.92111@rob.eddelbuettel.com>",
+        "<25669d38-cce8-92f5-38ac-29303586cf1f@gmail.com>",
+        "<24234.11372.290710.630345@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Il 30/04/20 03:39, Dirk Eddelbuettel ha scritto:\n> \n> On 30 April 2020 at 03:26, Samuele Carcagno wrote:\n> | I'm not familiar with the internals of `viridisLite`, so I'm not sure\n> | I'd be able to help there. I could open a bug report on the\n> | `viridisLite` repo and see if the author has suggestions on how to\n> | narrow down the issue.\n\nafter some further investigation I've found out that on my system the \nbug is triggered by a call to the `convertColor` function in \n`grDevices`. The following three lines of code, taken from the \n`convertColor` documentation are sufficient to trigger the bug:\n\n## --------------------\nab <- expand.grid(a = (-10:15)*10,\n                   b = (-15:10)*10)\nLab <- cbind(L = 20, ab)\nsrgb <- convertColor(Lab, from = \"Lab\", to = \"sRGB\", clip = NA)\n## ---------------------\n\n> \n> It would help if someone running Ubuntu 20.04 could reproduce.\n\nto be precise I'm running Kubuntu 20.04 rather than Ubuntu, but I don't \nthink that should make a difference.\n\nBest,\n\nSam",
+      "body_snippet": "Il 30/04/20 03:39, Dirk Eddelbuettel ha scritto:\n> \n> On 30 April 2020 at 03:26, Samuele Carcagno wrote:\n> | I'm not familiar with the internals of `viridisLite`, so I'm not sure\n> | I'd be able to he",
+      "thread_id": "thread-2f7c24b170c9",
+      "thread_depth": 6,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-db12fdae3987",
+      "message_id": "<6d452ba3-c6e1-cd37-9cca-f4d6756c908f@gmail.com>",
+      "from_name": "Samuele Carcagno",
+      "from_email_hash": "92d00dbe33f018f3c29d97ec7e1b1e619fbedc627e9fc8e78be5a15613585305",
+      "date": "2020-04-30T16:40:54+02:00",
+      "subject": "[R-sig-Debian] problem with `viridis` on Ubuntu 20.04",
+      "subject_clean": "problem with `viridis` on Ubuntu 20.04",
+      "in_reply_to": "<24234.11372.290710.630345@rob.eddelbuettel.com>",
+      "references": [
+        "<d6c35552-daad-0805-f191-62d08b5fd154@gmail.com>",
+        "<24234.4131.572612.1305@rob.eddelbuettel.com>",
+        "<02c90894-630c-0643-7f4e-6a52e2a368f2@gmail.com>",
+        "<24234.9848.829324.92111@rob.eddelbuettel.com>",
+        "<25669d38-cce8-92f5-38ac-29303586cf1f@gmail.com>",
+        "<24234.11372.290710.630345@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Il 30/04/20 03:39, Dirk Eddelbuettel ha scritto:\n> \n> On 30 April 2020 at 03:26, Samuele Carcagno wrote:\n> | I'm not familiar with the internals of `viridisLite`, so I'm not sure\n> | I'd be able to help there. I could open a bug report on the\n> | `viridisLite` repo and see if the author has suggestions on how to\n> | narrow down the issue.\n> \n> It would help if someone running Ubuntu 20.04 could reproduce.\n> \n\nafter some further investigation I found out that the issue was related \nto some calls to the `solve` function in `make.rgb`, and indeed running \n`example(solve)` would hang my R session. After I changed the default \nBLAS with:\n\nsudo update-alternatives --config libblas.so.3-x86_64-linux-gnu\n\nthe problem disappeared. The BLAS output of `sessionInfo` now that \n`solve` is working is:\n\nMatrix products: default\nBLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0\nLAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n\nwhile before when `solve` was not working it was:\n\nMatrix products: default\nBLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\nLAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n\nso it seems the issue is with the Ubuntu package `libopenblas0-pthread` \nand has nothing to do with R. I don't know why openblas-pthread was the \ndefault BLAS on my system.\n\nThank you for your help.\n\nBest,\n\nSam",
+      "body_snippet": "Il 30/04/20 03:39, Dirk Eddelbuettel ha scritto:\n> \n> On 30 April 2020 at 03:26, Samuele Carcagno wrote:\n> | I'm not familiar with the internals of `viridisLite`, so I'm not sure\n> | I'd be able to he",
+      "thread_id": "thread-2f7c24b170c9",
+      "thread_depth": 6,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-7464ff4e32d0",
+      "message_id": "<24234.59466.362508.515617@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-04-30T10:01:30-05:00",
+      "subject": "[R-sig-Debian] problem with `viridis` on Ubuntu 20.04",
+      "subject_clean": "problem with `viridis` on Ubuntu 20.04",
+      "in_reply_to": "<6d452ba3-c6e1-cd37-9cca-f4d6756c908f@gmail.com>",
+      "references": [
+        "<d6c35552-daad-0805-f191-62d08b5fd154@gmail.com>",
+        "<24234.4131.572612.1305@rob.eddelbuettel.com>",
+        "<02c90894-630c-0643-7f4e-6a52e2a368f2@gmail.com>",
+        "<24234.9848.829324.92111@rob.eddelbuettel.com>",
+        "<25669d38-cce8-92f5-38ac-29303586cf1f@gmail.com>",
+        "<24234.11372.290710.630345@rob.eddelbuettel.com>",
+        "<6d452ba3-c6e1-cd37-9cca-f4d6756c908f@gmail.com>"
+      ],
+      "body_plain": "On 30 April 2020 at 16:40, Samuele Carcagno wrote:\n| after some further investigation I found out that the issue was related \n| to some calls to the `solve` function in `make.rgb`, and indeed running \n| `example(solve)` would hang my R session. After I changed the default \n| BLAS with:\n| \n| sudo update-alternatives --config libblas.so.3-x86_64-linux-gnu\n| \n| the problem disappeared. The BLAS output of `sessionInfo` now that \n| `solve` is working is:\n| \n| Matrix products: default\n| BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0\n| LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n| \n| while before when `solve` was not working it was:\n| \n| Matrix products: default\n| BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\n| LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n| \n| so it seems the issue is with the Ubuntu package `libopenblas0-pthread` \n| and has nothing to do with R. I don't know why openblas-pthread was the \n| default BLAS on my system.\n\nThat is most helpful! It could potentially affect lots of other users too.\n\nAnd on the aforementioned rocker/r-ubuntu:20.04 image, if upgrade to\nlibopenblas-dev I get it too:\n\n  root at d9a07e9f0e5f:/work# apt install libopenblas-dev\n  Reading package lists... Done\n  Building dependency tree       \n  Reading state information... Done\n  The following additional packages will be installed:\n    libopenblas-pthread-dev libopenblas0 libopenblas0-pthread\n  The following NEW packages will be installed:\n    libopenblas-dev libopenblas-pthread-dev libopenblas0 libopenblas0-pthread\n  0 upgraded, 4 newly installed, 0 to remove and 0 not upgraded.\n  Need to get 13.7 MB of archives.\n  After this operation, 153 MB of additional disk space will be used.\n  Do you want to continue? [Y/n] \n\nand then 'example(solve)' hangs at\n\n  sh8 <- solve(h8)\n\nNot good at all.\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 30 April 2020 at 16:40, Samuele Carcagno wrote:\n| after some further investigation I found out that the issue was related \n| to some calls to the `solve` function in `make.rgb`, and indeed running ",
+      "thread_id": "thread-2f7c24b170c9",
+      "thread_depth": 7,
+      "month": "2020-04"
+    },
+    {
+      "id": "msg-ab6027f2f1ba",
+      "message_id": "<24234.60069.17157.303011@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2020-04-30T10:11:33-05:00",
+      "subject": "[R-sig-Debian] problem with `viridis` on Ubuntu 20.04",
+      "subject_clean": "problem with `viridis` on Ubuntu 20.04",
+      "in_reply_to": "<24234.59466.362508.515617@rob.eddelbuettel.com>",
+      "references": [
+        "<d6c35552-daad-0805-f191-62d08b5fd154@gmail.com>",
+        "<24234.4131.572612.1305@rob.eddelbuettel.com>",
+        "<02c90894-630c-0643-7f4e-6a52e2a368f2@gmail.com>",
+        "<24234.9848.829324.92111@rob.eddelbuettel.com>",
+        "<25669d38-cce8-92f5-38ac-29303586cf1f@gmail.com>",
+        "<24234.11372.290710.630345@rob.eddelbuettel.com>",
+        "<6d452ba3-c6e1-cd37-9cca-f4d6756c908f@gmail.com>",
+        "<24234.59466.362508.515617@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "On 30 April 2020 at 10:01, Dirk Eddelbuettel wrote:\n| \n| On 30 April 2020 at 16:40, Samuele Carcagno wrote:\n| | after some further investigation I found out that the issue was related \n| | to some calls to the `solve` function in `make.rgb`, and indeed running \n| | `example(solve)` would hang my R session. After I changed the default \n| | BLAS with:\n| | \n| | sudo update-alternatives --config libblas.so.3-x86_64-linux-gnu\n| | \n| | the problem disappeared. The BLAS output of `sessionInfo` now that \n| | `solve` is working is:\n| | \n| | Matrix products: default\n| | BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0\n| | LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n| | \n| | while before when `solve` was not working it was:\n| | \n| | Matrix products: default\n| | BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3\n| | LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3\n| | \n| | so it seems the issue is with the Ubuntu package `libopenblas0-pthread` \n| | and has nothing to do with R. I don't know why openblas-pthread was the \n| | default BLAS on my system.\n| \n| That is most helpful! It could potentially affect lots of other users too.\n| \n| And on the aforementioned rocker/r-ubuntu:20.04 image, if upgrade to\n| libopenblas-dev I get it too:\n| \n|   root at d9a07e9f0e5f:/work# apt install libopenblas-dev\n|   Reading package lists... Done\n|   Building dependency tree       \n|   Reading state information... Done\n|   The following additional packages will be installed:\n|     libopenblas-pthread-dev libopenblas0 libopenblas0-pthread\n|   The following NEW packages will be installed:\n|     libopenblas-dev libopenblas-pthread-dev libopenblas0 libopenblas0-pthread\n|   0 upgraded, 4 newly installed, 0 to remove and 0 not upgraded.\n|   Need to get 13.7 MB of archives.\n|   After this operation, 153 MB of additional disk space will be used.\n|   Do you want to continue? [Y/n] \n| \n| and then 'example(solve)' hangs at\n| \n|   sh8 <- solve(h8)\n| \n| Not good at all.\n\nSame on Debian.\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 30 April 2020 at 10:01, Dirk Eddelbuettel wrote:\n| \n| On 30 April 2020 at 16:40, Samuele Carcagno wrote:\n| | after some further investigation I found out that the issue was related \n| | to some cal",
+      "thread_id": "thread-2f7c24b170c9",
+      "thread_depth": 8,
+      "month": "2020-04"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-356273ed9aa7",
+      "subject": "Timezone conversion on Ubuntu 20.04",
+      "message_count": 5,
+      "participants": [
+        "David Winsemius",
+        "Dirk Eddelbuettel",
+        "Jeroen Ooms",
+        "Johannes Ranke"
+      ],
+      "started": "2020-04-25T01:02:38+02:00",
+      "last_reply": "2020-04-26T23:14:47+02:00",
+      "root_message_id": "msg-356273ed9aa7"
+    },
+    {
+      "id": "thread-a46dce8503b2",
+      "subject": "R 4.0.0 for bullseye and buster",
+      "message_count": 1,
+      "participants": [
+        "Johannes Ranke"
+      ],
+      "started": "2020-04-25T10:30:58+02:00",
+      "last_reply": "2020-04-25T10:30:58+02:00",
+      "root_message_id": "msg-a46dce8503b2"
+    },
+    {
+      "id": "thread-f0b0f7ae720a",
+      "subject": "hash sum mismatch (tested on xenial cran35 repo ) startnig 4/27",
+      "message_count": 3,
+      "participants": [
+        "Michael Rutter",
+        "Stanley Lan"
+      ],
+      "started": "2020-04-27T22:46:07+00:00",
+      "last_reply": "2020-04-28T00:20:55+00:00",
+      "root_message_id": "msg-f0b0f7ae720a"
+    },
+    {
+      "id": "thread-9b3650e9f511",
+      "subject": "CRAN R 4.0.0 for Ubuntu repos missing r-recommend dependency",
+      "message_count": 9,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Greg Siemon",
+        "Michael Rutter",
+        "Thierry Onkelinx"
+      ],
+      "started": "2020-04-28T12:05:00+10:00",
+      "last_reply": "2020-04-28T09:21:34-05:00",
+      "root_message_id": "msg-9b3650e9f511"
+    },
+    {
+      "id": "thread-5f4d7d7e112d",
+      "subject": "R-4.0.0 and Texlive 2020 installed on EmmabuntusDE4 (Debian Bullseye)",
+      "message_count": 2,
+      "participants": [
+        "Johannes Ranke",
+        "Patrice Kiener"
+      ],
+      "started": "2020-04-28T20:49:31+02:00",
+      "last_reply": "2020-04-28T22:40:51+02:00",
+      "root_message_id": "msg-5f4d7d7e112d"
+    },
+    {
+      "id": "thread-9b01e1fa48f8",
+      "subject": "R-4.0.0 and Texlive 2020 installed on EmmabuntusDE4 (Debian Bullseye)",
+      "message_count": 2,
+      "participants": [
+        "Johannes Ranke",
+        "Patrice Kiener"
+      ],
+      "started": "2020-04-29T11:03:56+02:00",
+      "last_reply": "2020-04-29T11:13:28+02:00",
+      "root_message_id": "msg-9b01e1fa48f8"
+    },
+    {
+      "id": "thread-2f7c24b170c9",
+      "subject": "problem with `viridis` on Ubuntu 20.04",
+      "message_count": 10,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Samuele Carcagno"
+      ],
+      "started": "2020-04-30T01:24:15+02:00",
+      "last_reply": "2020-04-30T10:11:33-05:00",
+      "root_message_id": "msg-2f7c24b170c9"
+    }
+  ]
+}

@@ -1,0 +1,2317 @@
+From pgilbert902 at gmail.com  Mon Jan  9 16:08:29 2012
+From: pgilbert902 at gmail.com (Paul Gilbert)
+Date: Mon, 09 Jan 2012 10:08:29 -0500
+Subject: [R-sig-Debian] [R] fix and edit don't work: unable to open X
+	Input
+In-Reply-To: <mailman.19.1326106807.25861.r-help@r-project.org>
+References: <mailman.19.1326106807.25861.r-help@r-project.org>
+Message-ID: <4F0B02ED.9060704@gmail.com>
+
+(moved from R-help)
+
+I tried this on Ubuntu with R-2.14.1 built from source, and I do not get 
+the segfault problem. (I don't at the moment have a debian binary R, or 
+I would confirm whether I get the segfault problem.) My sessioninfo() is 
+reporting additional information about namespace imports:
+
+ > library(ggplot2)
+Loading required package: reshape
+Loading required package: plyr
+
+Attaching package: ?reshape?
+
+The following object(s) are masked from ?package:plyr?:
+
+rename, round_any
+
+Loading required package: grid
+Loading required package: proto
+ > sessionInfo()
+R version 2.14.1 (2011-12-22)
+Platform: i686-pc-linux-gnu (32-bit)
+
+locale:
+[1] LC_CTYPE=en_CA.UTF-8 LC_NUMERIC=C
+[3] LC_TIME=en_CA.UTF-8 LC_COLLATE=en_CA.UTF-8
+[5] LC_MONETARY=en_CA.UTF-8 LC_MESSAGES=en_CA.UTF-8
+[7] LC_PAPER=C LC_NAME=C
+[9] LC_ADDRESS=C LC_TELEPHONE=C
+[11] LC_MEASUREMENT=en_CA.UTF-8 LC_IDENTIFICATION=C
+
+attached base packages:
+[1] grid stats graphics grDevices utils datasets methods
+[8] base
+
+other attached packages:
+[1] ggplot2_0.8.9 proto_0.3-9.2 reshape_0.8.4 plyr_1.7.1
+
+loaded via a namespace (and not attached):
+[1] tcltk_2.14.1 tools_2.14.1
+ > fix(mpg)
+ >
+
+Paul Gilbert
+> Date: Sun, 8 Jan 2012 15:32:49 -0600 From: Paul Johnson 
+> <pauljohn32 at gmail.com> To: R-help <r-help at r-project.org> Subject: [R] 
+> fix and edit don't work: unable to open X Input Method->segfault 
+> Message-ID: 
+> <CAErODj9+Fbg9bbC_1X3Use8eQQoq+Mg4Nb0hH1Yr7YnGp6G21A at mail.gmail.com> 
+> Content-Type: text/plain; charset=windows-1252 I can't run fix() or 
+> edit() anymore. Did I break my system? I'm running Debian Linux with 
+> R-2.14.1. As far as I can tell, the R packages came from Debian's 
+> testing "wheezy" repository. I would like to know if users on other 
+> types of systems see the same problem. If no, then, obviously, it is a 
+> Debian-only issue and I can approach it from that point of view. And 
+> if no other Debian users see same, it means it is a me-only problem, 
+> and that's discouraging :) I get this same R crash whether I try fix 
+> when R is running in a terminal or in Emacs with ESS. I've not seen 
+> this before, but Google leads to some bug reports on Ubuntu in 2007, 
+> where it was claimed that the problem was fixed. The really bad part 
+> is that the second try causes a segmentation fault in R itself.
+>> >  library(ggplot2)
+> Loading required package: reshape
+> Loading required package: plyr
+>
+> Attaching package: ?reshape?
+>
+> The following object(s) are masked from ?package:plyr?:
+>
+>      rename, round_any
+>
+> Loading required package: grid
+> Loading required package: proto
+>
+>> >  sessionInfo()
+> R version 2.14.1 (2011-12-22)
+> Platform: x86_64-pc-linux-gnu (64-bit)
+>
+> locale:
+>   [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+>   [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+>   [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+>   [7] LC_PAPER=C                 LC_NAME=C
+>   [9] LC_ADDRESS=C               LC_TELEPHONE=C
+> [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+>
+> attached base packages:
+> [1] grid      stats     graphics  grDevices utils     datasets  methods
+> [8] base
+>
+> other attached packages:
+> [1] ggplot2_0.8.9 proto_0.3-9.2 reshape_0.8.4 plyr_1.6
+>> >  fix(mpg)
+> Error in dataentry(datalist, modes) : invalid device
+> In addition: Warning message:
+> In edit.data.frame(get(subx, envir = parent), title = subx, ...) :
+>    unable to open X Input Method
+>> >  fix(mpg)
+>   *** caught segfault ***
+> address (nil), cause 'unknown'
+>
+> Traceback:
+>   1: edit.data.frame(get(subx, envir = parent), title = subx, ...)
+>   2: edit(get(subx, envir = parent), title = subx, ...)
+>   3: fix(mpg)
+>
+> Possible actions:
+> 1: abort (with core dump, if enabled)
+> 2: normal R exit
+> 3: exit R without saving workspace
+> 4: exit R saving workspace
+> Selection:
+>
+>
+> Same happens no matter what packages are loaded, so far as I can tell.
+>   Here it is without ggplot2, in case you were suspicious of those
+> particular datasets.
+>
+>
+>> >  library(datasets)
+>> >  datasets()
+> Error: could not find function "datasets"
+>> >  help(package=datasets)
+>> >  fix(CO2)
+> Error in dataentry(datalist, modes) : invalid device
+> In addition: Warning message:
+> In edit.data.frame(get(subx, envir = parent), title = subx, ...) :
+>    unable to open X Input Method
+>
+>
+>
+> -- Paul E. Johnson Professor, Political Science 1541 Lilac Lane, Room 
+> 504 University of Kansas
+
+
+From jranke at uni-bremen.de  Mon Jan  9 22:17:40 2012
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 9 Jan 2012 22:17:40 +0100
+Subject: [R-sig-Debian] [R] fix and edit don't work: unable to open X
+	Input
+In-Reply-To: <4F0B02ED.9060704@gmail.com>
+References: <mailman.19.1326106807.25861.r-help@r-project.org>
+	<4F0B02ED.9060704@gmail.com>
+Message-ID: <201201092217.41132.jranke@uni-bremen.de>
+
+Hi,
+
+I just loaded ggplot2 and ran fix() both using R 2.14.1 from CRAN on Debian 
+stable and Ubuntu 11.10 - no problems here . See one comment inline below.
+
+> > Date: Sun, 8 Jan 2012 15:32:49 -0600 From: Paul Johnson
+> > <pauljohn32 at gmail.com> To: R-help <r-help at r-project.org> Subject: [R]
+> > fix and edit don't work: unable to open X Input Method->segfault
+> > Message-ID:
+> > <CAErODj9+Fbg9bbC_1X3Use8eQQoq+Mg4Nb0hH1Yr7YnGp6G21A at mail.gmail.com>
+> > Content-Type: text/plain; charset=windows-1252 I can't run fix() or
+> > edit() anymore. Did I break my system? I'm running Debian Linux with
+> > R-2.14.1. As far as I can tell, the R packages came from Debian's
+> > testing "wheezy" repository. I would like to know if users on other
+> > types of systems see the same problem. If no, then, obviously, it is a
+> > Debian-only issue and I can approach it from that point of view. And
+> > if no other Debian users see same, it means it is a me-only problem,
+> > and that's discouraging :) I get this same R crash whether I try fix
+> > when R is running in a terminal or in Emacs with ESS. I've not seen
+> > this before, but Google leads to some bug reports on Ubuntu in 2007,
+> > where it was claimed that the problem was fixed. The really bad part
+> > is that the second try causes a segmentation fault in R itself.
+> > 
+> >> >  library(ggplot2)
+> > 
+> > Loading required package: reshape
+> > Loading required package: plyr
+> > 
+> > Attaching package: ?reshape?
+> > 
+> > The following object(s) are masked from ?package:plyr?:
+> >      rename, round_any
+> > 
+> > Loading required package: grid
+> > Loading required package: proto
+> > 
+> >> >  sessionInfo()
+> > 
+> > R version 2.14.1 (2011-12-22)
+> > Platform: x86_64-pc-linux-gnu (64-bit)
+> > 
+> > locale:
+> >   [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+> >   [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+> >   [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+> >   [7] LC_PAPER=C                 LC_NAME=C
+> >   [9] LC_ADDRESS=C               LC_TELEPHONE=C
+> > 
+> > [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+> > 
+> > attached base packages:
+> > [1] grid      stats     graphics  grDevices utils     datasets  methods
+> > [8] base
+> > 
+> > other attached packages:
+> > [1] ggplot2_0.8.9 proto_0.3-9.2 reshape_0.8.4 plyr_1.6
+> > 
+> >> >  fix(mpg)
+> > 
+> > Error in dataentry(datalist, modes) : invalid device
+> > In addition: Warning message:
+> > 
+> > In edit.data.frame(get(subx, envir = parent), title = subx, ...) :
+> >    unable to open X Input Method
+
+Did you run R as root?
+
+Kind regards,
+
+Johannes
+
+
+> >    
+> >> >  fix(mpg)
+> >   
+> >   *** caught segfault ***
+> > 
+> > address (nil), cause 'unknown'
+> > 
+> > Traceback:
+> >   1: edit.data.frame(get(subx, envir = parent), title = subx, ...)
+> >   2: edit(get(subx, envir = parent), title = subx, ...)
+> >   3: fix(mpg)
+> > 
+> > Possible actions:
+> > 1: abort (with core dump, if enabled)
+> > 2: normal R exit
+> > 3: exit R without saving workspace
+> > 4: exit R saving workspace
+> > Selection:
+> > 
+> > 
+> > Same happens no matter what packages are loaded, so far as I can tell.
+> > 
+> >   Here it is without ggplot2, in case you were suspicious of those
+> > 
+> > particular datasets.
+> > 
+> >> >  library(datasets)
+> >> >  datasets()
+> > 
+> > Error: could not find function "datasets"
+> > 
+> >> >  help(package=datasets)
+> >> >  fix(CO2)
+> > 
+> > Error in dataentry(datalist, modes) : invalid device
+> > In addition: Warning message:
+> > 
+> > In edit.data.frame(get(subx, envir = parent), title = subx, ...) :
+> >    unable to open X Input Method
+> > 
+> > -- Paul E. Johnson Professor, Political Science 1541 Lilac Lane, Room
+> > 504 University of Kansas
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From pauljohn32 at gmail.com  Tue Jan 10 06:37:49 2012
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Mon, 9 Jan 2012 23:37:49 -0600
+Subject: [R-sig-Debian] [R] fix and edit don't work: unable to open X
+	Input
+In-Reply-To: <4F0B02ED.9060704@gmail.com>
+References: <mailman.19.1326106807.25861.r-help@r-project.org>
+	<4F0B02ED.9060704@gmail.com>
+Message-ID: <CAErODj9kpSapp95D0-jhunkfR6wc0TNZZHGkiywpcVWKNkt2AA@mail.gmail.com>
+
+Thanks, Paul.
+
+I'm not even sure r-sig-debian is the right place for me to whine
+about this.  If other debian systems work, well, the problem can't be
+the R package.
+
+Checklist.
+
+1. I'm not running R as root, nor am I remote (that was one suspicion)
+
+2. Re-installed packages.  I configured a different CRAN repository,
+at first I was encouraged because it seemed to be drawing in some
+packages I was not aware of:
+
+
+$ sudo apt-get install r-base r-base-dev
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following extra packages will be installed:
+  cdbs dpatch gfortran libbz2-dev libjpeg8-dev libncurses5-dev libpcre3-dev
+  libpcrecpp0 libreadline-dev libreadline6-dev libtinfo-dev patchutils
+  r-base-html
+Suggested packages:
+  devscripts gfortran-multilib gfortran-doc ncurses-doc r-doc-info r-doc-pdf
+The following NEW packages will be installed:
+  cdbs dpatch gfortran libbz2-dev libjpeg8-dev libncurses5-dev libpcre3-dev
+  libpcrecpp0 libreadline-dev libreadline6-dev libtinfo-dev patchutils r-base
+  r-base-dev r-base-html
+0 upgraded, 15 newly installed, 0 to remove and 8 not upgraded.
+Need to get 1,877 kB of archives.
+After this operation, 5,501 kB of additional disk space
+
+================
+
+Oh, well. Start R, what do you get?
+
+> fix(warpbreaks)
+Error in dataentry(datalist, modes) : invalid device
+In addition: Warning message:
+In edit.data.frame(get(subx, envir = parent), title = subx, ...) :
+  unable to open X Input Method
+
+Bummer.
+
+> sessionInfo()
+R version 2.14.1 (2011-12-22)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+ [7] LC_PAPER=C                 LC_NAME=C
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base
+
+
+3. Now, read the error message again. "X Input Method".
+
+I've found the code where problem starts in R source.  I suspect my
+locale and/or desktop environment and/or SCIM setup.  Here:
+
+R-2.14.0/src/modules/X11/dataentry.c
+
+  if(mbcslocale && DE->isEditor) {
+        ioim = XOpenIM(iodisplay, NULL, NULL, NULL);
+  if(!ioim) {
+            XDestroyWindow(iodisplay, DE->iowindow);
+            XCloseDisplay(iodisplay);
+            warning("unable to open X Input Method");
+            return TRUE;
+        }
+
+ XOpenIM has documentation, about complicated things like locale.
+I'll report back if I find out what's wrong.
+
+-- 
+Paul E. Johnson
+Professor, Political Science
+1541 Lilac Lane, Room 504
+University of Kansas
+
+
+From edd at debian.org  Tue Jan 10 06:53:59 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 9 Jan 2012 23:53:59 -0600
+Subject: [R-sig-Debian] [R] fix and edit don't work: unable to open
+	X	Input
+In-Reply-To: <CAErODj9kpSapp95D0-jhunkfR6wc0TNZZHGkiywpcVWKNkt2AA@mail.gmail.com>
+References: <mailman.19.1326106807.25861.r-help@r-project.org>
+	<4F0B02ED.9060704@gmail.com>
+	<CAErODj9kpSapp95D0-jhunkfR6wc0TNZZHGkiywpcVWKNkt2AA@mail.gmail.com>
+Message-ID: <20235.53879.680663.202966@max.nulle.part>
+
+
+Do you have x11 setup right?  Ie can you do (outside of R) 'xterm &' or
+'xclock &' ?
+
+In case you ssh to your machine, set the option in the config file, or use
+'ssh -X some.where.com'.
+
+Dirk
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From pauljohn32 at gmail.com  Wed Jan 11 00:02:22 2012
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Tue, 10 Jan 2012 17:02:22 -0600
+Subject: [R-sig-Debian] [R] fix and edit don't work: unable to open X
+	Input
+In-Reply-To: <CAErODj9kpSapp95D0-jhunkfR6wc0TNZZHGkiywpcVWKNkt2AA@mail.gmail.com>
+References: <mailman.19.1326106807.25861.r-help@r-project.org>
+	<4F0B02ED.9060704@gmail.com>
+	<CAErODj9kpSapp95D0-jhunkfR6wc0TNZZHGkiywpcVWKNkt2AA@mail.gmail.com>
+Message-ID: <CAErODj8HvrJ_Ea5D3R260bSgWkP4R9AK_TB3RmgEd_60gBX7Ew@mail.gmail.com>
+
+Solution! In case you see this error:
+
+On Mon, Jan 9, 2012 at 11:37 PM, Paul Johnson <pauljohn32 at gmail.com> wrote:
+>
+>> fix(warpbreaks)
+> Error in dataentry(datalist, modes) : invalid device
+> In addition: Warning message:
+> In edit.data.frame(get(subx, envir = parent), title = subx, ...) :
+> ?unable to open X Input Method
+>
+
+The problem is a stray or mistaken configuration for multi-character
+languages in your environment.  The problem is not the X11 display,
+but rather in keyboard input, possibly a mismatch between what
+keyboard input system you are actually using and that which is
+specified in some environment variables.
+
+This has cropped up from time-to-time concerning R:
+
+https://bugs.launchpad.net/ubuntu/+source/r-base/+bug/48168
+
+but it usually cures itself before anybody writes out a completely
+clear explanation of what is wrong, how it went wrong, and what fix is
+minimally sufficient to fix it.  I do not believe I intentionally
+changed any input settings, but plenty of updates from Debian Wheezy
+have flown by.
+
+The posts in that ubuntu bug say check your locale and input settings,
+in particular, Run this:
+
+$ echo $XMODIFIERS
+$ echo $GTK_IM_MODULE
+
+In my case, those were returning some settings that were not
+applicable, i.e., applied to programs I no longer had installed.
+
+Clearing out those settings in the shell caused R's fix to work again:
+
+$ export XMODIFIERS=
+$ export GTK_IM_MODULE=
+
+To make the fix permanent, I did quite a bit of poking about.
+(Editorial comment: This is one of the times when running a RedHat
+based system may be easier because there's more "corporate" dedication
+to making sure that details like this actually work.)
+
+In the Debian repositories, I found a program called "im-switch" that
+seems to have got it right. im-switch pops up
+
+Select User Input Method for en_US. User choice uspercedes system
+choice marked as default.
+
+With these options:
+
+X default  Use setting by the sysadmin
+X              Use xim
+X              Use thai IM_MODULE
+X              Do not use Input Method
+X              Use thai IM_MODULE
+X              Use thai xim
+X              Remove user choice to enable system choice
+
+That actually worked, unfortunately, the README.Debian file
+
+im-switch for Debian
+im-switch is deprecated.
+Please install im-config package for Wheezy.
+This package will be droped completely for Wheezy+1.
+
+That's too bad. I'm learning my way around im-config.
+
+-- 
+Paul E. Johnson
+Professor, Political Science
+1541 Lilac Lane, Room 504
+University of Kansas
+
+
+From deepayan.sarkar at r-project.org  Wed Jan 11 13:03:12 2012
+From: deepayan.sarkar at r-project.org (Deepayan Sarkar)
+Date: Wed, 11 Jan 2012 17:33:12 +0530
+Subject: [R-sig-Debian] Command completion of the R binary / Ubuntu
+In-Reply-To: <4F0D6883.8010309@ipht-jena.de>
+References: <4F0D6883.8010309@ipht-jena.de>
+Message-ID: <CADfFDC5qZU3Wuz7uA3H4CvzhOTns=cxDrYevCC-w0WND90rZeg@mail.gmail.com>
+
+On Wed, Jan 11, 2012 at 4:16 PM, Claudia Beleites
+<claudia.beleites at ipht-jena.de> wrote:
+> Dear Deepayan and dear list,
+>
+> I notice a small inconsistency with the command completion of the R CMD
+> check. --no-latex is deprecated sincs R 2.12.0 and defunct since 2.13.0
+> but the command line completion still suggests it:
+>
+> cb at cbdesktop:~/r-devel$ bin/R CMD check --no-<here I hit tab>
+> --no-clean ? ? ?--no-examples ? --no-latex ? ? ?--no-vignettes
+> --no-codoc ? ? ?--no-install ? ?--no-tests
+> cb at cbdesktop:~/r-devel$ bin/R CMD check --no-latex
+> Fehler: '--no-latex' is defunct: use '--no-manual' instead
+>
+> I gather the command line options could be updated to current R CMD
+> check in file /etc/bash_completion.d/R:
+>
+> cb at cbdesktop:~/tmp$ diff R /etc/bash_completion.d/R
+> 244,247c244,245
+> < ? ? ? ? ? ? ? ? ? --no-install --no-tests --no-vignettes --no-manual \
+> < ? ? ? ? ? --no-rebuild-vignettes --install-args ?--check-subdirs \
+> < ? ? ? ? ? --extra-arch --multiarch --no-multiarch --force-multiarch \
+> < ? ? ? ? ? ? ? ? ? --timings ?--use-gct --use-valgrind --rcfile"
+> ---
+>> ? ? ? ? ? ? ? ? ? --no-install --no-tests --no-vignettes --no-latex \
+>> ? ? ? ? ? ? ? ? ? --use-gct --use-valgrind --rcfile"
+>
+> I gather from the mailing list archives, that the original is available at
+> http://code.google.com/p/rcompletion/source/browse/trunk/bash_completion/R
+>
+> Should I suggest the patch there? Will changes propagate to the packaged
+> linux distributions from there or should the updated file be brought to
+> the attention somewhere else?
+
+Thanks for the patch.
+
+I believe only Debian/Ubuntu package it (and this would have been more
+appropriate for r-sig-debian). I'll coordinate with Dirk et al to
+update the relevant files.
+
+-Deepayan
+
+
+From edd at debian.org  Wed Jan 11 19:12:37 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 11 Jan 2012 12:12:37 -0600
+Subject: [R-sig-Debian] [Rd] Command completion of the R binary / Ubuntu
+In-Reply-To: <CADfFDC5qZU3Wuz7uA3H4CvzhOTns=cxDrYevCC-w0WND90rZeg@mail.gmail.com>
+References: <4F0D6883.8010309@ipht-jena.de>
+	<CADfFDC5qZU3Wuz7uA3H4CvzhOTns=cxDrYevCC-w0WND90rZeg@mail.gmail.com>
+Message-ID: <20237.53525.534664.107631@max.nulle.part>
+
+
+On 11 January 2012 at 17:33, Deepayan Sarkar wrote:
+| On Wed, Jan 11, 2012 at 4:16 PM, Claudia Beleites
+| <claudia.beleites at ipht-jena.de> wrote:
+| > Dear Deepayan and dear list,
+| >
+| > I notice a small inconsistency with the command completion of the R CMD
+| > check. --no-latex is deprecated sincs R 2.12.0 and defunct since 2.13.0
+| > but the command line completion still suggests it:
+| >
+| > cb at cbdesktop:~/r-devel$ bin/R CMD check --no-<here I hit tab>
+| > --no-clean ? ? ?--no-examples ? --no-latex ? ? ?--no-vignettes
+| > --no-codoc ? ? ?--no-install ? ?--no-tests
+| > cb at cbdesktop:~/r-devel$ bin/R CMD check --no-latex
+| > Fehler: '--no-latex' is defunct: use '--no-manual' instead
+| >
+| > I gather the command line options could be updated to current R CMD
+| > check in file /etc/bash_completion.d/R:
+| >
+| > cb at cbdesktop:~/tmp$ diff R /etc/bash_completion.d/R
+| > 244,247c244,245
+| > < ? ? ? ? ? ? ? ? ? --no-install --no-tests --no-vignettes --no-manual \
+| > < ? ? ? ? ? --no-rebuild-vignettes --install-args ?--check-subdirs \
+| > < ? ? ? ? ? --extra-arch --multiarch --no-multiarch --force-multiarch \
+| > < ? ? ? ? ? ? ? ? ? --timings ?--use-gct --use-valgrind --rcfile"
+| > ---
+| >> ? ? ? ? ? ? ? ? ? --no-install --no-tests --no-vignettes --no-latex \
+| >> ? ? ? ? ? ? ? ? ? --use-gct --use-valgrind --rcfile"
+| >
+| > I gather from the mailing list archives, that the original is available at
+| > http://code.google.com/p/rcompletion/source/browse/trunk/bash_completion/R
+| >
+| > Should I suggest the patch there? Will changes propagate to the packaged
+| > linux distributions from there or should the updated file be brought to
+| > the attention somewhere else?
+| 
+| Thanks for the patch.
+| 
+| I believe only Debian/Ubuntu package it (and this would have been more
+| appropriate for r-sig-debian). I'll coordinate with Dirk et al to
+| update the relevant files.
+
+That is indeed almost entirely a Deepayan (juicy code) and Dirk (mere
+packaging) issue as the rest (Ubuntun etc) just follows from there.  And
+r-sig-debian would indeed have been a good venue too.  But posting here makes
+it a nice reminder to everybody not using the .deb package about what they
+are missing :)
+
+Dirk
+ 
+| -Deepayan
+| 
+| ______________________________________________
+| R-devel at r-project.org mailing list
+| https://stat.ethz.ch/mailman/listinfo/r-devel
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From s.blomberg1 at uq.edu.au  Thu Jan 12 03:51:02 2012
+From: s.blomberg1 at uq.edu.au (Simon Blomberg)
+Date: Thu, 12 Jan 2012 12:51:02 +1000
+Subject: [R-sig-Debian] Problems compiling packages from source: can't find
+	-lquadmath.
+Message-ID: <4F0E4A96.8060207@uq.edu.au>
+
+Hi all,
+
+I have recently installed Debian squeeze on a Dell T7500, but I have 
+pinned R and friends to come from the unstable distribution. Currently I 
+have these Debian packages installed (with dependencies):
+
+r-base-core 2.14.1-1
+r-base-dev 2.14.1-1
+
+The problem comes when installing new source packages from CRAN using 
+install.packages(). Below is a typical installation output:
+
+* installing *source* package ?gee? ...
+** libs
+gfortran -fpic -O3 -pipe -g -c dgedi.f -o dgedi.o
+gfortran -fpic -O3 -pipe -g -c dgefa.f -o dgefa.o
+gcc -std=gnu99 -I/usr/share/R/include -fpic -O3 -pipe -g -c ugee.c -o ugee.o
+gcc -std=gnu99 -shared -o gee.so dgedi.o dgefa.o ugee.o -lblas 
+-lgfortran -lm -lquadmath -lgfortran -lm -lquadmath -L/usr/lib64/R/lib -lR
+/usr/bin/ld: cannot find -lquadmath
+collect2: ld returned 1 exit status
+make: *** [gee.so] Error 1
+ERROR: compilation failed for package ?gee?
+* removing ?/usr/local/lib/R/site-library/gee?
+
+The downloaded packages are in
+?/tmp/Rtmp7Cgdu4/downloaded_packages?
+Warning message:
+In install.packages("gee") :
+installation of package ?gee? had non-zero exit status
+
+The problem seems to be with the location of libquadmath. I tried 
+putting a symbolic link to libquadmath.so.0.0.0 (which is in 
+/usr/lib/x86_64-linux-gnu) in /usr/lib64/R/lib , after reading the 
+following thread (with the help of an internet translator!):
+
+http://r-br.2285057.n4.nabble.com/R-br-lquadmath-td4124090.html
+
+However, this has not solved the problem at all.
+
+Can anyone help me with this?
+
+Thanks in advance,
+
+Simon.
+
+-- 
+Simon Blomberg, BSc (Hons), PhD, MAppStat, AStat.
+Lecturer and Consultant Statistician
+School of Biological Sciences
+The University of Queensland
+St. Lucia Queensland 4072
+Australia
+T: +61 7 3365 2506
+email: S.Blomberg1_at_uq.edu.au
+http://www.uq.edu.au/~uqsblomb/
+
+Policies:
+1.  I will NOT analyse your data for you.
+2.  Your deadline is your problem.
+
+Statistics is the grammar of science - Karl Pearson.
+
+
+From edd at debian.org  Thu Jan 12 04:46:37 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 11 Jan 2012 21:46:37 -0600
+Subject: [R-sig-Debian] Problems compiling packages from source: can't
+	find	-lquadmath.
+In-Reply-To: <4F0E4A96.8060207@uq.edu.au>
+References: <4F0E4A96.8060207@uq.edu.au>
+Message-ID: <20238.22429.50092.11417@max.nulle.part>
+
+
+On 12 January 2012 at 12:51, Simon Blomberg wrote:
+| Hi all,
+| 
+| I have recently installed Debian squeeze on a Dell T7500, but I have 
+| pinned R and friends to come from the unstable distribution. Currently I 
+| have these Debian packages installed (with dependencies):
+| 
+| r-base-core 2.14.1-1
+| r-base-dev 2.14.1-1
+| 
+| The problem comes when installing new source packages from CRAN using 
+| install.packages(). Below is a typical installation output:
+| 
+| * installing *source* package ?gee? ...
+| ** libs
+| gfortran -fpic -O3 -pipe -g -c dgedi.f -o dgedi.o
+| gfortran -fpic -O3 -pipe -g -c dgefa.f -o dgefa.o
+| gcc -std=gnu99 -I/usr/share/R/include -fpic -O3 -pipe -g -c ugee.c -o ugee.o
+| gcc -std=gnu99 -shared -o gee.so dgedi.o dgefa.o ugee.o -lblas 
+| -lgfortran -lm -lquadmath -lgfortran -lm -lquadmath -L/usr/lib64/R/lib -lR
+| /usr/bin/ld: cannot find -lquadmath
+| collect2: ld returned 1 exit status
+| make: *** [gee.so] Error 1
+| ERROR: compilation failed for package ?gee?
+| * removing ?/usr/local/lib/R/site-library/gee?
+| 
+| The downloaded packages are in
+| ?/tmp/Rtmp7Cgdu4/downloaded_packages?
+| Warning message:
+| In install.packages("gee") :
+| installation of package ?gee? had non-zero exit status
+| 
+| The problem seems to be with the location of libquadmath. I tried 
+| putting a symbolic link to libquadmath.so.0.0.0 (which is in 
+| /usr/lib/x86_64-linux-gnu) in /usr/lib64/R/lib , after reading the 
+| following thread (with the help of an internet translator!):
+| 
+| http://r-br.2285057.n4.nabble.com/R-br-lquadmath-td4124090.html
+| 
+| However, this has not solved the problem at all.
+| 
+| Can anyone help me with this?
+
+Funny you bring that up because I saw the -lquadmath in a link line the other
+day and wondered "where on earth did that come from" :)
+
+So now, on this (Ubuntu 11.10) box, we can start the chase:
+
+edd at max:~$ locate libquadmath|wc -l
+64                                              # a lot, some are older .deb packages
+edd at max:~$ locate libquadmath.so|wc -l         
+6                                               # still a lot
+edd at max:~$ locate libquadmath.so|head -2        # so let's look at the first two
+/usr/lib/gcc/x86_64-linux-gnu/4.6/libquadmath.so
+/usr/lib/gcc/x86_64-linux-gnu/4.6/32/libquadmath.so
+edd at max:~$ dpkg -S /usr/lib/gcc/x86_64-linux-gnu/4.6/libquadmath.so
+gcc-4.6: /usr/lib/gcc/x86_64-linux-gnu/4.6/libquadmath.so
+edd at max:~$ 
+
+So gcc brings this along.  I suspect you are (for once) bitten by the
+unstable/testing split.  The /new/ R packages (r-base-core etc) were probably
+built against a different compiler than the one you use.  You need to bring
+that back in sync, either by also letting the new compiler in (risque as it
+will bring a new libc) or (safer, boring) getting maybe the squeeze build of
+R onto your system, or (more work) reb-building the Debian R package on your
+system to match you compiler.
+
+Let me assure you that "the system" as a whole works, I would have heard by
+now if r-base-core broke builds of r-cran-* packages. The Debian archive
+rebuilds those way too frequently for anything substantial to slip through.
+
+So looks like this is yours.  Sorry that are bitten by a compiler transition,
+but "he who lives at the edge of unstable ... "  ;-)
+
+Cheers,  Dirk 
+ 
+| Thanks in advance,
+| 
+| Simon.
+| 
+| -- 
+| Simon Blomberg, BSc (Hons), PhD, MAppStat, AStat.
+| Lecturer and Consultant Statistician
+| School of Biological Sciences
+| The University of Queensland
+| St. Lucia Queensland 4072
+| Australia
+| T: +61 7 3365 2506
+| email: S.Blomberg1_at_uq.edu.au
+| http://www.uq.edu.au/~uqsblomb/
+| 
+| Policies:
+| 1.  I will NOT analyse your data for you.
+| 2.  Your deadline is your problem.
+| 
+| Statistics is the grammar of science - Karl Pearson.
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From s.blomberg1 at uq.edu.au  Thu Jan 12 05:14:51 2012
+From: s.blomberg1 at uq.edu.au (Simon Blomberg)
+Date: Thu, 12 Jan 2012 14:14:51 +1000
+Subject: [R-sig-Debian] Problems compiling packages from source: can't
+ find	-lquadmath.
+In-Reply-To: <20238.22429.50092.11417@max.nulle.part>
+References: <4F0E4A96.8060207@uq.edu.au>
+	<20238.22429.50092.11417@max.nulle.part>
+Message-ID: <4F0E5E3B.2040202@uq.edu.au>
+
+Hi Dirk,
+
+I downgraded r-base-core, r-base-dev back to squeeze, and then upgraded 
+them again to testing. It seems to have fixed the problem! Most packages 
+are compiling happily now.
+
+Thanks for your advice!
+
+Simon.
+
+On 12/01/12 13:46, Dirk Eddelbuettel wrote:
+> On 12 January 2012 at 12:51, Simon Blomberg wrote:
+> | Hi all,
+> |
+> | I have recently installed Debian squeeze on a Dell T7500, but I have
+> | pinned R and friends to come from the unstable distribution. Currently I
+> | have these Debian packages installed (with dependencies):
+> |
+> | r-base-core 2.14.1-1
+> | r-base-dev 2.14.1-1
+> |
+> | The problem comes when installing new source packages from CRAN using
+> | install.packages(). Below is a typical installation output:
+> |
+> | * installing *source* package ?gee? ...
+> | ** libs
+> | gfortran -fpic -O3 -pipe -g -c dgedi.f -o dgedi.o
+> | gfortran -fpic -O3 -pipe -g -c dgefa.f -o dgefa.o
+> | gcc -std=gnu99 -I/usr/share/R/include -fpic -O3 -pipe -g -c ugee.c -o ugee.o
+> | gcc -std=gnu99 -shared -o gee.so dgedi.o dgefa.o ugee.o -lblas
+> | -lgfortran -lm -lquadmath -lgfortran -lm -lquadmath -L/usr/lib64/R/lib -lR
+> | /usr/bin/ld: cannot find -lquadmath
+> | collect2: ld returned 1 exit status
+> | make: *** [gee.so] Error 1
+> | ERROR: compilation failed for package ?gee?
+> | * removing ?/usr/local/lib/R/site-library/gee?
+> |
+> | The downloaded packages are in
+> | ?/tmp/Rtmp7Cgdu4/downloaded_packages?
+> | Warning message:
+> | In install.packages("gee") :
+> | installation of package ?gee? had non-zero exit status
+> |
+> | The problem seems to be with the location of libquadmath. I tried
+> | putting a symbolic link to libquadmath.so.0.0.0 (which is in
+> | /usr/lib/x86_64-linux-gnu) in /usr/lib64/R/lib , after reading the
+> | following thread (with the help of an internet translator!):
+> |
+> | http://r-br.2285057.n4.nabble.com/R-br-lquadmath-td4124090.html
+> |
+> | However, this has not solved the problem at all.
+> |
+> | Can anyone help me with this?
+>
+> Funny you bring that up because I saw the -lquadmath in a link line the other
+> day and wondered "where on earth did that come from" :)
+>
+> So now, on this (Ubuntu 11.10) box, we can start the chase:
+>
+> edd at max:~$ locate libquadmath|wc -l
+> 64                                              # a lot, some are older .deb packages
+> edd at max:~$ locate libquadmath.so|wc -l
+> 6                                               # still a lot
+> edd at max:~$ locate libquadmath.so|head -2        # so let's look at the first two
+> /usr/lib/gcc/x86_64-linux-gnu/4.6/libquadmath.so
+> /usr/lib/gcc/x86_64-linux-gnu/4.6/32/libquadmath.so
+> edd at max:~$ dpkg -S /usr/lib/gcc/x86_64-linux-gnu/4.6/libquadmath.so
+> gcc-4.6: /usr/lib/gcc/x86_64-linux-gnu/4.6/libquadmath.so
+> edd at max:~$
+>
+> So gcc brings this along.  I suspect you are (for once) bitten by the
+> unstable/testing split.  The /new/ R packages (r-base-core etc) were probably
+> built against a different compiler than the one you use.  You need to bring
+> that back in sync, either by also letting the new compiler in (risque as it
+> will bring a new libc) or (safer, boring) getting maybe the squeeze build of
+> R onto your system, or (more work) reb-building the Debian R package on your
+> system to match you compiler.
+>
+> Let me assure you that "the system" as a whole works, I would have heard by
+> now if r-base-core broke builds of r-cran-* packages. The Debian archive
+> rebuilds those way too frequently for anything substantial to slip through.
+>
+> So looks like this is yours.  Sorry that are bitten by a compiler transition,
+> but "he who lives at the edge of unstable ... "  ;-)
+>
+> Cheers,  Dirk
+>
+> | Thanks in advance,
+> |
+> | Simon.
+> |
+> | --
+> | Simon Blomberg, BSc (Hons), PhD, MAppStat, AStat.
+> | Lecturer and Consultant Statistician
+> | School of Biological Sciences
+> | The University of Queensland
+> | St. Lucia Queensland 4072
+> | Australia
+> | T: +61 7 3365 2506
+> | email: S.Blomberg1_at_uq.edu.au
+> | http://www.uq.edu.au/~uqsblomb/
+> |
+> | Policies:
+> | 1.  I will NOT analyse your data for you.
+> | 2.  Your deadline is your problem.
+> |
+> | Statistics is the grammar of science - Karl Pearson.
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+-- 
+Simon Blomberg, BSc (Hons), PhD, MAppStat, AStat.
+Lecturer and Consultant Statistician
+School of Biological Sciences
+The University of Queensland
+St. Lucia Queensland 4072
+Australia
+T: +61 7 3365 2506
+email: S.Blomberg1_at_uq.edu.au
+http://www.uq.edu.au/~uqsblomb/
+
+Policies:
+1.  I will NOT analyse your data for you.
+2.  Your deadline is your problem.
+
+Statistics is the grammar of science - Karl Pearson.
+
+
+From jimrc at math.montana.edu  Thu Jan 12 19:05:33 2012
+From: jimrc at math.montana.edu (Jim Robison-Cox)
+Date: Thu, 12 Jan 2012 11:05:33 -0700 (MST)
+Subject: [R-sig-Debian] Can't install rjags on LinuxMint 12
+Message-ID: <alpine.GSO.2.00.1201121100310.25083@gauss.math.montana.edu>
+
+Hi,
+
+I'm trying to install rjags and R2jags with R version 2.14.1 (2011-12-22)
+on
+Linux Mint 12 machine using
+software repository:
+  deb http://cran.fhcrc.org/bin/linux/ubuntu oneiric/
+
+jags seems to install OK, but rjags gives a weird error about not finding 
+fprec symbol.
+
+
+Here is a history of the problem including several attempts to work 
+around it.
+(Because of Ben Bolker's recent post, I first removed jags)
+
+sudo apt-get remove jags
+## The following packages will be REMOVED:
+##  jags r-cran-rjags
+
+  sudo apt-get install jags
+## The following NEW packages will be installed:
+##  jags
+  ## Unpacking jags (from .../jags_3.2.0-1oneiric0_amd64.deb)
+
+sudo apt-get install r-cran-rjags
+##The following NEW packages will be installed:
+   ##r-cran-rjags
+   ## Unpacking r-cran-rjags (from .../r-cran-rjags_3.3-1_amd64.deb)
+
+sudo apt-get install r-cran-r2jags
+  ## The following packages have unmet dependencies:
+  ## r-cran-r2jags : Depends: r-cran-r2winbugs but it is not installable
+   ##E: Unable to correct problems, you have held broken packages.
+
+sudo apt-get install r-cran-r2winbugs
+  ## Package r-cran-r2winbugs is not available, but is referred to by 
+another package.
+
+wget http://cran.fhcrc.org/src/contrib/R2WinBUGS_2.1-18.tar.gz
+sudo R CMD INSTALL R2WinBUGS_2.1-18.tar.gz
+## * DONE (R2WinBUGS)
+
+wget http://cran.fhcrc.org/src/contrib/R2jags_0.03-02.tar.gz
+sudo R CMD INSTALL R2jags_0.03-02.tar.gz
+##module basemod loaded
+##Error : .onLoad failed in loadNamespace() for 'rjags', details:
+##  call: dyn.load(file)
+##  error: unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+##  /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+
+
+
+
+Start R with
+> sudo R
+> require(rjags)
+
+Loading required package: rjags
+linking to JAGS 3.2.0
+module basemod loaded
+Error : .onLoad failed in loadNamespace() for 'rjags', details:
+   call: dyn.load(file)
+   error: unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+   /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+
+> install.packages("R2WinBUGS")
+   * DONE (R2WinBUGS)
+
+> install.packages("R2jags")
+Error : .onLoad failed in loadNamespace() for 'rjags', details:
+   call: dyn.load(file)
+   error: unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+   /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+Error : package ?rjags? could not be loaded
+
+> install.packages("R2jags")
+Installing package(s) into ?/usr/local/lib/R/site-library?
+(as ?lib? is unspecified)
+trying URL 'http://cran.fhcrc.org/src/contrib/R2jags_0.03-02.tar.gz'
+Content type 'application/x-gzip' length 25915 bytes (25 Kb)
+opened URL
+==================================================
+downloaded 25 Kb
+
+* installing *source* package ?R2jags? ...
+** package ?R2jags? successfully unpacked and MD5 sums checked
+** R
+** inst
+** preparing package for lazy loading
+module basemod loaded
+Error : .onLoad failed in loadNamespace() for 'rjags', details:
+   call: dyn.load(file)
+   error: unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+   /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+Error : package ?rjags? could not be loaded
+ERROR: lazy loading failed for package ?R2jags?
+* removing ?/usr/local/lib/R/site-library/R2jags?
+
+> q()
+
+
+
+If I try installing  the newer rjags3.5, I get this error:
+
+> sudo R CMD INSTALL rjags_3-5.tar.gz
+#linking to JAGS 3.2.0
+#module basemod loaded
+#Error : .onLoad failed in loadNamespace() for 'rjags', details:
+#  call: dyn.load(file)
+#  error: unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+#  /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+#ERROR: installing package indices failed
+#* removing ?/usr/local/lib/R/site-library/rjags?
+
+
+Thanks for any help,
+Jim
+
+
+Jim Robison-Cox               ____________
+Department of Math Sciences  |            |       phone: (406)994-5340
+2-214 Wilson Hall             \   BZN, MT |       FAX:   (406)994-1789
+Montana State University       |  *_______|
+Bozeman, MT 59717-2400          \_|      e-mail: jimrc at math.montana.edu
+
+From mar36 at psu.edu  Thu Jan 12 20:16:38 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Thu, 12 Jan 2012 14:16:38 -0500
+Subject: [R-sig-Debian] Can't install rjags on LinuxMint 12
+In-Reply-To: <alpine.GSO.2.00.1201121100310.25083@gauss.math.montana.edu>
+References: <alpine.GSO.2.00.1201121100310.25083@gauss.math.montana.edu>
+Message-ID: <4F0F3196.1000406@psu.edu>
+
+
+
+On 01/12/2012 01:05 PM, Jim Robison-Cox wrote:
+> Hi,
+>
+> I'm trying to install rjags and R2jags with R version 2.14.1 (2011-12-22)
+> on
+> Linux Mint 12 machine using
+> software repository:
+> deb http://cran.fhcrc.org/bin/linux/ubuntu oneiric/
+>
+> jags seems to install OK, but rjags gives a weird error about not
+> finding fprec symbol.
+>
+>
+> Here is a history of the problem including several attempts to work
+> around it.
+> (Because of Ben Bolker's recent post, I first removed jags)
+>
+> sudo apt-get remove jags
+> ## The following packages will be REMOVED:
+> ## jags r-cran-rjags
+>
+> sudo apt-get install jags
+> ## The following NEW packages will be installed:
+> ## jags
+> ## Unpacking jags (from .../jags_3.2.0-1oneiric0_amd64.deb)
+>
+> sudo apt-get install r-cran-rjags
+> ##The following NEW packages will be installed:
+> ##r-cran-rjags
+> ## Unpacking r-cran-rjags (from .../r-cran-rjags_3.3-1_amd64.deb)
+>
+> sudo apt-get install r-cran-r2jags
+> ## The following packages have unmet dependencies:
+> ## r-cran-r2jags : Depends: r-cran-r2winbugs but it is not installable
+> ##E: Unable to correct problems, you have held broken packages.
+>
+> sudo apt-get install r-cran-r2winbugs
+> ## Package r-cran-r2winbugs is not available, but is referred to by
+> another package.
+>
+> wget http://cran.fhcrc.org/src/contrib/R2WinBUGS_2.1-18.tar.gz
+> sudo R CMD INSTALL R2WinBUGS_2.1-18.tar.gz
+> ## * DONE (R2WinBUGS)
+>
+> wget http://cran.fhcrc.org/src/contrib/R2jags_0.03-02.tar.gz
+> sudo R CMD INSTALL R2jags_0.03-02.tar.gz
+> ##module basemod loaded
+> ##Error : .onLoad failed in loadNamespace() for 'rjags', details:
+> ## call: dyn.load(file)
+> ## error: unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+> ## /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+>
+>
+>
+>
+> Start R with
+>> sudo R
+>> require(rjags)
+>
+> Loading required package: rjags
+> linking to JAGS 3.2.0
+> module basemod loaded
+> Error : .onLoad failed in loadNamespace() for 'rjags', details:
+> call: dyn.load(file)
+> error: unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+> /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+>
+>> install.packages("R2WinBUGS")
+> * DONE (R2WinBUGS)
+>
+>> install.packages("R2jags")
+> Error : .onLoad failed in loadNamespace() for 'rjags', details:
+> call: dyn.load(file)
+> error: unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+> /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+> Error : package ?rjags? could not be loaded
+>
+>> install.packages("R2jags")
+> Installing package(s) into ?/usr/local/lib/R/site-library?
+> (as ?lib? is unspecified)
+> trying URL 'http://cran.fhcrc.org/src/contrib/R2jags_0.03-02.tar.gz'
+> Content type 'application/x-gzip' length 25915 bytes (25 Kb)
+> opened URL
+> ==================================================
+> downloaded 25 Kb
+>
+> * installing *source* package ?R2jags? ...
+> ** package ?R2jags? successfully unpacked and MD5 sums checked
+> ** R
+> ** inst
+> ** preparing package for lazy loading
+> module basemod loaded
+> Error : .onLoad failed in loadNamespace() for 'rjags', details:
+> call: dyn.load(file)
+> error: unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+> /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+> Error : package ?rjags? could not be loaded
+> ERROR: lazy loading failed for package ?R2jags?
+> * removing ?/usr/local/lib/R/site-library/R2jags?
+>
+>> q()
+>
+>
+>
+> If I try installing the newer rjags3.5, I get this error:
+>
+>> sudo R CMD INSTALL rjags_3-5.tar.gz
+> #linking to JAGS 3.2.0
+> #module basemod loaded
+> #Error : .onLoad failed in loadNamespace() for 'rjags', details:
+> # call: dyn.load(file)
+> # error: unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+> # /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+> #ERROR: installing package indices failed
+> #* removing ?/usr/local/lib/R/site-library/rjags?
+>
+
+Jim,
+
+I do not have Linux Mint available to test, but in a clean version of 
+Ubuntu 11.10, adding only the RRutter PPA 
+(https://launchpad.net/~marutter/+archive/rrutter for details), I am 
+able to install jags,r-cran-rjags, r-cran-r2jags, and r-cran-r2winbugs 
+without any issues and they run without any issues.
+
+I should note that due to a slight change in the numbering on CRAN, 
+r-cran-rjags version 3.5 needs to be forced to be installed over the 
+r-cran-jags version 3.3 that is available in the Ubuntu universe 
+repositories.
+
+Since you were unable to install r-cran-r2winbugs, I would make sure the 
+RRutter repository is enabled.  Then everything should install and work 
+correctly.  If it doesn't, my first guess is a difference between Mint 
+and Ubuntu, but I cannot check that out right now.
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From pgoetz at mail.utexas.edu  Thu Jan 12 23:08:04 2012
+From: pgoetz at mail.utexas.edu (Patrick Goetz)
+Date: Thu, 12 Jan 2012 16:08:04 -0600
+Subject: [R-sig-Debian] Template for building .deb packages for missing
+	libraries?
+Message-ID: <4F0F59C4.5040607@mail.utexas.edu>
+
+
+Greeting R debianites -
+
+There are a number of R libraries I need debianized (for Ubuntu Maverick 
+systems, if it matters) -- ISwR, Hmisc, mosaic, mosaicManip, HSAUR2 -- 
+which I couldn't find debian packages for.
+
+The structure of R libraries is so regular that I'm guessing surely 
+there must be a template for creating debian packages for them, or maybe 
+a set of instructions?
+
+Does anyone have such a thing?
+
+
+From mar36 at psu.edu  Fri Jan 13 00:39:53 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Thu, 12 Jan 2012 18:39:53 -0500
+Subject: [R-sig-Debian] Template for building .deb packages for missing
+ libraries?
+In-Reply-To: <4F0F59C4.5040607@mail.utexas.edu>
+References: <4F0F59C4.5040607@mail.utexas.edu>
+Message-ID: <4F0F6F49.6020709@psu.edu>
+
+
+
+On 01/12/2012 05:08 PM, Patrick Goetz wrote:
+>
+> Greeting R debianites -
+>
+> There are a number of R libraries I need debianized (for Ubuntu Maverick
+> systems, if it matters) -- ISwR, Hmisc, mosaic, mosaicManip, HSAUR2 --
+> which I couldn't find debian packages for.
+>
+> The structure of R libraries is so regular that I'm guessing surely
+> there must be a template for creating debian packages for them, or maybe
+> a set of instructions?
+>
+> Does anyone have such a thing?
+
+Patrick,
+
+I would suggest the Ubuntu Packaging Guide 
+(https://wiki.ubuntu.com/PackagingGuide/Complete) as a starting place, 
+at the same time using one of the .deb packages found on CRAN as a guide 
+to see what Dirk and I (mainly Dirk) add to the source file to create 
+the package.  In fact, the first time I built a package from the .tar.gz 
+file, I used a lot of the same files from an already existing .deb file.
+
+Hmisc is available on c2d4u 
+(https://launchpad.net/~marutter/+archive/c2d4u) for Natty and Oneiric, 
+but not for Maverick, the others you mention are not.
+
+Hope this helps,
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From edd at debian.org  Fri Jan 13 01:13:48 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 12 Jan 2012 18:13:48 -0600
+Subject: [R-sig-Debian] Template for building .deb packages for
+	missing	libraries?
+In-Reply-To: <4F0F59C4.5040607@mail.utexas.edu>
+References: <4F0F59C4.5040607@mail.utexas.edu>
+Message-ID: <20239.30524.868074.802977@max.nulle.part>
+
+
+On 12 January 2012 at 16:08, Patrick Goetz wrote:
+| systems, if it matters) -- ISwR, Hmisc, mosaic, mosaicManip, HSAUR2 -- 
+
+Hmisc is a) dead upstream and b) replaced by 'rms' and c) still in older
+distros; this is something I packaged years ago.
+
+For the rest, Michael gave you the proper answer.  It is pretty easy to
+create packages locally too if you just want them in your lab.
+
+And to paraphrase Lessig's "code is law" it is also documentation. Just look
+at an existing package and start from there.
+
+Dirk
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From pmuhl1848 at gmail.com  Fri Jan 13 03:30:14 2012
+From: pmuhl1848 at gmail.com (Peter Muhlberger)
+Date: Thu, 12 Jan 2012 21:30:14 -0500
+Subject: [R-sig-Debian] cannot find -lquadmath
+Message-ID: <CAFKU0ZsYb6m6sJtES2V7a+STdtDvA2-3_fg9DekfiTF3AtUTDQ@mail.gmail.com>
+
+Apologies if this has been posted about recently, but I haven't been
+on this listserve for a while.
+
+I ran into a problem trying to compile Hmisc (required package for
+rms) and have found a solution that I'd like to share.  The compile
+fails with the message:
+
+/usr/bin/ld: cannot find -lquadmath
+
+libquadmath exists on my Debian Squeeze system (up-to-date, recently installed):
+
+ldconfig -p | grep libquad*
+       libquadmath.so.0 (libc6,x86-64) =>
+/usr/lib/x86_64-linux-gnu/libquadmath.so.0
+
+The problem appears to be that libquadmath.so.0 is buried in the
+directory x86_64-linux-gnu where the compiler apparently can't see it.
+
+The fix is:
+
+cd /usr/lib
+sudo ln -s /usr/lib/x86_64-linux-gnu/libquadmath.so.0 /usr/lib/libquadmath.so
+
+Now, the compile works.
+
+Whoever is setting up R or R packages for Debian should try to insure
+that users don't have to apply fixes like the one above.
+
+Cheers,
+Peter
+
+
+From edd at debian.org  Fri Jan 13 04:21:33 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 12 Jan 2012 21:21:33 -0600
+Subject: [R-sig-Debian] cannot find -lquadmath
+In-Reply-To: <CAFKU0ZsYb6m6sJtES2V7a+STdtDvA2-3_fg9DekfiTF3AtUTDQ@mail.gmail.com>
+References: <CAFKU0ZsYb6m6sJtES2V7a+STdtDvA2-3_fg9DekfiTF3AtUTDQ@mail.gmail.com>
+Message-ID: <20239.41789.582819.875886@max.nulle.part>
+
+
+On 12 January 2012 at 21:30, Peter Muhlberger wrote:
+| Apologies if this has been posted about recently, but I haven't been
+| on this listserve for a while.
+
+That is rude. This was discussed, and a fix layed out, within the last 24 hours.
+ 
+| I ran into a problem trying to compile Hmisc (required package for
+
+1)  r-cran-hmisc was part of Debian for years. Why compile?
+
+2)  r-cran-rms is part of Debian, the 'rms' package has replaced Hmisc /years
+    ago/ upstream.
+
+| rms) and have found a solution that I'd like to share.  The compile
+| fails with the message:
+| 
+| /usr/bin/ld: cannot find -lquadmath
+| 
+| libquadmath exists on my Debian Squeeze system (up-to-date, recently installed):
+| 
+| ldconfig -p | grep libquad*
+|        libquadmath.so.0 (libc6,x86-64) =>
+| /usr/lib/x86_64-linux-gnu/libquadmath.so.0
+| 
+| The problem appears to be that libquadmath.so.0 is buried in the
+| directory x86_64-linux-gnu where the compiler apparently can't see it.
+| 
+| The fix is:
+| 
+| cd /usr/lib
+| sudo ln -s /usr/lib/x86_64-linux-gnu/libquadmath.so.0 /usr/lib/libquadmath.so
+|
+| Now, the compile works.
+| 
+| Whoever is setting up R or R packages for Debian should try to insure
+| that users don't have to apply fixes like the one above.
+
+Nonsense.  Look at the compile logs of /hundreds/ of r-cran-* packages across
+/more than a dozen/ architectures.  They build.
+
+Look eg at http://packages.qa.debian.org/r/r-cran-rms.html and click on build
+log, or go to https://buildd.debian.org/status/package.php?p=r-cran-rms
+
+Funny how it builds on all of our machines witout intervention, eh?
+
+Dirk
+
+| 
+| Cheers,
+| Peter
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From edd at debian.org  Fri Jan 13 16:20:39 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 13 Jan 2012 09:20:39 -0600
+Subject: [R-sig-Debian] cannot find -lquadmath
+In-Reply-To: <20239.41789.582819.875886@max.nulle.part>
+References: <CAFKU0ZsYb6m6sJtES2V7a+STdtDvA2-3_fg9DekfiTF3AtUTDQ@mail.gmail.com>
+	<20239.41789.582819.875886@max.nulle.part>
+Message-ID: <20240.19399.764517.780465@max.nulle.part>
+
+
+On 12 January 2012 at 21:21, Dirk Eddelbuettel wrote:
+| 
+| On 12 January 2012 at 21:30, Peter Muhlberger wrote:
+| | Apologies if this has been posted about recently, but I haven't been
+| | on this listserve for a while.
+| 
+| That is rude. This was discussed, and a fix layed out, within the last 24 hours.
+|  
+| | I ran into a problem trying to compile Hmisc (required package for
+| 
+| 1)  r-cran-hmisc was part of Debian for years. Why compile?
+|
+| 2)  r-cran-rms is part of Debian, the 'rms' package has replaced Hmisc /years
+|     ago/ upstream.
+
+Sorry, I confused Hmisc (which I have been maintaining in Debian since long
+before it was on CRAN) with Design.  Hmisc is of course still in Debian and
+Ubuntu; only Design was replaced by rms.
+
+Dirk
+ 
+| 
+| | rms) and have found a solution that I'd like to share.  The compile
+| | fails with the message:
+| | 
+| | /usr/bin/ld: cannot find -lquadmath
+| | 
+| | libquadmath exists on my Debian Squeeze system (up-to-date, recently installed):
+| | 
+| | ldconfig -p | grep libquad*
+| |        libquadmath.so.0 (libc6,x86-64) =>
+| | /usr/lib/x86_64-linux-gnu/libquadmath.so.0
+| | 
+| | The problem appears to be that libquadmath.so.0 is buried in the
+| | directory x86_64-linux-gnu where the compiler apparently can't see it.
+| | 
+| | The fix is:
+| | 
+| | cd /usr/lib
+| | sudo ln -s /usr/lib/x86_64-linux-gnu/libquadmath.so.0 /usr/lib/libquadmath.so
+| |
+| | Now, the compile works.
+| | 
+| | Whoever is setting up R or R packages for Debian should try to insure
+| | that users don't have to apply fixes like the one above.
+| 
+| Nonsense.  Look at the compile logs of /hundreds/ of r-cran-* packages across
+| /more than a dozen/ architectures.  They build.
+| 
+| Look eg at http://packages.qa.debian.org/r/r-cran-rms.html and click on build
+| log, or go to https://buildd.debian.org/status/package.php?p=r-cran-rms
+| 
+| Funny how it builds on all of our machines witout intervention, eh?
+| 
+| Dirk
+| 
+| | 
+| | Cheers,
+| | Peter
+| | 
+| | _______________________________________________
+| | R-SIG-Debian mailing list
+| | R-SIG-Debian at r-project.org
+| | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| 
+| -- 
+| "Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+| dark to read." -- Groucho Marx
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From tighe at brandeis.edu  Fri Jan 13 17:29:17 2012
+From: tighe at brandeis.edu (Elizabeth Tighe)
+Date: Fri, 13 Jan 2012 11:29:17 -0500
+Subject: [R-sig-Debian] R2jags update, jags.parallel
+Message-ID: <4F105BDD.8040502@brandeis.edu>
+
+
+Anyone used jags.parallel in latest version of R2jags?
+
+Ubuntu Oneiric, just ran updates in R to get latest R2jags package which 
+supposedly has added jags.parallel command to send chains to multiple 
+cores ... but when I submit, I get:
+
+test <- jags.parallel(d, inits, param, model.file="rats.bug",
+                      n.chains=3, n.iter=2000)
+
+Error: could not find function "jags.parallel"
+
+checked sessionInfo() to be sure I did actually have the udpated version:
+
+R version 2.14.1 (2011-12-22)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+  [7] LC_PAPER=C                 LC_NAME=C
+  [9] LC_ADDRESS=C               LC_TELEPHONE=C
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods
+[8] base
+
+other attached packages:
+  [1] R2jags_0.03-02   rjags_3-5        arm_1.4-14       abind_1.4-0
+  [5] R2WinBUGS_2.1-18 coda_0.14-6      lme4_0.999375-42 Matrix_1.0-2
+  [9] lattice_0.20-0   MASS_7.3-16
+
+loaded via a namespace (and not attached):
+[1] grid_2.14.1   nlme_3.1-102  stats4_2.14.1
+
+And then checked the library information and see that the jags.parallel 
+command doesn't actually appear:
+
+ > library(help=R2jags)
+
+                 Information on package ?R2jags?
+
+Description:
+
+Package:              R2jags
+Version:              0.03-02
+Date:                 2012-1-12
+Title:                A Package for Running jags from R
+Author:               Yu-Sung Su <suyusung at tsinghua.edu.cn>, Masanao
+                       Yajima <yajima at stat.columbia.edu>,
+Maintainer:           Yu-Sung Su <suyusung at tsinghua.edu.cn>
+Depends:              methods, R (>= 2.14.0), coda (>= 0.13),
+                       R2WinBUGS, rjags (>= 3-3), parallel
+SystemRequirements:   jags (>= 3.3.0)
+Description:          Using this package to call jags from R.
+License:              GPL (>= 2)
+Packaged:             2012-01-12 07:54:55 UTC; yusung
+Repository:           CRAN
+Date/Publication:     2012-01-12 09:39:14
+Built:                R 2.14.1; ; 2012-01-13 15:09:30 UTC; unix
+
+Index:
+
+attach.jags             Attach/detach elements of jags objects to
+                         search path
+autojags                Function for auto-updating jags until the model
+                         converges
+jags                    Run jags from R
+jags2bugs               Read jags output files in CODA format
+recompile               Function for recompiling rjags object
+traceplot               Trace plot of bugs object
+
+-------------------------
+
+any tips would be much appreciated!
+
+Thanks,
+Liz Tighe
+
+
+From pgoetz at mail.utexas.edu  Fri Jan 13 17:51:52 2012
+From: pgoetz at mail.utexas.edu (Patrick Goetz)
+Date: Fri, 13 Jan 2012 10:51:52 -0600
+Subject: [R-sig-Debian] Hmisc for Maverick
+In-Reply-To: <mailman.3773.1326424908.4521.r-sig-debian@r-project.org>
+References: <mailman.3773.1326424908.4521.r-sig-debian@r-project.org>
+Message-ID: <4F106128.8030104@mail.utexas.edu>
+
+On 01/12/2012 09:21 PM, r-sig-debian-request at r-project.org wrote:
+> Message: 4 Date: Thu, 12 Jan 2012 18:39:53 -0500
+> From: Michael Rutter <mar36 at psu.edu>
+>
+> Hmisc is available on c2d4u
+> (https://launchpad.net/~marutter/+archive/c2d4u) for Natty and Oneiric,
+> but not for Maverick, the others you mention are not.
+>
+
+Dirk, Michael -  thanks for the useful advice.
+
+Re: Hmisc:  It turns out that Hmisc is available as a package for 
+Maverick directly from packages.ubuntu.com:  r-cran-hmisc
+(also for natty, oneiric, and precise)
+
+One question.  Dirk mentioned a couple of times that Hmisc is no longer 
+maintained and has been replaced by rms.  I'm not following this.  The 
+last update for Hmisc is Nov. 8, 2011 and Hmisc (> 3.7) is listed as a 
+dependency for rms.
+
+(I'm going to try and use the mosaic package for a statistics class this 
+semester, and mosaic depends Hmisc.)
+
+
+From edd at debian.org  Fri Jan 13 18:22:01 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 13 Jan 2012 11:22:01 -0600
+Subject: [R-sig-Debian] Hmisc for Maverick
+In-Reply-To: <4F106128.8030104@mail.utexas.edu>
+References: <mailman.3773.1326424908.4521.r-sig-debian@r-project.org>
+	<4F106128.8030104@mail.utexas.edu>
+Message-ID: <20240.26681.899528.990888@max.nulle.part>
+
+
+On 13 January 2012 at 10:51, Patrick Goetz wrote:
+| On 01/12/2012 09:21 PM, r-sig-debian-request at r-project.org wrote:
+| > Message: 4 Date: Thu, 12 Jan 2012 18:39:53 -0500
+| > From: Michael Rutter <mar36 at psu.edu>
+| >
+| > Hmisc is available on c2d4u
+| > (https://launchpad.net/~marutter/+archive/c2d4u) for Natty and Oneiric,
+| > but not for Maverick, the others you mention are not.
+| >
+| 
+| Dirk, Michael -  thanks for the useful advice.
+| 
+| Re: Hmisc:  It turns out that Hmisc is available as a package for 
+| Maverick directly from packages.ubuntu.com:  r-cran-hmisc
+| (also for natty, oneiric, and precise)
+| 
+| One question.  Dirk mentioned a couple of times that Hmisc is no longer 
+| maintained and has been replaced by rms.  I'm not following this.  The 
+| last update for Hmisc is Nov. 8, 2011 and Hmisc (> 3.7) is listed as a 
+| dependency for rms.
+
+As I said in email earlier today, I was wrong (and presumably lacking coffee
+or sleep):  the sibbling package "Design" by Harrell was replaced by "rms" by
+Harrell.  "Hmisc", which is used by both continues unaffected.
+
+And Hmisc has been packaged for Debian since this entry:
+
+hmisc (1.6.1-1) unstable; urgency=low
+
+  * Initial Debian Release, closes Intent to Package (Closes: #198570)
+
+ -- Dirk Eddelbuettel <edd at debian.org>  Sat,  5 Jul 2003 13:50:53 -0500
+
+when it wasn't even a CRAN package yet.
+ 
+| (I'm going to try and use the mosaic package for a statistics class this 
+| semester, and mosaic depends Hmisc.)
+
+Try 'apt-cache search ^r-cran- | sort'; there is lot there. For the rest, you
+can use Michael's ppa or install into /usr/local/lib/R which I do with the
+install.r helper script in the littler package.
+
+Dirk
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From mar36 at psu.edu  Fri Jan 13 19:35:47 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Fri, 13 Jan 2012 13:35:47 -0500
+Subject: [R-sig-Debian] R2jags update, jags.parallel
+In-Reply-To: <4F105BDD.8040502@brandeis.edu>
+References: <4F105BDD.8040502@brandeis.edu>
+Message-ID: <4F107983.50005@psu.edu>
+
+On 01/13/2012 11:29 AM, Elizabeth Tighe wrote:
+>
+> Anyone used jags.parallel in latest version of R2jags?
+>
+> Ubuntu Oneiric, just ran updates in R to get latest R2jags package which
+> supposedly has added jags.parallel command to send chains to multiple
+> cores ... but when I submit, I get:
+>
+> test <- jags.parallel(d, inits, param, model.file="rats.bug",
+> n.chains=3, n.iter=2000)
+>
+> Error: could not find function "jags.parallel"
+>
+> checked sessionInfo() to be sure I did actually have the udpated version:
+>
+
+Liz,
+
+I checked the code for R2Jags, and jags.parallel does exist.  It appears 
+that the author neglected to add jags.parallel to the export list in the 
+package, which means you can't call it unless you know it is there. 
+This is a bug that needs to be fixed.
+
+The workaround until it is fixed it to call it via:
+
+R2jags:::jags.parallel
+
+as in:
+
+test <- R2jags:::jags.parallel(d, inits, param, 
+model.file="rats.bug",n.chains=3, n.iter=2000)
+
+That should work.  I will notify the author and get the newer versions 
+of R2jags up on the repositories.
+
+Michael
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From pmuhl1848 at gmail.com  Sun Jan 15 18:11:51 2012
+From: pmuhl1848 at gmail.com (Peter Muhlberger)
+Date: Sun, 15 Jan 2012 12:11:51 -0500
+Subject: [R-sig-Debian] cannot find -lquadmath
+In-Reply-To: <20240.42669.772730.495618@max.nulle.part>
+References: <CAFKU0ZsYb6m6sJtES2V7a+STdtDvA2-3_fg9DekfiTF3AtUTDQ@mail.gmail.com>
+	<20239.41789.582819.875886@max.nulle.part>
+	<CAFKU0Zu-aVkt3H2oTeE6bVWHdOPSau9rD5BZRv=KWoNvR8-gwg@mail.gmail.com>
+	<20240.42669.772730.495618@max.nulle.part>
+Message-ID: <CAFKU0Zu=GAVEubSoQAaVOk+tFcUvjJt=1HGxZg_mhZC0pBxvtw@mail.gmail.com>
+
+Hi Dirk:
+
+What would commenting out  -lquadmath in  /etc/R/Makeconf do?  If a
+package, such as Hmisc, requires it, wouldn't that prevent compiling
+or does the compiler then do more of a search for the library at that
+point?
+
+I wonder if I could have prevented this problem by pulling in a newer
+version of R from backports rather than sid?
+
+Peter
+
+On Fri, Jan 13, 2012 at 4:48 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> Hi Peter,
+>
+> On 13 January 2012 at 16:01, Peter Muhlberger wrote:
+> | Hi Dirk:
+> |
+> | I checked several months of r-sig-debian archives for a keyword
+> | associated with my problem & found nothing. ?Clearly, I used the wrong
+> | keyword (probably "libquad"). ?Now that you mention that there was a
+> | recent discussion, I can see it, and it's helpful. ?Wish I knew of a
+> | way to do a better search on the archive.
+>
+> Yes, sorry, and it was more or less timing issue. You and the other poster
+> were pretty hit at the same time.
+> |
+> | I thought my experience might be helpful because I have a fairly
+> | plain-vanilla version of Squeeze and build-essentials. ?I gather from
+> | the prior discussion on Jan 12 that my problem is that I updated my
+> | copy of R using the sid archive (had to to use the sem package), so
+> | now when I build it's probably expecting a more recent compiler setup.
+>
+> Right. That "gap" between sid and squeeze is usually non-existent, and I have
+> also at times done a pick and choose.
+>
+> In this case, though, it seems that there is a compiler change and the two
+> are different.
+>
+> You could try editing /etc/R/Makeconf and just comment out -lquadmath.
+>
+> Dirk
+>
+> | ?So maybe my problem is more esoteric than I imagined. ?It does seem
+> | complicated to be a R user in Squeeze.
+> |
+> | It's also helpful to know that there are binaries for things like
+> | Hmisc in the archives.
+> |
+> | Thanks in general for tackling the inclusion of R in Debian!
+> |
+> | Cheers,
+> | Peter
+> |
+> | On Thu, Jan 12, 2012 at 10:21 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+> | >
+> | > On 12 January 2012 at 21:30, Peter Muhlberger wrote:
+> | > | Apologies if this has been posted about recently, but I haven't been
+> | > | on this listserve for a while.
+> | >
+> | > That is rude. This was discussed, and a fix layed out, within the last 24 hours.
+> | >
+> | > | I ran into a problem trying to compile Hmisc (required package for
+> | >
+> | > 1) ?r-cran-hmisc was part of Debian for years. Why compile?
+> | >
+> | > 2) ?r-cran-rms is part of Debian, the 'rms' package has replaced Hmisc /years
+> | > ? ?ago/ upstream.
+> | >
+> | > | rms) and have found a solution that I'd like to share. ?The compile
+> | > | fails with the message:
+> | > |
+> | > | /usr/bin/ld: cannot find -lquadmath
+> | > |
+> | > | libquadmath exists on my Debian Squeeze system (up-to-date, recently installed):
+> | > |
+> | > | ldconfig -p | grep libquad*
+> | > | ? ? ? ?libquadmath.so.0 (libc6,x86-64) =>
+> | > | /usr/lib/x86_64-linux-gnu/libquadmath.so.0
+> | > |
+> | > | The problem appears to be that libquadmath.so.0 is buried in the
+> | > | directory x86_64-linux-gnu where the compiler apparently can't see it.
+> | > |
+> | > | The fix is:
+> | > |
+> | > | cd /usr/lib
+> | > | sudo ln -s /usr/lib/x86_64-linux-gnu/libquadmath.so.0 /usr/lib/libquadmath.so
+> | > |
+> | > | Now, the compile works.
+> | > |
+> | > | Whoever is setting up R or R packages for Debian should try to insure
+> | > | that users don't have to apply fixes like the one above.
+> | >
+> | > Nonsense. ?Look at the compile logs of /hundreds/ of r-cran-* packages across
+> | > /more than a dozen/ architectures. ?They build.
+> | >
+> | > Look eg at http://packages.qa.debian.org/r/r-cran-rms.html and click on build
+> | > log, or go to https://buildd.debian.org/status/package.php?p=r-cran-rms
+> | >
+> | > Funny how it builds on all of our machines witout intervention, eh?
+> | >
+> | > Dirk
+> | >
+> | > |
+> | > | Cheers,
+> | > | Peter
+> | > |
+> | > | _______________________________________________
+> | > | R-SIG-Debian mailing list
+> | > | R-SIG-Debian at r-project.org
+> | > | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> | >
+> | > --
+> | > "Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+> | > dark to read." -- Groucho Marx
+>
+> --
+> "Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+> dark to read." -- Groucho Marx
+
+
+From edd at debian.org  Sun Jan 15 18:59:39 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 15 Jan 2012 11:59:39 -0600
+Subject: [R-sig-Debian] cannot find -lquadmath
+In-Reply-To: <CAFKU0Zu=GAVEubSoQAaVOk+tFcUvjJt=1HGxZg_mhZC0pBxvtw@mail.gmail.com>
+References: <CAFKU0ZsYb6m6sJtES2V7a+STdtDvA2-3_fg9DekfiTF3AtUTDQ@mail.gmail.com>
+	<20239.41789.582819.875886@max.nulle.part>
+	<CAFKU0Zu-aVkt3H2oTeE6bVWHdOPSau9rD5BZRv=KWoNvR8-gwg@mail.gmail.com>
+	<20240.42669.772730.495618@max.nulle.part>
+	<CAFKU0Zu=GAVEubSoQAaVOk+tFcUvjJt=1HGxZg_mhZC0pBxvtw@mail.gmail.com>
+Message-ID: <20243.5131.980338.399574@max.nulle.part>
+
+
+On 15 January 2012 at 12:11, Peter Muhlberger wrote:
+| Hi Dirk:
+| 
+| What would commenting out  -lquadmath in  /etc/R/Makeconf do?  If a
+
+Iff it got there because R was conf'ed that way at _its_ buildtime yet the
+compiler on the system _running the Hmisc build_ (ie your box) doesn't need
+it, then commenting out would remove an unnecessary constraint.
+
+| package, such as Hmisc, requires it, wouldn't that prevent compiling
+| or does the compiler then do more of a search for the library at that
+| point?
+| 
+| I wonder if I could have prevented this problem by pulling in a newer
+| version of R from backports rather than sid?
+
+I have no idea as I don't have the issue on my systems. I don't mix and mix
+between distro variants. If I need something, I tend to build a local .deb.
+
+Dirk
+
+| 
+| Peter
+| 
+| On Fri, Jan 13, 2012 at 4:48 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+| >
+| > Hi Peter,
+| >
+| > On 13 January 2012 at 16:01, Peter Muhlberger wrote:
+| > | Hi Dirk:
+| > |
+| > | I checked several months of r-sig-debian archives for a keyword
+| > | associated with my problem & found nothing. ?Clearly, I used the wrong
+| > | keyword (probably "libquad"). ?Now that you mention that there was a
+| > | recent discussion, I can see it, and it's helpful. ?Wish I knew of a
+| > | way to do a better search on the archive.
+| >
+| > Yes, sorry, and it was more or less timing issue. You and the other poster
+| > were pretty hit at the same time.
+| > |
+| > | I thought my experience might be helpful because I have a fairly
+| > | plain-vanilla version of Squeeze and build-essentials. ?I gather from
+| > | the prior discussion on Jan 12 that my problem is that I updated my
+| > | copy of R using the sid archive (had to to use the sem package), so
+| > | now when I build it's probably expecting a more recent compiler setup.
+| >
+| > Right. That "gap" between sid and squeeze is usually non-existent, and I have
+| > also at times done a pick and choose.
+| >
+| > In this case, though, it seems that there is a compiler change and the two
+| > are different.
+| >
+| > You could try editing /etc/R/Makeconf and just comment out -lquadmath.
+| >
+| > Dirk
+| >
+| > | ?So maybe my problem is more esoteric than I imagined. ?It does seem
+| > | complicated to be a R user in Squeeze.
+| > |
+| > | It's also helpful to know that there are binaries for things like
+| > | Hmisc in the archives.
+| > |
+| > | Thanks in general for tackling the inclusion of R in Debian!
+| > |
+| > | Cheers,
+| > | Peter
+| > |
+| > | On Thu, Jan 12, 2012 at 10:21 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+| > | >
+| > | > On 12 January 2012 at 21:30, Peter Muhlberger wrote:
+| > | > | Apologies if this has been posted about recently, but I haven't been
+| > | > | on this listserve for a while.
+| > | >
+| > | > That is rude. This was discussed, and a fix layed out, within the last 24 hours.
+| > | >
+| > | > | I ran into a problem trying to compile Hmisc (required package for
+| > | >
+| > | > 1) ?r-cran-hmisc was part of Debian for years. Why compile?
+| > | >
+| > | > 2) ?r-cran-rms is part of Debian, the 'rms' package has replaced Hmisc /years
+| > | > ? ?ago/ upstream.
+| > | >
+| > | > | rms) and have found a solution that I'd like to share. ?The compile
+| > | > | fails with the message:
+| > | > |
+| > | > | /usr/bin/ld: cannot find -lquadmath
+| > | > |
+| > | > | libquadmath exists on my Debian Squeeze system (up-to-date, recently installed):
+| > | > |
+| > | > | ldconfig -p | grep libquad*
+| > | > | ? ? ? ?libquadmath.so.0 (libc6,x86-64) =>
+| > | > | /usr/lib/x86_64-linux-gnu/libquadmath.so.0
+| > | > |
+| > | > | The problem appears to be that libquadmath.so.0 is buried in the
+| > | > | directory x86_64-linux-gnu where the compiler apparently can't see it.
+| > | > |
+| > | > | The fix is:
+| > | > |
+| > | > | cd /usr/lib
+| > | > | sudo ln -s /usr/lib/x86_64-linux-gnu/libquadmath.so.0 /usr/lib/libquadmath.so
+| > | > |
+| > | > | Now, the compile works.
+| > | > |
+| > | > | Whoever is setting up R or R packages for Debian should try to insure
+| > | > | that users don't have to apply fixes like the one above.
+| > | >
+| > | > Nonsense. ?Look at the compile logs of /hundreds/ of r-cran-* packages across
+| > | > /more than a dozen/ architectures. ?They build.
+| > | >
+| > | > Look eg at http://packages.qa.debian.org/r/r-cran-rms.html and click on build
+| > | > log, or go to https://buildd.debian.org/status/package.php?p=r-cran-rms
+| > | >
+| > | > Funny how it builds on all of our machines witout intervention, eh?
+| > | >
+| > | > Dirk
+| > | >
+| > | > |
+| > | > | Cheers,
+| > | > | Peter
+| > | > |
+| > | > | _______________________________________________
+| > | > | R-SIG-Debian mailing list
+| > | > | R-SIG-Debian at r-project.org
+| > | > | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| > | >
+| > | > --
+| > | > "Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+| > | > dark to read." -- Groucho Marx
+| >
+| > --
+| > "Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+| > dark to read." -- Groucho Marx
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From michel.kuhlmann at tkconsult.ch  Thu Jan 19 15:39:43 2012
+From: michel.kuhlmann at tkconsult.ch (Michel Kuhlmann)
+Date: Thu, 19 Jan 2012 15:39:43 +0100
+Subject: [R-sig-Debian] R-scripts as executables for debian
+Message-ID: <20120119143943.GA17973@tkc-u1>
+
+Hi,
+I'm looking for a way to make executable R-scripts -- which are bound to
+a certain package -- available to the operating system's search path.
+The executable R-scripts I put in the package's 'exec' directory. 
+
+Different solutions have come to my mind: 
+    o 'configure'-script copies the files to /usr/local/bin
+    o make a 'require'-shell function which adds 
+      '/usr/local/lib/R/site-library/<pkg>/exec' dynamically to $PATH
+    o generate a debian-package which contains separately the
+      executables. 
+
+Thank you for any suggestions or pointers,
+Michel
+
+
+From edd at debian.org  Thu Jan 19 15:55:21 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 19 Jan 2012 08:55:21 -0600
+Subject: [R-sig-Debian] R-scripts as executables for debian
+In-Reply-To: <20120119143943.GA17973@tkc-u1>
+References: <20120119143943.GA17973@tkc-u1>
+Message-ID: <20248.11993.897425.697530@max.nulle.part>
+
+
+Michel,
+
+On 19 January 2012 at 15:39, Michel Kuhlmann wrote:
+| I'm looking for a way to make executable R-scripts -- which are bound to
+| a certain package -- available to the operating system's search path.
+| The executable R-scripts I put in the package's 'exec' directory. 
+
+Unless I misunderstand, that will always be outside of the system $PATH though.
+ 
+| Different solutions have come to my mind: 
+|     o 'configure'-script copies the files to /usr/local/bin
+|     o make a 'require'-shell function which adds 
+|       '/usr/local/lib/R/site-library/<pkg>/exec' dynamically to $PATH
+|     o generate a debian-package which contains separately the
+|       executables. 
+
+For executable R scripts, I suggest you do 'sudo apt-get install littler' and
+write scripts for #!/usr/bin/r -- and see the different examples included in
+the package.
+
+My personal convention is to just end thos in a lowercase .r and to 'chmod
+755' them, I have a few in ~/bin and /usr/local/bin/.
+
+The R packaging system makes it hard to distribute this via packaging as
+everything is effectively /outside/ the system patch.  We work around this
+using r as well Rscript with things like "Rscript -e 'Rcpp:::LdFlags()'"
+which we need to call from other packages.
+
+Other packages have the same problem (when trying to ship executables based
+on their code), and there is no solution I can see.  For a more general
+discussion, r-devel may be better anyway.
+
+Hope this helps,  Dirk
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From edd at debian.org  Thu Jan 19 15:59:39 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 19 Jan 2012 08:59:39 -0600
+Subject: [R-sig-Debian] R-scripts as executables for debian
+In-Reply-To: <20120119143943.GA17973@tkc-u1>
+References: <20120119143943.GA17973@tkc-u1>
+Message-ID: <20248.12251.122828.195554@max.nulle.part>
+
+
+On 19 January 2012 at 15:39, Michel Kuhlmann wrote:
+|     o generate a debian-package which contains separately the
+|       executables. 
+
+PS That you can do. Just have a Depends: on littler (and whichever R packages
+   you need) and ship scripts in /usr/bin with #!/usr/bin/r as shebang.
+
+Dirk
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From c.knapp at auckland.ac.nz  Fri Jan 27 01:21:31 2012
+From: c.knapp at auckland.ac.nz (Christoph Knapp)
+Date: Fri, 27 Jan 2012 00:21:31 +0000
+Subject: [R-sig-Debian] php and RMySQL produces R crash
+Message-ID: <B0660A8A15B9B7489330386C6ABF4931202DED79@uxcn10-1.UoA.auckland.ac.nz>
+
+Hi all,
+I have a very strange problem with the RMySql package. I'm running linux ubuntu 64 bit and R 2.14. I'm trying to solve this now for a week and could not find anything helpful on the net.
+
+Now the problem
+
+If I start my R script from php (script attached) the output is as followed
+
+Start R Script from php
+
+R version 2.14.1 (2011-12-22)
+Copyright (C) 2011 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> print(try(library(RMySQL)))
+[1] "Error in library(RMySQL) : there is no package called 'RMySQL'\n"
+attr(,"class")
+[1] "try-error"
+attr(,"condition")
+
+> cat("running R script\n")
+running R script
+
+It fails to load the library RMySQL.
+
+if I start my R script from terminal with the same command used in php
+
+christoph at dell-desktop:~/Desktop$ R -f "reproduceProblem.R"
+
+R version 2.14.1 (2011-12-22)
+Copyright (C) 2011 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> print(try(library(RMySQL)))
+Loading required package: DBI
+[1] "RMySQL"    "DBI"       "stats"     "graphics"  "grDevices" "utils"
+[7] "datasets"  "methods"   "base"
+> cat("running R script\n")
+running R script
+>
+
+it works
+
+If I use require instead of library it returns FALSE and R crashes when the database connection is made and the code also loads the DBI package. I assume this is because RMySQL is never loaded but DBI.
+
+Any ideas why R can not load RMySQL when started from a php script but otherwise there is no problem?
+
+I attached two small scripts which reproduce the problem for me.
+
+Any help is much appreciated.
+
+Christoph
+
+From c.knapp at auckland.ac.nz  Fri Jan 27 04:34:12 2012
+From: c.knapp at auckland.ac.nz (Christoph Knapp)
+Date: Fri, 27 Jan 2012 03:34:12 +0000
+Subject: [R-sig-Debian] php and RMySQL produces R crash
+In-Reply-To: <B0660A8A15B9B7489330386C6ABF4931202DED79@uxcn10-1.UoA.auckland.ac.nz>
+References: <B0660A8A15B9B7489330386C6ABF4931202DED79@uxcn10-1.UoA.auckland.ac.nz>
+Message-ID: <B0660A8A15B9B7489330386C6ABF4931202DEDB5@uxcn10-1.UoA.auckland.ac.nz>
+
+I solved the problem,
+R studio was installing libraries in places which were not visible for some reason when R was started from php. I just reinstalled (I had tried that before)  RMySQL at a the right place and it works now.
+
+Christoph
+________________________________________
+From: r-sig-debian-bounces at r-project.org [r-sig-debian-bounces at r-project.org] on behalf of Christoph Knapp [c.knapp at auckland.ac.nz]
+Sent: Friday, January 27, 2012 13:21
+To: r-sig-debian at r-project.org
+Subject: [R-sig-Debian] php and RMySQL produces R crash
+
+Hi all,
+I have a very strange problem with the RMySql package. I'm running linux ubuntu 64 bit and R 2.14. I'm trying to solve this now for a week and could not find anything helpful on the net.
+
+Now the problem
+
+If I start my R script from php (script attached) the output is as followed
+
+Start R Script from php
+
+R version 2.14.1 (2011-12-22)
+Copyright (C) 2011 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> print(try(library(RMySQL)))
+[1] "Error in library(RMySQL) : there is no package called 'RMySQL'\n"
+attr(,"class")
+[1] "try-error"
+attr(,"condition")
+
+> cat("running R script\n")
+running R script
+
+It fails to load the library RMySQL.
+
+if I start my R script from terminal with the same command used in php
+
+christoph at dell-desktop:~/Desktop$ R -f "reproduceProblem.R"
+
+R version 2.14.1 (2011-12-22)
+Copyright (C) 2011 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> print(try(library(RMySQL)))
+Loading required package: DBI
+[1] "RMySQL"    "DBI"       "stats"     "graphics"  "grDevices" "utils"
+[7] "datasets"  "methods"   "base"
+> cat("running R script\n")
+running R script
+>
+
+it works
+
+If I use require instead of library it returns FALSE and R crashes when the database connection is made and the code also loads the DBI package. I assume this is because RMySQL is never loaded but DBI.
+
+Any ideas why R can not load RMySQL when started from a php script but otherwise there is no problem?
+
+I attached two small scripts which reproduce the problem for me.
+
+Any help is much appreciated.
+
+Christoph
+
+

@@ -1,0 +1,2454 @@
+From rob00x at gmail.com  Wed May  2 10:35:55 2018
+From: rob00x at gmail.com (Robin Lovelace)
+Date: Wed, 2 May 2018 09:35:55 +0100
+Subject: [R-sig-Debian] Advice on upgrading to 3.5.0
+Message-ID: <CAF16KkVxs1V5OY22yGO2njTH-bd088bEMwxQxNoaVJv6y6FO=g@mail.gmail.com>
+
+I'd be interested to hear views on how and when Ubuntu users should upgrade
+to R 3.5.0.
+
+I made the upgrade a few days ago but reverted because of issues installing
+packages such as rJava, which I installed on the system with r-cran-rjava.
+
+Also any advice on how to do a clean uninstall of the previous version
+before making the leap greatly appreciated.
+
+Thank you.
+
+Robin
+
+	[[alternative HTML version deleted]]
+
+
+From edd at debian.org  Wed May  2 14:23:43 2018
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 2 May 2018 07:23:43 -0500
+Subject: [R-sig-Debian] Advice on upgrading to 3.5.0
+In-Reply-To: <CAF16KkVxs1V5OY22yGO2njTH-bd088bEMwxQxNoaVJv6y6FO=g@mail.gmail.com>
+References: <CAF16KkVxs1V5OY22yGO2njTH-bd088bEMwxQxNoaVJv6y6FO=g@mail.gmail.com>
+Message-ID: <23273.44495.873877.604627@rob.eddelbuettel.com>
+
+
+Hi Robin,
+
+Thanks for asking here rather than on Twitter. I am old-school and think this
+is a better place / more searchable / more easy to expand.
+
+On 2 May 2018 at 09:35, Robin Lovelace wrote:
+| I'd be interested to hear views on how and when Ubuntu users should upgrade
+| to R 3.5.0.
+| 
+| I made the upgrade a few days ago but reverted because of issues installing
+| packages such as rJava, which I installed on the system with r-cran-rjava.
+| 
+| Also any advice on how to do a clean uninstall of the previous version
+| before making the leap greatly appreciated.
+
+I guess it all depends. You really need to ensure you have no old r-cran-*
+packages with binary code left as that code would not load.
+
+So if in doubt, don't upgrade.
+
+Check your system, do 'dpkg -l | grep r-cran' (and/or r-bioc).  Use 'apt
+cache policy r-cran-abc' to check on a (hypothetical) package abc.  (We have
+RcppAPT to query apt from R too.)
+
+For Ubuntu, we opted for some flexibility by NOT imposing the r-api-3*
+tags. If you want, and know what you are doing, you _can_ upgrade now, use
+what is available as binaries (r-recommended plus some more) and then
+complement with local installation into /usr/local/lib/R/site-packages to
+complete your system. It is what I do as I tend to install a lot from CRAN
+directly.
+
+For Debian, we do not have that option. An upgrade will only be available
+once everything has been rebuilt for r-api-3.5, or else all old packages will
+get uninstalled -- which may not be what one wants.
+
+I would be happy to hear what others think.  Jeroen already voiced his
+support for also making Ubuntu 'harder' to upgrade by adding the tag. I am
+still on the fence on that -- to me, having the flexibility seems worth the
+risk of shooting one's foot off -- but I may be in the minority.
+
+As a start, we can probably collect the names of a few 'harder to install'
+packages that should go to the new repo sooner rather than later. rJava may
+be one, maybe some of the database interfaces too. Maybe RQuantLib just
+because it is huge.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From rob00x at gmail.com  Wed May  2 15:52:52 2018
+From: rob00x at gmail.com (Robin Lovelace)
+Date: Wed, 2 May 2018 14:52:52 +0100
+Subject: [R-sig-Debian] Advice on upgrading to 3.5.0
+In-Reply-To: <23273.44495.873877.604627@rob.eddelbuettel.com>
+References: <CAF16KkVxs1V5OY22yGO2njTH-bd088bEMwxQxNoaVJv6y6FO=g@mail.gmail.com>
+ <23273.44495.873877.604627@rob.eddelbuettel.com>
+Message-ID: <CAF16KkXxZjf6+B4FpcFy-tLKxNvqS4TPi5aeJbdehLtfpuvM6Q@mail.gmail.com>
+
+Many thanks Dirk, kind-of makes sense and I think my 'hold your horses'
+attitude is probably safest for now.
+
+Two follow-up questions:
+
+
+   - Roughly how long will it be until "everything has been rebuilt"?
+   - Could this seemingly new project help manage external deps:
+   https://github.com/r-hub/sysreqsdb ?
+
+
+On Wed, May 2, 2018 at 1:23 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> Hi Robin,
+>
+> Thanks for asking here rather than on Twitter. I am old-school and think
+> this
+> is a better place / more searchable / more easy to expand.
+>
+> On 2 May 2018 at 09:35, Robin Lovelace wrote:
+> | I'd be interested to hear views on how and when Ubuntu users should
+> upgrade
+> | to R 3.5.0.
+> |
+> | I made the upgrade a few days ago but reverted because of issues
+> installing
+> | packages such as rJava, which I installed on the system with
+> r-cran-rjava.
+> |
+> | Also any advice on how to do a clean uninstall of the previous version
+> | before making the leap greatly appreciated.
+>
+> I guess it all depends. You really need to ensure you have no old r-cran-*
+> packages with binary code left as that code would not load.
+>
+> So if in doubt, don't upgrade.
+>
+> Check your system, do 'dpkg -l | grep r-cran' (and/or r-bioc).  Use 'apt
+> cache policy r-cran-abc' to check on a (hypothetical) package abc.  (We
+> have
+> RcppAPT to query apt from R too.)
+>
+> For Ubuntu, we opted for some flexibility by NOT imposing the r-api-3*
+> tags. If you want, and know what you are doing, you _can_ upgrade now, use
+> what is available as binaries (r-recommended plus some more) and then
+> complement with local installation into /usr/local/lib/R/site-packages to
+> complete your system. It is what I do as I tend to install a lot from CRAN
+> directly.
+>
+> For Debian, we do not have that option. An upgrade will only be available
+> once everything has been rebuilt for r-api-3.5, or else all old packages
+> will
+> get uninstalled -- which may not be what one wants.
+>
+> I would be happy to hear what others think.  Jeroen already voiced his
+> support for also making Ubuntu 'harder' to upgrade by adding the tag. I am
+> still on the fence on that -- to me, having the flexibility seems worth the
+> risk of shooting one's foot off -- but I may be in the minority.
+>
+> As a start, we can probably collect the names of a few 'harder to install'
+> packages that should go to the new repo sooner rather than later. rJava may
+> be one, maybe some of the database interfaces too. Maybe RQuantLib just
+> because it is huge.
+>
+> Dirk
+>
+> --
+> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+	[[alternative HTML version deleted]]
+
+
+From thomas.friedrichsmeier at ruhr-uni-bochum.de  Wed May  2 22:27:22 2018
+From: thomas.friedrichsmeier at ruhr-uni-bochum.de (Thomas Friedrichsmeier)
+Date: Wed, 2 May 2018 22:27:22 +0200
+Subject: [R-sig-Debian] Two questions on r-base-3.5 transition
+Message-ID: <20180502222722.53eff264@edge>
+
+Dear R debian maintainers!
+
+As maintainer of rkward, I will be affected by the "r-base-3.5"
+transition. Could you help me by answering the following two questions?
+
+1) Is there any (upper / lower) time estimate on when 3.5.0 will enter
+sid? I have at least one somewhat-important-but-easy-to-fix-issue
+pending for rkward. So far I figured I would delay this until R 3.5.0
+has entered sid, and I need to make a new upload, anyway. Now I'm
+starting to wonder, how much delay that will actually mean.
+
+2) In principle, rkward will build fine for anything from R 3.0.0
+upwards, and it is not hard to support this in the debian packaging
+(with appropriate deps, of course). I am wondering, whether or not this
+is a good idea wrt to the transition, though. Should I make my next
+upload build-depend on r-base-core >= 3.5.0, or should I keep it
+flexible?
+
+Regards
+Thomas
+
+
+From edd at debian.org  Wed May  2 22:37:38 2018
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 2 May 2018 15:37:38 -0500
+Subject: [R-sig-Debian] Two questions on r-base-3.5 transition
+In-Reply-To: <20180502222722.53eff264@edge>
+References: <20180502222722.53eff264@edge>
+Message-ID: <23274.8594.557821.387787@rob.eddelbuettel.com>
+
+
+Hi Thomas,
+
+On 2 May 2018 at 22:27, Thomas Friedrichsmeier wrote:
+| Dear R debian maintainers!
+| 
+| As maintainer of rkward, I will be affected by the "r-base-3.5"
+| transition. Could you help me by answering the following two questions?
+| 
+| 1) Is there any (upper / lower) time estimate on when 3.5.0 will enter
+| sid? I have at least one somewhat-important-but-easy-to-fix-issue
+| pending for rkward. So far I figured I would delay this until R 3.5.0
+| has entered sid, and I need to make a new upload, anyway. Now I'm
+| starting to wonder, how much delay that will actually mean.
+
+I think nobody really knows. We discussed this a little in the debian-r list,
+and it now depends on the release team who are managing the transition.
+
+It may well be weeks.
+ 
+| 2) In principle, rkward will build fine for anything from R 3.0.0
+| upwards, and it is not hard to support this in the debian packaging
+| (with appropriate deps, of course). I am wondering, whether or not this
+| is a good idea wrt to the transition, though. Should I make my next
+| upload build-depend on r-base-core >= 3.5.0, or should I keep it
+| flexible?
+
+I think for the _source code in the repo_ I would keep flexible. But for
+_binary_ packages in Debian unstable I usually set the R version used.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd at debian.org  Thu May  3 05:23:28 2018
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 2 May 2018 22:23:28 -0500
+Subject: [R-sig-Debian] Advice on upgrading to 3.5.0
+In-Reply-To: <CAF16KkXxZjf6+B4FpcFy-tLKxNvqS4TPi5aeJbdehLtfpuvM6Q@mail.gmail.com>
+References: <CAF16KkVxs1V5OY22yGO2njTH-bd088bEMwxQxNoaVJv6y6FO=g@mail.gmail.com>
+ <23273.44495.873877.604627@rob.eddelbuettel.com>
+ <CAF16KkXxZjf6+B4FpcFy-tLKxNvqS4TPi5aeJbdehLtfpuvM6Q@mail.gmail.com>
+Message-ID: <23274.32944.711949.678115@rob.eddelbuettel.com>
+
+
+On 2 May 2018 at 14:52, Robin Lovelace wrote:
+| Many thanks Dirk, kind-of makes sense and I think my 'hold your horses'
+| attitude is probably safest for now.
+| 
+| Two follow-up questions:
+| 
+| 
+|    - Roughly how long will it be until "everything has been rebuilt"?
+
+I don't think anybody knows. :-/
+
+|    - Could this seemingly new project help manage external deps:
+|    https://github.com/r-hub/sysreqsdb ?
+
+It could be one part of it.  Other parts are needed.
+
+As is spare time, and a few volunteers "familiar with it all".  We don't
+really have all that.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From jeroenooms at gmail.com  Thu May  3 13:21:31 2018
+From: jeroenooms at gmail.com (Jeroen Ooms)
+Date: Thu, 3 May 2018 13:21:31 +0200
+Subject: [R-sig-Debian] Advice on upgrading to 3.5.0
+In-Reply-To: <CAF16KkVxs1V5OY22yGO2njTH-bd088bEMwxQxNoaVJv6y6FO=g@mail.gmail.com>
+References: <CAF16KkVxs1V5OY22yGO2njTH-bd088bEMwxQxNoaVJv6y6FO=g@mail.gmail.com>
+Message-ID: <CABFfbXvvFtkWdK8iH7kOj70BcjOFkbnXpHjhMJvJ=LB1oa0RiQ@mail.gmail.com>
+
+On Wed, May 2, 2018 at 10:35 AM, Robin Lovelace <rob00x at gmail.com> wrote:
+> I'd be interested to hear views on how and when Ubuntu users should upgrade
+> to R 3.5.0.
+> I made the upgrade a few days ago but reverted because of issues installing
+> packages such as rJava, which I installed on the system with r-cran-rjava.
+
+My strategy will be to jump to R 3.5 when I upgrade my servers to
+Ubuntu Bionic in a few weeks (will probably do a clean install).
+Currently c2d4u has pretty great coverage of CRAN binaries for Xenial
+(and Trusty) so I will stick with Xenial + R 3.4 for now.
+
+>From activity on launchpad it looks like c2d4u-3.5 is currently
+focussing on Ubuntu Bionic, which is great because that will give us a
+clean path forward. Hopefully in a few weeks from now, most r-cran
+packages will be there so we can upgrade to Bionic and R3.5 at the
+same time.
+
+> Also any advice on how to do a clean uninstall of the previous version
+> before making the leap greatly appreciated.
+
+Due to the missing api tags, I think it will be very difficult to
+automatically determine which r-cran packages you can keep. If you
+really need to upgrade you probably want to purge r-cran-* and
+r-base-* and reinstall from the new ppa.
+
+
+From edd at debian.org  Thu May  3 13:43:01 2018
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 3 May 2018 06:43:01 -0500
+Subject: [R-sig-Debian] Advice on upgrading to 3.5.0
+In-Reply-To: <CABFfbXvvFtkWdK8iH7kOj70BcjOFkbnXpHjhMJvJ=LB1oa0RiQ@mail.gmail.com>
+References: <CAF16KkVxs1V5OY22yGO2njTH-bd088bEMwxQxNoaVJv6y6FO=g@mail.gmail.com>
+ <CABFfbXvvFtkWdK8iH7kOj70BcjOFkbnXpHjhMJvJ=LB1oa0RiQ@mail.gmail.com>
+Message-ID: <23274.62917.291030.330726@rob.eddelbuettel.com>
+
+
+On 3 May 2018 at 13:21, Jeroen Ooms wrote:
+| On Wed, May 2, 2018 at 10:35 AM, Robin Lovelace <rob00x at gmail.com> wrote:
+| > I'd be interested to hear views on how and when Ubuntu users should upgrade
+| > to R 3.5.0.
+| > I made the upgrade a few days ago but reverted because of issues installing
+| > packages such as rJava, which I installed on the system with r-cran-rjava.
+| 
+| My strategy will be to jump to R 3.5 when I upgrade my servers to
+| Ubuntu Bionic in a few weeks (will probably do a clean install).
+| Currently c2d4u has pretty great coverage of CRAN binaries for Xenial
+| (and Trusty) so I will stick with Xenial + R 3.4 for now.
+| 
+| >From activity on launchpad it looks like c2d4u-3.5 is currently
+| focussing on Ubuntu Bionic, which is great because that will give us a
+| clean path forward. Hopefully in a few weeks from now, most r-cran
+| packages will be there so we can upgrade to Bionic and R3.5 at the
+| same time.
+
+c2d4u3.5 looks great! But for Travis we will also need trusty aka 14.04 :-/
+ 
+| > Also any advice on how to do a clean uninstall of the previous version
+| > before making the leap greatly appreciated.
+| 
+| Due to the missing api tags, I think it will be very difficult to
+| automatically determine which r-cran packages you can keep. If you
+| really need to upgrade you probably want to purge r-cran-* and
+| r-base-* and reinstall from the new ppa.
+
+Maybe the interfaces to the package systems can help: ie update.packages()
+has 'checkbuilt' option may be useful.  On the Linux side I added a few
+queries to the RcppAPT package, so it can tell you which packages depend on
+older R versions like 3.4.* (or older).  
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From mar36 at psu.edu  Thu May  3 15:16:35 2018
+From: mar36 at psu.edu (Michael Rutter)
+Date: Thu, 3 May 2018 09:16:35 -0400
+Subject: [R-sig-Debian] Advice on upgrading to 3.5.0
+In-Reply-To: <23274.62917.291030.330726@rob.eddelbuettel.com>
+References: <CAF16KkVxs1V5OY22yGO2njTH-bd088bEMwxQxNoaVJv6y6FO=g@mail.gmail.com>
+ <CABFfbXvvFtkWdK8iH7kOj70BcjOFkbnXpHjhMJvJ=LB1oa0RiQ@mail.gmail.com>
+ <23274.62917.291030.330726@rob.eddelbuettel.com>
+Message-ID: <e4b72c6e-f562-7d5f-81b3-90672f777af7@psu.edu>
+
+
+
+On 5/3/18 7:43 AM, Dirk Eddelbuettel wrote:
+> 
+> On 3 May 2018 at 13:21, Jeroen Ooms wrote:
+> | On Wed, May 2, 2018 at 10:35 AM, Robin Lovelace <rob00x at gmail.com> wrote:
+> | > I'd be interested to hear views on how and when Ubuntu users should upgrade
+> | > to R 3.5.0.
+> | > I made the upgrade a few days ago but reverted because of issues installing
+> | > packages such as rJava, which I installed on the system with r-cran-rjava.
+> |
+> | My strategy will be to jump to R 3.5 when I upgrade my servers to
+> | Ubuntu Bionic in a few weeks (will probably do a clean install).
+> | Currently c2d4u has pretty great coverage of CRAN binaries for Xenial
+> | (and Trusty) so I will stick with Xenial + R 3.4 for now.
+> |
+> | >From activity on launchpad it looks like c2d4u-3.5 is currently
+> | focussing on Ubuntu Bionic, which is great because that will give us a
+> | clean path forward. Hopefully in a few weeks from now, most r-cran
+> | packages will be there so we can upgrade to Bionic and R3.5 at the
+> | same time.
+> 
+> c2d4u3.5 looks great! But for Travis we will also need trusty aka 14.04 :-/
+
+That will slowly be built up.  Right now I am working on all the 
+packages in Bionic that exist in universe.  If I don't rebuild them 
+first, any attempt to redo c2d4u will fail.  Once those are finished, I 
+will slowly start rebuilding the other distros and CRAN Task Views.  It 
+will take some time.
+
+Michael
+
+> | > Also any advice on how to do a clean uninstall of the previous version
+> | > before making the leap greatly appreciated.
+> |
+> | Due to the missing api tags, I think it will be very difficult to
+> | automatically determine which r-cran packages you can keep. If you
+> | really need to upgrade you probably want to purge r-cran-* and
+> | r-base-* and reinstall from the new ppa.
+> 
+> Maybe the interfaces to the package systems can help: ie update.packages()
+> has 'checkbuilt' option may be useful.  On the Linux side I added a few
+> queries to the RcppAPT package, so it can tell you which packages depend on
+> older R versions like 3.4.* (or older).
+> 
+> Dirk
+> 
+
+-- 
+Dr. Michael A. Rutter
+Associate Director, School of Science
+Associate Professor of Statistics
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From edd at debian.org  Thu May  3 15:50:01 2018
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 3 May 2018 08:50:01 -0500
+Subject: [R-sig-Debian] Advice on upgrading to 3.5.0
+In-Reply-To: <e4b72c6e-f562-7d5f-81b3-90672f777af7@psu.edu>
+References: <CAF16KkVxs1V5OY22yGO2njTH-bd088bEMwxQxNoaVJv6y6FO=g@mail.gmail.com>
+ <CABFfbXvvFtkWdK8iH7kOj70BcjOFkbnXpHjhMJvJ=LB1oa0RiQ@mail.gmail.com>
+ <23274.62917.291030.330726@rob.eddelbuettel.com>
+ <e4b72c6e-f562-7d5f-81b3-90672f777af7@psu.edu>
+Message-ID: <23275.5001.965719.881933@rob.eddelbuettel.com>
+
+
+On 3 May 2018 at 09:16, Michael Rutter wrote:
+| That will slowly be built up.  Right now I am working on all the 
+| packages in Bionic that exist in universe.  If I don't rebuild them 
+| first, any attempt to redo c2d4u will fail.  Once those are finished, I 
+| will slowly start rebuilding the other distros and CRAN Task Views.  It 
+| will take some time.
+
+Thanks for the update, and that's pretty wonderful news.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@tthieu@@tigler @ending from gm@il@com  Sun May  6 00:29:38 2018
+From: m@tthieu@@tigler @ending from gm@il@com (Matthieu S)
+Date: Sat, 5 May 2018 15:29:38 -0700
+Subject: [R-sig-Debian] Ubuntu 18.04 bionic: availability of R Ubuntu
+ packages/ppa?
+Message-ID: <CAEYvigKsxfD6Q24p7Ehw-Koo5BVQyLf5kC3CL8rnmWM5ecCZ_w@mail.gmail.com>
+
+Hi
+
+I just upgraded to the Ubuntu 18.04 LTS, and tried to add both the "Ubuntu
+packages" source as well as ppa. I was not able to do this, trying to add
+for example:
+
+deb http://cran.cnr.berkeley.edu/bin/linux/ubuntu bionic/
+or using: sudo add-apt-repository ppa:marutter/c2d4u
+
+am I doing something wrong, or just being impatient? Are there any plans to
+build these repos in the near future?
+
+Big thanks to the maintainers for the great work :-)
+
+Matthieu
+
+	[[alternative HTML version deleted]]
+
+
+From edd @ending from debi@n@org  Sun May  6 01:02:12 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Sat, 5 May 2018 18:02:12 -0500
+Subject: [R-sig-Debian] Ubuntu 18.04 bionic: availability of R Ubuntu
+ packages/ppa?
+In-Reply-To: <CAEYvigKsxfD6Q24p7Ehw-Koo5BVQyLf5kC3CL8rnmWM5ecCZ_w@mail.gmail.com>
+References: <CAEYvigKsxfD6Q24p7Ehw-Koo5BVQyLf5kC3CL8rnmWM5ecCZ_w@mail.gmail.com>
+Message-ID: <23278.14324.913149.453495@rob.eddelbuettel.com>
+
+
+Salut Matthieu,
+
+On 5 May 2018 at 15:29, Matthieu S wrote:
+| I just upgraded to the Ubuntu 18.04 LTS, and tried to add both the "Ubuntu
+| packages" source as well as ppa. I was not able to do this, trying to add
+| for example:
+| 
+| deb http://cran.cnr.berkeley.edu/bin/linux/ubuntu bionic/
+| or using: sudo add-apt-repository ppa:marutter/c2d4u
+| 
+| am I doing something wrong, or just being impatient? Are there any plans to
+| build these repos in the near future?
+
+Yes, yes, and yes.  ;-)
+
+This has been discussed here before, maybe just scroll back through the
+archives if you want to catch up.
+
+Michael has R 3.5.0 itself for bionic:
+
+    https://launchpad.net/~marutter/+archive/ubuntu/rrutter3.5
+    
+and a new '3.5' next to one you used above:
+
+    https://launchpad.net/~marutter/+archive/ubuntu/c2d4u3.5
+
+None of this is 'ready' yet in the sense of being mirrored to CRAN. That
+said, and because he is awesome, that last repo is already at 400+ packages.
+
+"Eventually" it should cover the other LTS variants.
+ 
+| Big thanks to the maintainers for the great work :-)
+
+Thanks, we try. Not too much infrastructure that we have built so these
+transitions can be slow.  On my side, Debian has one schedules but not yet
+started.  And on my own Ubuntu machines, I converted one to R 3.5 with those
+binaries from rrutter3.5 -- but us mostly direct-from-CRAN-sources
+installation.  The machine I am typing this on is still at 17.10 and R 3.4.4,
+as is my Travis use.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@tthieu@@tigler @ending from gm@il@com  Sun May  6 02:49:33 2018
+From: m@tthieu@@tigler @ending from gm@il@com (Matthieu S)
+Date: Sat, 5 May 2018 17:49:33 -0700
+Subject: [R-sig-Debian] Ubuntu 18.04 bionic: availability of R Ubuntu
+ packages/ppa?
+In-Reply-To: <23278.14324.913149.453495@rob.eddelbuettel.com>
+References: <CAEYvigKsxfD6Q24p7Ehw-Koo5BVQyLf5kC3CL8rnmWM5ecCZ_w@mail.gmail.com>
+ <23278.14324.913149.453495@rob.eddelbuettel.com>
+Message-ID: <CAEYvig+EtTWHuG7Q=1jcAsApC+8iHA3-PbCc24bz39Gc7ehpNw@mail.gmail.com>
+
+awesome, merci Dirk!
+
+and my apologies for not scrolling down better, I failed to see that the
+18.04 update was linked to the R 3.5 issue .
+
+Further, please forgive my impatience, but I was very curious to see if the
+package tidyverse could be installed:  I have the impression that it is
+short of being installed, missing just a few simple packages (with no
+apparent non-R dependencies). Indeed, a first naive look shows following
+unavailable dependencies for tidyverse:
+
+## missing for tidyverse:
+modelr (ok!?)
+reprex:
+  -callr
+     -debugme
+        -covr
+          -rex (ok!?)
+  -rmarkdown (ok!?)
+rvest: selectr (ok!?)
+
+I hope that these package could be considered in a near future Michael?
+Thanks! :-)
+
+Best,
+
+Matthieu
+
+
+2018-05-05 16:02 GMT-07:00 Dirk Eddelbuettel <edd at debian.org>:
+
+>
+> Salut Matthieu,
+>
+> On 5 May 2018 at 15:29, Matthieu S wrote:
+> | I just upgraded to the Ubuntu 18.04 LTS, and tried to add both the
+> "Ubuntu
+> | packages" source as well as ppa. I was not able to do this, trying to add
+> | for example:
+> |
+> | deb http://cran.cnr.berkeley.edu/bin/linux/ubuntu bionic/
+> | or using: sudo add-apt-repository ppa:marutter/c2d4u
+> |
+> | am I doing something wrong, or just being impatient? Are there any plans
+> to
+> | build these repos in the near future?
+>
+> Yes, yes, and yes.  ;-)
+>
+> This has been discussed here before, maybe just scroll back through the
+> archives if you want to catch up.
+>
+> Michael has R 3.5.0 itself for bionic:
+>
+>     https://launchpad.net/~marutter/+archive/ubuntu/rrutter3.5
+>
+> and a new '3.5' next to one you used above:
+>
+>     https://launchpad.net/~marutter/+archive/ubuntu/c2d4u3.5
+>
+> None of this is 'ready' yet in the sense of being mirrored to CRAN. That
+> said, and because he is awesome, that last repo is already at 400+
+> packages.
+>
+> "Eventually" it should cover the other LTS variants.
+>
+> | Big thanks to the maintainers for the great work :-)
+>
+> Thanks, we try. Not too much infrastructure that we have built so these
+> transitions can be slow.  On my side, Debian has one schedules but not yet
+> started.  And on my own Ubuntu machines, I converted one to R 3.5 with
+> those
+> binaries from rrutter3.5 -- but us mostly direct-from-CRAN-sources
+> installation.  The machine I am typing this on is still at 17.10 and R
+> 3.4.4,
+> as is my Travis use.
+>
+> Dirk
+>
+> --
+> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+	[[alternative HTML version deleted]]
+
+
+From edd @ending from debi@n@org  Sun May  6 03:57:16 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Sat, 5 May 2018 20:57:16 -0500
+Subject: [R-sig-Debian] Ubuntu 18.04 bionic: availability of R Ubuntu
+ packages/ppa?
+In-Reply-To: <CAEYvig+EtTWHuG7Q=1jcAsApC+8iHA3-PbCc24bz39Gc7ehpNw@mail.gmail.com>
+References: <CAEYvigKsxfD6Q24p7Ehw-Koo5BVQyLf5kC3CL8rnmWM5ecCZ_w@mail.gmail.com>
+ <23278.14324.913149.453495@rob.eddelbuettel.com>
+ <CAEYvig+EtTWHuG7Q=1jcAsApC+8iHA3-PbCc24bz39Gc7ehpNw@mail.gmail.com>
+Message-ID: <23278.24828.63707.612074@rob.eddelbuettel.com>
+
+
+On 5 May 2018 at 17:49, Matthieu S wrote:
+| awesome, merci Dirk!
+| 
+| and my apologies for not scrolling down better, I failed to see that the
+| 18.04 update was linked to the R 3.5 issue .
+| 
+| Further, please forgive my impatience, but I was very curious to see if the
+| package tidyverse could be installed:  I have the impression that it is
+| short of being installed, missing just a few simple packages (with no
+| apparent non-R dependencies). Indeed, a first naive look shows following
+| unavailable dependencies for tidyverse:
+| 
+| ## missing for tidyverse:
+| modelr (ok!?)
+| reprex:
+|   -callr
+|      -debugme
+|         -covr
+|           -rex (ok!?)
+|   -rmarkdown (ok!?)
+| rvest: selectr (ok!?)
+| 
+| I hope that these package could be considered in a near future Michael?
+| Thanks! :-)
+
+Well, maybe see the excellent website by Josh:  http://www.tinyverse.org  ;-)
+
+Dependencies impose a burden on everybody.  Be patient, we will likely have
+binaries of all (or most) of the eightyfour (!!!) recursive dependencies
+of tidyverse (from the last time I counted) at some point.
+
+Amicalement,  Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From r@454 @ending from exeter@@c@uk  Sun May  6 19:14:07 2018
+From: r@454 @ending from exeter@@c@uk (Aguirre Perez, Roman)
+Date: Sun, 6 May 2018 17:14:07 +0000
+Subject: [R-sig-Debian] R on Ubuntu
+Message-ID: <A54ECE7F-CEBB-41DB-B56D-FD20CB17C255@contoso.com>
+
+Hi everyone,
+
+first of all, my sincerest thanks for the maintainers of this massive project. Such a compelling task!
+
+Briefly, I?m a PhD student working on Spatial Stats who loves R. Last week I decided to install and use Ubuntu (again). Consequently, I install the latest release (18.04) and tried to install R 3.5.0 as well but (un)fortunately I couldn?t.
+
+I have used R within Ubuntu and I use to follow the installation procedure suggested in the R-project website. However, this time was a bit different. I realised I was missing a key fact. There?s plenty of work behind making available R packages for Ubuntu! It briefly showed up in front of my eyes the meaning of each installation step. That?s why I?m here. So I would really appreciate you to enlighten me with your knowledge. I really want to go in depth on the relationship R-Ubuntu. Btw, any resource for learning is more than welcome.
+
+In this sense, which is the meaning of starting to install R by adding
+
+deb https://www.stats.bris.ac.uk/R/bin/linux/ubuntu bionic/<https://www.stats.bris.ac.uk/R/bin/linux/ubuntu%20bionic/>
+
+in the source.list file?
+
+I realised that I?m able to compile
+
+sudo apt-get install r-base
+
+without doing the first step. Which is the difference between each one?
+
+Now that I?m more aware I know that it isn?t so straightforward to mirror to CRAN and I have to hold my horses a bit more jeje. So should I install previous of both R and Ubuntu? I mean, does it take a long time to have a mirrored version?
+
+
+Best,
+Roman.
+
+
+	[[alternative HTML version deleted]]
+
+
+From d@le@w@@teele @ending from gm@il@com  Sun May  6 23:52:45 2018
+From: d@le@w@@teele @ending from gm@il@com (Dale Steele)
+Date: Sun, 6 May 2018 17:52:45 -0400
+Subject: [R-sig-Debian] R on Ubuntu
+In-Reply-To: <A54ECE7F-CEBB-41DB-B56D-FD20CB17C255@contoso.com>
+References: <A54ECE7F-CEBB-41DB-B56D-FD20CB17C255@contoso.com>
+Message-ID: <CAK-DBaDC1HU0xJX4JhxT-8uqW5PhMV4HTmX5L55xsVBBrYrAYw@mail.gmail.com>
+
+Hi Roman -
+
+Based on advice form the list, here's what I did:
+
+sudo apt purge r-cran-* r-base-*
+
+sudo add-apt-repository ppa:marutter/rrutter3.5
+sudo apt-get update
+
+sudo add-apt-repository ppa:marutter/c2d4u3.5
+sudo apt-get update
+
+dpkg -l | grep r-cran-*
+
+sudo apt-get install r-base r-base-dev
+
+Added my account to the 'staff' group, so that I can install
+non-recommended packages in R without 'sudo R'
+http://www.maketecheasier.com/add-remove-user-to-groups-in-ubuntu/
+http://stackoverflow.com/questions/5560139/install-r-
+package-xml-in-debian-ubuntu
+
+sudo usermod -a -G staff myusername
+logout and restart
+
+Many packages are becoming available in the c2d4u3.5 repository. I've
+built/rebuild mostly from CRAN.
+However, to add pre-built binaries:
+
+sudo apt-get install r-cran-packagename
+
+Finally ... rebuild existing packages in '/usr/local/lib/R/site-library'
+> update.packages(checkBuilt= TRUE)
+
+One issues, to update recommended packages in '/usr/lib/R/site-library,,
+must start R as sudoer, ie. 'sudo R'
+
+
+Best.  --Dale
+
+
+On Sun, May 6, 2018 at 1:14 PM, Aguirre Perez, Roman <ra454 at exeter.ac.uk>
+wrote:
+
+> Hi everyone,
+>
+> first of all, my sincerest thanks for the maintainers of this massive
+> project. Such a compelling task!
+>
+> Briefly, I?m a PhD student working on Spatial Stats who loves R. Last week
+> I decided to install and use Ubuntu (again). Consequently, I install the
+> latest release (18.04) and tried to install R 3.5.0 as well but
+> (un)fortunately I couldn?t.
+>
+> I have used R within Ubuntu and I use to follow the installation procedure
+> suggested in the R-project website. However, this time was a bit different.
+> I realised I was missing a key fact. There?s plenty of work behind making
+> available R packages for Ubuntu! It briefly showed up in front of my eyes
+> the meaning of each installation step. That?s why I?m here. So I would
+> really appreciate you to enlighten me with your knowledge. I really want to
+> go in depth on the relationship R-Ubuntu. Btw, any resource for learning is
+> more than welcome.
+>
+> In this sense, which is the meaning of starting to install R by adding
+>
+> deb https://www.stats.bris.ac.uk/R/bin/linux/ubuntu bionic/<
+> https://www.stats.bris.ac.uk/R/bin/linux/ubuntu%20bionic/>
+>
+> in the source.list file?
+>
+> I realised that I?m able to compile
+>
+> sudo apt-get install r-base
+>
+> without doing the first step. Which is the difference between each one?
+>
+> Now that I?m more aware I know that it isn?t so straightforward to mirror
+> to CRAN and I have to hold my horses a bit more jeje. So should I install
+> previous of both R and Ubuntu? I mean, does it take a long time to have a
+> mirrored version?
+>
+>
+> Best,
+> Roman.
+>
+>
+>         [[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+	[[alternative HTML version deleted]]
+
+
+From edd @ending from debi@n@org  Mon May  7 00:46:25 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Sun, 6 May 2018 17:46:25 -0500
+Subject: [R-sig-Debian] R on Ubuntu
+In-Reply-To: <CAK-DBaDC1HU0xJX4JhxT-8uqW5PhMV4HTmX5L55xsVBBrYrAYw@mail.gmail.com>
+References: <A54ECE7F-CEBB-41DB-B56D-FD20CB17C255@contoso.com>
+ <CAK-DBaDC1HU0xJX4JhxT-8uqW5PhMV4HTmX5L55xsVBBrYrAYw@mail.gmail.com>
+Message-ID: <23279.34241.817228.361643@rob.eddelbuettel.com>
+
+
+Dale,
+
+Thanks for chiming in. Some very personal notes below:
+
+On 6 May 2018 at 17:52, Dale Steele wrote:
+| Hi Roman -
+| 
+| Based on advice form the list, here's what I did:
+| 
+| sudo apt purge r-cran-* r-base-*
+
+I usually try my utmost not to.  Once packages are purge you cannot get them
+back. I prefer to start an upgrade and back out if need be / if it would
+remove package -- my go-to command is 'apt-get dist-upgrade' which allows that.
+ 
+| sudo add-apt-repository ppa:marutter/rrutter3.5
+| sudo apt-get update
+| 
+| sudo add-apt-repository ppa:marutter/c2d4u3.5
+| sudo apt-get update
+
+Yes though Michael has not yet announced these or declared them ready. 
+ 
+| dpkg -l | grep r-cran-*
+| 
+| sudo apt-get install r-base r-base-dev
+| 
+| Added my account to the 'staff' group, so that I can install
+| non-recommended packages in R without 'sudo R'
+| http://www.maketecheasier.com/add-remove-user-to-groups-in-ubuntu/
+| http://stackoverflow.com/questions/5560139/install-r-
+| package-xml-in-debian-ubuntu
+| 
+| sudo usermod -a -G staff myusername
+| logout and restart
+
+Good point. And often forgotten.
+| 
+| Many packages are becoming available in the c2d4u3.5 repository. I've
+| built/rebuild mostly from CRAN.
+| However, to add pre-built binaries:
+| 
+| sudo apt-get install r-cran-packagename
+| 
+| Finally ... rebuild existing packages in '/usr/local/lib/R/site-library'
+| > update.packages(checkBuilt= TRUE)
+
+Yep.
+
+| One issues, to update recommended packages in '/usr/lib/R/site-library,,
+| must start R as sudoer, ie. 'sudo R'
+
+Actually, no!  Those are the ones from r-cran-* packages, and I would leave
+those alone.
+
+More below ..
+
+| Best.  --Dale
+| 
+| 
+| On Sun, May 6, 2018 at 1:14 PM, Aguirre Perez, Roman <ra454 at exeter.ac.uk>
+| wrote:
+| 
+| > Hi everyone,
+| >
+| > first of all, my sincerest thanks for the maintainers of this massive
+| > project. Such a compelling task!
+| >
+| > Briefly, I?m a PhD student working on Spatial Stats who loves R. Last week
+| > I decided to install and use Ubuntu (again). Consequently, I install the
+| > latest release (18.04) and tried to install R 3.5.0 as well but
+| > (un)fortunately I couldn?t.
+| >
+| > I have used R within Ubuntu and I use to follow the installation procedure
+| > suggested in the R-project website. However, this time was a bit different.
+| > I realised I was missing a key fact. There?s plenty of work behind making
+| > available R packages for Ubuntu! It briefly showed up in front of my eyes
+| > the meaning of each installation step. That?s why I?m here. So I would
+| > really appreciate you to enlighten me with your knowledge. I really want to
+| > go in depth on the relationship R-Ubuntu. Btw, any resource for learning is
+| > more than welcome.
+| >
+| > In this sense, which is the meaning of starting to install R by adding
+| >
+| > deb https://www.stats.bris.ac.uk/R/bin/linux/ubuntu bionic/<
+| > https://www.stats.bris.ac.uk/R/bin/linux/ubuntu%20bionic/>
+| >
+| > in the source.list file?
+
+That is a basic Ubuntu / Debian question. Try googling for some tutorials on
+'how to I add repositories to Ubuntu' (or Debian).
+
+| > I realised that I?m able to compile
+| >
+| > sudo apt-get install r-base
+| >
+| > without doing the first step. Which is the difference between each one?
+
+That you get a pre-built binary (with more bells and whistles) and don't need
+to compile.
+
+That is called 'package managment' (at the Debian / Ubuntu level).  Again,
+tty some tutorials there.  This is orthogonal to R use.
+
+Dirk
+
+| > Now that I?m more aware I know that it isn?t so straightforward to mirror
+| > to CRAN and I have to hold my horses a bit more jeje. So should I install
+| > previous of both R and Ubuntu? I mean, does it take a long time to have a
+| > mirrored version?
+| >
+| >
+| > Best,
+| > Roman.
+| >
+| >
+| >         [[alternative HTML version deleted]]
+| >
+| > _______________________________________________
+| > R-SIG-Debian mailing list
+| > R-SIG-Debian at r-project.org
+| > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| >
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From bill_h@rri@ @ending from f@cilit@ted@y@tem@@com  Sun May 13 18:03:13 2018
+From: bill_h@rri@ @ending from f@cilit@ted@y@tem@@com (Bill Harris)
+Date: Sun, 13 May 2018 09:03:13 -0700
+Subject: [R-sig-Debian] R-SIG-Debian Digest, Vol 152, Issue 4
+In-Reply-To: <mailman.2842.9.1525600801.55115.r-sig-debian@r-project.org>
+References: <mailman.2842.9.1525600801.55115.r-sig-debian@r-project.org>
+Message-ID: <CAOBquGrSQZu8gz5us3dneTQ4nEnT6RNbKcodka=CgDsUEXPZ7g@mail.gmail.com>
+
+>
+> Date: Sat, 5 May 2018 18:02:12 -0500
+> From: Dirk Eddelbuettel <edd at debian.org>
+> To: Matthieu S <matthieu.stigler at gmail.com>
+> Cc: r-sig-debian at r-project.org
+> Subject: Re: [R-sig-Debian] Ubuntu 18.04 bionic: availability of R
+>         Ubuntu packages/ppa?
+> Message-ID: <23278.14324.913149.453495 at rob.eddelbuettel.com>
+> Content-Type: text/plain; charset="us-ascii"
+>
+> Thanks, we try. Not too much infrastructure that we have built so these
+> transitions can be slow.  On my side, Debian has one schedules but not yet
+> started.
+
+
+Dirk, all,
+
+I can't say enough about my appreciation of the work you folks do in
+keeping R going so well on Debian.
+
+In these interesting times, I think you're saying that things will resolve
+themselves at some point, but we're in a transition.  I see a number of
+postings on Ubuntu, but I'm on Debian Stretch, trying to figure out the
+safest way to go.  Does something like this make sense:
+
+
+   1. aptitude safe-upgrade should be safe: there won't be any 3.5.0 Debian
+   packages coming through until the environment is ready for them to come
+   through (which most likely means that base R and other Stretch R packages
+   are upgraded to 3.5.0?)..
+   2. update.packages() inside R is /not/ safe, because it could pick up
+   problematic packages from CRAN that aren't under your control.
+   3. install.packages() inside R is /not/ safe, for the same reason.
+   4. A prominent note will be posted here, when these two restrictions are
+   removed.
+
+Are those true statements?  Would steps 2 and 3 work if the packages don't
+require compiled C++ code?  If so, is there a way to tell which packages
+are at risk without memorizing what seems like a very long list?
+
+If we (think we) need a new package we don't currently have installed, are
+we out of luck until 3.5.0 is officially released in Stretch?
+
+Is there a place where an official summary of the state of the R system on
+Stretch is maintained?
+
+I've tried to scan this list, but I may well have missed the answers to my
+questions about Stretch.
+
+Thank you,
+
+Bill
+
+	[[alternative HTML version deleted]]
+
+
+From jr@nke @ending from uni-bremen@de  Sun May 13 18:27:36 2018
+From: jr@nke @ending from uni-bremen@de (Johannes Ranke)
+Date: Sun, 13 May 2018 18:27:36 +0200
+Subject: [R-sig-Debian] R-SIG-Debian Digest, Vol 152, Issue 4
+In-Reply-To: <CAOBquGrSQZu8gz5us3dneTQ4nEnT6RNbKcodka=CgDsUEXPZ7g@mail.gmail.com>
+References: <mailman.2842.9.1525600801.55115.r-sig-debian@r-project.org>
+ <CAOBquGrSQZu8gz5us3dneTQ4nEnT6RNbKcodka=CgDsUEXPZ7g@mail.gmail.com>
+Message-ID: <5850595.0f3YotIR1l@ryz>
+
+Hi,
+
+I wonder if you have read the notes on R 3.5.0 on stretch on
+
+https://cran.r-project.org/bin/linux/debian/
+
+I think this should answer your questions. If not, please let us know.
+
+Johannes
+
+Am Sonntag, 13. Mai 2018, 09:03:13 CEST schrieb Bill Harris:
+> > Date: Sat, 5 May 2018 18:02:12 -0500
+> > From: Dirk Eddelbuettel <edd at debian.org>
+> > To: Matthieu S <matthieu.stigler at gmail.com>
+> > Cc: r-sig-debian at r-project.org
+> > Subject: Re: [R-sig-Debian] Ubuntu 18.04 bionic: availability of R
+> > 
+> >         Ubuntu packages/ppa?
+> > 
+> > Message-ID: <23278.14324.913149.453495 at rob.eddelbuettel.com>
+> > Content-Type: text/plain; charset="us-ascii"
+> > 
+> > Thanks, we try. Not too much infrastructure that we have built so these
+> > transitions can be slow.  On my side, Debian has one schedules but not yet
+> > started.
+> 
+> Dirk, all,
+> 
+> I can't say enough about my appreciation of the work you folks do in
+> keeping R going so well on Debian.
+> 
+> In these interesting times, I think you're saying that things will resolve
+> themselves at some point, but we're in a transition.  I see a number of
+> postings on Ubuntu, but I'm on Debian Stretch, trying to figure out the
+> safest way to go.  Does something like this make sense:
+> 
+> 
+>    1. aptitude safe-upgrade should be safe: there won't be any 3.5.0 Debian
+>    packages coming through until the environment is ready for them to come
+>    through (which most likely means that base R and other Stretch R packages
+> are upgraded to 3.5.0?)..
+>    2. update.packages() inside R is /not/ safe, because it could pick up
+>    problematic packages from CRAN that aren't under your control.
+>    3. install.packages() inside R is /not/ safe, for the same reason.
+>    4. A prominent note will be posted here, when these two restrictions are
+>    removed.
+> 
+> Are those true statements?  Would steps 2 and 3 work if the packages don't
+> require compiled C++ code?  If so, is there a way to tell which packages
+> are at risk without memorizing what seems like a very long list?
+> 
+> If we (think we) need a new package we don't currently have installed, are
+> we out of luck until 3.5.0 is officially released in Stretch?
+> 
+> Is there a place where an official summary of the state of the R system on
+> Stretch is maintained?
+> 
+> I've tried to scan this list, but I may well have missed the answers to my
+> questions about Stretch.
+> 
+> Thank you,
+> 
+> Bill
+> 
+> 	[[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+-- 
+PD Dr. Johannes Ranke
+Grenzach-Wyhlen
+
+
+From edd @ending from debi@n@org  Sun May 13 18:30:13 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Sun, 13 May 2018 11:30:13 -0500
+Subject: [R-sig-Debian] R-SIG-Debian Digest, Vol 152, Issue 4
+In-Reply-To: <CAOBquGrSQZu8gz5us3dneTQ4nEnT6RNbKcodka=CgDsUEXPZ7g@mail.gmail.com>
+References: <mailman.2842.9.1525600801.55115.r-sig-debian@r-project.org>
+ <CAOBquGrSQZu8gz5us3dneTQ4nEnT6RNbKcodka=CgDsUEXPZ7g@mail.gmail.com>
+Message-ID: <23288.26645.938464.452738@rob.eddelbuettel.com>
+
+
+On 13 May 2018 at 09:03, Bill Harris wrote:
+| In these interesting times, I think you're saying that things will resolve
+| themselves at some point, but we're in a transition.  I see a number of
+| postings on Ubuntu, but I'm on Debian Stretch, trying to figure out the
+| safest way to go.  Does something like this make sense:
+| 
+| 
+|    1. aptitude safe-upgrade should be safe: there won't be any 3.5.0 Debian
+|    packages coming through until the environment is ready for them to come
+|    through (which most likely means that base R and other Stretch R packages
+|    are upgraded to 3.5.0?)..
+
+Unsure.
+
+You did not specify if you look only at Debian distro repositories, or if you
+include the backports managed by Johannes (which should be safe he plays
+along with the r-api-3.5 tag).
+
+|    2. update.packages() inside R is /not/ safe, because it could pick up
+|    problematic packages from CRAN that aren't under your control.
+
+I actually take the opposite view.
+
+I am comfortable compiling from source, so this mode happens to be my
+default. I use the littler scripts install.r and update.r _all the time_ to
+install / update.
+
+|    3. install.packages() inside R is /not/ safe, for the same reason.
+
+That seems to be the same as 2. so ...
+
+|    4. A prominent note will be posted here, when these two restrictions are
+|    removed.
+| 
+| Are those true statements?  Would steps 2 and 3 work if the packages don't
+| require compiled C++ code?  If so, is there a way to tell which packages
+| are at risk without memorizing what seems like a very long list?
+| 
+| If we (think we) need a new package we don't currently have installed, are
+| we out of luck until 3.5.0 is officially released in Stretch?
+
+Again, "pure Debian" or "Debian plus CRAN repos" ?
+ 
+| Is there a place where an official summary of the state of the R system on
+| Stretch is maintained?
+| 
+| I've tried to scan this list, but I may well have missed the answers to my
+| questions about Stretch.
+
+We're volunteers so something may always fall short somewhere. Documentation
+is always a good candidate.  Contributions are always welcome.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From bill_h@rri@ @ending from f@cilit@ted@y@tem@@com  Mon May 14 05:53:35 2018
+From: bill_h@rri@ @ending from f@cilit@ted@y@tem@@com (Bill Harris)
+Date: Sun, 13 May 2018 20:53:35 -0700
+Subject: [R-sig-Debian] R-SIG-Debian Digest, Vol 152, Issue 4
+In-Reply-To: <23288.26645.938464.452738@rob.eddelbuettel.com>
+References: <mailman.2842.9.1525600801.55115.r-sig-debian@r-project.org>
+ <CAOBquGrSQZu8gz5us3dneTQ4nEnT6RNbKcodka=CgDsUEXPZ7g@mail.gmail.com>
+ <23288.26645.938464.452738@rob.eddelbuettel.com>
+Message-ID: <CAOBquGoR=8OmiCLECaJomWEO31S1y6dDihAWcz5aeo3GRX_R_w@mail.gmail.com>
+
+On Sun, May 13, 2018 at 9:30 AM, Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> On 13 May 2018 at 09:03, Bill Harris wrote:
+> |
+> | safest way to go.  Does something like this make sense:
+> |
+> |
+> |    1. aptitude safe-upgrade should be safe: there won't be any 3.5.0
+> Debian
+> |    packages coming through until the environment is ready for them to
+> come
+> |    through (which most likely means that base R and other Stretch R
+> packages
+> |    are upgraded to 3.5.0?)..
+>
+> Unsure.
+>
+> You did not specify if you look only at Debian distro repositories, or if
+> you
+> include the backports managed by Johannes (which should be safe he plays
+> along with the r-api-3.5 tag).
+>
+
+Here is my complete sources.list:
+
+#
+
+# deb cdrom:[Official Debian GNU/Linux Live 9.1.0 gnome 2017-07-23T04:21]/
+stretch main
+
+#deb cdrom:[Official Debian GNU/Linux Live 9.1.0 gnome 2017-07-23T04:21]/
+stretch main
+
+deb http://ftp.us.debian.org/debian/ stretch main non-free contrib
+deb-src http://ftp.us.debian.org/debian/ stretch main non-free contrib
+
+deb http://security.debian.org/debian-security stretch/updates main contrib
+non-free
+deb-src http://security.debian.org/debian-security stretch/updates main
+contrib non-free
+
+# stretch-updates, previously known as 'volatile'
+deb http://ftp.us.debian.org/debian/ stretch-updates main contrib non-free
+deb-src http://ftp.us.debian.org/debian/ stretch-updates main contrib
+non-free
+
+## R https://cran.r-project.org/
+## deb https://cran.cnr.berkeley.edu/bin/linux/debian stretch-cran34/
+deb http://cran.wustl.edu/bin/linux/debian stretch-cran34/
+
+I'll be glad to take advice.
+
+
+>
+> |    2. update.packages() inside R is /not/ safe, because it could pick up
+> |    problematic packages from CRAN that aren't under your control.
+>
+> I actually take the opposite view.
+>
+> I am comfortable compiling from source, so this mode happens to be my
+> default. I use the littler scripts install.r and update.r _all the time_ to
+> install / update.
+>
+>
+I think I reasoned through to that once, and then I forgot.  so
+install.packages() and update.packages() is safe; aptitude  safe-upgrade
+may or may not be safe, depending upon what you see in my sources-list.
+Right?
+
+
+> |    3. install.packages() inside R is /not/ safe, for the same reason.
+>
+> That seems to be the same as 2. so ...
+>
+> |    4. A prominent note will be posted here, when these two restrictions
+> are
+> |    removed.
+> |
+> | Are those true statements?  Would steps 2 and 3 work if the packages
+> don't
+> | require compiled C++ code?  If so, is there a way to tell which packages
+> | are at risk without memorizing what seems like a very long list?
+> |
+> | If we (think we) need a new package we don't currently have installed,
+> are
+> | we out of luck until 3.5.0 is officially released in Stretch?
+>
+> Again, "pure Debian" or "Debian plus CRAN repos" ?
+>
+
+In addition to what you see in my sources.list, I've also installed a few
+packages from github or similat (hydromad comes to mind).  Perhaps the CRAN
+package that might test all this the most is rstan.
+
+I'm okay if a small number of github packages--or any packages, for that
+matter--fail; I just would rather not do something that makes a /lot/ of
+extra work if I could avoid it.
+
+>
+> | Is there a place where an official summary of the state of the R system
+> on
+> | Stretch is maintained?
+> |
+> | I've tried to scan this list, but I may well have missed the answers to
+> my
+> | questions about Stretch.
+>
+> We're volunteers so something may always fall short somewhere.
+> Documentation
+> is always a good candidate.  Contributions are always welcome.
+>
+> I'll keep that in mind.
+>
+
+Thanks,
+
+Bill
+
+	[[alternative HTML version deleted]]
+
+
+From bill_h@rri@ @ending from f@cilit@ted@y@tem@@com  Mon May 14 06:02:42 2018
+From: bill_h@rri@ @ending from f@cilit@ted@y@tem@@com (Bill Harris)
+Date: Sun, 13 May 2018 21:02:42 -0700
+Subject: [R-sig-Debian] R-SIG-Debian Digest, Vol 152, Issue 4
+In-Reply-To: <5850595.0f3YotIR1l@ryz>
+References: <mailman.2842.9.1525600801.55115.r-sig-debian@r-project.org>
+ <CAOBquGrSQZu8gz5us3dneTQ4nEnT6RNbKcodka=CgDsUEXPZ7g@mail.gmail.com>
+ <5850595.0f3YotIR1l@ryz>
+Message-ID: <CAOBquGpCCLzi3JgFoPaLLLH63CX4Cy+tJsFdMd-bzC88c=LJfw@mail.gmail.com>
+
+On Sun, May 13, 2018 at 9:27 AM, Johannes Ranke <jranke at uni-bremen.de>
+wrote:
+
+> Hi,
+>
+> I wonder if you have read the notes on R 3.5.0 on stretch on
+>
+> https://cran.r-project.org/bin/linux/debian/
+>
+> I think this should answer your questions. If not, please let us know.
+>
+>
+Johannes,
+
+I think I have--I think that's how I got the last line in my
+sources.list--but I missed it this morning in my hurry.
+
+Do I understand correctly that I should be able to replace the last line of
+my sources.list (in my reply to Dirk) with
+
+deb http://<favourite-cran-mirror>/bin/linux/debian stretch-cran35/
+
+
+and then use
+
+update.packages(lib.loc="/usr/local/lib/R/site-library", ask=FALSE,
+checkBuilt=TRUE)
+
+
+to update all my packages (all packages--or just those that use Rcpp?)?
+That seems to suggest I /not/ let aptitude safe-upgrade touch anything in
+R, right?  I'm guessing / hoping I can use that to update all my CRAN R
+packages.  Do I need to do anything to keep any of the r-cran-... Debian
+packages from updating?
+
+Figuring out which packages used Rcpp and which didn't seems tedious; am I
+right?
+
+Thanks,
+
+Bill
+
+	[[alternative HTML version deleted]]
+
+
+From jr@nke @ending from uni-bremen@de  Mon May 14 06:23:21 2018
+From: jr@nke @ending from uni-bremen@de (Johannes Ranke)
+Date: Mon, 14 May 2018 06:23:21 +0200
+Subject: [R-sig-Debian] R-SIG-Debian Digest, Vol 152, Issue 4
+In-Reply-To: <CAOBquGpCCLzi3JgFoPaLLLH63CX4Cy+tJsFdMd-bzC88c=LJfw@mail.gmail.com>
+References: <mailman.2842.9.1525600801.55115.r-sig-debian@r-project.org>
+ <5850595.0f3YotIR1l@ryz>
+ <CAOBquGpCCLzi3JgFoPaLLLH63CX4Cy+tJsFdMd-bzC88c=LJfw@mail.gmail.com>
+Message-ID: <138777276.pxH5h4LWj7@ryz>
+
+Am Sonntag, 13. Mai 2018, 21:02:42 CEST schrieb Bill Harris:
+
+...
+
+Do I understand correctly that I should be able to replace the last line of my 
+sources.list (in my reply to Dirk) with 
+
+
+deb http://<favourite-cran-mirror>/bin/linux/debian stretch-cran35/
+
+If you do this, then update and upgrade, r-cran-* or r-cran-bioc* packages 
+installed via the Debian package management system will be removed, with the 
+exception of r-recommended and the few packages listed in the Debian CRAN 
+page. If you cannot afford that, you should stay with R 3.4.
+
+You can check what packages will be affected as pointed out on the CRAN Debian 
+page, or using apt-get upgrade -s (for silent). If this removes R packages 
+your locally installed packages depend on, you need to install them from CRAN 
+using install.packages or Dirks install.r afterwards.
+
+If you then use
+
+
+update.packages(lib.loc="/usr/local/lib/R/site-library", ask=FALSE, checkBuilt=TRUE)
+
+this will update packages installed from CRAN (provided you use the default 
+local library path) to make sure they are compatible with R>=3.5.0. Things 
+installed from github and the like will have to be taken care of separately.
+
+...
+
+Johannes
+
+	[[alternative HTML version deleted]]
+
+
+From bill_h@rri@ @ending from f@cilit@ted@y@tem@@com  Tue May 15 05:04:42 2018
+From: bill_h@rri@ @ending from f@cilit@ted@y@tem@@com (Bill Harris)
+Date: Mon, 14 May 2018 20:04:42 -0700
+Subject: [R-sig-Debian] R-SIG-Debian Digest, Vol 152, Issue 4
+In-Reply-To: <138777276.pxH5h4LWj7@ryz>
+References: <mailman.2842.9.1525600801.55115.r-sig-debian@r-project.org>
+ <5850595.0f3YotIR1l@ryz>
+ <CAOBquGpCCLzi3JgFoPaLLLH63CX4Cy+tJsFdMd-bzC88c=LJfw@mail.gmail.com>
+ <138777276.pxH5h4LWj7@ryz>
+Message-ID: <CAOBquGoy7q+dv5HU4JVcX-+T1LxmNJKVN4=iky2EB1wFSP-q3A@mail.gmail.com>
+
+Thank you, Johannes.  I think I understand.  I plan to try it when I have a
+free  evening.
+
+Bill
+
+On Sun, May 13, 2018 at 9:23 PM, Johannes Ranke <jranke at uni-bremen.de>
+wrote:
+
+> Am Sonntag, 13. Mai 2018, 21:02:42 CEST schrieb Bill Harris:
+>
+> ...
+>
+> Do I understand correctly that I should be able to replace the last line
+> of my sources.list (in my reply to Dirk) with
+>
+>
+> deb http://<favourite-cran-mirror>/bin/linux/debian stretch-cran35/
+>
+>
+>
+> If you do this, then update and upgrade, r-cran-* or r-cran-bioc* packages
+> installed via the Debian package management system will be removed, with
+> the exception of r-recommended and the few packages listed in the Debian
+> CRAN page. If you cannot afford that, you should stay with R 3.4.
+>
+>
+>
+> You can check what packages will be affected as pointed out on the CRAN
+> Debian page, or using apt-get upgrade -s (for silent). If this removes R
+> packages your locally installed packages depend on, you need to install
+> them from CRAN using install.packages or Dirks install.r afterwards.
+>
+>
+> If you then use
+>
+>
+> update.packages(lib.loc="/usr/local/lib/R/site-library", ask=FALSE, checkBuilt=TRUE)
+>
+>
+>
+> this will update packages installed from CRAN (provided you use the
+> default local library path) to make sure they are compatible with R>=3.5.0.
+> Things installed from github and the like will have to be taken care of
+> separately.
+>
+>
+>
+> ...
+>
+> Johannes
+>
+>
+>
+
+	[[alternative HTML version deleted]]
+
+
+From jeroenoom@ @ending from gm@il@com  Wed May 16 11:59:24 2018
+From: jeroenoom@ @ending from gm@il@com (Jeroen Ooms)
+Date: Wed, 16 May 2018 11:59:24 +0200
+Subject: [R-sig-Debian] New libpng in c2d4u3.5 breaks many other packages
+Message-ID: <CABFfbXuQiXnuqjHY4WR7hcgOow8L_aBA=nFcsJqR0TEhVff8mQ@mail.gmail.com>
+
+As of today many Travis users are seeing this error:
+
+The following packages have unmet dependencies:
+ libmagick++-dev : Depends: libmagickcore-dev (=
+8:6.7.7.10-6ubuntu3.9) but it is not going to be installed
+                   Depends: libmagickwand-dev (=
+8:6.7.7.10-6ubuntu3.9) but it is not going to be installed
+E: Unable to correct problems, you have held broken packages.
+
+
+The problem is that a few hours ago a version of libpng1.6 was
+published to c2d4u3.5 which is not compatible with the version of
+imagemagick in trusty. Becuase libmagick++ is installed by default on
+Travis, this breaks almost all installations.
+
+I think it's best to only publish R packages in c2d4u, not system libs.
+
+
+From edd @ending from debi@n@org  Wed May 16 12:24:27 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Wed, 16 May 2018 05:24:27 -0500
+Subject: [R-sig-Debian] 
+ New libpng in c2d4u3.5 breaks many other packages
+In-Reply-To: <CABFfbXuQiXnuqjHY4WR7hcgOow8L_aBA=nFcsJqR0TEhVff8mQ@mail.gmail.com>
+References: <CABFfbXuQiXnuqjHY4WR7hcgOow8L_aBA=nFcsJqR0TEhVff8mQ@mail.gmail.com>
+Message-ID: <23292.1755.623417.585043@rob.eddelbuettel.com>
+
+
+On 16 May 2018 at 11:59, Jeroen Ooms wrote:
+| As of today many Travis users are seeing this error:
+| 
+| The following packages have unmet dependencies:
+|  libmagick++-dev : Depends: libmagickcore-dev (=
+| 8:6.7.7.10-6ubuntu3.9) but it is not going to be installed
+|                    Depends: libmagickwand-dev (=
+| 8:6.7.7.10-6ubuntu3.9) but it is not going to be installed
+| E: Unable to correct problems, you have held broken packages.
+| 
+| 
+| The problem is that a few hours ago a version of libpng1.6 was
+| published to c2d4u3.5 which is not compatible with the version of
+| imagemagick in trusty. Becuase libmagick++ is installed by default on
+| Travis, this breaks almost all installations.
+| 
+| I think it's best to only publish R packages in c2d4u, not system libs.
+
+Well but how come Travis looking at this still-unfinished and unannounced PPA
+for c2d4u3.5?
+
+My Travis setup isn't; I still use R 3.4.4 because, well, c2d4u3.5 is not
+announced.
+
+(Maybe you should consider adding a local PPA with a (compatible) libmagick++
+and a higer version number.)
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@r36 @ending from p@u@edu  Wed May 16 12:57:58 2018
+From: m@r36 @ending from p@u@edu (Michael Rutter)
+Date: Wed, 16 May 2018 06:57:58 -0400
+Subject: [R-sig-Debian] 
+ New libpng in c2d4u3.5 breaks many other packages
+In-Reply-To: <23292.1755.623417.585043@rob.eddelbuettel.com>
+References: <CABFfbXuQiXnuqjHY4WR7hcgOow8L_aBA=nFcsJqR0TEhVff8mQ@mail.gmail.com>
+ <23292.1755.623417.585043@rob.eddelbuettel.com>
+Message-ID: <CAE5jHfrc7rCXk0tqKvYVxe5VE=VjTSQNRh866LFaDB2b1wo5ug@mail.gmail.com>
+
+On Wed, May 16, 2018 at 6:24 AM, Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> On 16 May 2018 at 11:59, Jeroen Ooms wrote:
+> | As of today many Travis users are seeing this error:
+> |
+> | The following packages have unmet dependencies:
+> |  libmagick++-dev : Depends: libmagickcore-dev (=
+> | 8:6.7.7.10-6ubuntu3.9) but it is not going to be installed
+> |                    Depends: libmagickwand-dev (=
+> | 8:6.7.7.10-6ubuntu3.9) but it is not going to be installed
+> | E: Unable to correct problems, you have held broken packages.
+> |
+> |
+> | The problem is that a few hours ago a version of libpng1.6 was
+> | published to c2d4u3.5 which is not compatible with the version of
+> | imagemagick in trusty. Becuase libmagick++ is installed by default on
+> | Travis, this breaks almost all installations.
+> |
+> | I think it's best to only publish R packages in c2d4u, not system libs.
+>
+>
+In retrospect, I should have but this on the PPA the moment I created it. I
+have added it now:
+
+Under development. DO NOT USE: it will break things.
+
+- Under no circumstances would I use c2d4u3.5 for anything other than
+testing. As Dirk mentioned, I haven't announced it yet.  It is incomplete
+and at any moment, it will break your system.  In an hour, it may not break
+your system.
+
+- This will take time.  To rebuild the entire hierarchy of packages, in
+order, for three different releases, will take a lot of time.  Trying to do
+this a quickly as possible, but family and job have a higher priority.
+
+- Trusty is becoming increasingly difficult to build for, especially with
+Bionic added to the mix.  Non R packages have changed names, which can
+prevents a large number of packages from being backported.  I will be
+trying different solutions in order to build as many packages as possible
+while making the process robust.
+
+- I do appreciate notes about things not working, as I can't test every
+possible combination.  The best method is to send me an email, since this
+is still a work in process.
+
+Bottom line: If you rely on Ubuntu providing as many packages as possible
+for your R experience, the R 3.5 c2d4u-verse is not ready yet.  When it is,
+I'll let you know.
+
+Michael
+
+
+> Well but how come Travis looking at this still-unfinished and unannounced
+> PPA
+> for c2d4u3.5?
+>
+> My Travis setup isn't; I still use R 3.4.4 because, well, c2d4u3.5 is not
+> announced.
+>
+> (Maybe you should consider adding a local PPA with a (compatible)
+> libmagick++
+> and a higer version number.)
+>
+> Dirk
+>
+> --
+> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+	[[alternative HTML version deleted]]
+
+
+From rob00x @ending from gm@il@com  Sun May 20 10:34:37 2018
+From: rob00x @ending from gm@il@com (Robin Lovelace)
+Date: Sun, 20 May 2018 09:34:37 +0100
+Subject: [R-sig-Debian] 
+ New libpng in c2d4u3.5 breaks many other packages
+In-Reply-To: <CAE5jHfrc7rCXk0tqKvYVxe5VE=VjTSQNRh866LFaDB2b1wo5ug@mail.gmail.com>
+References: <CABFfbXuQiXnuqjHY4WR7hcgOow8L_aBA=nFcsJqR0TEhVff8mQ@mail.gmail.com>
+ <23292.1755.623417.585043@rob.eddelbuettel.com>
+ <CAE5jHfrc7rCXk0tqKvYVxe5VE=VjTSQNRh866LFaDB2b1wo5ug@mail.gmail.com>
+Message-ID: <CAF16KkUQ27HneDcp2B-YrsiYw+BeCavibhwpd=cGSPbyU0EPTg@mail.gmail.com>
+
+Thanks for keeping us updated. Before I jump the gun and put this out on
+social media (as a follow-up to this tweet
+https://twitter.com/robinlovelace/status/990682038373158912 ), would you
+say this is a reasonable message to send to the R-using Ubuntu community?:
+
+Follow-on advice in case it's of use to any #Ubuntu + #rstats users out
+> there: wait until Ubuntu 18.04.1 is released before upgrading to R 3.5.0.
+> Should be sometime in August:
+> https://wiki.ubuntu.com/BionicBeaver/ReleaseSchedule + advantage of
+> polished 'point release'.
+>
+
+It seems it's worth waiting for the point release in any case according to
+Dirk, reinforced by Jeroen and supported by this thread:
+https://askubuntu.com/questions/1029974/is-it-a-bad-idea-to-upgrade-to-18-04-right-now
+
+I've stumbled across this guidance for people who are impatient - seem
+reasonable advice this?:
+https://askubuntu.com/questions/1032842/r-rstudio-installation-script-for-ubuntu-18-04
+
+On the topic of support, one thing I could offer is to work on the
+documentation here: https://cran.r-project.org/bin/linux/ubuntu/README.html
+
+Let me know if that would be welcome and where I should propose changes to
+the source of this if that would be of use.
+
+Thank you.
+
+Robin
+
+
+On Wed, May 16, 2018 at 11:57 AM, Michael Rutter <mar36 at psu.edu> wrote:
+
+> On Wed, May 16, 2018 at 6:24 AM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> >
+> > On 16 May 2018 at 11:59, Jeroen Ooms wrote:
+> > | As of today many Travis users are seeing this error:
+> > |
+> > | The following packages have unmet dependencies:
+> > |  libmagick++-dev : Depends: libmagickcore-dev (=
+> > | 8:6.7.7.10-6ubuntu3.9) but it is not going to be installed
+> > |                    Depends: libmagickwand-dev (=
+> > | 8:6.7.7.10-6ubuntu3.9) but it is not going to be installed
+> > | E: Unable to correct problems, you have held broken packages.
+> > |
+> > |
+> > | The problem is that a few hours ago a version of libpng1.6 was
+> > | published to c2d4u3.5 which is not compatible with the version of
+> > | imagemagick in trusty. Becuase libmagick++ is installed by default on
+> > | Travis, this breaks almost all installations.
+> > |
+> > | I think it's best to only publish R packages in c2d4u, not system libs.
+> >
+> >
+> In retrospect, I should have but this on the PPA the moment I created it. I
+> have added it now:
+>
+> Under development. DO NOT USE: it will break things.
+>
+> - Under no circumstances would I use c2d4u3.5 for anything other than
+> testing. As Dirk mentioned, I haven't announced it yet.  It is incomplete
+> and at any moment, it will break your system.  In an hour, it may not break
+> your system.
+>
+> - This will take time.  To rebuild the entire hierarchy of packages, in
+> order, for three different releases, will take a lot of time.  Trying to do
+> this a quickly as possible, but family and job have a higher priority.
+>
+> - Trusty is becoming increasingly difficult to build for, especially with
+> Bionic added to the mix.  Non R packages have changed names, which can
+> prevents a large number of packages from being backported.  I will be
+> trying different solutions in order to build as many packages as possible
+> while making the process robust.
+>
+> - I do appreciate notes about things not working, as I can't test every
+> possible combination.  The best method is to send me an email, since this
+> is still a work in process.
+>
+> Bottom line: If you rely on Ubuntu providing as many packages as possible
+> for your R experience, the R 3.5 c2d4u-verse is not ready yet.  When it is,
+> I'll let you know.
+>
+> Michael
+>
+>
+> > Well but how come Travis looking at this still-unfinished and unannounced
+> > PPA
+> > for c2d4u3.5?
+> >
+> > My Travis setup isn't; I still use R 3.4.4 because, well, c2d4u3.5 is not
+> > announced.
+> >
+> > (Maybe you should consider adding a local PPA with a (compatible)
+> > libmagick++
+> > and a higer version number.)
+> >
+> > Dirk
+> >
+> > --
+> > http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+> >
+> > _______________________________________________
+> > R-SIG-Debian mailing list
+> > R-SIG-Debian at r-project.org
+> > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> >
+>
+>         [[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+	[[alternative HTML version deleted]]
+
+
+From rob00x @ending from gm@il@com  Sun May 20 11:07:17 2018
+From: rob00x @ending from gm@il@com (Robin Lovelace)
+Date: Sun, 20 May 2018 10:07:17 +0100
+Subject: [R-sig-Debian] This list elicits spam
+Message-ID: <CAF16KkUwOQdy3k4R=L48p+ycnWFWS-916PDaaW8h=5Cw37oneg@mail.gmail.com>
+
+Unrelated to previous email: every time I send an email to this list I get
+a response such as:
+
+Hey  Robin Lovelace
+>
+> Thanks for your response. Can I have a pic or two to start talking? Please
+> respond with pics/infos, Hope to hear back from you asap.
+>
+
+I wonder if others have received such emails and, if so, any suggestions
+how to tackle the spam?
+
+Robin
+
+	[[alternative HTML version deleted]]
+
+
+From joh@nne@@r@nke @ending from jrwb@de  Sun May 20 12:14:06 2018
+From: joh@nne@@r@nke @ending from jrwb@de (Johannes Ranke)
+Date: Sun, 20 May 2018 12:14:06 +0200
+Subject: [R-sig-Debian] This list elicits spam
+In-Reply-To: <CAF16KkUwOQdy3k4R=L48p+ycnWFWS-916PDaaW8h=5Cw37oneg@mail.gmail.com>
+References: <CAF16KkUwOQdy3k4R=L48p+ycnWFWS-916PDaaW8h=5Cw37oneg@mail.gmail.com>
+Message-ID: <3092208.BXOIlKMeFY@ryz>
+
+Hi,
+
+I get the same annoyance, of course with varying text when I post to this 
+list. Copying in r-sig-debian-owner at r-project.org for information.
+
+Johannes
+
+Am Sonntag, 20. Mai 2018, 10:07:17 CEST schrieb Robin Lovelace:
+> Unrelated to previous email: every time I send an email to this list I get
+> a response such as:
+> 
+> Hey  Robin Lovelace
+> 
+> > Thanks for your response. Can I have a pic or two to start talking? Please
+> > respond with pics/infos, Hope to hear back from you asap.
+> 
+> I wonder if others have received such emails and, if so, any suggestions
+> how to tackle the spam?
+> 
+> Robin
+> 
+> 	[[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From edd @ending from debi@n@org  Sun May 20 15:03:27 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Sun, 20 May 2018 08:03:27 -0500
+Subject: [R-sig-Debian] This list elicits spam
+In-Reply-To: <3092208.BXOIlKMeFY@ryz>
+References: <CAF16KkUwOQdy3k4R=L48p+ycnWFWS-916PDaaW8h=5Cw37oneg@mail.gmail.com>
+ <3092208.BXOIlKMeFY@ryz>
+Message-ID: <23297.29215.809892.383788@rob.eddelbuettel.com>
+
+
+On 20 May 2018 at 10:07, Robin Lovelace wrote:
+| Unrelated to previous email: every time I send an email to this list I get
+| a response such as:
+
+Yes. Very annoying, very "known" and broadly discussed by Martin Maechler
+(the overall mailing list contact / quasi-admin) for all of us as these are
+hosted at ETH Zuerich.
+
+No real solution besides cloaking. We think spammers actually subscribe but
+do not have full proof. Maybe it is just web archive harvesting.
+
+On 20 May 2018 at 12:14, Johannes Ranke wrote:
+| I get the same annoyance, of course with varying text when I post to this 
+| list. Copying in r-sig-debian-owner at r-project.org for information.
+
+The spam bots write there too, so my aggregate 'owner' folder for different
+lists I run has a few thousand unread mail. Don't expect a response from me
+as -owner, I just can't. Hence address removed.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @ending from debi@n@org  Sun May 20 15:04:20 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Sun, 20 May 2018 08:04:20 -0500
+Subject: [R-sig-Debian] 
+ New libpng in c2d4u3.5 breaks many other packages
+In-Reply-To: <CAF16KkUQ27HneDcp2B-YrsiYw+BeCavibhwpd=cGSPbyU0EPTg@mail.gmail.com>
+References: <CABFfbXuQiXnuqjHY4WR7hcgOow8L_aBA=nFcsJqR0TEhVff8mQ@mail.gmail.com>
+ <23292.1755.623417.585043@rob.eddelbuettel.com>
+ <CAE5jHfrc7rCXk0tqKvYVxe5VE=VjTSQNRh866LFaDB2b1wo5ug@mail.gmail.com>
+ <CAF16KkUQ27HneDcp2B-YrsiYw+BeCavibhwpd=cGSPbyU0EPTg@mail.gmail.com>
+Message-ID: <23297.29268.328420.497716@rob.eddelbuettel.com>
+
+
+On 20 May 2018 at 09:34, Robin Lovelace wrote:
+| Thanks for keeping us updated. Before I jump the gun and put this out on
+| social media (as a follow-up to this tweet
+| https://twitter.com/robinlovelace/status/990682038373158912 ), would you
+| say this is a reasonable message to send to the R-using Ubuntu community?:
+
+Why don't we just wait until Michael feels he has something to announce?
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From li@t@ @ending from dewey@myzen@co@uk  Sun May 20 15:05:29 2018
+From: li@t@ @ending from dewey@myzen@co@uk (Michael Dewey)
+Date: Sun, 20 May 2018 14:05:29 +0100
+Subject: [R-sig-Debian] This list elicits spam
+In-Reply-To: <CAF16KkUwOQdy3k4R=L48p+ycnWFWS-916PDaaW8h=5Cw37oneg@mail.gmail.com>
+References: <CAF16KkUwOQdy3k4R=L48p+ycnWFWS-916PDaaW8h=5Cw37oneg@mail.gmail.com>
+Message-ID: <237182b4-c86f-719e-9909-b319bc9aa74b@dewey.myzen.co.uk>
+
+Dear Robin
+
+This came up on R-help
+
+The thread is available in the archive
+https://stat.ethz.ch/pipermail/r-help//2018-April/thread.html
+search for a thread subject Hacked.
+Martin Maechler's answer
+https://stat.ethz.ch/pipermail/r-help//2018-April/454081.html
+gives the list owner's view.
+
+Michael
+
+On 20/05/2018 10:07, Robin Lovelace wrote:
+> Unrelated to previous email: every time I send an email to this list I get
+> a response such as:
+> 
+> Hey  Robin Lovelace
+>>
+>> Thanks for your response. Can I have a pic or two to start talking? Please
+>> respond with pics/infos, Hope to hear back from you asap.
+>>
+> 
+> I wonder if others have received such emails and, if so, any suggestions
+> how to tackle the spam?
+> 
+> Robin
+> 
+> 	[[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+
+-- 
+Michael
+http://www.dewey.myzen.co.uk/home.html
+
+
+From m@r36 @ending from p@u@edu  Mon May 21 17:19:54 2018
+From: m@r36 @ending from p@u@edu (Michael Rutter)
+Date: Mon, 21 May 2018 11:19:54 -0400
+Subject: [R-sig-Debian] 
+ New libpng in c2d4u3.5 breaks many other packages
+In-Reply-To: <23297.29268.328420.497716@rob.eddelbuettel.com>
+References: <CABFfbXuQiXnuqjHY4WR7hcgOow8L_aBA=nFcsJqR0TEhVff8mQ@mail.gmail.com>
+ <23292.1755.623417.585043@rob.eddelbuettel.com>
+ <CAE5jHfrc7rCXk0tqKvYVxe5VE=VjTSQNRh866LFaDB2b1wo5ug@mail.gmail.com>
+ <CAF16KkUQ27HneDcp2B-YrsiYw+BeCavibhwpd=cGSPbyU0EPTg@mail.gmail.com>
+ <23297.29268.328420.497716@rob.eddelbuettel.com>
+Message-ID: <ab321bcb-371e-eafe-1b9a-084db31daa23@psu.edu>
+
+On 5/20/18 9:04 AM, Dirk Eddelbuettel wrote:
+> 
+> On 20 May 2018 at 09:34, Robin Lovelace wrote:
+> | Thanks for keeping us updated. Before I jump the gun and put this out on
+> | social media (as a follow-up to this tweet
+> | https://twitter.com/robinlovelace/status/990682038373158912 ), would you
+> | say this is a reasonable message to send to the R-using Ubuntu community?:
+> 
+> Why don't we just wait until Michael feels he has something to announce?
+> 
+> Dirk
+> 
+
+For a number of reasons, I have relaunched my R Ubuntu Blog.  One is to 
+give updates on installing R in Ubuntu, etc., which I have stopped 
+doing.  The other is I need to write more.  I also wanted to try 
+blogdown.  You can find it here: http://rubuntu.netlify.com/
+
+The first post is an update on the move to 3.5.  The process is picking 
+up speed.  Up to 1730 packages in Xenial as I type this.  As soon as 
+they are all built and I test things, I will make the announcement.
+
+I have also added a note to the Ubuntu CRAN site to help clarify the 
+situation.
+
+Michael
+-- 
+Dr. Michael A. Rutter
+Associate Director, School of Science
+Associate Professor of Statistics
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From rob00x @ending from gm@il@com  Mon May 21 22:53:24 2018
+From: rob00x @ending from gm@il@com (Robin Lovelace)
+Date: Mon, 21 May 2018 21:53:24 +0100
+Subject: [R-sig-Debian] 
+ New libpng in c2d4u3.5 breaks many other packages
+In-Reply-To: <ab321bcb-371e-eafe-1b9a-084db31daa23@psu.edu>
+References: <CABFfbXuQiXnuqjHY4WR7hcgOow8L_aBA=nFcsJqR0TEhVff8mQ@mail.gmail.com>
+ <23292.1755.623417.585043@rob.eddelbuettel.com>
+ <CAE5jHfrc7rCXk0tqKvYVxe5VE=VjTSQNRh866LFaDB2b1wo5ug@mail.gmail.com>
+ <CAF16KkUQ27HneDcp2B-YrsiYw+BeCavibhwpd=cGSPbyU0EPTg@mail.gmail.com>
+ <23297.29268.328420.497716@rob.eddelbuettel.com>
+ <ab321bcb-371e-eafe-1b9a-084db31daa23@psu.edu>
+Message-ID: <CAF16KkUkgen7jZmL-yRf6MB8uv-LN=d5VoBDsBcjBdv-zE7tRg@mail.gmail.com>
+
+Thanks for the replies.
+
+Dirk: sounds sensible, horses held and I'm happy I posted my musings for
+'peer review' here rather than Twitter (I only found out about this list
+around a month ago)!
+
+Michael: great to see you've revived the blog, I've taken a read and have
+retweeted your message to the world (well the subset of it that read me
+Twitter feed which is pretty minimal in the grand scheme of things).
+
+Robin
+
+
+
+On Mon, May 21, 2018 at 4:19 PM, Michael Rutter <mar36 at psu.edu> wrote:
+
+> On 5/20/18 9:04 AM, Dirk Eddelbuettel wrote:
+>
+>>
+>> On 20 May 2018 at 09:34, Robin Lovelace wrote:
+>> | Thanks for keeping us updated. Before I jump the gun and put this out on
+>> | social media (as a follow-up to this tweet
+>> | https://twitter.com/robinlovelace/status/990682038373158912 ), would
+>> you
+>> | say this is a reasonable message to send to the R-using Ubuntu
+>> community?:
+>>
+>> Why don't we just wait until Michael feels he has something to announce?
+>>
+>> Dirk
+>>
+>>
+> For a number of reasons, I have relaunched my R Ubuntu Blog.  One is to
+> give updates on installing R in Ubuntu, etc., which I have stopped doing.
+> The other is I need to write more.  I also wanted to try blogdown.  You can
+> find it here: http://rubuntu.netlify.com/
+>
+> The first post is an update on the move to 3.5.  The process is picking up
+> speed.  Up to 1730 packages in Xenial as I type this.  As soon as they are
+> all built and I test things, I will make the announcement.
+>
+> I have also added a note to the Ubuntu CRAN site to help clarify the
+> situation.
+>
+> Michael
+> --
+> Dr. Michael A. Rutter
+> Associate Director, School of Science
+> Associate Professor of Statistics
+> Penn State Erie, The Behrend College
+> Station Road
+> Erie, PA 16563
+> http://math.bd.psu.edu/faculty/rutter
+>
+
+	[[alternative HTML version deleted]]
+
+
+From @gutreuter @ending from gm@il@com  Thu May 24 15:15:27 2018
+From: @gutreuter @ending from gm@il@com (Steve Gutreuter)
+Date: Thu, 24 May 2018 09:15:27 -0400
+Subject: [R-sig-Debian] Trouble building R 3.5.0 under Ubuntu 18.04 (Bionic
+ Beaver)
+Message-ID: <0b356374b253f346a25ae171df179cbe845f086b.camel@gmail.com>
+
+All of my attempts to build R 3.5.0 from sources under Ubuntu 18.04
+have failed, and I cannot figure out what I am doing wrong.  I have
+tried may things, including :
+
+export LDFLAGS="$LDFLAGS -fPIC"
+export CXXFLAGS="$CXXFLAGS -fPIC"
+export CFLAGS="$CFLAGS -fPIC"
+./configure --enable-R-shlib --prefix=/usr/lib/R/3.5.0
+
+#### Configure completes normally without errors or warnings
+
+make
+
+#### make fails, always with lines like:
+
+gcc -Wl,--export-dynamic -fopenmp    -fPIC -o R.bin Rmain.o
+CommandLineArgs.o Rdynload.o Renviron.o RNG.o agrep.o altrep.o apply.o
+arithmetic.o array.o attrib.o bind.o builtin.o character.o coerce.o
+colors.o complex.o connections.o context.o cum.o dcf.o datetime.o
+debug.o deparse.o devices.o dotcode.o dounzip.o dstruct.o duplicate.o
+edit.o engine.o envir.o errors.o eval.o format.o gevents.o gram.o gram-
+ex.o graphics.o grep.o identical.o inlined.o inspect.o internet.o
+iosupport.o lapack.o list.o localecharset.o logic.o main.o mapply.o
+match.o memory.o names.o objects.o options.o paste.o platform.o plot.o
+plot3d.o plotmath.o print.o printarray.o printvector.o printutils.o
+qsort.o radixsort.o random.o raw.o registration.o relop.o rlocale.o
+saveload.o scan.o seq.o serialize.o sort.o source.o split.o sprintf.o
+startup.o subassign.o subscript.o subset.o summary.o sysutils.o times.o
+unique.o util.o version.o g_alab_her.o g_cntrlify.o g_fontdb.o
+g_her_glyph.o xxxpr.o   `ls ../unix/*.o ../appl/*.o ../nmath/*.o`
+../extra/tre/libtre.a    -L"../../lib" -lRblas -lgfortran -lm
+-lquadmath   -lreadline  -lpcre -llzma -lbz2 -lz -lrt -ldl -lm -licuuc
+-licui18n
+/usr/bin/x86_64-linux-gnu-ld: ../appl/dchdc.o: relocation R_X86_64_32
+against `.rodata' can not be used when making a PIE object; recompile
+with -fPIC
+/usr/bin/x86_64-linux-gnu-ld: ../appl/dpbfa.o: relocation R_X86_64_32
+against `.rodata' can not be used when making a PIE object; recompile
+with -fPIC
+/usr/bin/x86_64-linux-gnu-ld: ../appl/dpbsl.o: relocation R_X86_64_32
+against `.rodata' can not be used when making a PIE object; recompile
+with -fPIC
+/usr/bin/x86_64-linux-gnu-ld: ../appl/dpoco.o: relocation R_X86_64_32
+against `.rodata' can not be used when making a PIE object; recompile
+with -fPIC
+/usr/bin/x86_64-linux-gnu-ld: ../appl/dpodi.o: relocation R_X86_64_32
+against `.rodata' can not be used when making a PIE object; recompile
+with -fPIC
+/usr/bin/x86_64-linux-gnu-ld: ../appl/dpofa.o: relocation R_X86_64_32
+against `.rodata' can not be used when making a PIE object; recompile
+with -fPIC
+/usr/bin/x86_64-linux-gnu-ld: ../appl/dposl.o: relocation R_X86_64_32
+against `.rodata' can not be used when making a PIE object; recompile
+with -fPIC
+/usr/bin/x86_64-linux-gnu-ld: ../appl/dqrdc2.o: relocation R_X86_64_32
+against `.rodata' can not be used when making a PIE object; recompile
+with -fPIC
+/usr/bin/x86_64-linux-gnu-ld: ../appl/dqrdc.o: relocation R_X86_64_32
+against `.rodata' can not be used when making a PIE object; recompile
+with -fPIC
+/usr/bin/x86_64-linux-gnu-ld: ../appl/dqrls.o: relocation R_X86_64_32S
+against `.rodata' can not be used when making a PIE object; recompile
+with -fPIC
+/usr/bin/x86_64-linux-gnu-ld: ../appl/dqrsl.o: relocation R_X86_64_32
+against `.rodata' can not be used when making a PIE object; recompile
+with -fPIC
+/usr/bin/x86_64-linux-gnu-ld: ../appl/dqrutl.o: relocation R_X86_64_32S
+against `.rodata' can not be used when making a PIE object; recompile
+with -fPIC
+/usr/bin/x86_64-linux-gnu-ld: ../appl/dsvdc.o: relocation R_X86_64_32
+against `.rodata' can not be used when making a PIE object; recompile
+with -fPIC
+/usr/bin/x86_64-linux-gnu-ld: ../appl/dtrco.o: relocation R_X86_64_32
+against `.rodata' can not be used when making a PIE object; recompile
+with -fPIC
+/usr/bin/x86_64-linux-gnu-ld: ../appl/dtrsl.o: relocation R_X86_64_32
+against `.rodata' can not be used when making a PIE object; recompile
+with -fPIC
+/usr/bin/x86_64-linux-gnu-ld: final link failed: Nonrepresentable
+section on output
+collect2: error: ld returned 1 exit status
+Makefile:145: recipe for target 'R.bin' failed
+make[3]: *** [R.bin] Error 1
+make[3]: Leaving directory '/home/steve/src/R/R-3.5.0/src/main'
+Makefile:137: recipe for target 'R' failed
+make[2]: *** [R] Error 2
+make[2]: Leaving directory '/home/steve/src/R/R-3.5.0/src/main'
+Makefile:28: recipe for target 'R' failed
+make[1]: *** [R] Error 1
+make[1]: Leaving directory '/home/steve/src/R/R-3.5.0/src'
+Makefile:60: recipe for target 'R' failed
+
+The same occurs with or without --enable-R-shlib
+
+My interpretation is that -fPIC is not being seen by the compilers, but
+the call to gcc clearly includes it.
+
+I would greatly appreciate any advice on how to get this build to
+succeed.
+
+Best,
+Steve
+
+
+From edd @ending from debi@n@org  Thu May 24 18:22:48 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Thu, 24 May 2018 11:22:48 -0500
+Subject: [R-sig-Debian] 
+ Trouble building R 3.5.0 under Ubuntu 18.04 (Bionic Beaver)
+In-Reply-To: <0b356374b253f346a25ae171df179cbe845f086b.camel@gmail.com>
+References: <0b356374b253f346a25ae171df179cbe845f086b.camel@gmail.com>
+Message-ID: <23302.59096.934665.813016@rob.eddelbuettel.com>
+
+
+On 24 May 2018 at 09:15, Steve Gutreuter wrote:
+| All of my attempts to build R 3.5.0 from sources under Ubuntu 18.04
+| have failed, and I cannot figure out what I am doing wrong.  I have
+
+Ubuntu builds
+   https://launchpad.net/~marutter/+archive/ubuntu/rrutter3.5
+with sources if you want to know more.
+
+Based on my Debian builds which you can peruse at
+   https://salsa.debian.org/edd/r-base
+
+That said, R 3.5.0 is _not_ compatible with R 3.4.* and before so if you
+install these binaries expect _all_ old R packages, whether from r-cran-* or
+locally installed, to croak.  Which is why R 3.5.0 is not yet mirrored at
+CRAN -- we're just not there yet.
+
+| tried may things, including :
+| 
+| export LDFLAGS="$LDFLAGS -fPIC"
+| export CXXFLAGS="$CXXFLAGS -fPIC"
+| export CFLAGS="$CFLAGS -fPIC"
+| ./configure --enable-R-shlib --prefix=/usr/lib/R/3.5.0
+
+I am not sure where you got those settings from. That is (AICR) not what it
+is in the R Installation + Administration manual which you should consult if
+you insist on doing it locally.
+
+I have a fairly strongly held conviction that the available binaries are
+actually better for you (we make many informed choices for you and add
+several bells as well as a few whistles) but you are free to ignore it.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@rutter @ending from gm@il@com  Sun May 27 04:26:15 2018
+From: m@rutter @ending from gm@il@com (Michael Rutter)
+Date: Sat, 26 May 2018 22:26:15 -0400
+Subject: [R-sig-Debian] Announcing cran2deb4ubuntu for R 3.5.0
+Message-ID: <286b0a17-f389-e818-4ec0-100a184d0ce3@gmail.com>
+
+
+I would like to announce that c2d4u3.5 is now available for public use. 
+You can see a blog post here with all the details: 
+http://rubuntu.netlify.com/post/2018-05-25-announcing-c2d4u3-5/
+
+There still might be one to two issues.  Please let me know if you have 
+any problems.
+
+Michael
+
+
+From jeroenoom@ @ending from gm@il@com  Sun May 27 12:56:14 2018
+From: jeroenoom@ @ending from gm@il@com (Jeroen Ooms)
+Date: Sun, 27 May 2018 12:56:14 +0200
+Subject: [R-sig-Debian] Announcing cran2deb4ubuntu for R 3.5.0
+In-Reply-To: <286b0a17-f389-e818-4ec0-100a184d0ce3@gmail.com>
+References: <286b0a17-f389-e818-4ec0-100a184d0ce3@gmail.com>
+Message-ID: <CABFfbXumvtnqnBDiYL7vOXEMGfmje3xGMFtY5QC8baC3txxqhw@mail.gmail.com>
+
+Thanks Michael! One more issue I ran into:
+
+apt-get install r-cran-rgdal
+
+The following packages have unmet dependencies:
+ r-cran-rgdal : Depends: gdal-abi-2-1-0 but it is not installable
+                Depends: libgdal20 (>= 2.0.1) but it is not installable
+E: Unable to correct problems, you have held broken packages.
+
+
+
+On Sun, May 27, 2018 at 4:26 AM, Michael Rutter <marutter at gmail.com> wrote:
+>
+> I would like to announce that c2d4u3.5 is now available for public use. You
+> can see a blog post here with all the details:
+> http://rubuntu.netlify.com/post/2018-05-25-announcing-c2d4u3-5/
+>
+> There still might be one to two issues.  Please let me know if you have any
+> problems.
+>
+> Michael
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From edd @ending from debi@n@org  Sun May 27 14:08:22 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Sun, 27 May 2018 07:08:22 -0500
+Subject: [R-sig-Debian] Announcing cran2deb4ubuntu for R 3.5.0
+In-Reply-To: <CABFfbXumvtnqnBDiYL7vOXEMGfmje3xGMFtY5QC8baC3txxqhw@mail.gmail.com>
+References: <286b0a17-f389-e818-4ec0-100a184d0ce3@gmail.com>
+ <CABFfbXumvtnqnBDiYL7vOXEMGfmje3xGMFtY5QC8baC3txxqhw@mail.gmail.com>
+Message-ID: <23306.40886.212659.316844@rob.eddelbuettel.com>
+
+
+On 27 May 2018 at 12:56, Jeroen Ooms wrote:
+| Thanks Michael!
+
+Seconded!
+
+| One more issue I ran into:
+| 
+| apt-get install r-cran-rgdal
+| 
+| The following packages have unmet dependencies:
+|  r-cran-rgdal : Depends: gdal-abi-2-1-0 but it is not installable
+|                 Depends: libgdal20 (>= 2.0.1) but it is not installable
+| E: Unable to correct problems, you have held broken packages.
+
+Which flavour / distribution is that on?
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@r36 @ending from p@u@edu  Sun May 27 14:20:26 2018
+From: m@r36 @ending from p@u@edu (Michael Rutter)
+Date: Sun, 27 May 2018 08:20:26 -0400
+Subject: [R-sig-Debian] Announcing cran2deb4ubuntu for R 3.5.0
+In-Reply-To: <23306.40886.212659.316844@rob.eddelbuettel.com>
+References: <286b0a17-f389-e818-4ec0-100a184d0ce3@gmail.com>
+ <CABFfbXumvtnqnBDiYL7vOXEMGfmje3xGMFtY5QC8baC3txxqhw@mail.gmail.com>
+ <23306.40886.212659.316844@rob.eddelbuettel.com>
+Message-ID: <02b241db-f956-892c-a151-a18c334ddc8f@psu.edu>
+
+
+
+On 05/27/2018 08:08 AM, Dirk Eddelbuettel wrote:
+> 
+> On 27 May 2018 at 12:56, Jeroen Ooms wrote:
+> | Thanks Michael!
+> 
+> Seconded!
+
+You're welcome.
+
+> | One more issue I ran into:
+> |
+> | apt-get install r-cran-rgdal
+> |
+> | The following packages have unmet dependencies:
+> |  r-cran-rgdal : Depends: gdal-abi-2-1-0 but it is not installable
+> |                 Depends: libgdal20 (>= 2.0.1) but it is not installable
+> | E: Unable to correct problems, you have held broken packages.
+> 
+> Which flavour / distribution is that on?
+
+Likely Trusty.  You need to add the ubuntugis-stable PPA as well 
+(https://launchpad.net/~ubuntugis/+archive/ubuntu/ppa).  Nothing related 
+to gdal builds based on stock Trusty.  Many packages requires
+gdal >= 2.1.  This solves a bunch of issues.
+
+Michael
+-- 
+Dr. Michael A. Rutter
+Associate Director, School of Science
+Associate Professor of Statistics
+Penn State Erie, The Behrend College
+4205 College Drive
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+mar36 at psu.edu
+
+
+From jeroenoom@ @ending from gm@il@com  Sun May 27 15:01:28 2018
+From: jeroenoom@ @ending from gm@il@com (Jeroen Ooms)
+Date: Sun, 27 May 2018 15:01:28 +0200
+Subject: [R-sig-Debian] Announcing cran2deb4ubuntu for R 3.5.0
+In-Reply-To: <02b241db-f956-892c-a151-a18c334ddc8f@psu.edu>
+References: <286b0a17-f389-e818-4ec0-100a184d0ce3@gmail.com>
+ <CABFfbXumvtnqnBDiYL7vOXEMGfmje3xGMFtY5QC8baC3txxqhw@mail.gmail.com>
+ <23306.40886.212659.316844@rob.eddelbuettel.com>
+ <02b241db-f956-892c-a151-a18c334ddc8f@psu.edu>
+Message-ID: <CABFfbXsEtaCfBf_XrQSK4_8T1igDvMtnYheGZkDLizQ4zeVV=Q@mail.gmail.com>
+
+On Sun, May 27, 2018 at 2:20 PM, Michael Rutter <mar36 at psu.edu> wrote:
+>
+>
+> On 05/27/2018 08:08 AM, Dirk Eddelbuettel wrote:
+>>
+>>
+>> On 27 May 2018 at 12:56, Jeroen Ooms wrote:
+>> | Thanks Michael!
+>>
+>> Seconded!
+>
+>
+> You're welcome.
+>
+>> | One more issue I ran into:
+>> |
+>> | apt-get install r-cran-rgdal
+>> |
+>> | The following packages have unmet dependencies:
+>> |  r-cran-rgdal : Depends: gdal-abi-2-1-0 but it is not installable
+>> |                 Depends: libgdal20 (>= 2.0.1) but it is not installable
+>> | E: Unable to correct problems, you have held broken packages.
+>>
+>> Which flavour / distribution is that on?
+>
+>
+> Likely Trusty.  You need to add the ubuntugis-stable PPA as well
+> (https://launchpad.net/~ubuntugis/+archive/ubuntu/ppa).  Nothing related to
+> gdal builds based on stock Trusty.  Many packages requires
+> gdal >= 2.1.  This solves a bunch of issues.
+
+
+Yes this is trusty (Travis). Which other PPA's does c2d4u3.5 depend
+on? Then we'll add those to travis as well when we add c2d4u3.5.
+
+
+From m@r36 @ending from p@u@edu  Sun May 27 15:25:27 2018
+From: m@r36 @ending from p@u@edu (Michael Rutter)
+Date: Sun, 27 May 2018 09:25:27 -0400
+Subject: [R-sig-Debian] Announcing cran2deb4ubuntu for R 3.5.0
+In-Reply-To: <CABFfbXsEtaCfBf_XrQSK4_8T1igDvMtnYheGZkDLizQ4zeVV=Q@mail.gmail.com>
+References: <286b0a17-f389-e818-4ec0-100a184d0ce3@gmail.com>
+ <CABFfbXumvtnqnBDiYL7vOXEMGfmje3xGMFtY5QC8baC3txxqhw@mail.gmail.com>
+ <23306.40886.212659.316844@rob.eddelbuettel.com>
+ <02b241db-f956-892c-a151-a18c334ddc8f@psu.edu>
+ <CABFfbXsEtaCfBf_XrQSK4_8T1igDvMtnYheGZkDLizQ4zeVV=Q@mail.gmail.com>
+Message-ID: <df3b6e2c-088d-b066-6372-dc46bd072ea2@psu.edu>
+
+
+
+On 05/27/2018 09:01 AM, Jeroen Ooms wrote:
+>>> | One more issue I ran into:
+>>> |
+>>> | apt-get install r-cran-rgdal
+>>> |
+>>> | The following packages have unmet dependencies:
+>>> |  r-cran-rgdal : Depends: gdal-abi-2-1-0 but it is not installable
+>>> |                 Depends: libgdal20 (>= 2.0.1) but it is not installable
+>>> | E: Unable to correct problems, you have held broken packages.
+>>>
+>>> Which flavour / distribution is that on?
+>>
+>>
+>> Likely Trusty.  You need to add the ubuntugis-stable PPA as well
+>> (https://launchpad.net/~ubuntugis/+archive/ubuntu/ppa).  Nothing related to
+>> gdal builds based on stock Trusty.  Many packages requires
+>> gdal >= 2.1.  This solves a bunch of issues.
+> 
+> 
+> Yes this is trusty (Travis). Which other PPA's does c2d4u3.5 depend
+> on? Then we'll add those to travis as well when we add c2d4u3.5.
+> 
+
+My latest blog post has the list 
+(http://rubuntu.netlify.com/post/2018-05-25-announcing-c2d4u3-5/), but 
+the most up-to-date list is under "Technical Details About This PPA" on 
+the PPA homepage on Launchpad.
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+Associate Director, School of Science
+Associate Professor of Statistics
+Penn State Erie, The Behrend College
+4205 College Drive
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+mar36 at psu.edu
+
+

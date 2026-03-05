@@ -1,0 +1,1393 @@
+From jeroenoom@ @end|ng |rom gm@||@com  Thu Apr  8 12:18:32 2021
+From: jeroenoom@ @end|ng |rom gm@||@com (Jeroen Ooms)
+Date: Thu, 8 Apr 2021 12:18:32 +0200
+Subject: [R-sig-Debian] c2d4u: missing dependency for r-cran-gert and
+ r-cran-v8 on bionic
+Message-ID: <CABFfbXsgi8f7B00dT7NUZ04VUY_dyhv4u0HhyeEnEzid8FX2DQ@mail.gmail.com>
+
+A user has reported, and I have confirmed, that r-cran-gert from c2d4u
+is uninstallable on bionic because it is compiled against a version of
+libgit2 that is not included with c2d4u:
+
+ # apt-get install r-cran-gert
+ The following packages have unmet dependencies:
+   r-cran-gert : Depends: libgit2-27 (>= 0.26.0) but it is not installable
+  E: Unable to correct problems, you have held broken packages.
+
+>From the c2d4u buildlog I can see that it is compiling r-cran-gert
+against the libgit2 backports from ppa:cran/libgit2. So I think the
+easiest solution is to put a copy of that libgit2 into c2d4u.
+
+The same seems to hold for r-cran-v8.
+
+The problem does not exist for ubuntu:focal because here the stock
+versions of libgit2 and libv8 are sufficient and we do not provide ppa
+backports.
+
+
+From m@rutter @end|ng |rom gm@||@com  Thu Apr  8 15:07:21 2021
+From: m@rutter @end|ng |rom gm@||@com (Michael Rutter)
+Date: Thu, 8 Apr 2021 09:07:21 -0400
+Subject: [R-sig-Debian] c2d4u: missing dependency for r-cran-gert and
+ r-cran-v8 on bionic
+In-Reply-To: <CABFfbXsgi8f7B00dT7NUZ04VUY_dyhv4u0HhyeEnEzid8FX2DQ@mail.gmail.com>
+References: <CABFfbXsgi8f7B00dT7NUZ04VUY_dyhv4u0HhyeEnEzid8FX2DQ@mail.gmail.com>
+Message-ID: <98f9d080-55bd-1c2a-eb4b-9a23dc653059@gmail.com>
+
+
+
+On 4/8/21 6:18 AM, Jeroen Ooms wrote:
+> A user has reported, and I have confirmed, that r-cran-gert from c2d4u
+> is uninstallable on bionic because it is compiled against a version of
+> libgit2 that is not included with c2d4u:
+> 
+>   # apt-get install r-cran-gert
+>   The following packages have unmet dependencies:
+>     r-cran-gert : Depends: libgit2-27 (>= 0.26.0) but it is not installable
+>    E: Unable to correct problems, you have held broken packages.
+> 
+>  From the c2d4u buildlog I can see that it is compiling r-cran-gert
+> against the libgit2 backports from ppa:cran/libgit2. So I think the
+> easiest solution is to put a copy of that libgit2 into c2d4u.
+> 
+> The same seems to hold for r-cran-v8.
+> 
+> The problem does not exist for ubuntu:focal because here the stock
+> versions of libgit2 and libv8 are sufficient and we do not provide ppa
+> backports.
+
+Jeroen,
+
+In this case, I view this aspect of Launchpad as a feature.  Maintaining 
+c2d4u takes up enough of my time, so if another PPA exists that allows a 
+package to be built on c2d4u, then I am going to utilize it.  Same way I 
+would encourage anyone wanting to add additional R packages to Launchpad 
+use my RRutter and c2d4u PPAs as a starting point.  No need to reinvent 
+the wheel.
+
+c2d4u has dependencies on five other PPAs.  They are listed on the front 
+page of the PPA under "Technical details about this PPA" and I strongly 
+encourage people using c2d4u to install these as well.
+
+Michael
+
+
+From doumbouy@m822 @end|ng |rom gm@||@com  Fri Apr  9 12:40:24 2021
+From: doumbouy@m822 @end|ng |rom gm@||@com (Moussa DOUMBOUYA)
+Date: Fri, 9 Apr 2021 10:40:24 +0000
+Subject: [R-sig-Debian] OUBLIE MOT DE PASS
+Message-ID: <CA+gis876+BR0LXJNuy_GFt6Xj2hT=XM4oTWJf3+5GdTgTfnQ_Q@mail.gmail.com>
+
+Bonjour ? tous, vers vous mon mail afin d'?tablir mon mot de Pass.
+Cordialement
+-- 
+
+*Dr DOUMBOUYA Moussa*
+
+*Epid?miologiste bio statisticien*
+
+**************************
+
+Certifi? en FETP premi?re ligne en Guin?e
+
+*Chef de section pr?vention et lutte contre la maladie*
+
+*District sanitaire de MANDIANA *
+
+*R?p. Guin?e Conakry*
+
+*T?l : +224 628 652 583*
+
+*Adresse e-mail : **doumbouyam822 at gmail.com* <doumbouya822 at gmail.com>
+
+	[[alternative HTML version deleted]]
+
+
+From j@me@@d@|y@bron@on @end|ng |rom gm@||@com  Sun Apr 18 23:17:07 2021
+From: j@me@@d@|y@bron@on @end|ng |rom gm@||@com (James Daly)
+Date: Sun, 18 Apr 2021 16:17:07 -0500
+Subject: [R-sig-Debian] Installing packages
+Message-ID: <CAM=Pw=aNr1CD81T81P1k01pkXCsZkXh8tMB=ep3+KuKkLgicWg@mail.gmail.com>
+
+Hello,
+
+I am a brand new Linux user running Ubuntu 20.04. Apologies if my question
+is extremely basic.
+
+In R, I am having trouble downloading some packages (apaTables, apaStyle,
+OpenMx, MBESS, gsl). This post
+<https://blog.zenggyu.com/en/post/2018-01-29/installing-r-r-packages-e-g-tidyverse-and-rstudio-on-ubuntu-linux/>
+makes me think that the problem is that they reference non-R packages.
+However, I don't know what to do about it. Can anybody help me?
+
+Any advice for a new Linux user would be appreciated, too! I am considering
+hopping to another distro, possibly Debian, once I get the hang of it.
+
+Thanks,
+Jimmy
+
+	[[alternative HTML version deleted]]
+
+
+From m@rutter @end|ng |rom gm@||@com  Sun Apr 18 23:33:58 2021
+From: m@rutter @end|ng |rom gm@||@com (Michael Rutter)
+Date: Sun, 18 Apr 2021 17:33:58 -0400
+Subject: [R-sig-Debian] Installing packages
+In-Reply-To: <CAM=Pw=aNr1CD81T81P1k01pkXCsZkXh8tMB=ep3+KuKkLgicWg@mail.gmail.com>
+References: <CAM=Pw=aNr1CD81T81P1k01pkXCsZkXh8tMB=ep3+KuKkLgicWg@mail.gmail.com>
+Message-ID: <bb6d40a1-2abf-39f4-4abd-35c9a26fda9a@gmail.com>
+
+
+
+On 4/18/21 5:17 PM, James Daly wrote:
+> Hello,
+> 
+> I am a brand new Linux user running Ubuntu 20.04. Apologies if my question
+> is extremely basic.
+> 
+> In R, I am having trouble downloading some packages (apaTables, apaStyle,
+> OpenMx, MBESS, gsl). This post
+> <https://blog.zenggyu.com/en/post/2018-01-29/installing-r-r-packages-e-g-tidyverse-and-rstudio-on-ubuntu-linux/>
+> makes me think that the problem is that they reference non-R packages.
+> However, I don't know what to do about it. Can anybody help me?
+> 
+> Any advice for a new Linux user would be appreciated, too! I am considering
+> hopping to another distro, possibly Debian, once I get the hang of it.
+> 
+> Thanks,
+> Jimmy
+
+Jimmy,
+
+I would highly recommend reading the web page about Ubuntu on CRAN, 
+especially the section about using the c2d4u 4.0 repository.
+
+https://cran.r-project.org/bin/linux/ubuntu/#get-5000-cran-packages
+
+I would then install the bspm package (Bridge to System Package Manager) 
+with (from the Ubuntu command line):
+
+sudo apt install r-cran-bspm
+
+This will utilize apt from within R whenever possible.
+
+Michael
+
+
+From edd @end|ng |rom deb|@n@org  Mon Apr 19 00:02:38 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Sun, 18 Apr 2021 17:02:38 -0500
+Subject: [R-sig-Debian] Installing packages
+In-Reply-To: <bb6d40a1-2abf-39f4-4abd-35c9a26fda9a@gmail.com>
+References: <CAM=Pw=aNr1CD81T81P1k01pkXCsZkXh8tMB=ep3+KuKkLgicWg@mail.gmail.com>
+ <bb6d40a1-2abf-39f4-4abd-35c9a26fda9a@gmail.com>
+Message-ID: <24700.44158.452481.897062@rob.eddelbuettel.com>
+
+
+On 18 April 2021 at 17:33, Michael Rutter wrote:
+| On 4/18/21 5:17 PM, James Daly wrote:
+| > In R, I am having trouble downloading some packages (apaTables, apaStyle,
+| > OpenMx, MBESS, gsl). This post
+
+Some of those are not simple but complex. The devil, as always, is in the detail.
+
+| > <https://blog.zenggyu.com/en/post/2018-01-29/installing-r-r-packages-e-g-tidyverse-and-rstudio-on-ubuntu-linux/>
+| > makes me think that the problem is that they reference non-R packages.
+| > However, I don't know what to do about it. Can anybody help me?
+| > 
+| > Any advice for a new Linux user would be appreciated, too! I am considering
+| > hopping to another distro, possibly Debian, once I get the hang of it.
+| > 
+| > Thanks,
+| > Jimmy
+| 
+| Jimmy,
+| 
+| I would highly recommend reading the web page about Ubuntu on CRAN, 
+| especially the section about using the c2d4u 4.0 repository.
+| 
+| https://cran.r-project.org/bin/linux/ubuntu/#get-5000-cran-packages
+| 
+| I would then install the bspm package (Bridge to System Package Manager) 
+| with (from the Ubuntu command line):
+| 
+| sudo apt install r-cran-bspm
+| 
+| This will utilize apt from within R whenever possible.
+
+Strongly seconded.
+
+I wrote a number of blog posts in the topic which you can find (in reverse
+chronological order) below this URL:
+
+   https://dirk.eddelbuettel.com/blog/code/r4/
+
+You can skip a few but there are probably at least half a dozen posts on the
+very topic of _more easily_ installing CRAN binaries on Ubuntu.
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@z|n@@bde|gh@ny @end|ng |rom gm@||@com  Mon Apr 19 19:24:36 2021
+From: m@z|n@@bde|gh@ny @end|ng |rom gm@||@com (Mazin Abdelghany)
+Date: Mon, 19 Apr 2021 10:24:36 -0700
+Subject: [R-sig-Debian] Unable to install some R packages in Ubuntu
+ 20.04--internal compiler error: Segmentation fault
+Message-ID: <CAKHRMBZv=rwCQu64V0etEHXcCX-03N7qTCHbKS=A=vBRjdJBGg@mail.gmail.com>
+
+Hello all,
+
+I recently installed R onto my Ubuntu 20.04 install using the instructions
+here: https://cran.r-project.org/bin/linux/ubuntu/. R works as expected.
+
+However, while some packages have installed without issue (e.g., R.matlab),
+there are many packages that have not been able to install. Each failed
+install throws a very similar error message. As an example,
+install.packages("utf8") throws:
+```
+during GIMPLE pass: ccp
+as_utf8.c: In function ?rutf8_as_utf8?:
+as_utf8.c:128:1: internal compiler error: Segmentation fault
+  128 | }
+      | ^
+Please submit a full bug report,
+with preprocessed source if appropriate.
+See <file:///usr/share/doc/gcc-9/README.Bugs> for instructions.
+make: *** [/usr/lib/R/etc/Makeconf:172: as_utf8.o] Error 1
+ERROR: compilation failed for package ?utf8?
+```
+
+As another example, install.packages("fansi") throws:
+```
+during GIMPLE pass: ccp
+nchar.c: In function ?FANSI_nzchar?:
+nchar.c:85:1: internal compiler error: Segmentation fault
+   85 | }
+      | ^
+Please submit a full bug report,
+with preprocessed source if appropriate.
+See <file:///usr/share/doc/gcc-9/README.Bugs> for instructions.
+make: *** [/usr/lib/R/etc/Makeconf:172: nchar.o] Error 1
+ERROR: compilation failed for package ?fansi?
+```
+
+I have tried reinstalling gcc-9, which has not helped. I had found that the
+PATH in Sys.getenv("PATH") was pointing to a miniconda3 install on my
+system, so updated that to
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/lib/rstudio/bin/postback,
+which also has not helped.
+
+I posted a question to:
+https://answers.launchpad.net/ubuntu/+question/696623 and it was suggested
+that I use gcc-10 instead of gcc-9. I edited /usr/lib/R/etc/Makeconf and
+replaced CC=-std=gnu99 with CC=gcc-10. This resolved the issue and the
+packages that were throwing these errors were able to be installed.
+
+After posting the question to Stackoverflow, it was made clear that this
+was not a solution rather an obtuse workaround. It was recommended that I
+send the question here for help.
+
+Output of gcc -v:
+```
+Using built-in specs.
+COLLECT_GCC=gcc
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/9/lto-wrapper
+OFFLOAD_TARGET_NAMES=nvptx-none:hsa
+OFFLOAD_TARGET_DEFAULT=1
+Target: x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu
+9.3.0-17ubuntu1~20.04'
+--with-bugurl=file:///usr/share/doc/gcc-9/README.Bugs
+--enable-languages=c,ada,c++,go,brig,d,fortran,objc,obj-c++,gm2
+--prefix=/usr --with-gcc-major-version-only --program-suffix=-9
+--program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id
+--libexecdir=/usr/lib --without-included-gettext --enable-threads=posix
+--libdir=/usr/lib --enable-nls --enable-clocale=gnu
+--enable-libstdcxx-debug --enable-libstdcxx-time=yes
+--with-default-libstdcxx-abi=new --enable-gnu-unique-object
+--disable-vtable-verify --enable-plugin --enable-default-pie
+--with-system-zlib --with-target-system-zlib=auto --enable-objc-gc=auto
+--enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64
+--with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic
+--enable-offload-targets=nvptx-none=/build/gcc-9-HskZEa/gcc-9-9.3.0/debian/tmp-nvptx/usr,hsa
+--without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu
+--host=x86_64-linux-gnu --target=x86_64-linux-gnu
+Thread model: posix
+gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04)
+```
+
+Output of sessionInfo() in R:
+```
+R version 4.0.5 (2021-03-31)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 20.04.2 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+ LC_PAPER=en_US.UTF-8       LC_NAME=C
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C
+LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base
+
+loaded via a namespace (and not attached):
+[1] compiler_4.0.5 tools_4.0.5
+```
+
+Thanks all for your help and advice.
+Best,
+Mazin
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon Apr 19 20:28:33 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 19 Apr 2021 13:28:33 -0500
+Subject: [R-sig-Debian] Unable to install some R packages in Ubuntu
+ 20.04--internal compiler error: Segmentation fault
+In-Reply-To: <CAKHRMBZv=rwCQu64V0etEHXcCX-03N7qTCHbKS=A=vBRjdJBGg@mail.gmail.com>
+References: <CAKHRMBZv=rwCQu64V0etEHXcCX-03N7qTCHbKS=A=vBRjdJBGg@mail.gmail.com>
+Message-ID: <24701.52177.416161.271253@rob.eddelbuettel.com>
+
+
+Hi Mazin,
+
+On 19 April 2021 at 10:24, Mazin Abdelghany wrote:
+| I recently installed R onto my Ubuntu 20.04 install using the instructions
+| here: https://cran.r-project.org/bin/linux/ubuntu/. R works as expected.
+| 
+| However, while some packages have installed without issue (e.g., R.matlab),
+| there are many packages that have not been able to install. Each failed
+| install throws a very similar error message. As an example,
+| install.packages("utf8") throws:
+| ```
+| during GIMPLE pass: ccp
+| as_utf8.c: In function ?rutf8_as_utf8?:
+| as_utf8.c:128:1: internal compiler error: Segmentation fault
+|   128 | }
+|       | ^
+| Please submit a full bug report,
+| with preprocessed source if appropriate.
+| See <file:///usr/share/doc/gcc-9/README.Bugs> for instructions.
+| make: *** [/usr/lib/R/etc/Makeconf:172: as_utf8.o] Error 1
+| ERROR: compilation failed for package ?utf8?
+| ```
+
+Weird. I have been on Ubuntu for most of its existence, and tend to compile
+(on my main development machine) all packages directly from CRAN.
+
+These packages _definitely_ install normally, so would need some extra
+details.
+
+| As another example, install.packages("fansi") throws:
+| ```
+| during GIMPLE pass: ccp
+| nchar.c: In function ?FANSI_nzchar?:
+| nchar.c:85:1: internal compiler error: Segmentation fault
+|    85 | }
+|       | ^
+| Please submit a full bug report,
+| with preprocessed source if appropriate.
+| See <file:///usr/share/doc/gcc-9/README.Bugs> for instructions.
+| make: *** [/usr/lib/R/etc/Makeconf:172: nchar.o] Error 1
+| ERROR: compilation failed for package ?fansi?
+| ```
+| 
+| I have tried reinstalling gcc-9, which has not helped. I had found that the
+| PATH in Sys.getenv("PATH") was pointing to a miniconda3 install on my
+
+Ahhhhhhhhhhhhh. That is extra detail. And ... not a good idea in general.
+
+Mixing conda and normal installations is NOT a good idea. You also did not
+mention above that you switched to conda.
+
+| system, so updated that to
+| /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/lib/rstudio/bin/postback,
+| which also has not helped.
+| 
+| I posted a question to:
+| https://answers.launchpad.net/ubuntu/+question/696623 and it was suggested
+| that I use gcc-10 instead of gcc-9. I edited /usr/lib/R/etc/Makeconf and
+| replaced CC=-std=gnu99 with CC=gcc-10. This resolved the issue and the
+| packages that were throwing these errors were able to be installed.
+| 
+| After posting the question to Stackoverflow, it was made clear that this
+| was not a solution rather an obtuse workaround. It was recommended that I
+| send the question here for help.
+
+As I menionted when you asked on StackOverflow, that was not a good
+suggestion. The compiler has nothing to do with this but you generally may
+run into issue mixing conda and normal use.
+
+My recommendation and preference would be to stay away from conda -- as I
+never used (or needed) it. Maybe others can help you with it.
+
+If you read the README for Ubuntu and CRAN, check out the hint about the
+PPA. You can even couple it with the (very clever) 'bspm' package and then
+_normal R installations will give you binaries_.  Demo in the r-bspm:20.04
+container follows:
+
+edd at rob:~$ docker run --rm -ti rocker/r-bspm:20.04 bash
+root at 6f02540917d0:/# apt update -qq # refresh indices
+71 packages can be upgraded. Run 'apt list --upgradable' to see them.
+root at 6f02540917d0:/# Rscript -e 'install.packages(c("utf8", "fansi"))'
+Loading required package: utils
+Tracing function "install.packages" in package "utils"
+Install system packages as root...
+Reading package lists... Done
+Building dependency tree        
+Reading state information... Done
+Hit http://archive.ubuntu.com/ubuntu focal InRelease                                                                                                                                                              
+Hit http://security.ubuntu.com/ubuntu focal-security InRelease                                                                                                                                                    
+Hit http://ppa.launchpad.net/c2d4u.team/c2d4u4.0+/ubuntu focal InRelease                                                                                                                                          
+Hit http://archive.ubuntu.com/ubuntu focal-updates InRelease                                                                                                                                                      
+Hit http://archive.ubuntu.com/ubuntu focal-backports InRelease                                                                                                                                                    
+Hit http://ppa.launchpad.net/edd/r-4.0/ubuntu focal InRelease                                                                                                                                                     
+Hit http://ppa.launchpad.net/marutter/rrutter4.0/ubuntu focal InRelease                                                                                                                                           
+Fetched 0 B in 0s (0 B/s)                                                                                                                                                                                         
+Reading package lists... Done    
+Building dependency tree          
+Reading state information... Done
+Get:1 http://ppa.launchpad.net/c2d4u.team/c2d4u4.0+/ubuntu focal/main amd64 r-cran-fansi amd64 0.4.2-1cran1.2004.0 [176 kB]                                                                                       
+Get:2 http://ppa.launchpad.net/c2d4u.team/c2d4u4.0+/ubuntu focal/main amd64 r-cran-utf8 amd64 1.2.1-1cran1.2004.0 [122 kB]                                                                                        
+Fetched 298 kB in 0s (0 B/s)                                                                                                                                                                                      
+Selecting previously unselected package r-cran-fansi.
+(Reading database ... 20588 files and directories currently installed.)
+Preparing to unpack .../r-cran-fansi_0.4.2-1cran1.2004.0_amd64.deb ...
+Unpacking r-cran-fansi (0.4.2-1cran1.2004.0) ...
+Selecting previously unselected package r-cran-utf8.
+Preparing to unpack .../r-cran-utf8_1.2.1-1cran1.2004.0_amd64.deb ...
+Unpacking r-cran-utf8 (1.2.1-1cran1.2004.0) ...
+Setting up r-cran-fansi (0.4.2-1cran1.2004.0) ...
+Setting up r-cran-utf8 (1.2.1-1cran1.2004.0) ...
+root at 6f02540917d0:/#
+
+You could do the same via 'sudo apt install r-cran-utf8 r-cran-fansi' without
+'bspm' if you just set up the PPA.
+
+Good luck,  Dirk
+
+
+ 
+| Output of gcc -v:
+| ```
+| Using built-in specs.
+| COLLECT_GCC=gcc
+| COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/9/lto-wrapper
+| OFFLOAD_TARGET_NAMES=nvptx-none:hsa
+| OFFLOAD_TARGET_DEFAULT=1
+| Target: x86_64-linux-gnu
+| Configured with: ../src/configure -v --with-pkgversion='Ubuntu
+| 9.3.0-17ubuntu1~20.04'
+| --with-bugurl=file:///usr/share/doc/gcc-9/README.Bugs
+| --enable-languages=c,ada,c++,go,brig,d,fortran,objc,obj-c++,gm2
+| --prefix=/usr --with-gcc-major-version-only --program-suffix=-9
+| --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id
+| --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix
+| --libdir=/usr/lib --enable-nls --enable-clocale=gnu
+| --enable-libstdcxx-debug --enable-libstdcxx-time=yes
+| --with-default-libstdcxx-abi=new --enable-gnu-unique-object
+| --disable-vtable-verify --enable-plugin --enable-default-pie
+| --with-system-zlib --with-target-system-zlib=auto --enable-objc-gc=auto
+| --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64
+| --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic
+| --enable-offload-targets=nvptx-none=/build/gcc-9-HskZEa/gcc-9-9.3.0/debian/tmp-nvptx/usr,hsa
+| --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu
+| --host=x86_64-linux-gnu --target=x86_64-linux-gnu
+| Thread model: posix
+| gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04)
+| ```
+| 
+| Output of sessionInfo() in R:
+| ```
+| R version 4.0.5 (2021-03-31)
+| Platform: x86_64-pc-linux-gnu (64-bit)
+| Running under: Ubuntu 20.04.2 LTS
+| 
+| Matrix products: default
+| BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+| LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3
+| 
+| locale:
+|  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+| LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+|  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+|  LC_PAPER=en_US.UTF-8       LC_NAME=C
+|  [9] LC_ADDRESS=C               LC_TELEPHONE=C
+| LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+| 
+| attached base packages:
+| [1] stats     graphics  grDevices utils     datasets  methods   base
+| 
+| loaded via a namespace (and not attached):
+| [1] compiler_4.0.5 tools_4.0.5
+| ```
+| 
+| Thanks all for your help and advice.
+| Best,
+| Mazin
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edt1996 @end|ng |rom y@hoo@com  Thu Apr 22 05:49:01 2021
+From: edt1996 @end|ng |rom y@hoo@com (E Tam)
+Date: Thu, 22 Apr 2021 03:49:01 +0000 (UTC)
+Subject: [R-sig-Debian] Keep Downloading R 3.6.3 on Linux Mint 20.1
+References: <63589324.3468339.1619063341410.ref@mail.yahoo.com>
+Message-ID: <63589324.3468339.1619063341410@mail.yahoo.com>
+
+To whom it may concern,
+ I have been trying forever to get R installed on a computer running Linux Mint 20.1, but nothing works. I went to CRAN (https://mirrors.nics.utk.edu/cran/) and followed all of the instructions, but it installed R 3.6.3! This would not be a problem since I only need to do some relatively simple things, except every library has updated to R 4.0 and nothing from 3.6 can be used with 4.0, and vice versa. I can use base R just fine in RStudio, but any attempts to downloads libraries fail. 
+
+I asked for help on the Linux Mint Forums (https://forums.linuxmint.com/viewtopic.php?f=47&t=347119&p=2005975#p2005975), but we did not make a lot of progress. What we figured out what that on the official instructions, they are missing a step. [sudo apt-update] needs to be run after [add-apt-repository ppa...]. I also needed to run [apt-get update --allow-insecure-repositories], but I have no idea why CRAN's repository would not be secure. Adding these steps gets me the error,
+Err:5 https://cloud.r-project.org/bin/linux/ubuntu ulyssa-cran40/ Packages
+  404  Not Found [IP: 13.249.183.20 443]
+Any help figuring this out will be much appreciated. 
+
+From,??????? -E
+
+
+
+	[[alternative HTML version deleted]]
+
+
+From |@cundo@munoz @end|ng |rom c|r@d@|r  Thu Apr 22 07:45:50 2021
+From: |@cundo@munoz @end|ng |rom c|r@d@|r (=?UTF-8?Q?Facundo_Mu=c3=b1oz?=)
+Date: Thu, 22 Apr 2021 07:45:50 +0200
+Subject: [R-sig-Debian] Keep Downloading R 3.6.3 on Linux Mint 20.1
+In-Reply-To: <63589324.3468339.1619063341410@mail.yahoo.com>
+References: <63589324.3468339.1619063341410.ref@mail.yahoo.com>
+ <63589324.3468339.1619063341410@mail.yahoo.com>
+Message-ID: <dabdc24d-ba0b-339c-de8d-c19e9ef1c11e@cirad.fr>
+
+Dear E Tam,
+
+I've been using R v4.* on Linux Mint 20.1 without any trouble.
+
+I think the problem can be in your deb line, which uses Mint's codename
+"ulyssa". You probably have to change it to "focal". Depending on how
+you set this up, you can do it from Mint's "Software Sources" gui
+application, under "Additional Repositories". You should find an entry
+for the R-project.
+
+Good luck.
+
+?acu.-
+
+
+On 22/04/2021 05:49, E Tam wrote:
+> To whom it may concern,
+>  I have been trying forever to get R installed on a computer running Linux Mint 20.1, but nothing works. I went to CRAN (https://mirrors.nics.utk.edu/cran/) and followed all of the instructions, but it installed R 3.6.3! This would not be a problem since I only need to do some relatively simple things, except every library has updated to R 4.0 and nothing from 3.6 can be used with 4.0, and vice versa. I can use base R just fine in RStudio, but any attempts to downloads libraries fail. 
+>
+> I asked for help on the Linux Mint Forums (https://forums.linuxmint.com/viewtopic.php?f=47&t=347119&p=2005975#p2005975), but we did not make a lot of progress. What we figured out what that on the official instructions, they are missing a step. [sudo apt-update] needs to be run after [add-apt-repository ppa...]. I also needed to run [apt-get update --allow-insecure-repositories], but I have no idea why CRAN's repository would not be secure. Adding these steps gets me the error,
+> Err:5 https://cloud.r-project.org/bin/linux/ubuntu ulyssa-cran40/ Packages
+>   404  Not Found [IP: 13.249.183.20 443]
+> Any help figuring this out will be much appreciated. 
+>
+> From,??????? -E
+>
+>
+>
+> 	[[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+	[[alternative HTML version deleted]]
+
+
+From dw|n@em|u@ @end|ng |rom comc@@t@net  Thu Apr 22 09:03:51 2021
+From: dw|n@em|u@ @end|ng |rom comc@@t@net (David Winsemius)
+Date: Thu, 22 Apr 2021 00:03:51 -0700
+Subject: [R-sig-Debian] Keep Downloading R 3.6.3 on Linux Mint 20.1
+In-Reply-To: <dabdc24d-ba0b-339c-de8d-c19e9ef1c11e@cirad.fr>
+References: <dabdc24d-ba0b-339c-de8d-c19e9ef1c11e@cirad.fr>
+Message-ID: <C593981E-1953-47EC-A7FC-77B6F2BDE722@comcast.net>
+
+The ppa for Ubuntu and Debian Is named with with ?mrutter? (maintained by Michael Rutter). You should be able to find info in this lists archives. 
+
+David
+
+Sent from my iPhone
+
+> On Apr 21, 2021, at 10:46 PM, Facundo Mu?oz <facundo.munoz at cirad.fr> wrote:
+> 
+> ?Dear E Tam,
+> 
+> I've been using R v4.* on Linux Mint 20.1 without any trouble.
+> 
+> I think the problem can be in your deb line, which uses Mint's codename
+> "ulyssa". You probably have to change it to "focal". Depending on how
+> you set this up, you can do it from Mint's "Software Sources" gui
+> application, under "Additional Repositories". You should find an entry
+> for the R-project.
+> 
+> Good luck.
+> 
+> ?acu.-
+> 
+> 
+>> On 22/04/2021 05:49, E Tam wrote:
+>> To whom it may concern,
+>> I have been trying forever to get R installed on a computer running Linux Mint 20.1, but nothing works. I went to CRAN (https://mirrors.nics.utk.edu/cran/) and followed all of the instructions, but it installed R 3.6.3! This would not be a problem since I only need to do some relatively simple things, except every library has updated to R 4.0 and nothing from 3.6 can be used with 4.0, and vice versa. I can use base R just fine in RStudio, but any attempts to downloads libraries fail. 
+>> 
+>> I asked for help on the Linux Mint Forums (https://forums.linuxmint.com/viewtopic.php?f=47&t=347119&p=2005975#p2005975), but we did not make a lot of progress. What we figured out what that on the official instructions, they are missing a step. [sudo apt-update] needs to be run after [add-apt-repository ppa...]. I also needed to run [apt-get update --allow-insecure-repositories], but I have no idea why CRAN's repository would not be secure. Adding these steps gets me the error,
+>> Err:5 https://cloud.r-project.org/bin/linux/ubuntu ulyssa-cran40/ Packages
+>>  404  Not Found [IP: 13.249.183.20 443]
+>> Any help figuring this out will be much appreciated. 
+>> 
+>> From,        -E
+>> 
+>> 
+>> 
+>>    [[alternative HTML version deleted]]
+>> 
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+>    [[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From edd @end|ng |rom deb|@n@org  Thu Apr 22 14:01:04 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Thu, 22 Apr 2021 07:01:04 -0500
+Subject: [R-sig-Debian] Keep Downloading R 3.6.3 on Linux Mint 20.1
+In-Reply-To: <C593981E-1953-47EC-A7FC-77B6F2BDE722@comcast.net>
+References: <dabdc24d-ba0b-339c-de8d-c19e9ef1c11e@cirad.fr>
+ <C593981E-1953-47EC-A7FC-77B6F2BDE722@comcast.net>
+Message-ID: <24705.25984.696768.608075@rob.eddelbuettel.com>
+
+
+On 22 April 2021 at 00:03, David Winsemius wrote:
+| The ppa for Ubuntu and Debian
+
+Ubuntu, and likely useable on derivarives like Mint but *not* Debian.
+
+You cannot (generally) mix Debian and Ubuntu. (Some vendors do for things like
+Chrome as .deb as all dependencies are in that package; but normally packages
+specify exactly what they need and the versions can be different in various
+delicate ways, so in general "don't do this").
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From dw|n@em|u@ @end|ng |rom comc@@t@net  Thu Apr 22 16:03:01 2021
+From: dw|n@em|u@ @end|ng |rom comc@@t@net (David Winsemius)
+Date: Thu, 22 Apr 2021 10:03:01 -0400
+Subject: [R-sig-Debian] Keep Downloading R 3.6.3 on Linux Mint 20.1
+In-Reply-To: <24705.25984.696768.608075@rob.eddelbuettel.com>
+References: <24705.25984.696768.608075@rob.eddelbuettel.com>
+Message-ID: <F1FE763C-656B-46C2-A12B-12D06B3FB596@comcast.net>
+
+Sorry for the misunderstanding. The info on Rutter?s ppa is here: 
+
+https://launchpad.net/~marutter/+archive/ubuntu/c2d4u3.5
+
+And apologies if this is a duplicate. Sending from an airport lounge. Getting weird responses from my net connection. 
+
+? 
+David
+
+Sent from my iPhone
+
+> On Apr 22, 2021, at 8:01 AM, Dirk Eddelbuettel <edd at debian.org> wrote:
+> 
+> ?
+> On 22 April 2021 at 00:03, David Winsemius wrote:
+> | The ppa for Ubuntu and Debian
+> 
+> Ubuntu, and likely useable on derivarives like Mint but *not* Debian.
+> 
+> You cannot (generally) mix Debian and Ubuntu. (Some vendors do for things like
+> Chrome as .deb as all dependencies are in that package; but normally packages
+> specify exactly what they need and the versions can be different in various
+> delicate ways, so in general "don't do this").
+> 
+> Dirk
+> 
+> -- 
+> https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+	[[alternative HTML version deleted]]
+
+
+From dw|n@em|u@ @end|ng |rom comc@@t@net  Thu Apr 22 15:52:39 2021
+From: dw|n@em|u@ @end|ng |rom comc@@t@net (David Winsemius)
+Date: Thu, 22 Apr 2021 09:52:39 -0400
+Subject: [R-sig-Debian] Keep Downloading R 3.6.3 on Linux Mint 20.1
+In-Reply-To: <24705.25984.696768.608075@rob.eddelbuettel.com>
+References: <24705.25984.696768.608075@rob.eddelbuettel.com>
+Message-ID: <E65034B0-1E08-45BA-A7F8-21D7E96A2A43@comcast.net>
+
+Apologies for the misinformation. The link to Michael Rutter?s info page 
+
+https://launchpad.net/~marutter/+archive/ubuntu/c2d4u3.5
+
+? 
+David. 
+Sent from my iPhone
+
+> On Apr 22, 2021, at 8:01 AM, Dirk Eddelbuettel <edd at debian.org> wrote:
+> 
+> ?
+> On 22 April 2021 at 00:03, David Winsemius wrote:
+> | The ppa for Ubuntu and Debian
+> 
+> Ubuntu, and likely useable on derivarives like Mint but *not* Debian.
+> 
+> You cannot (generally) mix Debian and Ubuntu. (Some vendors do for things like
+> Chrome as .deb as all dependencies are in that package; but normally packages
+> specify exactly what they need and the versions can be different in various
+> delicate ways, so in general "don't do this").
+> 
+> Dirk
+> 
+> -- 
+> https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+	[[alternative HTML version deleted]]
+
+
+From m@z|n@@bde|gh@ny @end|ng |rom gm@||@com  Fri Apr 23 03:43:51 2021
+From: m@z|n@@bde|gh@ny @end|ng |rom gm@||@com (Mazin Abdelghany)
+Date: Thu, 22 Apr 2021 18:43:51 -0700
+Subject: [R-sig-Debian] Unable to install some R packages in Ubuntu
+ 20.04--internal compiler error: Segmentation fault
+In-Reply-To: <24701.52177.416161.271253@rob.eddelbuettel.com>
+References: <CAKHRMBZv=rwCQu64V0etEHXcCX-03N7qTCHbKS=A=vBRjdJBGg@mail.gmail.com>
+ <24701.52177.416161.271253@rob.eddelbuettel.com>
+Message-ID: <CAKHRMBYwT0odxYfUj0NuLK_uZDzVEe6eFqTbeSyzOXhn=2fLYg@mail.gmail.com>
+
+ A few new pieces of information with this feedback:
+
+First,
+Opening R in the terminal window by running
+R
+And then typing
+install.packages("utf8")
+threw the error that I noted above.
+
+Running
+sudo apt install r-cran-utf8
+in the terminal works to install the package
+
+Second,
+I have never used conda to do anything with R. I installed conda as the
+package and environment manager for python, which I use for projects
+outside of R. I checked and my install of miniconda does not contain an R
+installation. Because miniconda is installed on my system, the PATH
+variable is changed to the below:
+/home/mazin/miniconda3/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+
+Using Dirk's suggestion, I installed the package bspm, which solved the
+issue for me.
+Running: (1) bspm::enable() within R and then install.packages() worked. I
+then, as written in its documentation, enabled bspm system-wide by default,
+including suppressMessages(bspm::enable()) in the Rprofile.site file.
+
+Thanks all,
+Mazin
+
+On Mon, Apr 19, 2021 at 11:28 AM Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> Hi Mazin,
+>
+> On 19 April 2021 at 10:24, Mazin Abdelghany wrote:
+> | I recently installed R onto my Ubuntu 20.04 install using the
+> instructions
+> | here: https://cran.r-project.org/bin/linux/ubuntu/. R works as expected.
+> |
+> | However, while some packages have installed without issue (e.g.,
+> R.matlab),
+> | there are many packages that have not been able to install. Each failed
+> | install throws a very similar error message. As an example,
+> | install.packages("utf8") throws:
+> | ```
+> | during GIMPLE pass: ccp
+> | as_utf8.c: In function ?rutf8_as_utf8?:
+> | as_utf8.c:128:1: internal compiler error: Segmentation fault
+> |   128 | }
+> |       | ^
+> | Please submit a full bug report,
+> | with preprocessed source if appropriate.
+> | See <file:///usr/share/doc/gcc-9/README.Bugs> for instructions.
+> | make: *** [/usr/lib/R/etc/Makeconf:172: as_utf8.o] Error 1
+> | ERROR: compilation failed for package ?utf8?
+> | ```
+>
+> Weird. I have been on Ubuntu for most of its existence, and tend to compile
+> (on my main development machine) all packages directly from CRAN.
+>
+> These packages _definitely_ install normally, so would need some extra
+> details.
+>
+> | As another example, install.packages("fansi") throws:
+> | ```
+> | during GIMPLE pass: ccp
+> | nchar.c: In function ?FANSI_nzchar?:
+> | nchar.c:85:1: internal compiler error: Segmentation fault
+> |    85 | }
+> |       | ^
+> | Please submit a full bug report,
+> | with preprocessed source if appropriate.
+> | See <file:///usr/share/doc/gcc-9/README.Bugs> for instructions.
+> | make: *** [/usr/lib/R/etc/Makeconf:172: nchar.o] Error 1
+> | ERROR: compilation failed for package ?fansi?
+> | ```
+> |
+> | I have tried reinstalling gcc-9, which has not helped. I had found that
+> the
+> | PATH in Sys.getenv("PATH") was pointing to a miniconda3 install on my
+>
+> Ahhhhhhhhhhhhh. That is extra detail. And ... not a good idea in general.
+>
+> Mixing conda and normal installations is NOT a good idea. You also did not
+> mention above that you switched to conda.
+>
+> | system, so updated that to
+> |
+> /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/lib/rstudio/bin/postback,
+> | which also has not helped.
+> |
+> | I posted a question to:
+> | https://answers.launchpad.net/ubuntu/+question/696623 and it was
+> suggested
+> | that I use gcc-10 instead of gcc-9. I edited /usr/lib/R/etc/Makeconf and
+> | replaced CC=-std=gnu99 with CC=gcc-10. This resolved the issue and the
+> | packages that were throwing these errors were able to be installed.
+> |
+> | After posting the question to Stackoverflow, it was made clear that this
+> | was not a solution rather an obtuse workaround. It was recommended that I
+> | send the question here for help.
+>
+> As I menionted when you asked on StackOverflow, that was not a good
+> suggestion. The compiler has nothing to do with this but you generally may
+> run into issue mixing conda and normal use.
+>
+> My recommendation and preference would be to stay away from conda -- as I
+> never used (or needed) it. Maybe others can help you with it.
+>
+> If you read the README for Ubuntu and CRAN, check out the hint about the
+> PPA. You can even couple it with the (very clever) 'bspm' package and then
+> _normal R installations will give you binaries_.  Demo in the r-bspm:20.04
+> container follows:
+>
+> edd at rob:~$ docker run --rm -ti rocker/r-bspm:20.04 bash
+> root at 6f02540917d0:/# apt update -qq # refresh indices
+> 71 packages can be upgraded. Run 'apt list --upgradable' to see them.
+> root at 6f02540917d0:/# Rscript -e 'install.packages(c("utf8", "fansi"))'
+> Loading required package: utils
+> Tracing function "install.packages" in package "utils"
+> Install system packages as root...
+> Reading package lists... Done
+> Building dependency tree
+> Reading state information... Done
+> Hit http://archive.ubuntu.com/ubuntu focal InRelease
+>
+>
+> Hit http://security.ubuntu.com/ubuntu focal-security InRelease
+>
+>
+> Hit http://ppa.launchpad.net/c2d4u.team/c2d4u4.0+/ubuntu focal InRelease
+>
+>
+> Hit http://archive.ubuntu.com/ubuntu focal-updates InRelease
+>
+>
+> Hit http://archive.ubuntu.com/ubuntu focal-backports InRelease
+>
+>
+> Hit http://ppa.launchpad.net/edd/r-4.0/ubuntu focal InRelease
+>
+>
+> Hit http://ppa.launchpad.net/marutter/rrutter4.0/ubuntu focal InRelease
+>
+>
+> Fetched 0 B in 0s (0 B/s)
+>
+>
+> Reading package lists... Done
+> Building dependency tree
+> Reading state information... Done
+> Get:1 http://ppa.launchpad.net/c2d4u.team/c2d4u4.0+/ubuntu focal/main
+> amd64 r-cran-fansi amd64 0.4.2-1cran1.2004.0 [176 kB]
+>
+> Get:2 http://ppa.launchpad.net/c2d4u.team/c2d4u4.0+/ubuntu focal/main
+> amd64 r-cran-utf8 amd64 1.2.1-1cran1.2004.0 [122 kB]
+>
+> Fetched 298 kB in 0s (0 B/s)
+>
+>
+> Selecting previously unselected package r-cran-fansi.
+> (Reading database ... 20588 files and directories currently installed.)
+> Preparing to unpack .../r-cran-fansi_0.4.2-1cran1.2004.0_amd64.deb ...
+> Unpacking r-cran-fansi (0.4.2-1cran1.2004.0) ...
+> Selecting previously unselected package r-cran-utf8.
+> Preparing to unpack .../r-cran-utf8_1.2.1-1cran1.2004.0_amd64.deb ...
+> Unpacking r-cran-utf8 (1.2.1-1cran1.2004.0) ...
+> Setting up r-cran-fansi (0.4.2-1cran1.2004.0) ...
+> Setting up r-cran-utf8 (1.2.1-1cran1.2004.0) ...
+> root at 6f02540917d0:/#
+>
+> You could do the same via 'sudo apt install r-cran-utf8 r-cran-fansi'
+> without
+> 'bspm' if you just set up the PPA.
+>
+> Good luck,  Dirk
+>
+>
+>
+> | Output of gcc -v:
+> | ```
+> | Using built-in specs.
+> | COLLECT_GCC=gcc
+> | COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/9/lto-wrapper
+> | OFFLOAD_TARGET_NAMES=nvptx-none:hsa
+> | OFFLOAD_TARGET_DEFAULT=1
+> | Target: x86_64-linux-gnu
+> | Configured with: ../src/configure -v --with-pkgversion='Ubuntu
+> | 9.3.0-17ubuntu1~20.04'
+> | --with-bugurl=file:///usr/share/doc/gcc-9/README.Bugs
+> | --enable-languages=c,ada,c++,go,brig,d,fortran,objc,obj-c++,gm2
+> | --prefix=/usr --with-gcc-major-version-only --program-suffix=-9
+> | --program-prefix=x86_64-linux-gnu- --enable-shared
+> --enable-linker-build-id
+> | --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix
+> | --libdir=/usr/lib --enable-nls --enable-clocale=gnu
+> | --enable-libstdcxx-debug --enable-libstdcxx-time=yes
+> | --with-default-libstdcxx-abi=new --enable-gnu-unique-object
+> | --disable-vtable-verify --enable-plugin --enable-default-pie
+> | --with-system-zlib --with-target-system-zlib=auto --enable-objc-gc=auto
+> | --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64
+> | --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic
+> |
+> --enable-offload-targets=nvptx-none=/build/gcc-9-HskZEa/gcc-9-9.3.0/debian/tmp-nvptx/usr,hsa
+> | --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu
+> | --host=x86_64-linux-gnu --target=x86_64-linux-gnu
+> | Thread model: posix
+> | gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04)
+> | ```
+> |
+> | Output of sessionInfo() in R:
+> | ```
+> | R version 4.0.5 (2021-03-31)
+> | Platform: x86_64-pc-linux-gnu (64-bit)
+> | Running under: Ubuntu 20.04.2 LTS
+> |
+> | Matrix products: default
+> | BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+> | LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3
+> |
+> | locale:
+> |  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+> | LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+> |  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+> |  LC_PAPER=en_US.UTF-8       LC_NAME=C
+> |  [9] LC_ADDRESS=C               LC_TELEPHONE=C
+> | LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+> |
+> | attached base packages:
+> | [1] stats     graphics  grDevices utils     datasets  methods   base
+> |
+> | loaded via a namespace (and not attached):
+> | [1] compiler_4.0.5 tools_4.0.5
+> | ```
+> |
+> | Thanks all for your help and advice.
+> | Best,
+> | Mazin
+> |
+> |       [[alternative HTML version deleted]]
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+> --
+> https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Fri Apr 23 05:29:32 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Thu, 22 Apr 2021 22:29:32 -0500
+Subject: [R-sig-Debian] Unable to install some R packages in Ubuntu
+ 20.04--internal compiler error: Segmentation fault
+In-Reply-To: <CAKHRMBYwT0odxYfUj0NuLK_uZDzVEe6eFqTbeSyzOXhn=2fLYg@mail.gmail.com>
+References: <CAKHRMBZv=rwCQu64V0etEHXcCX-03N7qTCHbKS=A=vBRjdJBGg@mail.gmail.com>
+ <24701.52177.416161.271253@rob.eddelbuettel.com>
+ <CAKHRMBYwT0odxYfUj0NuLK_uZDzVEe6eFqTbeSyzOXhn=2fLYg@mail.gmail.com>
+Message-ID: <24706.16156.119337.130278@rob.eddelbuettel.com>
+
+
+On 22 April 2021 at 18:43, Mazin Abdelghany wrote:
+|  A few new pieces of information with this feedback:
+| 
+| First,
+| Opening R in the terminal window by running
+| R
+| And then typing
+| install.packages("utf8")
+| threw the error that I noted above.
+| 
+| Running
+| sudo apt install r-cran-utf8
+| in the terminal works to install the package
+| 
+| Second,
+| I have never used conda to do anything with R. I installed conda as the
+| package and environment manager for python, which I use for projects
+| outside of R. I checked and my install of miniconda does not contain an R
+| installation. Because miniconda is installed on my system, the PATH
+| variable is changed to the below:
+| /home/mazin/miniconda3/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+
+That likely puts a compiler _ahead_ in the path meaning that when R calls a
+compiler to install a package from source it may get _an incompatible_ one.
+
+Which would explain your issues.
+ 
+| Using Dirk's suggestion, I installed the package bspm, which solved the
+| issue for me.
+| Running: (1) bspm::enable() within R and then install.packages() worked. I
+| then, as written in its documentation, enabled bspm system-wide by default,
+| including suppressMessages(bspm::enable()) in the Rprofile.site file.
+
+That is indeed very nice as it gets you _binaries_ so it skips the need for
+binaries -- which helps as your ability to create binaries appears to be
+brokeb by conda or miniconda.
+
+Dirk
+
+| Thanks all,
+| Mazin
+| 
+| On Mon, Apr 19, 2021 at 11:28 AM Dirk Eddelbuettel <edd at debian.org> wrote:
+| 
+| >
+| > Hi Mazin,
+| >
+| > On 19 April 2021 at 10:24, Mazin Abdelghany wrote:
+| > | I recently installed R onto my Ubuntu 20.04 install using the
+| > instructions
+| > | here: https://cran.r-project.org/bin/linux/ubuntu/. R works as expected.
+| > |
+| > | However, while some packages have installed without issue (e.g.,
+| > R.matlab),
+| > | there are many packages that have not been able to install. Each failed
+| > | install throws a very similar error message. As an example,
+| > | install.packages("utf8") throws:
+| > | ```
+| > | during GIMPLE pass: ccp
+| > | as_utf8.c: In function ?rutf8_as_utf8?:
+| > | as_utf8.c:128:1: internal compiler error: Segmentation fault
+| > |   128 | }
+| > |       | ^
+| > | Please submit a full bug report,
+| > | with preprocessed source if appropriate.
+| > | See <file:///usr/share/doc/gcc-9/README.Bugs> for instructions.
+| > | make: *** [/usr/lib/R/etc/Makeconf:172: as_utf8.o] Error 1
+| > | ERROR: compilation failed for package ?utf8?
+| > | ```
+| >
+| > Weird. I have been on Ubuntu for most of its existence, and tend to compile
+| > (on my main development machine) all packages directly from CRAN.
+| >
+| > These packages _definitely_ install normally, so would need some extra
+| > details.
+| >
+| > | As another example, install.packages("fansi") throws:
+| > | ```
+| > | during GIMPLE pass: ccp
+| > | nchar.c: In function ?FANSI_nzchar?:
+| > | nchar.c:85:1: internal compiler error: Segmentation fault
+| > |    85 | }
+| > |       | ^
+| > | Please submit a full bug report,
+| > | with preprocessed source if appropriate.
+| > | See <file:///usr/share/doc/gcc-9/README.Bugs> for instructions.
+| > | make: *** [/usr/lib/R/etc/Makeconf:172: nchar.o] Error 1
+| > | ERROR: compilation failed for package ?fansi?
+| > | ```
+| > |
+| > | I have tried reinstalling gcc-9, which has not helped. I had found that
+| > the
+| > | PATH in Sys.getenv("PATH") was pointing to a miniconda3 install on my
+| >
+| > Ahhhhhhhhhhhhh. That is extra detail. And ... not a good idea in general.
+| >
+| > Mixing conda and normal installations is NOT a good idea. You also did not
+| > mention above that you switched to conda.
+| >
+| > | system, so updated that to
+| > |
+| > /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/lib/rstudio/bin/postback,
+| > | which also has not helped.
+| > |
+| > | I posted a question to:
+| > | https://answers.launchpad.net/ubuntu/+question/696623 and it was
+| > suggested
+| > | that I use gcc-10 instead of gcc-9. I edited /usr/lib/R/etc/Makeconf and
+| > | replaced CC=-std=gnu99 with CC=gcc-10. This resolved the issue and the
+| > | packages that were throwing these errors were able to be installed.
+| > |
+| > | After posting the question to Stackoverflow, it was made clear that this
+| > | was not a solution rather an obtuse workaround. It was recommended that I
+| > | send the question here for help.
+| >
+| > As I menionted when you asked on StackOverflow, that was not a good
+| > suggestion. The compiler has nothing to do with this but you generally may
+| > run into issue mixing conda and normal use.
+| >
+| > My recommendation and preference would be to stay away from conda -- as I
+| > never used (or needed) it. Maybe others can help you with it.
+| >
+| > If you read the README for Ubuntu and CRAN, check out the hint about the
+| > PPA. You can even couple it with the (very clever) 'bspm' package and then
+| > _normal R installations will give you binaries_.  Demo in the r-bspm:20.04
+| > container follows:
+| >
+| > edd at rob:~$ docker run --rm -ti rocker/r-bspm:20.04 bash
+| > root at 6f02540917d0:/# apt update -qq # refresh indices
+| > 71 packages can be upgraded. Run 'apt list --upgradable' to see them.
+| > root at 6f02540917d0:/# Rscript -e 'install.packages(c("utf8", "fansi"))'
+| > Loading required package: utils
+| > Tracing function "install.packages" in package "utils"
+| > Install system packages as root...
+| > Reading package lists... Done
+| > Building dependency tree
+| > Reading state information... Done
+| > Hit http://archive.ubuntu.com/ubuntu focal InRelease
+| >
+| >
+| > Hit http://security.ubuntu.com/ubuntu focal-security InRelease
+| >
+| >
+| > Hit http://ppa.launchpad.net/c2d4u.team/c2d4u4.0+/ubuntu focal InRelease
+| >
+| >
+| > Hit http://archive.ubuntu.com/ubuntu focal-updates InRelease
+| >
+| >
+| > Hit http://archive.ubuntu.com/ubuntu focal-backports InRelease
+| >
+| >
+| > Hit http://ppa.launchpad.net/edd/r-4.0/ubuntu focal InRelease
+| >
+| >
+| > Hit http://ppa.launchpad.net/marutter/rrutter4.0/ubuntu focal InRelease
+| >
+| >
+| > Fetched 0 B in 0s (0 B/s)
+| >
+| >
+| > Reading package lists... Done
+| > Building dependency tree
+| > Reading state information... Done
+| > Get:1 http://ppa.launchpad.net/c2d4u.team/c2d4u4.0+/ubuntu focal/main
+| > amd64 r-cran-fansi amd64 0.4.2-1cran1.2004.0 [176 kB]
+| >
+| > Get:2 http://ppa.launchpad.net/c2d4u.team/c2d4u4.0+/ubuntu focal/main
+| > amd64 r-cran-utf8 amd64 1.2.1-1cran1.2004.0 [122 kB]
+| >
+| > Fetched 298 kB in 0s (0 B/s)
+| >
+| >
+| > Selecting previously unselected package r-cran-fansi.
+| > (Reading database ... 20588 files and directories currently installed.)
+| > Preparing to unpack .../r-cran-fansi_0.4.2-1cran1.2004.0_amd64.deb ...
+| > Unpacking r-cran-fansi (0.4.2-1cran1.2004.0) ...
+| > Selecting previously unselected package r-cran-utf8.
+| > Preparing to unpack .../r-cran-utf8_1.2.1-1cran1.2004.0_amd64.deb ...
+| > Unpacking r-cran-utf8 (1.2.1-1cran1.2004.0) ...
+| > Setting up r-cran-fansi (0.4.2-1cran1.2004.0) ...
+| > Setting up r-cran-utf8 (1.2.1-1cran1.2004.0) ...
+| > root at 6f02540917d0:/#
+| >
+| > You could do the same via 'sudo apt install r-cran-utf8 r-cran-fansi'
+| > without
+| > 'bspm' if you just set up the PPA.
+| >
+| > Good luck,  Dirk
+| >
+| >
+| >
+| > | Output of gcc -v:
+| > | ```
+| > | Using built-in specs.
+| > | COLLECT_GCC=gcc
+| > | COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/9/lto-wrapper
+| > | OFFLOAD_TARGET_NAMES=nvptx-none:hsa
+| > | OFFLOAD_TARGET_DEFAULT=1
+| > | Target: x86_64-linux-gnu
+| > | Configured with: ../src/configure -v --with-pkgversion='Ubuntu
+| > | 9.3.0-17ubuntu1~20.04'
+| > | --with-bugurl=file:///usr/share/doc/gcc-9/README.Bugs
+| > | --enable-languages=c,ada,c++,go,brig,d,fortran,objc,obj-c++,gm2
+| > | --prefix=/usr --with-gcc-major-version-only --program-suffix=-9
+| > | --program-prefix=x86_64-linux-gnu- --enable-shared
+| > --enable-linker-build-id
+| > | --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix
+| > | --libdir=/usr/lib --enable-nls --enable-clocale=gnu
+| > | --enable-libstdcxx-debug --enable-libstdcxx-time=yes
+| > | --with-default-libstdcxx-abi=new --enable-gnu-unique-object
+| > | --disable-vtable-verify --enable-plugin --enable-default-pie
+| > | --with-system-zlib --with-target-system-zlib=auto --enable-objc-gc=auto
+| > | --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64
+| > | --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic
+| > |
+| > --enable-offload-targets=nvptx-none=/build/gcc-9-HskZEa/gcc-9-9.3.0/debian/tmp-nvptx/usr,hsa
+| > | --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu
+| > | --host=x86_64-linux-gnu --target=x86_64-linux-gnu
+| > | Thread model: posix
+| > | gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04)
+| > | ```
+| > |
+| > | Output of sessionInfo() in R:
+| > | ```
+| > | R version 4.0.5 (2021-03-31)
+| > | Platform: x86_64-pc-linux-gnu (64-bit)
+| > | Running under: Ubuntu 20.04.2 LTS
+| > |
+| > | Matrix products: default
+| > | BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+| > | LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3
+| > |
+| > | locale:
+| > |  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+| > | LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+| > |  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+| > |  LC_PAPER=en_US.UTF-8       LC_NAME=C
+| > |  [9] LC_ADDRESS=C               LC_TELEPHONE=C
+| > | LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+| > |
+| > | attached base packages:
+| > | [1] stats     graphics  grDevices utils     datasets  methods   base
+| > |
+| > | loaded via a namespace (and not attached):
+| > | [1] compiler_4.0.5 tools_4.0.5
+| > | ```
+| > |
+| > | Thanks all for your help and advice.
+| > | Best,
+| > | Mazin
+| > |
+| > |       [[alternative HTML version deleted]]
+| > |
+| > | _______________________________________________
+| > | R-SIG-Debian mailing list
+| > | R-SIG-Debian at r-project.org
+| > | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| >
+| > --
+| > https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+| >
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From gnw||| @end|ng |rom gm@||@com  Fri Apr 23 13:48:14 2021
+From: gnw||| @end|ng |rom gm@||@com (George N. White III)
+Date: Fri, 23 Apr 2021 08:48:14 -0300
+Subject: [R-sig-Debian] Unable to install some R packages in Ubuntu
+ 20.04--internal compiler error: Segmentation fault
+In-Reply-To: <24706.16156.119337.130278@rob.eddelbuettel.com>
+References: <CAKHRMBZv=rwCQu64V0etEHXcCX-03N7qTCHbKS=A=vBRjdJBGg@mail.gmail.com>
+ <24701.52177.416161.271253@rob.eddelbuettel.com>
+ <CAKHRMBYwT0odxYfUj0NuLK_uZDzVEe6eFqTbeSyzOXhn=2fLYg@mail.gmail.com>
+ <24706.16156.119337.130278@rob.eddelbuettel.com>
+Message-ID: <CAKTOP4511Kivzb-4dueEdUZjxJeYL4pSDGnYF5WJb2KO-WyTdg@mail.gmail.com>
+
+On Fri, 23 Apr 2021 at 00:29, Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> On 22 April 2021 at 18:43, Mazin Abdelghany wrote:
+>
+> | [...] Because miniconda is installed on my system, the PATH
+> | variable is changed to the below:
+> |
+> /home/mazin/miniconda3/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+>
+> That likely puts a compiler _ahead_ in the path meaning that when R calls a
+> compiler to install a package from source it may get _an incompatible_ one.
+>
+> Which would explain your issues.
+>
+
+I agree this is almost certainly the reason building packages fails.  I
+have seen this
+before (my interests include ocean remote sensing where Python and R are
+often used
+at different stages in a workflow).   In addition to compilers, there can
+be problems with
+differing dynamic library and python module versions, or the data files
+used by some
+libraries.  Some users conclude that "R doesn't work".  Such conflicts,
+however, easily
+avoided by using an environment manager such as John Furlani's Environment
+Modules[1] (has a long history and was included in SGI IRIX64 decades ago)
+or the
+more recent Lua Mod[2].  Both are available as Ubuntu packages.  There are
+others
+(see the Wikipedia articles on Environment Modules).
+
+[1] John L. Furlani, Modules: Providing a Flexible User Environment
+<http://modules.sourceforge.net/docs/Modules-Paper.pdf> *Proceedings of the
+Fifth Large Installation Systems Administration Conference (LISA V)*,
+pp. 141?152, San Diego, CA, September 30 - October 3, 1991.
+[2] https://www.tacc.utexas.edu/research-development/tacc-projects/lmod,
+"Modern Scientific Software Management Using EasyBuild and Lmod," M.
+Geimer, K. Hoste, and R. McLay, Proceedings of the First International
+Workshop on HPC User Support Tools, HUST '14, Nov. 2014.
+dx.doi.org/10.1109/HUST.2014.8.
+
+-- 
+George N. White III
+
+	[[alternative HTML version deleted]]
+
+

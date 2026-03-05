@@ -1,0 +1,1072 @@
+From jranke at uni-bremen.de  Sun Oct  2 14:14:47 2011
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Sun, 2 Oct 2011 14:14:47 +0200
+Subject: [R-sig-Debian] update.packages() as ordinary user,
+	/usr/lib/R/site-library is not writable
+In-Reply-To: <4E7B90EC.5050806@psyctc.org>
+References: <4E78F577.6040707@psyctc.org>
+	<20110922135232.11054m0vqawy1bb4@webmail.uni-bremen.de>
+	<4E7B90EC.5050806@psyctc.org>
+Message-ID: <201110021414.47819.jranke@uni-bremen.de>
+
+Dear Chris,
+
+I am just keeping some parts of the thread below that I have not answered yet:
+
+> All that begs the question how I got myself here.  
+
+I think it was really a bug in the README on CRAN. I wrote that you can run a 
+regular update of R packages using update.packages() which is not generally 
+the case. I have updated the respective sections in the README (will hit CRAN 
+within the next day) and would be glad about feedback.
+
+> I think the learning
+> point is that there may be a way to make the instructions in the deb
+> packages in stable (well, in the next stable I guess) spell out the
+> relationship between the deb repository in stable, the deb repository in
+> CRAN (with a link to the page in CRAN about the debs there) and the
+> non-deb libraries in CRAN.  You might spell out options which I have as:
+> 1) you can stay with the debs in stable, and update within R as an
+> ordinary user, you won't get automatic R updates but you should get the
+> package updates that are possible for that version of R
+> 2) you can go with the debs in CRAN which will usually give you the
+> latest version of R shortly after it is released.  In that  case [just
+> my take and I can see that I could be quite wrong] you are best off
+> doing  a complete remove of the version of R you installed from your
+> Debian stable mirror using synaptic (or your own preferred package
+> handler), _before_ adding the necessary line in /etc/apt/sources.list to
+> get your local CRAN deb repository, after which you can do a clean
+> install of R
+> 3) you are probably wise to do adduser yourself staff to get write
+> access to /usr/local/lib/R/site-library/
+> 4) you should then find that things update fine through R and
+> update.packages() running R as an ordinary user and you will be getting
+> the latest R very soon after each upgrade and the latest upgrades of the
+> packages you have installed.
+> 
+> It sounds to me as if there's another option which is use the debian
+> backports deb repository/mirror but I'm not sure I understand the
+> relationship between that option and the option of going to the CRAN debs.
+
+We have discussed this option on this list before. If there would be a 
+volunteer Debian developer that would like to step up and take on the job of 
+uploading backported packages to lenny-backports and squeeze-backports, we 
+would really not need the repository on CRAN. The job would not be very 
+difficult I think. At the moment Dirks packages from unstable compile without 
+modifications on squeeze and only a couple of minor dependency issues have to 
+be taken care of for lenny, at least as far as the set of packages is 
+concerned that are currently on CRAN. It's just that I am afraid of taking on 
+the challenge to become a Debian developer.
+
+Regards to all,
+
+Johannes
+
+> 
+> Very best all & thanks again to you both Dirk & Johannes,
+> 
+> Chris
+> 
+> 
+> ... rest of Johannes's reply and the thread follows for the record ...
+> 
+> > The other packages should (please correct me if I am wrong Dirk)
+> > remain under control of the Debian package management.
+> > 
+> > If you want to update such packages as well, you need to bug me or
+> > help me in creating those backports (or use apt pinning e.g. to
+> > testing, but I think this would make things too complicated). For
+> > example, I only update R base packages on CRAN/Debian (like
+> > r-cran-foreign, r-cran-nlme etc.) when a new R version is released.
+> > And there are a lot of packages that Dirk meticulously updates in
+> > Debian unstable that I have never backported for Debian stable, like
+> > r-cran-xml and r-cran-rgl.
+> > 
+> > Regards,
+> > 
+> > Johannes
+> > 
+> > P.S.: I also mainly use my own R distribution for Debian stable on
+> > servers, just recently started to use it on my laptop (going back from
+> > Ubuntu).
+> > 
+> >> So now I'm baffled as to how to be friendly with R and linux/Debian
+> >> on this machine!
+> >> 
+> >> Perhaps I should say that I would like to work by:
+> >> 1) having the cran deb line in /etc/apt/sources.list and doing basic
+> >> installation of R from there as my understanding is that that will
+> >> get me the latest R for Debian when you (plural) have rolled it and
+> >> put it on CRAN getting me round the downloading and replacing I used
+> >> to do on windoze and also making it pretty likely that you'll have
+> >> sorted out dependency problems etc.
+> >> 2) would like then to rely on update.packages() from within R
+> >> 3) but running as local user as I can see the logic of that
+> >> 
+> >> #1 and #2 are what I've always done on my Debian web server (where I
+> >> was running some cgi-bin scripts invoking R) but I always did the
+> >> update.packages() as root.  I've now moved that server to a shell
+> >> account at mythic-beasts (great guys) so I'll have to do #3 for that
+> >> too in future and though I could update as root on this laptop I do
+> >> see the logic of not doing that and clearly you both and presumably
+> >> many others on this list do #1, #2 and #3 so why is it not working
+> >> for me?!
+> >> 
+> >> Suggestions gratefully received!
+> >> 
+> >> Very best & karma to all,
+> >> 
+> >> Chris
+> >> 
+> >> Dirk Eddelbuettel sent the following  at 21/09/11 13:49:
+> >>> Hi Chris,
+> >>> 
+> >>> Thanks for patient follow-up even after I (as Johannes noted) evidently
+> >>> overlooked key parts of your first email.
+> >>> 
+> >>> On 21 September 2011 at 07:49, Chris Evans wrote:
+> >>> | I ran synaptic from the Debian application menu which defaults to
+> >>> 
+> >>> root
+> >>> 
+> >>> | after askling for the root password the first time I invoke it
+> >>> 
+> >>> after a
+> >>> 
+> >>> | reboot. (I probably should have said that I've been using Debian
+> >>> 
+> >>> for my
+> >>> 
+> >>> | internet server work for about 15 years: I'm not a Debian/linux
+> >>> 
+> >>> newbie,
+> >>> 
+> >>> | just someone finally throwing away the reins from M$ to have a laptop
+> >>> | running Debian as well!)
+> >>> 
+> >>> Perfect.
+> >>> 
+> >>> | I get that from invoking update.packages() in an R session
+> >>> 
+> >>> launched from
+> >>> 
+> >>> | a user (chris) terminal session. Before that I had done an install of
+> >>> 
+> >>> I do that too, as well as calling the 'install.r' helper script from
+> >>> littler
+> >>> (in its examples/ diretory, if interested).
+> >>> 
+> >>> This requires that you make /usr/local/lib/R/site-library/ writable
+> >>> for _you_
+> >>> as user chris, else you cannot.
+> >>> 
+> >>> [ It also assumes that the Renviron setting mentioned last time is
+> >>> still
+> >>> valid, do this:
+> >>> 
+> >>> edd at max:~$ R -q -e 'print(.libPaths())'
+> >>> R>  print(.libPaths())
+> >>> [1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"
+> >>> "/usr/lib/R/library"
+> >>> R>
+> >>> R>
+> >>> 
+> >>> It _must_ be first as here.  ]
+> >>> 
+> >>> Now, /usr/local/lib/R/site-library/ comes shipped from the r-base-core
+> >>> package as owned by group 'staff' so one solution is to add yourself
+> >>> to group
+> >>> staff:
+> >>> 
+> >>> edd at max:~$ ls -ld /usr/local/lib/R/site-library/
+> >>> drwxrwsr-x 136 root staff 4096 2011-09-20 07:44
+> >>> /usr/local/lib/R/site-library/
+> >>> edd at max:~$ id
+> >>> uid=1000(edd) gid=1000(edd)
+> >>> groups=1000(edd),4(adm),20(dialout),24(cdrom),27(sudo),44(video),46(plu
+> >>> gdev),50(staff),[.....]
+> >>> 
+> >>> edd at max:~$
+> >>> 
+> >>> If those two conditions are met, you should be able to run
+> >>> install.packages()
+> >>> as you.  I still prefer it from the shell as I sometimes need
+> >>> another apt-get
+> >>> call for a missing library etc.
+> >>> 
+> >>> | I wouldn't dream of compiling locally anything I can get from a
+> >>> 
+> >>> deb you
+> >>> 
+> >>> | rolled!!
+> >>> :
+> >>> :-)
+> >>> :
+> >>> | However, I come back to feeling that there must be three separate
+> >>> | problems here that come from within the packages I added after the
+> >>> | initial r-cran-base install. My hunch is that there are things
+> >>> 
+> >>> with XML
+> >>> 
+> >>> | and rgl that I will be able to track down when restrict to just
+> >>> 
+> >>> updating
+> >>> 
+> >>> "I would not dream of compiling locally" either.  You could start by
+> >>> locally
+> >>> re-building the packages.  Which requires the build depends.
+> >>> 
+> >>> | them but that at the moment there is a more global problem which I'm
+> >>> | guessing is caused by one package overriding the order of library
+> >>> 
+> >>> path
+> >>> 
+> >>> | options seen in .libPaths() which starts with a perfectly writable
+> >>> 
+> >>> local
+> >>> 
+> >>> | user directory and I am guessing there is some way that package has
+> >>> | insisted that the install tries /usr/lib/R/library.
+> >>> 
+> >>> Agreed on the first bit.  I think /usr/lib/R/library -- where we as
+> >>> users
+> >>> should never tread as it is /usr which belongs to apt/dpkg -- is
+> >>> just the
+> >>> fallback.  Somehow the value got nuked.
+> >>> 
+> >>> | I don't know enough about the way that R and linux work agree the
+> >>> 
+> >>> use of
+> >>> 
+> >>> | those library location options. From ?.libPaths and a bit more
+> >>> 
+> >>> hunting
+> >>> 
+> >>> | around the R help I had the impression that the .libPath options
+> >>> 
+> >>> would
+> >>> 
+> >>> | be used in order. I think I can remove the /usr ones by hacking in
+> >>> 
+> >>> Correct.
+> >>> 
+> >>> | /etc/R but that presumably risks losing access to the main libraries
+> >>> | that will have been installed there so that doesn't look a good step
+> >>> | forward except perhaps to debug things.
+> >>> 
+> >>> An easier option ... is to _explicitly add_ the
+> >>> /usr/local/lib/R/site-library/ destination as an argument to
+> >>> install.packages!
+> >>> 
+> >>> | I suspect that I could do a complete remove of all of R, start again
+> >>> | installing r-cran-base, check that R installed by that updates
+> >>> 
+> >>> fine run
+> >>> 
+> >>> | by a user and then I could use synaptic to add the additional deb
+> >>> | packages you provide but doing that one by one and running R and
+> >>> | update.packages() after each one to see if I don't hit this until
+> >>> 
+> >>> afetr
+> >>> 
+> >>> | a particular deb but that's going to take quite a long time so I
+> >>> | wondered if you or the list had quicker suggestions to debug this.
+> >>> 
+> >>> That sounds too involved.
+> >>> 
+> >>> | Sorry for length but hope that's clearer (got to try to be an
+> >>> 
+> >>> acceptable
+> >>> 
+> >>> | friend on R lists as well as with linux and I really, really do
+> >>> | appreciate the generosity of this list).
+> >>> 
+> >>> No sweat. We're all just building karma :)
+> >>> 
+> >>> Dirk
+> >> 
+> >> _______________________________________________
+> >> R-SIG-Debian mailing list
+> >> R-SIG-Debian at r-project.org
+> >> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From spluque at gmail.com  Tue Oct  4 22:40:22 2011
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Tue, 04 Oct 2011 15:40:22 -0500
+Subject: [R-sig-Debian] using R-devel independently of sid packages
+Message-ID: <87r52sv6bt.fsf@kolob.subpolar.dyndns.org>
+
+Hi,
+
+I'd like to run R-devel in a sid system that has the corresponding R
+packages installed (most of them).  I'd be using this primarily for
+testing how packages that I maintain would build and check there.  I
+know this is available via http://www.r-project.org/nosvn/R.check, but
+in some cases I need more control.  I thought I'd have R-devel trunk
+live in /usr/local/src/R-devel, and then run it like:
+
+R_LIBS_USER=/usr/local/lib/R-devel/site-library /usr/local/src/R-devel/bin/R
+
+so that I can have packages built with R-devel in a different directory
+from those that the Debian packages use (/usr/local/lib/R/site-library).
+
+What is good Debianish practice for running R-devel with an independent
+local library for it?
+
+Cheers,
+
+-- 
+Seb
+
+
+From edd at debian.org  Wed Oct  5 00:06:17 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 4 Oct 2011 17:06:17 -0500
+Subject: [R-sig-Debian] using R-devel independently of sid packages
+In-Reply-To: <87r52sv6bt.fsf@kolob.subpolar.dyndns.org>
+References: <87r52sv6bt.fsf@kolob.subpolar.dyndns.org>
+Message-ID: <20107.33625.258762.661893@max.nulle.part>
+
+
+On 4 October 2011 at 15:40, Sebastian P. Luque wrote:
+| Hi,
+| 
+| I'd like to run R-devel in a sid system that has the corresponding R
+| packages installed (most of them).  I'd be using this primarily for
+| testing how packages that I maintain would build and check there.  I
+| know this is available via http://www.r-project.org/nosvn/R.check, but
+| in some cases I need more control.  I thought I'd have R-devel trunk
+| live in /usr/local/src/R-devel, and then run it like:
+| 
+| R_LIBS_USER=/usr/local/lib/R-devel/site-library /usr/local/src/R-devel/bin/R
+| 
+| so that I can have packages built with R-devel in a different directory
+| from those that the Debian packages use (/usr/local/lib/R/site-library).
+| 
+| What is good Debianish practice for running R-devel with an independent
+| local library for it?
+
+In essence, I do what you do:
+
+ - keep r-devel from svn 
+
+ - configure; make; make install it  to a directory in /usr/local/lib
+
+ - keep the binaries out of the $PATH and use shell wrappers and variables
+   to launch it 
+
+Not ideal, but gets the job done and I won't have time do anything fancier.
+If you wanted to, you could wrap the above into a local .deb package too.
+
+Dirk
+
+-- 
+New Rcpp master class for R and C++ integration is scheduled for 
+San Francisco (Oct 8), more details / reg.info available at
+http://www.revolutionanalytics.com/products/training/public/rcpp-master-class.php
+
+
+From steffen_moeller at gmx.de  Wed Oct  5 00:14:45 2011
+From: steffen_moeller at gmx.de (=?ISO-8859-1?Q?Steffen_M=F6ller?=)
+Date: Wed, 05 Oct 2011 00:14:45 +0200
+Subject: [R-sig-Debian] using R-devel independently of sid packages
+In-Reply-To: <20107.33625.258762.661893@max.nulle.part>
+References: <87r52sv6bt.fsf@kolob.subpolar.dyndns.org>
+	<20107.33625.258762.661893@max.nulle.part>
+Message-ID: <4E8B8555.5030709@gmx.de>
+
+On 10/05/2011 12:06 AM, Dirk Eddelbuettel wrote:
+> 
+> On 4 October 2011 at 15:40, Sebastian P. Luque wrote:
+> | Hi,
+> | 
+> | I'd like to run R-devel in a sid system that has the corresponding R
+> | packages installed (most of them).  I'd be using this primarily for
+> | testing how packages that I maintain would build and check there.  I
+> | know this is available via http://www.r-project.org/nosvn/R.check, but
+> | in some cases I need more control.  I thought I'd have R-devel trunk
+> | live in /usr/local/src/R-devel, and then run it like:
+> | 
+> | R_LIBS_USER=/usr/local/lib/R-devel/site-library /usr/local/src/R-devel/bin/R
+> | 
+> | so that I can have packages built with R-devel in a different directory
+> | from those that the Debian packages use (/usr/local/lib/R/site-library).
+> | 
+> | What is good Debianish practice for running R-devel with an independent
+> | local library for it?
+> 
+> In essence, I do what you do:
+> 
+>  - keep r-devel from svn 
+> 
+>  - configure; make; make install it  to a directory in /usr/local/lib
+> 
+>  - keep the binaries out of the $PATH and use shell wrappers and variables
+>    to launch it 
+> 
+> Not ideal, but gets the job done and I won't have time do anything fancier.
+> If you wanted to, you could wrap the above into a local .deb package too.
+
+If you decide to go for a package, you may want to have a look at the
+gcc-snapshot package which basically installs itself to /usr/lib/gcc-snapshot.
+So this would be much like /usr/lib/r-devel for you then, I presume. I do
+not know if this is the most Debianish way to do it, or even if I like it,
+but one gets used it it.
+
+Cheers,
+
+Steffen
+
+
+From spluque at gmail.com  Wed Oct  5 05:16:42 2011
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Tue, 04 Oct 2011 22:16:42 -0500
+Subject: [R-sig-Debian] using R-devel independently of sid packages
+References: <87r52sv6bt.fsf@kolob.subpolar.dyndns.org>
+	<20107.33625.258762.661893@max.nulle.part>
+Message-ID: <87vcs4qg9x.fsf@kolob.subpolar.dyndns.org>
+
+On Tue, 4 Oct 2011 17:06:17 -0500,
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+[...]
+
+> In essence, I do what you do:
+
+>  - keep r-devel from svn
+
+>  - configure; make; make install it to a directory in /usr/local/lib
+
+>  - keep the binaries out of the $PATH and use shell wrappers and
+> variables to launch it
+
+I guess it doesn't matter much where the SVN checkout goes, but I've
+been doing:
+
+cd /usr/local/src/R-devel
+svn co https://svn.r-project.org/R/trunk
+
+and then configure and make.  What's the advantage of 'make install' to
+/usr/local/lib?
+
+I have /usr/local/bin in $PATH, and then wrote a wrapper script
+(/usr/local/bin/R-devel) like you suggest:
+
+---<--------------------cut here---------------start------------------->---
+#! /bin/sh
+R_LIBS_USER=/usr/local/lib/R-devel/site-library \
+    /usr/local/src/R-devel/bin/R
+---<--------------------cut here---------------end--------------------->---
+
+so that running it would give:
+
+R> .libPaths()
+[1] "/usr/local/lib/R-devel/site-library" "/usr/local/src/R-devel/library"     
+
+which allows install.packages(), update.packages(), 'R-devel CMD ...'
+for that matter, to work on the first element by default, as is usually
+intended.
+
+A neat about this is that if 'exec-path' in Emacs has the path where
+this wrapper is (/usr/local/bin in my case), then ESS understands it as
+an R version to run with all the goodies that implies.
+
+
+> Not ideal, but gets the job done and I won't have time do anything
+> fancier.  If you wanted to, you could wrap the above into a local .deb
+> package too.
+
+The above seems comfortable enough to me.  Thanks for these pointers!
+
+
+-- 
+Seb
+
+
+From edd at debian.org  Wed Oct  5 06:07:42 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 4 Oct 2011 23:07:42 -0500
+Subject: [R-sig-Debian] using R-devel independently of sid packages
+In-Reply-To: <87vcs4qg9x.fsf@kolob.subpolar.dyndns.org>
+References: <87r52sv6bt.fsf@kolob.subpolar.dyndns.org>
+	<20107.33625.258762.661893@max.nulle.part>
+	<87vcs4qg9x.fsf@kolob.subpolar.dyndns.org>
+Message-ID: <20107.55310.38670.593386@max.nulle.part>
+
+
+On 4 October 2011 at 22:16, Sebastian P. Luque wrote:
+| On Tue, 4 Oct 2011 17:06:17 -0500,
+| Dirk Eddelbuettel <edd at debian.org> wrote:
+| 
+| [...]
+| 
+| > In essence, I do what you do:
+| 
+| >  - keep r-devel from svn
+| 
+| >  - configure; make; make install it to a directory in /usr/local/lib
+| 
+| >  - keep the binaries out of the $PATH and use shell wrappers and
+| > variables to launch it
+| 
+| I guess it doesn't matter much where the SVN checkout goes, but I've
+| been doing:
+| 
+| cd /usr/local/src/R-devel
+| svn co https://svn.r-project.org/R/trunk
+
+It is completely irrelevant where svn sources live. Mine, by my habit, are
+all below ~/svn/
+
+| and then configure and make.  What's the advantage of 'make install' to
+| /usr/local/lib?
+
+As I and yu said: to have it tucked away where it does not interfere.
+
+My configure script is:
+
+-----------------------------------------------------------------------------
+#!/bin/sh
+
+cd ~/svn/r-devel
+
+R_PAPERSIZE=letter				\
+R_BATCHSAVE="--no-save --no-restore" 		\
+R_BROWSER=xdg-open				\
+PAGER=/usr/bin/pager				\
+PERL=/usr/bin/perl				\
+R_UNZIPCMD=/usr/bin/unzip			\
+R_ZIPCMD=/usr/bin/zip				\
+R_PRINTCMD=/usr/bin/lpr				\
+LIBnn=lib					\
+AWK=/usr/bin/awk                                \
+CC="ccache gcc"					\
+CFLAGS="-ggdb -pipe -std=gnu99 -Wall -pedantic -DTESTING_WRITE_BARRIER" \
+CXX="ccache g++"				\
+CXXFLAGS="-ggdb -std=c++0x -pipe -Wall -pedantic" \
+FC="ccache gfortran"				\
+FCFLAGS="-ggdb -pipe -Wall -pedantic"		\
+F77="ccache gfortran"				\
+FFLAGS="-ggdb -pipe -Wall -pedantic"		\
+MAKE="make -j4"					\
+./configure 					\
+    --prefix=/usr/local/lib/R-devel 		\
+    --enable-R-shlib 				\
+    --enable-strict-barrier 			\
+    --with-blas 				\
+    --with-lapack 				\
+    --with-readline 				\
+    --without-recommended-packages
+
+make svnonly
+-----------------------------------------------------------------------------
+
+and the key is the --prefix=... argument which determines the location. The
+rest is similar to the .deb package, plus some debugging switches.
+
+| I have /usr/local/bin in $PATH, and then wrote a wrapper script
+| (/usr/local/bin/R-devel) like you suggest:
+| 
+| ---<--------------------cut here---------------start------------------->---
+| #! /bin/sh
+| R_LIBS_USER=/usr/local/lib/R-devel/site-library \
+|     /usr/local/src/R-devel/bin/R
+| ---<--------------------cut here---------------end--------------------->---
+| 
+| so that running it would give:
+| 
+| R> .libPaths()
+| [1] "/usr/local/lib/R-devel/site-library" "/usr/local/src/R-devel/library"     
+| 
+| which allows install.packages(), update.packages(), 'R-devel CMD ...'
+| for that matter, to work on the first element by default, as is usually
+| intended.
+| 
+| A neat about this is that if 'exec-path' in Emacs has the path where
+| this wrapper is (/usr/local/bin in my case), then ESS understands it as
+| an R version to run with all the goodies that implies.
+
+Nice! 
+| 
+| > Not ideal, but gets the job done and I won't have time do anything
+| > fancier.  If you wanted to, you could wrap the above into a local .deb
+| > package too.
+| 
+| The above seems comfortable enough to me.  Thanks for these pointers!
+
+Always a pleasure!
+
+Dirk
+
+
+-- 
+New Rcpp master class for R and C++ integration is scheduled for 
+San Francisco (Oct 8), more details / reg.info available at
+http://www.revolutionanalytics.com/products/training/public/rcpp-master-class.php
+
+
+From ericadjakossah at gmail.com  Sat Oct  8 08:31:25 2011
+From: ericadjakossah at gmail.com (Eric ADJAKOSSA)
+Date: Sat, 8 Oct 2011 07:31:25 +0100
+Subject: [R-sig-Debian] Help!
+Message-ID: <CANdtwejMRR=gANH2Ln+xUccVHz+AqjoRizgA0naXTHqZ7wnkBg@mail.gmail.com>
+
+ Hello dear friends.
+ How can I make ubuntu to move from version 2.13.1 of R software to
+version 2.12.2. I want to go down to the less advanced version to use
+the package "lme4a". Please, I need your help. Thank you in advance.
+
+
+From mar36 at psu.edu  Sat Oct  8 13:55:31 2011
+From: mar36 at psu.edu (Michael Rutter)
+Date: Sat, 08 Oct 2011 07:55:31 -0400
+Subject: [R-sig-Debian] Help!
+In-Reply-To: <CANdtwejMRR=gANH2Ln+xUccVHz+AqjoRizgA0naXTHqZ7wnkBg@mail.gmail.com>
+References: <CANdtwejMRR=gANH2Ln+xUccVHz+AqjoRizgA0naXTHqZ7wnkBg@mail.gmail.com>
+Message-ID: <4E903A33.4070600@psu.edu>
+
+
+
+On 10/08/2011 02:31 AM, Eric ADJAKOSSA wrote:
+>   Hello dear friends.
+>   How can I make ubuntu to move from version 2.13.1 of R software to
+> version 2.12.2. I want to go down to the less advanced version to use
+> the package "lme4a". Please, I need your help. Thank you in advance.
+
+Eric,
+
+Please make sure that you have the most recent versions of lme4a AND 
+Matrix, as they are closely tied together.  I am able to load "lme4" 
+after I made sure everything was updated.  Matrix is now version 1.0, so 
+you need to update lme4 as well.
+
+You should also look into using lme4, as the feature you are using in 
+lme4a may now be in lme4.
+
+If that doesn't work, you can use Synaptic to force using an old 
+version.  There are numerous resources on the web for that.
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From gnwiii at gmail.com  Tue Oct 18 15:25:02 2011
+From: gnwiii at gmail.com (George N. White III)
+Date: Tue, 18 Oct 2011 10:25:02 -0300
+Subject: [R-sig-Debian] malformed Release files on CRAN for Ubuntu
+Message-ID: <CAKTOP45SpTS+nH1Hc=A3aCEr-qgTr2i_XW8HSJdh4mjW9RyLFA@mail.gmail.com>
+
+$ sudo apt-get update
+[...]
+W: Failed to fetch
+http://mirror.its.dal.ca/cran/bin/linux/ubuntu/lucid/Release  Unable
+to find expected entry  Packages in Meta-index file (malformed Release
+file?)
+
+$ wget -q -O - http://mirror.its.dal.ca/cran/bin/linux/ubuntu/lucid/Release
+Architectures: i386 amd64 all source
+Codename: lucid
+Components: main
+Date: Tue, 18 Oct 2011 02:01:01 UTC
+Description: R packages for Ubuntu Lucid Lynx 10.04
+Label: CRAN
+Origin: CRAN
+Suite: lucid
+Version: 10.04
+MD5Sum:
+ 61cb2ac40c3f8d9959977c53e0a69738              211 Release
+SHA1:
+ 61c6769f788b1eec1c3aee5aae189e17b087d8af              211 Release
+SHA256:
+ 795fd0ad7f94b0e6038a5bbcba52608446a7f02eb81d4d198176aba2b5092a9b
+        211 Release
+
+Several other mirrors have the same file.
+
+-- 
+George N. White III <aa056 at chebucto.ns.ca>
+Head of St. Margarets Bay, Nova Scotia
+
+
+From mar36 at psu.edu  Tue Oct 18 16:33:07 2011
+From: mar36 at psu.edu (Michael Rutter)
+Date: Tue, 18 Oct 2011 10:33:07 -0400
+Subject: [R-sig-Debian] malformed Release files on CRAN for Ubuntu
+In-Reply-To: <CAKTOP45SpTS+nH1Hc=A3aCEr-qgTr2i_XW8HSJdh4mjW9RyLFA@mail.gmail.com>
+References: <CAKTOP45SpTS+nH1Hc=A3aCEr-qgTr2i_XW8HSJdh4mjW9RyLFA@mail.gmail.com>
+Message-ID: <4E9D8E23.5090008@psu.edu>
+
+
+
+On 10/18/2011 09:25 AM, George N. White III wrote:
+> $ sudo apt-get update
+> [...]
+> W: Failed to fetch
+> http://mirror.its.dal.ca/cran/bin/linux/ubuntu/lucid/Release  Unable
+> to find expected entry  Packages in Meta-index file (malformed Release
+> file?)
+>
+> $ wget -q -O - http://mirror.its.dal.ca/cran/bin/linux/ubuntu/lucid/Release
+> Architectures: i386 amd64 all source
+> Codename: lucid
+> Components: main
+> Date: Tue, 18 Oct 2011 02:01:01 UTC
+> Description: R packages for Ubuntu Lucid Lynx 10.04
+> Label: CRAN
+> Origin: CRAN
+> Suite: lucid
+> Version: 10.04
+> MD5Sum:
+>   61cb2ac40c3f8d9959977c53e0a69738              211 Release
+> SHA1:
+>   61c6769f788b1eec1c3aee5aae189e17b087d8af              211 Release
+> SHA256:
+>   795fd0ad7f94b0e6038a5bbcba52608446a7f02eb81d4d198176aba2b5092a9b
+>          211 Release
+>
+> Several other mirrors have the same file.
+>
+
+George,
+
+I can confirm this and I am working on figuring out what is wrong. 
+Thanks for the information.
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From ilu at udc.es  Tue Oct 18 16:48:22 2011
+From: ilu at udc.es (Ignacio Lopez De Ullibarri Galparsoro)
+Date: Tue, 18 Oct 2011 16:48:22 +0200 (CEST)
+Subject: [R-sig-Debian] Error updating R
+In-Reply-To: <1567353138.432853.1318949136797.JavaMail.root@ms1b.correo.udc.es>
+Message-ID: <1099873709.432906.1318949302942.JavaMail.root@ms1b.correo.udc.es>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20111018/7ded0283/attachment.pl>
+
+From mar36 at psu.edu  Tue Oct 18 17:15:47 2011
+From: mar36 at psu.edu (Michael Rutter)
+Date: Tue, 18 Oct 2011 11:15:47 -0400
+Subject: [R-sig-Debian] malformed Release files on CRAN for Ubuntu
+In-Reply-To: <CAKTOP45SpTS+nH1Hc=A3aCEr-qgTr2i_XW8HSJdh4mjW9RyLFA@mail.gmail.com>
+References: <CAKTOP45SpTS+nH1Hc=A3aCEr-qgTr2i_XW8HSJdh4mjW9RyLFA@mail.gmail.com>
+Message-ID: <4E9D9823.7000409@psu.edu>
+
+On 10/18/2011 09:25 AM, George N. White III wrote:
+> $ sudo apt-get update
+> [...]
+> W: Failed to fetch
+> http://mirror.its.dal.ca/cran/bin/linux/ubuntu/lucid/Release  Unable
+> to find expected entry  Packages in Meta-index file (malformed Release
+> file?)
+>
+> $ wget -q -O - http://mirror.its.dal.ca/cran/bin/linux/ubuntu/lucid/Release
+> Architectures: i386 amd64 all source
+> Codename: lucid
+> Components: main
+> Date: Tue, 18 Oct 2011 02:01:01 UTC
+> Description: R packages for Ubuntu Lucid Lynx 10.04
+> Label: CRAN
+> Origin: CRAN
+> Suite: lucid
+> Version: 10.04
+> MD5Sum:
+>   61cb2ac40c3f8d9959977c53e0a69738              211 Release
+> SHA1:
+>   61c6769f788b1eec1c3aee5aae189e17b087d8af              211 Release
+> SHA256:
+>   795fd0ad7f94b0e6038a5bbcba52608446a7f02eb81d4d198176aba2b5092a9b
+>          211 Release
+>
+> Several other mirrors have the same file.
+
+
+OK, I believe the problem has been fixed.  It will be until the mirrors 
+are re-synced before everyone sees the changes.
+
+For some reason, the permissions on some of the files (Packages and 
+Packages.gz, for example) were being eliminated.  Not sure why this 
+happened, but I found a similar bug report from 2010 that said it was 
+fixed.  I just changed the script to work around the issue.
+
+Give it 24 hours and let me know if there are still issues.
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From spluque at gmail.com  Tue Oct 18 18:00:33 2011
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Tue, 18 Oct 2011 11:00:33 -0500
+Subject: [R-sig-Debian] r-cran-* packages with recent R alpha release
+Message-ID: <87k482s31a.fsf@kolob.subpolar.dyndns.org>
+
+Hi,
+
+After the recent r-base and r-base-core alpha releases in sid, some
+packages fail to load, e.g. r-cran-bitops:
+
+R> library(bitops)
+Error in library(bitops) : 
+  package ?bitops? does not have a NAMESPACE and should be re-installed
+
+I suppose these errors will get fixed after 2.14.0 is released.  In the
+meantime, should we just downgrade r-base and r-base-core to the testing
+versions?
+
+Cheers,
+
+-- 
+Seb
+
+
+From edd at debian.org  Tue Oct 18 18:24:25 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 18 Oct 2011 11:24:25 -0500
+Subject: [R-sig-Debian] r-cran-* packages with recent R alpha release
+In-Reply-To: <87k482s31a.fsf@kolob.subpolar.dyndns.org>
+References: <87k482s31a.fsf@kolob.subpolar.dyndns.org>
+Message-ID: <20125.43065.888815.914817@max.nulle.part>
+
+
+On 18 October 2011 at 11:00, Sebastian P. Luque wrote:
+| Hi,
+| 
+| After the recent r-base and r-base-core alpha releases in sid, some
+| packages fail to load, e.g. r-cran-bitops:
+| 
+| R> library(bitops)
+| Error in library(bitops) : 
+|   package ?bitops? does not have a NAMESPACE and should be re-installed
+| 
+| I suppose these errors will get fixed after 2.14.0 is released.  In the
+| meantime, should we just downgrade r-base and r-base-core to the testing
+| versions?
+
+Is that an r-cran-* package?  In which case you should file a gentle bug
+report requesting a rebuild (as the 2.14.0 snapshots are in fact in Debian
+unstable from where Michael took'em).   
+
+I would reinstall bitops into /usr/local/lib/R/site-library/ rather than
+downgrading R, but either way is fine.
+
+Dirk
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From spluque at gmail.com  Tue Oct 18 18:56:02 2011
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Tue, 18 Oct 2011 11:56:02 -0500
+Subject: [R-sig-Debian] r-cran-* packages with recent R alpha release
+References: <87k482s31a.fsf@kolob.subpolar.dyndns.org>
+	<20125.43065.888815.914817@max.nulle.part>
+Message-ID: <8739eqs0gt.fsf@kolob.subpolar.dyndns.org>
+
+On Tue, 18 Oct 2011 11:24:25 -0500,
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+> On 18 October 2011 at 11:00, Sebastian P. Luque wrote:
+>> Hi,
+>> 
+>> After the recent r-base and r-base-core alpha releases in sid, some
+>> packages fail to load, e.g. r-cran-bitops:
+>> 
+R> library(bitops)
+>> Error in library(bitops) : package ?bitops? does not have a NAMESPACE
+>> and should be re-installed
+>> 
+>> I suppose these errors will get fixed after 2.14.0 is released.  In
+>> the meantime, should we just downgrade r-base and r-base-core to the
+>> testing versions?
+
+> Is that an r-cran-* package?  In which case you should file a gentle
+> bug report requesting a rebuild (as the 2.14.0 snapshots are in fact
+> in Debian unstable from where Michael took'em).
+
+Yes, in fact I see these errors with several Debian sid packages for,
+e.g.: Design, abind, evd, bitops.
+
+
+> I would reinstall bitops into /usr/local/lib/R/site-library/ rather
+> than downgrading R, but either way is fine.
+
+Good idea installing to the local library, making sure it is before the
+system-wide one in the library tree!
+
+Cheers,
+
+-- 
+Seb
+
+
+From edd at debian.org  Tue Oct 18 19:15:35 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 18 Oct 2011 12:15:35 -0500
+Subject: [R-sig-Debian] r-cran-* packages with recent R alpha release
+In-Reply-To: <8739eqs0gt.fsf@kolob.subpolar.dyndns.org>
+References: <87k482s31a.fsf@kolob.subpolar.dyndns.org>
+	<20125.43065.888815.914817@max.nulle.part>
+	<8739eqs0gt.fsf@kolob.subpolar.dyndns.org>
+Message-ID: <20125.46135.989551.512853@max.nulle.part>
+
+
+On 18 October 2011 at 11:56, Sebastian P. Luque wrote:
+| > I would reinstall bitops into /usr/local/lib/R/site-library/ rather
+| > than downgrading R, but either way is fine.
+| 
+| Good idea installing to the local library, making sure it is before the
+| system-wide one in the library tree!
+
+That is the default:
+
+R> .libPaths()
+[1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"       "/usr/lib/R/library"           
+R> 
+
+
+Dirk
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From mar36 at psu.edu  Tue Oct 18 22:42:20 2011
+From: mar36 at psu.edu (Michael Rutter)
+Date: Tue, 18 Oct 2011 16:42:20 -0400
+Subject: [R-sig-Debian] r-cran-* packages with recent R alpha release
+In-Reply-To: <20125.43065.888815.914817@max.nulle.part>
+References: <87k482s31a.fsf@kolob.subpolar.dyndns.org>
+	<20125.43065.888815.914817@max.nulle.part>
+Message-ID: <4E9DE4AC.9060304@psu.edu>
+
+
+
+On 10/18/2011 12:24 PM, Dirk Eddelbuettel wrote:
+>
+> On 18 October 2011 at 11:00, Sebastian P. Luque wrote:
+> | Hi,
+> |
+> | After the recent r-base and r-base-core alpha releases in sid, some
+> | packages fail to load, e.g. r-cran-bitops:
+> |
+> | R>  library(bitops)
+> | Error in library(bitops) :
+> |   package ?bitops? does not have a NAMESPACE and should be re-installed
+> |
+> | I suppose these errors will get fixed after 2.14.0 is released.  In the
+> | meantime, should we just downgrade r-base and r-base-core to the testing
+> | versions?
+>
+> Is that an r-cran-* package?  In which case you should file a gentle bug
+> report requesting a rebuild (as the 2.14.0 snapshots are in fact in Debian
+> unstable from where Michael took'em).
+>
+> I would reinstall bitops into /usr/local/lib/R/site-library/ rather than
+> downgrading R, but either way is fine.
+>
+
+Just to confirm, I was having the same issue using Launchpad to build 
+packages for 11.10.  The solution was to rebuild the ones causing the 
+error (bitops in the example above) and things work fine.  Could take 
+time to find all the problem packages.
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From jranke at uni-bremen.de  Wed Oct 19 08:02:07 2011
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Wed, 19 Oct 2011 08:02:07 +0200
+Subject: [R-sig-Debian] r-cran-* packages with recent R alpha release
+In-Reply-To: <4E9DE4AC.9060304@psu.edu>
+References: <87k482s31a.fsf@kolob.subpolar.dyndns.org>
+	<20125.43065.888815.914817@max.nulle.part>
+	<4E9DE4AC.9060304@psu.edu>
+Message-ID: <201110190802.08106.jranke@uni-bremen.de>
+
+Hi,
+
+from the NEWS file of R-devel:
+
+CHANGES IN R VERSION 2.14.0:
+
+  SIGNIFICANT USER-VISIBLE CHANGES:
+
+    o All packages must have a namespace, and one is created on
+      installation if not supplied in the sources.  This means that any
+      package without a namespace must be re-installed under this
+      version of R (but data-only packages without R code can still be
+      used).
+
+Cheers,
+
+Johannes
+
+On Tuesday 18 October 2011 22:42:20 Michael Rutter wrote:
+> On 10/18/2011 12:24 PM, Dirk Eddelbuettel wrote:
+> > On 18 October 2011 at 11:00, Sebastian P. Luque wrote:
+> > | Hi,
+> > | 
+> > | After the recent r-base and r-base-core alpha releases in sid, some
+> > | packages fail to load, e.g. r-cran-bitops:
+> > | 
+> > | R>  library(bitops)
+> > | 
+> > | Error in library(bitops) :
+> > |   package ?bitops? does not have a NAMESPACE and should be re-installed
+> > | 
+> > | I suppose these errors will get fixed after 2.14.0 is released.  In the
+> > | meantime, should we just downgrade r-base and r-base-core to the
+> > | testing versions?
+> > 
+> > Is that an r-cran-* package?  In which case you should file a gentle bug
+> > report requesting a rebuild (as the 2.14.0 snapshots are in fact in
+> > Debian unstable from where Michael took'em).
+> > 
+> > I would reinstall bitops into /usr/local/lib/R/site-library/ rather than
+> > downgrading R, but either way is fine.
+> 
+> Just to confirm, I was having the same issue using Launchpad to build
+> packages for 11.10.  The solution was to rebuild the ones causing the
+> error (bitops in the example above) and things work fine.  Could take
+> time to find all the problem packages.
+> 
+> Michael
+
+

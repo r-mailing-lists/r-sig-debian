@@ -1,0 +1,334 @@
+From info at aghmed.fsnet.co.uk  Mon Feb 18 10:49:06 2008
+From: info at aghmed.fsnet.co.uk (Michael Dewey)
+Date: Mon, 18 Feb 2008 09:49:06 +0000
+Subject: [R-sig-Debian] Confused about versions of R and Debian
+Message-ID: <Zen-1JR2ci-0001sL-MC@pythagoras.zen.co.uk>
+
+I have recently acquired an Asus EEE PC which runs a version of 
+Xandros which I believe to be a fork of Debian. I have been using R 
+under various versions of Windows for some years but this is my first 
+move into the world of Unix. I have installed Texlive from a CD and I 
+have successfully added a UK-based repository and installed Texmaker. 
+Now I would like to add R. There are dire warnings on the EEE forums 
+about the dangers of using Debian repositories so I would like some 
+more advice before I download things.
+
+1 - If I download from the Debian repository using stable (which is 
+the distribution I have - etch) will I get old versions of R? I do 
+not understand what stable means here, is it like being frozen at 
+some point in time? Do I need to using testing, and if so is that 
+likely to have compatibility problems with my system?
+
+2 - If I download from my favourite CRAN (Bristol, UK) it seems I do 
+not get all the contributed packages. Is that correct? If so I do not 
+quite see the point so I suspect I misunderstand here.
+
+3 - As a last resort I should install from sources but a poster to 
+R-help suggested he had had problems with this. Where do I find what 
+versions of compilers and so on I need to build from source?
+
+I know I should just try it and see but I am reluctant to do that 
+because of the dire warnings about damaging the system by using 
+non-Xandros repositories. I also do not yet know how to un-install 
+things either.
+
+For the record I am using the command line and apt-get and I have 
+enabled pinning to give the EEE repositories highest priority.
+
+Michael Dewey
+http://www.aghmed.fsnet.co.uk
+
+
+From edd at debian.org  Mon Feb 18 13:32:28 2008
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 18 Feb 2008 06:32:28 -0600
+Subject: [R-sig-Debian] Confused about versions of R and Debian
+In-Reply-To: <Zen-1JR2ci-0001sL-MC@pythagoras.zen.co.uk>
+References: <Zen-1JR2ci-0001sL-MC@pythagoras.zen.co.uk>
+Message-ID: <18361.31452.384422.523876@ron.nulle.part>
+
+
+Michael,
+
+On 18 February 2008 at 09:49, Michael Dewey wrote:
+| I have recently acquired an Asus EEE PC which runs a version of 
+| Xandros which I believe to be a fork of Debian. I have been using R 
+| under various versions of Windows for some years but this is my first 
+| move into the world of Unix. I have installed Texlive from a CD and I 
+
+Well, "a" cd?  Was it source? Was it binary? If binary, was it versioned?
+
+| have successfully added a UK-based repository and installed Texmaker. 
+| Now I would like to add R. There are dire warnings on the EEE forums 
+| about the dangers of using Debian repositories so I would like some 
+| more advice before I download things.
+| 
+| 1 - If I download from the Debian repository using stable (which is 
+| the distribution I have - etch) will I get old versions of R? I do 
+| not understand what stable means here, is it like being frozen at 
+| some point in time? 
+
+Correct, with the version that was current at the time of the freeze.
+
+| Do I need to using testing, and if so is that 
+| likely to have compatibility problems with my system?
+
+Maybe. We can't tell as we don't run Xandros.
+
+Note that CRAN has backports of R for Debian testing.
+ 
+| 2 - If I download from my favourite CRAN (Bristol, UK) it seems I do 
+| not get all the contributed packages. Is that correct? If so I do not 
+| quite see the point so I suspect I misunderstand here.
+
+You get the current R for Debian testing. You would need to call
+install.packages() yourself for packages you need.
+
+We cannot and do not know how testing and Xandros mix.
+ 
+| 3 - As a last resort I should install from sources but a poster to 
+| R-help suggested he had had problems with this. Where do I find what 
+| versions of compilers and so on I need to build from source?
+
+Call 
+
+	sudo apt-get build-dep r-base
+
+which installs them for you (if you have deb-src entries for apt).
+
+| I know I should just try it and see but I am reluctant to do that 
+| because of the dire warnings about damaging the system by using 
+| non-Xandros repositories. I also do not yet know how to un-install 
+| things either.
+| 
+| For the record I am using the command line and apt-get and I have 
+| enabled pinning to give the EEE repositories highest priority.
+
+One thing you have not mentioned is to backup your Xandros installation, and
+go to regular Debian. If I were you, I'd consider that. Just run Debian
+testing on the Eee. See eg
+
+  http://syn.theti.ca/articles/2008/02/16/bits-from-the-debian-eee-pc-team
+
+for the latest from the Debian Eee team.
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From info at aghmed.fsnet.co.uk  Mon Feb 18 18:31:51 2008
+From: info at aghmed.fsnet.co.uk (Michael Dewey)
+Date: Mon, 18 Feb 2008 17:31:51 +0000
+Subject: [R-sig-Debian] Confused about versions of R and Debian
+In-Reply-To: <18361.31452.384422.523876@ron.nulle.part>
+References: <Zen-1JR2ci-0001sL-MC@pythagoras.zen.co.uk>
+	<18361.31452.384422.523876@ron.nulle.part>
+Message-ID: <Zen-1JR9qY-0001jr-5f@pythagoras.zen.co.uk>
+
+At 12:32 18/02/2008, Dirk Eddelbuettel wrote:
+
+Thanks for the comments Dirk, specific points below in the text. I 
+obviously appeared more knowledgable than I am, which may be an 
+advantage in the day job in front of a roomfull of students but not 
+here I think.
+
+>Michael,
+>
+>On 18 February 2008 at 09:49, Michael Dewey wrote:
+>| I have recently acquired an Asus EEE PC which runs a version of
+>| Xandros which I believe to be a fork of Debian. I have been using R
+>| under various versions of Windows for some years but this is my first
+>| move into the world of Unix. I have installed Texlive from a CD and I
+>
+>Well, "a" cd?  Was it source? Was it binary? If binary, was it versioned?
+
+It was the Texlive 2005 CD. I just ran the installation script so I 
+have no idea whether it was binary or source. I suspect the former.
+
+>| have successfully added a UK-based repository and installed Texmaker.
+>| Now I would like to add R. There are dire warnings on the EEE forums
+>| about the dangers of using Debian repositories so I would like some
+>| more advice before I download things.
+>|
+>| 1 - If I download from the Debian repository using stable (which is
+>| the distribution I have - etch) will I get old versions of R? I do
+>| not understand what stable means here, is it like being frozen at
+>| some point in time?
+>
+>Correct, with the version that was current at the time of the freeze.
+
+I have now established that was 2.4.0 and that testing has 2.6.1
+
+>| Do I need to using testing, and if so is that
+>| likely to have compatibility problems with my system?
+>
+>Maybe. We can't tell as we don't run Xandros.
+>
+>Note that CRAN has backports of R for Debian testing.
+>
+
+I am not sure what a backport is, but I see that in the stable 
+directory there is 2.6.2.
+
+>| 2 - If I download from my favourite CRAN (Bristol, UK) it seems I do
+>| not get all the contributed packages. Is that correct? If so I do not
+>| quite see the point so I suspect I misunderstand here.
+>
+>You get the current R for Debian testing. You would need to call
+>install.packages() yourself for packages you need.
+>
+>We cannot and do not know how testing and Xandros mix.
+
+Does install.packages() compile from source? Presumably for packages 
+which are purely in R that is not necessary?
+
+>
+>| 3 - As a last resort I should install from sources but a poster to
+>| R-help suggested he had had problems with this. Where do I find what
+>| versions of compilers and so on I need to build from source?
+>
+>Call
+>
+>         sudo apt-get build-dep r-base
+>
+>which installs them for you (if you have deb-src entries for apt).
+
+That's helpful although I suspect quite dangerous as it may want to 
+install things which are a core part of the EEE system. Presumably I 
+could run it with a switch which just reports.
+
+
+>| I know I should just try it and see but I am reluctant to do that
+>| because of the dire warnings about damaging the system by using
+>| non-Xandros repositories. I also do not yet know how to un-install
+>| things either.
+>|
+>| For the record I am using the command line and apt-get and I have
+>| enabled pinning to give the EEE repositories highest priority.
+>
+>One thing you have not mentioned is to backup your Xandros installation, and
+>go to regular Debian. If I were you, I'd consider that. Just run Debian
+>testing on the Eee. See eg
+>
+>   http://syn.theti.ca/articles/2008/02/16/bits-from-the-debian-eee-pc-team
+>
+>for the latest from the Debian Eee team.
+
+That is very helpful but I think I need to learn a lot more before I 
+attempt that and buy a bigger USB stick. The first of those is going 
+to be the sticking point. It is certainly nice to know that somebody 
+is trying to make some sense out of the EEE. At the moment it is fine 
+for what it does but a bit frustrating if you want to extend it in 
+ways which the manufacturer probably did not really intend.
+
+Thanks again.
+
+
+
+Michael Dewey
+http://www.aghmed.fsnet.co.uk
+
+
+From jranke at uni-bremen.de  Mon Feb 18 22:00:34 2008
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 18 Feb 2008 22:00:34 +0100
+Subject: [R-sig-Debian] Confused about versions of R and Debian
+In-Reply-To: <18361.31452.384422.523876@ron.nulle.part>
+References: <Zen-1JR2ci-0001sL-MC@pythagoras.zen.co.uk>
+	<18361.31452.384422.523876@ron.nulle.part>
+Message-ID: <20080218210034.GA9250@mail.uni-bremen.de>
+
+Hi,
+
+just a side note regarding Debian testing: There are currently no
+backports to Debian testing on CRAN, I only provided them before etch
+was released, but already quite stable.
+
+Best regards,
+
+Johannes
+
+* Dirk Eddelbuettel <edd at debian.org> [080218 13:40]:
+> 
+> Michael,
+> 
+> On 18 February 2008 at 09:49, Michael Dewey wrote:
+> | I have recently acquired an Asus EEE PC which runs a version of 
+> | Xandros which I believe to be a fork of Debian. I have been using R 
+> | under various versions of Windows for some years but this is my first 
+> | move into the world of Unix. I have installed Texlive from a CD and I 
+> 
+> Well, "a" cd?  Was it source? Was it binary? If binary, was it versioned?
+> 
+> | have successfully added a UK-based repository and installed Texmaker. 
+> | Now I would like to add R. There are dire warnings on the EEE forums 
+> | about the dangers of using Debian repositories so I would like some 
+> | more advice before I download things.
+> | 
+> | 1 - If I download from the Debian repository using stable (which is 
+> | the distribution I have - etch) will I get old versions of R? I do 
+> | not understand what stable means here, is it like being frozen at 
+> | some point in time? 
+> 
+> Correct, with the version that was current at the time of the freeze.
+> 
+> | Do I need to using testing, and if so is that 
+> | likely to have compatibility problems with my system?
+> 
+> Maybe. We can't tell as we don't run Xandros.
+> 
+> Note that CRAN has backports of R for Debian testing.
+>  
+> | 2 - If I download from my favourite CRAN (Bristol, UK) it seems I do 
+> | not get all the contributed packages. Is that correct? If so I do not 
+> | quite see the point so I suspect I misunderstand here.
+> 
+> You get the current R for Debian testing. You would need to call
+> install.packages() yourself for packages you need.
+> 
+> We cannot and do not know how testing and Xandros mix.
+>  
+> | 3 - As a last resort I should install from sources but a poster to 
+> | R-help suggested he had had problems with this. Where do I find what 
+> | versions of compilers and so on I need to build from source?
+> 
+> Call 
+> 
+> 	sudo apt-get build-dep r-base
+> 
+> which installs them for you (if you have deb-src entries for apt).
+> 
+> | I know I should just try it and see but I am reluctant to do that 
+> | because of the dire warnings about damaging the system by using 
+> | non-Xandros repositories. I also do not yet know how to un-install 
+> | things either.
+> | 
+> | For the record I am using the command line and apt-get and I have 
+> | enabled pinning to give the EEE repositories highest priority.
+> 
+> One thing you have not mentioned is to backup your Xandros installation, and
+> go to regular Debian. If I were you, I'd consider that. Just run Debian
+> testing on the Eee. See eg
+> 
+>   http://syn.theti.ca/articles/2008/02/16/bits-from-the-debian-eee-pc-team
+> 
+> for the latest from the Debian Eee team.
+> 
+> Dirk
+> 
+> -- 
+> Three out of two people have difficulties with fractions.
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de     Key ID: F649AF90
+UFT Bremen, Leobenerstr. 1         +49 421 218 63373
+D-28359 Bremen                     http://www.uft.uni-bremen.de/chemie/ranke
+
+

@@ -1,0 +1,184 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2016-08",
+  "messages": [
+    {
+      "id": "msg-35273cda5eb8",
+      "message_id": "<3ae544d7-7a8f-452b-2d21-a7fdd0d5c1df@chronitis.net>",
+      "from_name": "Gordon Ball",
+      "from_email_hash": "ac0a3e6371126f1b9fcfff7686cc130536ade6a8b23fb2cb07161ceebdcc0bce",
+      "date": "2016-08-01T13:06:02+02:00",
+      "subject": "[R-sig-Debian] R, OpenBLAS and OMP_NUM_THREEADS",
+      "subject_clean": "R, OpenBLAS and OMP_NUM_THREEADS",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "What is the correct way to globally configure R to default to single (or\nat least, << NUM_CPUS) threaded operation?\n\n\nUsing R 3.3.1 (both in debian unstable or using the CRAN repository for\nxenial) with OpenBLAS (0.2.18) defaults to using one thread per\navailable CPU, which isn't ideal for machines more than a couple of CPUs.\n\nSetting the environment (OMP_NUM_THREADS or OPENBLAS_NUM_THREADS) in the\nshell works:\n\n$ OMP_NUM_THREADS=1 R\n> Sys.getenv(\"OMP_NUM_THREADS\")\n[1] \"1\"\n> system.time({x <- replicate(5e3, rnorm(5e3)); tcrossprod(x) })\n[runs in one thread]\n\nbut adding it to /etc/R/Renviron.site doesn't:\n\n$ R\n> Sys.getenv(\"OMP_NUM_THREADS\")\n[1] \"1\"\n> system.time({x <- replicate(5e3, rnorm(5e3)); tcrossprod(x) })\n[runs multi-threaded]\n\n(nor does setting the variable at runtime with `Sys.setenv`)\n\nPresumably Renviron is read after the library is already loaded and so\nthe environment variable is set too late to matter.\n\n\n\n\nI can think of these solutions, but none of them are ideal:\n\n * remove OpenBLAS (but even single threaded it performs quite a lot\nbetter than the basic libblas)\n\n * set OMP_NUM_THREADS globally in people's shells with the system\nbashrc (but this doesn't work for non-shell, RStudio server sessions)\n\n * use a library like RhpcBLASctl to set the number of threads in the\nglobal Rprofile\n\n * compile a custom openblas with threading disabled, or at least a\nsmall default number of threads\n\n\nAny better ideas?\n\n\nThanks\n\nGordon",
+      "body_snippet": "What is the correct way to globally configure R to default to single (or\nat least, << NUM_CPUS) threaded operation?\n\n\nUsing R 3.3.1 (both in debian unstable or using the CRAN repository for\nxenial) wi",
+      "thread_id": "thread-35273cda5eb8",
+      "thread_depth": 0,
+      "month": "2016-08"
+    },
+    {
+      "id": "msg-883f5dac0078",
+      "message_id": "<CAJqeyYayvS+2GAHuO7Xzbwc+miNEgDO8tVraoSOBUCXXAqgsVg@mail.gmail.com>",
+      "from_name": "Ei-ji Nakama",
+      "from_email_hash": "287a261a23e709ca3530a6c601118b8b3e722caf557d2663cc59d766c87e025a",
+      "date": "2016-08-02T10:10:03+09:00",
+      "subject": "[R-sig-Debian] R, OpenBLAS and OMP_NUM_THREEADS",
+      "subject_clean": "R, OpenBLAS and OMP_NUM_THREEADS",
+      "in_reply_to": "<3ae544d7-7a8f-452b-2d21-a7fdd0d5c1df@chronitis.net>",
+      "references": [
+        "<3ae544d7-7a8f-452b-2d21-a7fdd0d5c1df@chronitis.net>"
+      ],
+      "body_plain": "Hi,\n\nCreate /etc/profile.d/openblas.sh.\nWrite the following during in this file.\nOPENBLAS_NUM_THREADS = 1\nexport OPENBLAS_NUM_THREADS\n\nOPENBLAS_NUM_THREADS environment variable does not affect the OMP_NUM_THREADS.\n\n\n2016-08-01 20:06 GMT+09:00 Gordon Ball <gordon at chronitis.net>:\n> What is the correct way to globally configure R to default to single (or\n> at least, << NUM_CPUS) threaded operation?\n>\n>\n> Using R 3.3.1 (both in debian unstable or using the CRAN repository for\n> xenial) with OpenBLAS (0.2.18) defaults to using one thread per\n> available CPU, which isn't ideal for machines more than a couple of CPUs.\n>\n> Setting the environment (OMP_NUM_THREADS or OPENBLAS_NUM_THREADS) in the\n> shell works:\n>\n> $ OMP_NUM_THREADS=1 R\n>> Sys.getenv(\"OMP_NUM_THREADS\")\n> [1] \"1\"\n>> system.time({x <- replicate(5e3, rnorm(5e3)); tcrossprod(x) })\n> [runs in one thread]\n>\n> but adding it to /etc/R/Renviron.site doesn't:\n>\n> $ R\n>> Sys.getenv(\"OMP_NUM_THREADS\")\n> [1] \"1\"\n>> system.time({x <- replicate(5e3, rnorm(5e3)); tcrossprod(x) })\n> [runs multi-threaded]\n>\n> (nor does setting the variable at runtime with `Sys.setenv`)\n>\n> Presumably Renviron is read after the library is already loaded and so\n> the environment variable is set too late to matter.\n>\n>\n>\n>\n> I can think of these solutions, but none of them are ideal:\n>\n>  * remove OpenBLAS (but even single threaded it performs quite a lot\n> better than the basic libblas)\n>\n>  * set OMP_NUM_THREADS globally in people's shells with the system\n> bashrc (but this doesn't work for non-shell, RStudio server sessions)\n>\n>  * use a library like RhpcBLASctl to set the number of threads in the\n> global Rprofile\n>\n>  * compile a custom openblas with threading disabled, or at least a\n> small default number of threads\n>\n>\n> Any better ideas?\n>\n>\n> Thanks\n>\n> Gordon\n>\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n\n\n-- \nBest Regards,\n--\nEiji NAKAMA <nakama (a) ki.rim.or.jp>\n\"\\u4e2d\\u9593\\u6804\\u6cbb\"  <nakama (a) ki.rim.or.jp>",
+      "body_snippet": "Hi,\n\nCreate /etc/profile.d/openblas.sh.\nWrite the following during in this file.\nOPENBLAS_NUM_THREADS = 1\nexport OPENBLAS_NUM_THREADS\n\nOPENBLAS_NUM_THREADS environment variable does not affect the OMP",
+      "thread_id": "thread-35273cda5eb8",
+      "thread_depth": 1,
+      "month": "2016-08"
+    },
+    {
+      "id": "msg-a3603af42461",
+      "message_id": "<680d7390-0e09-0f1b-ce14-ea804a518317@chronitis.net>",
+      "from_name": "Gordon Ball",
+      "from_email_hash": "ac0a3e6371126f1b9fcfff7686cc130536ade6a8b23fb2cb07161ceebdcc0bce",
+      "date": "2016-08-03T16:45:02+02:00",
+      "subject": "[R-sig-Debian] R, OpenBLAS and OMP_NUM_THREADS",
+      "subject_clean": "R, OpenBLAS and OMP_NUM_THREADS",
+      "in_reply_to": "<CAJqeyYayvS+2GAHuO7Xzbwc+miNEgDO8tVraoSOBUCXXAqgsVg@mail.gmail.com>",
+      "references": [
+        "<3ae544d7-7a8f-452b-2d21-a7fdd0d5c1df@chronitis.net>",
+        "<CAJqeyYayvS+2GAHuO7Xzbwc+miNEgDO8tVraoSOBUCXXAqgsVg@mail.gmail.com>"
+      ],
+      "body_plain": "On 02/08/16 03:10, Ei-ji Nakama wrote:\n> Hi,\n> \n> Create /etc/profile.d/openblas.sh.\n> Write the following during in this file.\n> OPENBLAS_NUM_THREADS = 1\n> export OPENBLAS_NUM_THREADS\n> \n> OPENBLAS_NUM_THREADS environment variable does not affect the OMP_NUM_THREADS.\n> \n\nThanks for the response.\n\nThis works fine for R run from the command line (as does setting the\nsame variable in `/etc/environment`), providing a fresh login is made.\n\n\n\nUnfortunately neither this nor anything else I've tried today appears to\nset the variable for sessions started through RStudio server (which may\nor may not be an appropriate issue here).\n\nIt appears that the rstudio server spawns sessions with a new minimal\nenvironment (rstudio::core::system::launchChildProcess) and no option to\ninject or inherit variables. (Various methods of controlling the session\nenvironment are documented in the pro/paid version manual [1], but are\nnot implemented in the public codebase - enterprise features, presumably).\n\nHence approaches like setting the environment in the\nrstudio-server.service systemd unit, or creating a /etc/pam.d/rstudio\nservice profile including pam_env.so (to load the setting from\n/etc/environment) don't work. It would probably be possible to work\nround this by creating a small binary wrapper for the rsession binary\nwhich sets the environment, but it would make a mess of the packaging.\n\n\n\nSo I've gone with an `/etc/R/Rprofile.site` containing\n\nlocal({\n    if (require(\"RhpcBLASctl\", quietly=TRUE)) blas_set_num_threads(1)\n})\n\nwhich does mean people get this library loaded in all their sessions but\nthat doesn't seem to cause any particular trouble (yet).\n\n\nGordon\n\n\n[1]: docs.rstudio.com/ide/server-pro/r-sessions.html\n\n> \n> 2016-08-01 20:06 GMT+09:00 Gordon Ball <gordon at chronitis.net>:\n>> What is the correct way to globally configure R to default to single (or\n>> at least, << NUM_CPUS) threaded operation?\n>>\n>>\n>> Using R 3.3.1 (both in debian unstable or using the CRAN repository for\n>> xenial) with OpenBLAS (0.2.18) defaults to using one thread per\n>> available CPU, which isn't ideal for machines more than a couple of CPUs.\n>>\n>> Setting the environment (OMP_NUM_THREADS or OPENBLAS_NUM_THREADS) in the\n>> shell works:\n>>\n>> $ OMP_NUM_THREADS=1 R\n>>> Sys.getenv(\"OMP_NUM_THREADS\")\n>> [1] \"1\"\n>>> system.time({x <- replicate(5e3, rnorm(5e3)); tcrossprod(x) })\n>> [runs in one thread]\n>>\n>> but adding it to /etc/R/Renviron.site doesn't:\n>>\n>> $ R\n>>> Sys.getenv(\"OMP_NUM_THREADS\")\n>> [1] \"1\"\n>>> system.time({x <- replicate(5e3, rnorm(5e3)); tcrossprod(x) })\n>> [runs multi-threaded]\n>>\n>> (nor does setting the variable at runtime with `Sys.setenv`)\n>>\n>> Presumably Renviron is read after the library is already loaded and so\n>> the environment variable is set too late to matter.\n>>\n>>\n>>\n>>\n>> I can think of these solutions, but none of them are ideal:\n>>\n>>  * remove OpenBLAS (but even single threaded it performs quite a lot\n>> better than the basic libblas)\n>>\n>>  * set OMP_NUM_THREADS globally in people's shells with the system\n>> bashrc (but this doesn't work for non-shell, RStudio server sessions)\n>>\n>>  * use a library like RhpcBLASctl to set the number of threads in the\n>> global Rprofile\n>>\n>>  * compile a custom openblas with threading disabled, or at least a\n>> small default number of threads\n>>\n>>\n>> Any better ideas?\n>>\n>>\n>> Thanks\n>>\n>> Gordon\n>>\n>> _______________________________________________\n>> R-SIG-Debian mailing list\n>> R-SIG-Debian at r-project.org\n>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n> \n> \n>",
+      "body_snippet": "On 02/08/16 03:10, Ei-ji Nakama wrote:\n> Hi,\n> \n> Create /etc/profile.d/openblas.sh.\n> Write the following during in this file.\n> OPENBLAS_NUM_THREADS = 1\n> export OPENBLAS_NUM_THREADS\n> \n> OPENBLAS_N",
+      "thread_id": "thread-35273cda5eb8",
+      "thread_depth": 2,
+      "month": "2016-08"
+    },
+    {
+      "id": "msg-823f6adc6610",
+      "message_id": "<22434.2044.729097.902374@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2016-08-03T10:04:28-05:00",
+      "subject": "[R-sig-Debian] R, OpenBLAS and OMP_NUM_THREADS",
+      "subject_clean": "R, OpenBLAS and OMP_NUM_THREADS",
+      "in_reply_to": "<680d7390-0e09-0f1b-ce14-ea804a518317@chronitis.net>",
+      "references": [
+        "<3ae544d7-7a8f-452b-2d21-a7fdd0d5c1df@chronitis.net>",
+        "<CAJqeyYayvS+2GAHuO7Xzbwc+miNEgDO8tVraoSOBUCXXAqgsVg@mail.gmail.com>",
+        "<680d7390-0e09-0f1b-ce14-ea804a518317@chronitis.net>"
+      ],
+      "body_plain": "On 3 August 2016 at 16:45, Gordon Ball wrote:\n| On 02/08/16 03:10, Ei-ji Nakama wrote:\n| > Hi,\n| > \n| > Create /etc/profile.d/openblas.sh.\n| > Write the following during in this file.\n| > OPENBLAS_NUM_THREADS = 1\n| > export OPENBLAS_NUM_THREADS\n| > \n| > OPENBLAS_NUM_THREADS environment variable does not affect the OMP_NUM_THREADS.\n\nThumbs up to using /etc/profile.d/ -- very nice hook.\n\n| Unfortunately neither this nor anything else I've tried today appears to\n| set the variable for sessions started through RStudio server (which may\n| or may not be an appropriate issue here).\n| \n| It appears that the rstudio server spawns sessions with a new minimal\n| environment (rstudio::core::system::launchChildProcess) and no option to\n| inject or inherit variables. (Various methods of controlling the session\n| environment are documented in the pro/paid version manual [1], but are\n| not implemented in the public codebase - enterprise features, presumably).\n| \n| Hence approaches like setting the environment in the\n| rstudio-server.service systemd unit, or creating a /etc/pam.d/rstudio\n| service profile including pam_env.so (to load the setting from\n| /etc/environment) don't work. It would probably be possible to work\n| round this by creating a small binary wrapper for the rsession binary\n| which sets the environment, but it would make a mess of the packaging.\n| \n| So I've gone with an `/etc/R/Rprofile.site` containing\n| \n| local({\n|     if (require(\"RhpcBLASctl\", quietly=TRUE)) blas_set_num_threads(1)\n| })\n| \n| which does mean people get this library loaded in all their sessions but\n| that doesn't seem to cause any particular trouble (yet).\n\nI was just working on something that needed environment variables (for\nautomating tests to a database backend) and populating\n\n   /etc/R/Renviron.site\n\nworked for me. Otherwise explicit code in Rprofile.site is of course good, as\nis conditioning.  I do that too for some use cases.\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 3 August 2016 at 16:45, Gordon Ball wrote:\n| On 02/08/16 03:10, Ei-ji Nakama wrote:\n| > Hi,\n| > \n| > Create /etc/profile.d/openblas.sh.\n| > Write the following during in this file.\n| > OPENBLAS_NUM",
+      "thread_id": "thread-35273cda5eb8",
+      "thread_depth": 3,
+      "month": "2016-08"
+    },
+    {
+      "id": "msg-9bb5b4d70cef",
+      "message_id": "<CAJqeyYa7RXXAG8SpJun3WF0msUFkdBf+ex+GHJ=Fh=B6+0O3Fg@mail.gmail.com>",
+      "from_name": "Ei-ji Nakama",
+      "from_email_hash": "287a261a23e709ca3530a6c601118b8b3e722caf557d2663cc59d766c87e025a",
+      "date": "2016-08-04T13:39:31+09:00",
+      "subject": "[R-sig-Debian] R, OpenBLAS and OMP_NUM_THREADS",
+      "subject_clean": "R, OpenBLAS and OMP_NUM_THREADS",
+      "in_reply_to": "<22434.2044.729097.902374@max.nulle.part>",
+      "references": [
+        "<3ae544d7-7a8f-452b-2d21-a7fdd0d5c1df@chronitis.net>",
+        "<CAJqeyYayvS+2GAHuO7Xzbwc+miNEgDO8tVraoSOBUCXXAqgsVg@mail.gmail.com>",
+        "<680d7390-0e09-0f1b-ce14-ea804a518317@chronitis.net>",
+        "<22434.2044.729097.902374@max.nulle.part>"
+      ],
+      "body_plain": "Hi,\nI was be half asleep in the heat ...\n\n2016-08-04 0:04 GMT+09:00 Dirk Eddelbuettel <edd at debian.org>:\n>\n> On 3 August 2016 at 16:45, Gordon Ball wrote:\n> | On 02/08/16 03:10, Ei-ji Nakama wrote:\n> | > Hi,\n> | >\n> | > Create /etc/profile.d/openblas.sh.\n> | > Write the following during in this file.\n> | > OPENBLAS_NUM_THREADS = 1\n> | > export OPENBLAS_NUM_THREADS\n> | >\n> | > OPENBLAS_NUM_THREADS environment variable does not affect the OMP_NUM_THREADS.\n>\n> Thumbs up to using /etc/profile.d/ -- very nice hook.\n>\n> | Unfortunately neither this nor anything else I've tried today appears to\n> | set the variable for sessions started through RStudio server (which may\n> | or may not be an appropriate issue here).\n> |\n> | It appears that the rstudio server spawns sessions with a new minimal\n> | environment (rstudio::core::system::launchChildProcess) and no option to\n> | inject or inherit variables. (Various methods of controlling the session\n> | environment are documented in the pro/paid version manual [1], but are\n> | not implemented in the public codebase - enterprise features, presumably).\n> |\n> | Hence approaches like setting the environment in the\n> | rstudio-server.service systemd unit, or creating a /etc/pam.d/rstudio\n> | service profile including pam_env.so (to load the setting from\n> | /etc/environment) don't work. It would probably be possible to work\n> | round this by creating a small binary wrapper for the rsession binary\n> | which sets the environment, but it would make a mess of the packaging.\n> |\n> | So I've gone with an `/etc/R/Rprofile.site` containing\n> |\n> | local({\n> |     if (require(\"RhpcBLASctl\", quietly=TRUE)) blas_set_num_threads(1)\n> | })\n> |\n> | which does mean people get this library loaded in all their sessions but\n> | that doesn't seem to cause any particular trouble (yet).\n\nIn this case, hook of the / etc / R / Rprofile.site would be best\n\nlocal({\n  if(require(\"RhpcBLASctl\", quietly=TRUE)){\n  if(Sys.getenv(\"OPENBLAS_NUM_THREADS\")==\"\" &\n     Sys.getenv(\"OMP_NUM_THREADS\")==\"\")\n        blas_set_num_threads(1)\n  }\n})\n\n$ OMP_NUM_THREADS=4 R -q -e 'library(RhpcBLASctl);blas_get_num_procs()'\n> library(RhpcBLASctl);blas_get_num_procs()\n[1] 4\n\nmaybe confusion would be minimal.\n\n> I was just working on something that needed environment variables (for\n> automating tests to a database backend) and populating\n>\n>    /etc/R/Renviron.site\n>\n> worked for me. Otherwise explicit code in Rprofile.site is of course good, as\n> is conditioning.  I do that too for some use cases.\n\nI often forget to have set it...orz\n\n> Dirk\n>\n> --\n> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org\n\n\n\n-- \nBest Regards,\n--\nEiji NAKAMA <nakama (a) ki.rim.or.jp>\n\"\\u4e2d\\u9593\\u6804\\u6cbb\"  <nakama (a) ki.rim.or.jp>",
+      "body_snippet": "Hi,\nI was be half asleep in the heat ...\n\n2016-08-04 0:04 GMT+09:00 Dirk Eddelbuettel <edd at debian.org>:\n>\n> On 3 August 2016 at 16:45, Gordon Ball wrote:\n> | On 02/08/16 03:10, Ei-ji Nakama wrote:\n",
+      "thread_id": "thread-35273cda5eb8",
+      "thread_depth": 4,
+      "month": "2016-08"
+    },
+    {
+      "id": "msg-8f9716a8c6a6",
+      "message_id": "<bb2b057c-9c0f-f2ed-06f6-20c3520fb35a@chronitis.net>",
+      "from_name": "Gordon Ball",
+      "from_email_hash": "ac0a3e6371126f1b9fcfff7686cc130536ade6a8b23fb2cb07161ceebdcc0bce",
+      "date": "2016-08-04T09:41:01+02:00",
+      "subject": "[R-sig-Debian] R, OpenBLAS and OMP_NUM_THREADS",
+      "subject_clean": "R, OpenBLAS and OMP_NUM_THREADS",
+      "in_reply_to": "<CAJqeyYa7RXXAG8SpJun3WF0msUFkdBf+ex+GHJ=Fh=B6+0O3Fg@mail.gmail.com>",
+      "references": [
+        "<3ae544d7-7a8f-452b-2d21-a7fdd0d5c1df@chronitis.net>",
+        "<CAJqeyYayvS+2GAHuO7Xzbwc+miNEgDO8tVraoSOBUCXXAqgsVg@mail.gmail.com>",
+        "<680d7390-0e09-0f1b-ce14-ea804a518317@chronitis.net>",
+        "<22434.2044.729097.902374@max.nulle.part>",
+        "<CAJqeyYa7RXXAG8SpJun3WF0msUFkdBf+ex+GHJ=Fh=B6+0O3Fg@mail.gmail.com>"
+      ],
+      "body_plain": "On 04/08/16 06:39, Ei-ji Nakama wrote:\n> Hi,\n> I was be half asleep in the heat ...\n> \n> 2016-08-04 0:04 GMT+09:00 Dirk Eddelbuettel <edd at debian.org>:\n>>\n>> On 3 August 2016 at 16:45, Gordon Ball wrote:\n>> | On 02/08/16 03:10, Ei-ji Nakama wrote:\n>> | > Hi,\n>> | >\n>> | > Create /etc/profile.d/openblas.sh.\n>> | > Write the following during in this file.\n>> | > OPENBLAS_NUM_THREADS = 1\n>> | > export OPENBLAS_NUM_THREADS\n>> | >\n>> | > OPENBLAS_NUM_THREADS environment variable does not affect the OMP_NUM_THREADS.\n>>\n>> Thumbs up to using /etc/profile.d/ -- very nice hook.\n>>\n>> | Unfortunately neither this nor anything else I've tried today appears to\n>> | set the variable for sessions started through RStudio server (which may\n>> | or may not be an appropriate issue here).\n>> |\n>> | It appears that the rstudio server spawns sessions with a new minimal\n>> | environment (rstudio::core::system::launchChildProcess) and no option to\n>> | inject or inherit variables. (Various methods of controlling the session\n>> | environment are documented in the pro/paid version manual [1], but are\n>> | not implemented in the public codebase - enterprise features, presumably).\n>> |\n>> | Hence approaches like setting the environment in the\n>> | rstudio-server.service systemd unit, or creating a /etc/pam.d/rstudio\n>> | service profile including pam_env.so (to load the setting from\n>> | /etc/environment) don't work. It would probably be possible to work\n>> | round this by creating a small binary wrapper for the rsession binary\n>> | which sets the environment, but it would make a mess of the packaging.\n>> |\n>> | So I've gone with an `/etc/R/Rprofile.site` containing\n>> |\n>> | local({\n>> |     if (require(\"RhpcBLASctl\", quietly=TRUE)) blas_set_num_threads(1)\n>> | })\n>> |\n>> | which does mean people get this library loaded in all their sessions but\n>> | that doesn't seem to cause any particular trouble (yet).\n> \n> In this case, hook of the / etc / R / Rprofile.site would be best\n> \n> local({\n>   if(require(\"RhpcBLASctl\", quietly=TRUE)){\n>   if(Sys.getenv(\"OPENBLAS_NUM_THREADS\")==\"\" &\n>      Sys.getenv(\"OMP_NUM_THREADS\")==\"\")\n>         blas_set_num_threads(1)\n>   }\n> })\n> \n> $ OMP_NUM_THREADS=4 R -q -e 'library(RhpcBLASctl);blas_get_num_procs()'\n>> library(RhpcBLASctl);blas_get_num_procs()\n> [1] 4\n> \n> maybe confusion would be minimal.\n\nYes, that looks a bit better, allowing it to be overridden by\nenvironment variables.\n\nThe other thing that occurred to me was whether this setting would be\ninherited by child R processes (otherwise you'd get a massive thread\nexplosion when running something intentionally parallel), but it looks\nlike at least the builtin `parallel` library does retain the BLAS\nsettings of the parent (presumably since it uses `fork()`).\n\nIt is maybe still worth setting `Sys.setenv(OPENBLAS_NUM_THREADS=1)`\nalong with the `blas_set_num_threads(1)` call in case there are any\nmulticore libraries for which this doesn't apply.\n\n\n(Also, it hadn't occurred to me earlier but I realise you're the author\nof RhpcBLASctl - appreciate it)\n\n\nGordon\n\n> \n>> I was just working on something that needed environment variables (for\n>> automating tests to a database backend) and populating\n>>\n>>    /etc/R/Renviron.site\n>>\n>> worked for me. Otherwise explicit code in Rprofile.site is of course good, as\n>> is conditioning.  I do that too for some use cases.\n> \n> I often forget to have set it...orz\n> \n>> Dirk\n>>\n>> --\n>> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org\n> \n> \n>",
+      "body_snippet": "On 04/08/16 06:39, Ei-ji Nakama wrote:\n> Hi,\n> I was be half asleep in the heat ...\n> \n> 2016-08-04 0:04 GMT+09:00 Dirk Eddelbuettel <edd at debian.org>:\n>>\n>> On 3 August 2016 at 16:45, Gordon Ball w",
+      "thread_id": "thread-35273cda5eb8",
+      "thread_depth": 5,
+      "month": "2016-08"
+    },
+    {
+      "id": "msg-51c2fa052b61",
+      "message_id": "<4f1aa644-a6c0-f1be-2a95-9c55d74af56b@bgc-jena.mpg.de>",
+      "from_name": "Guido Kraemer",
+      "from_email_hash": "b16c5af9ab43d9cf71c59aaa334c2568476e811b48a317939843e1e618bf75be",
+      "date": "2016-08-30T09:23:09+02:00",
+      "subject": "[R-sig-Debian] cat(..., append=TRUE) on sftp share",
+      "subject_clean": "cat(..., append=TRUE) on sftp share",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Dear R-SIG-Debian Team,\n\nr-devel sent me to you.\n\nSituation:\n\nUbuntu 16.04, R-3.3.1, and a file in a folder mounted with sftp via \ngnome virtual file system.\n\n    for(i  in  1:10){cat(i,file  = \n\"/run/user/1001/gvfs/sftp:host=server/path on server/test2\",append  = TRUE)}\n\ngives a file that reads |10| and not |12345678910|\n\nFurther checking:\n\n    * A mapped network drive on Windows 7 and R 3.2.5 works fine.\n    * A samba share on a Mac works fine.\n    * A samba share on Ubuntu 16.04 works fine.\n    * An sftp share on Ubuntu 16.04 does not work, replicated on 2 machines.\n    * Handing over a connection to file argument works fine.\n    * On the Linux server it worked fine, I am not sure how it is mounted\n      there\n\nsee also:\n\nhttps://github.com/klutometis/roxygen/issues/495\n\n\nCheers,\nGuido\n\n\n-- \nGuido Kraemer\nMax Planck Institute for Biogeochemistry Jena\nDepartment for Biogeochemical Integration\nHans-Kn?ll-Str. 10\n07745 Jena\nGermany\n\nphone: +49 3641 576293\ne-mail: gkraemer at bgc-jena.mpg.de",
+      "body_snippet": "Dear R-SIG-Debian Team,\n\nr-devel sent me to you.\n\nSituation:\n\nUbuntu 16.04, R-3.3.1, and a file in a folder mounted with sftp via \ngnome virtual file system.\n\n    for(i  in  1:10){cat(i,file  = \n\"/run",
+      "thread_id": "thread-51c2fa052b61",
+      "thread_depth": 0,
+      "month": "2016-08"
+    },
+    {
+      "id": "msg-876e0ed881e0",
+      "message_id": "<22469.23509.731501.308704@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2016-08-30T05:11:33-05:00",
+      "subject": "[R-sig-Debian] cat(..., append=TRUE) on sftp share",
+      "subject_clean": "cat(..., append=TRUE) on sftp share",
+      "in_reply_to": "<4f1aa644-a6c0-f1be-2a95-9c55d74af56b@bgc-jena.mpg.de>",
+      "references": [
+        "<4f1aa644-a6c0-f1be-2a95-9c55d74af56b@bgc-jena.mpg.de>"
+      ],
+      "body_plain": "Guido,\n\nOn 30 August 2016 at 09:23, Guido Kraemer wrote:\n| Dear R-SIG-Debian Team,\n| \n| r-devel sent me to you.\n| \n| Situation:\n| \n| Ubuntu 16.04, R-3.3.1, and a file in a folder mounted with sftp via \n| gnome virtual file system.\n\nR does not do anything related to mounting, virtual or not. So if ...\n\n|     for(i  in  1:10){cat(i,file  = \n| \"/run/user/1001/gvfs/sftp:host=server/path on server/test2\",append  = TRUE)}\n| \n| gives a file that reads |10| and not |12345678910|\n\n... that happens it would seem that sftp-based mounting drop the append\nprivilege.  You will need to talk to the folks behind that filesystem driver.\n\nThis is certainly not an option in what \n \n| Further checking:\n| \n|     * A mapped network drive on Windows 7 and R 3.2.5 works fine.\n|     * A samba share on a Mac works fine.\n|     * A samba share on Ubuntu 16.04 works fine.\n|     * An sftp share on Ubuntu 16.04 does not work, replicated on 2 machines.\n|     * Handing over a connection to file argument works fine.\n|     * On the Linux server it worked fine, I am not sure how it is mounted\n|       there\n| \n| see also:\n| \n| https://github.com/klutometis/roxygen/issues/495\n\nTo mo, that is clearly a misdiagnosis by Hadley.\n\nDirk\n \n| Cheers,\n| Guido\n| \n| \n| -- \n| Guido Kraemer\n| Max Planck Institute for Biogeochemistry Jena\n| Department for Biogeochemical Integration\n| Hans-Kn?ll-Str. 10\n| 07745 Jena\n| Germany\n| \n| phone: +49 3641 576293\n| e-mail: gkraemer at bgc-jena.mpg.de\n| \n| _______________________________________________\n| R-SIG-Debian mailing list\n| R-SIG-Debian at r-project.org\n| https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "Guido,\n\nOn 30 August 2016 at 09:23, Guido Kraemer wrote:\n| Dear R-SIG-Debian Team,\n| \n| r-devel sent me to you.\n| \n| Situation:\n| \n| Ubuntu 16.04, R-3.3.1, and a file in a folder mounted with sftp via",
+      "thread_id": "thread-51c2fa052b61",
+      "thread_depth": 1,
+      "month": "2016-08"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-35273cda5eb8",
+      "subject": "R, OpenBLAS and OMP_NUM_THREEADS",
+      "message_count": 6,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Ei-ji Nakama",
+        "Gordon Ball"
+      ],
+      "started": "2016-08-01T13:06:02+02:00",
+      "last_reply": "2016-08-04T09:41:01+02:00",
+      "root_message_id": "msg-35273cda5eb8"
+    },
+    {
+      "id": "thread-51c2fa052b61",
+      "subject": "cat(..., append=TRUE) on sftp share",
+      "message_count": 2,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Guido Kraemer"
+      ],
+      "started": "2016-08-30T09:23:09+02:00",
+      "last_reply": "2016-08-30T05:11:33-05:00",
+      "root_message_id": "msg-51c2fa052b61"
+    }
+  ]
+}

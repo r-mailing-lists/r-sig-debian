@@ -1,0 +1,518 @@
+From jeho at jeho.org  Thu Mar  2 15:36:31 2017
+From: jeho at jeho.org (Jim Ottaway)
+Date: Thu, 02 Mar 2017 14:36:31 +0000
+Subject: [R-sig-Debian] Configuration problem installing backport to jessie
+Message-ID: <87pohzsq34.fsf@jeho.org>
+
+I came across this problem moving from the standard jessie package to
+the backport:
+
+    $ sudo dpkg --configure r-base-core   
+    Setting up r-base-core (3.3.2-1~jessiecran.0) ...
+    Preserving user changes to /usr/share/bash-completion/completions/R (renamed from /etc/bash_completion.d/R)...
+    mv: cannot stat ?/usr/share/bash-completion/completions/R?: No such file or directory
+    dpkg: error processing package r-base-core (--configure):
+     subprocess installed post-installation script returned error exit status 1
+    Errors were encountered while processing:
+     r-base-core
+
+I managed to fix this by manually copying the R completion script
+/etc/bash_completion.d/R to /usr/share/bash-completion/completions/
+
+I thought I'd best post something about this in case either I haven't
+actually fixed it or it means something in the backporting is slightly
+wrong with respect to bash completion.
+
+
+From edd at debian.org  Thu Mar  2 16:07:32 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 2 Mar 2017 09:07:32 -0600
+Subject: [R-sig-Debian] Configuration problem installing backport to
+	jessie
+In-Reply-To: <87pohzsq34.fsf@jeho.org>
+References: <87pohzsq34.fsf@jeho.org>
+Message-ID: <22712.13620.264705.284844@max.eddelbuettel.com>
+
+
+On 2 March 2017 at 14:36, Jim Ottaway wrote:
+| I came across this problem moving from the standard jessie package to
+| the backport:
+| 
+|     $ sudo dpkg --configure r-base-core   
+|     Setting up r-base-core (3.3.2-1~jessiecran.0) ...
+|     Preserving user changes to /usr/share/bash-completion/completions/R (renamed from /etc/bash_completion.d/R)...
+|     mv: cannot stat ?/usr/share/bash-completion/completions/R?: No such file or directory
+|     dpkg: error processing package r-base-core (--configure):
+|      subprocess installed post-installation script returned error exit status 1
+|     Errors were encountered while processing:
+|      r-base-core
+| 
+| I managed to fix this by manually copying the R completion script
+| /etc/bash_completion.d/R to /usr/share/bash-completion/completions/
+| 
+| I thought I'd best post something about this in case either I haven't
+| actually fixed it or it means something in the backporting is slightly
+| wrong with respect to bash completion.
+
+Backports are unofficial, and I have limited time.
+
+But if you can work on a test case / improve on this / provide a patch I will
+of course integrate it.
+
+Dirk
+
+--
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From jeho at jeho.org  Thu Mar  2 18:31:07 2017
+From: jeho at jeho.org (Jim Ottaway)
+Date: Thu, 02 Mar 2017 17:31:07 +0000
+Subject: [R-sig-Debian] Configuration problem installing backport to
+	jessie
+In-Reply-To: <22712.13620.264705.284844@max.eddelbuettel.com> (Dirk
+	Eddelbuettel's message of "Thu, 2 Mar 2017 09:07:32 -0600")
+References: <87pohzsq34.fsf@jeho.org>
+	<22712.13620.264705.284844@max.eddelbuettel.com>
+Message-ID: <87innrsi04.fsf@jeho.org>
+
+>>>>> Dirk Eddelbuettel <edd at debian.org> writes:
+> Backports are unofficial, and I have limited time.
+
+> But if you can work on a test case / improve on this / provide a patch I will
+> of course integrate it.
+
+Thank you for your reply.
+
+I have very limited time as well, and limited knowledge of installation
+scripts in Debian packages. So if anyone on this list has contact info
+for whoever looks after the backport, let me know and I'll send this
+info to them.
+
+Yours sincerely,
+-- 
+Jim Ottaway
+
+
+From jranke at uni-bremen.de  Fri Mar  3 08:51:10 2017
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Fri, 03 Mar 2017 08:51:10 +0100
+Subject: [R-sig-Debian] Configuration problem installing backport to
+	jessie
+In-Reply-To: <87pohzsq34.fsf@jeho.org>
+References: <87pohzsq34.fsf@jeho.org>
+Message-ID: <16737033.tq8XXiCoVN@tux>
+
+Hi,
+
+Am Donnerstag, 2. M?rz 2017, 14:36:31 schrieb Jim Ottaway:
+> I came across this problem moving from the standard jessie package to
+> the backport:
+> 
+>     $ sudo dpkg --configure r-base-core
+>     Setting up r-base-core (3.3.2-1~jessiecran.0) ...
+
+I am the one building and uploading those backports to Debian stable to 
+CRAN...
+
+>     Preserving user changes to /usr/share/bash-completion/completions/R
+> (renamed from /etc/bash_completion.d/R)... 
+> mv: cannot stat
+> ?/usr/share/bash-completion/completions/R?: No such file or directory
+> dpkg:
+> error processing package r-base-core (--configure):
+>      subprocess installed post-installation script returned error exit
+> status 1 Errors were encountered while processing:
+>      r-base-core
+
+OK, to check this, I just installed R from jessie on a fresh jessie 
+installation, and upgraded using the CRAN backports. I get
+
+Configuration file '/etc/bash_completion.d/R'
+ ==> Deleted (by you or by a script) since installation.
+ ==> Package distributor has shipped an updated version.
+   What would you like to do about it ?  Your options are:
+    Y or I  : install the package maintainer's version
+    N or O  : keep your currently-installed version
+      D     : show the differences between the versions
+      Z     : start a shell to examine the situation
+ The default action is to keep your current version.
+*** R (Y/I/N/O/D/Z) [default=N] ? 
+
+"Deleted (by you or by a script) since installation" points to a packaging 
+problem, as I have not touched anything in this installation. Indeed, there is 
+no file /etc/bash_completion.d/R in the system.
+
+I accepted the default (keep the currently-installed version) and the 
+installation proceeded without errors.
+
+Then I purged r-base and r-base-core, installed R 3.1.1 from jessie again, and 
+repeated the upgrade, selecting the other option (install the package 
+maintainers version).
+
+Then I get:
+
+Installing new version of config file /etc/bash_completion.d/R ...
+Preserving user changes to /usr/share/bash-completion/completions/R (renamed 
+from /etc/bash_completion.d/R)...
+mv: cannot stat ?/usr/share/bash-completion/completions/R?: No such file or 
+directory
+dpkg: error processing package r-base-core (--configure):
+ subprocess installed post-installation script returned error exit status 1
+
+which is exactly the error you got!
+
+> I managed to fix this by manually copying the R completion script
+> /etc/bash_completion.d/R to /usr/share/bash-completion/completions/
+
+Thanks for sharing the workaround.
+
+> I thought I'd best post something about this in case either I haven't
+> actually fixed it or it means something in the backporting is slightly
+> wrong with respect to bash completion.
+
+Somehow the R 3.3.2 package deletes /etc/bash_completion.d/R before it tries 
+to move it. Then, if you select to keep your current version, this current 
+version is empty which leads to the error.
+
+According to the changelog, debian/r-base-core.maintscript was introduced to 
+fix
+
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=840506
+
+It seems that the interaction of the maintscript and dh_bash-completion is 
+error-prone. Admins should not be bothered by a question about bash completion 
+when they did not touch the configuration.
+
+On the other hand, the backports install fine when accepting the default 
+option, and we have a workaround for the other case.
+
+Hopefully we can do better when packaging/backporting R 3.3.3, expected for 
+next week.
+
+Kind regards,
+
+Johannes
+
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From jeho at jeho.org  Fri Mar  3 14:26:40 2017
+From: jeho at jeho.org (Jim Ottaway)
+Date: Fri, 03 Mar 2017 13:26:40 +0000
+Subject: [R-sig-Debian] Configuration problem installing backport to
+	jessie
+In-Reply-To: <16737033.tq8XXiCoVN@tux> (Johannes Ranke's message of "Fri, 03
+	Mar 2017 08:51:10 +0100")
+References: <87pohzsq34.fsf@jeho.org> <16737033.tq8XXiCoVN@tux>
+Message-ID: <87h93abien.fsf@jeho.org>
+
+That all looks exactly as it happened for me.
+
+Thank you for going through the steps like that: next time I find a
+problem like this I'll have a better idea how to track it down and
+propose a fix rather than merely reporting the problem.
+
+And thanks for looking after the backporting: I wish to have a stable
+Debian but with up to date R, so it's ideal for me.
+
+Yours sincerely,
+-- 
+Jim Ottaway
+
+
+From edd at debian.org  Fri Mar  3 16:06:07 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 3 Mar 2017 09:06:07 -0600
+Subject: [R-sig-Debian] Configuration problem installing backport
+	to	jessie
+In-Reply-To: <16737033.tq8XXiCoVN@tux>
+References: <87pohzsq34.fsf@jeho.org>
+	<16737033.tq8XXiCoVN@tux>
+Message-ID: <22713.34399.379241.294364@max.eddelbuettel.com>
+
+
+On 3 March 2017 at 08:51, Johannes Ranke wrote:
+| "Deleted (by you or by a script) since installation" points to a packaging 
+| problem, as I have not touched anything in this installation. Indeed, there is 
+| no file /etc/bash_completion.d/R in the system.
+
+The default location for these files changed, I finally complied.
+
+But nobody tests this for backports -- so if you or Jim could cook up one or
+two changes to the postinst etc files (ie /var/lib/dpkg/info/r-base-core.p*
+once installed) it would help for your case.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From jranke at uni-bremen.de  Fri Mar  3 16:16:23 2017
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Fri, 03 Mar 2017 16:16:23 +0100
+Subject: [R-sig-Debian] Configuration problem installing backport to
+	jessie
+In-Reply-To: <22713.34399.379241.294364@max.eddelbuettel.com>
+References: <87pohzsq34.fsf@jeho.org> <16737033.tq8XXiCoVN@tux>
+	<22713.34399.379241.294364@max.eddelbuettel.com>
+Message-ID: <1597260.ZNrC1RK7bg@tux>
+
+Am Freitag, 3. M?rz 2017, 09:06:07 schrieb Dirk Eddelbuettel:
+> On 3 March 2017 at 08:51, Johannes Ranke wrote:
+> | "Deleted (by you or by a script) since installation" points to a packaging
+> | problem, as I have not touched anything in this installation. Indeed,
+> | there is no file /etc/bash_completion.d/R in the system.
+> 
+> The default location for these files changed, I finally complied.
+> 
+> But nobody tests this for backports -- so if you or Jim could cook up one or
+> two changes to the postinst etc files (ie /var/lib/dpkg/info/r-base-core.p*
+> once installed) it would help for your case.
+
+Why postinst? We already have two places where this is dealt with, in 
+debian/rules (dh_bash-completion) and in debian/r-base-core.maintscript.
+
+Before I think about doing something in a third script, I would like to 
+understand how these two interact.
+
+Johannes
+
+
+From shannon.markiewicz at gmail.com  Sun Mar 12 15:24:26 2017
+From: shannon.markiewicz at gmail.com (Shannon Markiewicz)
+Date: Sun, 12 Mar 2017 10:24:26 -0400
+Subject: [R-sig-Debian] Problems Updating R version on Debian testing
+Message-ID: <bc2f2ab0-5622-d561-3c87-86aaab25a5f7@gmail.com>
+
+I am trying to update R on debian testing and am getting the following 
+error from the package manager.  Do I need to change the website link?  
+Is there a new signature for the repository that is compliant?
+
+W: GPG error: http://cloud.r-project.org/bin/linux/debian jessie-cran3/ 
+Release: The following signatures were invalid: 
+6212B7B7931C4BB16280BA1306F90DE5381BA480
+E: The repository 'http://cloud.r-project.org/bin/linux/debian 
+jessie-cran3/ Release' is not signed.
+N: Updating from such a repository can't be done securely, and is 
+therefore disabled by default.
+N: See apt-secure(8) manpage for repository creation and user 
+configuration details.
+
+Thanks,
+
+Shannon
+
+
+From jranke at uni-bremen.de  Sun Mar 12 20:30:13 2017
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Sun, 12 Mar 2017 20:30:13 +0100
+Subject: [R-sig-Debian] Problems Updating R version on Debian testing
+In-Reply-To: <bc2f2ab0-5622-d561-3c87-86aaab25a5f7@gmail.com>
+References: <bc2f2ab0-5622-d561-3c87-86aaab25a5f7@gmail.com>
+Message-ID: <5613000.oGiVuNQrBr@tux>
+
+Hi,
+
+I just saw that R 3.3.3 migrated to testing - so please just use the regular 
+Debian repositories.
+
+Johannes
+
+
+Am Sonntag, 12. M?rz 2017, 10:24:26 schrieb Shannon Markiewicz:
+> I am trying to update R on debian testing and am getting the following
+> error from the package manager.  Do I need to change the website link?
+> Is there a new signature for the repository that is compliant?
+> 
+> W: GPG error: http://cloud.r-project.org/bin/linux/debian jessie-cran3/
+> Release: The following signatures were invalid:
+> 6212B7B7931C4BB16280BA1306F90DE5381BA480
+> E: The repository 'http://cloud.r-project.org/bin/linux/debian
+> jessie-cran3/ Release' is not signed.
+> N: Updating from such a repository can't be done securely, and is
+> therefore disabled by default.
+> N: See apt-secure(8) manpage for repository creation and user
+> configuration details.
+> 
+> Thanks,
+> 
+> Shannon
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From matthieu.stigler at gmail.com  Wed Mar 22 19:54:38 2017
+From: matthieu.stigler at gmail.com (Matthieu S)
+Date: Wed, 22 Mar 2017 11:54:38 -0700
+Subject: [R-sig-Debian] Package selectr: issue with the apt-get version,
+ but not with the one installed from R?
+Message-ID: <CAEYvigKjcrV-E6OF4MNFPnrwfsdvf0A4J9r2xkRu7s3PvRCj0w@mail.gmail.com>
+
+Hi
+
+I am facing an issue with the package selectr, where I get an error trying
+to run an example code: css_to_xpath(".testclass"), gives could not find
+function "xpath_class"
+
+The issue arises however only with the package installed with apt-get, not
+when installed from within R. I got a similar issue with maptools, where I
+was not able to use data(wrld_map), and switching to the version "from
+within R" version did solve the issue in the same way.
+
+Note that I posted the issue some time ago on stack-overflow:
+http://stackoverflow.com/questions/40874011/r-rvest-could-not-find-function-xpath-element/42960170#42960170
+but now that I pinned the issue down to the apt-get versus R, I hope I can
+ask on this list?  For the apt-get, I have cran sources added, as well as
+Michael's ppa http://ppa.launchpad.net/marutter/rrutter/ubuntu and
+http://ppa.launchpad.net/marutter/c2d4u/ubuntu
+
+Here is a sample code showing my issue:
+
+> pkg <- installed.packages()
+> subset(as.data.frame(pkg), Package=="selectr", c("Package", "LibPath"))
+          Package                                         LibPath
+selectr   selectr /home/matifou/R/x86_64-pc-linux-gnu-library/3.3
+selectr.1 selectr                         /usr/lib/R/site-library
+> library(selectr,
+lib.loc="/home/matifou/R/x86_64-pc-linux-gnu-library/3.3")
+> css_to_xpath(".testclass")
+[1] "descendant-or-self::*[@class and contains(concat(' ',
+normalize-space(@class), ' '), ' testclass ')]"
+> detach("package:selectr", unload=TRUE)
+> library(selectr, lib.loc="/usr/lib/R/site-library")
+> css_to_xpath(".testclass")
+Error in do.call(method, list(parsed_selector)) :
+  could not find function "xpath_class"
+
+Thanks!!
+
+Matthieu
+
+	[[alternative HTML version deleted]]
+
+
+From marutter at gmail.com  Thu Mar 23 00:48:58 2017
+From: marutter at gmail.com (Michael Rutter)
+Date: Wed, 22 Mar 2017 19:48:58 -0400
+Subject: [R-sig-Debian] Package selectr: issue with the apt-get version,
+ but not with the one installed from R?
+In-Reply-To: <CAEYvigKjcrV-E6OF4MNFPnrwfsdvf0A4J9r2xkRu7s3PvRCj0w@mail.gmail.com>
+References: <CAEYvigKjcrV-E6OF4MNFPnrwfsdvf0A4J9r2xkRu7s3PvRCj0w@mail.gmail.com>
+Message-ID: <2d67815a-877c-fce4-31e3-841abfa3de4f@gmail.com>
+
+
+
+On 03/22/2017 02:54 PM, Matthieu S wrote:
+> Hi
+>
+> I am facing an issue with the package selectr, where I get an error trying
+> to run an example code: css_to_xpath(".testclass"), gives could not find
+> function "xpath_class"
+>
+> The issue arises however only with the package installed with apt-get, not
+> when installed from within R. I got a similar issue with maptools, where I
+> was not able to use data(wrld_map), and switching to the version "from
+> within R" version did solve the issue in the same way.
+>
+> Note that I posted the issue some time ago on stack-overflow:
+> http://stackoverflow.com/questions/40874011/r-rvest-could-not-find-function-xpath-element/42960170#42960170
+> but now that I pinned the issue down to the apt-get versus R, I hope I can
+> ask on this list?  For the apt-get, I have cran sources added, as well as
+> Michael's ppa http://ppa.launchpad.net/marutter/rrutter/ubuntu and
+> http://ppa.launchpad.net/marutter/c2d4u/ubuntu
+
+Matthieu,
+
+I am able to recreate this, but I am not sure what the solution is.  I 
+am going to try a couple of things and let you know.  The code for 
+"xpath_class" is there, it is just not finding it.
+
+Thanks for pointing this out,
+Michael
+
+>
+> Here is a sample code showing my issue:
+>
+>> pkg <- installed.packages()
+>> subset(as.data.frame(pkg), Package=="selectr", c("Package", "LibPath"))
+>           Package                                         LibPath
+> selectr   selectr /home/matifou/R/x86_64-pc-linux-gnu-library/3.3
+> selectr.1 selectr                         /usr/lib/R/site-library
+>> library(selectr,
+> lib.loc="/home/matifou/R/x86_64-pc-linux-gnu-library/3.3")
+>> css_to_xpath(".testclass")
+> [1] "descendant-or-self::*[@class and contains(concat(' ',
+> normalize-space(@class), ' '), ' testclass ')]"
+>> detach("package:selectr", unload=TRUE)
+>> library(selectr, lib.loc="/usr/lib/R/site-library")
+>> css_to_xpath(".testclass")
+> Error in do.call(method, list(parsed_selector)) :
+>   could not find function "xpath_class"
+>
+> Thanks!!
+>
+> Matthieu
+>
+> 	[[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From marutter at gmail.com  Thu Mar 23 01:41:37 2017
+From: marutter at gmail.com (Michael Rutter)
+Date: Wed, 22 Mar 2017 20:41:37 -0400
+Subject: [R-sig-Debian] Package selectr: issue with the apt-get version,
+ but not with the one installed from R?
+In-Reply-To: <CAEYvigKjcrV-E6OF4MNFPnrwfsdvf0A4J9r2xkRu7s3PvRCj0w@mail.gmail.com>
+References: <CAEYvigKjcrV-E6OF4MNFPnrwfsdvf0A4J9r2xkRu7s3PvRCj0w@mail.gmail.com>
+Message-ID: <63a3f4df-606c-701d-c01a-8206ad54f1c0@gmail.com>
+
+
+
+On 03/22/2017 02:54 PM, Matthieu S wrote:
+> Hi
+>
+> I am facing an issue with the package selectr, where I get an error trying
+> to run an example code: css_to_xpath(".testclass"), gives could not find
+> function "xpath_class"
+>
+> The issue arises however only with the package installed with apt-get, not
+> when installed from within R. I got a similar issue with maptools, where I
+> was not able to use data(wrld_map), and switching to the version "from
+> within R" version did solve the issue in the same way.
+>
+> Note that I posted the issue some time ago on stack-overflow:
+> http://stackoverflow.com/questions/40874011/r-rvest-could-not-find-function-xpath-element/42960170#42960170
+> but now that I pinned the issue down to the apt-get versus R, I hope I can
+> ask on this list?  For the apt-get, I have cran sources added, as well as
+> Michael's ppa http://ppa.launchpad.net/marutter/rrutter/ubuntu and
+> http://ppa.launchpad.net/marutter/c2d4u/ubuntu
+>
+
+Matthieu,
+
+A new version of r-cran-selectr is on the PPA.  I think it fixes the 
+issue you had.  Not sure if it is correct, but I am getting a different 
+result that does not appear to be an error.
+
+Turns out that there is a dependency on codetools that is not listed on 
+CRAN.  This is why your local version (which likely has codetools 
+installed) worked and not the one built on the PPA.  But that has been 
+fixed, and will be for all future versions.
+
+Michael
+
+

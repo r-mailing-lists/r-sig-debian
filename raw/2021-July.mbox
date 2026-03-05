@@ -1,0 +1,1781 @@
+From @@h|mk@poor @end|ng |rom gm@||@com  Wed Jul  7 08:12:05 2021
+From: @@h|mk@poor @end|ng |rom gm@||@com (Ashim Kapoor)
+Date: Wed, 7 Jul 2021 11:42:05 +0530
+Subject: [R-sig-Debian] Converting R package to Debian package
+Message-ID: <CAC8=1erPgNeV9LRDH3ipXvF3dTRB4W0evK9dm_z=ZM5=rDL_Ag@mail.gmail.com>
+
+Dear all,
+
+I am on a Debian buster system. I am a beginner to Debian packaging.
+
+Here is my workflow for converting an R package which I call mypackage
+into a Debian package:
+
+1. I take an R package, say mypackage_2.1.tar.gz
+2. I create it's copy as mypackage_2.1.orig.tar.gz
+3. Then I untar the original tarball and create the mypackage directory.
+[ I have installed dh-r helper function like this : sudo apt install dh-r ]
+4. I goto the mypackage directory and do: dh-make-R
+in order to create the debian directory.
+5. Then I modify debian/control ( to make Source / Package entries
+from: r-cran-mypackage into mypackage ) and similarly change
+r-cran-mypackage into mypackage in debian/changelog (where I updated
+the message to "Initial release").
+6. Then from the mypackage directory I do : debuild
+
+The above workflow FAILS with this error:
+
+dpkg-checkbuilddeps: error: Unmet build dependencies: r-cran-dbi
+r-cran-rsqlite r-cran-xts r-cran-zoo r-cran-foreach r-cran-domc
+
+But when I check like this,it says the dependencies are THERE:
+
+$ apt-cache show r-cran-dbi
+Package: r-cran-dbi
+Source: dbi
+Version: 1.0.0-2
+Installed-Size: 1931
+Maintainer: Dirk Eddelbuettel <edd at debian.org>
+Architecture: all
+Depends: r-base-core (>= 3.5.0-3), r-api-3.5
+Suggests: r-cran-rmysql
+Description-en: GNU R package providing a generic database interface
+ A generic database interface (DBI) definition for communication
+ between R and relational database management systems -- similar to
+ Perl's DBI system.  All classes in this package are virtual and need
+ to be extended by the various R/DBMS implementations as e.g. RMySQL.
+Description-md5: dc00e91ab4b239de079502722ee124b8
+Homepage: https://cran.r-project.org/package=DBI
+Tag: devel::lang:r, devel::library, field::statistics, implemented-in::r,
+ role::app-data, suite::gnu, works-with::db
+Section: gnu-r
+Priority: optional
+Filename: pool/main/d/dbi/r-cran-dbi_1.0.0-2_all.deb
+Size: 788848
+MD5sum: 82a1102a8f6b315b4cbce30edbdb9ed8
+SHA256: 704d743feca0a028da369342fd5b0891758952877185b463db289b45f32c9c0e
+
+When I do :
+
+debuild -d
+
+it does not check the dependencies and creates the package.
+
+I have 2 queries though:
+
+1. Why does it say unmet build dependencies when I know for sure that
+the dependencies are present.
+2. My second query is that : is there a way that instead of checking
+for say : r-cran-dbi it checks that the corresponding DBI package is
+installed inside R but perhaps by using the incantation
+install.packages("DBI") and not from the r-cran-dbi Debian package?
+
+Can someone please help me ?
+
+Many thanks and Best Regards,
+Ashim
+
+
+From |uben@d|mov @end|ng |rom gm@||@com  Sat Jul 24 01:31:13 2021
+From: |uben@d|mov @end|ng |rom gm@||@com (Luben Dimov)
+Date: Fri, 23 Jul 2021 19:31:13 -0400
+Subject: [R-sig-Debian] Can't install package tidyverse on Debian 10 stable
+Message-ID: <a1d1328261f145d57cc843ebcd719c9b520e39a4.camel@gmail.com>
+
+Hello,
+
+I am able to install the tidyverse package on a computer with Windows
+OS, but not on Debian 10 stable. (I am new to R and RStudio and
+somewhat new to Debian.)
+
+I have the latest R and RStudio. While I easily install the packages
+for our workshop, the tidyverse is not getting installed.
+
+ 
+
+The more detailed output is at the very end of this message, but in
+short, the problem seems to start while installing the package curl,
+which is part of tidyverse:
+
+----------------------
+
+* installing *source* package ?curl? ...
+
+** package ?curl? successfully unpacked and MD5 sums checked
+
+** using staged installation
+
+Package libcurl was not found in the pkg-config search path.
+
+Perhaps you should add the directory containing `libcurl.pc'
+
+to the PKG_CONFIG_PATH environment variable
+
+No package 'libcurl' found
+
+Package libcurl was not found in the pkg-config search path.
+
+Perhaps you should add the directory containing `libcurl.pc'
+
+to the PKG_CONFIG_PATH environment variable
+
+No package 'libcurl' found
+
+Using PKG_CFLAGS=
+
+Using PKG_LIBS=-lcurl
+
+----------------------
+
+ 
+
+When I try to install libcurl, I get:
+
+----------------------------
+
+install.packages("libcurl")
+
+Installing package into ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1?
+
+(as ?lib? is unspecified)
+
+Warning in install.packages :
+
+  package ?libcurl? is not available for this version of R
+
+ 
+
+A version of this package for your version of R might be available
+elsewhere,
+
+see the ideas at
+
+https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages
+
+------------------------------
+
+ 
+
+Another suggestions is to install libcurl4-openssl-dev, but when I try
+to, I get:
+
+-----------------------------
+
+> install.packages("libcurl4-openssl-dev")
+
+Installing package into ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1?
+
+(as ?lib? is unspecified)
+
+Warning in install.packages :
+
+  package ?libcurl4-openssl-dev? is not available for this version of R
+
+ 
+
+A version of this package for your version of R might be available
+elsewhere,
+
+see the ideas at
+
+https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages
+
+------------------------------
+
+ 
+
+Here is my session info:
+
+---------------------------------------
+
+> sessionInfo() R version 4.1.0 (2021-05-18) Platform: x86_64-pc-linux-
+gnu (64-bit) Running under: Debian GNU/Linux 10 (buster) Matrix
+products: default BLAS: /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.8.0 
+LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.8.0 locale: [1]
+LC_CTYPE=en_US.UTF-8 LC_NUMERIC=C LC_TIME=en_US.UTF-8
+LC_COLLATE=en_US.UTF-8 [5] LC_MONETARY=en_US.UTF-8
+LC_MESSAGES=en_US.UTF-8 LC_PAPER=en_US.UTF-8 LC_NAME=C [9] LC_ADDRESS=C
+LC_TELEPHONE=C LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C attached
+base packages: [1] stats graphics grDevices utils datasets methods base
+loaded via a namespace (and not attached): [1] compiler_4.1.0
+tools_4.1.0
+
+------------------------------
+
+ 
+
+And below is the full output with all the errors when trying to
+tidyverse. I tried installing it on Debian 11 Testing, but no luck
+there either, although the errors were different. 
+Thank you in advance for your help.
+
+Luben
+
+--------------------------------------
+
+> install.packages("tidyverse")
+
+Installing package into ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1?
+
+(as ?lib? is unspecified)
+
+also installing the dependencies ?gargle?, ?curl?, ?ids?, ?openssl?,
+?googledrive?, ?googlesheets4?, ?httr?, ?rvest?, ?xml2?
+
+ 
+
+trying URL '
+https://cloud.r-project.org/src/contrib/gargle_1.2.0.tar.gz'
+
+Content type 'application/x-gzip' length 313418 bytes (306 KB)
+
+==================================================
+
+downloaded 306 KB
+
+ 
+
+trying URL 'https://cloud.r-project.org/src/contrib/curl_4.3.2.tar.gz'
+
+Content type 'application/x-gzip' length 793345 bytes (774 KB)
+
+==================================================
+
+downloaded 774 KB
+
+ 
+
+trying URL 'https://cloud.r-project.org/src/contrib/ids_1.0.1.tar.gz'
+
+Content type 'application/x-gzip' length 91213 bytes (89 KB)
+
+==================================================
+
+downloaded 89 KB
+
+ 
+
+trying URL '
+https://cloud.r-project.org/src/contrib/openssl_1.4.4.tar.gz'
+
+Content type 'application/x-gzip' length 1311285 bytes (1.3 MB)
+
+==================================================
+
+downloaded 1.3 MB
+
+ 
+
+trying URL '
+https://cloud.r-project.org/src/contrib/googledrive_2.0.0.tar.gz'
+
+Content type 'application/x-gzip' length 1593656 bytes (1.5 MB)
+
+==================================================
+
+downloaded 1.5 MB
+
+ 
+
+trying URL '
+https://cloud.r-project.org/src/contrib/googlesheets4_0.3.0.tar.gz'
+
+Content type 'application/x-gzip' length 435126 bytes (424 KB)
+
+==================================================
+
+downloaded 424 KB
+
+ 
+
+trying URL 'https://cloud.r-project.org/src/contrib/httr_1.4.2.tar.gz'
+
+Content type 'application/x-gzip' length 159950 bytes (156 KB)
+
+==================================================
+
+downloaded 156 KB
+
+ 
+
+trying URL 'https://cloud.r-project.org/src/contrib/rvest_1.0.0.tar.gz'
+
+Content type 'application/x-gzip' length 94134 bytes (91 KB)
+
+==================================================
+
+downloaded 91 KB
+
+ 
+
+trying URL 'https://cloud.r-project.org/src/contrib/xml2_1.3.2.tar.gz'
+
+Content type 'application/x-gzip' length 271876 bytes (265 KB)
+
+==================================================
+
+downloaded 265 KB
+
+ 
+
+trying URL '
+https://cloud.r-project.org/src/contrib/tidyverse_1.3.1.tar.gz'
+
+Content type 'application/x-gzip' length 702779 bytes (686 KB)
+
+==================================================
+
+downloaded 686 KB
+
+ 
+
+* installing *source* package ?curl? ...
+
+** package ?curl? successfully unpacked and MD5 sums checked
+
+** using staged installation
+
+Package libcurl was not found in the pkg-config search path.
+
+Perhaps you should add the directory containing `libcurl.pc'
+
+to the PKG_CONFIG_PATH environment variable
+
+No package 'libcurl' found
+
+Package libcurl was not found in the pkg-config search path.
+
+Perhaps you should add the directory containing `libcurl.pc'
+
+to the PKG_CONFIG_PATH environment variable
+
+No package 'libcurl' found
+
+Using PKG_CFLAGS=
+
+Using PKG_LIBS=-lcurl
+
+------------------------- ANTICONF ERROR ---------------------------
+
+Configuration failed because libcurl was not found. Try installing:
+
+ * deb: libcurl4-openssl-dev (Debian, Ubuntu, etc)
+
+ * rpm: libcurl-devel (Fedora, CentOS, RHEL)
+
+ * csw: libcurl_dev (Solaris)
+
+If libcurl is already installed, check that 'pkg-config' is in your
+
+PATH and PKG_CONFIG_PATH contains a libcurl.pc file. If pkg-config
+
+is unavailable you can set INCLUDE_DIR and LIB_DIR manually via:
+
+R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'
+
+--------------------------------------------------------------------
+
+ERROR: configuration failed for package ?curl?
+
+* removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/curl?
+
+Warning in install.packages :
+
+  installation of package ?curl? had non-zero exit status
+
+* installing *source* package ?openssl? ...
+
+** package ?openssl? successfully unpacked and MD5 sums checked
+
+** using staged installation
+
+Using PKG_CFLAGS=
+
+--------------------------- [ANTICONF] --------------------------------
+
+Configuration failed because openssl was not found. Try installing:
+
+ * deb: libssl-dev (Debian, Ubuntu, etc)
+
+ * rpm: openssl-devel (Fedora, CentOS, RHEL)
+
+ * csw: libssl_dev (Solaris)
+
+ * brew: openssl at 1.1 (Mac OSX)
+
+If openssl is already installed, check that 'pkg-config' is in your
+
+PATH and PKG_CONFIG_PATH contains a openssl.pc file. If pkg-config
+
+is unavailable you can set INCLUDE_DIR and LIB_DIR manually via:
+
+R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'
+
+-------------------------- [ERROR MESSAGE] ---------------------------
+
+tools/version.c:1:10: fatal error: openssl/opensslv.h: No such file or
+directory
+
+ #include <openssl/opensslv.h>
+
+          ^~~~~~~~~~~~~~~~~~~~
+
+compilation terminated.
+
+--------------------------------------------------------------------
+
+ERROR: configuration failed for package ?openssl?
+
+* removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/openssl?
+
+Warning in install.packages :
+
+  installation of package ?openssl? had non-zero exit status
+
+* installing *source* package ?xml2? ...
+
+** package ?xml2? successfully unpacked and MD5 sums checked
+
+** using staged installation
+
+Package libxml-2.0 was not found in the pkg-config search path.
+
+Perhaps you should add the directory containing `libxml-2.0.pc'
+
+to the PKG_CONFIG_PATH environment variable
+
+No package 'libxml-2.0' found
+
+Package libxml-2.0 was not found in the pkg-config search path.
+
+Perhaps you should add the directory containing `libxml-2.0.pc'
+
+to the PKG_CONFIG_PATH environment variable
+
+No package 'libxml-2.0' found
+
+Using PKG_CFLAGS=
+
+Using PKG_LIBS=-lxml2
+
+------------------------- ANTICONF ERROR ---------------------------
+
+Configuration failed because libxml-2.0 was not found. Try installing:
+
+ * deb: libxml2-dev (Debian, Ubuntu, etc)
+
+ * rpm: libxml2-devel (Fedora, CentOS, RHEL)
+
+ * csw: libxml2_dev (Solaris)
+
+If libxml-2.0 is already installed, check that 'pkg-config' is in your
+
+PATH and PKG_CONFIG_PATH contains a libxml-2.0.pc file. If pkg-config
+
+is unavailable you can set INCLUDE_DIR and LIB_DIR manually via:
+
+R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'
+
+--------------------------------------------------------------------
+
+ERROR: configuration failed for package ?xml2?
+
+* removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/xml2?
+
+Warning in install.packages :
+
+  installation of package ?xml2? had non-zero exit status
+
+ERROR: dependency ?openssl? is not available for package ?ids?
+
+* removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/ids?
+
+Warning in install.packages :
+
+  installation of package ?ids? had non-zero exit status
+
+ERROR: dependencies ?curl?, ?openssl? are not available for package
+?httr?
+
+* removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/httr?
+
+Warning in install.packages :
+
+  installation of package ?httr? had non-zero exit status
+
+ERROR: dependency ?httr? is not available for package ?gargle?
+
+* removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/gargle?
+
+Warning in install.packages :
+
+  installation of package ?gargle? had non-zero exit status
+
+ERROR: dependencies ?httr?, ?xml2? are not available for package
+?rvest?
+
+* removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/rvest?
+
+Warning in install.packages :
+
+  installation of package ?rvest? had non-zero exit status
+
+ERROR: dependencies ?gargle?, ?httr? are not available for package
+?googledrive?
+
+* removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/googledrive?
+
+Warning in install.packages :
+
+  installation of package ?googledrive? had non-zero exit status
+
+ERROR: dependencies ?curl?, ?gargle?, ?googledrive?, ?httr?, ?ids? are
+not available for package ?googlesheets4?
+
+* removing ?/home/luben/R/x86_64-pc-linux-gnu-
+library/4.1/googlesheets4?
+
+Warning in install.packages :
+
+  installation of package ?googlesheets4? had non-zero exit status
+
+ERROR: dependencies ?googledrive?, ?googlesheets4?, ?httr?, ?rvest?,
+?xml2? are not available for package ?tidyverse?
+
+* removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/tidyverse?
+
+Warning in install.packages :
+
+  installation of package ?tidyverse? had non-zero exit status
+
+ 
+
+The downloaded source packages are in
+
+?/tmp/RtmpF0FDpx/downloaded_packages?
+
+> library(tidyverse)
+
+Error in library(tidyverse) : there is no package called ?tidyverse?
+
+
+From ty|er @end|ng |rom p|@nt@rum@c@  Sat Jul 24 01:35:24 2021
+From: ty|er @end|ng |rom p|@nt@rum@c@ (Tyler Smith)
+Date: Fri, 23 Jul 2021 19:35:24 -0400
+Subject: [R-sig-Debian] 
+ =?utf-8?q?Can=27t_install_package_tidyverse_on_De?=
+ =?utf-8?q?bian_10_stable?=
+In-Reply-To: <a1d1328261f145d57cc843ebcd719c9b520e39a4.camel@gmail.com>
+References: <a1d1328261f145d57cc843ebcd719c9b520e39a4.camel@gmail.com>
+Message-ID: <b10ae78e-c3b0-4540-b624-79a991741e0a@www.fastmail.com>
+
+libcurl and libcurl4-openssl-dev are Debian packages, not R packages. You can install them from the command line (not R):
+
+sudo apt-get install libcurl4-openssl-dev
+
+Or use your package manager.
+
+Best,
+
+Tyler
+
+-- 
+plantarum.ca
+
+On Fri, Jul 23, 2021, at 7:31 PM, Luben Dimov wrote:
+> Hello,
+> 
+> I am able to install the tidyverse package on a computer with Windows
+> OS, but not on Debian 10 stable. (I am new to R and RStudio and
+> somewhat new to Debian.)
+> 
+> I have the latest R and RStudio. While I easily install the packages
+> for our workshop, the tidyverse is not getting installed.
+> 
+>  
+> 
+> The more detailed output is at the very end of this message, but in
+> short, the problem seems to start while installing the package curl,
+> which is part of tidyverse:
+> 
+> ----------------------
+> 
+> * installing *source* package ?curl? ...
+> 
+> ** package ?curl? successfully unpacked and MD5 sums checked
+> 
+> ** using staged installation
+> 
+> Package libcurl was not found in the pkg-config search path.
+> 
+> Perhaps you should add the directory containing `libcurl.pc'
+> 
+> to the PKG_CONFIG_PATH environment variable
+> 
+> No package 'libcurl' found
+> 
+> Package libcurl was not found in the pkg-config search path.
+> 
+> Perhaps you should add the directory containing `libcurl.pc'
+> 
+> to the PKG_CONFIG_PATH environment variable
+> 
+> No package 'libcurl' found
+> 
+> Using PKG_CFLAGS=
+> 
+> Using PKG_LIBS=-lcurl
+> 
+> ----------------------
+> 
+>  
+> 
+> When I try to install libcurl, I get:
+> 
+> ----------------------------
+> 
+> install.packages("libcurl")
+> 
+> Installing package into ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1?
+> 
+> (as ?lib? is unspecified)
+> 
+> Warning in install.packages :
+> 
+>   package ?libcurl? is not available for this version of R
+> 
+>  
+> 
+> A version of this package for your version of R might be available
+> elsewhere,
+> 
+> see the ideas at
+> 
+> https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages
+> 
+> ------------------------------
+> 
+>  
+> 
+> Another suggestions is to install libcurl4-openssl-dev, but when I try
+> to, I get:
+> 
+> -----------------------------
+> 
+> > install.packages("libcurl4-openssl-dev")
+> 
+> Installing package into ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1?
+> 
+> (as ?lib? is unspecified)
+> 
+> Warning in install.packages :
+> 
+>   package ?libcurl4-openssl-dev? is not available for this version of R
+> 
+>  
+> 
+> A version of this package for your version of R might be available
+> elsewhere,
+> 
+> see the ideas at
+> 
+> https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages
+> 
+> ------------------------------
+> 
+>  
+> 
+> Here is my session info:
+> 
+> ---------------------------------------
+> 
+> > sessionInfo() R version 4.1.0 (2021-05-18) Platform: x86_64-pc-linux-
+> gnu (64-bit) Running under: Debian GNU/Linux 10 (buster) Matrix
+> products: default BLAS: /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.8.0 
+> LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.8.0 locale: [1]
+> LC_CTYPE=en_US.UTF-8 LC_NUMERIC=C LC_TIME=en_US.UTF-8
+> LC_COLLATE=en_US.UTF-8 [5] LC_MONETARY=en_US.UTF-8
+> LC_MESSAGES=en_US.UTF-8 LC_PAPER=en_US.UTF-8 LC_NAME=C [9] LC_ADDRESS=C
+> LC_TELEPHONE=C LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C attached
+> base packages: [1] stats graphics grDevices utils datasets methods base
+> loaded via a namespace (and not attached): [1] compiler_4.1.0
+> tools_4.1.0
+> 
+> ------------------------------
+> 
+>  
+> 
+> And below is the full output with all the errors when trying to
+> tidyverse. I tried installing it on Debian 11 Testing, but no luck
+> there either, although the errors were different. 
+> Thank you in advance for your help.
+> 
+> Luben
+> 
+> --------------------------------------
+> 
+> > install.packages("tidyverse")
+> 
+> Installing package into ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1?
+> 
+> (as ?lib? is unspecified)
+> 
+> also installing the dependencies ?gargle?, ?curl?, ?ids?, ?openssl?,
+> ?googledrive?, ?googlesheets4?, ?httr?, ?rvest?, ?xml2?
+> 
+>  
+> 
+> trying URL '
+> https://cloud.r-project.org/src/contrib/gargle_1.2.0.tar.gz'
+> 
+> Content type 'application/x-gzip' length 313418 bytes (306 KB)
+> 
+> ==================================================
+> 
+> downloaded 306 KB
+> 
+>  
+> 
+> trying URL 'https://cloud.r-project.org/src/contrib/curl_4.3.2.tar.gz'
+> 
+> Content type 'application/x-gzip' length 793345 bytes (774 KB)
+> 
+> ==================================================
+> 
+> downloaded 774 KB
+> 
+>  
+> 
+> trying URL 'https://cloud.r-project.org/src/contrib/ids_1.0.1.tar.gz'
+> 
+> Content type 'application/x-gzip' length 91213 bytes (89 KB)
+> 
+> ==================================================
+> 
+> downloaded 89 KB
+> 
+>  
+> 
+> trying URL '
+> https://cloud.r-project.org/src/contrib/openssl_1.4.4.tar.gz'
+> 
+> Content type 'application/x-gzip' length 1311285 bytes (1.3 MB)
+> 
+> ==================================================
+> 
+> downloaded 1.3 MB
+> 
+>  
+> 
+> trying URL '
+> https://cloud.r-project.org/src/contrib/googledrive_2.0.0.tar.gz'
+> 
+> Content type 'application/x-gzip' length 1593656 bytes (1.5 MB)
+> 
+> ==================================================
+> 
+> downloaded 1.5 MB
+> 
+>  
+> 
+> trying URL '
+> https://cloud.r-project.org/src/contrib/googlesheets4_0.3.0.tar.gz'
+> 
+> Content type 'application/x-gzip' length 435126 bytes (424 KB)
+> 
+> ==================================================
+> 
+> downloaded 424 KB
+> 
+>  
+> 
+> trying URL 'https://cloud.r-project.org/src/contrib/httr_1.4.2.tar.gz'
+> 
+> Content type 'application/x-gzip' length 159950 bytes (156 KB)
+> 
+> ==================================================
+> 
+> downloaded 156 KB
+> 
+>  
+> 
+> trying URL 'https://cloud.r-project.org/src/contrib/rvest_1.0.0.tar.gz'
+> 
+> Content type 'application/x-gzip' length 94134 bytes (91 KB)
+> 
+> ==================================================
+> 
+> downloaded 91 KB
+> 
+>  
+> 
+> trying URL 'https://cloud.r-project.org/src/contrib/xml2_1.3.2.tar.gz'
+> 
+> Content type 'application/x-gzip' length 271876 bytes (265 KB)
+> 
+> ==================================================
+> 
+> downloaded 265 KB
+> 
+>  
+> 
+> trying URL '
+> https://cloud.r-project.org/src/contrib/tidyverse_1.3.1.tar.gz'
+> 
+> Content type 'application/x-gzip' length 702779 bytes (686 KB)
+> 
+> ==================================================
+> 
+> downloaded 686 KB
+> 
+>  
+> 
+> * installing *source* package ?curl? ...
+> 
+> ** package ?curl? successfully unpacked and MD5 sums checked
+> 
+> ** using staged installation
+> 
+> Package libcurl was not found in the pkg-config search path.
+> 
+> Perhaps you should add the directory containing `libcurl.pc'
+> 
+> to the PKG_CONFIG_PATH environment variable
+> 
+> No package 'libcurl' found
+> 
+> Package libcurl was not found in the pkg-config search path.
+> 
+> Perhaps you should add the directory containing `libcurl.pc'
+> 
+> to the PKG_CONFIG_PATH environment variable
+> 
+> No package 'libcurl' found
+> 
+> Using PKG_CFLAGS=
+> 
+> Using PKG_LIBS=-lcurl
+> 
+> ------------------------- ANTICONF ERROR ---------------------------
+> 
+> Configuration failed because libcurl was not found. Try installing:
+> 
+>  * deb: libcurl4-openssl-dev (Debian, Ubuntu, etc)
+> 
+>  * rpm: libcurl-devel (Fedora, CentOS, RHEL)
+> 
+>  * csw: libcurl_dev (Solaris)
+> 
+> If libcurl is already installed, check that 'pkg-config' is in your
+> 
+> PATH and PKG_CONFIG_PATH contains a libcurl.pc file. If pkg-config
+> 
+> is unavailable you can set INCLUDE_DIR and LIB_DIR manually via:
+> 
+> R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'
+> 
+> --------------------------------------------------------------------
+> 
+> ERROR: configuration failed for package ?curl?
+> 
+> * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/curl?
+> 
+> Warning in install.packages :
+> 
+>   installation of package ?curl? had non-zero exit status
+> 
+> * installing *source* package ?openssl? ...
+> 
+> ** package ?openssl? successfully unpacked and MD5 sums checked
+> 
+> ** using staged installation
+> 
+> Using PKG_CFLAGS=
+> 
+> --------------------------- [ANTICONF] --------------------------------
+> 
+> Configuration failed because openssl was not found. Try installing:
+> 
+>  * deb: libssl-dev (Debian, Ubuntu, etc)
+> 
+>  * rpm: openssl-devel (Fedora, CentOS, RHEL)
+> 
+>  * csw: libssl_dev (Solaris)
+> 
+>  * brew: openssl at 1.1 (Mac OSX)
+> 
+> If openssl is already installed, check that 'pkg-config' is in your
+> 
+> PATH and PKG_CONFIG_PATH contains a openssl.pc file. If pkg-config
+> 
+> is unavailable you can set INCLUDE_DIR and LIB_DIR manually via:
+> 
+> R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'
+> 
+> -------------------------- [ERROR MESSAGE] ---------------------------
+> 
+> tools/version.c:1:10: fatal error: openssl/opensslv.h: No such file or
+> directory
+> 
+>  #include <openssl/opensslv.h>
+> 
+>           ^~~~~~~~~~~~~~~~~~~~
+> 
+> compilation terminated.
+> 
+> --------------------------------------------------------------------
+> 
+> ERROR: configuration failed for package ?openssl?
+> 
+> * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/openssl?
+> 
+> Warning in install.packages :
+> 
+>   installation of package ?openssl? had non-zero exit status
+> 
+> * installing *source* package ?xml2? ...
+> 
+> ** package ?xml2? successfully unpacked and MD5 sums checked
+> 
+> ** using staged installation
+> 
+> Package libxml-2.0 was not found in the pkg-config search path.
+> 
+> Perhaps you should add the directory containing `libxml-2.0.pc'
+> 
+> to the PKG_CONFIG_PATH environment variable
+> 
+> No package 'libxml-2.0' found
+> 
+> Package libxml-2.0 was not found in the pkg-config search path.
+> 
+> Perhaps you should add the directory containing `libxml-2.0.pc'
+> 
+> to the PKG_CONFIG_PATH environment variable
+> 
+> No package 'libxml-2.0' found
+> 
+> Using PKG_CFLAGS=
+> 
+> Using PKG_LIBS=-lxml2
+> 
+> ------------------------- ANTICONF ERROR ---------------------------
+> 
+> Configuration failed because libxml-2.0 was not found. Try installing:
+> 
+>  * deb: libxml2-dev (Debian, Ubuntu, etc)
+> 
+>  * rpm: libxml2-devel (Fedora, CentOS, RHEL)
+> 
+>  * csw: libxml2_dev (Solaris)
+> 
+> If libxml-2.0 is already installed, check that 'pkg-config' is in your
+> 
+> PATH and PKG_CONFIG_PATH contains a libxml-2.0.pc file. If pkg-config
+> 
+> is unavailable you can set INCLUDE_DIR and LIB_DIR manually via:
+> 
+> R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'
+> 
+> --------------------------------------------------------------------
+> 
+> ERROR: configuration failed for package ?xml2?
+> 
+> * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/xml2?
+> 
+> Warning in install.packages :
+> 
+>   installation of package ?xml2? had non-zero exit status
+> 
+> ERROR: dependency ?openssl? is not available for package ?ids?
+> 
+> * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/ids?
+> 
+> Warning in install.packages :
+> 
+>   installation of package ?ids? had non-zero exit status
+> 
+> ERROR: dependencies ?curl?, ?openssl? are not available for package
+> ?httr?
+> 
+> * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/httr?
+> 
+> Warning in install.packages :
+> 
+>   installation of package ?httr? had non-zero exit status
+> 
+> ERROR: dependency ?httr? is not available for package ?gargle?
+> 
+> * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/gargle?
+> 
+> Warning in install.packages :
+> 
+>   installation of package ?gargle? had non-zero exit status
+> 
+> ERROR: dependencies ?httr?, ?xml2? are not available for package
+> ?rvest?
+> 
+> * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/rvest?
+> 
+> Warning in install.packages :
+> 
+>   installation of package ?rvest? had non-zero exit status
+> 
+> ERROR: dependencies ?gargle?, ?httr? are not available for package
+> ?googledrive?
+> 
+> * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/googledrive?
+> 
+> Warning in install.packages :
+> 
+>   installation of package ?googledrive? had non-zero exit status
+> 
+> ERROR: dependencies ?curl?, ?gargle?, ?googledrive?, ?httr?, ?ids? are
+> not available for package ?googlesheets4?
+> 
+> * removing ?/home/luben/R/x86_64-pc-linux-gnu-
+> library/4.1/googlesheets4?
+> 
+> Warning in install.packages :
+> 
+>   installation of package ?googlesheets4? had non-zero exit status
+> 
+> ERROR: dependencies ?googledrive?, ?googlesheets4?, ?httr?, ?rvest?,
+> ?xml2? are not available for package ?tidyverse?
+> 
+> * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/tidyverse?
+> 
+> Warning in install.packages :
+> 
+>   installation of package ?tidyverse? had non-zero exit status
+> 
+>  
+> 
+> The downloaded source packages are in
+> 
+> ?/tmp/RtmpF0FDpx/downloaded_packages?
+> 
+> > library(tidyverse)
+> 
+> Error in library(tidyverse) : there is no package called ?tidyverse?
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+
+
+From edd @end|ng |rom deb|@n@org  Sat Jul 24 02:26:12 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Fri, 23 Jul 2021 19:26:12 -0500
+Subject: [R-sig-Debian] Converting R package to Debian package
+In-Reply-To: <CAC8=1erPgNeV9LRDH3ipXvF3dTRB4W0evK9dm_z=ZM5=rDL_Ag@mail.gmail.com>
+References: <CAC8=1erPgNeV9LRDH3ipXvF3dTRB4W0evK9dm_z=ZM5=rDL_Ag@mail.gmail.com>
+Message-ID: <24827.24100.187670.399979@rob.eddelbuettel.com>
+
+
+Hi Ashim,
+
+Sorry, I must have missed this while traveling.
+
+On 7 July 2021 at 11:42, Ashim Kapoor wrote:
+| Dear all,
+| 
+| I am on a Debian buster system. I am a beginner to Debian packaging.
+| 
+| Here is my workflow for converting an R package which I call mypackage
+| into a Debian package:
+| 
+| 1. I take an R package, say mypackage_2.1.tar.gz
+| 2. I create it's copy as mypackage_2.1.orig.tar.gz
+| 3. Then I untar the original tarball and create the mypackage directory.
+| [ I have installed dh-r helper function like this : sudo apt install dh-r ]
+| 4. I goto the mypackage directory and do: dh-make-R
+| in order to create the debian directory.
+| 5. Then I modify debian/control ( to make Source / Package entries
+| from: r-cran-mypackage into mypackage ) and similarly change
+| r-cran-mypackage into mypackage in debian/changelog (where I updated
+| the message to "Initial release").
+| 6. Then from the mypackage directory I do : debuild
+| 
+| The above workflow FAILS with this error:
+| 
+| dpkg-checkbuilddeps: error: Unmet build dependencies: r-cran-dbi
+| r-cran-rsqlite r-cran-xts r-cran-zoo r-cran-foreach r-cran-domc
+
+That may mean they need to be in the minimal 'chroot' environment in which
+the package is built, which you ensure via debian/control and the
+Build-Depends field.
+
+Or it may mean that dpkg-checkbuilddeps checks against your current system.
+
+| But when I check like this,it says the dependencies are THERE:
+|
+| $ apt-cache show r-cran-dbi
+
+That tests your outer system / what is known in the _entire distribution_
+which is very different from the build-a-package clean room.
+
+| Package: r-cran-dbi
+| Source: dbi
+| Version: 1.0.0-2
+| Installed-Size: 1931
+| Maintainer: Dirk Eddelbuettel <edd at debian.org>
+| Architecture: all
+| Depends: r-base-core (>= 3.5.0-3), r-api-3.5
+| Suggests: r-cran-rmysql
+| Description-en: GNU R package providing a generic database interface
+|  A generic database interface (DBI) definition for communication
+|  between R and relational database management systems -- similar to
+|  Perl's DBI system.  All classes in this package are virtual and need
+|  to be extended by the various R/DBMS implementations as e.g. RMySQL.
+| Description-md5: dc00e91ab4b239de079502722ee124b8
+| Homepage: https://cran.r-project.org/package=DBI
+| Tag: devel::lang:r, devel::library, field::statistics, implemented-in::r,
+|  role::app-data, suite::gnu, works-with::db
+| Section: gnu-r
+| Priority: optional
+| Filename: pool/main/d/dbi/r-cran-dbi_1.0.0-2_all.deb
+| Size: 788848
+| MD5sum: 82a1102a8f6b315b4cbce30edbdb9ed8
+| SHA256: 704d743feca0a028da369342fd5b0891758952877185b463db289b45f32c9c0e
+| 
+| When I do :
+| 
+| debuild -d
+| 
+| it does not check the dependencies and creates the package.
+
+That is all that matters :)
+ 
+| I have 2 queries though:
+| 
+| 1. Why does it say unmet build dependencies when I know for sure that
+| the dependencies are present.
+
+See above.
+
+| 2. My second query is that : is there a way that instead of checking
+| for say : r-cran-dbi it checks that the corresponding DBI package is
+| installed inside R but perhaps by using the incantation
+| install.packages("DBI") and not from the r-cran-dbi Debian package?
+
+I do not understand the question. Can you rephrase it?
+
+| Can someone please help me ?
+
+I'll try.
+
+Dirk
+ 
+| Many thanks and Best Regards,
+| Ashim
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @end|ng |rom deb|@n@org  Sat Jul 24 02:29:08 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Fri, 23 Jul 2021 19:29:08 -0500
+Subject: [R-sig-Debian] 
+ Can't install package tidyverse on Debian 10 stable
+In-Reply-To: <b10ae78e-c3b0-4540-b624-79a991741e0a@www.fastmail.com>
+References: <a1d1328261f145d57cc843ebcd719c9b520e39a4.camel@gmail.com>
+ <b10ae78e-c3b0-4540-b624-79a991741e0a@www.fastmail.com>
+Message-ID: <24827.24276.960353.360074@rob.eddelbuettel.com>
+
+
+Luben,
+
+Adding to what Tyler kindly said:
+
+On 23 July 2021 at 19:35, Tyler Smith wrote:
+| libcurl and libcurl4-openssl-dev are Debian packages, not R packages. You can install them from the command line (not R):
+| 
+| sudo apt-get install libcurl4-openssl-dev
+| 
+| Or use your package manager.
+
+Depending on exactly _which_ Debian (or Ubuntu) flavour you use you also can
+get *ALL* of the tidyverse *IN ONE SHOT* as binaries.
+
+I have several posts (and demos !!) on that below
+
+  http://dirk.eddelbuettel.com/blog/code/r4/
+
+so take a look and read up, and please come back here with questions.  It is
+a difficult step to get all of tidyverse (or, say, rstan) but we *do* have in
+binaries.  This is very much worth learning about methinks.
+
+Cheers, Dirk
+
+| Best,
+| 
+| Tyler
+| 
+| -- 
+| plantarum.ca
+| 
+| On Fri, Jul 23, 2021, at 7:31 PM, Luben Dimov wrote:
+| > Hello,
+| > 
+| > I am able to install the tidyverse package on a computer with Windows
+| > OS, but not on Debian 10 stable. (I am new to R and RStudio and
+| > somewhat new to Debian.)
+| > 
+| > I have the latest R and RStudio. While I easily install the packages
+| > for our workshop, the tidyverse is not getting installed.
+| > 
+| >  
+| > 
+| > The more detailed output is at the very end of this message, but in
+| > short, the problem seems to start while installing the package curl,
+| > which is part of tidyverse:
+| > 
+| > ----------------------
+| > 
+| > * installing *source* package ?curl? ...
+| > 
+| > ** package ?curl? successfully unpacked and MD5 sums checked
+| > 
+| > ** using staged installation
+| > 
+| > Package libcurl was not found in the pkg-config search path.
+| > 
+| > Perhaps you should add the directory containing `libcurl.pc'
+| > 
+| > to the PKG_CONFIG_PATH environment variable
+| > 
+| > No package 'libcurl' found
+| > 
+| > Package libcurl was not found in the pkg-config search path.
+| > 
+| > Perhaps you should add the directory containing `libcurl.pc'
+| > 
+| > to the PKG_CONFIG_PATH environment variable
+| > 
+| > No package 'libcurl' found
+| > 
+| > Using PKG_CFLAGS=
+| > 
+| > Using PKG_LIBS=-lcurl
+| > 
+| > ----------------------
+| > 
+| >  
+| > 
+| > When I try to install libcurl, I get:
+| > 
+| > ----------------------------
+| > 
+| > install.packages("libcurl")
+| > 
+| > Installing package into ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1?
+| > 
+| > (as ?lib? is unspecified)
+| > 
+| > Warning in install.packages :
+| > 
+| >   package ?libcurl? is not available for this version of R
+| > 
+| >  
+| > 
+| > A version of this package for your version of R might be available
+| > elsewhere,
+| > 
+| > see the ideas at
+| > 
+| > https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages
+| > 
+| > ------------------------------
+| > 
+| >  
+| > 
+| > Another suggestions is to install libcurl4-openssl-dev, but when I try
+| > to, I get:
+| > 
+| > -----------------------------
+| > 
+| > > install.packages("libcurl4-openssl-dev")
+| > 
+| > Installing package into ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1?
+| > 
+| > (as ?lib? is unspecified)
+| > 
+| > Warning in install.packages :
+| > 
+| >   package ?libcurl4-openssl-dev? is not available for this version of R
+| > 
+| >  
+| > 
+| > A version of this package for your version of R might be available
+| > elsewhere,
+| > 
+| > see the ideas at
+| > 
+| > https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages
+| > 
+| > ------------------------------
+| > 
+| >  
+| > 
+| > Here is my session info:
+| > 
+| > ---------------------------------------
+| > 
+| > > sessionInfo() R version 4.1.0 (2021-05-18) Platform: x86_64-pc-linux-
+| > gnu (64-bit) Running under: Debian GNU/Linux 10 (buster) Matrix
+| > products: default BLAS: /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.8.0 
+| > LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.8.0 locale: [1]
+| > LC_CTYPE=en_US.UTF-8 LC_NUMERIC=C LC_TIME=en_US.UTF-8
+| > LC_COLLATE=en_US.UTF-8 [5] LC_MONETARY=en_US.UTF-8
+| > LC_MESSAGES=en_US.UTF-8 LC_PAPER=en_US.UTF-8 LC_NAME=C [9] LC_ADDRESS=C
+| > LC_TELEPHONE=C LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C attached
+| > base packages: [1] stats graphics grDevices utils datasets methods base
+| > loaded via a namespace (and not attached): [1] compiler_4.1.0
+| > tools_4.1.0
+| > 
+| > ------------------------------
+| > 
+| >  
+| > 
+| > And below is the full output with all the errors when trying to
+| > tidyverse. I tried installing it on Debian 11 Testing, but no luck
+| > there either, although the errors were different. 
+| > Thank you in advance for your help.
+| > 
+| > Luben
+| > 
+| > --------------------------------------
+| > 
+| > > install.packages("tidyverse")
+| > 
+| > Installing package into ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1?
+| > 
+| > (as ?lib? is unspecified)
+| > 
+| > also installing the dependencies ?gargle?, ?curl?, ?ids?, ?openssl?,
+| > ?googledrive?, ?googlesheets4?, ?httr?, ?rvest?, ?xml2?
+| > 
+| >  
+| > 
+| > trying URL '
+| > https://cloud.r-project.org/src/contrib/gargle_1.2.0.tar.gz'
+| > 
+| > Content type 'application/x-gzip' length 313418 bytes (306 KB)
+| > 
+| > ==================================================
+| > 
+| > downloaded 306 KB
+| > 
+| >  
+| > 
+| > trying URL 'https://cloud.r-project.org/src/contrib/curl_4.3.2.tar.gz'
+| > 
+| > Content type 'application/x-gzip' length 793345 bytes (774 KB)
+| > 
+| > ==================================================
+| > 
+| > downloaded 774 KB
+| > 
+| >  
+| > 
+| > trying URL 'https://cloud.r-project.org/src/contrib/ids_1.0.1.tar.gz'
+| > 
+| > Content type 'application/x-gzip' length 91213 bytes (89 KB)
+| > 
+| > ==================================================
+| > 
+| > downloaded 89 KB
+| > 
+| >  
+| > 
+| > trying URL '
+| > https://cloud.r-project.org/src/contrib/openssl_1.4.4.tar.gz'
+| > 
+| > Content type 'application/x-gzip' length 1311285 bytes (1.3 MB)
+| > 
+| > ==================================================
+| > 
+| > downloaded 1.3 MB
+| > 
+| >  
+| > 
+| > trying URL '
+| > https://cloud.r-project.org/src/contrib/googledrive_2.0.0.tar.gz'
+| > 
+| > Content type 'application/x-gzip' length 1593656 bytes (1.5 MB)
+| > 
+| > ==================================================
+| > 
+| > downloaded 1.5 MB
+| > 
+| >  
+| > 
+| > trying URL '
+| > https://cloud.r-project.org/src/contrib/googlesheets4_0.3.0.tar.gz'
+| > 
+| > Content type 'application/x-gzip' length 435126 bytes (424 KB)
+| > 
+| > ==================================================
+| > 
+| > downloaded 424 KB
+| > 
+| >  
+| > 
+| > trying URL 'https://cloud.r-project.org/src/contrib/httr_1.4.2.tar.gz'
+| > 
+| > Content type 'application/x-gzip' length 159950 bytes (156 KB)
+| > 
+| > ==================================================
+| > 
+| > downloaded 156 KB
+| > 
+| >  
+| > 
+| > trying URL 'https://cloud.r-project.org/src/contrib/rvest_1.0.0.tar.gz'
+| > 
+| > Content type 'application/x-gzip' length 94134 bytes (91 KB)
+| > 
+| > ==================================================
+| > 
+| > downloaded 91 KB
+| > 
+| >  
+| > 
+| > trying URL 'https://cloud.r-project.org/src/contrib/xml2_1.3.2.tar.gz'
+| > 
+| > Content type 'application/x-gzip' length 271876 bytes (265 KB)
+| > 
+| > ==================================================
+| > 
+| > downloaded 265 KB
+| > 
+| >  
+| > 
+| > trying URL '
+| > https://cloud.r-project.org/src/contrib/tidyverse_1.3.1.tar.gz'
+| > 
+| > Content type 'application/x-gzip' length 702779 bytes (686 KB)
+| > 
+| > ==================================================
+| > 
+| > downloaded 686 KB
+| > 
+| >  
+| > 
+| > * installing *source* package ?curl? ...
+| > 
+| > ** package ?curl? successfully unpacked and MD5 sums checked
+| > 
+| > ** using staged installation
+| > 
+| > Package libcurl was not found in the pkg-config search path.
+| > 
+| > Perhaps you should add the directory containing `libcurl.pc'
+| > 
+| > to the PKG_CONFIG_PATH environment variable
+| > 
+| > No package 'libcurl' found
+| > 
+| > Package libcurl was not found in the pkg-config search path.
+| > 
+| > Perhaps you should add the directory containing `libcurl.pc'
+| > 
+| > to the PKG_CONFIG_PATH environment variable
+| > 
+| > No package 'libcurl' found
+| > 
+| > Using PKG_CFLAGS=
+| > 
+| > Using PKG_LIBS=-lcurl
+| > 
+| > ------------------------- ANTICONF ERROR ---------------------------
+| > 
+| > Configuration failed because libcurl was not found. Try installing:
+| > 
+| >  * deb: libcurl4-openssl-dev (Debian, Ubuntu, etc)
+| > 
+| >  * rpm: libcurl-devel (Fedora, CentOS, RHEL)
+| > 
+| >  * csw: libcurl_dev (Solaris)
+| > 
+| > If libcurl is already installed, check that 'pkg-config' is in your
+| > 
+| > PATH and PKG_CONFIG_PATH contains a libcurl.pc file. If pkg-config
+| > 
+| > is unavailable you can set INCLUDE_DIR and LIB_DIR manually via:
+| > 
+| > R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'
+| > 
+| > --------------------------------------------------------------------
+| > 
+| > ERROR: configuration failed for package ?curl?
+| > 
+| > * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/curl?
+| > 
+| > Warning in install.packages :
+| > 
+| >   installation of package ?curl? had non-zero exit status
+| > 
+| > * installing *source* package ?openssl? ...
+| > 
+| > ** package ?openssl? successfully unpacked and MD5 sums checked
+| > 
+| > ** using staged installation
+| > 
+| > Using PKG_CFLAGS=
+| > 
+| > --------------------------- [ANTICONF] --------------------------------
+| > 
+| > Configuration failed because openssl was not found. Try installing:
+| > 
+| >  * deb: libssl-dev (Debian, Ubuntu, etc)
+| > 
+| >  * rpm: openssl-devel (Fedora, CentOS, RHEL)
+| > 
+| >  * csw: libssl_dev (Solaris)
+| > 
+| >  * brew: openssl at 1.1 (Mac OSX)
+| > 
+| > If openssl is already installed, check that 'pkg-config' is in your
+| > 
+| > PATH and PKG_CONFIG_PATH contains a openssl.pc file. If pkg-config
+| > 
+| > is unavailable you can set INCLUDE_DIR and LIB_DIR manually via:
+| > 
+| > R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'
+| > 
+| > -------------------------- [ERROR MESSAGE] ---------------------------
+| > 
+| > tools/version.c:1:10: fatal error: openssl/opensslv.h: No such file or
+| > directory
+| > 
+| >  #include <openssl/opensslv.h>
+| > 
+| >           ^~~~~~~~~~~~~~~~~~~~
+| > 
+| > compilation terminated.
+| > 
+| > --------------------------------------------------------------------
+| > 
+| > ERROR: configuration failed for package ?openssl?
+| > 
+| > * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/openssl?
+| > 
+| > Warning in install.packages :
+| > 
+| >   installation of package ?openssl? had non-zero exit status
+| > 
+| > * installing *source* package ?xml2? ...
+| > 
+| > ** package ?xml2? successfully unpacked and MD5 sums checked
+| > 
+| > ** using staged installation
+| > 
+| > Package libxml-2.0 was not found in the pkg-config search path.
+| > 
+| > Perhaps you should add the directory containing `libxml-2.0.pc'
+| > 
+| > to the PKG_CONFIG_PATH environment variable
+| > 
+| > No package 'libxml-2.0' found
+| > 
+| > Package libxml-2.0 was not found in the pkg-config search path.
+| > 
+| > Perhaps you should add the directory containing `libxml-2.0.pc'
+| > 
+| > to the PKG_CONFIG_PATH environment variable
+| > 
+| > No package 'libxml-2.0' found
+| > 
+| > Using PKG_CFLAGS=
+| > 
+| > Using PKG_LIBS=-lxml2
+| > 
+| > ------------------------- ANTICONF ERROR ---------------------------
+| > 
+| > Configuration failed because libxml-2.0 was not found. Try installing:
+| > 
+| >  * deb: libxml2-dev (Debian, Ubuntu, etc)
+| > 
+| >  * rpm: libxml2-devel (Fedora, CentOS, RHEL)
+| > 
+| >  * csw: libxml2_dev (Solaris)
+| > 
+| > If libxml-2.0 is already installed, check that 'pkg-config' is in your
+| > 
+| > PATH and PKG_CONFIG_PATH contains a libxml-2.0.pc file. If pkg-config
+| > 
+| > is unavailable you can set INCLUDE_DIR and LIB_DIR manually via:
+| > 
+| > R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'
+| > 
+| > --------------------------------------------------------------------
+| > 
+| > ERROR: configuration failed for package ?xml2?
+| > 
+| > * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/xml2?
+| > 
+| > Warning in install.packages :
+| > 
+| >   installation of package ?xml2? had non-zero exit status
+| > 
+| > ERROR: dependency ?openssl? is not available for package ?ids?
+| > 
+| > * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/ids?
+| > 
+| > Warning in install.packages :
+| > 
+| >   installation of package ?ids? had non-zero exit status
+| > 
+| > ERROR: dependencies ?curl?, ?openssl? are not available for package
+| > ?httr?
+| > 
+| > * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/httr?
+| > 
+| > Warning in install.packages :
+| > 
+| >   installation of package ?httr? had non-zero exit status
+| > 
+| > ERROR: dependency ?httr? is not available for package ?gargle?
+| > 
+| > * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/gargle?
+| > 
+| > Warning in install.packages :
+| > 
+| >   installation of package ?gargle? had non-zero exit status
+| > 
+| > ERROR: dependencies ?httr?, ?xml2? are not available for package
+| > ?rvest?
+| > 
+| > * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/rvest?
+| > 
+| > Warning in install.packages :
+| > 
+| >   installation of package ?rvest? had non-zero exit status
+| > 
+| > ERROR: dependencies ?gargle?, ?httr? are not available for package
+| > ?googledrive?
+| > 
+| > * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/googledrive?
+| > 
+| > Warning in install.packages :
+| > 
+| >   installation of package ?googledrive? had non-zero exit status
+| > 
+| > ERROR: dependencies ?curl?, ?gargle?, ?googledrive?, ?httr?, ?ids? are
+| > not available for package ?googlesheets4?
+| > 
+| > * removing ?/home/luben/R/x86_64-pc-linux-gnu-
+| > library/4.1/googlesheets4?
+| > 
+| > Warning in install.packages :
+| > 
+| >   installation of package ?googlesheets4? had non-zero exit status
+| > 
+| > ERROR: dependencies ?googledrive?, ?googlesheets4?, ?httr?, ?rvest?,
+| > ?xml2? are not available for package ?tidyverse?
+| > 
+| > * removing ?/home/luben/R/x86_64-pc-linux-gnu-library/4.1/tidyverse?
+| > 
+| > Warning in install.packages :
+| > 
+| >   installation of package ?tidyverse? had non-zero exit status
+| > 
+| >  
+| > 
+| > The downloaded source packages are in
+| > 
+| > ?/tmp/RtmpF0FDpx/downloaded_packages?
+| > 
+| > > library(tidyverse)
+| > 
+| > Error in library(tidyverse) : there is no package called ?tidyverse?
+| > 
+| > _______________________________________________
+| > R-SIG-Debian mailing list
+| > R-SIG-Debian at r-project.org
+| > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| > 
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From |uben@d|mov @end|ng |rom gm@||@com  Sat Jul 24 05:19:03 2021
+From: |uben@d|mov @end|ng |rom gm@||@com (Luben Dimov)
+Date: Fri, 23 Jul 2021 23:19:03 -0400
+Subject: [R-sig-Debian] 
+ Can't install package tidyverse on Debian 10 stable
+In-Reply-To: <880a694decff5a89d227f9b4b5ec0fbf93e45d01.camel@uvm.edu>
+References: <a1d1328261f145d57cc843ebcd719c9b520e39a4.camel@gmail.com>
+ <b10ae78e-c3b0-4540-b624-79a991741e0a@www.fastmail.com>
+ <24827.24276.960353.360074@rob.eddelbuettel.com>
+ <880a694decff5a89d227f9b4b5ec0fbf93e45d01.camel@uvm.edu>
+Message-ID: <fe2d09a635c510581389067569b936fee506caa8.camel@gmail.com>
+
+(my reply accidentally came out of the wrong email account, sorry, so I
+am resending it so it makes it to the list)
+
+-----Original Message-----
+From: Dirk Eddelbuettel <edd at debian.org>
+To: Tyler Smith <tyler at plantarum.ca>
+Cc: r-sig-debian at r-project.org
+Subject: Re: [R-sig-Debian]  Can't install package tidyverse on Debian
+10 stable
+Date: Fri, 23 Jul 2021 19:29:08 -0500
+
+Luben,
+Adding to what Tyler kindly said:
+On 23 July 2021 at 19:35, Tyler Smith wrote:
+> libcurl and libcurl4-openssl-dev are Debian packages, not R packages.
+> You can install them from the command line (not R):
+> sudo apt-get install libcurl4-openssl-dev
+> Or use your package manager.
+
+Depending on exactly _which_ Debian (or Ubuntu) flavour you use you
+also canget *ALL* of the tidyverse *IN ONE SHOT* as binaries.
+I have several posts (and demos !!) on that below
+  http://dirk.eddelbuettel.com/blog/code/r4/
+
+Thank you Tyler and Dirk! I was able to install it using the commands
+on your site Dirk (I pasted them below)! I was not able to get out of
+the screen after mg /etc/R/Rprofile.sitedespite trying Q, q, quit, q(),
+ESC, ... so had to run the last command in a different terminal window.
+Super helpful, I think I will ask the tidyverse folks to have your
+commands and URL in their installation instructions!
+Thank you very much!!!!
+$ apt-get update$ apt-get install r-base libcurl4-openssl-dev libssl-
+dev libxml2-dev$ apt-get install mg          # a tiny editor$ mg
+/etc/R/Rprofile.site     # to add a default CRAN repo$ R -e
+'install.packages("tidyverse")'
+
+so take a look and read up, and please come back here with
+questions.  It isa difficult step to get all of tidyverse (or, say,
+rstan) but we *do* have inbinaries.  This is very much worth learning
+about methinks.
+Cheers, Dirk
+> Best,
+> Tyler
+> -- plantarum.ca
+
+
+
+
+
+	[[alternative HTML version deleted]]
+
+

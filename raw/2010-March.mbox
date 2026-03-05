@@ -1,0 +1,2093 @@
+From mar36 at psu.edu  Mon Mar  1 13:34:58 2010
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 01 Mar 2010 07:34:58 -0500
+Subject: [R-sig-Debian] ubuntu hardy heron and lme4
+In-Reply-To: <alpine.DEB.2.00.1002281238310.15798@sasquatch>
+References: <alpine.DEB.2.00.1002281238310.15798@sasquatch>
+Message-ID: <4B8BB472.7050600@psu.edu>
+
+Anne,
+
+The version of lme4 you find on the Hardy repositories is very old at 
+this point.  Looking at the package information page 
+(http://packages.ubuntu.com/hardy/r-cran-lme4) it was built using R 
+2.5.1, which could be the cause of your problems.
+
+My suggestion would be to use install.packages("lme4") from within R to 
+make sure you have the latest version.  See 
+http://cran.r-project.org/bin/linux/ubuntu/ for additional information.
+
+Hope this helps,
+Michael
+
+On 02/28/2010 03:38 PM, Anne York wrote:
+> I have R version 2.10.1 (2009-12-14)  installed on Ubuntu HH (version 8.04)
+>
+> I installed lme4 from the Ubuntu respository. When I executed the
+> library(lme4) command, R responds that lme4.so was not found.
+>
+> I then uninstalled lme4 and tried again from cran. When the program
+> tried to compile, there was a message that -llapack could not be found,
+> so the package failed to install.
+>
+> If I execute the following:
+>
+> york at sasquatch:~$ /usr/bin/R CMD config LAPACK_LIBS
+>
+> the system responds:
+>
+> -llapack
+>
+> I'm not sure where to go from here.
+>
+> Is -llapack installed but R can't find it, eg, is there a faulty link
+> somewhere? Has anyone else had this problem and solved it?
+>
+> Anne
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From york at zipcon.net  Mon Mar  1 17:08:59 2010
+From: york at zipcon.net (Anne York)
+Date: Mon, 1 Mar 2010 08:08:59 -0800 (PST)
+Subject: [R-sig-Debian] ubuntu hardy heron and lme4
+In-Reply-To: <4B8BB472.7050600@psu.edu>
+References: <alpine.DEB.2.00.1002281238310.15798@sasquatch>
+	<4B8BB472.7050600@psu.edu>
+Message-ID: <alpine.DEB.2.00.1003010802200.16768@sasquatch>
+
+Hi Michael:
+
+I already tried reinstalling from with R on cran -- after 
+checking on the status of LAPACK:
+
+/usr/bin/R CMD config LAPACK_LIBS
+
+to which the system responded 
+
+-llapack
+
+The result was the same. The programs within lme4 failed to 
+compile because -llapack was not found. The error message 
+during installation was: 
+
+/usr/bin/ld: cannot find -llapack
+collect2: ld returned 1 exit status
+
+
+
+
+On Mon, 1 Mar 2010, Michael Rutter wrote:
+
+MR > Anne,
+MR > 
+MR > The version of lme4 you find on the Hardy repositories is very old at this
+MR > point.  Looking at the package information page
+MR > (http://packages.ubuntu.com/hardy/r-cran-lme4) it was built using R 2.5.1,
+MR > which could be the cause of your problems.
+MR > 
+MR > My suggestion would be to use install.packages("lme4") from within R to
+MR > make sure you have the latest version.  See
+MR > http://cran.r-project.org/bin/linux/ubuntu/ for additional information.
+MR > 
+MR > Hope this helps,
+MR > Michael
+MR > 
+MR > On 02/28/2010 03:38 PM, Anne York wrote:
+MR > > I have R version 2.10.1 (2009-12-14)  installed on Ubuntu HH (version
+MR > > 8.04)
+MR > > 
+MR > > I installed lme4 from the Ubuntu respository. When I executed the
+MR > > library(lme4) command, R responds that lme4.so was not found.
+MR > > 
+MR > > I then uninstalled lme4 and tried again from cran. When the program
+MR > > tried to compile, there was a message that -llapack could not be found,
+MR > > so the package failed to install.
+MR > > 
+MR > > If I execute the following:
+MR > > 
+MR > > york at sasquatch:~$ /usr/bin/R CMD config LAPACK_LIBS
+MR > > 
+MR > > the system responds:
+MR > > 
+MR > > -llapack
+MR > > 
+MR > > I'm not sure where to go from here.
+MR > > 
+MR > > Is -llapack installed but R can't find it, eg, is there a faulty link
+MR > > somewhere? Has anyone else had this problem and solved it?
+MR > > 
+MR > > Anne
+MR > > 
+MR > > _______________________________________________
+MR > > R-SIG-Debian mailing list
+MR > > R-SIG-Debian at r-project.org
+MR > > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+MR > 
+MR > -- 
+MR > Dr. Michael A. Rutter
+MR > School of Science
+MR > Penn State Erie, The Behrend College
+MR > Station Road
+MR > Erie, PA 16563
+MR > http://math.bd.psu.edu/faculty/rutter
+MR >
+
+
+From edd at debian.org  Mon Mar  1 17:37:23 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 1 Mar 2010 10:37:23 -0600
+Subject: [R-sig-Debian] ubuntu hardy heron and lme4
+In-Reply-To: <alpine.DEB.2.00.1003010802200.16768@sasquatch>
+References: <alpine.DEB.2.00.1002281238310.15798@sasquatch>
+	<4B8BB472.7050600@psu.edu>
+	<alpine.DEB.2.00.1003010802200.16768@sasquatch>
+Message-ID: <19339.60739.82842.982811@ron.nulle.part>
+
+
+On 1 March 2010 at 08:08, Anne York wrote:
+| Hi Michael:
+| 
+| I already tried reinstalling from with R on cran -- after 
+| checking on the status of LAPACK:
+| 
+| /usr/bin/R CMD config LAPACK_LIBS
+| 
+| to which the system responded 
+| 
+| -llapack
+| 
+| The result was the same. The programs within lme4 failed to 
+| compile because -llapack was not found. The error message 
+| during installation was: 
+| 
+| /usr/bin/ld: cannot find -llapack
+| collect2: ld returned 1 exit status
+
+Do 'dpkg -l | grep lapack' and make sure you see liblapack-dev as installed.
+
+Also do 'ldd /usr/lib/R/bin/exec/R' and make sure you do _not_ have a depends
+on Rlapack.so.  There was an important change in the Fortran compiler a while
+back; I no longer anything as ancient as Ubuntu 8.04.  It may still date back
+to those days...
+  
+Dirk
+
+-- 
+  Registration is open for the 2nd International conference R / Finance 2010
+  See http://www.RinFinance.com for details, and see you in Chicago in April!
+
+
+From york at zipcon.net  Mon Mar  1 20:50:15 2010
+From: york at zipcon.net (Anne York)
+Date: Mon, 1 Mar 2010 11:50:15 -0800 (PST)
+Subject: [R-sig-Debian] ubuntu hardy heron and lme4
+In-Reply-To: <19339.60739.82842.982811@ron.nulle.part>
+References: <alpine.DEB.2.00.1002281238310.15798@sasquatch>
+	<4B8BB472.7050600@psu.edu>
+	<alpine.DEB.2.00.1003010802200.16768@sasquatch>
+	<19339.60739.82842.982811@ron.nulle.part>
+Message-ID: <alpine.DEB.2.00.1003011147550.17216@sasquatch>
+
+
+
+On Mon, 1 Mar 2010, Dirk Eddelbuettel wrote:
+
+DE > 
+DE > On 1 March 2010 at 08:08, Anne York wrote:
+DE > | Hi Michael:
+DE > | 
+DE > | I already tried reinstalling from with R on cran -- after 
+DE > | checking on the status of LAPACK:
+DE > | 
+DE > | /usr/bin/R CMD config LAPACK_LIBS
+DE > | 
+DE > | to which the system responded 
+DE > | 
+DE > | -llapack
+DE > | 
+DE > | The result was the same. The programs within lme4 failed to 
+DE > | compile because -llapack was not found. The error message 
+DE > | during installation was: 
+DE > | 
+DE > | /usr/bin/ld: cannot find -llapack
+DE > | collect2: ld returned 1 exit status
+DE > 
+DE > Do 'dpkg -l | grep lapack' and make sure you see liblapack-dev as installed.
+DE > 
+DE > Also do 'ldd /usr/lib/R/bin/exec/R' and make sure you do _not_ have a depends
+DE > on Rlapack.so.  There was an important change in the Fortran compiler a while
+DE > back; I no longer anything as ancient as Ubuntu 8.04.  It may still date back
+DE > to those days...
+DE >   
+DE > Dirk
+DE > 
+
+
+Thanks Dirk. that did the trick. I did not have the 
+development version installed. 
+
+Re the oldness of Ubuntu 8.04 -- These days I'm staying with 
+LTS versions. 
+
+Anne
+
+
+From pauljohn32 at gmail.com  Wed Mar  3 05:44:27 2010
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Tue, 2 Mar 2010 22:44:27 -0600
+Subject: [R-sig-Debian] why no libRblas.so in ubuntu packages on CRAN?
+Message-ID: <13e802631003022044u5c2ce250sd871d4aef038195@mail.gmail.com>
+
+Hi, everybody.
+
+I notice debian packages for Ubuntu on CRAN are missing "libRblas.so"
+and I'm trying to find out why.
+
+Why do I care?  We are working in an hpc project in a CentOS Linux
+cluster.  That led me to the question of "which BLAS is fastest?"
+Dirk E referred me this morning to the R admin manual.  The standard R
+compilation creates a shared blas library libRblas.so  and then one
+can easily 'swap in a different shared library' to experiment with
+GotoBLAS2 or Atlas or whatnot.  I found that quite amazing!
+
+Then I booted up my Ubuntu laptop to try this out. I have the Ubuntu
+deb packages from CRAN, version 2.10.  In r-core-base, there is no
+libRblas.so.  I have:
+
+ii  r-base                                     2.10.1-2karmic0
+                             GNU R statistical computation and
+graphics s
+ii  r-base-core                                2.10.1-2karmic0
+                             GNU R core of statistical computation and
+gr
+ii  r-base-dev                                 2.10.1-2karmic0
+                             GNU R installation of auxiliary GNU R
+packag
+
+$ dpkg -L r-base-core r-base-dev r-base | grep .so
+/etc/ld.so.conf.d
+/usr/lib/R/library/splines/libs/splines.so
+/usr/lib/R/library/grDevices/libs/grDevices.so
+/usr/lib/R/library/methods/libs/methods.so
+/usr/lib/R/library/stats/libs/stats.so
+/usr/lib/R/library/tcltk/exec/console.tcl
+/usr/lib/R/library/tcltk/libs/tcltk.so
+/usr/lib/R/library/grid/libs/grid.so
+/usr/lib/R/library/tools/libs/tools.so
+/usr/lib/R/lib/libR.so
+/usr/lib/R/modules/R_X11.so
+/usr/lib/R/modules/vfonts.so
+/usr/lib/R/modules/internet.so
+/usr/lib/R/modules/lapack.so
+/usr/share/R/doc/html/resources.html
+/etc/ld.so.conf.d/libR.conf
+
+As far as I can see, the Ubuntu CRAN repositories are not configured
+with a deb-src option. So I can't  get the exact source code used to
+create the Ubuntu packages.  Hopefully, the packager did not make
+changes in the Debian source package.  The CRAN Debian repositories do
+answer to deb-src requests for Debian "lenny."
+
+I've been inspecting that for quitte a while.  The Debian build
+script's configure statement does not explicitly invoke
+--disable-BLAS-shlib.
+
+       ./configure --prefix=/usr                       \
+                    --with-cairo                        \
+                    --with-jpeglib                      \
+                    --with-pango                        \
+                    --with-png                          \
+                    --with-readline                     \
+                    --with-tcltk                        \
+                    --with-system-bzlib                 \
+                    --with-system-pcre                  \
+                    --with-system-zlib                  \
+                    --mandir=/usr/share/man             \
+                    --infodir=/usr/share/info           \
+                    --datadir=/usr/share/R/share        \
+                    --includedir=/usr/share/R/include   \
+                    $(atlas)            \
+                    $(lapack)           \
+                    --without-gnome                     \
+                    --enable-R-profiling                \
+                    --enable-R-shlib                    \
+                    --enable-memory-profiling           \
+                    --without-recommended-packages      \
+                    --build $(buildarch)
+
+$(atlas) draws its value from the rules file
+
+atlas           = --with-blas
+
+Similarly, $(lapack)
+
+lapack          = --with-lapack
+
+
+I rebuilt the debian packages with the source from lennycran and, as
+in Ubuntu, there's no libRblas.so.
+
+$ dpkg -c r-base-core_2.10.1-2~lennycran.0_i386.deb  | grep libRblas.so
+
+returns nothing.
+
+
+I DO get libRblas.so if I make 3 changes in the debian/rules file. I deleted
+1) $(atlas)
+2) $(lapack), and
+3) --enable-R-shlib.
+
+I believe the R-admin manual discourages the --with-lapack option
+altogether, and the discussion of that option is somewhat confusing.
+--with-lapack does not mean "use lapack", it means by-pass the lapack
+that R provides in its code and try to use lapack from an external
+library (presumably, the lapack provided by the blas implementation).
+I believe that putting --with-lapack without adding
+=/some/lib/location may confuse the configure script.  I make change 3
+because R-admin discourages the R-shlib option for most users.
+
+After that, the package I build DOES include libRblas.so
+
+$ dpkg -c r-base-core_2.10.1-2~lennycran.0_i386.deb  | grep libRblas.so
+-rw-r--r-- root/root    165132 2010-03-02 22:02 ./usr/lib/R/lib/libRblas.so
+
+I've chased this one around for a couple of hours, so I think I've
+done my "due diligence."
+
+pj
+-- 
+Paul E. Johnson
+Professor, Political Science
+1541 Lilac Lane, Room 504
+University of Kansas
+
+
+From edd at debian.org  Wed Mar  3 14:07:32 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 3 Mar 2010 07:07:32 -0600
+Subject: [R-sig-Debian] why no libRblas.so in ubuntu packages on CRAN?
+In-Reply-To: <13e802631003022044u5c2ce250sd871d4aef038195@mail.gmail.com>
+References: <13e802631003022044u5c2ce250sd871d4aef038195@mail.gmail.com>
+Message-ID: <19342.24340.225339.496523@ron.nulle.part>
+
+
+Paul,
+
+On 2 March 2010 at 22:44, Paul Johnson wrote:
+| Hi, everybody.
+| 
+| I notice debian packages for Ubuntu on CRAN are missing "libRblas.so"
+| and I'm trying to find out why.
+
+Fortran compiler changes plus better upstream Lapack sources (3.0 was no
+good) lead to changes in the configure call to R.  
+
+| Why do I care?  We are working in an hpc project in a CentOS Linux
+| cluster.  That led me to the question of "which BLAS is fastest?"
+| Dirk E referred me this morning to the R admin manual.  The standard R
+| compilation creates a shared blas library libRblas.so  and then one
+
+No, the certainty in your statement in not correct.  It does that if you
+build with the Blas in R --- which takes away the very plug & play I told you
+about yesterday.  Which is why we do what we do. Allow the plu & play.
+
+| can easily 'swap in a different shared library' to experiment with
+| GotoBLAS2 or Atlas or whatnot.  I found that quite amazing!
+
+Of course you can do that here too. That happens at the SYSTEM level and
+Debian's R and Octave package supported this 'amazing switch' for maybe a
+dozen years now (and I was the one initially adding to Octave and R based on
+the awesome work of our maintainer of Atlas at the time).
+
+Look at 
+
+edd at joe:~$ ldd /usr/lib/R/bin/exec/R
+        linux-gate.so.1 =>  (0x00ee9000)
+        libR.so => /usr/lib/R/lib/libR.so (0x00788000)
+        libc.so.6 => /lib/tls/i686/cmov/libc.so.6 (0x00110000)
+        libblas.so.3gf => /usr/lib/sse2/atlas/libblas.so.3gf (0x00f59000)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+        libgfortran.so.3 => /usr/lib/libgfortran.so.3 (0x00da8000)
+        libm.so.6 => /lib/tls/i686/cmov/libm.so.6 (0x00647000)
+        libreadline.so.6 => /lib/libreadline.so.6 (0x00255000)
+        libpcre.so.3 => /lib/libpcre.so.3 (0x0028e000)
+        libbz2.so.1.0 => /lib/libbz2.so.1.0 (0x003df000)
+        libz.so.1 => /lib/libz.so.1 (0x002bf000)
+        libdl.so.2 => /lib/tls/i686/cmov/libdl.so.2 (0x002d5000)
+        /lib/ld-linux.so.2 (0x00f3c000)
+        libgcc_s.so.1 => /lib/libgcc_s.so.1 (0x0041d000)
+        libncurses.so.5 => /lib/libncurses.so.5 (0x002d9000)
+edd at joe:~$
+
+
+(for my machine with atlas-sse2)
+
+and marvel how libblas comes from the _Atlas_ package because we defer 
+to the OS.  Same for 
+
+       /usr/lib/R/lib/libR.so
+
+and
+
+       /usr/lib/R/modules/lapack.so
+
+| Then I booted up my Ubuntu laptop to try this out. I have the Ubuntu
+| deb packages from CRAN, version 2.10.  In r-core-base, there is no
+
+There is no package r-core-base. 
+
+| libRblas.so.  I have:
+| 
+| ii  r-base                                     2.10.1-2karmic0
+|                              GNU R statistical computation and
+| graphics s
+| ii  r-base-core                                2.10.1-2karmic0
+|                              GNU R core of statistical computation and
+| gr
+| ii  r-base-dev                                 2.10.1-2karmic0
+|                              GNU R installation of auxiliary GNU R
+| packag
+| 
+| $ dpkg -L r-base-core r-base-dev r-base | grep .so
+| /etc/ld.so.conf.d
+| /usr/lib/R/library/splines/libs/splines.so
+| /usr/lib/R/library/grDevices/libs/grDevices.so
+| /usr/lib/R/library/methods/libs/methods.so
+| /usr/lib/R/library/stats/libs/stats.so
+| /usr/lib/R/library/tcltk/exec/console.tcl
+| /usr/lib/R/library/tcltk/libs/tcltk.so
+| /usr/lib/R/library/grid/libs/grid.so
+| /usr/lib/R/library/tools/libs/tools.so
+| /usr/lib/R/lib/libR.so
+| /usr/lib/R/modules/R_X11.so
+| /usr/lib/R/modules/vfonts.so
+| /usr/lib/R/modules/internet.so
+| /usr/lib/R/modules/lapack.so
+| /usr/share/R/doc/html/resources.html
+| /etc/ld.so.conf.d/libR.conf
+| 
+| As far as I can see, the Ubuntu CRAN repositories are not configured
+| with a deb-src option. So I can't  get the exact source code used to
+| create the Ubuntu packages.  Hopefully, the packager did not make
+| changes in the Debian source package.  The CRAN Debian repositories do
+| answer to deb-src requests for Debian "lenny."
+| 
+| I've been inspecting that for quitte a while.  The Debian build
+| script's configure statement does not explicitly invoke
+| --disable-BLAS-shlib.
+| 
+|        ./configure --prefix=/usr                       \
+|                     --with-cairo                        \
+|                     --with-jpeglib                      \
+|                     --with-pango                        \
+|                     --with-png                          \
+|                     --with-readline                     \
+|                     --with-tcltk                        \
+|                     --with-system-bzlib                 \
+|                     --with-system-pcre                  \
+|                     --with-system-zlib                  \
+|                     --mandir=/usr/share/man             \
+|                     --infodir=/usr/share/info           \
+|                     --datadir=/usr/share/R/share        \
+|                     --includedir=/usr/share/R/include   \
+|                     $(atlas)            \
+|                     $(lapack)           \
+|                     --without-gnome                     \
+|                     --enable-R-profiling                \
+|                     --enable-R-shlib                    \
+|                     --enable-memory-profiling           \
+|                     --without-recommended-packages      \
+|                     --build $(buildarch)
+| 
+| $(atlas) draws its value from the rules file
+| 
+| atlas           = --with-blas
+| 
+| Similarly, $(lapack)
+| 
+| lapack          = --with-lapack
+
+Correct. On most arches. We have to change that on some.
+ 
+| I rebuilt the debian packages with the source from lennycran and, as
+| in Ubuntu, there's no libRblas.so.
+| 
+| $ dpkg -c r-base-core_2.10.1-2~lennycran.0_i386.deb  | grep libRblas.so
+| 
+| returns nothing.
+
+Correct. As it shouldn;t. System blas being used, not R blas.
+
+| I DO get libRblas.so if I make 3 changes in the debian/rules file. I deleted
+| 1) $(atlas)
+| 2) $(lapack), and
+| 3) --enable-R-shlib.
+
+You don't want libRblas because you want the system wide blas. Change the
+system wide blas to GOTO or whatever and then R, Octave, GSL, Gretl, .... 
+__all__ get faster BLAS at once.
+
+That is Debian. We provide an OS-level solution.
+ 
+| I believe the R-admin manual discourages the --with-lapack option
+| altogether, and the discussion of that option is somewhat confusing.
+| --with-lapack does not mean "use lapack", it means by-pass the lapack
+| that R provides in its code and try to use lapack from an external
+| library (presumably, the lapack provided by the blas implementation).
+| I believe that putting --with-lapack without adding
+| =/some/lib/location may confuse the configure script.  I make change 3
+| because R-admin discourages the R-shlib option for most users.
+| 
+| After that, the package I build DOES include libRblas.so
+| 
+| $ dpkg -c r-base-core_2.10.1-2~lennycran.0_i386.deb  | grep libRblas.so
+| -rw-r--r-- root/root    165132 2010-03-02 22:02 ./usr/lib/R/lib/libRblas.so
+| 
+| I've chased this one around for a couple of hours, so I think I've
+| done my "due diligence."
+
+R can only recommend narrowly within the R stack. It has no control over the
+distro and doesn't recommend.
+
+If you need a different r-base-core configuration for your _local_ purposes,
+just build a different _locale_ r-base-core package.
+
+I encourage you to do so. If you find significant timing advantages, let me
+know and I would be glad to improve the package. So far, I do not believe you
+have suggested an improvement.  But this is tricky stuff and I appreciate
+that you did your due diligence.
+
+
+Now, what you missed is the fact that (Revolution) R 2.9.2 in Ubuntu Karmic
+comes shipped with the Intel MKL -- in a directory local to R -- which are
+even faster than Goto BLAS, multithreaded and typically only available if you
+pay monies to Intel. But as Intel is friendly to REvo, these became
+available.  They are truly multithreaded and should be much faster.  I meant
+to benchmark them more closely but didn't get around to it.  
+
+Dirk
+
+-- 
+  Registration is open for the 2nd International conference R / Finance 2010
+  See http://www.RinFinance.com for details, and see you in Chicago in April!
+
+
+From edd at debian.org  Wed Mar  3 14:36:48 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 3 Mar 2010 07:36:48 -0600
+Subject: [R-sig-Debian] why no libRblas.so in ubuntu packages on CRAN?
+In-Reply-To: <19342.24340.225339.496523@ron.nulle.part>
+References: <13e802631003022044u5c2ce250sd871d4aef038195@mail.gmail.com>
+	<19342.24340.225339.496523@ron.nulle.part>
+Message-ID: <19342.26096.621501.906633@ron.nulle.part>
+
+
+Also see   
+
+     /usr/share/doc/r-base-core/README.Atlas.gz   
+
+which tries to explain the rationale and mechanics.  And demonstrates that
+
+| Debian's R and Octave package supported this 'amazing switch' for maybe a
+| dozen years now 
+
+was incorrect. Merely eight and half years.  Joking aside, the README can
+probably due with clarifications on the R side. I originally wrote it when I
+also looked after Octave.  If you have ideas to make the README better /
+clearer / more compelling please send me patches.
+
+Dirk
+
+-- 
+  Registration is open for the 2nd International conference R / Finance 2010
+  See http://www.RinFinance.com for details, and see you in Chicago in April!
+
+
+From seanpor at acm.org  Tue Mar  9 19:32:17 2010
+From: seanpor at acm.org (Sean O'Riordain)
+Date: Tue, 9 Mar 2010 18:32:17 +0000
+Subject: [R-sig-Debian] rJava works on karmic for root but not for user sean
+Message-ID: <8ed68eed1003091032i766ef06foa1e2350ed2ee8684@mail.gmail.com>
+
+Good afternoon,
+A strange one - library(rJava) works for root but not for user sean
+
+On 64-bit Ubuntu 9.10, using R as root (sudo -i), I can say
+  library(rJava)
+and it works fine with no error message of any kind.  But logged in as
+myself user "sean", it can't start...
+
+sean at SeansPC:~$ R --no-save --vanilla
+
+R version 2.10.1 (2009-12-14)
+Copyright (C) 2009 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(rJava)
+Error in dyn.load(file, DLLpath = DLLpath, ...) :
+  unable to load shared library
+'/usr/local/lib/R/site-library/rJava/libs/rJava.so':
+  libjvm.so: cannot open shared object file: No such file or directory
+Error : .onLoad failed in 'loadNamespace' for 'rJava'
+Error: package/namespace load failed for 'rJava'
+> sessionInfo()
+R version 2.10.1 (2009-12-14)
+x86_64-pc-linux-gnu
+
+locale:
+ [1] LC_CTYPE=en_IE.UTF-8       LC_NUMERIC=C
+ [3] LC_TIME=en_IE.UTF-8        LC_COLLATE=en_IE.UTF-8
+ [5] LC_MONETARY=C              LC_MESSAGES=en_IE.UTF-8
+ [7] LC_PAPER=en_IE.UTF-8       LC_NAME=C
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C
+[11] LC_MEASUREMENT=en_IE.UTF-8 LC_IDENTIFICATION=C
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base
+>
+
+root at SeansPC:~# R CMD javareconf
+Java interpreter : /usr/bin/java
+Java version     : 1.6.0_15
+Java home path   : /usr/lib/jvm/java-6-sun-1.6.0.15/jre
+Java compiler    : /usr/bin/javac
+Java headers gen.: /usr/bin/javah
+Java archive tool: /usr/bin/jar
+Java library path:
+$(JAVA_HOME)/lib/amd64/server:$(JAVA_HOME)/lib/amd64:$(JAVA_HOME)/../lib/amd64::/usr/java/packages/lib/amd64:/lib:/usr/lib
+JNI linker flags : -L$(JAVA_HOME)/lib/amd64/server
+-L$(JAVA_HOME)/lib/amd64 -L$(JAVA_HOME)/../lib/amd64 -L
+-L/usr/java/packages/lib/amd64 -L/lib -L/usr/lib -ljvm
+JNI cpp flags    : -I$(JAVA_HOME)/../include -I$(JAVA_HOME)/../include/linux
+
+Updating Java configuration in /etc/R
+Done.
+
+
+
+The sessionInfo is identical for root
+
+I've un-installed and re-installed r-base and r-cran-*
+
+I've done a reboot; I've done 'R CMD javareconf'
+
+The file /usr/local/lib/R/site-library/rJava/libs/rJava.so and any
+nearby files and paths are readable by user sean...
+
+I've searched the archives, I've googled... (possibly missing some
+vital clue of course!)
+
+I've removed the personal R library completely - I've checked libPath()
+
+java is available at the commandline both as root and as sean
+
+I've tried adding files to a new file in /etc/ld.so.conf.d   and doing
+an ldconfig ... but I can't see how this would be different for root
+and sean.
+
+The only thing that I think changed was there was various ubuntu
+updates this morning which asked for a reboot - so I did... and was
+unable to go with the latest kernel so I'm with a previous version -
+I'm not sure it is the same as before.
+
+If I say do a R CMD javareconf I get different results which may be a
+clue... but it does appear to point to the same place in the end...
+
+sean at SeansPC:~$ R CMD javareconf
+Java interpreter : /usr/lib/jvm/java-6-sun-1.6.0.15/jre/bin/java
+Java version     : 1.6.0_15
+Java home path   : /usr/lib/jvm/java-6-sun-1.6.0.15
+Java compiler    : /usr/lib/jvm/java-6-sun-1.6.0.15/bin/javac
+Java headers gen.: /usr/lib/jvm/java-6-sun-1.6.0.15/bin/javah
+Java archive tool: /usr/lib/jvm/java-6-sun-1.6.0.15/bin/jar
+Java library path:
+$(JAVA_HOME)/jre/lib/amd64/server:$(JAVA_HOME)/jre/lib/amd64:$(JAVA_HOME)/jre/../lib/amd64::/usr/java/packages/lib/amd64:/lib:/usr/lib
+JNI linker flags : -L$(JAVA_HOME)/jre/lib/amd64/server
+-L$(JAVA_HOME)/jre/lib/amd64 -L$(JAVA_HOME)/jre/../lib/amd64 -L
+-L/usr/java/packages/lib/amd64 -L/lib -L/usr/lib -ljvm
+JNI cpp flags    : -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
+
+Updating Java configuration in /etc/R
+/usr/lib64/R/bin/javareconf: line 323: /etc/R/Makeconf.new: Permission denied
+*** cannot create /etc/R/Makeconf.new
+*** Please run as root if required.
+sean at SeansPC:~$ sudo -i
+[sudo] password for sean:
+root at SeansPC:~# R CMD javareconf
+Java interpreter : /usr/bin/java
+Java version     : 1.6.0_15
+Java home path   : /usr/lib/jvm/java-6-sun-1.6.0.15/jre
+Java compiler    : /usr/bin/javac
+Java headers gen.: /usr/bin/javah
+Java archive tool: /usr/bin/jar
+Java library path:
+$(JAVA_HOME)/lib/amd64/server:$(JAVA_HOME)/lib/amd64:$(JAVA_HOME)/../lib/amd64::/usr/java/packages/lib/amd64:/lib:/usr/lib
+JNI linker flags : -L$(JAVA_HOME)/lib/amd64/server
+-L$(JAVA_HOME)/lib/amd64 -L$(JAVA_HOME)/../lib/amd64 -L
+-L/usr/java/packages/lib/amd64 -L/lib -L/usr/lib -ljvm
+JNI cpp flags    : -I$(JAVA_HOME)/../include -I$(JAVA_HOME)/../include/linux
+
+Updating Java configuration in /etc/R
+Done.
+
+Any help would be appreciated.
+
+Thanks in advance,
+Se?n
+
+
+From armstrong.whit at gmail.com  Tue Mar  9 22:32:55 2010
+From: armstrong.whit at gmail.com (Whit Armstrong)
+Date: Tue, 9 Mar 2010 16:32:55 -0500
+Subject: [R-sig-Debian] rJava works on karmic for root but not for user
+	sean
+In-Reply-To: <8ed68eed1003091032i766ef06foa1e2350ed2ee8684@mail.gmail.com>
+References: <8ed68eed1003091032i766ef06foa1e2350ed2ee8684@mail.gmail.com>
+Message-ID: <8ec76081003091332i787b05b2oa2bc4980448b85db@mail.gmail.com>
+
+make sure you don't have JAVA_HOME set in your environment for user sean.
+
+just a guess, but have been stung by that one before.
+
+-Whit
+
+
+On Tue, Mar 9, 2010 at 1:32 PM, Sean O'Riordain <seanpor at acm.org> wrote:
+> Good afternoon,
+> A strange one - library(rJava) works for root but not for user sean
+>
+> On 64-bit Ubuntu 9.10, using R as root (sudo -i), I can say
+> ?library(rJava)
+> and it works fine with no error message of any kind. ?But logged in as
+> myself user "sean", it can't start...
+>
+> sean at SeansPC:~$ R --no-save --vanilla
+>
+> R version 2.10.1 (2009-12-14)
+> Copyright (C) 2009 The R Foundation for Statistical Computing
+> ISBN 3-900051-07-0
+>
+> R is free software and comes with ABSOLUTELY NO WARRANTY.
+> You are welcome to redistribute it under certain conditions.
+> Type 'license()' or 'licence()' for distribution details.
+>
+> ?Natural language support but running in an English locale
+>
+> R is a collaborative project with many contributors.
+> Type 'contributors()' for more information and
+> 'citation()' on how to cite R or R packages in publications.
+>
+> Type 'demo()' for some demos, 'help()' for on-line help, or
+> 'help.start()' for an HTML browser interface to help.
+> Type 'q()' to quit R.
+>
+>> library(rJava)
+> Error in dyn.load(file, DLLpath = DLLpath, ...) :
+> ?unable to load shared library
+> '/usr/local/lib/R/site-library/rJava/libs/rJava.so':
+> ?libjvm.so: cannot open shared object file: No such file or directory
+> Error : .onLoad failed in 'loadNamespace' for 'rJava'
+> Error: package/namespace load failed for 'rJava'
+>> sessionInfo()
+> R version 2.10.1 (2009-12-14)
+> x86_64-pc-linux-gnu
+>
+> locale:
+> ?[1] LC_CTYPE=en_IE.UTF-8 ? ? ? LC_NUMERIC=C
+> ?[3] LC_TIME=en_IE.UTF-8 ? ? ? ?LC_COLLATE=en_IE.UTF-8
+> ?[5] LC_MONETARY=C ? ? ? ? ? ? ?LC_MESSAGES=en_IE.UTF-8
+> ?[7] LC_PAPER=en_IE.UTF-8 ? ? ? LC_NAME=C
+> ?[9] LC_ADDRESS=C ? ? ? ? ? ? ? LC_TELEPHONE=C
+> [11] LC_MEASUREMENT=en_IE.UTF-8 LC_IDENTIFICATION=C
+>
+> attached base packages:
+> [1] stats ? ? graphics ?grDevices utils ? ? datasets ?methods ? base
+>>
+>
+> root at SeansPC:~# R CMD javareconf
+> Java interpreter : /usr/bin/java
+> Java version ? ? : 1.6.0_15
+> Java home path ? : /usr/lib/jvm/java-6-sun-1.6.0.15/jre
+> Java compiler ? ?: /usr/bin/javac
+> Java headers gen.: /usr/bin/javah
+> Java archive tool: /usr/bin/jar
+> Java library path:
+> $(JAVA_HOME)/lib/amd64/server:$(JAVA_HOME)/lib/amd64:$(JAVA_HOME)/../lib/amd64::/usr/java/packages/lib/amd64:/lib:/usr/lib
+> JNI linker flags : -L$(JAVA_HOME)/lib/amd64/server
+> -L$(JAVA_HOME)/lib/amd64 -L$(JAVA_HOME)/../lib/amd64 -L
+> -L/usr/java/packages/lib/amd64 -L/lib -L/usr/lib -ljvm
+> JNI cpp flags ? ?: -I$(JAVA_HOME)/../include -I$(JAVA_HOME)/../include/linux
+>
+> Updating Java configuration in /etc/R
+> Done.
+>
+>
+>
+> The sessionInfo is identical for root
+>
+> I've un-installed and re-installed r-base and r-cran-*
+>
+> I've done a reboot; I've done 'R CMD javareconf'
+>
+> The file /usr/local/lib/R/site-library/rJava/libs/rJava.so and any
+> nearby files and paths are readable by user sean...
+>
+> I've searched the archives, I've googled... (possibly missing some
+> vital clue of course!)
+>
+> I've removed the personal R library completely - I've checked libPath()
+>
+> java is available at the commandline both as root and as sean
+>
+> I've tried adding files to a new file in /etc/ld.so.conf.d ? and doing
+> an ldconfig ... but I can't see how this would be different for root
+> and sean.
+>
+> The only thing that I think changed was there was various ubuntu
+> updates this morning which asked for a reboot - so I did... and was
+> unable to go with the latest kernel so I'm with a previous version -
+> I'm not sure it is the same as before.
+>
+> If I say do a R CMD javareconf I get different results which may be a
+> clue... but it does appear to point to the same place in the end...
+>
+> sean at SeansPC:~$ R CMD javareconf
+> Java interpreter : /usr/lib/jvm/java-6-sun-1.6.0.15/jre/bin/java
+> Java version ? ? : 1.6.0_15
+> Java home path ? : /usr/lib/jvm/java-6-sun-1.6.0.15
+> Java compiler ? ?: /usr/lib/jvm/java-6-sun-1.6.0.15/bin/javac
+> Java headers gen.: /usr/lib/jvm/java-6-sun-1.6.0.15/bin/javah
+> Java archive tool: /usr/lib/jvm/java-6-sun-1.6.0.15/bin/jar
+> Java library path:
+> $(JAVA_HOME)/jre/lib/amd64/server:$(JAVA_HOME)/jre/lib/amd64:$(JAVA_HOME)/jre/../lib/amd64::/usr/java/packages/lib/amd64:/lib:/usr/lib
+> JNI linker flags : -L$(JAVA_HOME)/jre/lib/amd64/server
+> -L$(JAVA_HOME)/jre/lib/amd64 -L$(JAVA_HOME)/jre/../lib/amd64 -L
+> -L/usr/java/packages/lib/amd64 -L/lib -L/usr/lib -ljvm
+> JNI cpp flags ? ?: -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
+>
+> Updating Java configuration in /etc/R
+> /usr/lib64/R/bin/javareconf: line 323: /etc/R/Makeconf.new: Permission denied
+> *** cannot create /etc/R/Makeconf.new
+> *** Please run as root if required.
+> sean at SeansPC:~$ sudo -i
+> [sudo] password for sean:
+> root at SeansPC:~# R CMD javareconf
+> Java interpreter : /usr/bin/java
+> Java version ? ? : 1.6.0_15
+> Java home path ? : /usr/lib/jvm/java-6-sun-1.6.0.15/jre
+> Java compiler ? ?: /usr/bin/javac
+> Java headers gen.: /usr/bin/javah
+> Java archive tool: /usr/bin/jar
+> Java library path:
+> $(JAVA_HOME)/lib/amd64/server:$(JAVA_HOME)/lib/amd64:$(JAVA_HOME)/../lib/amd64::/usr/java/packages/lib/amd64:/lib:/usr/lib
+> JNI linker flags : -L$(JAVA_HOME)/lib/amd64/server
+> -L$(JAVA_HOME)/lib/amd64 -L$(JAVA_HOME)/../lib/amd64 -L
+> -L/usr/java/packages/lib/amd64 -L/lib -L/usr/lib -ljvm
+> JNI cpp flags ? ?: -I$(JAVA_HOME)/../include -I$(JAVA_HOME)/../include/linux
+>
+> Updating Java configuration in /etc/R
+> Done.
+>
+> Any help would be appreciated.
+>
+> Thanks in advance,
+> Se?n
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From seanpor at acm.org  Wed Mar 10 06:38:01 2010
+From: seanpor at acm.org (Sean O'Riordain)
+Date: Wed, 10 Mar 2010 05:38:01 +0000
+Subject: [R-sig-Debian] rJava works on karmic for root but not for user
+	sean
+In-Reply-To: <8ec76081003091332i787b05b2oa2bc4980448b85db@mail.gmail.com>
+References: <8ed68eed1003091032i766ef06foa1e2350ed2ee8684@mail.gmail.com>
+	<8ec76081003091332i787b05b2oa2bc4980448b85db@mail.gmail.com>
+Message-ID: <8ed68eed1003092138w762150d9w954c02c7ca9b5ba9@mail.gmail.com>
+
+Thanks Whit!  That did the trick!!!
+
+cheers,
+Se?n
+
+
+On Tue, Mar 9, 2010 at 9:32 PM, Whit Armstrong <armstrong.whit at gmail.com> wrote:
+> make sure you don't have JAVA_HOME set in your environment for user sean.
+>
+> just a guess, but have been stung by that one before.
+>
+> -Whit
+>
+>
+> On Tue, Mar 9, 2010 at 1:32 PM, Sean O'Riordain <seanpor at acm.org> wrote:
+>> Good afternoon,
+>> A strange one - library(rJava) works for root but not for user sean
+>>
+>> On 64-bit Ubuntu 9.10, using R as root (sudo -i), I can say
+>> ?library(rJava)
+>> and it works fine with no error message of any kind. ?But logged in as
+>> myself user "sean", it can't start...
+>>
+>> sean at SeansPC:~$ R --no-save --vanilla
+>>
+>> R version 2.10.1 (2009-12-14)
+>> Copyright (C) 2009 The R Foundation for Statistical Computing
+>> ISBN 3-900051-07-0
+>>
+>> R is free software and comes with ABSOLUTELY NO WARRANTY.
+>> You are welcome to redistribute it under certain conditions.
+>> Type 'license()' or 'licence()' for distribution details.
+>>
+>> ?Natural language support but running in an English locale
+>>
+>> R is a collaborative project with many contributors.
+>> Type 'contributors()' for more information and
+>> 'citation()' on how to cite R or R packages in publications.
+>>
+>> Type 'demo()' for some demos, 'help()' for on-line help, or
+>> 'help.start()' for an HTML browser interface to help.
+>> Type 'q()' to quit R.
+>>
+>>> library(rJava)
+>> Error in dyn.load(file, DLLpath = DLLpath, ...) :
+>> ?unable to load shared library
+>> '/usr/local/lib/R/site-library/rJava/libs/rJava.so':
+>> ?libjvm.so: cannot open shared object file: No such file or directory
+>> Error : .onLoad failed in 'loadNamespace' for 'rJava'
+>> Error: package/namespace load failed for 'rJava'
+>>> sessionInfo()
+>> R version 2.10.1 (2009-12-14)
+>> x86_64-pc-linux-gnu
+>>
+>> locale:
+>> ?[1] LC_CTYPE=en_IE.UTF-8 ? ? ? LC_NUMERIC=C
+>> ?[3] LC_TIME=en_IE.UTF-8 ? ? ? ?LC_COLLATE=en_IE.UTF-8
+>> ?[5] LC_MONETARY=C ? ? ? ? ? ? ?LC_MESSAGES=en_IE.UTF-8
+>> ?[7] LC_PAPER=en_IE.UTF-8 ? ? ? LC_NAME=C
+>> ?[9] LC_ADDRESS=C ? ? ? ? ? ? ? LC_TELEPHONE=C
+>> [11] LC_MEASUREMENT=en_IE.UTF-8 LC_IDENTIFICATION=C
+>>
+>> attached base packages:
+>> [1] stats ? ? graphics ?grDevices utils ? ? datasets ?methods ? base
+>>>
+>>
+>> root at SeansPC:~# R CMD javareconf
+>> Java interpreter : /usr/bin/java
+>> Java version ? ? : 1.6.0_15
+>> Java home path ? : /usr/lib/jvm/java-6-sun-1.6.0.15/jre
+>> Java compiler ? ?: /usr/bin/javac
+>> Java headers gen.: /usr/bin/javah
+>> Java archive tool: /usr/bin/jar
+>> Java library path:
+>> $(JAVA_HOME)/lib/amd64/server:$(JAVA_HOME)/lib/amd64:$(JAVA_HOME)/../lib/amd64::/usr/java/packages/lib/amd64:/lib:/usr/lib
+>> JNI linker flags : -L$(JAVA_HOME)/lib/amd64/server
+>> -L$(JAVA_HOME)/lib/amd64 -L$(JAVA_HOME)/../lib/amd64 -L
+>> -L/usr/java/packages/lib/amd64 -L/lib -L/usr/lib -ljvm
+>> JNI cpp flags ? ?: -I$(JAVA_HOME)/../include -I$(JAVA_HOME)/../include/linux
+>>
+>> Updating Java configuration in /etc/R
+>> Done.
+>>
+>>
+>>
+>> The sessionInfo is identical for root
+>>
+>> I've un-installed and re-installed r-base and r-cran-*
+>>
+>> I've done a reboot; I've done 'R CMD javareconf'
+>>
+>> The file /usr/local/lib/R/site-library/rJava/libs/rJava.so and any
+>> nearby files and paths are readable by user sean...
+>>
+>> I've searched the archives, I've googled... (possibly missing some
+>> vital clue of course!)
+>>
+>> I've removed the personal R library completely - I've checked libPath()
+>>
+>> java is available at the commandline both as root and as sean
+>>
+>> I've tried adding files to a new file in /etc/ld.so.conf.d ? and doing
+>> an ldconfig ... but I can't see how this would be different for root
+>> and sean.
+>>
+>> The only thing that I think changed was there was various ubuntu
+>> updates this morning which asked for a reboot - so I did... and was
+>> unable to go with the latest kernel so I'm with a previous version -
+>> I'm not sure it is the same as before.
+>>
+>> If I say do a R CMD javareconf I get different results which may be a
+>> clue... but it does appear to point to the same place in the end...
+>>
+>> sean at SeansPC:~$ R CMD javareconf
+>> Java interpreter : /usr/lib/jvm/java-6-sun-1.6.0.15/jre/bin/java
+>> Java version ? ? : 1.6.0_15
+>> Java home path ? : /usr/lib/jvm/java-6-sun-1.6.0.15
+>> Java compiler ? ?: /usr/lib/jvm/java-6-sun-1.6.0.15/bin/javac
+>> Java headers gen.: /usr/lib/jvm/java-6-sun-1.6.0.15/bin/javah
+>> Java archive tool: /usr/lib/jvm/java-6-sun-1.6.0.15/bin/jar
+>> Java library path:
+>> $(JAVA_HOME)/jre/lib/amd64/server:$(JAVA_HOME)/jre/lib/amd64:$(JAVA_HOME)/jre/../lib/amd64::/usr/java/packages/lib/amd64:/lib:/usr/lib
+>> JNI linker flags : -L$(JAVA_HOME)/jre/lib/amd64/server
+>> -L$(JAVA_HOME)/jre/lib/amd64 -L$(JAVA_HOME)/jre/../lib/amd64 -L
+>> -L/usr/java/packages/lib/amd64 -L/lib -L/usr/lib -ljvm
+>> JNI cpp flags ? ?: -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
+>>
+>> Updating Java configuration in /etc/R
+>> /usr/lib64/R/bin/javareconf: line 323: /etc/R/Makeconf.new: Permission denied
+>> *** cannot create /etc/R/Makeconf.new
+>> *** Please run as root if required.
+>> sean at SeansPC:~$ sudo -i
+>> [sudo] password for sean:
+>> root at SeansPC:~# R CMD javareconf
+>> Java interpreter : /usr/bin/java
+>> Java version ? ? : 1.6.0_15
+>> Java home path ? : /usr/lib/jvm/java-6-sun-1.6.0.15/jre
+>> Java compiler ? ?: /usr/bin/javac
+>> Java headers gen.: /usr/bin/javah
+>> Java archive tool: /usr/bin/jar
+>> Java library path:
+>> $(JAVA_HOME)/lib/amd64/server:$(JAVA_HOME)/lib/amd64:$(JAVA_HOME)/../lib/amd64::/usr/java/packages/lib/amd64:/lib:/usr/lib
+>> JNI linker flags : -L$(JAVA_HOME)/lib/amd64/server
+>> -L$(JAVA_HOME)/lib/amd64 -L$(JAVA_HOME)/../lib/amd64 -L
+>> -L/usr/java/packages/lib/amd64 -L/lib -L/usr/lib -ljvm
+>> JNI cpp flags ? ?: -I$(JAVA_HOME)/../include -I$(JAVA_HOME)/../include/linux
+>>
+>> Updating Java configuration in /etc/R
+>> Done.
+>>
+>> Any help would be appreciated.
+>>
+>> Thanks in advance,
+>> Se?n
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+>
+
+
+From doug.holton at gmail.com  Mon Mar 15 21:05:44 2010
+From: doug.holton at gmail.com (Doug Holton)
+Date: Mon, 15 Mar 2010 14:05:44 -0600
+Subject: [R-sig-Debian] Issue w/JGR after 2.10 upgrade: Error: could not
+	find function...
+Message-ID: <4B9E9318.1080105@gmail.com>
+
+After upgrading to R 2.10 and upgrading and testing JGR 1.7, I and other 
+Ubuntu users are getting repeated error messages in JGR that look like this:
+
+ > Error: could not find function ".getModels"
+Error: could not find function ".getDataObjects"
+Error: could not find function ".getOtherObjects"
+Error: could not find function ".getFunctionsInWS"
+
+The object browser and package manager also do not work.
+
+See: http://ubuntuforums.org/showthread.php?t=1402621
+
+Any thoughts on this?  It's not that JAVA_HOME is set.  I also removed 
+my local R library and re-installed the JGR package and still got the 
+same errors.  I ran R with sudo permissions and also got the same error.
+I ran sudo R CMD javareconf before re-installing JGR and also no change.
+Installed without and without sudo and same errors.
+I'm using sun-java6 (jre and jdk).
+
+
+From pauljohn32 at gmail.com  Mon Mar 15 23:11:04 2010
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Mon, 15 Mar 2010 17:11:04 -0500
+Subject: [R-sig-Debian] Issue w/JGR after 2.10 upgrade: Error: could not
+	find function...
+In-Reply-To: <4B9E9318.1080105@gmail.com>
+References: <4B9E9318.1080105@gmail.com>
+Message-ID: <13e802631003151511n2a7084a8pfd4e092706d5fb5e@mail.gmail.com>
+
+On Mon, Mar 15, 2010 at 3:05 PM, Doug Holton <doug.holton at gmail.com> wrote:
+> After upgrading to R 2.10 and upgrading and testing JGR 1.7, I and other
+> Ubuntu users are getting repeated error messages in JGR that look like this:
+>
+>> Error: could not find function ".getModels"
+> Error: could not find function ".getDataObjects"
+> Error: could not find function ".getOtherObjects"
+> Error: could not find function ".getFunctionsInWS"
+>
+> The object browser and package manager also do not work.
+>
+
+Hmm.  I have Ubuntu with JGR 1.7, and i don't see any of those messages.
+
+I see only:
+> library(JGR)
+Loading required package: rJava
+Loading required package: JavaGD
+Loading required package: iplots
+
+Please use the corresponding JGR launcher to start JGR.
+Run JGR() for details. You can also use JGR(update=TRUE) to update JGR.
+> JGR()
+Please consider running JGR() as root to create a start script in
+/home/pauljohn/R/i486-pc-linux-gnu-library/2.10/JGR/scripts/run
+automatically.
+Starting JGR ...
+Warning message:
+In file(con, "w") :
+  cannot open file
+'/home/pauljohn/R/i486-pc-linux-gnu-library/2.10/JGR/scripts/run':
+Permission denied
+
+I need to track down that "Permission denied" in my home directory,
+but JGR still seems to run. I can load datasets, do ordinary stuff.
+
+What commands do you run to make the bad things happen.?
+
+
+I wonder if you have more than one java development environment
+installed.  It could be you have openjdk, which is the default, as
+well as the Sun packages.  I suppose if your /etc/alternatives links
+are not proper, it could confuse a lot of things.
+
+The only *flashing warning* thing I noted about your post that might
+be a sign of trouble is this comment:
+
+"I'm using sun-java6 (jre and jdk)."
+
+If you install the Sun JDK, it includes the JRE within it, and
+installing both the jdk and the jre could cause the problem you see.
+If R CMD javareconf finds the JRE (which you installed separately from
+the JDK), then it has runtime stuff but no access to the devel
+libraries.
+
+
+-- 
+Paul E. Johnson
+Professor, Political Science
+1541 Lilac Lane, Room 504
+University of Kansas
+
+
+From doug.holton at gmail.com  Mon Mar 15 23:34:50 2010
+From: doug.holton at gmail.com (Doug Holton)
+Date: Mon, 15 Mar 2010 16:34:50 -0600
+Subject: [R-sig-Debian] Issue w/JGR after 2.10 upgrade: Error: could not
+ find function...
+In-Reply-To: <13e802631003151511n2a7084a8pfd4e092706d5fb5e@mail.gmail.com>
+References: <4B9E9318.1080105@gmail.com>
+	<13e802631003151511n2a7084a8pfd4e092706d5fb5e@mail.gmail.com>
+Message-ID: <4B9EB60A.4070602@gmail.com>
+
+Appreciate your help.
+After moving /usr/lib/R/site-library and and deleting any objects in the 
+session and re-installing JGR the errors appear to have gone away now. 
+Perhaps it was an old rJava or something, I don't know.
+The object browser and so forth still were not working.  But I just 
+tried it again from the script launcher and now the object browser works.
+Weird,
+anyway, thanks,
+-Doug
+
+
+Paul Johnson wrote:
+> On Mon, Mar 15, 2010 at 3:05 PM, Doug Holton <doug.holton at gmail.com> wrote:
+>> After upgrading to R 2.10 and upgrading and testing JGR 1.7, I and other
+>> Ubuntu users are getting repeated error messages in JGR that look like this:
+>>
+>>> Error: could not find function ".getModels"
+>> Error: could not find function ".getDataObjects"
+>> Error: could not find function ".getOtherObjects"
+>> Error: could not find function ".getFunctionsInWS"
+>>
+>> The object browser and package manager also do not work.
+>>
+> 
+> Hmm.  I have Ubuntu with JGR 1.7, and i don't see any of those messages.
+> 
+> I see only:
+>> library(JGR)
+> Loading required package: rJava
+> Loading required package: JavaGD
+> Loading required package: iplots
+> 
+> Please use the corresponding JGR launcher to start JGR.
+> Run JGR() for details. You can also use JGR(update=TRUE) to update JGR.
+>> JGR()
+> Please consider running JGR() as root to create a start script in
+> /home/pauljohn/R/i486-pc-linux-gnu-library/2.10/JGR/scripts/run
+> automatically.
+> Starting JGR ...
+> Warning message:
+> In file(con, "w") :
+>   cannot open file
+> '/home/pauljohn/R/i486-pc-linux-gnu-library/2.10/JGR/scripts/run':
+> Permission denied
+> 
+> I need to track down that "Permission denied" in my home directory,
+> but JGR still seems to run. I can load datasets, do ordinary stuff.
+> 
+> What commands do you run to make the bad things happen.?
+> 
+> 
+> I wonder if you have more than one java development environment
+> installed.  It could be you have openjdk, which is the default, as
+> well as the Sun packages.  I suppose if your /etc/alternatives links
+> are not proper, it could confuse a lot of things.
+> 
+> The only *flashing warning* thing I noted about your post that might
+> be a sign of trouble is this comment:
+> 
+> "I'm using sun-java6 (jre and jdk)."
+> 
+> If you install the Sun JDK, it includes the JRE within it, and
+> installing both the jdk and the jre could cause the problem you see.
+> If R CMD javareconf finds the JRE (which you installed separately from
+> the JDK), then it has runtime stuff but no access to the devel
+> libraries.
+> 
+>
+
+
+From etiennelaliberte at gmail.com  Tue Mar 16 22:04:45 2010
+From: etiennelaliberte at gmail.com (=?ISO-8859-1?Q?Etienne_Lalibert=E9?=)
+Date: Wed, 17 Mar 2010 10:04:45 +1300
+Subject: [R-sig-Debian] Issue w/JGR after 2.10 upgrade: Error: could not
+	find function...
+Message-ID: <554cd6451003161404s463657e0k6fd5b315fc8ecfb6@mail.gmail.com>
+
+This won't help your specific problem, but FYI I had a few issues with
+JGR on Ubuntu in the past, and then I discovered this:
+
+http://rgedit.sourceforge.net/
+
+which is very light and integrates well with gedit. This is what I've
+been using since on Ubuntu, and I'm pretty happy with it. Of course it
+doesn't have all the feature of JGR, but if you're only interested in
+the script editor capabilities then Rgedit should be fine.
+-- 
+Etienne Lalibert?
+================================
+School of Forestry
+University of Canterbury
+Private Bag 4800
+Christchurch 8140, New Zealand
+Phone: +64 3 366 7001 ext. 8365
+Fax: +64 3 364 2124
+www.elaliberte.info
+
+
+From scherer.ra at googlemail.com  Thu Mar 18 20:06:50 2010
+From: scherer.ra at googlemail.com (Ralph Scherer)
+Date: Thu, 18 Mar 2010 20:06:50 +0100
+Subject: [R-sig-Debian] Is there interest in up to date r-base for powerpc?
+Message-ID: <1268939210.6526.4.camel@Shuttle-desktop>
+
+Dear list readers,
+
+my plan is to build the up to date R packages for PowerPC, so you can
+add the cran mirror to sources.list and get the newest versions of R
+like for i386 or amd64.
+Is there interest in PowerPC Versions of R?
+And is there more interest for Ubuntu or for Debian?
+Please answer the mail and write down the preferred Linux distribution
+(Debian or Ubuntu).
+Thank you in advance!
+
+
+Bests,
+Ralph
+
+
+From costas.vorlow at gmail.com  Mon Mar 22 08:35:57 2010
+From: costas.vorlow at gmail.com (Costas Vorlow)
+Date: Mon, 22 Mar 2010 09:35:57 +0200
+Subject: [R-sig-Debian] Playwith on Mint
+Message-ID: <c5c9755b1003220035o17aad999va15a02efe30f79a0@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100322/45940f24/attachment.pl>
+
+From landronimirc at gmail.com  Mon Mar 22 10:39:43 2010
+From: landronimirc at gmail.com (Liviu Andronic)
+Date: Mon, 22 Mar 2010 09:39:43 +0000
+Subject: [R-sig-Debian] Playwith on Mint
+In-Reply-To: <c5c9755b1003220035o17aad999va15a02efe30f79a0@mail.gmail.com>
+References: <c5c9755b1003220035o17aad999va15a02efe30f79a0@mail.gmail.com>
+Message-ID: <68b1e2611003220239o69238693v799eacb11cff387@mail.gmail.com>
+
+On 3/22/10, Costas Vorlow <costas.vorlow at gmail.com> wrote:
+>  * installing *source* package ?cairoDevice? ...
+>
+>  checking for pkg-config... pkg-config
+>
+>  ERROR: gtk+2.0 not found by pkg-config.
+>
+>
+It seems that you're missing the gtk+ development files, probably
+libgtk2.0-dev. You often need various *-dev packages to build R
+packages from source.
+Liviu
+
+
+From edd at debian.org  Mon Mar 22 13:24:42 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 22 Mar 2010 07:24:42 -0500
+Subject: [R-sig-Debian] Playwith on Mint
+In-Reply-To: <c5c9755b1003220035o17aad999va15a02efe30f79a0@mail.gmail.com>
+References: <c5c9755b1003220035o17aad999va15a02efe30f79a0@mail.gmail.com>
+Message-ID: <19367.24970.216589.96275@ron.nulle.part>
+
+
+On 22 March 2010 at 09:35, Costas Vorlow wrote:
+| I am having trouble installing the package playwith on the latest Mint
+| "helena",
+| running  R version 2.10.1 (2009-12-14).
+| 
+| I suspect it has to do with the GTK library but as far as I can tell there
+| is nothing wrong with it.
+
+As Liviu pointed out to you, "running" != "compiling against". You need -dev
+packages for the latter.
+
+Also:
+
+| * installing *source* package "cairoDevice"  ...
+
+You can make your live easier by relying on the prebuilt versions:
+
+    $ sudo apt-get install r-cran-cairodevice
+
+(or using aptitude or which frontend your prefer) as Mint should have it as
+Debian/Ubuntu do.
+
+Besides that, start trying to understand the error messages from configure.
+"'foo' not found" is telling you to install foo.
+
+Hth, Dirk
+
+-- 
+  Registration is open for the 2nd International conference R / Finance 2010
+  See http://www.RinFinance.com for details, and see you in Chicago in April!
+
+
+From dbrion1 at yahoo.fr  Tue Mar 23 16:42:57 2010
+From: dbrion1 at yahoo.fr (denis brion)
+Date: Tue, 23 Mar 2010 15:42:57 +0000 (GMT)
+Subject: [R-sig-Debian] Re :  Playwith on Mint
+In-Reply-To: <c5c9755b1003220035o17aad999va15a02efe30f79a0@mail.gmail.com>
+Message-ID: <69853.55374.qm@web23802.mail.ird.yahoo.com>
+
+Playwith does not only need cairoDevice, but Rgtk2 (the lowest in the recursion) which does not need any further R packages, but has many _system_ dependencies 
+and R "install.packages" can only cope ... with _R_ packages...
+
+"SystemRequirements: 	Cairo (>= 1.0.0), ATK (>= 1.10.0), Pango (>= 1.10.0), GTK+ (>= 2.8.0), GLib (>= 2.8.0)"
+
+
+
+If you really want to build playwith by compiling from source (this is slower and more complicated than downloading *binary* packages), these system dependencies should be first satisfied, and the header files should be provided (they are often missing, as there are few advantages in having sources compiled in temporary directories: the libraries (lib*.so) are present and can be found (find /usr -iname libgtk*so* will find a lot of them), but not the headers (canonically in /usr/include/*.h "find /usr -iname *gtk*h" )) :
+
+libgladeui-dev is likely to bring most of the dev packages one needs in such configuration (apt-get is recursive, and it will automagically bring libgtk2*.0-dev, libatk2*-dev, libcairo*-dev, libglib*-dev)... I tried it sometimes.... but it is slow.... and not always satisfying (prepackaged R binaries are carefully tested).
+
+May be it is enough. But it would be *really* faster and perhaps safer to use prepackaged binaries (and, if you want to build from source, you should perhaps start with not such a huge chain of system dependencies).
+
+
+--- En date de?: Lun 22.3.10, Costas Vorlow <costas.vorlow at gmail.com> a ?crit?:
+
+> De: Costas Vorlow <costas.vorlow at gmail.com>
+> Objet: [R-sig-Debian] Playwith on Mint
+> ?: r-sig-debian at r-project.org
+> Date: Lundi 22 mars 2010, 8h35
+> Hello,
+> 
+> I am having trouble installing the package playwith on the
+> latest Mint
+> "helena",
+> running? R version 2.10.1 (2009-12-14).
+> 
+> I suspect it has to do with the GTK library but as far as I
+> can tell there
+> is nothing wrong with it.
+> 
+> Any help extremely appreciated.
+> 
+> I include the output:
+> 
+> > install.packages("playwith")
+> 
+> Warning in install.packages("playwith") :
+> 
+> ? argument 'lib' is missing: using
+> '/usr/local/lib/R/site-library'
+> 
+> --- Please select a CRAN mirror for use in this session
+> ---
+> 
+> Loading Tcl/Tk interface ... done
+> 
+> also installing the dependency ?cairoDevice?
+> 
+> 
+> trying URL 'http://cran.at.r-project.org/src/contrib/cairoDevice_2.10.tar.gz
+> '
+> 
+> Content type 'application/x-gzip' length 39058 bytes (38
+> Kb)
+> 
+> opened URL
+> 
+> ==================================================
+> 
+> downloaded 38 Kb
+> 
+> 
+> trying URL 'http://cran.at.r-project.org/src/contrib/playwith_0.9-45.tar.gz'
+> 
+> Content type 'application/x-gzip' length 93505 bytes (91
+> Kb)
+> 
+> opened URL
+> 
+> ==================================================
+> 
+> downloaded 91 Kb
+> 
+> 
+> * installing *source* package ?cairoDevice? ...
+> 
+> checking for pkg-config... pkg-config
+> 
+> ERROR: gtk+2.0 not found by pkg-config.
+> 
+> ERROR: configuration failed for package ?cairoDevice?
+> 
+> * removing ?/usr/local/lib/R/site-library/cairoDevice?
+> 
+> * installing *source* package ?playwith? ...
+> 
+> ** libs
+> 
+> gcc -std=gnu99 -I/usr/share/R/include? ? ?
+> -fpic? -g -O2 -c interrupt.c -o
+> interrupt.o
+> 
+> gcc -std=gnu99 -shared -o playwith.so interrupt.o
+> -L/usr/lib/R/lib -lR
+> 
+> ** R
+> 
+> ** demo
+> 
+> ** inst
+> 
+> ** preparing package for lazy loading
+> 
+> Warning in library(pkg, character.only = TRUE,
+> logical.return = TRUE,
+> lib.loc = lib.loc) :
+> 
+> ? there is no package called 'cairoDevice'
+> 
+> Error : package 'cairoDevice' could not be loaded
+> 
+> ERROR: lazy loading failed for package ?playwith?
+> 
+> * removing ?/usr/local/lib/R/site-library/playwith?
+> 
+> 
+> The downloaded packages are in
+> 
+> ?/tmp/RtmpjczApq/downloaded_packages?
+> 
+> Warning messages:
+> 
+> 1: In install.packages("playwith") :
+> 
+> ? installation of package 'cairoDevice' had non-zero
+> exit status
+> 
+> 2: In install.packages("playwith") :
+> 
+> ? installation of package 'playwith' had non-zero exit
+> status
+> 
+> >
+> 
+> ??? [[alternative HTML version deleted]]
+> 
+> 
+> -----La pi?ce jointe associ?e suit-----
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+
+
+
+
+
+From edd at debian.org  Tue Mar 23 16:57:15 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 23 Mar 2010 10:57:15 -0500
+Subject: [R-sig-Debian] Re :  Playwith on Mint
+In-Reply-To: <69853.55374.qm@web23802.mail.ird.yahoo.com>
+References: <c5c9755b1003220035o17aad999va15a02efe30f79a0@mail.gmail.com>
+	<69853.55374.qm@web23802.mail.ird.yahoo.com>
+Message-ID: <19368.58587.679714.826204@ron.nulle.part>
+
+
+On 23 March 2010 at 15:42, denis brion wrote:
+| Playwith does not only need cairoDevice, but Rgtk2 (the lowest in the recursion) which does not need any further R packages, but has many _system_ dependencies 
+| and R "install.packages" can only cope ... with _R_ packages...
+| 
+| "SystemRequirements: 	Cairo (>= 1.0.0), ATK (>= 1.10.0), Pango (>= 1.10.0), GTK+ (>= 2.8.0), GLib (>= 2.8.0)"
+
+Well, how about
+
+      sudo apt-get install r-cran-rgtk2
+
+There is a reason we try to maintain difficult to install packages. Too bad
+too few of you seem to notice...
+
+Dirk
+
+-- 
+  Registration is open for the 2nd International conference R / Finance 2010
+  See http://www.RinFinance.com for details, and see you in Chicago in April!
+
+
+From edd at debian.org  Wed Mar 24 12:32:20 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 24 Mar 2010 06:32:20 -0500
+Subject: [R-sig-Debian] [ANNOUNCEMENT] cran2deb: 1700+ new Debian /
+	R	packages
+In-Reply-To: <1250673533.4504.3.camel@pc3-ec>
+References: <19035.40101.199706.453815@ron.nulle.part>
+	<fce144590907140556n5ede1b1fm72d8e2de2c8f8152@mail.gmail.com>
+	<7a9ac240907141044w35ead509ia7b7e36e70f9b0f2@mail.gmail.com>
+	<19036.55256.266053.161326__39558.2722420388$1247598676$gmane$org@ron.nulle.part>
+	<1250673533.4504.3.camel@pc3-ec>
+Message-ID: <19369.63556.911654.954104@ron.nulle.part>
+
+
+On 19 August 2009 at 11:18, Emmanuel Charpentier wrote:
+| Le mardi 14 juillet 2009 ? 14:09 -0500, Dirk Eddelbuettel a ?crit :
+| 
+| [ Snip... ]
+| 
+| > | > 2.  What will it take to do this for Ubuntu?  Are we going to need a
+| > | > (virtual) machine for each release or can this be done under chroot
+| > | > jails on one server?
+| > | 
+| > | I think, though have never got very far, that differences in package
+| > | naming will be the main technical problem with supporting Ubuntu in a
+| > | similar fashion, assuming re-use of the excellent Debian tools
+| > | (pbuilder, mini-dinstall, etc) with a different set of base packages.
+| > | 
+| > | Each release (i.e., debian i386 testing) requires a chroot
+| > | environment: it could all be done on one machine. We simply use
+| > | pbuilder. Maybe you would not want to do this for too many releases
+| > | (bandwidth, disk space, cpu time).
+| > 
+| > More details to follow but I may have access to some institutional support
+| > for this. No details yet though.
+| 
+| Any news on this Ubuntu front ? This announcement *has* seriously
+
+No, sorry. No news.
+
+Dirk
+
+| whetted my appetite and almost made me reconsider my decision, a few
+| years ago, to drop Debian (way too...) unstable in favor of Ubuntu for
+| everyday work...
+| 
+| 					Emmanuel Charpentier
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+  Registration is open for the 2nd International conference R / Finance 2010
+  See http://www.RinFinance.com for details, and see you in Chicago in April!
+
+
+From edd at debian.org  Wed Mar 24 12:33:25 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 24 Mar 2010 06:33:25 -0500
+Subject: [R-sig-Debian] cran2deb repository and Squeeze?
+In-Reply-To: <1263251038.3555.5.camel@debian.hsd1.mn.comcast.net.>
+References: <1263251038.3555.5.camel@debian.hsd1.mn.comcast.net.>
+Message-ID: <19369.63621.130953.363366@ron.nulle.part>
+
+
+On 11 January 2010 at 17:03, Christopher David Desjardins wrote:
+| Hi,
+| I am curious what will happen to cran2deb:
+| 
+| deb http://debian.cran.r-project.org/cran2deb/debian-amd64 testing/
+| 
+| When Squeeze is released? I really hope this service will continue.
+
+What makes you think it wouldn't?   
+
+It will always be for the current testing system.
+
+Dirk
+
+-- 
+  Registration is open for the 2nd International conference R / Finance 2010
+  See http://www.RinFinance.com for details, and see you in Chicago in April!
+
+
+From Ted.Harding at manchester.ac.uk  Wed Mar 24 12:57:07 2010
+From: Ted.Harding at manchester.ac.uk ( (Ted Harding))
+Date: Wed, 24 Mar 2010 11:57:07 -0000 (GMT)
+Subject: [R-sig-Debian] cran2deb repository and Squeeze?
+In-Reply-To: <19369.63621.130953.363366@ron.nulle.part>
+Message-ID: <XFMail.100324115707.Ted.Harding@manchester.ac.uk>
+
+On 24-Mar-10 11:33:25, Dirk Eddelbuettel wrote:
+> 
+> On 11 January 2010 at 17:03, Christopher David Desjardins wrote:
+>| Hi,
+>| I am curious what will happen to cran2deb:
+>| 
+>| deb http://debian.cran.r-project.org/cran2deb/debian-amd64 testing/
+>| 
+>| When Squeeze is released? I really hope this service will continue.
+> 
+> What makes you think it wouldn't?   
+> 
+> It will always be for the current testing system.
+> 
+> Dirk
+
+Regarding the message (received today, 2 copies) to which Dirk has
+replied above, and another message from Emmanuel Charpentier(received
+today) to which Dirk has also just replied: These messages were dated
+
+Date: Mon, 11 Jan 2010 17:03:58 -0600
+Date: Wed, 19 Aug 2009 11:18:53 +0200
+
+The first includes headers:
+Received: from hypatia.math.ethz.ch (hypatia [129.132.145.15]) by
+ hypatia.math.ethz.ch (8.14.1/8.14.1) with ESMTP id o2OBE4GM000614;
+ Wed, 24 Mar 2010 12:14:06 +0100
+Received: from phil3.ethz.ch (phil3.ethz.ch [129.132.202.239]) by
+ hypatia.math.ethz.ch (8.14.1/8.14.1) with ESMTP id o0BN4Zkm011834 for
+ <r-sig-debian at r-project.org>; Tue, 12 Jan 2010 00:04:35 +0100
+
+The second includes headers:
+Received: from hypatia.math.ethz.ch (hypatia [129.132.145.15]) by
+ hypatia.math.ethz.ch (8.14.1/8.14.1) with ESMTP id o2OBDnog032681;
+ Wed, 24 Mar 2010 12:13:53 +0100
+Received: from phil2.ethz.ch (phil2.ethz.ch [129.132.202.240]) by
+ hypatia.math.ethz.ch (8.14.1/8.14.1) with ESMTP id n7J9IM29028505 for
+ <r-sig-debian at stat.math.ethz.ch>; Wed, 19 Aug 2009 11:18:22 +0200
+
+So hypatia has sat on each one for a long time! (2.5 months and
+6 months respectively).
+
+How many more are lurking in there?!!
+
+Ted.
+
+--------------------------------------------------------------------
+E-Mail: (Ted Harding) <Ted.Harding at manchester.ac.uk>
+Fax-to-email: +44 (0)870 094 0861
+Date: 24-Mar-10                                       Time: 11:57:02
+------------------------------ XFMail ------------------------------
+
+
+From Vincent.Goulet at act.ulaval.ca  Wed Mar 24 14:20:37 2010
+From: Vincent.Goulet at act.ulaval.ca (Vincent Goulet)
+Date: Wed, 24 Mar 2010 09:20:37 -0400
+Subject: [R-sig-Debian] Problem with updating/reinstalling R under
+ UBUNTU	(Hardy)
+In-Reply-To: <748882.54990.qm@web26004.mail.ukl.yahoo.com>
+References: <748882.54990.qm@web26004.mail.ukl.yahoo.com>
+Message-ID: <7B81D575-E971-4AD4-8CBA-AB1249C250A8@act.ulaval.ca>
+
+Christine,
+
+It looks like your system is seriously FUBAR, on the R front at least. I recommend you deinstall everything R related. You may need to use a combination of apt-get, dpkg and good old rm (for the failed installation from sources).
+
+And please, don't try to build from source on Ubuntu unless you have very specific needs. We provide binary packages so that you don't have to do this.
+
+Once you system is clean, follow the instructions in the Ubuntu README on CRAN to get up and running again.
+
+HTH
+
+Vincent
+
+Le jeu. 20 ao?t ? 11:18, Lonjou Christine a ?crit :
+
+> 
+> Hello,
+> 
+> I am a new R user not at ease with installing and updating R package under Ubuntu (Hardy), so that I cannot run R anymore ...! I initially installed r version 2.6.2.2 (amd64) from Intrepid instead of Hardy (!), but it worked. I tried to update to version 2.9, but did not succeeded:
+>    (1) I added to my /etc/apt/sources.list an entry :
+>           deb http://cran-fr.r-project.org/bin/linux/ubuntu hardy
+> 
+>   and run the sudo apt-get update + install
+>   => but when I started R again it was always my version 2.6..2.2 
+>  
+>    (2) I loaded  R-2.9.1.tar.gz ; gunzip+tar 
+>       ./configure
+>       make   => error messages following:
+> 
+> ------- make[4]: Entering directory `/data/prog/R-2.9.1/src/library/tools'
+> mkdir -p -- ../../../library/tools/R
+> mv: failed to preserve ownership for `all.R': Operation not permitted
+> mkdir -p -- ../../../library/tools/po
+> mkdir -p -- ../../../library/tools/man
+> mv: failed to preserve ownership for `../../../library/tools/man/tools.Rd': Operation not permitted
+> make[4]: Leaving directory `/data/prog/R-2.9.1/src/library/tools'
+> make[4]: Entering directory `/data/prog/R-2.9.1/src/library/tools'
+> make[5]: Entering directory `/data/prog/R-2.9.1/src/library/tools/src'
+> making text.d from text.c
+> making init.d from init.c
+> making Rmd5.d from Rmd5.c
+> making md5.d from md5.c
+> gcc -std=gnu99 -I../../../../include  -I/usr/local/include   -fvisibility=hidden -fpic  -g -O2 -c text.c -o text.o
+> gcc -std=gnu99 -I../../../../include  -I/usr/local/include   -fvisibility=hidden -fpic  -g -O2 -c init.c -o init.o
+> gcc -std=gnu99 -I../../../../include  -I/usr/local/include   -fvisibility=hidden -fpic  -g -O2 -c Rmd5.c -o Rmd5.o
+> gcc -std=gnu99 -I../../../../include  -I/usr/local/include   -fvisibility=hidden -fpic  -g -O2 -c md5.c -o md5.o
+> gcc -std=gnu99 -shared -L/usr/local/lib64 -o tools.so text.o init.o Rmd5.o md5.o
+> make[6]: Entering directory `/data/prog/R-2.9.1/src/library/tools/src'
+> make[6]: `Makedeps' is up to date.
+> make[6]: Leaving directory `/data/prog/R-2.9.1/src/library/tools/src'
+> make[6]: Entering directory `/data/prog/R-2.9.1/src/library/tools/src'
+> mkdir -p -- ../../../../library/tools/libs
+> make[6]: Leaving directory `/data/prog/R-2.9.1/src/library/tools/src'
+> make[5]: Leaving directory `/data/prog/R-2.9.1/src/library/tools/src'
+> make[4]: Leaving directory `/data/prog/R-2.9.1/src/library/tools'
+> Error in namespaceExport(ns, exports) : 
+>   exportations non d?finies : checkDocFiles, checkDocStyle, checkFF, checkReplaceFuns, checkS3methods, checkTnF, codoc, codocClasses, codocData, undoc
+> Calls: ::: ... tryCatch -> tryCatchList -> tryCatchOne -> <Anonymous>
+> In addition: Warning message:
+> les m?thodes S3 ?print.checkDocFiles?, ?print.checkDocStyle?, ?print.checkFF?, ?print.checkReplaceFuns?, ?print.checkS3methods?, ?print.checkTnF?, ?print.codoc?, ?print.codocClasses?, ?print.codocData?, ?print.subdir_tests?, ?print.undoc?, ?print.check_Rd_files_in_Rd_db?, ?print.check_Rd_xrefs?, ?print.check_T_and_F?, ?print.check_code_usage_in_package?, ?print.check_dotInternal?, ?print.check_make_vars?, ?print.check_package_code_syntax?, ?print.check_package_depends?, ?print.check_package_description?, ?print.check_package_description_encoding?, ?print.check_package_license?, ?print.check_package_datasets?, ?print.check_packages_used? sont d?clar?es dans NAMESPACE mais sont introuvables 
+> Execution halted
+> make[3]: *** [all] Error 1
+> make[3]: Leaving directory `/data/prog/R-2.9.1/src/library/tools'
+> make[2]: *** [R] Error 1
+> make[2]: Leaving directory `/data/prog/R-2.9.1/src/library'
+> make[1]: *** [R] Error 1
+> make[1]: Leaving directory `/data/prog/R-2.9.1/src'
+> make: *** [R] Error 1
+> root at Horus:/data/prog/R-2.9.1# 
+> 
+> -------
+> 
+> If I try to run R, I now get the following message:
+> 
+> $ R
+> /usr/local/bin/R: line 230: /usr/local/lib64/R/bin/exec/R: Permission denied
+> /usr/local/bin/R: line 230: exec: /usr/local/lib64/R/bin/exec/R: cannot execute: Success
+> 
+> Can anyone explain me how to simply desinstall all and reinstall it all?
+> 
+> Thank you in advance for your help
+> 
+> Christine
+> 
+> 
+> 
+> 
+> 
+> 
+> 	[[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From djmbiau at yahoo.fr  Sun Mar 28 18:27:23 2010
+From: djmbiau at yahoo.fr (Biau David)
+Date: Sun, 28 Mar 2010 16:27:23 +0000 (GMT)
+Subject: [R-sig-Debian] installing package reshape and plyr on Debian Lenny
+Message-ID: <762396.79634.qm@web25102.mail.ukl.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100328/2f0f3681/attachment.pl>
+
+From ross at biostat.ucsf.edu  Sun Mar 28 21:17:06 2010
+From: ross at biostat.ucsf.edu (Ross Boylan)
+Date: Sun, 28 Mar 2010 12:17:06 -0700
+Subject: [R-sig-Debian] installing package reshape and plyr on
+	Debian	Lenny
+In-Reply-To: <762396.79634.qm@web25102.mail.ukl.yahoo.com>
+References: <762396.79634.qm@web25102.mail.ukl.yahoo.com>
+Message-ID: <1269803826.13949.2.camel@corn.betterworld.us>
+
+On Sun, 2010-03-28 at 16:27 +0000, Biau David wrote:
+> Hi all,
+> 
+> 
+> hasanyone tried and possiblysucceeded in installing "reshape" package on Debian Lenny? I have a permanent failure because i cannot find the "plyr" package. I tried 10 mirrors. I contacted Hadley Wickhamand James Long who seemed to have been closedto do it butit didn't work (meaning so far I haven't the answer from them). So has anyone any ideasas how to install "plyr" on Debian Lenny. I can't find a source for linux at cran.
+> 
+> Thanks,
+> David. 
+> 
+> 
+I installed reshape 0.7.4 directly from the cran tarball on lenny.  It
+had no explicit dependencies, though butler was a suggests.
+
+The file stamps seem to indicate I did that 2009-04-30, though it's
+possible I did it earlier and then copied it.
+
+Ross Boylan
+
+
+From jranke at uni-bremen.de  Sun Mar 28 21:17:33 2010
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Sun, 28 Mar 2010 21:17:33 +0200
+Subject: [R-sig-Debian] installing package reshape and plyr on Debian
+	Lenny
+In-Reply-To: <762396.79634.qm@web25102.mail.ukl.yahoo.com>
+References: <762396.79634.qm@web25102.mail.ukl.yahoo.com>
+Message-ID: <201003282117.33169.jranke@uni-bremen.de>
+
+Hi,
+
+the plyr source is on CRAN. So I do not understand where you have looked for 
+it.
+
+http://cran.r-project.org/src/contrib/plyr_0.1.9.tar.gz
+
+did you try 
+
+R> install.packages("plyr")
+
+under linux?
+
+Kind regards,
+
+Johannes
+
+Am Sonntag, 28. M?rz 2010 18:27:23 schrieb Biau David:
+> Hi all,
+> 
+> 
+> has anyone tried and possibly succeeded in installing "reshape" package on
+>  Debian Lenny? I have a permanent failure because i cannot find the "plyr"
+>  package. I tried 10 mirrors. I contacted Hadley Wickham and James Long who
+>  seemed to have been closed to do it but it didn't work (meaning so far I
+>  haven't the answer from them). So has anyone any ideas as how to install
+>  "plyr" on Debian Lenny. I can't find a source for linux at cran.
+> 
+> Thanks,
+> David.
+> 
+> 
+> 
+> 
+> 	[[alternative HTML version deleted]]
+> 
+
+
+From djmbiau at yahoo.fr  Sun Mar 28 23:08:08 2010
+From: djmbiau at yahoo.fr (Biau David)
+Date: Sun, 28 Mar 2010 21:08:08 +0000 (GMT)
+Subject: [R-sig-Debian] Re : installing package reshape and plyr on Debian
+	Lenny
+In-Reply-To: <1269803826.13949.2.camel@corn.betterworld.us>
+References: <762396.79634.qm@web25102.mail.ukl.yahoo.com>
+	<1269803826.13949.2.camel@corn.betterworld.us>
+Message-ID: <828957.90824.qm@web25104.mail.ukl.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100328/41e03c7d/attachment.pl>
+
+From djmbiau at yahoo.fr  Mon Mar 29 13:43:32 2010
+From: djmbiau at yahoo.fr (Biau David)
+Date: Mon, 29 Mar 2010 11:43:32 +0000 (GMT)
+Subject: [R-sig-Debian] how to update r to lattest version on debian lenny?
+Message-ID: <666532.82349.qm@web25105.mail.ukl.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100329/2ed3d535/attachment.pl>
+
+From dbrion1 at yahoo.fr  Mon Mar 29 14:34:12 2010
+From: dbrion1 at yahoo.fr (denis brion)
+Date: Mon, 29 Mar 2010 12:34:12 +0000 (GMT)
+Subject: [R-sig-Debian] Re : how to update r to lattest version on debian
+	lenny?
+Message-ID: <758516.94050.qm@web23801.mail.ird.yahoo.com>
+
+If you need a newer version of R for installing the latest version of plyr, perhaps another solution (as very new versions of R -2-11.0-
+will come out soonly ) , which needs 2 lines of bash!, 
+might be
+to download an old version of plyr :
+
+wget  \
+http://cran.at.r-project.org/src/contrib/Archive/plyr/plyr_0.1.1.tar.gz
+
+and install it 
+
+R CMD INSTALL plyr_0.1.1.tar.gz
+
+(and then reshape dependencies are satisfied, as there is no lower bound on plyr's versions: you can then use install.packages or what you like).
+
+Nota "\" denotes it is on the same line i bash scripting!!!
+
+Then, you wait one or two weeks and you get R-2.11.0 if you want.
+Have nice days.
+DB
+
+--- En date de?: Lun 29.3.10, Biau David <djmbiau at yahoo.fr> a ?crit?:
+
+> De: Biau David <djmbiau at yahoo.fr>
+> Objet: [R-sig-Debian] how to update r to lattest version on debian lenny?
+> ?: "R-debian" <>
+> Date: Lundi 29 mars 2010, 13h43
+> Hi all,
+> 
+> how do you update R on Debian lenny? I have tried to
+> re-install r-base after adding deb
+> http://<favorite-cran-mirror>/bin/linux/debian
+> lenny-cran/ to my backport lists but it keeps installing R
+> 2.7.1.
+> 
+> What should I be doing to get the lattest R release? I need
+> it to install a package (plyr)
+> 
+> Thanks,
+> 
+>  David.
+> 
+> 
+> ? ? ? 
+> ??? [[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+
+
+
+
+
+From ross at biostat.ucsf.edu  Mon Mar 29 20:23:46 2010
+From: ross at biostat.ucsf.edu (Ross Boylan)
+Date: Mon, 29 Mar 2010 11:23:46 -0700
+Subject: [R-sig-Debian] how to update r to lattest version on
+	debian	lenny?
+In-Reply-To: <666532.82349.qm@web25105.mail.ukl.yahoo.com>
+References: <666532.82349.qm@web25105.mail.ukl.yahoo.com>
+Message-ID: <1269887026.13949.12.camel@corn.betterworld.us>
+
+On Mon, 2010-03-29 at 11:43 +0000, Biau David wrote:
+> Hi all,
+> 
+> how do you update R on Debian lenny? I have tried to re-install r-base after adding deb http://<favorite-cran-mirror>/bin/linux/debian lenny-cran/ to my backport lists but it keeps installing R 2.7.1.
+> 
+> What should I be doing to get the lattest R release? I need it to install a package (plyr)
+> 
+> Thanks,
+> 
+>  David.
+R in Lenny will always be 2.7; the updates will only pick up major bug
+fixes.
+
+My understanding is that the newest R is available for Lenny on
+backports; I'm not familiar with lenny-cran.
+
+There will be some issues combining new R's with the R packages
+available in lenny; the help system has changed.
+
+Ross
+
+
+From jranke at uni-bremen.de  Mon Mar 29 20:25:49 2010
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 29 Mar 2010 20:25:49 +0200
+Subject: [R-sig-Debian] how to update r to lattest version on debian
+	lenny?
+In-Reply-To: <666532.82349.qm@web25105.mail.ukl.yahoo.com>
+References: <666532.82349.qm@web25105.mail.ukl.yahoo.com>
+Message-ID: <201003292025.49341.jranke@uni-bremen.de>
+
+Hi,
+
+you need to substitute <favorite-cran-mirror> by some actual CRAN mirror like 
+in
+
+	deb http://cran.fr.r-project.org/bin/linux/debian lenny-cran/
+
+and add this line to /etc/apt/sources.list.
+
+Kind regards,
+
+Johannes
+
+
+Am Montag, 29. M?rz 2010 13:43:32 schrieb Biau David:
+> Hi all,
+> 
+> how do you update R on Debian lenny? I have tried to re-install r-base
+>  after adding deb http://<favorite-cran-mirror>/bin/linux/debian
+>  lenny-cran/ to my backport lists but it keeps installing R 2.7.1.
+> 
+> What should I be doing to get the lattest R release? I need it to install a
+>  package (plyr)
+> 
+> Thanks,
+> 
+>  David.
+> 
+> 
+> 
+> 	[[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+
+

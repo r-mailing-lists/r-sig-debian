@@ -1,0 +1,1827 @@
+From gor@n@bro@trom @ending from umu@@e  Wed Aug  1 10:08:34 2018
+From: gor@n@bro@trom @ending from umu@@e (=?UTF-8?Q?G=c3=b6ran_Brostr=c3=b6m?=)
+Date: Wed, 1 Aug 2018 10:08:34 +0200
+Subject: [R-sig-Debian] autoremove_
+Message-ID: <619f5913-b772-ea94-4ecd-38a003dee1b2@umu.se>
+
+When I upgraded my ubuntu 18.04 system today, I got to my surprise:
+
+-----------------------------------------------
+goran at M6800:~$ sudo apt upgrade
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+Calculating upgrade... Done
+The following packages were automatically installed and are no longer 
+required:
+   littler r-cran-littler r-cran-pkgkitten
+Use 'sudo apt autoremove' to remove them.
+-------------------------------------------------
+
+(Why) should I remove them? Why are they 'no longer required'?
+
+G?ran
+
+
+From edd @ending from debi@n@org  Wed Aug  1 13:37:33 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Wed, 1 Aug 2018 06:37:33 -0500
+Subject: [R-sig-Debian] autoremove_
+In-Reply-To: <619f5913-b772-ea94-4ecd-38a003dee1b2@umu.se>
+References: <619f5913-b772-ea94-4ecd-38a003dee1b2@umu.se>
+Message-ID: <23393.39805.844822.957484@rob.eddelbuettel.com>
+
+
+On 1 August 2018 at 10:08, G?ran Brostr?m wrote:
+| When I upgraded my ubuntu 18.04 system today, I got to my surprise:
+| 
+| -----------------------------------------------
+| goran at M6800:~$ sudo apt upgrade
+| Reading package lists... Done
+| Building dependency tree
+| Reading state information... Done
+| Calculating upgrade... Done
+| The following packages were automatically installed and are no longer 
+| required:
+|    littler r-cran-littler r-cran-pkgkitten
+| Use 'sudo apt autoremove' to remove them.
+| -------------------------------------------------
+| 
+| (Why) should I remove them? Why are they 'no longer required'?
+
+Educated guess, I am myself a little unsure here:
+
+- when installing, the dpkg / apt / ... suite now marks a package as directly
+  installed (ie "user explicitly selected this"); I have seen this in a few
+  packages when doing 'apt show ...' but I am not entirely sure where this
+  is stored / how we can query and display it
+  
+- packages only installed as a dependency get a false flag here and may
+  get autoremoved which (I presume) aims and keeping the system tighter
+
+- if you either let it uninstall them and reinstall them explicitly they
+  should be marked
+
+- all three are Suggests of r-cran-rcpp
+
+If anybody knows anything more concrete let us know.
+
+Hth,  Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @ending from debi@n@org  Wed Aug  1 14:31:04 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Wed, 1 Aug 2018 07:31:04 -0500
+Subject: [R-sig-Debian] autoremove_
+In-Reply-To: <23393.39805.844822.957484@rob.eddelbuettel.com>
+References: <619f5913-b772-ea94-4ecd-38a003dee1b2@umu.se>
+ <23393.39805.844822.957484@rob.eddelbuettel.com>
+Message-ID: <23393.43016.248260.420164@rob.eddelbuettel.com>
+
+
+Here is an askubuntu post on complete disabling autoremove if you want that:
+https://askubuntu.com/questions/555568/how-can-i-disable-apt-get-autoremove
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @ending from debi@n@org  Wed Aug  1 16:24:45 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Wed, 1 Aug 2018 09:24:45 -0500
+Subject: [R-sig-Debian] autoremove_
+In-Reply-To: <23393.43016.248260.420164@rob.eddelbuettel.com>
+References: <619f5913-b772-ea94-4ecd-38a003dee1b2@umu.se>
+ <23393.39805.844822.957484@rob.eddelbuettel.com>
+ <23393.43016.248260.420164@rob.eddelbuettel.com>
+Message-ID: <23393.49837.906258.582531@rob.eddelbuettel.com>
+
+
+G?ran,
+
+Got it now (thanks to a slower/later than usual commute) -- see 'man apt' which has
+
+       autoremove (apt-get(8))
+           autoremove is used to remove packages that were automatically installed to satisfy
+           dependencies for other packages and are now no longer needed as dependencies changed or
+           the package(s) needing them were removed in the meantime.
+
+           You should check that the list does not include applications you have grown to like even
+           though they were once installed just as a dependency of another package. You can mark such
+           a package as manually installed by using apt-mark(8). Packages which you have installed
+           explicitly via install are also never proposed for automatic removal.
+
+leading 'man apt-mark' with the details and commands.  The actual file is
+
+       /var/lib/apt/extended_states
+           Status list of auto-installed packages. Configuration Item: Dir::State::extended_states.
+
+and you can switch the state of auto-installed Suggests: or Recommended:
+packages (like r-cran-littler et al in your case) to 'manual' which will
+prevent any auto-removal.
+
+Hope this helps, and thanks for bringing this up - had been meaning to look
+around for this myself.
+
+Cheers, Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From gor@n@bro@trom @ending from umu@@e  Wed Aug  1 17:30:30 2018
+From: gor@n@bro@trom @ending from umu@@e (=?UTF-8?Q?G=c3=b6ran_Brostr=c3=b6m?=)
+Date: Wed, 1 Aug 2018 17:30:30 +0200
+Subject: [R-sig-Debian] autoremove_
+In-Reply-To: <23393.49837.906258.582531@rob.eddelbuettel.com>
+References: <619f5913-b772-ea94-4ecd-38a003dee1b2@umu.se>
+ <23393.39805.844822.957484@rob.eddelbuettel.com>
+ <23393.43016.248260.420164@rob.eddelbuettel.com>
+ <23393.49837.906258.582531@rob.eddelbuettel.com>
+Message-ID: <cc02a6be-5d20-d078-b310-b637aecae3fe@umu.se>
+
+Dirk,
+
+thanks a lot.
+
+Best, G?ran
+
+On 2018-08-01 16:24, Dirk Eddelbuettel wrote:
+> 
+> G?ran,
+> 
+> Got it now (thanks to a slower/later than usual commute) -- see 'man apt' which has
+> 
+>         autoremove (apt-get(8))
+>             autoremove is used to remove packages that were automatically installed to satisfy
+>             dependencies for other packages and are now no longer needed as dependencies changed or
+>             the package(s) needing them were removed in the meantime.
+> 
+>             You should check that the list does not include applications you have grown to like even
+>             though they were once installed just as a dependency of another package. You can mark such
+>             a package as manually installed by using apt-mark(8). Packages which you have installed
+>             explicitly via install are also never proposed for automatic removal.
+> 
+> leading 'man apt-mark' with the details and commands.  The actual file is
+> 
+>         /var/lib/apt/extended_states
+>             Status list of auto-installed packages. Configuration Item: Dir::State::extended_states.
+> 
+> and you can switch the state of auto-installed Suggests: or Recommended:
+> packages (like r-cran-littler et al in your case) to 'manual' which will
+> prevent any auto-removal.
+> 
+> Hope this helps, and thanks for bringing this up - had been meaning to look
+> around for this myself.
+> 
+> Cheers, Dirk
+>
+
+
+From xuw@ng762 @ending from gm@il@com  Wed Aug  1 22:36:01 2018
+From: xuw@ng762 @ending from gm@il@com (Xu Wang)
+Date: Wed, 1 Aug 2018 16:36:01 -0400
+Subject: [R-sig-Debian] Why is rstudio not in Ubuntu repo or PPA?
+In-Reply-To: <CAJhTkNgi0-3ktJAYa6CXvFVbp20UMf=nM1jnKem3jkK+65aihQ@mail.gmail.com>
+References: <CAJhTkNjthmxsWE5SifbNQ-p+NEgUyL2gjwjjy0j95dSNPfF9NA@mail.gmail.com>
+ <22019.23492.751400.414592@max.nulle.part>
+ <CAKw=oCz_pf5o3nf-WbGROhaCDbfwJpK7jK0u3Z633RBJ_qZoAg@mail.gmail.com>
+ <CAJhTkNh1JKwD_MWfB-R1TqEonfKNb=YrRiCBimGb352VCXmRew@mail.gmail.com>
+ <CAKw=oCzmFVFgTwg5wWmNGjqBh7HvEzrifF4LucZiJ1d027QgwQ@mail.gmail.com>
+ <CAJhTkNiEKM6dgtyvba87716pXtRBbqU1QYiiUuud2mb1uP=s_Q@mail.gmail.com>
+ <CAKw=oCwY3dhH19oTFxwGrRZ0Gq7HB_429v8uXk7VJT-GyJV6Sw@mail.gmail.com>
+ <CAJhTkNi_WO0T8L8y8ORLtMTwiDtGRw=HkMrUoCn+EQiqz4kMBA@mail.gmail.com>
+ <CAJhTkNhXH+2tSwOp7e2UHvUbij+oB+cQB2YeUBFRKgzRhvPQfA@mail.gmail.com>
+ <CAKw=oCySPYL6QK26Y0QVmB_U==UmFkWz7KYXWcrHWBBNhdqorg@mail.gmail.com>
+ <CAJhTkNgi0-3ktJAYa6CXvFVbp20UMf=nM1jnKem3jkK+65aihQ@mail.gmail.com>
+Message-ID: <CAJhTkNiddY27DbYwcq_4aXJERZXycPF_NvHBzhvGGHe7O+9jeA@mail.gmail.com>
+
+Dear All,
+
+I try not to bump too much, but I just tried Ubuntu 18.04, and it is
+not in repo and I still do not see any PPA available. If it would
+help, I can spend the time to explain why I believe it helpful to
+install using a command rather than webbrowser, but I think this is
+already understood why helpful, but it seems there is just a technical
+tricky problem to solve to implementation.
+
+Thank you so much for all of your works. I'm sorry to insist on this
+issue. Let me know if there is something I can help for testing.
+
+Kind regards,
+
+Xu
+
+On Sat, Jun 18, 2016 at 2:23 AM, Xu Wang <xuwang762 at gmail.com> wrote:
+> OK thank you for your reply! It is too bad the environment is not
+> right yet in Ubuntu, but I will keep hoping that things work out.
+>
+> Thank you for all of your work!
+>
+> Kind regards,
+>
+> Xu
+>
+> On Fri, Jun 17, 2016 at 8:02 PM, JJ Allaire <jj at rstudio.com> wrote:
+>> We still haven't gone to Qt 5.6 unfortunately. They've deprecated QtWebKit
+>> (which is part of the Qt 5.4 release which we are on now) so that's not a
+>> good place to be long term.
+>>
+>> Qt 5.6 includes the Chromium based QWebView and is also an LTS Qt release so
+>> it's definitely the right platform to be on. We have a very small team
+>> though and many other priorities, bug fixes, etc. tend to intrude.
+>>
+>> J.J.
+>>
+>>
+>>
+>> On Fri, Jun 17, 2016 at 7:53 PM, Xu Wang <xuwang762 at gmail.com> wrote:
+>>>
+>>> On Sat, Feb 13, 2016 at 1:48 PM, Xu Wang <xuwang762 at gmail.com> wrote:
+>>> > On Tue, Feb 9, 2016 at 11:06 AM, JJ Allaire <jj at rstudio.com> wrote:
+>>> >> Not yet. We need to migrate to Qt 5.6 then I think it will be pretty
+>>> >> seamless.
+>>> >
+>>> > I see. Thank you for update and for your kind work, J.J.!
+>>>
+>>> Hi JJ,
+>>>
+>>> Any update? It seems it did not make it into Ubuntu 16.04. But thank
+>>> you very much for trying! I really appreciate your effort. Perhaps
+>>> there is a chance we can get it into 16.10?
+>>>
+>>> Kind regards,
+>>>
+>>> Xu
+>>>
+>>>
+>>>
+>>> >
+>>> > Kind regards,
+>>> >
+>>> > Xu
+>>> >
+>>> >>
+>>> >> J.J.
+>>> >>
+>>> >> On Tue, Feb 9, 2016 at 10:58 AM, Xu Wang <xuwang762 at gmail.com> wrote:
+>>> >>>
+>>> >>> On Thu, Sep 24, 2015 at 10:42 AM, JJ Allaire <jj at rstudio.com> wrote:
+>>> >>> > It seems likely that it will be in 16.04 since it's due in December
+>>> >>> > of
+>>> >>> > this
+>>> >>> > year. That would indeed be a good time for things to come together!
+>>> >>> >
+>>> >>> > J.J.
+>>> >>>
+>>> >>> Can anyone confirm that the rstudio package is now in the 16.04 repos
+>>> >>> ? That would be exciting!
+>>> >>>
+>>> >>> Kind regards,
+>>> >>>
+>>> >>> Xu
+>>> >>
+>>> >>
+>>
+>>
+
+
+From jj @ending from r@tudio@com  Wed Aug  1 22:50:25 2018
+From: jj @ending from r@tudio@com (JJ Allaire)
+Date: Wed, 1 Aug 2018 16:50:25 -0400
+Subject: [R-sig-Debian] Why is rstudio not in Ubuntu repo or PPA?
+In-Reply-To: <CAJhTkNiddY27DbYwcq_4aXJERZXycPF_NvHBzhvGGHe7O+9jeA@mail.gmail.com>
+References: <CAJhTkNjthmxsWE5SifbNQ-p+NEgUyL2gjwjjy0j95dSNPfF9NA@mail.gmail.com>
+ <22019.23492.751400.414592@max.nulle.part>
+ <CAKw=oCz_pf5o3nf-WbGROhaCDbfwJpK7jK0u3Z633RBJ_qZoAg@mail.gmail.com>
+ <CAJhTkNh1JKwD_MWfB-R1TqEonfKNb=YrRiCBimGb352VCXmRew@mail.gmail.com>
+ <CAKw=oCzmFVFgTwg5wWmNGjqBh7HvEzrifF4LucZiJ1d027QgwQ@mail.gmail.com>
+ <CAJhTkNiEKM6dgtyvba87716pXtRBbqU1QYiiUuud2mb1uP=s_Q@mail.gmail.com>
+ <CAKw=oCwY3dhH19oTFxwGrRZ0Gq7HB_429v8uXk7VJT-GyJV6Sw@mail.gmail.com>
+ <CAJhTkNi_WO0T8L8y8ORLtMTwiDtGRw=HkMrUoCn+EQiqz4kMBA@mail.gmail.com>
+ <CAJhTkNhXH+2tSwOp7e2UHvUbij+oB+cQB2YeUBFRKgzRhvPQfA@mail.gmail.com>
+ <CAKw=oCySPYL6QK26Y0QVmB_U==UmFkWz7KYXWcrHWBBNhdqorg@mail.gmail.com>
+ <CAJhTkNgi0-3ktJAYa6CXvFVbp20UMf=nM1jnKem3jkK+65aihQ@mail.gmail.com>
+ <CAJhTkNiddY27DbYwcq_4aXJERZXycPF_NvHBzhvGGHe7O+9jeA@mail.gmail.com>
+Message-ID: <CAKw=oCxdrYkqAvPs7ibZKkx23OgZ6MS=-zAyPoCh-B-TfQfmDQ@mail.gmail.com>
+
+What keeps happening to us is that we end up requiring older or patched
+versions of Qt, which makes it challenging to be synced to whatever version
+of Qt happens to be in Debian/Ubuntu. Essentially we often need to vendor
+Qt, and that isn't something that is compatible with being in the standard
+Debian or Ubuntu repos (but may be compatible with Snaps or other
+packaging/bundling standards).
+
+We definitely should have a PPA though. Jonathan, is that something we're
+considering along with work on Linux bundling (w/ Snaps, etc.)? I guess we
+should also find out if it's acceptable to vendor Qt within a PPA.
+
+Note that automated installation of the latest versions of RStudio stable,
+preview, and daily builds is possible using the URLs published here:
+https://support.rstudio.com/hc/en-us/articles/203842428-Getting-the-newest-RStudio-builds.
+I realize this isn't a PPA, but it's at least a way of installing/updating
+non-interactively.
+
+J.J.
+
+
+
+
+
+On Wed, Aug 1, 2018 at 4:36 PM Xu Wang <xuwang762 at gmail.com> wrote:
+
+> Dear All,
+>
+> I try not to bump too much, but I just tried Ubuntu 18.04, and it is
+> not in repo and I still do not see any PPA available. If it would
+> help, I can spend the time to explain why I believe it helpful to
+> install using a command rather than webbrowser, but I think this is
+> already understood why helpful, but it seems there is just a technical
+> tricky problem to solve to implementation.
+>
+> Thank you so much for all of your works. I'm sorry to insist on this
+> issue. Let me know if there is something I can help for testing.
+>
+> Kind regards,
+>
+> Xu
+>
+> On Sat, Jun 18, 2016 at 2:23 AM, Xu Wang <xuwang762 at gmail.com> wrote:
+> > OK thank you for your reply! It is too bad the environment is not
+> > right yet in Ubuntu, but I will keep hoping that things work out.
+> >
+> > Thank you for all of your work!
+> >
+> > Kind regards,
+> >
+> > Xu
+> >
+> > On Fri, Jun 17, 2016 at 8:02 PM, JJ Allaire <jj at rstudio.com> wrote:
+> >> We still haven't gone to Qt 5.6 unfortunately. They've deprecated
+> QtWebKit
+> >> (which is part of the Qt 5.4 release which we are on now) so that's not
+> a
+> >> good place to be long term.
+> >>
+> >> Qt 5.6 includes the Chromium based QWebView and is also an LTS Qt
+> release so
+> >> it's definitely the right platform to be on. We have a very small team
+> >> though and many other priorities, bug fixes, etc. tend to intrude.
+> >>
+> >> J.J.
+> >>
+> >>
+> >>
+> >> On Fri, Jun 17, 2016 at 7:53 PM, Xu Wang <xuwang762 at gmail.com> wrote:
+> >>>
+> >>> On Sat, Feb 13, 2016 at 1:48 PM, Xu Wang <xuwang762 at gmail.com> wrote:
+> >>> > On Tue, Feb 9, 2016 at 11:06 AM, JJ Allaire <jj at rstudio.com> wrote:
+> >>> >> Not yet. We need to migrate to Qt 5.6 then I think it will be pretty
+> >>> >> seamless.
+> >>> >
+> >>> > I see. Thank you for update and for your kind work, J.J.!
+> >>>
+> >>> Hi JJ,
+> >>>
+> >>> Any update? It seems it did not make it into Ubuntu 16.04. But thank
+> >>> you very much for trying! I really appreciate your effort. Perhaps
+> >>> there is a chance we can get it into 16.10?
+> >>>
+> >>> Kind regards,
+> >>>
+> >>> Xu
+> >>>
+> >>>
+> >>>
+> >>> >
+> >>> > Kind regards,
+> >>> >
+> >>> > Xu
+> >>> >
+> >>> >>
+> >>> >> J.J.
+> >>> >>
+> >>> >> On Tue, Feb 9, 2016 at 10:58 AM, Xu Wang <xuwang762 at gmail.com>
+> wrote:
+> >>> >>>
+> >>> >>> On Thu, Sep 24, 2015 at 10:42 AM, JJ Allaire <jj at rstudio.com>
+> wrote:
+> >>> >>> > It seems likely that it will be in 16.04 since it's due in
+> December
+> >>> >>> > of
+> >>> >>> > this
+> >>> >>> > year. That would indeed be a good time for things to come
+> together!
+> >>> >>> >
+> >>> >>> > J.J.
+> >>> >>>
+> >>> >>> Can anyone confirm that the rstudio package is now in the 16.04
+> repos
+> >>> >>> ? That would be exciting!
+> >>> >>>
+> >>> >>> Kind regards,
+> >>> >>>
+> >>> >>> Xu
+> >>> >>
+> >>> >>
+> >>
+> >>
+>
+
+	[[alternative HTML version deleted]]
+
+
+From xuw@ng762 @ending from gm@il@com  Thu Aug  2 06:39:44 2018
+From: xuw@ng762 @ending from gm@il@com (Xu Wang)
+Date: Thu, 2 Aug 2018 00:39:44 -0400
+Subject: [R-sig-Debian] Why is rstudio not in Ubuntu repo or PPA?
+In-Reply-To: <CAKw=oCxdrYkqAvPs7ibZKkx23OgZ6MS=-zAyPoCh-B-TfQfmDQ@mail.gmail.com>
+References: <CAJhTkNjthmxsWE5SifbNQ-p+NEgUyL2gjwjjy0j95dSNPfF9NA@mail.gmail.com>
+ <22019.23492.751400.414592@max.nulle.part>
+ <CAKw=oCz_pf5o3nf-WbGROhaCDbfwJpK7jK0u3Z633RBJ_qZoAg@mail.gmail.com>
+ <CAJhTkNh1JKwD_MWfB-R1TqEonfKNb=YrRiCBimGb352VCXmRew@mail.gmail.com>
+ <CAKw=oCzmFVFgTwg5wWmNGjqBh7HvEzrifF4LucZiJ1d027QgwQ@mail.gmail.com>
+ <CAJhTkNiEKM6dgtyvba87716pXtRBbqU1QYiiUuud2mb1uP=s_Q@mail.gmail.com>
+ <CAKw=oCwY3dhH19oTFxwGrRZ0Gq7HB_429v8uXk7VJT-GyJV6Sw@mail.gmail.com>
+ <CAJhTkNi_WO0T8L8y8ORLtMTwiDtGRw=HkMrUoCn+EQiqz4kMBA@mail.gmail.com>
+ <CAJhTkNhXH+2tSwOp7e2UHvUbij+oB+cQB2YeUBFRKgzRhvPQfA@mail.gmail.com>
+ <CAKw=oCySPYL6QK26Y0QVmB_U==UmFkWz7KYXWcrHWBBNhdqorg@mail.gmail.com>
+ <CAJhTkNgi0-3ktJAYa6CXvFVbp20UMf=nM1jnKem3jkK+65aihQ@mail.gmail.com>
+ <CAJhTkNiddY27DbYwcq_4aXJERZXycPF_NvHBzhvGGHe7O+9jeA@mail.gmail.com>
+ <CAKw=oCxdrYkqAvPs7ibZKkx23OgZ6MS=-zAyPoCh-B-TfQfmDQ@mail.gmail.com>
+Message-ID: <CAJhTkNhYE1pHQZ93ZbWL4bEvk6KcjKabDUtERNtENJoaYr+nQg@mail.gmail.com>
+
+Thank you so much for the explanation, JJ! It is very kind of you to
+give such detail and transparency. I am highly appreciative of it.
+
+Kind regards,
+
+Xu
+
+On Wed, Aug 1, 2018 at 4:50 PM, JJ Allaire <jj at rstudio.com> wrote:
+> What keeps happening to us is that we end up requiring older or patched
+> versions of Qt, which makes it challenging to be synced to whatever version
+> of Qt happens to be in Debian/Ubuntu. Essentially we often need to vendor
+> Qt, and that isn't something that is compatible with being in the standard
+> Debian or Ubuntu repos (but may be compatible with Snaps or other
+> packaging/bundling standards).
+>
+> We definitely should have a PPA though. Jonathan, is that something we're
+> considering along with work on Linux bundling (w/ Snaps, etc.)? I guess we
+> should also find out if it's acceptable to vendor Qt within a PPA.
+>
+> Note that automated installation of the latest versions of RStudio stable,
+> preview, and daily builds is possible using the URLs published here:
+> https://support.rstudio.com/hc/en-us/articles/203842428-Getting-the-newest-RStudio-builds.
+> I realize this isn't a PPA, but it's at least a way of installing/updating
+> non-interactively.
+>
+> J.J.
+>
+>
+>
+>
+>
+> On Wed, Aug 1, 2018 at 4:36 PM Xu Wang <xuwang762 at gmail.com> wrote:
+>>
+>> Dear All,
+>>
+>> I try not to bump too much, but I just tried Ubuntu 18.04, and it is
+>> not in repo and I still do not see any PPA available. If it would
+>> help, I can spend the time to explain why I believe it helpful to
+>> install using a command rather than webbrowser, but I think this is
+>> already understood why helpful, but it seems there is just a technical
+>> tricky problem to solve to implementation.
+>>
+>> Thank you so much for all of your works. I'm sorry to insist on this
+>> issue. Let me know if there is something I can help for testing.
+>>
+>> Kind regards,
+>>
+>> Xu
+>>
+>> On Sat, Jun 18, 2016 at 2:23 AM, Xu Wang <xuwang762 at gmail.com> wrote:
+>> > OK thank you for your reply! It is too bad the environment is not
+>> > right yet in Ubuntu, but I will keep hoping that things work out.
+>> >
+>> > Thank you for all of your work!
+>> >
+>> > Kind regards,
+>> >
+>> > Xu
+>> >
+>> > On Fri, Jun 17, 2016 at 8:02 PM, JJ Allaire <jj at rstudio.com> wrote:
+>> >> We still haven't gone to Qt 5.6 unfortunately. They've deprecated
+>> >> QtWebKit
+>> >> (which is part of the Qt 5.4 release which we are on now) so that's not
+>> >> a
+>> >> good place to be long term.
+>> >>
+>> >> Qt 5.6 includes the Chromium based QWebView and is also an LTS Qt
+>> >> release so
+>> >> it's definitely the right platform to be on. We have a very small team
+>> >> though and many other priorities, bug fixes, etc. tend to intrude.
+>> >>
+>> >> J.J.
+>> >>
+>> >>
+>> >>
+>> >> On Fri, Jun 17, 2016 at 7:53 PM, Xu Wang <xuwang762 at gmail.com> wrote:
+>> >>>
+>> >>> On Sat, Feb 13, 2016 at 1:48 PM, Xu Wang <xuwang762 at gmail.com> wrote:
+>> >>> > On Tue, Feb 9, 2016 at 11:06 AM, JJ Allaire <jj at rstudio.com> wrote:
+>> >>> >> Not yet. We need to migrate to Qt 5.6 then I think it will be
+>> >>> >> pretty
+>> >>> >> seamless.
+>> >>> >
+>> >>> > I see. Thank you for update and for your kind work, J.J.!
+>> >>>
+>> >>> Hi JJ,
+>> >>>
+>> >>> Any update? It seems it did not make it into Ubuntu 16.04. But thank
+>> >>> you very much for trying! I really appreciate your effort. Perhaps
+>> >>> there is a chance we can get it into 16.10?
+>> >>>
+>> >>> Kind regards,
+>> >>>
+>> >>> Xu
+>> >>>
+>> >>>
+>> >>>
+>> >>> >
+>> >>> > Kind regards,
+>> >>> >
+>> >>> > Xu
+>> >>> >
+>> >>> >>
+>> >>> >> J.J.
+>> >>> >>
+>> >>> >> On Tue, Feb 9, 2016 at 10:58 AM, Xu Wang <xuwang762 at gmail.com>
+>> >>> >> wrote:
+>> >>> >>>
+>> >>> >>> On Thu, Sep 24, 2015 at 10:42 AM, JJ Allaire <jj at rstudio.com>
+>> >>> >>> wrote:
+>> >>> >>> > It seems likely that it will be in 16.04 since it's due in
+>> >>> >>> > December
+>> >>> >>> > of
+>> >>> >>> > this
+>> >>> >>> > year. That would indeed be a good time for things to come
+>> >>> >>> > together!
+>> >>> >>> >
+>> >>> >>> > J.J.
+>> >>> >>>
+>> >>> >>> Can anyone confirm that the rstudio package is now in the 16.04
+>> >>> >>> repos
+>> >>> >>> ? That would be exciting!
+>> >>> >>>
+>> >>> >>> Kind regards,
+>> >>> >>>
+>> >>> >>> Xu
+>> >>> >>
+>> >>> >>
+>> >>
+>> >>
+
+
+From henrik@bengt@@on @ending from gm@il@com  Thu Aug  2 09:44:37 2018
+From: henrik@bengt@@on @ending from gm@il@com (Henrik Bengtsson)
+Date: Thu, 2 Aug 2018 09:44:37 +0200
+Subject: [R-sig-Debian] Warning messages in terminal after running
+ help.start() and accessing the package index
+In-Reply-To: <CAAVnHsua-EMYnoNg1F6TcXiEk5TR+xUX-w4OGsmbaTkazs5Vmg@mail.gmail.com>
+References: <CAAVnHsua-EMYnoNg1F6TcXiEk5TR+xUX-w4OGsmbaTkazs5Vmg@mail.gmail.com>
+Message-ID: <CAFDcVCTaeHNVLuQcahrPzvGDdje69SkGoYOfs0sJrGBzjESePA@mail.gmail.com>
+
+Set option(warn = 2) to turn those warnings into errors. Then look at
+traceback() to find out where they're coming from.
+
+Also, see if you can replicate it in a fresh R --vanilla session.
+
+My $.02
+
+Henrik
+
+
+On Thu, Aug 2, 2018, 09:41 Ivailo <ubuntero.9161 at gmail.com> wrote:
+
+> Dear list-members,
+>
+> I have switched (back) to a terminal-based workflow for a while now
+> and have noticed that after starting the HTML-based help
+> [help.start()], then visiting the package-list (at
+> http://127.0.0.1:<random_port>/doc/html/packages.html), and after the
+> accessed page has been "generated" (as indicated by the message
+> "Making 'packages.html' ... done"), as soon as the first command is
+> entered at the command prompt the following warning appears:
+>
+> Warning messages:
+> 1: In is.na(x) : is.na() applied to non-(list or vector) of type 'NULL'
+> 2: In is.na(x) : is.na() applied to non-(list or vector) of type 'NULL'
+>
+> This happens on both R-3.4.4 and R-3.5.1 running in XFCE-Terminal and
+> Sakura.
+>
+> Is there a way to suppress/fix the reason for these warning messages?
+>
+> Cheers,
+> Ivailo
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+	[[alternative HTML version deleted]]
+
+
+From edd @ending from debi@n@org  Thu Aug  2 13:38:56 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Thu, 2 Aug 2018 06:38:56 -0500
+Subject: [R-sig-Debian] Why is rstudio not in Ubuntu repo or PPA?
+In-Reply-To: <CAJhTkNhYE1pHQZ93ZbWL4bEvk6KcjKabDUtERNtENJoaYr+nQg@mail.gmail.com>
+References: <CAJhTkNjthmxsWE5SifbNQ-p+NEgUyL2gjwjjy0j95dSNPfF9NA@mail.gmail.com>
+ <22019.23492.751400.414592@max.nulle.part>
+ <CAKw=oCz_pf5o3nf-WbGROhaCDbfwJpK7jK0u3Z633RBJ_qZoAg@mail.gmail.com>
+ <CAJhTkNh1JKwD_MWfB-R1TqEonfKNb=YrRiCBimGb352VCXmRew@mail.gmail.com>
+ <CAKw=oCzmFVFgTwg5wWmNGjqBh7HvEzrifF4LucZiJ1d027QgwQ@mail.gmail.com>
+ <CAJhTkNiEKM6dgtyvba87716pXtRBbqU1QYiiUuud2mb1uP=s_Q@mail.gmail.com>
+ <CAKw=oCwY3dhH19oTFxwGrRZ0Gq7HB_429v8uXk7VJT-GyJV6Sw@mail.gmail.com>
+ <CAJhTkNi_WO0T8L8y8ORLtMTwiDtGRw=HkMrUoCn+EQiqz4kMBA@mail.gmail.com>
+ <CAJhTkNhXH+2tSwOp7e2UHvUbij+oB+cQB2YeUBFRKgzRhvPQfA@mail.gmail.com>
+ <CAKw=oCySPYL6QK26Y0QVmB_U==UmFkWz7KYXWcrHWBBNhdqorg@mail.gmail.com>
+ <CAJhTkNgi0-3ktJAYa6CXvFVbp20UMf=nM1jnKem3jkK+65aihQ@mail.gmail.com>
+ <CAJhTkNiddY27DbYwcq_4aXJERZXycPF_NvHBzhvGGHe7O+9jeA@mail.gmail.com>
+ <CAKw=oCxdrYkqAvPs7ibZKkx23OgZ6MS=-zAyPoCh-B-TfQfmDQ@mail.gmail.com>
+ <CAJhTkNhYE1pHQZ93ZbWL4bEvk6KcjKabDUtERNtENJoaYr+nQg@mail.gmail.com>
+Message-ID: <23394.60752.388217.824945@rob.eddelbuettel.com>
+
+
+As for non-manual updates, I have been using two scripts for a few years:
+
+https://github.com/eddelbuettel/littler/blob/master/inst/examples/getRStudioDesktop.r
+https://github.com/eddelbuettel/littler/blob/master/inst/examples/getRStudioServer.r
+
+They are part of the littler package (in Debian and Ubuntu, and on CRAN) and
+get tweaked / updated as the base URLs change.  Currently hardwired for the
+system I use (Ubuntu, amd64) but easy to generalize.
+
+That said, a PPA would be preferable as apt and friends are of course
+perfectly capable to 'sort' among available versions, download and install.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From jj @ending from r@tudio@com  Thu Aug  2 14:32:40 2018
+From: jj @ending from r@tudio@com (JJ Allaire)
+Date: Thu, 2 Aug 2018 08:32:40 -0400
+Subject: [R-sig-Debian] Why is rstudio not in Ubuntu repo or PPA?
+In-Reply-To: <23394.60752.388217.824945@rob.eddelbuettel.com>
+References: <CAJhTkNjthmxsWE5SifbNQ-p+NEgUyL2gjwjjy0j95dSNPfF9NA@mail.gmail.com>
+ <22019.23492.751400.414592@max.nulle.part>
+ <CAKw=oCz_pf5o3nf-WbGROhaCDbfwJpK7jK0u3Z633RBJ_qZoAg@mail.gmail.com>
+ <CAJhTkNh1JKwD_MWfB-R1TqEonfKNb=YrRiCBimGb352VCXmRew@mail.gmail.com>
+ <CAKw=oCzmFVFgTwg5wWmNGjqBh7HvEzrifF4LucZiJ1d027QgwQ@mail.gmail.com>
+ <CAJhTkNiEKM6dgtyvba87716pXtRBbqU1QYiiUuud2mb1uP=s_Q@mail.gmail.com>
+ <CAKw=oCwY3dhH19oTFxwGrRZ0Gq7HB_429v8uXk7VJT-GyJV6Sw@mail.gmail.com>
+ <CAJhTkNi_WO0T8L8y8ORLtMTwiDtGRw=HkMrUoCn+EQiqz4kMBA@mail.gmail.com>
+ <CAJhTkNhXH+2tSwOp7e2UHvUbij+oB+cQB2YeUBFRKgzRhvPQfA@mail.gmail.com>
+ <CAKw=oCySPYL6QK26Y0QVmB_U==UmFkWz7KYXWcrHWBBNhdqorg@mail.gmail.com>
+ <CAJhTkNgi0-3ktJAYa6CXvFVbp20UMf=nM1jnKem3jkK+65aihQ@mail.gmail.com>
+ <CAJhTkNiddY27DbYwcq_4aXJERZXycPF_NvHBzhvGGHe7O+9jeA@mail.gmail.com>
+ <CAKw=oCxdrYkqAvPs7ibZKkx23OgZ6MS=-zAyPoCh-B-TfQfmDQ@mail.gmail.com>
+ <CAJhTkNhYE1pHQZ93ZbWL4bEvk6KcjKabDUtERNtENJoaYr+nQg@mail.gmail.com>
+ <23394.60752.388217.824945@rob.eddelbuettel.com>
+Message-ID: <CAKw=oCwNTLoEktWZb6u11hJ5nA4+nsDHSsQ3y79zL9tfe4NNSQ@mail.gmail.com>
+
+Yes, a PPA would definitely be great and we'll look into doing that soon.
+
+Dirk, you can avoid some of the scraping you are doing in those scripts via
+the URLs here (which are redirects to the latest stable/preview/daily
+versions):
+https://support.rstudio.com/hc/en-us/articles/203842428-Getting-the-newest-RStudio-builds
+
+On Thu, Aug 2, 2018 at 7:39 AM Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> As for non-manual updates, I have been using two scripts for a few years:
+>
+>
+> https://github.com/eddelbuettel/littler/blob/master/inst/examples/getRStudioDesktop.r
+>
+> https://github.com/eddelbuettel/littler/blob/master/inst/examples/getRStudioServer.r
+>
+> They are part of the littler package (in Debian and Ubuntu, and on CRAN)
+> and
+> get tweaked / updated as the base URLs change.  Currently hardwired for the
+> system I use (Ubuntu, amd64) but easy to generalize.
+>
+> That said, a PPA would be preferable as apt and friends are of course
+> perfectly capable to 'sort' among available versions, download and install.
+>
+> Dirk
+>
+> --
+> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+	[[alternative HTML version deleted]]
+
+
+From edd @ending from debi@n@org  Thu Aug  2 14:51:04 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Thu, 2 Aug 2018 07:51:04 -0500
+Subject: [R-sig-Debian] Why is rstudio not in Ubuntu repo or PPA?
+In-Reply-To: <CAKw=oCwNTLoEktWZb6u11hJ5nA4+nsDHSsQ3y79zL9tfe4NNSQ@mail.gmail.com>
+References: <CAJhTkNjthmxsWE5SifbNQ-p+NEgUyL2gjwjjy0j95dSNPfF9NA@mail.gmail.com>
+ <22019.23492.751400.414592@max.nulle.part>
+ <CAKw=oCz_pf5o3nf-WbGROhaCDbfwJpK7jK0u3Z633RBJ_qZoAg@mail.gmail.com>
+ <CAJhTkNh1JKwD_MWfB-R1TqEonfKNb=YrRiCBimGb352VCXmRew@mail.gmail.com>
+ <CAKw=oCzmFVFgTwg5wWmNGjqBh7HvEzrifF4LucZiJ1d027QgwQ@mail.gmail.com>
+ <CAJhTkNiEKM6dgtyvba87716pXtRBbqU1QYiiUuud2mb1uP=s_Q@mail.gmail.com>
+ <CAKw=oCwY3dhH19oTFxwGrRZ0Gq7HB_429v8uXk7VJT-GyJV6Sw@mail.gmail.com>
+ <CAJhTkNi_WO0T8L8y8ORLtMTwiDtGRw=HkMrUoCn+EQiqz4kMBA@mail.gmail.com>
+ <CAJhTkNhXH+2tSwOp7e2UHvUbij+oB+cQB2YeUBFRKgzRhvPQfA@mail.gmail.com>
+ <CAKw=oCySPYL6QK26Y0QVmB_U==UmFkWz7KYXWcrHWBBNhdqorg@mail.gmail.com>
+ <CAJhTkNgi0-3ktJAYa6CXvFVbp20UMf=nM1jnKem3jkK+65aihQ@mail.gmail.com>
+ <CAJhTkNiddY27DbYwcq_4aXJERZXycPF_NvHBzhvGGHe7O+9jeA@mail.gmail.com>
+ <CAKw=oCxdrYkqAvPs7ibZKkx23OgZ6MS=-zAyPoCh-B-TfQfmDQ@mail.gmail.com>
+ <CAJhTkNhYE1pHQZ93ZbWL4bEvk6KcjKabDUtERNtENJoaYr+nQg@mail.gmail.com>
+ <23394.60752.388217.824945@rob.eddelbuettel.com>
+ <CAKw=oCwNTLoEktWZb6u11hJ5nA4+nsDHSsQ3y79zL9tfe4NNSQ@mail.gmail.com>
+Message-ID: <23394.65080.261087.232775@rob.eddelbuettel.com>
+
+
+On 2 August 2018 at 08:32, JJ Allaire wrote:
+| Yes, a PPA would definitely be great and we'll look into doing that soon.
+| 
+| Dirk, you can avoid some of the scraping you are doing in those scripts via
+| the URLs here (which are redirects to the latest stable/preview/daily
+| versions):
+| https://support.rstudio.com/hc/en-us/articles/203842428-Getting-the-newest-RStudio-builds
+
+Splendid. Maybe that will give me some motivation to refactor the scripts,
+put docopt parsing in there and allow selection among daily|preview|stable as
+well as a selection among some of the OSs.  But for now it "works for me" :)
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From ulrich@keller @ending from uni@lu  Tue Aug 14 10:04:40 2018
+From: ulrich@keller @ending from uni@lu (Ulrich KELLER)
+Date: Tue, 14 Aug 2018 08:04:40 +0000
+Subject: [R-sig-Debian] Xenial rpart package on CRAN built with wrong R
+ version?
+Message-ID: <9A3D1604-5278-4B4F-A58C-A807B6B79C04@uni.lu>
+
+Hello,
+
+I just upgraded my Ubuntu Xenial system to R 3.5.1 (from 3.4.?) by changing the sources.list entry and doing an "apt-get dist-upgrade". Everything works except loading the rpart package in R:
+
+> library(rpart)
+Error: package or namespace load failed for ?rpart?:
+ package ?rpart? was installed by an R version with different internals; it needs to be reinstalled for use with this R version
+> installed.packages()['rpart',]
+                                    Package
+                                    "rpart"
+                                    LibPath
+                       "/usr/lib/R/library"
+                                    Version
+                                   "4.1-13"
+                                   Priority
+                              "recommended"
+                                    Depends
+"R (>= 2.15.0), graphics, stats, grDevices"
+                                    Imports
+                                         NA
+                                  LinkingTo
+                                         NA
+                                   Suggests
+                                 "survival"
+                                   Enhances
+                                         NA
+                                    License
+                            "GPL-2 | GPL-3"
+                            License_is_FOSS
+                                         NA
+                      License_restricts_use
+                                         NA
+                                    OS_type
+                                         NA
+                                     MD5sum
+                                         NA
+                           NeedsCompilation
+                                      "yes"
+                                      Built
+                                    ?3.4.3"
+
+Package r-cran-rpart was updated though, as "apt-cache show r-cran-rpart" lists the package file as "xenial-cran35/r-cran-rpart_4.1-13-1cran1xenial0_amd64.deb". No other version of rpart is installed. It seems that this Ubuntu Xenial package has to be updated with a version of rpart what was built with R 3.5 (instead of 3.4.3).
+
+Thank you for the otherwise great work and kind regards,
+
+Uli Keller
+
+
+
+	[[alternative HTML version deleted]]
+
+
+From gnwiii @ending from gm@il@com  Tue Aug 14 12:25:09 2018
+From: gnwiii @ending from gm@il@com (George N. White III)
+Date: Tue, 14 Aug 2018 07:25:09 -0300
+Subject: [R-sig-Debian] Xenial rpart package on CRAN built with wrong R
+ version?
+In-Reply-To: <9A3D1604-5278-4B4F-A58C-A807B6B79C04@uni.lu>
+References: <9A3D1604-5278-4B4F-A58C-A807B6B79C04@uni.lu>
+Message-ID: <CAKTOP47gen_hS1XZcpqxx7uxCBVjWRjz=VHkmJ2upjkA2LkPPw@mail.gmail.com>
+
+qOn Tue, 14 Aug 2018 at 05:04, Ulrich KELLER <ulrich.keller at uni.lu> wrote:
+
+> Hello,
+>
+> I just upgraded my Ubuntu Xenial system to R 3.5.1 (from 3.4.?) by
+> changing the sources.list entry and doing an "apt-get dist-upgrade".
+> Everything works except loading the rpart package in R:
+>
+
+What sources.list entry did you use?
+
+> library(rpart)
+> Error: package or namespace load failed for ?rpart?:
+>  package ?rpart? was installed by an R version with different internals;
+> it needs to be reinstalled for use with this R version
+> [...]
+> Package r-cran-rpart was updated though, as "apt-cache show r-cran-rpart"
+> lists the package file as
+> "xenial-cran35/r-cran-rpart_4.1-13-1cran1xenial0_amd64.deb". No other
+> version of rpart is installed. It seems that this Ubuntu Xenial package has
+> to be updated with a version of rpart what was built with R 3.5 (instead of
+> 3.4.3).
+>
+
+I have a working rpart:
+
+Filename: pool/main/r/rpart/r-cran-rpart_4.1-13-3cran1ppa0xenial0_amd64.deb
+
+-- 
+George N. White III
+
+	[[alternative HTML version deleted]]
+
+
+From ulrich@keller @ending from uni@lu  Tue Aug 14 12:42:20 2018
+From: ulrich@keller @ending from uni@lu (Ulrich KELLER)
+Date: Tue, 14 Aug 2018 10:42:20 +0000
+Subject: [R-sig-Debian] Xenial rpart package on CRAN built with wrong R
+ version?
+In-Reply-To: <CAKTOP47gen_hS1XZcpqxx7uxCBVjWRjz=VHkmJ2upjkA2LkPPw@mail.gmail.com>
+References: <9A3D1604-5278-4B4F-A58C-A807B6B79C04@uni.lu>
+ <CAKTOP47gen_hS1XZcpqxx7uxCBVjWRjz=VHkmJ2upjkA2LkPPw@mail.gmail.com>
+Message-ID: <3054FBCF-1446-4620-9D81-BFA7DD47C813@uni.lu>
+
+I?m not using the PPA, but the CRAN mirror from https://cran.r-project.org/bin/linux/ubuntu/#installation:
+
+deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/
+
+On 14 Aug 2018, at 12:25, George N. White III <gnwiii at gmail.com<mailto:gnwiii at gmail.com>> wrote:
+
+qOn Tue, 14 Aug 2018 at 05:04, Ulrich KELLER <ulrich.keller at uni.lu<mailto:ulrich.keller at uni.lu>> wrote:
+Hello,
+
+I just upgraded my Ubuntu Xenial system to R 3.5.1 (from 3.4.?) by changing the sources.list entry and doing an "apt-get dist-upgrade". Everything works except loading the rpart package in R:
+
+What sources.list entry did you use?
+
+> library(rpart)
+Error: package or namespace load failed for ?rpart?:
+ package ?rpart? was installed by an R version with different internals; it needs to be reinstalled for use with this R version
+[...]
+Package r-cran-rpart was updated though, as "apt-cache show r-cran-rpart" lists the package file as "xenial-cran35/r-cran-rpart_4.1-13-1cran1xenial0_amd64.deb". No other version of rpart is installed. It seems that this Ubuntu Xenial package has to be updated with a version of rpart what was built with R 3.5 (instead of 3.4.3).
+
+I have a working rpart:
+
+Filename: pool/main/r/rpart/r-cran-rpart_4.1-13-3cran1ppa0xenial0_amd64.deb
+
+--
+George N. White III
+
+
+
+	[[alternative HTML version deleted]]
+
+
+From m@rutter @ending from gm@il@com  Wed Aug 15 00:38:25 2018
+From: m@rutter @ending from gm@il@com (Michael Rutter)
+Date: Tue, 14 Aug 2018 18:38:25 -0400
+Subject: [R-sig-Debian] Xenial rpart package on CRAN built with wrong R
+ version?
+In-Reply-To: <3054FBCF-1446-4620-9D81-BFA7DD47C813@uni.lu>
+References: <9A3D1604-5278-4B4F-A58C-A807B6B79C04@uni.lu>
+ <CAKTOP47gen_hS1XZcpqxx7uxCBVjWRjz=VHkmJ2upjkA2LkPPw@mail.gmail.com>
+ <3054FBCF-1446-4620-9D81-BFA7DD47C813@uni.lu>
+Message-ID: <fabde960-81dd-20a3-b0c6-58d16d895437@gmail.com>
+
+
+
+On 08/14/2018 06:42 AM, Ulrich KELLER wrote:
+> I?m not using the PPA, but the CRAN mirror from https://cran.r-project.org/bin/linux/ubuntu/#installation:
+> 
+> deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/
+> 
+> On 14 Aug 2018, at 12:25, George N. White III <gnwiii at gmail.com<mailto:gnwiii at gmail.com>> wrote:
+> 
+> qOn Tue, 14 Aug 2018 at 05:04, Ulrich KELLER <ulrich.keller at uni.lu<mailto:ulrich.keller at uni.lu>> wrote:
+> Hello,
+> 
+> I just upgraded my Ubuntu Xenial system to R 3.5.1 (from 3.4.?) by changing the sources.list entry and doing an "apt-get dist-upgrade". Everything works except loading the rpart package in R:
+> 
+
+Not quite sure if this has been resolved.  I can confirm that the Xenial 
+rpart packages on the RRutter3.5 PPA is indeed built against R 3.5.  The 
+rpart packages on CRAN is the same as on the PPA, so I believe this is 
+an isolated incident.
+
+Sometime the dist-upgrade leaves a few breadcrumbs that need to be 
+cleaned up.  If all else fails, remove the installed rpart package, 
+download the correct binary from CRAN or the PPA, and install with dpkg.
+
+Hope this helps,
+Michael
+
+
+From ulrich@keller @ending from uni@lu  Thu Aug 16 07:35:10 2018
+From: ulrich@keller @ending from uni@lu (Ulrich KELLER)
+Date: Thu, 16 Aug 2018 05:35:10 +0000
+Subject: [R-sig-Debian] Xenial rpart package on CRAN built with wrong R
+ version?
+In-Reply-To: <fabde960-81dd-20a3-b0c6-58d16d895437@gmail.com>
+References: <9A3D1604-5278-4B4F-A58C-A807B6B79C04@uni.lu>
+ <CAKTOP47gen_hS1XZcpqxx7uxCBVjWRjz=VHkmJ2upjkA2LkPPw@mail.gmail.com>
+ <3054FBCF-1446-4620-9D81-BFA7DD47C813@uni.lu>
+ <fabde960-81dd-20a3-b0c6-58d16d895437@gmail.com>
+Message-ID: <1A7AD962-16DC-4E61-8F2F-982D1C36015A@uni.lu>
+
+I manually downloaded the rpart package and installed it using dpkg, without removing the old rpart package first, and now everything works. During the installation, dpkg said:
+
+Unpacking r-cran-rpart (4.1-13-1cran1xenial0) over (4.1-13-1cran1xenial0)
+
+So again, it seemed that the new version had been installed, but it really wasn?t. I had no idea that something like this could happen. Huh.
+
+Anyway, thank you very much for your help!
+
+
+On 15 Aug 2018, at 00:38, Michael Rutter <marutter at gmail.com<mailto:marutter at gmail.com>> wrote:
+
+
+
+On 08/14/2018 06:42 AM, Ulrich KELLER wrote:
+I?m not using the PPA, but the CRAN mirror from https://cran.r-project.org/bin/linux/ubuntu/#installation:
+deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/
+On 14 Aug 2018, at 12:25, George N. White III <gnwiii at gmail.com<mailto:gnwiii at gmail.com><mailto:gnwiii at gmail.com>> wrote:
+qOn Tue, 14 Aug 2018 at 05:04, Ulrich KELLER <ulrich.keller at uni.lu<mailto:ulrich.keller at uni.lu><mailto:ulrich.keller at uni.lu>> wrote:
+Hello,
+I just upgraded my Ubuntu Xenial system to R 3.5.1 (from 3.4.?) by changing the sources.list entry and doing an "apt-get dist-upgrade". Everything works except loading the rpart package in R:
+
+Not quite sure if this has been resolved.  I can confirm that the Xenial rpart packages on the RRutter3.5 PPA is indeed built against R 3.5.  The rpart packages on CRAN is the same as on the PPA, so I believe this is an isolated incident.
+
+Sometime the dist-upgrade leaves a few breadcrumbs that need to be cleaned up.  If all else fails, remove the installed rpart package, download the correct binary from CRAN or the PPA, and install with dpkg.
+
+Hope this helps,
+Michael
+
+_______________________________________________
+R-SIG-Debian mailing list
+R-SIG-Debian at r-project.org<mailto:R-SIG-Debian at r-project.org>
+https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+	[[alternative HTML version deleted]]
+
+
+From ulrich@keller @ending from uni@lu  Thu Aug 16 08:15:09 2018
+From: ulrich@keller @ending from uni@lu (Ulrich KELLER)
+Date: Thu, 16 Aug 2018 06:15:09 +0000
+Subject: [R-sig-Debian] Xenial rpart package on CRAN built with wrong R
+ version?
+In-Reply-To: <1A7AD962-16DC-4E61-8F2F-982D1C36015A@uni.lu>
+References: <9A3D1604-5278-4B4F-A58C-A807B6B79C04@uni.lu>
+ <CAKTOP47gen_hS1XZcpqxx7uxCBVjWRjz=VHkmJ2upjkA2LkPPw@mail.gmail.com>
+ <3054FBCF-1446-4620-9D81-BFA7DD47C813@uni.lu>
+ <fabde960-81dd-20a3-b0c6-58d16d895437@gmail.com>
+ <1A7AD962-16DC-4E61-8F2F-982D1C36015A@uni.lu>
+Message-ID: <02F6EB82-F6E3-4119-85D1-947BF54469D2@uni.lu>
+
+The old (3.4) repo has the same version or rpart (with the same package filename), which I assume was the version installed on my machine prior to my upgrade to 3.5. I guess apt didn?t upgrade because there was no version change. Maybe the debian_revision part of the version could be bumped to make sure the rebuilt packages are upgraded for people upgrading from the 3.4 repo?
+
+> On 16 Aug 2018, at 07:35, Ulrich KELLER <ulrich.keller at uni.lu> wrote:
+> 
+> I manually downloaded the rpart package and installed it using dpkg, without removing the old rpart package first, and now everything works. During the installation, dpkg said:
+> 
+> Unpacking r-cran-rpart (4.1-13-1cran1xenial0) over (4.1-13-1cran1xenial0)
+> 
+> So again, it seemed that the new version had been installed, but it really wasn?t. I had no idea that something like this could happen. Huh.
+> 
+> Anyway, thank you very much for your help!
+> 
+> 
+> On 15 Aug 2018, at 00:38, Michael Rutter <marutter at gmail.com<mailto:marutter at gmail.com>> wrote:
+> 
+> 
+> 
+> On 08/14/2018 06:42 AM, Ulrich KELLER wrote:
+> I?m not using the PPA, but the CRAN mirror from https://cran.r-project.org/bin/linux/ubuntu/#installation:
+> deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/
+> On 14 Aug 2018, at 12:25, George N. White III <gnwiii at gmail.com<mailto:gnwiii at gmail.com><mailto:gnwiii at gmail.com>> wrote:
+> qOn Tue, 14 Aug 2018 at 05:04, Ulrich KELLER <ulrich.keller at uni.lu<mailto:ulrich.keller at uni.lu><mailto:ulrich.keller at uni.lu>> wrote:
+> Hello,
+> I just upgraded my Ubuntu Xenial system to R 3.5.1 (from 3.4.?) by changing the sources.list entry and doing an "apt-get dist-upgrade". Everything works except loading the rpart package in R:
+> 
+> Not quite sure if this has been resolved.  I can confirm that the Xenial rpart packages on the RRutter3.5 PPA is indeed built against R 3.5.  The rpart packages on CRAN is the same as on the PPA, so I believe this is an isolated incident.
+> 
+> Sometime the dist-upgrade leaves a few breadcrumbs that need to be cleaned up.  If all else fails, remove the installed rpart package, download the correct binary from CRAN or the PPA, and install with dpkg.
+> 
+> Hope this helps,
+> Michael
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org<mailto:R-SIG-Debian at r-project.org>
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+> 
+> 	[[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From gnwiii @ending from gm@il@com  Thu Aug 16 13:21:23 2018
+From: gnwiii @ending from gm@il@com (George N. White III)
+Date: Thu, 16 Aug 2018 08:21:23 -0300
+Subject: [R-sig-Debian] Xenial rpart package on CRAN built with wrong R
+ version?
+In-Reply-To: <02F6EB82-F6E3-4119-85D1-947BF54469D2@uni.lu>
+References: <9A3D1604-5278-4B4F-A58C-A807B6B79C04@uni.lu>
+ <CAKTOP47gen_hS1XZcpqxx7uxCBVjWRjz=VHkmJ2upjkA2LkPPw@mail.gmail.com>
+ <3054FBCF-1446-4620-9D81-BFA7DD47C813@uni.lu>
+ <fabde960-81dd-20a3-b0c6-58d16d895437@gmail.com>
+ <1A7AD962-16DC-4E61-8F2F-982D1C36015A@uni.lu>
+ <02F6EB82-F6E3-4119-85D1-947BF54469D2@uni.lu>
+Message-ID: <CAKTOP45KewANVX-DwMfaO5pxsMyvsCaSTykAJ2kv1n53cNyy1w@mail.gmail.com>
+
+On Thu, 16 Aug 2018 at 03:15, Ulrich KELLER <ulrich.keller at uni.lu> wrote:
+
+> The old (3.4) repo has the same version or rpart (with the same package
+> filename), which I assume was the version installed on my machine prior to
+> my upgrade to 3.5. I guess apt didn?t upgrade because there was no version
+> change. Maybe the debian_revision part of the version could be bumped to
+> make sure the rebuilt packages are upgraded for people upgrading from the
+> 3.4 repo?
+>
+
+The package system really should ensure that older packages get replaced
+when there
+are rebuilt versions.
+
+I do recall seeing instructions to remove all the currently installed
+r-cran packages
+before installing 3.5.   This is problematic -- some R users don't have
+reliable internet
+access so have to be very careful that all packages they use are installed
+when they
+have network access (think of people doing field work in remote areas or on
+ships at sea).
+
+> On 16 Aug 2018, at 07:35, Ulrich KELLER <ulrich.keller at uni.lu> wrote:
+> >
+> > I manually downloaded the rpart package and installed it using dpkg,
+> without removing the old rpart package first, and now everything works.
+> During the installation, dpkg said:
+> >
+> > Unpacking r-cran-rpart (4.1-13-1cran1xenial0) over (4.1-13-1cran1xenial0)
+> >
+> > So again, it seemed that the new version had been installed, but it
+> really wasn?t. I had no idea that something like this could happen. Huh.
+> >
+> > Anyway, thank you very much for your help!
+> >
+> >
+> > On 15 Aug 2018, at 00:38, Michael Rutter <marutter at gmail.com<mailto:
+> marutter at gmail.com>> wrote:
+> >
+> >
+> >
+> > On 08/14/2018 06:42 AM, Ulrich KELLER wrote:
+> > I?m not using the PPA, but the CRAN mirror from
+> https://cran.r-project.org/bin/linux/ubuntu/#installation:
+> > deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/
+> > On 14 Aug 2018, at 12:25, George N. White III <gnwiii at gmail.com<mailto:
+> gnwiii at gmail.com><mailto:gnwiii at gmail.com>> wrote:
+> > qOn Tue, 14 Aug 2018 at 05:04, Ulrich KELLER <ulrich.keller at uni.lu
+> <mailto:ulrich.keller at uni.lu><mailto:ulrich.keller at uni.lu>> wrote:
+> > Hello,
+> > I just upgraded my Ubuntu Xenial system to R 3.5.1 (from 3.4.?) by
+> changing the sources.list entry and doing an "apt-get dist-upgrade".
+> Everything works except loading the rpart package in R:
+> >
+> > Not quite sure if this has been resolved.  I can confirm that the Xenial
+> rpart packages on the RRutter3.5 PPA is indeed built against R 3.5.  The
+> rpart packages on CRAN is the same as on the PPA, so I believe this is an
+> isolated incident.
+> >
+> > Sometime the dist-upgrade leaves a few breadcrumbs that need to be
+> cleaned up.  If all else fails, remove the installed rpart package,
+> download the correct binary from CRAN or the PPA, and install with dpkg.
+> >
+> > Hope this helps,
+> > Michael
+> >
+> > _______________________________________________
+> > R-SIG-Debian mailing list
+> > R-SIG-Debian at r-project.org<mailto:R-SIG-Debian at r-project.org>
+> > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> >
+> >
+> >       [[alternative HTML version deleted]]
+> >
+> > _______________________________________________
+> > R-SIG-Debian mailing list
+> > R-SIG-Debian at r-project.org
+> > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+-- 
+George N. White III
+
+	[[alternative HTML version deleted]]
+
+
+From edd @ending from debi@n@org  Thu Aug 16 13:55:53 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Thu, 16 Aug 2018 06:55:53 -0500
+Subject: [R-sig-Debian] Xenial rpart package on CRAN built with wrong R
+ version?
+In-Reply-To: <CAKTOP45KewANVX-DwMfaO5pxsMyvsCaSTykAJ2kv1n53cNyy1w@mail.gmail.com>
+References: <9A3D1604-5278-4B4F-A58C-A807B6B79C04@uni.lu>
+ <CAKTOP47gen_hS1XZcpqxx7uxCBVjWRjz=VHkmJ2upjkA2LkPPw@mail.gmail.com>
+ <3054FBCF-1446-4620-9D81-BFA7DD47C813@uni.lu>
+ <fabde960-81dd-20a3-b0c6-58d16d895437@gmail.com>
+ <1A7AD962-16DC-4E61-8F2F-982D1C36015A@uni.lu>
+ <02F6EB82-F6E3-4119-85D1-947BF54469D2@uni.lu>
+ <CAKTOP45KewANVX-DwMfaO5pxsMyvsCaSTykAJ2kv1n53cNyy1w@mail.gmail.com>
+Message-ID: <23413.26185.140688.596631@rob.eddelbuettel.com>
+
+
+On 16 August 2018 at 08:21, George N. White III wrote:
+| The package system really should ensure that older packages get replaced
+| when there are rebuilt versions.
+
+You can continue to sleep soundly at night because _it does_.
+
+But sometime we introduce a minor infelicity as we rename the files in a by
+hand / by script manner.  We are aware of this and am trying to do this as
+robustly as possible but sometimes this fails.
+
+As Michael pointed out, you can a) generally debug the behaviour and b)
+override it. 
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From E@R@Myer@ @ending from @t@t@l@b@c@m@@c@uk  Mon Aug 20 16:29:57 2018
+From: E@R@Myer@ @ending from @t@t@l@b@c@m@@c@uk (Eva Myers)
+Date: Mon, 20 Aug 2018 15:29:57 +0100
+Subject: [R-sig-Debian] ess 17.11-3 won't install on Ubuntu 16.04
+Message-ID: <20180820142957.GA26680@kore.damtp.cam.ac.uk>
+
+Hello,
+Attempting to install ess (17.11-3xenial0) on our Ubuntu 16.04 systems
+is failing with an error message.
+
+
+root at kore:/home/eva# apt-get install ess
+[...]
+Install ess for emacs24
+install/ess: Handling install for emacsen flavor emacs24
+ERROR: install script from ess package failed
+dpkg: error processing package ess (--configure):
+ subprocess installed post-installation script returned error exit status 1
+Errors were encountered while processing:
+ ess
+E: Sub-process /usr/bin/dpkg returned an error code (1)
+
+
+Installing the previous version worked perfectly.  The relevant
+sources.list line is
+
+deb https://cloud.r-project.org/bin/linux/ubuntu xenial/
+
+What is causing this error and how can it be fixed?
+Thanks,
+Eva.
+
+
+From edd @ending from debi@n@org  Mon Aug 20 17:43:52 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Mon, 20 Aug 2018 10:43:52 -0500
+Subject: [R-sig-Debian] ess 17.11-3 won't install on Ubuntu 16.04
+In-Reply-To: <20180820142957.GA26680@kore.damtp.cam.ac.uk>
+References: <20180820142957.GA26680@kore.damtp.cam.ac.uk>
+Message-ID: <23418.57784.77208.451105@rob.eddelbuettel.com>
+
+
+On 20 August 2018 at 15:29, Eva Myers wrote:
+| Hello,
+| Attempting to install ess (17.11-3xenial0) on our Ubuntu 16.04 systems
+| is failing with an error message.
+
+This can happen. I (with my Debian hat on) had to make 17.11-3 because the
+ess package did not behave with Debian untable and Emacs 26.2. It does now.
+
+Changes can have side effects. Turn out that in this case 16.04 is
+affected. Your easiest recourse would be to not use this package, but the
+(much older) ESS from 16.04, or an older release (and then put it on 'hold'
+to supress updates).
+
+There will be a newer elpa-ess which may work for you (or not). You could try
+these:
+
+  http://dirk.eddelbuettel.com/tmp/elpa-ess_17.11-4_all.deb
+  http://dirk.eddelbuettel.com/tmp/ess_17.11-4_all.deb
+
+and you need both. "Works for me" on 18.04.  Not tested on 16.04. YMMV.
+
+Dirk
+ 
+| root at kore:/home/eva# apt-get install ess
+| [...]
+| Install ess for emacs24
+| install/ess: Handling install for emacsen flavor emacs24
+| ERROR: install script from ess package failed
+| dpkg: error processing package ess (--configure):
+|  subprocess installed post-installation script returned error exit status 1
+| Errors were encountered while processing:
+|  ess
+| E: Sub-process /usr/bin/dpkg returned an error code (1)
+| 
+| 
+| Installing the previous version worked perfectly.  The relevant
+| sources.list line is
+| 
+| deb https://cloud.r-project.org/bin/linux/ubuntu xenial/
+| 
+| What is causing this error and how can it be fixed?
+| Thanks,
+| Eva.
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From gor@n@bro@trom @ending from umu@@e  Mon Aug 20 23:06:31 2018
+From: gor@n@bro@trom @ending from umu@@e (=?UTF-8?Q?G=c3=b6ran_Brostr=c3=b6m?=)
+Date: Mon, 20 Aug 2018 23:06:31 +0200
+Subject: [R-sig-Debian] ess 17.11-3 won't install on Ubuntu 16.04
+In-Reply-To: <23418.57784.77208.451105@rob.eddelbuettel.com>
+References: <20180820142957.GA26680@kore.damtp.cam.ac.uk>
+ <23418.57784.77208.451105@rob.eddelbuettel.com>
+Message-ID: <fbeff424-6d89-ff41-aa90-a8ba4325ac6a@umu.se>
+
+Hi Dirk,
+
+On 2018-08-20 17:43, Dirk Eddelbuettel wrote:
+> 
+> On 20 August 2018 at 15:29, Eva Myers wrote:
+> | Hello,
+> | Attempting to install ess (17.11-3xenial0) on our Ubuntu 16.04 systems
+> | is failing with an error message.
+> 
+> This can happen. I (with my Debian hat on) had to make 17.11-3 because the
+> ess package did not behave with Debian untable and Emacs 26.2. It does now.
+> 
+> Changes can have side effects. Turn out that in this case 16.04 is
+> affected. 
+
+And 18.04. I get exactly the same error message as Eva.
+
+> Your easiest recourse would be to not use this package, but the
+> (much older) ESS from 16.04, or an older release (and then put it on 'hold'
+> to supress updates).
+> 
+> There will be a newer elpa-ess which may work for you (or not). You could try
+> these:
+> 
+>    http://dirk.eddelbuettel.com/tmp/elpa-ess_17.11-4_all.deb
+>    http://dirk.eddelbuettel.com/tmp/ess_17.11-4_all.deb
+> 
+> and you need both. "Works for me" on 18.04.  Not tested on 16.04. YMMV.
+
+"Works for me" too.
+
+G?ran
+
+> Dirk
+>   
+> | root at kore:/home/eva# apt-get install ess
+> | [...]
+> | Install ess for emacs24
+> | install/ess: Handling install for emacsen flavor emacs24
+> | ERROR: install script from ess package failed
+> | dpkg: error processing package ess (--configure):
+> |  subprocess installed post-installation script returned error exit status 1
+> | Errors were encountered while processing:
+> |  ess
+> | E: Sub-process /usr/bin/dpkg returned an error code (1)
+> |
+> |
+> | Installing the previous version worked perfectly.  The relevant
+> | sources.list line is
+> |
+> | deb https://cloud.r-project.org/bin/linux/ubuntu xenial/
+> |
+> | What is causing this error and how can it be fixed?
+> | Thanks,
+> | Eva.
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From edd @ending from debi@n@org  Mon Aug 20 23:16:49 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Mon, 20 Aug 2018 16:16:49 -0500
+Subject: [R-sig-Debian] ess 17.11-3 won't install on Ubuntu 16.04
+In-Reply-To: <fbeff424-6d89-ff41-aa90-a8ba4325ac6a@umu.se>
+References: <20180820142957.GA26680@kore.damtp.cam.ac.uk>
+ <23418.57784.77208.451105@rob.eddelbuettel.com>
+ <fbeff424-6d89-ff41-aa90-a8ba4325ac6a@umu.se>
+Message-ID: <23419.12225.212737.562301@rob.eddelbuettel.com>
+
+
+On 20 August 2018 at 23:06, G?ran Brostr?m wrote:
+| Hi Dirk,
+| 
+| On 2018-08-20 17:43, Dirk Eddelbuettel wrote:
+| > 
+| > On 20 August 2018 at 15:29, Eva Myers wrote:
+| > | Hello,
+| > | Attempting to install ess (17.11-3xenial0) on our Ubuntu 16.04 systems
+| > | is failing with an error message.
+| > 
+| > This can happen. I (with my Debian hat on) had to make 17.11-3 because the
+| > ess package did not behave with Debian untable and Emacs 26.2. It does now.
+| > 
+| > Changes can have side effects. Turn out that in this case 16.04 is
+| > affected. 
+| 
+| And 18.04. I get exactly the same error message as Eva.
+| 
+| > Your easiest recourse would be to not use this package, but the
+| > (much older) ESS from 16.04, or an older release (and then put it on 'hold'
+| > to supress updates).
+| > 
+| > There will be a newer elpa-ess which may work for you (or not). You could try
+| > these:
+| > 
+| >    http://dirk.eddelbuettel.com/tmp/elpa-ess_17.11-4_all.deb
+| >    http://dirk.eddelbuettel.com/tmp/ess_17.11-4_all.deb
+| > 
+| > and you need both. "Works for me" on 18.04.  Not tested on 16.04. YMMV.
+| 
+| "Works for me" too.
+
+These are now in Debian's "experimental". If nothing creeps up I'll upload
+17.11-5 to unstable soon.
+
+Would be good to know if it works on 16.04 too.  Does that have support for
+elpa-* packages for Emacs?
+
+Dirk
+ 
+| G?ran
+| 
+| > Dirk
+| >   
+| > | root at kore:/home/eva# apt-get install ess
+| > | [...]
+| > | Install ess for emacs24
+| > | install/ess: Handling install for emacsen flavor emacs24
+| > | ERROR: install script from ess package failed
+| > | dpkg: error processing package ess (--configure):
+| > |  subprocess installed post-installation script returned error exit status 1
+| > | Errors were encountered while processing:
+| > |  ess
+| > | E: Sub-process /usr/bin/dpkg returned an error code (1)
+| > |
+| > |
+| > | Installing the previous version worked perfectly.  The relevant
+| > | sources.list line is
+| > |
+| > | deb https://cloud.r-project.org/bin/linux/ubuntu xenial/
+| > |
+| > | What is causing this error and how can it be fixed?
+| > | Thanks,
+| > | Eva.
+| > |
+| > | _______________________________________________
+| > | R-SIG-Debian mailing list
+| > | R-SIG-Debian at r-project.org
+| > | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| > 
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From E@R@Myer@ @ending from @t@t@l@b@c@m@@c@uk  Tue Aug 21 10:52:35 2018
+From: E@R@Myer@ @ending from @t@t@l@b@c@m@@c@uk (Eva Myers)
+Date: Tue, 21 Aug 2018 09:52:35 +0100
+Subject: [R-sig-Debian] ess 17.11-3 won't install on Ubuntu 16.04
+In-Reply-To: <23418.57784.77208.451105@rob.eddelbuettel.com>
+References: <20180820142957.GA26680@kore.damtp.cam.ac.uk>
+ <23418.57784.77208.451105@rob.eddelbuettel.com>
+Message-ID: <20180821085235.GA9642@kore.damtp.cam.ac.uk>
+
+On Mon, Aug 20, 2018 at 10:43:52AM -0500, Dirk Eddelbuettel wrote:
+> 
+> On 20 August 2018 at 15:29, Eva Myers wrote:
+> | Hello,
+> | Attempting to install ess (17.11-3xenial0) on our Ubuntu 16.04 systems
+> | is failing with an error message.
+> 
+> This can happen. I (with my Debian hat on) had to make 17.11-3 because the
+> ess package did not behave with Debian untable and Emacs 26.2. It does now.
+> 
+> Changes can have side effects. Turn out that in this case 16.04 is
+> affected. Your easiest recourse would be to not use this package, but the
+> (much older) ESS from 16.04, or an older release (and then put it on 'hold'
+> to supress updates).
+> 
+> There will be a newer elpa-ess which may work for you (or not). You could try
+> these:
+> 
+>   http://dirk.eddelbuettel.com/tmp/elpa-ess_17.11-4_all.deb
+>   http://dirk.eddelbuettel.com/tmp/ess_17.11-4_all.deb
+> 
+> and you need both. "Works for me" on 18.04.  Not tested on 16.04. YMMV.
+
+Works for me on 16.04, thank you so much!
+Eva.
+
+
+From edd @ending from debi@n@org  Tue Aug 21 12:30:33 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Tue, 21 Aug 2018 05:30:33 -0500
+Subject: [R-sig-Debian] ess 17.11-3 won't install on Ubuntu 16.04
+In-Reply-To: <20180821085235.GA9642@kore.damtp.cam.ac.uk>
+References: <20180820142957.GA26680@kore.damtp.cam.ac.uk>
+ <23418.57784.77208.451105@rob.eddelbuettel.com>
+ <20180821085235.GA9642@kore.damtp.cam.ac.uk>
+Message-ID: <23419.59849.30257.443279@rob.eddelbuettel.com>
+
+
+On 21 August 2018 at 09:52, Eva Myers wrote:
+| On Mon, Aug 20, 2018 at 10:43:52AM -0500, Dirk Eddelbuettel wrote:
+| > 
+| > On 20 August 2018 at 15:29, Eva Myers wrote:
+| > | Hello,
+| > | Attempting to install ess (17.11-3xenial0) on our Ubuntu 16.04 systems
+| > | is failing with an error message.
+| > 
+| > This can happen. I (with my Debian hat on) had to make 17.11-3 because the
+| > ess package did not behave with Debian untable and Emacs 26.2. It does now.
+| > 
+| > Changes can have side effects. Turn out that in this case 16.04 is
+| > affected. Your easiest recourse would be to not use this package, but the
+| > (much older) ESS from 16.04, or an older release (and then put it on 'hold'
+| > to supress updates).
+| > 
+| > There will be a newer elpa-ess which may work for you (or not). You could try
+| > these:
+| > 
+| >   http://dirk.eddelbuettel.com/tmp/elpa-ess_17.11-4_all.deb
+| >   http://dirk.eddelbuettel.com/tmp/ess_17.11-4_all.deb
+| > 
+| > and you need both. "Works for me" on 18.04.  Not tested on 16.04. YMMV.
+| 
+| Works for me on 16.04, thank you so much!
+
+That's good to know. With that I will probably release this as 17.11-5 in
+Debian, and it should find its way to the CRAN-mirrors too.
+
+Dirk
+
+| Eva.
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From merklee @ending from mi@@ouri@edu  Tue Aug 21 15:12:36 2018
+From: merklee @ending from mi@@ouri@edu (Merkle, Edgar C.)
+Date: Tue, 21 Aug 2018 13:12:36 +0000
+Subject: [R-sig-Debian] ess 17.11-3 won't install on Ubuntu 16.04
+In-Reply-To: <20180821085235.GA9642@kore.damtp.cam.ac.uk>
+References: <20180820142957.GA26680@kore.damtp.cam.ac.uk>
+ <23418.57784.77208.451105@rob.eddelbuettel.com>,
+ <20180821085235.GA9642@kore.damtp.cam.ac.uk>
+Message-ID: <de5b85c4113b4564a0880ba5ea0be73f@missouri.edu>
+
+
+> On 20 August 2018 at 15:29, Eva Myers wrote:
+> | Hello,
+> | Attempting to install ess (17.11-3xenial0) on our Ubuntu 16.04 systems
+> | is failing with an error message.
+>
+> This can happen. I (with my Debian hat on) had to make 17.11-3 because the
+> ess package did not behave with Debian untable and Emacs 26.2. It does now.
+>
+> Changes can have side effects. Turn out that in this case 16.04 is
+> affected. Your easiest recourse would be to not use this package, but the
+> (much older) ESS from 16.04, or an older release (and then put it on 'hold'
+> to supress updates).
+>
+> There will be a newer elpa-ess which may work for you (or not). You could try
+> these:
+>
+>   http://dirk.eddelbuettel.com/tmp/elpa-ess_17.11-4_all.deb
+>   http://dirk.eddelbuettel.com/tmp/ess_17.11-4_all.deb
+>
+> and you need both. "Works for me" on 18.04.  Not tested on 16.04. YMMV.
+
+FWIW, I was able to fix this error in Ubuntu 16.04 by upgrading emacs to version 26.1. (I was previously using the version on the ubuntu repos, which was emacs 24.xx.)
+
+Best,
+Ed
+
+From edd @ending from debi@n@org  Tue Aug 21 15:37:39 2018
+From: edd @ending from debi@n@org (Dirk Eddelbuettel)
+Date: Tue, 21 Aug 2018 08:37:39 -0500
+Subject: [R-sig-Debian] ess 17.11-3 won't install on Ubuntu 16.04
+In-Reply-To: <de5b85c4113b4564a0880ba5ea0be73f@missouri.edu>
+References: <20180820142957.GA26680@kore.damtp.cam.ac.uk>
+ <23418.57784.77208.451105@rob.eddelbuettel.com>
+ <20180821085235.GA9642@kore.damtp.cam.ac.uk>
+ <de5b85c4113b4564a0880ba5ea0be73f@missouri.edu>
+Message-ID: <23420.5539.459005.749963@rob.eddelbuettel.com>
+
+
+On 21 August 2018 at 13:12, Merkle, Edgar C. wrote:
+| 
+| > On 20 August 2018 at 15:29, Eva Myers wrote:
+| > | Hello,
+| > | Attempting to install ess (17.11-3xenial0) on our Ubuntu 16.04 systems
+| > | is failing with an error message.
+| >
+| > This can happen. I (with my Debian hat on) had to make 17.11-3 because the
+| > ess package did not behave with Debian untable and Emacs 26.2. It does now.
+| >
+| > Changes can have side effects. Turn out that in this case 16.04 is
+| > affected. Your easiest recourse would be to not use this package, but the
+| > (much older) ESS from 16.04, or an older release (and then put it on 'hold'
+| > to supress updates).
+| >
+| > There will be a newer elpa-ess which may work for you (or not). You could try
+| > these:
+| >
+| >   http://dirk.eddelbuettel.com/tmp/elpa-ess_17.11-4_all.deb
+| >   http://dirk.eddelbuettel.com/tmp/ess_17.11-4_all.deb
+| >
+| > and you need both. "Works for me" on 18.04.  Not tested on 16.04. YMMV.
+| 
+| FWIW, I was able to fix this error in Ubuntu 16.04 by upgrading emacs to version 26.1. (I was previously using the version on the ubuntu repos, which was emacs 24.xx.)
+
+That's what started all this -- a user of Emacs 26 in Debian unstable had a
+problem.
+
+Generally speaking I would recommend upgrading to 18.04 though.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From docnil@on @ending from hotm@il@com  Fri Aug 31 13:51:58 2018
+From: docnil@on @ending from hotm@il@com (Nilson Moreira)
+Date: Fri, 31 Aug 2018 11:51:58 +0000
+Subject: [R-sig-Debian] ERROR: Installing R  - Ubuntu
+Message-ID: <HE1PR0102MB2683178730F5D5239EB194FABE0F0@HE1PR0102MB2683.eurprd01.prod.exchangelabs.com>
+
+Good morning!
+
+
+I'm trying to install R on my PC (16.04; LTS), but the following error ocours:
+
+
+E: Falhou obter http://ppa.launchpad.net/skunk/pepper-flash/ubuntu/dists/xenial/main/source/Sources  404  Not Found
+
+I ran the following commands on the terminal:
+
+
+  *   printf '\n#CRAN mirror\ndeb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/\n' | sudo tee -a /etc/apt/sources.list
+  *   sudo apt-get update
+
+The error ocours when I ran the sudo apt-get update.
+
+I tried to see the reason for this error and noticed that the "xenial" folder is not in the address http://ppa.launchpad.net/skunk/pepper-flash/ubuntu/dists/xenial, which should be.
+
+If anyone can help me, I would appreciate it.
+
+Best regards,
+
+Nilson Moreira
+
+
+
+
+
+
+
+
+
+
+	[[alternative HTML version deleted]]
+
+
+From thierry@onkelinx @ending from inbo@be  Fri Aug 31 14:36:37 2018
+From: thierry@onkelinx @ending from inbo@be (Thierry Onkelinx)
+Date: Fri, 31 Aug 2018 14:36:37 +0200
+Subject: [R-sig-Debian] ERROR: Installing R - Ubuntu
+In-Reply-To: <HE1PR0102MB2683178730F5D5239EB194FABE0F0@HE1PR0102MB2683.eurprd01.prod.exchangelabs.com>
+References: <HE1PR0102MB2683178730F5D5239EB194FABE0F0@HE1PR0102MB2683.eurprd01.prod.exchangelabs.com>
+Message-ID: <CAJuCY5wN9kLQZPXqpuLrGJvtKpVkBJ8XVQpdK=ju0esZKdK1_A@mail.gmail.com>
+
+Dear Nilson,
+
+The offical/recommended installation instructions are available at
+https://cloud.r-project.org/bin/linux/ubuntu/README.html Please follow
+these instructions.
+
+Best regards,
+
+
+ir. Thierry Onkelinx
+Statisticus / Statistician
+
+Vlaamse Overheid / Government of Flanders
+INSTITUUT VOOR NATUUR- EN BOSONDERZOEK / RESEARCH INSTITUTE FOR NATURE AND
+FOREST
+Team Biometrie & Kwaliteitszorg / Team Biometrics & Quality Assurance
+thierry.onkelinx at inbo.be
+Havenlaan 88 bus 73, 1000 Brussel
+www.inbo.be
+
+///////////////////////////////////////////////////////////////////////////////////////////
+To call in the statistician after the experiment is done may be no more
+than asking him to perform a post-mortem examination: he may be able to say
+what the experiment died of. ~ Sir Ronald Aylmer Fisher
+The plural of anecdote is not data. ~ Roger Brinner
+The combination of some data and an aching desire for an answer does not
+ensure that a reasonable answer can be extracted from a given body of data.
+~ John Tukey
+///////////////////////////////////////////////////////////////////////////////////////////
+
+<https://www.inbo.be>
+
+2018-08-31 13:51 GMT+02:00 Nilson Moreira <docnilson at hotmail.com>:
+
+> Good morning!
+>
+>
+> I'm trying to install R on my PC (16.04; LTS), but the following error
+> ocours:
+>
+>
+> E: Falhou obter http://ppa.launchpad.net/skunk/pepper-flash/ubuntu/
+> dists/xenial/main/source/Sources  404  Not Found
+>
+> I ran the following commands on the terminal:
+>
+>
+>   *   printf '\n#CRAN mirror\ndeb https://cloud.r-project.org/
+> bin/linux/ubuntu xenial-cran35/\n' | sudo tee -a /etc/apt/sources.list
+>   *   sudo apt-get update
+>
+> The error ocours when I ran the sudo apt-get update.
+>
+> I tried to see the reason for this error and noticed that the "xenial"
+> folder is not in the address http://ppa.launchpad.net/
+> skunk/pepper-flash/ubuntu/dists/xenial, which should be.
+>
+> If anyone can help me, I would appreciate it.
+>
+> Best regards,
+>
+> Nilson Moreira
+>
+>
+>
+>
+>
+>
+>
+>
+>
+>
+>         [[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+	[[alternative HTML version deleted]]
+
+
+From i@t@z@hn @ending from gm@il@com  Fri Aug 31 15:07:59 2018
+From: i@t@z@hn @ending from gm@il@com (Ista Zahn)
+Date: Fri, 31 Aug 2018 09:07:59 -0400
+Subject: [R-sig-Debian] ERROR: Installing R - Ubuntu
+In-Reply-To: <HE1PR0102MB2683178730F5D5239EB194FABE0F0@HE1PR0102MB2683.eurprd01.prod.exchangelabs.com>
+References: <HE1PR0102MB2683178730F5D5239EB194FABE0F0@HE1PR0102MB2683.eurprd01.prod.exchangelabs.com>
+Message-ID: <CA+vqiLEn+bBdqoGKVYNbFHdN=4EReDUC4bCNVQjvSfgOoLauqg@mail.gmail.com>
+
+On Fri, Aug 31, 2018 at 7:52 AM Nilson Moreira <docnilson at hotmail.com> wrote:
+>
+> Good morning!
+>
+>
+> I'm trying to install R on my PC (16.04; LTS), but the following error ocours:
+>
+>
+> E: Falhou obter http://ppa.launchpad.net/skunk/pepper-flash/ubuntu/dists/xenial/main/source/Sources  404  Not Found
+
+That error doesn't have anything to do with R. Remove anything
+installed from that old busted PPA, remove it from your sources.list,
+and install R as instructed at
+https://cran.r-project.org/bin/linux/ubuntu/
+
+Best,
+Ista
+
+>
+> I ran the following commands on the terminal:
+>
+>
+>   *   printf '\n#CRAN mirror\ndeb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/\n' | sudo tee -a /etc/apt/sources.list
+>   *   sudo apt-get update
+>
+> The error ocours when I ran the sudo apt-get update.
+>
+> I tried to see the reason for this error and noticed that the "xenial" folder is not in the address http://ppa.launchpad.net/skunk/pepper-flash/ubuntu/dists/xenial, which should be.
+>
+> If anyone can help me, I would appreciate it.
+>
+> Best regards,
+>
+> Nilson Moreira
+>
+>
+>
+>
+>
+>
+>
+>
+>
+>
+>         [[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+

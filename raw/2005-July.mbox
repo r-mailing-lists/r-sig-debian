@@ -1,0 +1,172 @@
+From dmbates at gmail.com  Mon Jul 11 17:20:58 2005
+From: dmbates at gmail.com (Douglas Bates)
+Date: Mon, 11 Jul 2005 10:20:58 -0500
+Subject: [R-sig-Debian] [R] R on kubuntu
+In-Reply-To: <dau0lm$das$1@sea.gmane.org>
+References: <200507111154.08476.constant.depiereux@aqte.be>
+	<200507111320.10793.lefebure@univ-lyon1.fr>
+	<dau0lm$das$1@sea.gmane.org>
+Message-ID: <40e66e0b0507110820463be91@mail.gmail.com>
+
+On 7/11/05, Henrik Andersson <h.andersson at nioo.knaw.nl> wrote:
+> However according to:
+> 
+> http://packages.ubuntu.com/hoary/math/r-base
+> 
+> you will have to live with R version 2.0.1 until the next version of
+> Ubuntu is released. (If I understood the Ubuntu policy...)
+> 
+> Or is there some other repository providing more updated binaries for
+> Ubuntu 5.04?
+
+It's possible to install the latest packages from the Debian
+repository but awkward.  You would need to add a debian/testing or
+debian/unstable repository to /etc/apt/sources.list and configure apt
+to use the Ubuntu archives unless you explicitly require the testing
+or unstable version of a package.  I think that trying to install such
+a version will require you to update your entire compiler tool chain,
+which may be more effort than you want to make.
+
+I just recently installed Kubuntu on a machine and will, if I manage
+to get the hardware working, do another today.  If that works I try
+instaling  r-base-dev/unstabl and report back to the r-sig-debian
+mailing list.
+
+(Note that there is a special mailing list for Debian-related
+questions and I am moving this thread to that list.)
+> Cheers, Henrik Andersson
+> 
+> Lefebure Tristan wrote:
+> > No problem at all.
+> > If you allow "universe" packages, many binary R packages are available (from
+> > the GNU/Linux Debian sid).
+> >
+> >
+> > On Monday 11 July 2005 11:54, Constant Depi?reux wrote:
+> >
+> >>Hello all,
+> >>
+> >>I am planning to redeploy my workstation under KUBUNTU.
+> >>
+> >>Does any body has any r experience installing/using r on this platform?
+> >>
+> >>Best regards.
+> >
+> >
+> 
+> 
+> --
+> ---------------------------------------------
+> Henrik Andersson
+> Netherlands Institute of Ecology -
+> Centre for Estuarine and Marine Ecology
+> P.O. Box 140
+> 4400 AC Yerseke
+> Phone: +31 113 577473
+> h.andersson at nioo.knaw.nl
+> http://www.nioo.knaw.nl/ppages/handersson
+> 
+> ______________________________________________
+> R-help at stat.math.ethz.ch mailing list
+> https://stat.ethz.ch/mailman/listinfo/r-help
+> PLEASE do read the posting guide! http://www.R-project.org/posting-guide.html
+>
+
+
+From dmbates at gmail.com  Tue Jul 12 00:39:34 2005
+From: dmbates at gmail.com (Douglas Bates)
+Date: Mon, 11 Jul 2005 17:39:34 -0500
+Subject: [R-sig-Debian] Error in build_htmlpkglist
+Message-ID: <40e66e0b050711153973d3721d@mail.gmail.com>
+
+On a machine running Debian testing and now on another machine running
+Kubuntu hoary on which I tried to install the r-base-core_2.1.1-1 I
+consistently get errors from the installation of the recommended
+packages, such as r-cran-nlme.  This is somewhat embarrassing as
+r-cran-nlme is my package :-)
+
+The error messages are
+
+Undefined subroutine &main::build_htmlpkglist called at
+/usr/lib/R/share/perl/build-help.pl line 73.
+
+That perl script does contain the line
+
+use R::Rdlists;
+
+and the file R/Rdists.pl does define build_htmlpkglist but somehow the
+definition is not being found.
+
+My perl is rather rusty and I would prefer not to debug this.  Has
+anyone else encountered this problem?  Does anyone know of a fix?
+
+
+From edd at debian.org  Sun Jul 17 18:45:29 2005
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 17 Jul 2005 11:45:29 -0500
+Subject: [R-sig-Debian] R source issue "sarge" or "stable"
+In-Reply-To: <42CBF7C0.3080405@presby.edu>
+References: <42CBF7C0.3080405@presby.edu>
+Message-ID: <17114.35625.279845.168499@basebud.nulle.part>
+
+
+Clint,
+
+Sorry for the delayed reply, but I was away from my computers for several days.
+
+On 6 July 2005 at 11:24, Clint Harshaw wrote:
+| Hi Dirk and Douglas:
+| 
+| I am a user of Debian and R. My system is a Debian Sarge system, and I 
+| want to add the ibiblio mirror to keep my R installation up to date. 
+| However, I'm running into some trouble when trying to follow the 
+| instructions in the README at this url:
+| 
+| http://www.ibiblio.org/pub/languages/R/CRAN/bin/linux/debian/README
+| 
+| I added the url of the ibiblio mirror and while apt-get upgrade sees the 
+| updates that are available, it is not able to download the packages. I 
+| think there is an issue with the name of "sarge" vs. "stable" for a 
+| directory.
+| 
+| The mirrors I've tried (UCLA and ibiblio) are using "stable" in the 
+| directory structure, as seen at this url:
+| 
+| http://www.ibiblio.org/pub/languages/R/CRAN/bin/linux/debian/stable/
+| 
+| But there are references to "sarge" as a directory name.
+| 
+| Is there a way that I can modify my sources.list to account for this 
+| discrepancy, or is the problem with the mirrors not being updated 
+| completely?
+
+This mirror is maintained by Christian Steigies to whom I forward this. I
+only use testing/unstable myself and cannot help you with this.  But for
+broader exposure, I'll CC the r-sig-debian list where someone may have the
+pertinent pointer.
+
+Best regards, Dirk
+
+
+| 
+| Thanks very much,
+| Clint
+| -- 
+| Clint Harshaw, PhD              EMail: charshaw at presby.edu	
+| Department of Mathematics       Phone: 864.833.8995
+| Presbyterian College            Fax: 864.938.3769
+| Clinton SC  29325               Office: Harrington-Peachtree Rm 412		
+| 
+| 
+| 
+| 
+| 
+| 
+| 
+| 
+
+-- 
+Statistics: The (futile) attempt to offer certainty about uncertainty.
+         -- Roger Koenker, 'Dictionary of Received Ideas of Statistics'
+
+

@@ -1,0 +1,331 @@
+From anand.chirag at gmail.com  Wed Aug 11 11:23:34 2010
+From: anand.chirag at gmail.com (Chirag Anand)
+Date: Wed, 11 Aug 2010 14:53:34 +0530
+Subject: [R-sig-Debian] X trouble in R on Ubuntu
+In-Reply-To: <AANLkTinC+PJarXDcggGcMYCgbdSahvNOOhMsrCJpC1aA@mail.gmail.com>
+References: <AANLkTinC+PJarXDcggGcMYCgbdSahvNOOhMsrCJpC1aA@mail.gmail.com>
+Message-ID: <AANLkTi==mPSKYdXJmOtWVffxcNVYz2+Um6DPQ=pd46Kr@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100811/00f2727d/attachment.pl>
+
+From gpetris at uark.edu  Wed Aug 18 18:36:25 2010
+From: gpetris at uark.edu (Giovanni Petris)
+Date: Wed, 18 Aug 2010 11:36:25 -0500
+Subject: [R-sig-Debian] libreadline problem
+Message-ID: <1282149385.12723.8.camel@definetti>
+
+
+Hello,
+
+Recently updated Ubuntu to 10.04, I have installed the r-base and
+r-base-dev packages from CRAN with 
+
+sudo apt-get install r-base
+
+But now when I want to start R I get the following error:
+
+gpetris at definetti:~$ R
+/usr/lib/R/bin/exec/R: symbol lookup
+error: /usr/local/lib/libreadline.so.6: undefined symbol: PC
+
+Any clue??? Has anybody seen that before? I have tried to reinstall the
+readline libraries, both as a ubuntu package and from sources, but the
+error did not go away....
+
+Thanks in advance,
+Giovanni
+
+
+
+
+-- 
+
+Giovanni Petris  <GPetris at uark.edu>
+Associate Professor
+Department of Mathematical Sciences
+University of Arkansas - Fayetteville, AR 72701
+Ph: (479) 575-6324, 575-8630 (fax)
+http://definetti.uark.edu/~gpetris/
+
+
+From bates at stat.wisc.edu  Wed Aug 18 18:52:45 2010
+From: bates at stat.wisc.edu (Douglas Bates)
+Date: Wed, 18 Aug 2010 11:52:45 -0500
+Subject: [R-sig-Debian] libreadline problem
+In-Reply-To: <1282149385.12723.8.camel@definetti>
+References: <1282149385.12723.8.camel@definetti>
+Message-ID: <AANLkTi=Nkj80Cni9=1+Wq7-mmD8wC6O2Ap7oSf13y32U@mail.gmail.com>
+
+On Wed, Aug 18, 2010 at 11:36 AM, Giovanni Petris <gpetris at uark.edu> wrote:
+>
+> Hello,
+>
+> Recently updated Ubuntu to 10.04, I have installed the r-base and
+> r-base-dev packages from CRAN with
+>
+> sudo apt-get install r-base
+>
+> But now when I want to start R I get the following error:
+>
+> gpetris at definetti:~$ R
+> /usr/lib/R/bin/exec/R: symbol lookup
+> error: /usr/local/lib/libreadline.so.6: undefined symbol: PC
+
+That .so file is in /usr/local/lib and did not come from an Ubuntu package.
+
+>
+> Any clue??? Has anybody seen that before? I have tried to reinstall the
+> readline libraries, both as a ubuntu package and from sources, but the
+> error did not go away....
+>
+> Thanks in advance,
+> Giovanni
+>
+>
+>
+>
+> --
+>
+> Giovanni Petris ?<GPetris at uark.edu>
+> Associate Professor
+> Department of Mathematical Sciences
+> University of Arkansas - Fayetteville, AR 72701
+> Ph: (479) 575-6324, 575-8630 (fax)
+> http://definetti.uark.edu/~gpetris/
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From edd at debian.org  Wed Aug 18 18:56:18 2010
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 18 Aug 2010 11:56:18 -0500
+Subject: [R-sig-Debian] libreadline problem
+In-Reply-To: <1282149385.12723.8.camel@definetti>
+References: <1282149385.12723.8.camel@definetti>
+Message-ID: <19564.4274.790439.93745@max.nulle.part>
+
+
+On 18 August 2010 at 11:36, Giovanni Petris wrote:
+| Hello,
+| 
+| Recently updated Ubuntu to 10.04, I have installed the r-base and
+| r-base-dev packages from CRAN with 
+| 
+| sudo apt-get install r-base
+| 
+| But now when I want to start R I get the following error:
+| 
+| gpetris at definetti:~$ R
+| /usr/lib/R/bin/exec/R: symbol lookup
+| error: /usr/local/lib/libreadline.so.6: undefined symbol: PC
+| 
+| Any clue??? Has anybody seen that before? I have tried to reinstall the
+| readline libraries, both as a ubuntu package and from sources, but the
+| error did not go away....
+
+There must be some local issue on your system that makes it non-standard.
+There are literally hundreds of us running this R version and built every day
+from the same binaries.
+
+The best clue is 
+
+    error: /usr/local/lib/libreadline.so.6: undefined symbol: PC
+
+which clearly indicates that you have a version of readline masquerading as
+version 6 ... which is then used to run R but fails for incompatibility.
+
+That is, sorry to be blunt, your fault and issue.  Remove that library (with
+some care, you could first rename or move to a hidden directory) and then run
+'sudo ldconfig' to update the shared library cache used by the system. Then
+try R.  Or, as an alternative to running R:
+
+edd at max:~$ ldd /usr/lib/R/bin/exec/R
+	linux-vdso.so.1 =>  (0x00007fff24c72000)
+	libR.so => /usr/lib/libR.so (0x00007f828a3fe000)
+	libc.so.6 => /lib/libc.so.6 (0x00007f828a07b000)
+	libblas.so.3gf => /usr/lib/libblas.so.3gf (0x00007f8289ddf000)
+	libgfortran.so.3 => /usr/lib/libgfortran.so.3 (0x00007f8289af2000)
+	libm.so.6 => /lib/libm.so.6 (0x00007f828986f000)
+	libreadline.so.6 => /lib/libreadline.so.6 (0x00007f828962d000)
+	libpcre.so.3 => /lib/libpcre.so.3 (0x00007f82893ff000)
+	libbz2.so.1.0 => /lib/libbz2.so.1.0 (0x00007f82891ee000)
+	libz.so.1 => /lib/libz.so.1 (0x00007f8288fd6000)
+	libdl.so.2 => /lib/libdl.so.2 (0x00007f8288dd2000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f828a994000)
+	libgcc_s.so.1 => /lib/libgcc_s.so.1 (0x00007f8288bbb000)
+	libncurses.so.5 => /lib/libncurses.so.5 (0x00007f8288977000)
+edd at max:~$ 
+
+As you can, nothing is pulled in from /usr/local and I run R against the
+libraries provided by the package management system as it was meant to be
+used.
+
+You should get there too.
+
+Hth, Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From mar36 at psu.edu  Wed Aug 18 18:57:27 2010
+From: mar36 at psu.edu (Michael Rutter)
+Date: Wed, 18 Aug 2010 12:57:27 -0400
+Subject: [R-sig-Debian] libreadline problem
+In-Reply-To: <AANLkTi=Nkj80Cni9=1+Wq7-mmD8wC6O2Ap7oSf13y32U@mail.gmail.com>
+References: <1282149385.12723.8.camel@definetti>
+	<AANLkTi=Nkj80Cni9=1+Wq7-mmD8wC6O2Ap7oSf13y32U@mail.gmail.com>
+Message-ID: <4C6C10F7.6070109@psu.edu>
+
+
+
+On 08/18/2010 12:52 PM, Douglas Bates wrote:
+> On Wed, Aug 18, 2010 at 11:36 AM, Giovanni Petris<gpetris at uark.edu>  wrote:
+>>
+>> Hello,
+>>
+>> Recently updated Ubuntu to 10.04, I have installed the r-base and
+>> r-base-dev packages from CRAN with
+>>
+>> sudo apt-get install r-base
+>>
+>> But now when I want to start R I get the following error:
+>>
+>> gpetris at definetti:~$ R
+>> /usr/lib/R/bin/exec/R: symbol lookup
+>> error: /usr/local/lib/libreadline.so.6: undefined symbol: PC
+>
+> That .so file is in /usr/local/lib and did not come from an Ubuntu package.
+
+Yes.  Not sure where this came from, but make sure that libreadline 
+6.1-1 is installed via apt or synaptic.  You may also have other 
+versions of libreadline.so or libreadline.so.6 linked to this somewhere 
+else on the system, so make sure nothing links to this file.
+
+Michael
+
+
+
+>>
+>> Any clue??? Has anybody seen that before? I have tried to reinstall the
+>> readline libraries, both as a ubuntu package and from sources, but the
+>> error did not go away....
+>>
+>> Thanks in advance,
+>> Giovanni
+>>
+>>
+>>
+>>
+>> --
+>>
+>> Giovanni Petris<GPetris at uark.edu>
+>> Associate Professor
+>> Department of Mathematical Sciences
+>> University of Arkansas - Fayetteville, AR 72701
+>> Ph: (479) 575-6324, 575-8630 (fax)
+>> http://definetti.uark.edu/~gpetris/
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From gpetris at uark.edu  Wed Aug 18 19:16:13 2010
+From: gpetris at uark.edu (Giovanni Petris)
+Date: Wed, 18 Aug 2010 12:16:13 -0500
+Subject: [R-sig-Debian] libreadline problem
+In-Reply-To: <19564.4274.790439.93745@max.nulle.part>
+References: <1282149385.12723.8.camel@definetti>
+	<19564.4274.790439.93745@max.nulle.part>
+Message-ID: <1282151773.12891.18.camel@definetti>
+
+Many thanks to Dirk, Doug, and Michael!
+The problem is now solved.
+
+Best,
+Giovanni Petris 
+
+On Wed, 2010-08-18 at 11:56 -0500, Dirk Eddelbuettel wrote:
+> On 18 August 2010 at 11:36, Giovanni Petris wrote:
+> | Hello,
+> | 
+> | Recently updated Ubuntu to 10.04, I have installed the r-base and
+> | r-base-dev packages from CRAN with 
+> | 
+> | sudo apt-get install r-base
+> | 
+> | But now when I want to start R I get the following error:
+> | 
+> | gpetris at definetti:~$ R
+> | /usr/lib/R/bin/exec/R: symbol lookup
+> | error: /usr/local/lib/libreadline.so.6: undefined symbol: PC
+> | 
+> | Any clue??? Has anybody seen that before? I have tried to reinstall the
+> | readline libraries, both as a ubuntu package and from sources, but the
+> | error did not go away....
+> 
+> There must be some local issue on your system that makes it non-standard.
+> There are literally hundreds of us running this R version and built every day
+> from the same binaries.
+> 
+> The best clue is 
+> 
+>     error: /usr/local/lib/libreadline.so.6: undefined symbol: PC
+> 
+> which clearly indicates that you have a version of readline masquerading as
+> version 6 ... which is then used to run R but fails for incompatibility.
+> 
+> That is, sorry to be blunt, your fault and issue.  Remove that library (with
+> some care, you could first rename or move to a hidden directory) and then run
+> 'sudo ldconfig' to update the shared library cache used by the system. Then
+> try R.  Or, as an alternative to running R:
+> 
+> edd at max:~$ ldd /usr/lib/R/bin/exec/R
+> 	linux-vdso.so.1 =>  (0x00007fff24c72000)
+> 	libR.so => /usr/lib/libR.so (0x00007f828a3fe000)
+> 	libc.so.6 => /lib/libc.so.6 (0x00007f828a07b000)
+> 	libblas.so.3gf => /usr/lib/libblas.so.3gf (0x00007f8289ddf000)
+> 	libgfortran.so.3 => /usr/lib/libgfortran.so.3 (0x00007f8289af2000)
+> 	libm.so.6 => /lib/libm.so.6 (0x00007f828986f000)
+> 	libreadline.so.6 => /lib/libreadline.so.6 (0x00007f828962d000)
+> 	libpcre.so.3 => /lib/libpcre.so.3 (0x00007f82893ff000)
+> 	libbz2.so.1.0 => /lib/libbz2.so.1.0 (0x00007f82891ee000)
+> 	libz.so.1 => /lib/libz.so.1 (0x00007f8288fd6000)
+> 	libdl.so.2 => /lib/libdl.so.2 (0x00007f8288dd2000)
+> 	/lib64/ld-linux-x86-64.so.2 (0x00007f828a994000)
+> 	libgcc_s.so.1 => /lib/libgcc_s.so.1 (0x00007f8288bbb000)
+> 	libncurses.so.5 => /lib/libncurses.so.5 (0x00007f8288977000)
+> edd at max:~$ 
+> 
+> As you can, nothing is pulled in from /usr/local and I run R against the
+> libraries provided by the package management system as it was meant to be
+> used.
+> 
+> You should get there too.
+> 
+> Hth, Dirk
+>
+
+

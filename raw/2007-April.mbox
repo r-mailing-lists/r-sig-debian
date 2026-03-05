@@ -1,0 +1,369 @@
+From edd at debian.org  Tue Apr 24 14:52:42 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 24 Apr 2007 07:52:42 -0500
+Subject: [R-sig-Debian] R 2.5.0 in Debian unstable
+Message-ID: <17965.64922.656760.716843@basebud.nulle.part>
+
+
+I just uploaded R 2.5.0 to Debian's unstable distribution.  As Peter's
+announcement says, it now contains two new packages'rcompgen' and
+'codetools'.
+
+About two or three weeks ago, I also packaged these, just like other
+'recommended' packages as r-cran-rcompgen and r-cran-codetools. However, as
+"new" packages, they are still in the NEW queue awaiting inclusion into
+Debian.  If you find rcompgen and/or codetools lacking, I'd recommend a
+direct installation via install.packages() from inside R 2.5.0 until the
+packages hit out mirror.
+
+Feedback, questions, ... welcome.
+
+Best regards, Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From spluque at gmail.com  Tue Apr 24 16:37:40 2007
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Tue, 24 Apr 2007 09:37:40 -0500
+Subject: [R-sig-Debian] R 2.5.0 in Debian unstable
+References: <17965.64922.656760.716843@basebud.nulle.part>
+Message-ID: <877is14z4b.fsf@patagonia.sebmags.homelinux.org>
+
+On Tue, 24 Apr 2007 07:52:42 -0500,
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+> I just uploaded R 2.5.0 to Debian's unstable distribution.  As Peter's
+> announcement says, it now contains two new packages'rcompgen' and
+> 'codetools'.
+
+> About two or three weeks ago, I also packaged these, just like other
+> 'recommended' packages as r-cran-rcompgen and r-cran-codetools. However,
+> as "new" packages, they are still in the NEW queue awaiting inclusion
+> into Debian.  If you find rcompgen and/or codetools lacking, I'd
+> recommend a direct installation via install.packages() from inside R
+> 2.5.0 until the packages hit out mirror.
+
+> Feedback, questions, ... welcome.
+
+I'm on a testing (now lenny) distribution, and for a couple of weeks now,
+several packages are being held back (some major ones like locales and
+libc6).  I've been using the unstable R packages, but now some of these
+can't be upddated because the newer locales and libc6 are not updated.
+
+This is the message I get when trying to update locales:
+
+---<---------------cut here---------------start-------------->---
+sudo apt-get install locales
+Reading package lists... Done
+Building dependency tree... Done
+The following extra packages will be installed:
+  libc6 libc6-dev libc6-i386
+Suggested packages:
+  glibc-doc
+The following packages will be REMOVED:
+  tzdata util-linux
+The following packages will be upgraded:
+  libc6 libc6-dev libc6-i386 locales
+WARNING: The following essential packages will be removed.
+This should NOT be done unless you know exactly what you are doing!
+  util-linux tzdata (due to util-linux)
+4 upgraded, 0 newly installed, 2 to remove and 17 not upgraded.
+Need to get 14.8MB of archives.
+After unpacking 7029kB disk space will be freed.
+You are about to do something potentially harmful.
+To continue type in the phrase 'Yes, do as I say!'
+ ?] n
+---<---------------cut here---------------end---------------->---
+
+The message is ominous, hence my answer.  Is this a matter of waiting
+until util-linux and tzdata use the new libc6?
+
+
+-- 
+Seb
+
+
+From edd at debian.org  Tue Apr 24 17:08:02 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 24 Apr 2007 10:08:02 -0500
+Subject: [R-sig-Debian] R 2.5.0 in Debian unstable
+In-Reply-To: <877is14z4b.fsf@patagonia.sebmags.homelinux.org>
+References: <17965.64922.656760.716843@basebud.nulle.part>
+	<877is14z4b.fsf@patagonia.sebmags.homelinux.org>
+Message-ID: <17966.7506.357683.29037@basebud.nulle.part>
+
+
+On 24 April 2007 at 09:37, Sebastian P. Luque wrote:
+| I'm on a testing (now lenny) distribution, and for a couple of weeks now,
+| several packages are being held back (some major ones like locales and
+| libc6).  I've been using the unstable R packages, but now some of these
+
+Yes, etch was released with libc6 2.3.*, for which Debian apparently got
+flack (but libc6 2.4 wouldn't build on all arches, so was a non-option).
+With etch released, the new unstable ("lenny") jumped to libc6 2.5.
+
+| can't be upddated because the newer locales and libc6 are not updated.
+| 
+| This is the message I get when trying to update locales:
+
+Fairly standard situation. Unstable is ahead of testing.
+
+I actually installed the few packages by hand / by pinning: libc6, libc6-dev,
+locales, tzdata, ... and ran it fine for a few days.  But for some reason --
+mostly I think because I wanted my testing machine to remain more closely in
+sync with my laptop -- I downgraded.
+
+If you want R 2.5.0 on testing, you must install libc6 [ unless you wait for
+our tireless volunteers Johannes and Vincent to build backports ]. This
+should be just fine -- but in case your computer catches fire, don't sue me.
+
+| The message is ominous, hence my answer.  Is this a matter of waiting
+| until util-linux and tzdata use the new libc6?
+
+That may take a while as libc6 is so central. I'd expect the backports to be
+available within a few days, depending on how much time Johannes and Vincent
+have / need.  You could of course help them to advance the cause (hint, ...)
+
+Hope this helps, Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From spluque at gmail.com  Tue Apr 24 18:10:13 2007
+From: spluque at gmail.com (Sebastian P. Luque)
+Date: Tue, 24 Apr 2007 11:10:13 -0500
+Subject: [R-sig-Debian] R 2.5.0 in Debian unstable
+References: <17965.64922.656760.716843@basebud.nulle.part>
+	<877is14z4b.fsf@patagonia.sebmags.homelinux.org>
+	<17966.7506.357683.29037@basebud.nulle.part>
+Message-ID: <874pn53g9m.fsf@patagonia.sebmags.homelinux.org>
+
+On Tue, 24 Apr 2007 10:08:02 -0500,
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+[...]
+
+> Yes, etch was released with libc6 2.3.*, for which Debian apparently got
+> flack (but libc6 2.4 wouldn't build on all arches, so was a non-option).
+> With etch released, the new unstable ("lenny") jumped to libc6 2.5.
+
+Thanks for explaining this Dirk, I wasn't sure what was up with the
+held-back packages.
+
+
+[...]
+
+> If you want R 2.5.0 on testing, you must install libc6 [ unless you wait
+> for our tireless volunteers Johannes and Vincent to build backports
+> ]. This should be just fine -- but in case your computer catches fire,
+> don't sue me.
+
+hmmm... my computer has indeed caught fire in the past when I've tried
+important admin jobs I don't fully understand, so I think I'll use some
+patience for now ;-)
+
+
+> That may take a while as libc6 is so central. I'd expect the backports
+> to be available within a few days, depending on how much time Johannes
+> and Vincent have / need.  You could of course help them to advance the
+> cause (hint, ...)
+
+I have no experience in this area, but can help with some advice!
+
+
+Cheers,
+
+-- 
+Seb
+
+
+From jranke at uni-bremen.de  Wed Apr 25 12:10:50 2007
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Wed, 25 Apr 2007 12:10:50 +0200
+Subject: [R-sig-Debian] R 2.5.0 in Debian unstable
+In-Reply-To: <874pn53g9m.fsf@patagonia.sebmags.homelinux.org>
+References: <17965.64922.656760.716843@basebud.nulle.part>
+	<877is14z4b.fsf@patagonia.sebmags.homelinux.org>
+	<17966.7506.357683.29037@basebud.nulle.part>
+	<874pn53g9m.fsf@patagonia.sebmags.homelinux.org>
+Message-ID: <20070425101050.GA13585@mail.uni-bremen.de>
+
+* Sebastian P. Luque <spluque at gmail.com> [070424 18:20]:
+> On Tue, 24 Apr 2007 10:08:02 -0500,
+> Dirk Eddelbuettel <edd at debian.org> wrote:
+> 
+> [...]
+> 
+> > Yes, etch was released with libc6 2.3.*, for which Debian apparently got
+> > flack (but libc6 2.4 wouldn't build on all arches, so was a non-option).
+> > With etch released, the new unstable ("lenny") jumped to libc6 2.5.
+> 
+> Thanks for explaining this Dirk, I wasn't sure what was up with the
+> held-back packages.
+> 
+> 
+> [...]
+> 
+> > If you want R 2.5.0 on testing, you must install libc6 [ unless you wait
+> > for our tireless volunteers Johannes and Vincent to build backports
+> > ]. This should be just fine -- but in case your computer catches fire,
+> > don't sue me.
+> 
+> hmmm... my computer has indeed caught fire in the past when I've tried
+> important admin jobs I don't fully understand, so I think I'll use some
+> patience for now ;-)
+
+Maybe it would be a good idea to stick with etch, for the time being.
+It's a quite up to date distribution, it is stable and it has the best
+security support.
+
+> > That may take a while as libc6 is so central. I'd expect the backports
+> > to be available within a few days, depending on how much time Johannes
+> > and Vincent have / need.  You could of course help them to advance the
+> > cause (hint, ...)
+> 
+> I have no experience in this area, but can help with some advice!
+
+Thanks for the offer. I am a bit short of time, but the backports to
+stable should be there soon. Note that I don't plan to do backports for
+lenny/testing at the moment, since I don't use it and wouldn't notice if
+something went wrong. So people wanting to use R 2.5.0 on lenny will
+need to use pinning for now.
+
+Johannes
+
+> 
+> 
+> Cheers,
+> 
+> -- 
+> Seb
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de     Key ID: F649AF90
+UFT Bremen, Leobenerstr. 1         +49 421 218 63373
+D-28359 Bremen                     http://www.uft.uni-bremen.de/chemie/ranke
+
+
+From vincent.goulet at act.ulaval.ca  Thu Apr 26 07:04:50 2007
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Thu, 26 Apr 2007 01:04:50 -0400
+Subject: [R-sig-Debian] Ubuntu packages for R 2.5.0
+Message-ID: <2672E86A-8018-4115-9F2E-BB8836FF6C71@act.ulaval.ca>
+
+Dear useRs,
+
+Binary packages of R 2.5.0 for Ubuntu Dapper Drake (6.06), Edgy Eft  
+(6.10) and Feisty Fawn (7.04) are currently making their way to CRAN  
+mirrors. My normal plan is to support only the latest normal Ubuntu  
+release and the latest LTS release, but this time I prepared packages  
+for Edgy since Feisty was released a few days only before R 2.5.0.
+
+Please see the README file
+
+	http://cran.r-project.org/bin/linux/ubuntu/README
+
+for installation instructions.
+
+Report any problem with these packages to me and/or R-SIG-Debian.
+
+HTH
+
+---
+   Vincent Goulet, Associate Professor
+   ?cole d'actuariat
+   Universit? Laval, Qu?bec
+   Vincent.Goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+
+
+From edd at debian.org  Fri Apr 27 03:39:15 2007
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 26 Apr 2007 20:39:15 -0500
+Subject: [R-sig-Debian] R 2.5.0 in Debian unstable
+In-Reply-To: <17965.64922.656760.716843@basebud.nulle.part>
+References: <17965.64922.656760.716843@basebud.nulle.part>
+Message-ID: <17969.21571.646850.708140@basebud.nulle.part>
+
+
+On 24 April 2007 at 07:52, Dirk Eddelbuettel wrote:
+| 
+| I just uploaded R 2.5.0 to Debian's unstable distribution.  As Peter's
+| announcement says, it now contains two new packages'rcompgen' and
+| 'codetools'.
+| 
+| About two or three weeks ago, I also packaged these, just like other
+| 'recommended' packages as r-cran-rcompgen and r-cran-codetools. However, as
+| "new" packages, they are still in the NEW queue awaiting inclusion into
+| Debian.  If you find rcompgen and/or codetools lacking, I'd recommend a
+| direct installation via install.packages() from inside R 2.5.0 until the
+| packages hit out mirror.
+
+FWIW codetools and rcompgen are now in Debian unstable, so I'll make
+r-recommended depend on them in due course.
+
+Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From vincent.goulet at act.ulaval.ca  Fri Apr 27 06:42:22 2007
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Fri, 27 Apr 2007 00:42:22 -0400
+Subject: [R-sig-Debian] R 2.5.0 in Debian unstable
+In-Reply-To: <17969.21571.646850.708140@basebud.nulle.part>
+References: <17965.64922.656760.716843@basebud.nulle.part>
+	<17969.21571.646850.708140@basebud.nulle.part>
+Message-ID: <E748106C-D452-448C-9E6B-EBD6EF2EFB7A@act.ulaval.ca>
+
+Le 07-04-26 ? 21:39, Dirk Eddelbuettel a ?crit :
+
+>
+> On 24 April 2007 at 07:52, Dirk Eddelbuettel wrote:
+> |
+> | I just uploaded R 2.5.0 to Debian's unstable distribution.  As  
+> Peter's
+> | announcement says, it now contains two new packages'rcompgen' and
+> | 'codetools'.
+> |
+> | About two or three weeks ago, I also packaged these, just like other
+> | 'recommended' packages as r-cran-rcompgen and r-cran-codetools.  
+> However, as
+> | "new" packages, they are still in the NEW queue awaiting  
+> inclusion into
+> | Debian.  If you find rcompgen and/or codetools lacking, I'd  
+> recommend a
+> | direct installation via install.packages() from inside R 2.5.0  
+> until the
+> | packages hit out mirror.
+>
+> FWIW codetools and rcompgen are now in Debian unstable, so I'll make
+> r-recommended depend on them in due course.
+>
+> Dirk
+
+The packages are also available for Ubuntu. I just realize, though,  
+that I did not update the r-recommended package, so interested  
+parties will have to explicitely apt-get the codetools and rcompgen  
+packages.
+
+HTH   Vincent
+
+---
+   Vincent Goulet, Associate Professor
+   ?cole d'actuariat
+   Universit? Laval, Qu?bec
+   Vincent.Goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+
+

@@ -1,0 +1,2239 @@
+From pauljohn32 at gmail.com  Tue Apr  1 16:07:26 2014
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Tue, 1 Apr 2014 09:07:26 -0500
+Subject: [R-sig-Debian] Head's up: Renviron change in R_LIBS_USER to 3.1
+Message-ID: <CAErODj-X6jtsUo+_KrfG-JyS4b3HzkT5ybc7GOa=4Pr4qoFu_Q@mail.gmail.com>
+
+Hi
+
+Here's a warning for you. If you start R today and it can't find any
+packages in your home directory that it did find yesterday, don't
+faint. You'll see something like this:
+> library(data.table)
+Error in library(data.table) : there is no package called 'data.table'
+
+and your user home folder R packages will no longer appear in path:
+
+> .libPaths()
+[1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"
+[3] "/usr/lib/R/library"
+
+Explanation/solution:
+
+Yesterday on Ubuntu 13.10 I ran the package updates and R 3.0.3
+installed and it altered the /etc/R/Renviron file to look for packages
+here
+
+R_LIBS_USER=${R_LIBS_USER-'~/R/x86_64-pc-linux-gnu-library/3.1'}
+
+But  my packages are still installed in
+~/R/x86_64-pc-linux-gnu-library/3.0. This seems unnecessary, on the
+face of it, since R is still 3.0.3, not 3.1, but perhaps there's some
+binary incompatibility they are worrying about.
+
+I can't say for sure which package caused that particular change, but
+I'm suspecting the first or second one here (from the history):
+
+r-base (3.0.3-1saucy0) to 3.0.3.20140328-1saucy0
+r-base-core (3.0.3-1saucy0) to 3.0.3.20140328-1saucy0
+r-base-dev (3.0.3-1saucy0) to 3.0.3.20140328-1saucy0
+r-base-html (3.0.3-1saucy0) to 3.0.3.20140328-1saucy0
+r-cran-boot (1.3-10-1cran1saucy0) to 1.3-11-1saucy0
+r-cran-class (7.3-9-1saucy0) to 7.3-10-1saucy0
+r-cran-foreign (0.8.60-1saucy0) to 0.8.61-1saucy0
+r-cran-kernsmooth (2.23-11-1saucy0) to 2.23-12-1saucy0
+r-cran-mass (7.3-30-1saucy0) to 7.3-31-1saucy0
+r-cran-nlme (3.1.115-1saucy0) to 3.1.116-1saucy0
+r-cran-rpart (4.1-7-1saucy0) to 4.1-8-1saucy0
+r-doc-html (3.0.3-1saucy0) to 3.0.3.20140328-1saucy0
+r-mathlib (3.0.3-1saucy0) to 3.0.3.20140328-1saucy0
+r-recommended (3.0.3-1saucy0) to 3.0.3.20140328-1saucy0
+
+Its pretty easy to change that back manually, but I expect a lot of
+the people who use Ubuntu because it is "easier" are going to get
+thrown for a loop.
+
+-- 
+Paul E. Johnson
+Professor, Political Science      Assoc. Director
+1541 Lilac Lane, Room 504      Center for Research Methods
+University of Kansas                 University of Kansas
+http://pj.freefaculty.org               http://quant.ku.edu
+
+
+From edd at debian.org  Tue Apr  1 16:17:53 2014
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 1 Apr 2014 09:17:53 -0500
+Subject: [R-sig-Debian] Head's up: Renviron change in R_LIBS_USER to 3.1
+In-Reply-To: <CAErODj-X6jtsUo+_KrfG-JyS4b3HzkT5ybc7GOa=4Pr4qoFu_Q@mail.gmail.com>
+References: <CAErODj-X6jtsUo+_KrfG-JyS4b3HzkT5ybc7GOa=4Pr4qoFu_Q@mail.gmail.com>
+Message-ID: <21306.51857.647226.821721@max.nulle.part>
+
+
+Paul,
+
+Thanks for the heads-up. But please see below.
+
+On 1 April 2014 at 09:07, Paul Johnson wrote:
+| Hi
+| 
+| Here's a warning for you. If you start R today and it can't find any
+| packages in your home directory that it did find yesterday, don't
+| faint. You'll see something like this:
+| > library(data.table)
+| Error in library(data.table) : there is no package called 'data.table'
+| 
+| and your user home folder R packages will no longer appear in path:
+| 
+| > .libPaths()
+| [1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"
+| [3] "/usr/lib/R/library"
+| 
+| Explanation/solution:
+| 
+| Yesterday on Ubuntu 13.10 I ran the package updates and R 3.0.3
+| installed and it altered the /etc/R/Renviron file to look for packages
+| here
+| 
+| R_LIBS_USER=${R_LIBS_USER-'~/R/x86_64-pc-linux-gnu-library/3.1'}
+| 
+| But  my packages are still installed in
+| ~/R/x86_64-pc-linux-gnu-library/3.0. This seems unnecessary, on the
+
+Speaking __personally__ rather than as the maintainer supporting the package,
+I have __always__ advised against R_LIBS_USER.  All I install goes into
+/usr/local/lib/R/site-library.
+
+Otherwise, and speaking as the maintainer, the change is AFAICT __entirely
+upstream__ and this discussion may belong into r-help instead.
+
+| face of it, since R is still 3.0.3, not 3.1, but perhaps there's some
+| binary incompatibility they are worrying about.
+| 
+| I can't say for sure which package caused that particular change, but
+| I'm suspecting the first or second one here (from the history):
+| 
+| r-base (3.0.3-1saucy0) to 3.0.3.20140328-1saucy0
+| r-base-core (3.0.3-1saucy0) to 3.0.3.20140328-1saucy0
+
+It is _obviously_ r-base-core. 
+
+Do you understand that of this list about half share the same source package
+and half share not.  The package description says so too.
+
+Dirk
+
+| r-base-dev (3.0.3-1saucy0) to 3.0.3.20140328-1saucy0
+| r-base-html (3.0.3-1saucy0) to 3.0.3.20140328-1saucy0
+| r-cran-boot (1.3-10-1cran1saucy0) to 1.3-11-1saucy0
+| r-cran-class (7.3-9-1saucy0) to 7.3-10-1saucy0
+| r-cran-foreign (0.8.60-1saucy0) to 0.8.61-1saucy0
+| r-cran-kernsmooth (2.23-11-1saucy0) to 2.23-12-1saucy0
+| r-cran-mass (7.3-30-1saucy0) to 7.3-31-1saucy0
+| r-cran-nlme (3.1.115-1saucy0) to 3.1.116-1saucy0
+| r-cran-rpart (4.1-7-1saucy0) to 4.1-8-1saucy0
+| r-doc-html (3.0.3-1saucy0) to 3.0.3.20140328-1saucy0
+| r-mathlib (3.0.3-1saucy0) to 3.0.3.20140328-1saucy0
+| r-recommended (3.0.3-1saucy0) to 3.0.3.20140328-1saucy0
+| 
+| Its pretty easy to change that back manually, but I expect a lot of
+| the people who use Ubuntu because it is "easier" are going to get
+| thrown for a loop.
+| 
+| -- 
+| Paul E. Johnson
+| Professor, Political Science      Assoc. Director
+| 1541 Lilac Lane, Room 504      Center for Research Methods
+| University of Kansas                 University of Kansas
+| http://pj.freefaculty.org               http://quant.ku.edu
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From rbruggner at gmail.com  Wed Apr  2 00:31:44 2014
+From: rbruggner at gmail.com (Robert Bruggner)
+Date: Tue, 1 Apr 2014 15:31:44 -0700
+Subject: [R-sig-Debian] R 3.1.0 Beta installed but I'm not sure how
+Message-ID: <032079E7-7555-4038-A7B0-A020FC4BEC10@gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140401/3e4b7e7f/attachment.pl>
+
+From ruju at dtu.dk  Wed Apr  2 00:44:14 2014
+From: ruju at dtu.dk (Rune Juhl)
+Date: Wed, 2 Apr 2014 00:44:14 +0200
+Subject: [R-sig-Debian] R 3.1.0 Beta installed but I'm not sure how
+In-Reply-To: <032079E7-7555-4038-A7B0-A020FC4BEC10@gmail.com>
+References: <032079E7-7555-4038-A7B0-A020FC4BEC10@gmail.com>
+Message-ID: <CAKxVe7G3201nAdLRdRrvRG7_Fp5LxskkdnvKauVtbodk17Q1+Q@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140402/2ea0ccea/attachment.pl>
+
+From rbruggner at gmail.com  Wed Apr  2 00:46:41 2014
+From: rbruggner at gmail.com (Robert Bruggner)
+Date: Tue, 1 Apr 2014 15:46:41 -0700
+Subject: [R-sig-Debian] R 3.1.0 Beta installed but I'm not sure how
+In-Reply-To: <CAKxVe7G3201nAdLRdRrvRG7_Fp5LxskkdnvKauVtbodk17Q1+Q@mail.gmail.com>
+References: <032079E7-7555-4038-A7B0-A020FC4BEC10@gmail.com>
+	<CAKxVe7G3201nAdLRdRrvRG7_Fp5LxskkdnvKauVtbodk17Q1+Q@mail.gmail.com>
+Message-ID: <A876DD35-68C9-483B-9841-F54015A7F083@gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140401/57606df7/attachment.pl>
+
+From edd at debian.org  Wed Apr  2 02:22:20 2014
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 1 Apr 2014 19:22:20 -0500
+Subject: [R-sig-Debian] R 3.1.0 Beta installed but I'm not sure how
+In-Reply-To: <CAKxVe7G3201nAdLRdRrvRG7_Fp5LxskkdnvKauVtbodk17Q1+Q@mail.gmail.com>
+References: <032079E7-7555-4038-A7B0-A020FC4BEC10@gmail.com>
+	<CAKxVe7G3201nAdLRdRrvRG7_Fp5LxskkdnvKauVtbodk17Q1+Q@mail.gmail.com>
+Message-ID: <21307.22588.759555.696492@max.nulle.part>
+
+
+On 2 April 2014 at 00:44, Rune Juhl wrote:
+| Hi Rob
+| 
+| I ran into the same issue earlier this morning on Ubuntu saucy. It appears
+| to be a mix up packing the 3.1 beta as 3.0.3.
+| 
+| You can downgrade your R installation running something like the following
+| in a terminal
+| 
+| sudo apt-get install r-base=3.0.3-1precise0 r-base-core=3.0.3-1precise0
+
+Yes -- propagation of my Debian packages into Ubuntu is all Michael's good
+work.  When doing an update at work I saw that the 3.1.0 beta would hit, and
+I did not yet want that at work so I simply commented out that repository
+definition in /etc/apt/sources.d/.  These packages may be spilling over from
+a test repo into the main CRAN mirror a little too soon...
+
+OTOH they seem to work.  My CRANberries cronjob runs faithfully with the
+3.1.0 beta and I use it on my laptop too.
+
+Dirk
+
+| 
+| Good luck
+| 
+| Rune
+| 
+|   Rune Juhl PhD studentDTU Compute
+| 
+| Technical University of Denmark
+| Department of Applied Mathematics and Computer Science MatematiktorvetBuilding
+| 322DK - 2800 Kgs. LyngbyDenmark Direct +45 45253095ruju at dtu.dk
+| www.compute.dtu.dk
+| 
+| 
+| 
+| 
+| On 2 April 2014 00:31, Robert Bruggner <rbruggner at gmail.com> wrote:
+| 
+| > Hi All,
+| >
+| > I have installed R on Ubuntu 12.04 with apt pointed at my favorite mirror (
+| > http://cran.cnr.berkeley.edu/bin/linux/ubuntu precise/). Today, I ran an
+| > apt-get upgrade and now when I launch R, it tells me that I?m running R
+| > version 3.1.0 beta (2014-03-28 r65330) -- "Spring Dance?.
+| >
+| > I?m slightly confused as when I look at the package list in
+| > http://cran.r-project.org/bin/linux/ubuntu/precise/, looks as though
+| > r-base-core is version 3.0.3. In other words, I?m not sure how I got the
+| > the 3.1.0 beta version installed and running instead?
+| >
+| > Perhaps this is related to Paul?s message yesterday (
+| > https://stat.ethz.ch/pipermail/r-sig-debian/2014-April/002245.html) but
+| > I?m not sure how to correct the situation. Apologies if this is something
+| > trivial - any help would be greatly appreciated.
+| >
+| > Cheers,
+| >
+| > -Rob
+| >         [[alternative HTML version deleted]]
+| >
+| >
+| > _______________________________________________
+| > R-SIG-Debian mailing list
+| > R-SIG-Debian at r-project.org
+| > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| >
+| >
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| 
+| ----------------------------------------------------------------------
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From mar36 at psu.edu  Wed Apr  2 15:03:00 2014
+From: mar36 at psu.edu (Michael Rutter)
+Date: Wed, 02 Apr 2014 09:03:00 -0400
+Subject: [R-sig-Debian] R 3.1.0 Beta installed but I'm not sure how
+In-Reply-To: <21307.22588.759555.696492@max.nulle.part>
+References: <032079E7-7555-4038-A7B0-A020FC4BEC10@gmail.com>	<CAKxVe7G3201nAdLRdRrvRG7_Fp5LxskkdnvKauVtbodk17Q1+Q@mail.gmail.com>
+	<21307.22588.759555.696492@max.nulle.part>
+Message-ID: <533C0A84.1050502@psu.edu>
+
+
+
+On 04/01/2014 08:22 PM, Dirk Eddelbuettel wrote:
+>
+> On 2 April 2014 at 00:44, Rune Juhl wrote:
+> | Hi Rob
+> |
+> | I ran into the same issue earlier this morning on Ubuntu saucy. It appears
+> | to be a mix up packing the 3.1 beta as 3.0.3.
+> |
+> | You can downgrade your R installation running something like the following
+> | in a terminal
+> |
+> | sudo apt-get install r-base=3.0.3-1precise0 r-base-core=3.0.3-1precise0
+>
+> Yes -- propagation of my Debian packages into Ubuntu is all Michael's good
+> work.  When doing an update at work I saw that the 3.1.0 beta would hit, and
+> I did not yet want that at work so I simply commented out that repository
+> definition in /etc/apt/sources.d/.  These packages may be spilling over from
+> a test repo into the main CRAN mirror a little too soon...
+>
+> OTOH they seem to work.  My CRANberries cronjob runs faithfully with the
+> 3.1.0 beta and I use it on my laptop too.
+>
+> Dirk
+
+This one would be on me, from the Ubuntu side of things.  Dirk pushed 
+the beta version (3.0.3) of 3.1.0 out and I didn't read the email 
+carefully enough.  Thinking that it was a regular upgrade, I pushed it 
+out to all currently supported versions of Ubuntu.
+
+Beyond the strange numbering of the package, it appears to be working 
+just fine.  If there are any issues, let Dirk and I know and we can 
+clear them up before the release of R 3.1.0.
+
+My goal is to only push out final release versions, although every once 
+in a while a per-release will slip through.  Sorry if that caused any 
+confusion.
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+Associate Professor of Statistics
+Program Coordinator, Mathematics
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From tech_dev at wildintellect.com  Thu Apr  3 07:00:36 2014
+From: tech_dev at wildintellect.com (Alex Mandel)
+Date: Wed, 02 Apr 2014 22:00:36 -0700
+Subject: [R-sig-Debian] R 3.1.0 Beta installed but I'm not sure how
+In-Reply-To: <533C0A84.1050502@psu.edu>
+References: <032079E7-7555-4038-A7B0-A020FC4BEC10@gmail.com>	<CAKxVe7G3201nAdLRdRrvRG7_Fp5LxskkdnvKauVtbodk17Q1+Q@mail.gmail.com>	<21307.22588.759555.696492@max.nulle.part>
+	<533C0A84.1050502@psu.edu>
+Message-ID: <533CEAF4.2060509@wildintellect.com>
+
+On 04/02/2014 06:03 AM, Michael Rutter wrote:
+> 
+> 
+> On 04/01/2014 08:22 PM, Dirk Eddelbuettel wrote:
+>>
+>> On 2 April 2014 at 00:44, Rune Juhl wrote:
+>> | Hi Rob
+>> |
+>> | I ran into the same issue earlier this morning on Ubuntu saucy. It
+>> appears
+>> | to be a mix up packing the 3.1 beta as 3.0.3.
+>> |
+>> | You can downgrade your R installation running something like the
+>> following
+>> | in a terminal
+>> |
+>> | sudo apt-get install r-base=3.0.3-1precise0 r-base-core=3.0.3-1precise0
+>>
+>> Yes -- propagation of my Debian packages into Ubuntu is all Michael's
+>> good
+>> work.  When doing an update at work I saw that the 3.1.0 beta would
+>> hit, and
+>> I did not yet want that at work so I simply commented out that repository
+>> definition in /etc/apt/sources.d/.  These packages may be spilling
+>> over from
+>> a test repo into the main CRAN mirror a little too soon...
+>>
+>> OTOH they seem to work.  My CRANberries cronjob runs faithfully with the
+>> 3.1.0 beta and I use it on my laptop too.
+>>
+>> Dirk
+> 
+> This one would be on me, from the Ubuntu side of things.  Dirk pushed
+> the beta version (3.0.3) of 3.1.0 out and I didn't read the email
+> carefully enough.  Thinking that it was a regular upgrade, I pushed it
+> out to all currently supported versions of Ubuntu.
+> 
+> Beyond the strange numbering of the package, it appears to be working
+> just fine.  If there are any issues, let Dirk and I know and we can
+> clear them up before the release of R 3.1.0.
+> 
+> My goal is to only push out final release versions, although every once
+> in a while a per-release will slip through.  Sorry if that caused any
+> confusion.
+> 
+> Michael
+> 
+
+A ticket was reported on this topic, would be good if someone could
+respond to it.
+https://bugs.r-project.org/bugzilla/show_bug.cgi?id=15738#add_comment
+
+Thanks,
+Alex
+
+
+From francesco.brundu at gmail.com  Mon Apr  7 17:15:30 2014
+From: francesco.brundu at gmail.com (Francesco Brundu)
+Date: Mon, 7 Apr 2014 17:15:30 +0200
+Subject: [R-sig-Debian] How to use stable release in Ubuntu
+Message-ID: <CAFc_i-GyaX38-i_c5UawruCjC21TpzJAkr4K8qkgAgEs6aA9EA@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140407/8e01d7e0/attachment.pl>
+
+From ruju at dtu.dk  Mon Apr  7 17:18:55 2014
+From: ruju at dtu.dk (Rune Juhl)
+Date: Mon, 7 Apr 2014 17:18:55 +0200
+Subject: [R-sig-Debian] How to use stable release in Ubuntu
+In-Reply-To: <CAFc_i-GyaX38-i_c5UawruCjC21TpzJAkr4K8qkgAgEs6aA9EA@mail.gmail.com>
+References: <CAFc_i-GyaX38-i_c5UawruCjC21TpzJAkr4K8qkgAgEs6aA9EA@mail.gmail.com>
+Message-ID: <CAKxVe7GxpNji_pNntUCXq6et-JHpTzQ2j3t+kXr=FTRwUcg4fQ@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140407/b0cb6dfe/attachment.pl>
+
+From mar36 at psu.edu  Mon Apr  7 17:26:00 2014
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 07 Apr 2014 11:26:00 -0400
+Subject: [R-sig-Debian] How to use stable release in Ubuntu
+In-Reply-To: <CAFc_i-GyaX38-i_c5UawruCjC21TpzJAkr4K8qkgAgEs6aA9EA@mail.gmail.com>
+References: <CAFc_i-GyaX38-i_c5UawruCjC21TpzJAkr4K8qkgAgEs6aA9EA@mail.gmail.com>
+Message-ID: <5342C388.8010505@psu.edu>
+
+On 04/07/2014 11:15 AM, Francesco Brundu wrote:
+> Hi all,
+> I am writing to you since I think I am experiencing a regression on the
+> latest beta release, R version 3.1.0 beta (2014-03-28 r65330) -- "Spring
+> Dance" .. Since I need to check for it before posting, I was searching for
+> a method to revert to version 3.0.2 in Ubuntu, but I was unable to find it.
+> Could you please give me some hints?
+>
+> Thanks
+> ~ Francesco Brundu
+>
+
+Francesco,
+
+Here are some details on installing previous versions of R in Ubuntu.
+
+http://stackoverflow.com/questions/17935292/install-previous-versions-of-r-on-ubuntu
+
+You can also use synaptic or apt if you have the CRAN Ubuntu 
+repositories enabled (as detailed above).
+
+https://help.ubuntu.com/community/SynapticHowto#How_to_force_the_installation_of_a_package_version
+
+https://help.ubuntu.com/community/PinningHowto
+
+If you are having an issue with 3.1.0, please let me know.  It will 
+officially be released on Thursday, at which point I will be pushing out 
+that update.  If there are issues, they need to be addressed.
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+Associate Professor of Statistics
+Program Coordinator, Mathematics
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From francesco.brundu at gmail.com  Mon Apr  7 17:36:58 2014
+From: francesco.brundu at gmail.com (Francesco Brundu)
+Date: Mon, 7 Apr 2014 17:36:58 +0200
+Subject: [R-sig-Debian] How to use stable release in Ubuntu
+In-Reply-To: <5342C388.8010505@psu.edu>
+References: <CAFc_i-GyaX38-i_c5UawruCjC21TpzJAkr4K8qkgAgEs6aA9EA@mail.gmail.com>
+	<5342C388.8010505@psu.edu>
+Message-ID: <CAFc_i-GJYmtSPWMeva5v=WXpkm2DZAVpaYWVoik5LoJFNjvs=Q@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140407/99cbf00a/attachment.pl>
+
+From mar36 at psu.edu  Mon Apr  7 17:57:09 2014
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 07 Apr 2014 11:57:09 -0400
+Subject: [R-sig-Debian] How to use stable release in Ubuntu
+In-Reply-To: <CAFc_i-GJYmtSPWMeva5v=WXpkm2DZAVpaYWVoik5LoJFNjvs=Q@mail.gmail.com>
+References: <CAFc_i-GyaX38-i_c5UawruCjC21TpzJAkr4K8qkgAgEs6aA9EA@mail.gmail.com>	<5342C388.8010505@psu.edu>
+	<CAFc_i-GJYmtSPWMeva5v=WXpkm2DZAVpaYWVoik5LoJFNjvs=Q@mail.gmail.com>
+Message-ID: <5342CAD5.4080602@psu.edu>
+
+
+
+On 04/07/2014 11:36 AM, Francesco Brundu wrote:
+> Hi Michael, Rune,
+>
+> I checked with R 3.0.3, using sudo aptitude install
+> r-base=3.0.3-1precise0 r-base-core=3.0.3-1precise0
+> r-recommended=3.0.3-1precise0
+> and it seems it can be really a regression (now with 3.0.3 my problem
+> has disappeared)
+>
+> I posted some hours ago on Stack Overflow
+> http://stackoverflow.com/questions/22912936/why-r-returns-na-when-computing-mean-on-non-null-matrix/22913923#22913923
+>
+> I think that read.table forces a matrix to be non numeric, while I
+> checked and all the matrix is only composed by floats. Having non
+> numeric data does not allow to do operations on this. Unfortunately I
+> cannot disclose the dataset. However if I can tell you more ask me.
+>
+> Thanks
+
+The first entry in NEWS for R 3.1.0 is this:
+
+     * type.convert() (and hence by default read.table()) returns a
+       character vector or factor when representing a numeric input as a
+       double would lose accuracy.  Similarly for complex inputs.
+
+       If a file contains numeric data with unrepresentable numbers of
+       decimal places that are intended to be read as numeric, specify
+       colClasses in read.table() to be "numeric".
+
+The solution is given and the change will be seen in the release version 
+of R 3.1.0 I will push later this week.  I have a feeling this will 
+effect a number of users, but the solution is an easy fix.
+
+Michael
+
+
+-- 
+Dr. Michael A. Rutter
+Associate Professor of Statistics
+Program Coordinator, Mathematics
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From francesco.brundu at gmail.com  Mon Apr  7 21:24:43 2014
+From: francesco.brundu at gmail.com (Francesco Brundu)
+Date: Mon, 7 Apr 2014 21:24:43 +0200
+Subject: [R-sig-Debian] How to use stable release in Ubuntu
+In-Reply-To: <5342CAD5.4080602@psu.edu>
+References: <CAFc_i-GyaX38-i_c5UawruCjC21TpzJAkr4K8qkgAgEs6aA9EA@mail.gmail.com>
+	<5342C388.8010505@psu.edu>
+	<CAFc_i-GJYmtSPWMeva5v=WXpkm2DZAVpaYWVoik5LoJFNjvs=Q@mail.gmail.com>
+	<5342CAD5.4080602@psu.edu>
+Message-ID: <CAFc_i-HNiVieMa_fyQDT5hzxK4_SF-imshwmLsSB0LYDsJyEDQ@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140407/462c8e45/attachment.pl>
+
+From tech_dev at wildintellect.com  Mon Apr  7 21:40:14 2014
+From: tech_dev at wildintellect.com (Alex Mandel)
+Date: Mon, 07 Apr 2014 12:40:14 -0700
+Subject: [R-sig-Debian] R 3.1.0 Beta installed but I'm not sure how
+In-Reply-To: <533CEAF4.2060509@wildintellect.com>
+References: <032079E7-7555-4038-A7B0-A020FC4BEC10@gmail.com>	<CAKxVe7G3201nAdLRdRrvRG7_Fp5LxskkdnvKauVtbodk17Q1+Q@mail.gmail.com>	<21307.22588.759555.696492@max.nulle.part>	<533C0A84.1050502@psu.edu>
+	<533CEAF4.2060509@wildintellect.com>
+Message-ID: <5342FF1E.6080005@wildintellect.com>
+
+On 04/02/2014 10:00 PM, Alex Mandel wrote:
+> On 04/02/2014 06:03 AM, Michael Rutter wrote:
+>>
+>>
+>> On 04/01/2014 08:22 PM, Dirk Eddelbuettel wrote:
+>>>
+>>> On 2 April 2014 at 00:44, Rune Juhl wrote:
+>>> | Hi Rob
+>>> |
+>>> | I ran into the same issue earlier this morning on Ubuntu saucy. It
+>>> appears
+>>> | to be a mix up packing the 3.1 beta as 3.0.3.
+>>> |
+>>> | You can downgrade your R installation running something like the
+>>> following
+>>> | in a terminal
+>>> |
+>>> | sudo apt-get install r-base=3.0.3-1precise0 r-base-core=3.0.3-1precise0
+>>>
+>>> Yes -- propagation of my Debian packages into Ubuntu is all Michael's
+>>> good
+>>> work.  When doing an update at work I saw that the 3.1.0 beta would
+>>> hit, and
+>>> I did not yet want that at work so I simply commented out that repository
+>>> definition in /etc/apt/sources.d/.  These packages may be spilling
+>>> over from
+>>> a test repo into the main CRAN mirror a little too soon...
+>>>
+>>> OTOH they seem to work.  My CRANberries cronjob runs faithfully with the
+>>> 3.1.0 beta and I use it on my laptop too.
+>>>
+>>> Dirk
+>>
+>> This one would be on me, from the Ubuntu side of things.  Dirk pushed
+>> the beta version (3.0.3) of 3.1.0 out and I didn't read the email
+>> carefully enough.  Thinking that it was a regular upgrade, I pushed it
+>> out to all currently supported versions of Ubuntu.
+>>
+>> Beyond the strange numbering of the package, it appears to be working
+>> just fine.  If there are any issues, let Dirk and I know and we can
+>> clear them up before the release of R 3.1.0.
+>>
+>> My goal is to only push out final release versions, although every once
+>> in a while a per-release will slip through.  Sorry if that caused any
+>> confusion.
+>>
+>> Michael
+>>
+> 
+> A ticket was reported on this topic, would be good if someone could
+> respond to it.
+> https://bugs.r-project.org/bugzilla/show_bug.cgi?id=15738#add_comment
+> 
+> Thanks,
+> Alex
+> 
+
+Just got another user in IRC asking about this. The package really
+should be reverted back so that package name matches actual version of
+R. There seems to be enough people for whom the switch is not seamless
+or at least need to plan the upgrade of their many machines.
+
+IRC user reports one box not being able to find a cran mirror using
+install.packages.
+
+Thanks,
+Alex
+
+
+From edd at debian.org  Mon Apr  7 22:02:49 2014
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 7 Apr 2014 15:02:49 -0500
+Subject: [R-sig-Debian] R 3.1.0 Beta installed but I'm not sure how
+In-Reply-To: <5342FF1E.6080005@wildintellect.com>
+References: <032079E7-7555-4038-A7B0-A020FC4BEC10@gmail.com>
+	<CAKxVe7G3201nAdLRdRrvRG7_Fp5LxskkdnvKauVtbodk17Q1+Q@mail.gmail.com>
+	<21307.22588.759555.696492@max.nulle.part>
+	<533C0A84.1050502@psu.edu> <533CEAF4.2060509@wildintellect.com>
+	<5342FF1E.6080005@wildintellect.com>
+Message-ID: <21315.1129.741859.42192@max.nulle.part>
+
+
+On 7 April 2014 at 12:40, Alex Mandel wrote:
+| Just got another user in IRC asking about this. The package really
+| should be reverted back so that package name matches actual version of
+| R. There seems to be enough people for whom the switch is not seamless
+| or at least need to plan the upgrade of their many machines.
+| 
+| IRC user reports one box not being able to find a cran mirror using
+| install.packages.
+
+R 3.1.0 will be released in three days.  It will all be moot then.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From pdotson at stat.byu.edu  Tue Apr  8 00:14:27 2014
+From: pdotson at stat.byu.edu (Peter Dotson)
+Date: Mon, 7 Apr 2014 16:14:27 -0600
+Subject: [R-sig-Debian] I am getting 3.1.0 beta instead of 3.0.3
+Message-ID: <CAHNcdCJjJEQGYeUX4cGWiQB1RxBPxZAg1rjQ80h=WqM20T1KFA@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140407/2f5cc932/attachment.pl>
+
+From mar36 at psu.edu  Tue Apr  8 00:31:42 2014
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 07 Apr 2014 18:31:42 -0400
+Subject: [R-sig-Debian] I am getting 3.1.0 beta instead of 3.0.3
+In-Reply-To: <CAHNcdCJjJEQGYeUX4cGWiQB1RxBPxZAg1rjQ80h=WqM20T1KFA@mail.gmail.com>
+References: <CAHNcdCJjJEQGYeUX4cGWiQB1RxBPxZAg1rjQ80h=WqM20T1KFA@mail.gmail.com>
+Message-ID: <5343274E.40807@psu.edu>
+
+
+
+On 04/07/2014 06:14 PM, Peter Dotson wrote:
+> When I use apt-get install r-base, I am getting the 3.1.0 beta instead of
+> 3.0.3
+>
+> I tried the install from three different mirrors with the same result:
+>
+> ## R repo
+> deb http://cran.stat.ucla.edu/bin/linux/ubuntu precise/
+>
+> Setting up r-base (3.0.3.20140328-1precise0) ...
+> Setting up r-base-dev (3.0.3.20140328-1precise0) ...
+> Setting up r-base-html (3.0.3.20140328-1precise0) ...
+> root at UNew-SAS:~# R
+>
+> R version 3.1.0 beta (2014-03-28 r65330) -- "Spring Dance"
+> Copyright (C) 2014 The R Foundation for Statistical Computing
+> Platform: x86_64-pc-linux-gnu (64-bit)
+>
+> ## R repo
+> #deb http://cran.stat.ucla.edu/bin/linux/ubuntu precise/
+> deb http://ftp.osuosl.org/pub/cran/bin/linux/ubuntu precise/
+>
+> Setting up r-base-dev (3.0.3.20140328-1precise0) ...
+> Setting up r-base-html (3.0.3.20140328-1precise0) ...
+> root at UNew-SAS:~# R
+>
+> R version 3.1.0 beta (2014-03-28 r65330) -- "Spring Dance"
+> Copyright (C) 2014 The R Foundation for Statistical Computing
+> Platform: x86_64-pc-linux-gnu (64-bit)
+>
+> ## R repo
+> #deb http://cran.stat.ucla.edu/bin/linux/ubuntu precise/
+> #deb http://ftp.osuosl.org/pub/cran/bin/linux/ubuntu precise/
+> deb http://cran.rstudio.com/bin/linux/ubuntu precise/
+>
+> Setting up r-base (3.0.3.20140328-1precise0) ...
+> Setting up r-base-dev (3.0.3.20140328-1precise0) ...
+> Setting up r-base-html (3.0.3.20140328-1precise0) ...
+> root at UNew-SAS:~# R
+>
+> R version 3.1.0 beta (2014-03-28 r65330) -- "Spring Dance"
+> Copyright (C) 2014 The R Foundation for Statistical Computing
+> Platform: x86_64-pc-linux-gnu (64-bit)
+>
+> It says I a setting up r-base (3.0.3...  but I keep getting 3.1.0
+>
+> Is this my error?
+
+This is my error, as I pushed out a beta version a little bit early.  It 
+will correct itself on Thursday when 3.1.0 is released.  More details here:
+
+https://stat.ethz.ch/pipermail/r-sig-debian/2014-April/002251.html
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+Associate Professor of Statistics
+Program Coordinator, Mathematics
+Penn State Erie, The Behrend College
+4205 College Drive
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+mar36 at psu.edu
+
+
+From belmartin at outlook.com  Fri Apr 18 10:49:28 2014
+From: belmartin at outlook.com (Martin Bel)
+Date: Fri, 18 Apr 2014 05:49:28 -0300
+Subject: [R-sig-Debian] Ubuntu 13.10 - not able to upgrade R
+In-Reply-To: <BLU182-W50AFD4E2AC46FDBEAC4CBEBA5D0@phx.gbl>
+References: <BLU182-W50AFD4E2AC46FDBEAC4CBEBA5D0@phx.gbl>
+Message-ID: <BLU182-W75A58590EBD9D61ACB9878BA5D0@phx.gbl>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140418/8889b731/attachment.pl>
+
+From francesco.brundu at gmail.com  Fri Apr 18 12:11:15 2014
+From: francesco.brundu at gmail.com (Francesco Brundu)
+Date: Fri, 18 Apr 2014 12:11:15 +0200
+Subject: [R-sig-Debian] How to use rainbow function without the gamma
+	argument
+Message-ID: <CAFc_i-Gr+Qv097vS=Bt_ZUGCH2=d+rKDBmXuHCeByBoRamnO9w@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140418/27c87b54/attachment.pl>
+
+From edd at debian.org  Fri Apr 18 13:01:51 2014
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 18 Apr 2014 06:01:51 -0500
+Subject: [R-sig-Debian] Ubuntu 13.10 - not able to upgrade R
+In-Reply-To: <BLU182-W75A58590EBD9D61ACB9878BA5D0@phx.gbl>
+References: <BLU182-W50AFD4E2AC46FDBEAC4CBEBA5D0@phx.gbl>
+	<BLU182-W75A58590EBD9D61ACB9878BA5D0@phx.gbl>
+Message-ID: <21329.1567.341339.455775@max.nulle.part>
+
+
+On 18 April 2014 at 05:49, Martin Bel wrote:
+| Hi,
+| I'm having some issues upgrading R. I'm using ubuntu linux 13.10, saucy and would like to upgrade R to the new version.I'm currently using 3.0.1
+| I've been following the instructions given in:1. http://stackoverflow.com/questions/10476713/how-to-upgrade-r-in-ubuntuand2. http://cran.r-project.org/bin/linux/ubuntu/
+| 
+| Here is exactly what i did, following mostly the stackoverflow description:
+| 1) Added the cran mirror link to the sources list(I've actually tryed with 3 different mirrors just in case)sudo gedit /etc/apt/sources.listdeb http://cran.cnr.berkeley.edu/bin/linux/ubuntu/ saucy/
+| 2) Getting the key step gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9gpg -a --export E084DAB9 | sudo apt-key add -
+| 3) Run the updates/upgradessudo apt-get update && sudo apt-get upgrade
+| After a large list of succesful updates i get the following result in the terminal:
+| 
+| W: Failed to fetch http://cran.cnr.berkeley.edu/bin/linux/ubuntu/saucy/InRelease  
+| W: Failed to fetch http://cran.cnr.berkeley.edu/bin/linux/ubuntu/saucy/Release.gpg  Cannot initiate the connection to cran.cnr.berkeley.edu:80 (2607:f140:0:8000::201). - connect (101: Network is unreachable) [IP: 2607:f140:0:8000::201 80]
+| W: Some index files failed to download. They have been ignored, or old ones used instead.Reading package lists... DoneBuilding dependency tree       Reading state information... Done0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+You have a network error with the host, so use a different mirror.  I use
+
+    deb http://cran.rstudio.com.org/bin/linux/ubuntu saucy/
+ 
+as I found the RStudio CDN to be reliably fast.
+
+Dirk
+
+| I've done this a few times. At this point there are no more updates and the R error is isolated.
+| Is there a solution to this or should i just re-install R.
+| Thanks for your time,
+| Martin
+|  		 	   		   		 	   		  
+| 	[[alternative HTML version deleted]]
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From edd at debian.org  Fri Apr 18 13:58:36 2014
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 18 Apr 2014 06:58:36 -0500
+Subject: [R-sig-Debian] Ubuntu 13.10 - not able to upgrade R
+In-Reply-To: <21329.1567.341339.455775@max.nulle.part>
+References: <BLU182-W50AFD4E2AC46FDBEAC4CBEBA5D0@phx.gbl>
+	<BLU182-W75A58590EBD9D61ACB9878BA5D0@phx.gbl>
+	<21329.1567.341339.455775@max.nulle.part>
+Message-ID: <21329.4972.423804.554680@max.nulle.part>
+
+
+On 18 April 2014 at 06:01, Dirk Eddelbuettel wrote:
+| You have a network error with the host, so use a different mirror.  I use
+| 
+|     deb http://cran.rstudio.com.org/bin/linux/ubuntu saucy/
+|  
+| as I found the RStudio CDN to be reliably fast.
+
+That's what I get for editing on the fly.  URL should be 
+
+     deb http://cran.rstudio.com/bin/linux/ubuntu saucy/
+
+I am trying to switch more machines from using r-project.org to rstudio.com
+which serves faster...
+
+Dirk
+ 
+| Dirk
+| 
+| | I've done this a few times. At this point there are no more updates and the R error is isolated.
+| | Is there a solution to this or should i just re-install R.
+| | Thanks for your time,
+| | Martin
+| |  		 	   		   		 	   		  
+| | 	[[alternative HTML version deleted]]
+| | 
+| | _______________________________________________
+| | R-SIG-Debian mailing list
+| | R-SIG-Debian at r-project.org
+| | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| 
+| -- 
+| Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From belmartin at outlook.com  Fri Apr 18 21:39:17 2014
+From: belmartin at outlook.com (Martin Bel)
+Date: Fri, 18 Apr 2014 16:39:17 -0300
+Subject: [R-sig-Debian] Ubuntu 13.10 - not able to upgrade R
+In-Reply-To: <21329.4972.423804.554680@max.nulle.part>
+References: <BLU182-W50AFD4E2AC46FDBEAC4CBEBA5D0@phx.gbl>,
+	<BLU182-W75A58590EBD9D61ACB9878BA5D0@phx.gbl>,
+	<21329.1567.341339.455775@max.nulle.part>,
+	<21329.4972.423804.554680@max.nulle.part>
+Message-ID: <BLU182-W79BCF15D0146B5CC1B82C3BA5D0@phx.gbl>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140418/6a413e36/attachment.pl>
+
+From edd at debian.org  Fri Apr 18 21:54:56 2014
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 18 Apr 2014 14:54:56 -0500
+Subject: [R-sig-Debian] Ubuntu 13.10 - not able to upgrade R
+In-Reply-To: <BLU182-W79BCF15D0146B5CC1B82C3BA5D0@phx.gbl>
+References: <BLU182-W50AFD4E2AC46FDBEAC4CBEBA5D0@phx.gbl>
+	<BLU182-W75A58590EBD9D61ACB9878BA5D0@phx.gbl>
+	<21329.1567.341339.455775@max.nulle.part>
+	<21329.4972.423804.554680@max.nulle.part>
+	<BLU182-W79BCF15D0146B5CC1B82C3BA5D0@phx.gbl>
+Message-ID: <21329.33552.564193.543787@max.nulle.part>
+
+
+On 18 April 2014 at 16:39, Martin Bel wrote:
+| I've tried a few different mirrors before, including the rstudio one. 
+| To be sure i've tried again with the one you provided, but didn't work.
+
+We can't really help you at the granularity of "didn't work": What did you
+try?  How did it fail? What were the errors?
+
+Maybe read some of the HOWTOs on the web about 'how to ask a good question'
+as eg this classic variant: http://www.catb.org/esr/faqs/smart-questions.html
+ 
+| I've found this other method, that worked. I guess it's not the official one,
+| right?
+| 
+| 
+| sudo add-apt-repository ppa:marutter/rrutter
+
+Yes that is a different repository from the CRAN repository. They are related though.
+
+I honestly do not know what your question is.  Thousands of people _use_ the
+CRAN Ubuntu repo happily.  Maybe you just need to re-read the README...
+
+Good luck,  Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From belmartin at outlook.com  Fri Apr 18 22:06:07 2014
+From: belmartin at outlook.com (Martin Bel)
+Date: Fri, 18 Apr 2014 17:06:07 -0300
+Subject: [R-sig-Debian] Ubuntu 13.10 - not able to upgrade R
+In-Reply-To: <21329.33552.564193.543787@max.nulle.part>
+References: <BLU182-W50AFD4E2AC46FDBEAC4CBEBA5D0@phx.gbl>,
+	<BLU182-W75A58590EBD9D61ACB9878BA5D0@phx.gbl>,
+	<21329.1567.341339.455775@max.nulle.part>,
+	<21329.4972.423804.554680@max.nulle.part>,
+	<BLU182-W79BCF15D0146B5CC1B82C3BA5D0@phx.gbl>,
+	<21329.33552.564193.543787@max.nulle.part>
+Message-ID: <BLU182-W92EBAB8543D496E54C41E6BA5D0@phx.gbl>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140418/fb3e11ea/attachment.pl>
+
+From edd at debian.org  Fri Apr 18 22:35:33 2014
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 18 Apr 2014 15:35:33 -0500
+Subject: [R-sig-Debian] Ubuntu 13.10 - not able to upgrade R
+In-Reply-To: <BLU182-W92EBAB8543D496E54C41E6BA5D0@phx.gbl>
+References: <BLU182-W50AFD4E2AC46FDBEAC4CBEBA5D0@phx.gbl>
+	<BLU182-W75A58590EBD9D61ACB9878BA5D0@phx.gbl>
+	<21329.1567.341339.455775@max.nulle.part>
+	<21329.4972.423804.554680@max.nulle.part>
+	<BLU182-W79BCF15D0146B5CC1B82C3BA5D0@phx.gbl>
+	<21329.33552.564193.543787@max.nulle.part>
+	<BLU182-W92EBAB8543D496E54C41E6BA5D0@phx.gbl>
+Message-ID: <21329.35989.120151.635014@max.nulle.part>
+
+
+On 18 April 2014 at 17:06, Martin Bel wrote:
+| Dirk,
+| 
+| Below is my original mail, a question i sent yesterday. 
+| I wanted to upgrade R but for some reason this didn't work.
+| Your response to this e-mail was: try the rstudio mirror or some other. This
+| didn't work, meaning i couldn't upgrade R. 
+| 
+| As you probably didn't have this first question in your mail history, it didn't
+| make sense. Sorry for this.
+
+I saw your email and replied to it. I keep mailing list emails so
+re-resending the post is not necessary.
+
+All we have below are three __warning__ messages ("W" -> warning; "E" ->
+errors).  No errors here. I suggested switching mirrors. 
+
+| Finally, i could upgrade R with this line:
+| sudo add-apt-repository ppa:marutter/rrutter
+
+Very good. I won't try any longer to waste everybody's time then.
+
+Dirk
+ 
+| Best,
+| Martin
+| 
+| 
+| 
+| 
+| Hi,
+| I'm having some issues upgrading R. I'm using ubuntu linux 13.10, saucy and would like to upgrade R to the new version.I'm currently using 3.0.1
+| I've been following the instructions given in:1. http://stackoverflow.com/questions/10476713/how-to-upgrade-r-in-ubuntuand2. http://cran.r-project.org/bin/linux/ubuntu/
+| 
+| Here is exactly what i did, following mostly the stackoverflow description:
+| 1) Added the cran mirror link to the sources list(I've actually tryed with 3 different mirrors just in case)sudo gedit /etc/apt/sources.listdeb http://cran.cnr.berkeley.edu/bin/linux/ubuntu/ saucy/
+| 2) Getting the key step gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9gpg -a --export E084DAB9 | sudo apt-key add -
+| 3) Run the updates/upgradessudo apt-get update && sudo apt-get upgrade
+| After a large list of succesful updates i get the following result in the terminal:
+| 
+| W: Failed to fetch http://cran.cnr.berkeley.edu/bin/linux/ubuntu/saucy/InRelease 
+| W: Failed to fetch http://cran.cnr.berkeley.edu/bin/linux/ubuntu/saucy/Release.gpg Cannot initiate the connection to cran.cnr.berkeley.edu:80 (2607:f140:0:8000::201). - connect (101: Network is unreachable) [IP: 2607:f140:0:8000::201 80]
+| W: Some index files failed to download. They have been ignored, or old ones used instead.Reading package lists... DoneBuilding dependency tree Reading state information... Done0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+| 
+| I've done this a few times. At this point there are no more updates and the R error is isolated.
+| Is there a solution to this or should i just re-install R.
+| Thanks for your time,
+| Martin
+| 
+| 
+| > Date: Fri, 18 Apr 2014 14:54:56 -0500
+| > To: belmartin at outlook.com
+| > CC: edd at debian.org; r-sig-debian at r-project.org
+| > Subject: RE: [R-sig-Debian] Ubuntu 13.10 - not able to upgrade R
+| > From: edd at debian.org
+| >
+| >
+| > On 18 April 2014 at 16:39, Martin Bel wrote:
+| > | I've tried a few different mirrors before, including the rstudio one.
+| > | To be sure i've tried again with the one you provided, but didn't work.
+| >
+| > We can't really help you at the granularity of "didn't work": What did you
+| > try? How did it fail? What were the errors?
+| >
+| > Maybe read some of the HOWTOs on the web about 'how to ask a good question'
+| > as eg this classic variant: http://www.catb.org/esr/faqs/smart-questions.html
+| >
+| > | I've found this other method, that worked. I guess it's not the official
+| one,
+| > | right?
+| > |
+| > |
+| > | sudo add-apt-repository ppa:marutter/rrutter
+| >
+| > Yes that is a different repository from the CRAN repository. They are related
+| though.
+| >
+| > I honestly do not know what your question is. Thousands of people _use_ the
+| > CRAN Ubuntu repo happily. Maybe you just need to re-read the README...
+| >
+| > Good luck, Dirk
+| >
+| > --
+| > Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From jranke at uni-bremen.de  Sat Apr 19 06:54:48 2014
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Sat, 19 Apr 2014 06:54:48 +0200
+Subject: [R-sig-Debian] How to use rainbow function without the gamma
+	argument
+In-Reply-To: <CAFc_i-Gr+Qv097vS=Bt_ZUGCH2=d+rKDBmXuHCeByBoRamnO9w@mail.gmail.com>
+References: <CAFc_i-Gr+Qv097vS=Bt_ZUGCH2=d+rKDBmXuHCeByBoRamnO9w@mail.gmail.com>
+Message-ID: <1981364.3yquFpW1by@stiller>
+
+Hi Francesco,
+
+I see nothing Debian/Ubuntu specific in this question - I hope you don't mind 
+if I point you to the r-help mailing list.
+
+Kind regards, and season's greetings,
+
+Johannes
+
+Am Freitag, 18. April 2014, 12:11:15 schrieb Francesco Brundu:
+> Hi,
+> I am using a old code (probably written for R 2.5) and it stops when
+> calling rainbow() with gamma argument. I saw that gamma argument is not
+> present in newer version of R rainbow function. How can I translate this
+> line of code:
+> 
+> rainbow(100, s = 1.0, v = 0.75, start = 0.0, end = 0.75, gamma = 1.5)
+> 
+> ?
+> 
+> It fails with:
+> 
+> Error in rainbow(100, s = 1, v = 0.75, start = 0, end = 0.75, gamma = 1.5)
+> 
+>   unused argument (gamma = 1.5)
+> Calls: nmfconsensus ... matrix.abs.plot -> image -> image.default -> rainbow
+> Execution halted
+> 
+> Thanks
+> 
+> 
+> ~ Francesco Brundu
+> 
+> 	[[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+PD Dr. Johannes Ranke
+Kronacher Str. 8
+79639 Grenzach-Wyhlen
+
+
+From francesco.brundu at gmail.com  Sat Apr 19 11:56:25 2014
+From: francesco.brundu at gmail.com (Francesco Brundu)
+Date: Sat, 19 Apr 2014 11:56:25 +0200
+Subject: [R-sig-Debian] How to use rainbow function without the gamma
+	argument
+In-Reply-To: <1981364.3yquFpW1by@stiller>
+References: <CAFc_i-Gr+Qv097vS=Bt_ZUGCH2=d+rKDBmXuHCeByBoRamnO9w@mail.gmail.com>
+	<1981364.3yquFpW1by@stiller>
+Message-ID: <CAFc_i-F4BmquAzVr_NaE6GUGzDJEqnX52djQzFavmkG-PmPXXQ@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140419/1e6134a5/attachment.pl>
+
+From krzisch.claude at orange.fr  Sun Apr 20 23:50:11 2014
+From: krzisch.claude at orange.fr (claude krzisch)
+Date: Sun, 20 Apr 2014 23:50:11 +0200
+Subject: [R-sig-Debian] Ubuntu 13.10 - not able to upgrade R
+In-Reply-To: <21329.33552.564193.543787@max.nulle.part>
+References: <BLU182-W50AFD4E2AC46FDBEAC4CBEBA5D0@phx.gbl>	<BLU182-W75A58590EBD9D61ACB9878BA5D0@phx.gbl>	<21329.1567.341339.455775@max.nulle.part>	<21329.4972.423804.554680@max.nulle.part>	<BLU182-W79BCF15D0146B5CC1B82C3BA5D0@phx.gbl>
+	<21329.33552.564193.543787@max.nulle.part>
+Message-ID: <53544113.70501@orange.fr>
+
+Hi
+I work with Ubuntu (now trusty) and I have a problem related, I presume, 
+to the upgrade of R : I am unable to download some packages I relied 
+heavily on previously as "date","survival" ... I tried to upgrade my 
+packages without any success always with the same message : the package 
+has been compiled before R 3.0.3, please recompile it. It is the first 
+time that I have this type of problem and I don't know how to respond to 
+it. Must I download the source package and compile it ? And how may I do 
+it ?
+
+Thank you for your help
+
+CK
+
+
+Le 18/04/2014 21:54, Dirk Eddelbuettel a ?crit :
+> On 18 April 2014 at 16:39, Martin Bel wrote:
+> | I've tried a few different mirrors before, including the rstudio one.
+> | To be sure i've tried again with the one you provided, but didn't work.
+>
+> We can't really help you at the granularity of "didn't work": What did you
+> try?  How did it fail? What were the errors?
+>
+> Maybe read some of the HOWTOs on the web about 'how to ask a good question'
+> as eg this classic variant: http://www.catb.org/esr/faqs/smart-questions.html
+>   
+> | I've found this other method, that worked. I guess it's not the official one,
+> | right?
+> |
+> |
+> | sudo add-apt-repository ppa:marutter/rrutter
+>
+> Yes that is a different repository from the CRAN repository. They are related though.
+>
+> I honestly do not know what your question is.  Thousands of people _use_ the
+> CRAN Ubuntu repo happily.  Maybe you just need to re-read the README...
+>
+> Good luck,  Dirk
+>
+
+
+From tech_dev at wildintellect.com  Mon Apr 21 02:14:28 2014
+From: tech_dev at wildintellect.com (Alex Mandel)
+Date: Sun, 20 Apr 2014 17:14:28 -0700
+Subject: [R-sig-Debian] Ubuntu 13.10 - not able to upgrade R
+In-Reply-To: <53544113.70501@orange.fr>
+References: <BLU182-W50AFD4E2AC46FDBEAC4CBEBA5D0@phx.gbl>	<BLU182-W75A58590EBD9D61ACB9878BA5D0@phx.gbl>	<21329.1567.341339.455775@max.nulle.part>	<21329.4972.423804.554680@max.nulle.part>	<BLU182-W79BCF15D0146B5CC1B82C3BA5D0@phx.gbl>	<21329.33552.564193.543787@max.nulle.part>
+	<53544113.70501@orange.fr>
+Message-ID: <535462E4.3090409@wildintellect.com>
+
+Open an R session and run update.packages()
+It will pull down and recompile whatever packages you have installed.
+
+Thanks,
+Alex
+
+On 04/20/2014 02:50 PM, claude krzisch wrote:
+> Hi
+> I work with Ubuntu (now trusty) and I have a problem related, I presume,
+> to the upgrade of R : I am unable to download some packages I relied
+> heavily on previously as "date","survival" ... I tried to upgrade my
+> packages without any success always with the same message : the package
+> has been compiled before R 3.0.3, please recompile it. It is the first
+> time that I have this type of problem and I don't know how to respond to
+> it. Must I download the source package and compile it ? And how may I do
+> it ?
+> 
+> Thank you for your help
+> 
+> CK
+> 
+> 
+> Le 18/04/2014 21:54, Dirk Eddelbuettel a ?crit :
+>> On 18 April 2014 at 16:39, Martin Bel wrote:
+>> | I've tried a few different mirrors before, including the rstudio one.
+>> | To be sure i've tried again with the one you provided, but didn't work.
+>>
+>> We can't really help you at the granularity of "didn't work": What did
+>> you
+>> try?  How did it fail? What were the errors?
+>>
+>> Maybe read some of the HOWTOs on the web about 'how to ask a good
+>> question'
+>> as eg this classic variant:
+>> http://www.catb.org/esr/faqs/smart-questions.html
+>>   | I've found this other method, that worked. I guess it's not the
+>> official one,
+>> | right?
+>> |
+>> |
+>> | sudo add-apt-repository ppa:marutter/rrutter
+>>
+>> Yes that is a different repository from the CRAN repository. They are
+>> related though.
+>>
+>> I honestly do not know what your question is.  Thousands of people
+>> _use_ the
+>> CRAN Ubuntu repo happily.  Maybe you just need to re-read the README...
+>>
+>> Good luck,  Dirk
+>>
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From tech_dev at wildintellect.com  Mon Apr 21 21:39:30 2014
+From: tech_dev at wildintellect.com (Alex Mandel)
+Date: Mon, 21 Apr 2014 12:39:30 -0700
+Subject: [R-sig-Debian] Ubuntu 13.10 - not able to upgrade R
+In-Reply-To: <53557035.1060200@orange.fr>
+References: <BLU182-W50AFD4E2AC46FDBEAC4CBEBA5D0@phx.gbl>	<BLU182-W75A58590EBD9D61ACB9878BA5D0@phx.gbl>	<21329.1567.341339.455775@max.nulle.part>	<21329.4972.423804.554680@max.nulle.part>	<BLU182-W79BCF15D0146B5CC1B82C3BA5D0@phx.gbl>	<21329.33552.564193.543787@max.nulle.part>
+	<53544113.70501@orange.fr> <535462E4.3090409@wildintellect.com>
+	<53557035.1060200@orange.fr>
+Message-ID: <535573F2.9050403@wildintellect.com>
+
+Looks like you will need to update packages in a specific order. Since
+spatial depends on date, date needs to updated first.
+
+update.packages("date")
+
+Then try again and see what it tells you next.
+It's a bit of a pain but will eventually work. The other option is to
+dump the list of current packages. Uninstall the old and try to install
+from the list.
+
+Thanks,
+Alex
+
+On 04/21/2014 12:23 PM, claude krzisch wrote:
+> Hi,
+> Thank you for your response. It was one of the first things I did.
+> However, it doesn't work. The error messages are (in french)
+> 
+> /Les packages source t?l?charg?s sont dans//
+> //    '/tmp/Rtmp4IaeBv/downloaded_packages'//
+> //essai de l'URL 'http://cran.irsn.fr/src/contrib/spatial_7.3-8.tar.gz'//
+> //Content type 'application/x-gzip' length 43593 bytes (42 Kb)//
+> //URL ouverte//
+> //==================================================//
+> //downloaded 42 Kb//
+> //
+> //Erreur : package 'date' was built before R 3.0.0: please re-install it//
+> //Ex?cution arr?t?e//
+> //
+> //Les packages source t?l?charg?s sont dans//
+> //    '/tmp/Rtmp4IaeBv/downloaded_packages'//
+> //mise ? jour de la liste HTML des packages dans '.Library'//
+> //Making 'packages.html' ... Termin?.//
+> //Il y a eu 50 avis ou plus (utilisez warnings() pour voir les 50
+> premiers)//
+> //> warnings()//
+> //Messages d'avis ://
+> //1: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'Ecfun' a eu un statut de sortie non nul//
+> //2: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'BH' a eu un statut de sortie non nul//
+> //3: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'FNN' a eu un statut de sortie non nul//
+> //4: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'lava' a eu un statut de sortie non nul//
+> //5: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'ape' a eu un statut de sortie non nul//
+> //6: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'clue' a eu un statut de sortie non nul//
+> //7: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'date' a eu un statut de sortie non nul//
+> //8: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'deldir' a eu un statut de sortie non nul//
+> //9: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'e1071' a eu un statut de sortie non nul//
+> //10: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'effects' a eu un statut de sortie non nul//
+> //11: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'energy' a eu un statut de sortie non nul//
+> //12: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'evaluate' a eu un statut de sortie non nul//
+> //13: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'expm' a eu un statut de sortie non nul//
+> //14: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'gam' a eu un statut de sortie non nul//
+> //15: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'geoRglm' a eu un statut de sortie non nul//
+> //16: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'gridBase' a eu un statut de sortie non nul//
+> //17: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'gss' a eu un statut de sortie non nul//
+> //18: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'gtools' a eu un statut de sortie non nul//
+> //19: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'gvlma' a eu un statut de sortie non nul//
+> //20: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'hexbin' a eu un statut de sortie non nul//
+> //21: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'HH' a eu un statut de sortie non nul//
+> //22: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'igraph' a eu un statut de sortie non nul//
+> //23: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'igraphdata' a eu un statut de sortie non
+> nul//
+> //24: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'iterators' a eu un statut de sortie non
+> nul//
+> //25: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'longitudinalData' a eu un statut de
+> sortie non nul//
+> //26: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'mapproj' a eu un statut de sortie non nul//
+> //27: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'markdown' a eu un statut de sortie non nul//
+> //28: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'MatrixModels' a eu un statut de sortie
+> non nul//
+> //29: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'mice' a eu un statut de sortie non nul//
+> //30: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'oz' a eu un statut de sortie non nul//
+> //31: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'pastecs' a eu un statut de sortie non nul//
+> //32: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'permute' a eu un statut de sortie non nul//
+> //33: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'plotrix' a eu un statut de sortie non nul//
+> //34: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'plyr' a eu un statut de sortie non nul//
+> //35: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'polynom' a eu un statut de sortie non nul//
+> //36: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'proxy' a eu un statut de sortie non nul//
+> //37: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'psych' a eu un statut de sortie non nul//
+> //38: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'qcc' a eu un statut de sortie non nul//
+> //39: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'rbounds' a eu un statut de sortie non nul//
+> //40: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'Rcsdp' a eu un statut de sortie non nul//
+> //41: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'scatterplot3d' a eu un statut de sortie
+> non nul//
+> //42: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'seriation' a eu un statut de sortie non
+> nul//
+> //43: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'sfsmisc' a eu un statut de sortie non nul//
+> //44: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'shape' a eu un statut de sortie non nul//
+> //45: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'slam' a eu un statut de sortie non nul//
+> //46: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'sm' a eu un statut de sortie non nul//
+> //47: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'sp' a eu un statut de sortie non nul//
+> //48: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'statmod' a eu un statut de sortie non nul//
+> //49: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'survival' a eu un statut de sortie non nul//
+> //50: In install.packages(update[instlib == l, "Package"], l, ... ://
+> //  l'installation du package 'svGUI' a eu un statut de sortie non nul/
+> ...
+> 
+> Another idea
+> Thank you so much
+> 
+> CK
+> 
+> 
+> Le 21/04/2014 02:14, Alex Mandel a ?crit :
+>> Open an R session and run update.packages()
+>> It will pull down and recompile whatever packages you have installed.
+>>
+>> Thanks,
+>> Alex
+>>
+>> On 04/20/2014 02:50 PM, claude krzisch wrote:
+>>> Hi
+>>> I work with Ubuntu (now trusty) and I have a problem related, I presume,
+>>> to the upgrade of R : I am unable to download some packages I relied
+>>> heavily on previously as "date","survival" ... I tried to upgrade my
+>>> packages without any success always with the same message : the package
+>>> has been compiled before R 3.0.3, please recompile it. It is the first
+>>> time that I have this type of problem and I don't know how to respond to
+>>> it. Must I download the source package and compile it ? And how may I do
+>>> it ?
+>>>
+>>> Thank you for your help
+>>>
+>>> CK
+>>>
+>>>
+>>> Le 18/04/2014 21:54, Dirk Eddelbuettel a ?crit :
+>>>> On 18 April 2014 at 16:39, Martin Bel wrote:
+>>>> | I've tried a few different mirrors before, including the rstudio one.
+>>>> | To be sure i've tried again with the one you provided, but didn't
+>>>> work.
+>>>>
+>>>> We can't really help you at the granularity of "didn't work": What did
+>>>> you
+>>>> try?  How did it fail? What were the errors?
+>>>>
+>>>> Maybe read some of the HOWTOs on the web about 'how to ask a good
+>>>> question'
+>>>> as eg this classic variant:
+>>>> http://www.catb.org/esr/faqs/smart-questions.html
+>>>>    | I've found this other method, that worked. I guess it's not the
+>>>> official one,
+>>>> | right?
+>>>> |
+>>>> |
+>>>> | sudo add-apt-repository ppa:marutter/rrutter
+>>>>
+>>>> Yes that is a different repository from the CRAN repository. They are
+>>>> related though.
+>>>>
+>>>> I honestly do not know what your question is.  Thousands of people
+>>>> _use_ the
+>>>> CRAN Ubuntu repo happily.  Maybe you just need to re-read the README...
+>>>>
+>>>> Good luck,  Dirk
+>>>>
+>>> _______________________________________________
+>>> R-SIG-Debian mailing list
+>>> R-SIG-Debian at r-project.org
+>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+> 
+>
+
+
+From sathish316 at gmail.com  Tue Apr 22 16:45:04 2014
+From: sathish316 at gmail.com (Sathish Kumar)
+Date: Tue, 22 Apr 2014 20:15:04 +0530
+Subject: [R-sig-Debian] Fwd: How to convert R package and dependencies to
+	debian packages?
+In-Reply-To: <CAORY-37vKi_Cx9tufAZb54Dqae7Zj0234pZenby1kfFbp-wYZA@mail.gmail.com>
+References: <CAORY-37vKi_Cx9tufAZb54Dqae7Zj0234pZenby1kfFbp-wYZA@mail.gmail.com>
+Message-ID: <CAORY-341SZzFxM=Yw-cbr2nQhEV7BE=0eYTAyUMRW6Y8F9ieOA@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140422/03aea05c/attachment.pl>
+
+From mar36 at psu.edu  Tue Apr 22 16:51:28 2014
+From: mar36 at psu.edu (Michael Rutter)
+Date: Tue, 22 Apr 2014 10:51:28 -0400
+Subject: [R-sig-Debian] Fwd: How to convert R package and dependencies
+ to debian packages?
+In-Reply-To: <CAORY-341SZzFxM=Yw-cbr2nQhEV7BE=0eYTAyUMRW6Y8F9ieOA@mail.gmail.com>
+References: <CAORY-37vKi_Cx9tufAZb54Dqae7Zj0234pZenby1kfFbp-wYZA@mail.gmail.com>
+	<CAORY-341SZzFxM=Yw-cbr2nQhEV7BE=0eYTAyUMRW6Y8F9ieOA@mail.gmail.com>
+Message-ID: <535681F0.5000103@psu.edu>
+
+
+
+On 04/22/2014 10:45 AM, Sathish Kumar wrote:
+> Hi,
+>
+> I need to install R packages in several nodes (10+) in AWS. I wont be able
+> to open R shell in each and do install.packages("foo")
+>
+> This will be done using a configuration management tool like Puppet and
+> it'll be easier if i can do an apt-get installation of R packages
+> automatically.
+>
+> I found a list of R debian packages here:
+> http://cran.cnr.berkeley.edu/bin/linux/ubuntu/lucid/
+>
+> But it does not contain all the packages that i need.
+>
+> Is there a way to convert any R package and it's internal dependencies to a
+> Debian package similar to the approach used in creating r-cran-*.deb?
+>
+> Thanks,
+>
+> Sathish
+
+Satish,
+
+Check out my cran2deb4ubuntu PPA (http://tiny.cc/c2d4u).  It may have 
+all the packages you need.  There are over 2000.
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+Associate Professor of Statistics
+Program Coordinator, Mathematics
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From edd at debian.org  Tue Apr 22 16:52:34 2014
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 22 Apr 2014 09:52:34 -0500
+Subject: [R-sig-Debian] Fwd: How to convert R package and dependencies
+	to	debian packages?
+In-Reply-To: <CAORY-341SZzFxM=Yw-cbr2nQhEV7BE=0eYTAyUMRW6Y8F9ieOA@mail.gmail.com>
+References: <CAORY-37vKi_Cx9tufAZb54Dqae7Zj0234pZenby1kfFbp-wYZA@mail.gmail.com>
+	<CAORY-341SZzFxM=Yw-cbr2nQhEV7BE=0eYTAyUMRW6Y8F9ieOA@mail.gmail.com>
+Message-ID: <21334.33330.828743.47522@max.nulle.part>
+
+
+On 22 April 2014 at 20:15, Sathish Kumar wrote:
+| I need to install R packages in several nodes (10+) in AWS. I wont be able
+| to open R shell in each and do install.packages("foo")
+
+You don't have to. I prefer the install.r wrapper (one version is part of littler)
+ 
+| This will be done using a configuration management tool like Puppet and
+| it'll be easier if i can do an apt-get installation of R packages
+| automatically.
+| 
+| I found a list of R debian packages here:
+| http://cran.cnr.berkeley.edu/bin/linux/ubuntu/lucid/
+| 
+| But it does not contain all the packages that i need.
+| 
+| Is there a way to convert any R package and it's internal dependencies to a
+| Debian package similar to the approach used in creating r-cran-*.deb?
+
+You may underestimate how how hard this is but it has been done a few times
+as cran2deb.
+
+The best current version is for Debian and at
+
+    http://debian-r.debian.net
+
+Don reads this list (I think ...) and may chime in.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From don at donarmstrong.com  Tue Apr 22 21:35:55 2014
+From: don at donarmstrong.com (Don Armstrong)
+Date: Tue, 22 Apr 2014 12:35:55 -0700
+Subject: [R-sig-Debian] Fwd: How to convert R package and dependencies
+ to debian packages?
+In-Reply-To: <21334.33330.828743.47522@max.nulle.part>
+References: <CAORY-37vKi_Cx9tufAZb54Dqae7Zj0234pZenby1kfFbp-wYZA@mail.gmail.com>
+	<CAORY-341SZzFxM=Yw-cbr2nQhEV7BE=0eYTAyUMRW6Y8F9ieOA@mail.gmail.com>
+	<21334.33330.828743.47522@max.nulle.part>
+Message-ID: <20140422193555.GV3132@rzlab.ucr.edu>
+
+On Tue, 22 Apr 2014, Dirk Eddelbuettel wrote:
+> On 22 April 2014 at 20:15, Sathish Kumar wrote:
+> | Is there a way to convert any R package and it's internal dependencies to a
+> | Debian package similar to the approach used in creating r-cran-*.deb?
+> 
+> You may underestimate how how hard this is but it has been done a few times
+> as cran2deb.
+> 
+> The best current version is for Debian and at
+> 
+>     http://debian-r.debian.net
+> 
+> Don reads this list (I think ...) and may chime in.
+
+Right; pretty much every package that you may want is already built for
+unstable and squeeze.
+
+If you're running stable (or want to build specific packages on your
+own), you can just add the deb-src lines for those packages, and run
+apt-get source -b r-cran-foopkg; as appropriate.
+
+-- 
+Don Armstrong                      http://www.donarmstrong.com
+
+I learned really early the difference between knowing the name of
+something and knowing something
+ -- Richard Feynman "What is Science" Phys. Teach. 7(6) 1969
+
+
+From cboettig at gmail.com  Tue Apr 22 22:55:34 2014
+From: cboettig at gmail.com (Carl Boettiger)
+Date: Tue, 22 Apr 2014 13:55:34 -0700
+Subject: [R-sig-Debian] Segfaults on Ubuntu 14.04
+Message-ID: <CAN_1p9x5hwM5tF-sjUmECK-i9n3vskt6aJ6D7_ySDe=sQV8TFw@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140422/8f4c481f/attachment.pl>
+
+From edd at debian.org  Tue Apr 22 23:21:11 2014
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 22 Apr 2014 16:21:11 -0500
+Subject: [R-sig-Debian] Segfaults on Ubuntu 14.04
+In-Reply-To: <CAN_1p9x5hwM5tF-sjUmECK-i9n3vskt6aJ6D7_ySDe=sQV8TFw@mail.gmail.com>
+References: <CAN_1p9x5hwM5tF-sjUmECK-i9n3vskt6aJ6D7_ySDe=sQV8TFw@mail.gmail.com>
+Message-ID: <21334.56647.14969.268970@max.nulle.part>
+
+
+On 22 April 2014 at 13:55, Carl Boettiger wrote:
+| I've just upgraded my Ubuntu system to 14.04 / Trusty Tahr. I now find that
+| when I launch the "R" software environment, I immediately get a
+| segmentation fault with no further warning or error message.
+| 
+| I tried removing the relevant base package, which seemed to successfully
+| remove R entirely from my system:
+| 
+|     sudo aptitude remove --purge r-base-core
+| 
+| I then simply reinstalled r-base-core, but same error persists.
+
+Hm.
+
+I upgraded a few (older, less used) machines at home on the weekend, and had
+no issues.  But I didn't try R. 
+ 
+| my sources.list shows:
+| 
+|     deb http://cran.rstudio.com/bin/linux/ubuntu trusty/
+|     deb-src http://cran.rstudio.com/bin/linux/ubuntu trusty/
+
+That seems right.  Maybe Michael can chime in. 
+ 
+| I then simply downloaded the Debian wheezy .deb for R 3.1.0 instead and
+| installed that, which worked just fine.  Just wondering if anyone else has
+
+That is potentially not the right thing as Debian can have different library
+versions... 
+
+| encountered this problem on the Ubuntu version and/or if I should report
+| this as a bug, and to whom.  (My apologies, the Debian package information
+| for the ubuntu .deb file isn't particularly clear on to whom I should
+| report bugs).
+
+Here is good. I read it, Michael reads it, ...
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From mar36 at psu.edu  Wed Apr 23 04:06:11 2014
+From: mar36 at psu.edu (Michael Rutter)
+Date: Tue, 22 Apr 2014 22:06:11 -0400
+Subject: [R-sig-Debian] Segfaults on Ubuntu 14.04
+In-Reply-To: <21334.56647.14969.268970@max.nulle.part>
+References: <CAN_1p9x5hwM5tF-sjUmECK-i9n3vskt6aJ6D7_ySDe=sQV8TFw@mail.gmail.com>
+	<21334.56647.14969.268970@max.nulle.part>
+Message-ID: <53572013.4050502@psu.edu>
+
+
+
+On 04/22/2014 05:21 PM, Dirk Eddelbuettel wrote:
+>
+> On 22 April 2014 at 13:55, Carl Boettiger wrote:
+> | I've just upgraded my Ubuntu system to 14.04 / Trusty Tahr. I now find that
+> | when I launch the "R" software environment, I immediately get a
+> | segmentation fault with no further warning or error message.
+> |
+> | I tried removing the relevant base package, which seemed to successfully
+> | remove R entirely from my system:
+> |
+> |     sudo aptitude remove --purge r-base-core
+> |
+> | I then simply reinstalled r-base-core, but same error persists.
+>
+> Hm.
+>
+> I upgraded a few (older, less used) machines at home on the weekend, and had
+> no issues.  But I didn't try R.
+>
+
+I updated a laptop to trusty and added the RRutter Launchpad PPA. 
+Downloaded R and it ran fine.  So, I would try that repository to see if 
+it fixes the issue (https://launchpad.net/~marutter/+archive/rrutter). 
+Since the PPA feeds CRAN, there should be no difference but you never know.
+
+A couple of questions.
+
+1. Did you do a fresh install or an upgrade of Ubuntu?
+2. Are you using any of the non-standard libraries like OpenBLAS?
+3. 32 or 64 bit Ubuntu?
+
+This is the first I have heard of the issue for Trusty.  Not sure shy 
+the Debian package works and not the I built.  Another suggestion would 
+be use the version of R from the Ubuntu repository (remove any new 
+sources) and see if that works.
+
+Hope this helps,
+Michael
+
+
+
+> | my sources.list shows:
+> |
+> |     deb http://cran.rstudio.com/bin/linux/ubuntu trusty/
+> |     deb-src http://cran.rstudio.com/bin/linux/ubuntu trusty/
+>
+> That seems right.  Maybe Michael can chime in.
+>
+> | I then simply downloaded the Debian wheezy .deb for R 3.1.0 instead and
+> | installed that, which worked just fine.  Just wondering if anyone else has
+>
+> That is potentially not the right thing as Debian can have different library
+> versions...
+>
+> | encountered this problem on the Ubuntu version and/or if I should report
+> | this as a bug, and to whom.  (My apologies, the Debian package information
+> | for the ubuntu .deb file isn't particularly clear on to whom I should
+> | report bugs).
+>
+> Here is good. I read it, Michael reads it, ...
+>
+> Dirk
+>
+
+-- 
+Dr. Michael A. Rutter
+Associate Professor of Statistics
+Program Coordinator, Mathematics
+Penn State Erie, The Behrend College
+4205 College Drive
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+mar36 at psu.edu
+
+
+From edd at debian.org  Wed Apr 23 04:17:09 2014
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 22 Apr 2014 21:17:09 -0500
+Subject: [R-sig-Debian] Segfaults on Ubuntu 14.04
+In-Reply-To: <53572013.4050502@psu.edu>
+References: <CAN_1p9x5hwM5tF-sjUmECK-i9n3vskt6aJ6D7_ySDe=sQV8TFw@mail.gmail.com>
+	<21334.56647.14969.268970@max.nulle.part>
+	<53572013.4050502@psu.edu>
+Message-ID: <21335.8869.594654.840351@max.nulle.part>
+
+
+On 22 April 2014 at 22:06, Michael Rutter wrote:
+| I updated a laptop to trusty and added the RRutter Launchpad PPA. 
+| Downloaded R and it ran fine.  So, I would try that repository to see if 
+| it fixes the issue (https://launchpad.net/~marutter/+archive/rrutter). 
+| Since the PPA feeds CRAN, there should be no difference but you never know.
+| 
+| A couple of questions.
+| 
+| 1. Did you do a fresh install or an upgrade of Ubuntu?
+| 2. Are you using any of the non-standard libraries like OpenBLAS?
+| 3. 32 or 64 bit Ubuntu?
+| 
+| This is the first I have heard of the issue for Trusty.  Not sure shy 
+| the Debian package works and not the I built.  Another suggestion would 
+| be use the version of R from the Ubuntu repository (remove any new 
+| sources) and see if that works.
+
+Same here. Home now, and fired up the (older) laptop I converted. R runs
+fine, both the pre-trusty version I had and the trusty version once I updated
+the sources.list entry. That was with 32bit.
+
+I stronly suspect a local issue. 
+
+We would have heard from more than one user methinks.  We will try to help
+but it does not look systemic to me or Michael.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From skostysh at princeton.edu  Wed Apr 23 11:12:57 2014
+From: skostysh at princeton.edu (Scott Kostyshak)
+Date: Wed, 23 Apr 2014 05:12:57 -0400
+Subject: [R-sig-Debian] Segfaults on Ubuntu 14.04
+In-Reply-To: <21335.8869.594654.840351@max.nulle.part>
+References: <CAN_1p9x5hwM5tF-sjUmECK-i9n3vskt6aJ6D7_ySDe=sQV8TFw@mail.gmail.com>
+	<21334.56647.14969.268970@max.nulle.part>
+	<53572013.4050502@psu.edu>
+	<21335.8869.594654.840351@max.nulle.part>
+Message-ID: <CAE3=dmcMmZnos+GMQf5y5t9WJ7PjPfEVPLhLQjru7no2b04ZGg@mail.gmail.com>
+
+On Tue, Apr 22, 2014 at 10:17 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> On 22 April 2014 at 22:06, Michael Rutter wrote:
+> | I updated a laptop to trusty and added the RRutter Launchpad PPA.
+> | Downloaded R and it ran fine.  So, I would try that repository to see if
+> | it fixes the issue (https://launchpad.net/~marutter/+archive/rrutter).
+> | Since the PPA feeds CRAN, there should be no difference but you never know.
+> |
+> | A couple of questions.
+> |
+> | 1. Did you do a fresh install or an upgrade of Ubuntu?
+> | 2. Are you using any of the non-standard libraries like OpenBLAS?
+> | 3. 32 or 64 bit Ubuntu?
+> |
+> | This is the first I have heard of the issue for Trusty.  Not sure shy
+> | the Debian package works and not the I built.  Another suggestion would
+> | be use the version of R from the Ubuntu repository (remove any new
+> | sources) and see if that works.
+>
+> Same here. Home now, and fired up the (older) laptop I converted. R runs
+> fine, both the pre-trusty version I had and the trusty version once I updated
+> the sources.list entry. That was with 32bit.
+>
+> I stronly suspect a local issue.
+>
+> We would have heard from more than one user methinks.  We will try to help
+> but it does not look systemic to me or Michael.
+
+R from the PPA on Trusty with 64-bit is running fine here.
+
+Scott
+
+
+--
+Scott Kostyshak
+Economics PhD Candidate
+Princeton University
+
+
+From lbraglia at gmail.com  Thu Apr 24 01:37:00 2014
+From: lbraglia at gmail.com (Luca Braglia)
+Date: Thu, 24 Apr 2014 01:37:00 +0200
+Subject: [R-sig-Debian] debian testing CRAN repositories
+Message-ID: <CAFOm_+5sJDoYtiLdHR0FvRqWa6cHb78f6=c_z=dTnFemuVHZwA@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20140424/bad02ff2/attachment.pl>
+
+From jranke at uni-bremen.de  Thu Apr 24 02:14:33 2014
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Thu, 24 Apr 2014 02:14:33 +0200
+Subject: [R-sig-Debian] debian testing CRAN repositories
+In-Reply-To: <CAFOm_+5sJDoYtiLdHR0FvRqWa6cHb78f6=c_z=dTnFemuVHZwA@mail.gmail.com>
+References: <CAFOm_+5sJDoYtiLdHR0FvRqWa6cHb78f6=c_z=dTnFemuVHZwA@mail.gmail.com>
+Message-ID: <2214875.Mu99TcjDnY@stiller>
+
+Hi Luca,
+
+jessie is not supported by option 3). I plan to do so starting from the first 
+official R release after jessie is frozen (scheduled for November 2014). Also, 
+option 3) only contains the recommended packages plus a very few additional 
+ones (see the README).
+
+Kind regards,
+
+Johannes
+
+Am Donnerstag, 24. April 2014, 01:37:00 schrieb Luca Braglia:
+> Dear all,
+> 
+> i've a Debian jessie on my home pcs.
+> 
+> For the repositories of CRAN packages, to the best of my knowledge, there
+> are
+> 
+> 1) http://debian-r.debian.net/
+> 
+> 2) http://debian.cran.r-project.org/
+> 
+> 3) http://cran.r-project.org/bin/linux/debian/
+> 
+> I'm a bit confused and need a little advice: which better (if one is so)
+> for my setting? In order to make packages dependencies happy and
+> integration with the standard debian system "smooth", I "have" to use the
+> first, right?
+> 
+> Many thanks
+>   Luca
+> 
+> 	[[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+PD Dr. Johannes Ranke
+Kronacher Str. 8
+79639 Grenzach-Wyhlen
+
+
+From skostysh at princeton.edu  Thu Apr 24 22:10:48 2014
+From: skostysh at princeton.edu (Scott Kostyshak)
+Date: Thu, 24 Apr 2014 16:10:48 -0400
+Subject: [R-sig-Debian] 50% performance of custom R build compared to PPA R
+	for a command
+Message-ID: <CAE3=dme88RCRZpi2JaU_wFv2WMnJE18cCYHyXyEi78vfuVsFmA@mail.gmail.com>
+
+Hi,
+
+I have R installed from the Ubuntu PPA and a local build of R (more
+details below). I will refer to these as "R" and "R-devel",
+respectively. I've reproduced the following on Ubuntu 13.10 and 14.04.
+Below is an example (which requires the bootstrap package) that takes
+10 seconds for me to run with R-devel and 5 seconds with R
+
+library(bootstrap)
+str(tooth)
+theta <- function(ind) {
+    easy <- lm(strength ~ E1+E2, data=tooth, subset=ind)
+    diffi<- lm(strength ~ D1+D2, data=tooth, subset=ind)
+    (sum(resid(easy)^2) - sum(resid(diffi)^2))/13   }
+tooth.boot <- bootstrap(1:13, 2000, theta)
+
+I'm wondering if this is due to different compiler flags. For R, when
+installing the bootstrap package, I see
+gcc -std=gnu99 -shared -Wl,-Bsymbolic-functions -Wl,-z,relro -o
+bootstrap.so boott.o -lgfortran -lm -lquadmath -L/usr/lib/R/lib -lR
+
+For R-devel I see:
+ccache gcc -shared -L/usr/local/lib -o bootstrap.so boott.o -lgfortran
+-lm -lquadmath -L/usr/local/lib/R-devel/lib/R/lib -lR
+
+My install script for the local build is based on Dirk's script [1].
+In particular, my configure command is:
+
+R_PAPERSIZE=letter R_BATCHSAVE="--no-save --no-restore"
+R_BROWSER=xdg-open PAGER=/usr/bin/pager PERL=/usr/bin/perl
+R_UNZIPCMD=/usr/bin/unzip R_ZIPCMD=/usr/bin/zip
+R_PRINTCMD=/usr/bin/lpr LIBnn=lib AWK=/usr/bin/awk CC="gcc"
+CFLAGS="-ggdb -pipe -std=gnu99 -Wall -pedantic" CXX="g++"
+CXXFLAGS="-ggdb -pipe -Wall -pedantic" FC="gfortran" F77="gfortran"
+MAKE="make -j$NJOBS" "${repoDir}/configure"
+--prefix=/usr/local/lib/R-devel --enable-R-shlib --with-blas
+--with-lapack --with-readline --without-recommended-packages >
+../build-logs/configure 2>&1
+
+I'm using R-devel updated to today's revision but I compiled a version
+from a year ago and had the same performance so that is why I suspect
+my installation script accounts for the differences.
+
+Any advice would be appreciated and please let me know if any other
+information would be helpful.
+
+Best,
+
+Scott
+
+[1]
+http://www.personal.psu.edu/mar36/blogs/the_ubuntu_r_blog/2012/08/installing-the-development-version-of-r-on-ubuntu-alongside-the-current-version-of-r.html
+
+--
+Scott Kostyshak
+Economics PhD Candidate
+Princeton University
+
+
+From edd at debian.org  Thu Apr 24 22:32:55 2014
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 24 Apr 2014 15:32:55 -0500
+Subject: [R-sig-Debian] 50% performance of custom R build compared to
+	PPA R	for a command
+In-Reply-To: <CAE3=dme88RCRZpi2JaU_wFv2WMnJE18cCYHyXyEi78vfuVsFmA@mail.gmail.com>
+References: <CAE3=dme88RCRZpi2JaU_wFv2WMnJE18cCYHyXyEi78vfuVsFmA@mail.gmail.com>
+Message-ID: <21337.29943.357355.890337@max.nulle.part>
+
+
+Scott,
+
+My first quick hunches are a) 50% is too much for compiler switches, b) your
+examples shows R code, and c) are you sure you are using the same BLAS?
+
+What happens when you profile?
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From skostysh at princeton.edu  Fri Apr 25 17:38:40 2014
+From: skostysh at princeton.edu (Scott Kostyshak)
+Date: Fri, 25 Apr 2014 11:38:40 -0400
+Subject: [R-sig-Debian] 50% performance of custom R build compared to
+ PPA R for a command
+In-Reply-To: <21337.29943.357355.890337@max.nulle.part>
+References: <CAE3=dme88RCRZpi2JaU_wFv2WMnJE18cCYHyXyEi78vfuVsFmA@mail.gmail.com>
+	<21337.29943.357355.890337@max.nulle.part>
+Message-ID: <CAE3=dmdzv+0kfqJHMDX95hUd0ZLwPsjqwRS+qupC3fZDN9j47A@mail.gmail.com>
+
+On Thu, Apr 24, 2014 at 4:32 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> Scott,
+>
+> My first quick hunches are a) 50% is too much for compiler switches, b) your
+> examples shows R code, and c) are you sure you are using the same BLAS?
+
+Thanks for the quick reply Dirk and for the suggestions.
+
+As for BLAS, yes I believe I'm using the same BLAS. The output of the
+following two commands is the same (except for the memory addresses of
+course):
+$ ldd /usr/local/lib/R-devel/lib/R/bin/exec/R
+$ ldd /usr/lib/R/bin/exec/R
+
+And executing
+$ lsof -p <PID> | grep 'blas\|lapack'
+also returns the same output for both Rs:
+R       13017 scott  mem    REG    8,1  9142768 2097161
+/usr/lib/atlas-base/atlas/liblapack.so.3.0
+R       13017 scott  mem    REG    8,1  3776592 2097162
+/usr/lib/atlas-base/atlas/libblas.so.3.0
+
+I profiled and it seems that all of the R functions are slow (I can
+post the output if anyone is interested). I rebuilt with -O3 in CFLAGS
+and this improved things a lot. Time went down from 10 seconds to 5.7
+or so. I reprofiled and again the R functions of R-devel seem just a
+tad slower across the board (I can send output if interested).
+
+Below are some timings comparing the optimized R-devel to R.
+
+$ time R-devel CMD BATCH mwe.R
+
+real 0m5.755s
+user 0m5.678s
+sys 0m0.079s
+
+$ time R CMD BATCH mwe.R
+
+real 0m5.453s
+user 0m5.371s
+sys 0m0.054s
+
+Rerunning the above commands multiple times gives about the same output.
+
+There's still a .3 second difference and I'm curious to know why. Any ideas?
+
+Scott
+
+
+--
+Scott Kostyshak
+Economics PhD Candidate
+Princeton University
+
+
+From edd at debian.org  Fri Apr 25 17:59:06 2014
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 25 Apr 2014 10:59:06 -0500
+Subject: [R-sig-Debian] 50% performance of custom R build compared to
+ PPA R for a command
+In-Reply-To: <CAE3=dmdzv+0kfqJHMDX95hUd0ZLwPsjqwRS+qupC3fZDN9j47A@mail.gmail.com>
+References: <CAE3=dme88RCRZpi2JaU_wFv2WMnJE18cCYHyXyEi78vfuVsFmA@mail.gmail.com>
+	<21337.29943.357355.890337@max.nulle.part>
+	<CAE3=dmdzv+0kfqJHMDX95hUd0ZLwPsjqwRS+qupC3fZDN9j47A@mail.gmail.com>
+Message-ID: <21338.34378.502334.706866@max.nulle.part>
+
+
+On 25 April 2014 at 11:38, Scott Kostyshak wrote:
+| On Thu, Apr 24, 2014 at 4:32 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+| >
+| > Scott,
+| >
+| > My first quick hunches are a) 50% is too much for compiler switches, b) your
+| > examples shows R code, and c) are you sure you are using the same BLAS?
+| 
+| Thanks for the quick reply Dirk and for the suggestions.
+| 
+| As for BLAS, yes I believe I'm using the same BLAS. The output of the
+| following two commands is the same (except for the memory addresses of
+| course):
+| $ ldd /usr/local/lib/R-devel/lib/R/bin/exec/R
+| $ ldd /usr/lib/R/bin/exec/R
+| 
+| And executing
+| $ lsof -p <PID> | grep 'blas\|lapack'
+| also returns the same output for both Rs:
+| R       13017 scott  mem    REG    8,1  9142768 2097161
+| /usr/lib/atlas-base/atlas/liblapack.so.3.0
+| R       13017 scott  mem    REG    8,1  3776592 2097162
+| /usr/lib/atlas-base/atlas/libblas.so.3.0
+| 
+| I profiled and it seems that all of the R functions are slow (I can
+| post the output if anyone is interested). I rebuilt with -O3 in CFLAGS
+| and this improved things a lot. Time went down from 10 seconds to 5.7
+
+That is surprisingly large. In my mail yesterday I basically bet against it.
+
+| or so. I reprofiled and again the R functions of R-devel seem just a
+| tad slower across the board (I can send output if interested).
+| 
+| Below are some timings comparing the optimized R-devel to R.
+| 
+| $ time R-devel CMD BATCH mwe.R
+| 
+| real 0m5.755s
+| user 0m5.678s
+| sys 0m0.079s
+| 
+| $ time R CMD BATCH mwe.R
+| 
+| real 0m5.453s
+| user 0m5.371s
+| sys 0m0.054s
+| 
+| Rerunning the above commands multiple times gives about the same output.
+| 
+| There's still a .3 second difference and I'm curious to know why. Any ideas?
+
+Different code base?
+
+If you want _identical_ outcomes you need identical _input_: code, compiler,
+settings, hardware, ...
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From skostysh at princeton.edu  Fri Apr 25 18:30:37 2014
+From: skostysh at princeton.edu (Scott Kostyshak)
+Date: Fri, 25 Apr 2014 12:30:37 -0400
+Subject: [R-sig-Debian] 50% performance of custom R build compared to
+ PPA R for a command
+In-Reply-To: <21338.34378.502334.706866@max.nulle.part>
+References: <CAE3=dme88RCRZpi2JaU_wFv2WMnJE18cCYHyXyEi78vfuVsFmA@mail.gmail.com>
+	<21337.29943.357355.890337@max.nulle.part>
+	<CAE3=dmdzv+0kfqJHMDX95hUd0ZLwPsjqwRS+qupC3fZDN9j47A@mail.gmail.com>
+	<21338.34378.502334.706866@max.nulle.part>
+Message-ID: <CAE3=dmeiF94ixxReS3u9bCPOTYG6zxXOOvO_0q_Ca5+EcSeg_A@mail.gmail.com>
+
+On Fri, Apr 25, 2014 at 11:59 AM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> On 25 April 2014 at 11:38, Scott Kostyshak wrote:
+> | On Thu, Apr 24, 2014 at 4:32 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+> | >
+> | > Scott,
+> | >
+> | > My first quick hunches are a) 50% is too much for compiler switches, b) your
+> | > examples shows R code, and c) are you sure you are using the same BLAS?
+> |
+> | Thanks for the quick reply Dirk and for the suggestions.
+> |
+> | As for BLAS, yes I believe I'm using the same BLAS. The output of the
+> | following two commands is the same (except for the memory addresses of
+> | course):
+> | $ ldd /usr/local/lib/R-devel/lib/R/bin/exec/R
+> | $ ldd /usr/lib/R/bin/exec/R
+> |
+> | And executing
+> | $ lsof -p <PID> | grep 'blas\|lapack'
+> | also returns the same output for both Rs:
+> | R       13017 scott  mem    REG    8,1  9142768 2097161
+> | /usr/lib/atlas-base/atlas/liblapack.so.3.0
+> | R       13017 scott  mem    REG    8,1  3776592 2097162
+> | /usr/lib/atlas-base/atlas/libblas.so.3.0
+> |
+> | I profiled and it seems that all of the R functions are slow (I can
+> | post the output if anyone is interested). I rebuilt with -O3 in CFLAGS
+> | and this improved things a lot. Time went down from 10 seconds to 5.7
+>
+> That is surprisingly large. In my mail yesterday I basically bet against it.
+>
+> | or so. I reprofiled and again the R functions of R-devel seem just a
+> | tad slower across the board (I can send output if interested).
+> |
+> | Below are some timings comparing the optimized R-devel to R.
+> |
+> | $ time R-devel CMD BATCH mwe.R
+> |
+> | real 0m5.755s
+> | user 0m5.678s
+> | sys 0m0.079s
+> |
+> | $ time R CMD BATCH mwe.R
+> |
+> | real 0m5.453s
+> | user 0m5.371s
+> | sys 0m0.054s
+> |
+> | Rerunning the above commands multiple times gives about the same output.
+> |
+> | There's still a .3 second difference and I'm curious to know why. Any ideas?
+>
+> Different code base?
+>
+> If you want _identical_ outcomes you need identical _input_: code, compiler,
+> settings, hardware, ...
+
+Not looking for identical, just looking to squeeze out something to
+learn from about other possibilities for differences, e.g. libraries
+that I'm not linking against at compile time, or differences with byte
+compiling R. But it doesn't seem like there's any obvious candidates
+so I'll stop here for now.
+
+Thanks for the help, Dirk.
+
+Scott
+
+
+--
+Scott Kostyshak
+Economics PhD Candidate
+Princeton University
+
+

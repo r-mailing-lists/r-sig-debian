@@ -1,0 +1,1101 @@
+From friendly at yorku.ca  Wed Apr  9 21:57:51 2008
+From: friendly at yorku.ca (Michael Friendly)
+Date: Wed, 09 Apr 2008 15:57:51 -0400
+Subject: [R-sig-Debian] Updating packages after install of r-base 2.6.2:
+	cant update rgl
+Message-ID: <47FD1FBF.4060306@yorku.ca>
+
+Hi
+
+I just upgraded my R from stabel/etch from 2.4.x to 2.6.2 via
+
+sudo apt-get install r-base
+which worked fine, installing all dependencies
+
+ From R, as root, I did
+
+update.packages()
+
+but a number of packages packages failed to install, either for missing 
+gfortran
+or missing dependencies.
+
+Warning messages:
+1: In install.packages(update[instlib == l, "Package"], l, contriburl = 
+contriburl,  :
+  installation of package 'maptools' had non-zero exit status
+2: In install.packages(update[instlib == l, "Package"], l, contriburl = 
+contriburl,  :
+  installation of package 'mvtnorm' had non-zero exit status
+3: In install.packages(update[instlib == l, "Package"], l, contriburl = 
+contriburl,  :
+  installation of package 'lmtest' had non-zero exit status
+4: In install.packages(update[instlib == l, "Package"], l, contriburl = 
+contriburl,  :
+  installation of package 'multcomp' had non-zero exit status
+5: In install.packages(update[instlib == l, "Package"], l, contriburl = 
+contriburl,  :
+  installation of package 'cluster' had non-zero exit status
+6: In install.packages(update[instlib == l, "Package"], l, contriburl = 
+contriburl,  :
+  installation of package 'KernSmooth' had non-zero exit status
+7: In install.packages(update[instlib == l, "Package"], l, contriburl = 
+contriburl,  :
+  installation of package 'mgcv' had non-zero exit status
+ ...
+
+OK, I installed r-base-dev to get gfortran and other dependencies, then 
+tried
+update.packages() again.  This time only rgl failed, complaining about 
+missing X11:
+
+trying URL 'http://probability.ca/cran/src/contrib/rgl_0.77.tar.gz'
+Content type 'application/x-tar' length 803692 bytes (784 Kb)
+opened URL
+==================================================
+downloaded 784 Kb
+
+* Installing *source* package 'rgl' ...
+checking for gcc... gcc -std=gnu99
+checking for C compiler default output file name... a.out
+checking whether the C compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables...
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc -std=gnu99 accepts -g... yes
+checking for gcc -std=gnu99 option to accept ANSI C... none needed
+checking how to run the C preprocessor... gcc -std=gnu99 -E
+checking for gcc... (cached) gcc -std=gnu99
+checking whether we are using the GNU C compiler... (cached) yes
+checking whether gcc -std=gnu99 accepts -g... (cached) yes
+checking for gcc -std=gnu99 option to accept ANSI C... (cached) none needed
+checking for libpng-config... yes
+configure: using libpng-config
+configure: using libpng dynamic linkage
+checking for X... no
+configure: error: X11 not found but required, configure aborted.
+ERROR: configuration failed for package 'rgl'
+** Removing '/usr/lib/R/site-library/rgl'
+** Restoring previous '/usr/lib/R/site-library/rgl'
+
+The downloaded packages are in
+        /tmp/RtmpSFCuUT/downloaded_packages
+Warning message:
+In install.packages(update[instlib == l, "Package"], l, contriburl = 
+contriburl,  :
+  installation of package 'rgl' had non-zero exit status
+
+Finally, I tried to install r-cran-rgl, but with no joy:
+
+euclid:~# apt-get install r-cran-rgl
+Reading package lists... Done
+Building dependency tree... Done
+r-cran-rgl is already the newest version.
+0 upgraded, 0 newly installed, 0 to remove and 267 not upgraded.
+
+Can anyone suggest what is wrong and how to fix it?
+
+thanks,
+-Michael
+
+-- 
+Michael Friendly     Email: friendly at yorku.ca 
+Professor, Psychology Dept.
+York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+4700 Keele Street    http://www.math.yorku.ca/SCS/friendly.html
+Toronto, ONT  M3J 1P3 CANADA
+
+
+From jranke at uni-bremen.de  Thu Apr 10 08:43:23 2008
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Thu, 10 Apr 2008 08:43:23 +0200
+Subject: [R-sig-Debian] Updating packages after install of r-base 2.6.2:
+	cant update rgl
+In-Reply-To: <47FD1FBF.4060306@yorku.ca>
+References: <47FD1FBF.4060306@yorku.ca>
+Message-ID: <20080410064323.GA31409@mail.uni-bremen.de>
+
+Hi Michael,
+
+* Michael Friendly <friendly at yorku.ca> [080409 22:00]:
+> Hi
+> 
+> I just upgraded my R from stabel/etch from 2.4.x to 2.6.2 via
+> 
+> sudo apt-get install r-base
+> which worked fine, installing all dependencies
+
+I suppose you put some CRAN mirror into your /etc/apt/sources.list?
+ 
+>  From R, as root, I did
+> 
+> update.packages()
+> 
+> but a number of packages packages failed to install, either for missing 
+> gfortran
+> or missing dependencies.
+
+Yes, you need to explicitly upgrade r-base-dev, too, if you want to
+install packages from CRAN.
+ 
+...
+>  ...
+> 
+> OK, I installed r-base-dev to get gfortran and other dependencies, then 
+> tried
+> update.packages() again.  This time only rgl failed, complaining about 
+> missing X11:
+> 
+> trying URL 'http://probability.ca/cran/src/contrib/rgl_0.77.tar.gz'
+> Content type 'application/x-tar' length 803692 bytes (784 Kb)
+> opened URL
+> ==================================================
+> downloaded 784 Kb
+> 
+> * Installing *source* package 'rgl' ...
+> checking for gcc... gcc -std=gnu99
+> checking for C compiler default output file name... a.out
+> checking whether the C compiler works... yes
+> checking whether we are cross compiling... no
+> checking for suffix of executables...
+> checking for suffix of object files... o
+> checking whether we are using the GNU C compiler... yes
+> checking whether gcc -std=gnu99 accepts -g... yes
+> checking for gcc -std=gnu99 option to accept ANSI C... none needed
+> checking how to run the C preprocessor... gcc -std=gnu99 -E
+> checking for gcc... (cached) gcc -std=gnu99
+> checking whether we are using the GNU C compiler... (cached) yes
+> checking whether gcc -std=gnu99 accepts -g... (cached) yes
+> checking for gcc -std=gnu99 option to accept ANSI C... (cached) none needed
+> checking for libpng-config... yes
+> configure: using libpng-config
+> configure: using libpng dynamic linkage
+> checking for X... no
+> configure: error: X11 not found but required, configure aborted.
+> ERROR: configuration failed for package 'rgl'
+> ** Removing '/usr/lib/R/site-library/rgl'
+> ** Restoring previous '/usr/lib/R/site-library/rgl'
+
+Ok, I just did this on one of my etch boxes with CRAN R (and X
+installed):
+
+  cecking for X... libraries , headers
+  checking GL/gl.h usability... yes
+  checking GL/gl.h presence... yes
+  checking for GL/gl.h... yes
+  checking GL/glu.h usability... yes
+  checking GL/glu.h presence... yes
+  checking for GL/glu.h... yes
+  checking for glEnd in -lGL... yes
+  checking for gluProject in -lGLU... yes
+  configure: creating ./config.status
+  config.status: creating src/Makevars
+
+So it works over here... On another box, without OpenGL, it fails, as
+one would expect. On a third box, where I have no X installed, it fails, 
+too, with exactly the error message you quoted above.
+
+Could you give us the output of
+
+    apt-cache policy xserver-xorg-core
+
+or just tell us if you have Xorg installed?
+
+Best regards,
+
+Johannes
+
+> Finally, I tried to install r-cran-rgl, but with no joy:
+> 
+> euclid:~# apt-get install r-cran-rgl
+> Reading package lists... Done
+> Building dependency tree... Done
+> r-cran-rgl is already the newest version.
+> 0 upgraded, 0 newly installed, 0 to remove and 267 not upgraded.
+> 
+> Can anyone suggest what is wrong and how to fix it?
+> 
+> thanks,
+> -Michael
+> 
+> -- 
+> Michael Friendly     Email: friendly at yorku.ca 
+> Professor, Psychology Dept.
+> York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+> 4700 Keele Street    http://www.math.yorku.ca/SCS/friendly.html
+> Toronto, ONT  M3J 1P3 CANADA
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de     Key ID: F649AF90
+UFT Bremen, Leobenerstr. 1         +49 421 218 63373
+D-28359 Bremen                     http://www.uft.uni-bremen.de/chemie/ranke
+
+
+From friendly at yorku.ca  Thu Apr 10 14:27:54 2008
+From: friendly at yorku.ca (Michael Friendly)
+Date: Thu, 10 Apr 2008 08:27:54 -0400
+Subject: [R-sig-Debian] Updating packages after install of r-base 2.6.2:
+ cant update rgl
+In-Reply-To: <20080410064323.GA31409@mail.uni-bremen.de>
+References: <47FD1FBF.4060306@yorku.ca>
+	<20080410064323.GA31409@mail.uni-bremen.de>
+Message-ID: <47FE07CA.2080400@yorku.ca>
+
+Thanks Johannes
+
+See the tests below.
+
+Johannes Ranke wrote:
+> Hi Michael,
+>
+> * Michael Friendly <friendly at yorku.ca> [080409 22:00]:
+>   
+>> Hi
+>>
+>> I just upgraded my R from stabel/etch from 2.4.x to 2.6.2 via
+>>
+>> sudo apt-get install r-base
+>> which worked fine, installing all dependencies
+>>     
+>
+> I suppose you put some CRAN mirror into your /etc/apt/sources.list?
+>   
+ cat /etc/apt/sources.list
+#deb file:///cdrom/ sarge main
+
+deb http://debian.yorku.ca/debian/ stable main
+deb-src http://debian.yorku.ca/debian/ stable main
+deb http://debian.yorku.ca/debian-security stable/updates main
+deb http://security.debian.org/ stable/updates main
+# testing
+deb http://debian.yorku.ca/debian/ testing main
+# CRAN has newer stable than debian.yorku.ca
+deb http://cran.R-project.org/bin/linux/debian stable/
+
+>  
+>   
+>>  From R, as root, I did
+>>
+>> update.packages()
+>>
+>> but a number of packages packages failed to install, either for missing 
+>> gfortran
+>> or missing dependencies.
+>>     
+>
+> Yes, you need to explicitly upgrade r-base-dev, too, if you want to
+> install packages from CRAN.
+>  
+> ...
+>   
+>>  ...
+>>
+>> OK, I installed r-base-dev to get gfortran and other dependencies, then 
+>> tried
+>> update.packages() again.  This time only rgl failed, complaining about 
+>> missing X11:
+>>
+>> trying URL 'http://probability.ca/cran/src/contrib/rgl_0.77.tar.gz'
+>> Content type 'application/x-tar' length 803692 bytes (784 Kb)
+>> opened URL
+>> ==================================================
+>> downloaded 784 Kb
+>>
+>> * Installing *source* package 'rgl' ...
+>> checking for gcc... gcc -std=gnu99
+>> checking for C compiler default output file name... a.out
+>> checking whether the C compiler works... yes
+>> checking whether we are cross compiling... no
+>> checking for suffix of executables...
+>> checking for suffix of object files... o
+>> checking whether we are using the GNU C compiler... yes
+>> checking whether gcc -std=gnu99 accepts -g... yes
+>> checking for gcc -std=gnu99 option to accept ANSI C... none needed
+>> checking how to run the C preprocessor... gcc -std=gnu99 -E
+>> checking for gcc... (cached) gcc -std=gnu99
+>> checking whether we are using the GNU C compiler... (cached) yes
+>> checking whether gcc -std=gnu99 accepts -g... (cached) yes
+>> checking for gcc -std=gnu99 option to accept ANSI C... (cached) none needed
+>> checking for libpng-config... yes
+>> configure: using libpng-config
+>> configure: using libpng dynamic linkage
+>> checking for X... no
+>> configure: error: X11 not found but required, configure aborted.
+>> ERROR: configuration failed for package 'rgl'
+>> ** Removing '/usr/lib/R/site-library/rgl'
+>> ** Restoring previous '/usr/lib/R/site-library/rgl'
+>>     
+>
+>   
+
+> Could you give us the output of
+>
+>     apt-cache policy xserver-xorg-core
+>
+> or just tell us if you have Xorg installed?
+>
+>   
+Yes, I do:
+ apt-cache policy xserver-xorg-core
+xserver-xorg-core:
+  Installed: 2:1.1.1-21
+  Candidate: 2:1.1.1-21etch4
+  Version table:
+     2:1.3.0.0.dfsg-12 0
+        200 http://debian.yorku.ca testing/main Packages
+     2:1.1.1-21etch4 0
+        900 http://debian.yorku.ca stable/main Packages
+     2:1.1.1-21etch3 0
+        900 http://debian.yorku.ca stable/updates/main Packages
+        900 http://security.debian.org stable/updates/main Packages
+ *** 2:1.1.1-21 0
+        100 /var/lib/dpkg/status
+
+>> Finally, I tried to install r-cran-rgl, but with no joy:
+>>
+>> euclid:~# apt-get install r-cran-rgl
+>> Reading package lists... Done
+>> Building dependency tree... Done
+>> r-cran-rgl is already the newest version.
+>> 0 upgraded, 0 newly installed, 0 to remove and 267 not upgraded.
+>>
+>> Can anyone suggest what is wrong and how to fix it?
+>>
+>>     
+>
+>   
+
+
+-- 
+Michael Friendly     Email: friendly at yorku.ca 
+Professor, Psychology Dept.
+York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+4700 Keele Street    http://www.math.yorku.ca/SCS/friendly.html
+Toronto, ONT  M3J 1P3 CANADA
+
+
+From edd at debian.org  Thu Apr 10 15:37:02 2008
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 10 Apr 2008 08:37:02 -0500
+Subject: [R-sig-Debian] Updating packages after install of r-base 2.6.2:
+ cant update rgl
+In-Reply-To: <47FE07CA.2080400@yorku.ca>
+References: <47FD1FBF.4060306@yorku.ca>
+	<20080410064323.GA31409@mail.uni-bremen.de>
+	<47FE07CA.2080400@yorku.ca>
+Message-ID: <18430.6142.247240.600269@ron.nulle.part>
+
+
+Michael,
+
+I haven't had time to follow this closely but it seems that you that 
+reckon that because
+	a) you have (or had) r-cran-rgl installed
+you should be able to 
+        b) build either r-cran-rgl, or rgl
+which is not true. We differentiate between Depends (to run) and
+Build-Depends (to compile and link).
+
+What you may need is a simple 
+        sudo apt-get build-dep r-cran-rgl
+which should give you everything needed to build rgl (even if you do not turn
+it into a local .deb)
+
+I may have misunderstood, in which case I apologize for adding further
+confusion. 
+
+Hth. Dirk
+
+--
+Three out of two people have difficulties with fractions.
+
+
+From jranke at uni-bremen.de  Thu Apr 10 16:07:35 2008
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Thu, 10 Apr 2008 16:07:35 +0200
+Subject: [R-sig-Debian] Updating packages after install of r-base 2.6.2:
+	cant update rgl
+In-Reply-To: <18430.6142.247240.600269@ron.nulle.part>
+References: <47FD1FBF.4060306@yorku.ca>
+	<20080410064323.GA31409@mail.uni-bremen.de>
+	<47FE07CA.2080400@yorku.ca>
+	<18430.6142.247240.600269@ron.nulle.part>
+Message-ID: <20080410140735.GA32330@mail.uni-bremen.de>
+
+Hi Dirk and Michael,
+
+> ... We differentiate between Depends (to run) and
+> Build-Depends (to compile and link).
+
+yes, probably just xserver-xorg-dev is missing, but your suggestion is
+much better: 
+
+> What you may need is a simple 
+>         sudo apt-get build-dep r-cran-rgl
+> which should give you everything needed to build rgl (even if you do not turn
+> it into a local .deb)
+
+Right, if newer rgl versions have not added dependencies not present in
+r-cran-rgl from etch.
+ 
+> I may have misunderstood, in which case I apologize for adding further
+> confusion. 
+
+On the contrary, I think you are right on!
+
+Johannes
+
+
+From friendly at yorku.ca  Fri Apr 11 14:06:59 2008
+From: friendly at yorku.ca (Michael Friendly)
+Date: Fri, 11 Apr 2008 08:06:59 -0400
+Subject: [R-sig-Debian] Updating packages after install of r-base 2.6.2:
+ cant update rgl
+In-Reply-To: <18430.6142.247240.600269@ron.nulle.part>
+References: <47FD1FBF.4060306@yorku.ca>	<20080410064323.GA31409@mail.uni-bremen.de>	<47FE07CA.2080400@yorku.ca>
+	<18430.6142.247240.600269@ron.nulle.part>
+Message-ID: <47FF5463.4070609@yorku.ca>
+
+Dirk Eddelbuettel wrote:
+> What you may need is a simple 
+>         sudo apt-get build-dep r-cran-rgl
+> which should give you everything needed to build rgl (even if you do not turn
+> it into a local .deb)
+>   
+
+Worked like a charm.  Thanks for your help.
+-Michael
+
+-- 
+Michael Friendly     Email: friendly at yorku.ca 
+Professor, Psychology Dept.
+York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+4700 Keele Street    http://www.math.yorku.ca/SCS/friendly.html
+Toronto, ONT  M3J 1P3 CANADA
+
+
+From nvillori at purdue.edu  Sun Apr 13 02:58:05 2008
+From: nvillori at purdue.edu (Villoria, Nelson B)
+Date: Sat, 12 Apr 2008 20:58:05 -0400
+Subject: [R-sig-Debian] Installing R in Ubuntu
+Message-ID: <1E3DC2D62305E542B4F9CA6487E8730D94FF82@EXCH04.purdue.lcl>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+Url: https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20080412/6383621c/attachment.pl 
+
+From vincent.goulet at act.ulaval.ca  Sun Apr 13 16:29:22 2008
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Sun, 13 Apr 2008 10:29:22 -0400
+Subject: [R-sig-Debian] Installing R in Ubuntu
+In-Reply-To: <1E3DC2D62305E542B4F9CA6487E8730D94FF82@EXCH04.purdue.lcl>
+References: <1E3DC2D62305E542B4F9CA6487E8730D94FF82@EXCH04.purdue.lcl>
+Message-ID: <A1D9840E-296A-4FA9-868C-C151B97549FC@act.ulaval.ca>
+
+Le sam. 12 avr. ? 20:58, Villoria, Nelson B a ?crit :
+> Hello, I am new to Ubuntu (Linux in general) and I am trying to  
+> install R: so far, I am stuck. I have followed the instructions at  
+> the CRAN website with little luck. I read an exchange about the same  
+> issue posted before, but did not give me enough information to solve  
+> things by myself, hence, this email. Based on the former exchange I  
+> read, I am trying to include enough information to see if somebody  
+> can help me. In advance, many thanks!
+> ******************************************************************
+> This what I added to my list:
+>
+> deb http://rh-mirror.linux.iastate.edu/CRAN/bin/linux/ubuntu dapper/
+>
+> ******************************************************************
+> nvilloria at nvilloria-desktop:~$ sudo apt-get update
+> Get:1 http://rh-mirror.linux.iastate.edu dapper/ Release.gpg [189B]
+> Hit http://rh-mirror.linux.iastate.edu dapper/ Release
+> Ign http://rh-mirror.linux.iastate.edu dapper/ Packages
+> Get:2 http://us.archive.ubuntu.com dapper Release.gpg [189B]
+> Get:3 http://us.archive.ubuntu.com dapper-updates Release.gpg [191B]
+> Get:4 http://security.ubuntu.com dapper-security Release.gpg [191B]
+> Hit http://rh-mirror.linux.iastate.edu dapper/ Packages
+> Hit http://us.archive.ubuntu.com dapper Release
+> Hit http://security.ubuntu.com dapper-security Release
+> Hit http://us.archive.ubuntu.com dapper-updates Release
+> Hit http://security.ubuntu.com dapper-security/main Packages
+> Hit http://us.archive.ubuntu.com dapper/main Packages
+> Hit http://us.archive.ubuntu.com dapper/restricted Packages
+> Hit http://security.ubuntu.com dapper-security/restricted Packages
+> Hit http://security.ubuntu.com dapper-security/main Sources
+> Hit http://us.archive.ubuntu.com dapper/main Sources
+> Hit http://us.archive.ubuntu.com dapper/restricted Sources
+> Hit http://us.archive.ubuntu.com dapper-updates/main Packages
+> Hit http://us.archive.ubuntu.com dapper-updates/restricted Packages
+> Hit http://us.archive.ubuntu.com dapper-updates/main Sources
+> Hit http://us.archive.ubuntu.com dapper-updates/restricted Sources
+> Hit http://security.ubuntu.com dapper-security/restricted Sources
+> Fetched 4B in 1s (2B/s)
+> Reading package lists... Done
+> *********************************************************************
+> nvilloria at nvilloria-desktop:~$ sudo apt-get dist-upgrade
+> Reading package lists... Done
+> Building dependency tree... Done
+> Calculating upgrade... Done
+> 0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+> *********************************************************************
+> nvilloria at nvilloria-desktop:~$ sudo apt-get install r-base-core
+> Reading package lists... Done
+> Building dependency tree... Done
+> Some packages could not be installed. This may mean that you have
+> requested an impossible situation or if you are using the unstable
+> distribution that some required packages have not yet been created
+> or been moved out of Incoming.
+>
+> Since you only requested a single operation it is extremely likely  
+> that
+> the package is simply not installable and a bug report against
+> that package should be filed.
+> The following information may help to resolve the situation:
+>
+> The following packages have unmet dependencies:
+>  r-base-core: Depends: libgfortran0 (>= 4.0.2) but it is not  
+> installable
+> E: Broken packages
+> ***************************************************************************
+> nvilloria at nvilloria-desktop:~$ apt-cache policy r-base
+> r-base:
+>  Installed: (none)
+>  Candidate: 2.6.2-1dapper0
+>  Version table:
+>     2.6.2-1dapper0 0
+>        500 http://rh-mirror.linux.iastate.edu dapper/ Packages
+>
+> nvilloria at nvilloria-desktop:~$ apt-get install r-base
+> E: Could not open lock file /var/lib/dpkg/lock - open (13 Permission  
+> denied)
+> E: Unable to lock the administration directory (/var/lib/dpkg/), are  
+> you root?
+> nvilloria at nvilloria-desktop:~$
+
+This last error message is easy: you forgot to sudo.
+
+As 'apt-cache show libgfortran0' will tell you, the version of  
+libgfortran0 in Dapper is 4.0.3-1unbuntu5, so the dependency is  
+satisfied.
+
+You claim to have followed the instructions, but didn't completely.  
+Could you do like the Ubuntu README file says and try instead
+
+sudo apt-get install r-base
+
+(Instead of r-base-core). This works flawlessly here.
+
+Hope this helps
+
+---
+   Vincent Goulet, Associate Professor
+   ?cole d'actuariat
+   Universit? Laval, Qu?bec
+   Vincent.Goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+
+
+From edd at debian.org  Tue Apr 22 16:48:18 2008
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 22 Apr 2008 09:48:18 -0500
+Subject: [R-sig-Debian] R 2.7.0 in Debian unstable
+Message-ID: <18445.64178.717751.18967@ron.nulle.part>
+
+
+New R 2.7.0 packages are now in Debian unstable, following a few uploads of
+alpha / beta / rc versions.  
+
+'Backports' to Debian and Ubuntu will probably appear in due course thanks to
+Vincent, Johannes, and Michael.
+
+Happy R'ing, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From vincent.goulet at act.ulaval.ca  Wed Apr 23 06:40:13 2008
+From: vincent.goulet at act.ulaval.ca (Vincent Goulet)
+Date: Wed, 23 Apr 2008 00:40:13 -0400
+Subject: [R-sig-Debian] R 2.7.0 in Ubuntu
+Message-ID: <93D3D637-8A31-4490-AB17-BDA5C997A2DA@act.ulaval.ca>
+
+The R 2.7.0 packages for Ubuntu on i386 and amd64 are on their way to  
+CRAN.
+
+Please note the new release support policy: we now support all stable  
+Desktop releases of Ubuntu until their official end of life date. As  
+of Thursday (we're a day or two ahead, here), these are Hardy Heron  
+(8.04), Gutsy Gibbon (7.10), Feisty Fawn (7.04) and Dapper Drake  
+(6.06). This means that CRAN will have more recent R packages for  
+Hardy when it is released Thursday.
+
+For more information, see the Ubuntu README in
+
+	http://cran.r-project.org/bin/linux/ubuntu/
+
+Please report problems to the R-SIG-Debian forum, where messages have  
+the greatest chance to be noticed.
+
+---
+   Vincent Goulet, Associate Professor
+   ?cole d'actuariat
+   Universit? Laval, Qu?bec
+   Vincent.Goulet at act.ulaval.ca   http://vgoulet.act.ulaval.ca
+
+
+From Ted.Harding at manchester.ac.uk  Mon Apr 28 00:42:19 2008
+From: Ted.Harding at manchester.ac.uk ( (Ted Harding))
+Date: Sun, 27 Apr 2008 23:42:19 +0100 (BST)
+Subject: [R-sig-Debian] Deb-4.0 Etch and sources.list for R
+Message-ID: <XFMail.080427234127.Ted.Harding@manchester.ac.uk>
+
+Hi Folks,
+I'm running Debian-4.0 Etch, installed last September
+from a DVD, and regularly updated as things arise.
+
+I have R version 2.4.0 Patched (2006-11-25 r39997)
+installed (initially at the time of first installation
+of Debian, as provided by Debian), along with a variety
+of packages.
+
+I'd like to be able to connect to the CRAN repositories
+for Debian R, for updates etc.
+
+When I visit
+
+  http://www.stats.bris.ac.uk/R/bin/linux/debian/
+
+I read:
+
+  As a courtesy to the R users on the Debian "stable"
+  platforms, the "stable" directory on CRAN contains
+  so-called 'backports' of the current R binaries for
+  the "stable" distribution of Debian. Simply add
+  something like
+
+  deb http://<favorite-cran-mirror>/bin/linux/debian stable/
+
+  to the file /etc/apt/sources.list on your computer and
+  install as usual. We currently provide binaries for the
+  i386 and amd64 architectures.
+
+Well, I put the following into /etc/apt/sources.list:
+
+  deb http://www.stats.bris.ac.uk/R/bin/linux/debian/ stable/
+
+(which looks sufficiently "something like" to me). BUT:
+
+When I open the (graphical) Synaptic Package Manager up pops
+a window with the message:
+
+  An error occured
+  The following details are provided:
+
+  W: Couldn't stat source package list
+  http://www.stats.bris.ac.uk stable/ Packages
+
+(/var/lib/apt/lists/www.stats.bris.ac.uk_R_bin_linux_debian_
+stable_Packages) - stat (2 No such file or directory)
+[all one line]
+
+However, I find there precisely is a directory:
+
+http://www.stats.bris.ac.uk/R/bin/linux/debian/stable/Packages
+
+so I'm puzzled!
+
+Grateful for any help (and only beginning to get used to
+Debian, not having used it since its flaky transition to 1.0
+sometime during 1998! Been on Red Hat and SuSE since; now trying
+Debian again and, mostly, getting along fine).
+
+Best wishes to all,
+Ted.
+
+--------------------------------------------------------------------
+E-Mail: (Ted Harding) <Ted.Harding at manchester.ac.uk>
+Fax-to-email: +44 (0)870 094 0861
+Date: 27-Apr-08                                       Time: 23:41:24
+------------------------------ XFMail ------------------------------
+
+
+From Ted.Harding at manchester.ac.uk  Mon Apr 28 00:56:25 2008
+From: Ted.Harding at manchester.ac.uk ( (Ted Harding))
+Date: Sun, 27 Apr 2008 23:56:25 +0100 (BST)
+Subject: [R-sig-Debian] Deb-4.0 Etch and sources.list for R
+Message-ID: <XFMail.080427235625.Ted.Harding@manchester.ac.uk>
+
+OOPS! I made a typo (see below)
+
+-----FW: <XFMail.080427234127.Ted.Harding at manchester.ac.uk>-----
+
+Date: Sun, 27 Apr 2008 23:42:19 +0100 (BST)
+From: (Ted Harding) <Ted.Harding at manchester.ac.uk>
+To: r-sig-debian at r-project.org
+Subject: Deb-4.0 Etch and sources.list for R
+
+Hi Folks,
+I'm running Debian-4.0 Etch, installed last September
+from a DVD, and regularly updated as things arise.
+
+I have R version 2.4.0 Patched (2006-11-25 r39997)
+installed (initially at the time of first installation
+of Debian, as provided by Debian), along with a variety
+of packages.
+
+I'd like to be able to connect to the CRAN repositories
+for Debian R, for updates etc.
+
+When I visit
+
+  http://www.stats.bris.ac.uk/R/bin/linux/debian/
+
+I read:
+
+  As a courtesy to the R users on the Debian "stable"
+  platforms, the "stable" directory on CRAN contains
+  so-called 'backports' of the current R binaries for
+  the "stable" distribution of Debian. Simply add
+  something like
+
+  deb http://<favorite-cran-mirror>/bin/linux/debian stable/
+
+  to the file /etc/apt/sources.list on your computer and
+  install as usual. We currently provide binaries for the
+  i386 and amd64 architectures.
+
+Well, I put the following into /etc/apt/sources.list:
+
+***###***
+deb http://www.stats.bris.ac.uk/R/bin/linux/debian/ stable/
+That line was in error. What I have in /etc/apt/sources.list is:
+***###***
+
+deb http://www.stats.bris.ac.uk/R/bin/linux/debian stable/
+
+(which looks sufficiently "something like" to me). BUT:
+
+When I open the (graphical) Synaptic Package Manager up pops
+a window with the message:
+
+  An error occured
+  The following details are provided:
+
+  W: Couldn't stat source package list
+  http://www.stats.bris.ac.uk stable/ Packages
+
+(/var/lib/apt/lists/www.stats.bris.ac.uk_R_bin_linux_debian_
+stable_Packages) - stat (2 No such file or directory)
+[all one line]
+
+However, I find there precisely is a directory:
+
+http://www.stats.bris.ac.uk/R/bin/linux/debian/stable/Packages
+
+so I'm puzzled!
+
+Grateful for any help (and only beginning to get used to
+Debian, not having used it since its flaky transition to 1.0
+sometime during 1998! Been on Red Hat and SuSE since; now trying
+Debian again and, mostly, getting along fine).
+
+Best wishes to all,
+Ted.
+
+--------------------------------------------------------------------
+E-Mail: (Ted Harding) <Ted.Harding at manchester.ac.uk>
+Fax-to-email: +44 (0)870 094 0861
+Date: 27-Apr-08                                       Time: 23:41:24
+------------------------------ XFMail ------------------------------
+
+--------------End of forwarded message-------------------------
+
+--------------------------------------------------------------------
+E-Mail: (Ted Harding) <Ted.Harding at manchester.ac.uk>
+Fax-to-email: +44 (0)870 094 0861
+Date: 27-Apr-08                                       Time: 23:56:22
+------------------------------ XFMail ------------------------------
+
+
+From tyler.smith at mail.mcgill.ca  Mon Apr 28 01:59:45 2008
+From: tyler.smith at mail.mcgill.ca (tyler)
+Date: Sun, 27 Apr 2008 20:59:45 -0300
+Subject: [R-sig-Debian] Deb-4.0 Etch and sources.list for R
+In-Reply-To: <XFMail.080427235625.Ted.Harding@manchester.ac.uk>
+References: <XFMail.080427235625.Ted.Harding@manchester.ac.uk>
+Message-ID: <20080427235945.GA2035@sedgenet>
+
+On Sun, Apr 27, 2008 at 11:56:25PM +0100, Ted Harding wrote:
+> 
+> Well, I put the following into /etc/apt/sources.list:
+> 
+> deb http://www.stats.bris.ac.uk/R/bin/linux/debian stable/
+> 
+> (which looks sufficiently "something like" to me). BUT:
+> 
+> When I open the (graphical) Synaptic Package Manager up pops
+> a window with the message:
+> 
+>   An error occured
+>   The following details are provided:
+> 
+>   W: Couldn't stat source package list
+>   http://www.stats.bris.ac.uk stable/ Packages
+> 
+> so I'm puzzled!
+> 
+
+Two guesses. First - you've got
+
+deb http://www.stats.bris.ac.uk/R/bin/linux/debian stable/
+
+in sources.list, but report an error relating to a different address:
+
+http://www.stats.bris.ac.uk stable/ Packages
+
+So perhaps there is still a lingering typo somewhere.
+
+Second: you might just need to 'update' prior to trying to access the
+new repository in your sources.list. I don't use synaptic, but when I
+added the line you quoted above to my sources.list, and ran 
+
+apt-get update
+
+I got the expected result, modulo a GPG error, which I don't think
+would prevent me from downloading any packages. An excerpt is pasted
+below. 
+
+Otherwise, you can always install.packages() from within R, which
+allows you to pull packages in from any repository you want, and may
+allow you to get newly revised packages moments ahead of the
+ever-diligent Debian maintainers. See the online R help for the
+details.
+
+HTH,
+
+Tyler
+
+root:490s# apt-get update  ## output trimmed
+Get:1 http://www.stats.bris.ac.uk stable/ Release.gpg [189B]
+Ign http://www.stats.bris.ac.uk stable/ Translation-en_CA
+Get:3 http://www.stats.bris.ac.uk stable/ Release [1281B]
+Ign http://www.stats.bris.ac.uk stable/ Release
+Ign http://www.stats.bris.ac.uk stable/ Packages
+Get:7 http://www.stats.bris.ac.uk stable/ Packages [8431B]
+Fetched 417kB in 15s (26.6kB/s)
+Reading package lists... Done
+W: GPG error: http://www.stats.bris.ac.uk stable/ Release: The
+following signatures couldn't be verified because the public key is
+not available: NO_PUBKEY 06F90DE5381BA480 
+W: You may want to run apt-get update to correct these problems
+root:490s# 
+
+-- 
+Don't learn the tricks of the trade; learn the trade.
+
+
+From edd at debian.org  Mon Apr 28 02:53:21 2008
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 27 Apr 2008 19:53:21 -0500
+Subject: [R-sig-Debian] Deb-4.0 Etch and sources.list for R
+In-Reply-To: <XFMail.080427235625.Ted.Harding@manchester.ac.uk>
+References: <XFMail.080427235625.Ted.Harding@manchester.ac.uk>
+Message-ID: <18453.8193.108835.81207@ron.nulle.part>
+
+
+Ted,
+
+There can always be issues with individual mirrors, so it helps to see if you
+can access the url you are adding to /etc/apt/sources.list in the normal way
+with a webbrowser etc.
+
+For what it is worth, the following does work for me:
+
+   edd at ron:~> tail -2 /etc/apt/sources.list
+   # CRAN
+   deb http://cran.us.r-project.org/bin/linux/debian stable/
+   edd at ron:~> 
+
+and you may want to s/us/uk/ there. Also note the final slash, IIRC it is
+required.
+
+Then do 
+
+   sudo apt-get update
+
+and follow up with 
+
+   apt-cache policy r-base-core
+
+which should show you the version from CRAN as well as the regular Debian
+versions.  An
+
+   apt-get dist-upgrade
+
+would then upgrade R if you already have installed; and you can always do
+
+   apt-get install r-base
+
+to add it to an R-less system.
+
+Hope this helps, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From jranke at uni-bremen.de  Mon Apr 28 19:13:55 2008
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 28 Apr 2008 19:13:55 +0200
+Subject: [R-sig-Debian] Change in the Debian backports archive on CRAN
+Message-ID: <20080428171354.GA26984@mail.uni-bremen.de>
+
+Dear users of the Debian backports on CRAN,
+
+Because of an inconsistency of the README file with the actual situation 
+on CRAN, which Ted Harding gratefully reported, I changed the archive on
+CRAN so the /etc/apt/sources.list entry has to be changed in case you
+would like to get updates of R backports to Debian stable in the future:
+
+Instead of 
+
+    deb http://<favorite-cran-mirror>/bin/linux/debian stable/
+
+which does not seem to have worked in the first place, you need to use
+
+    deb http://<favorite-cran-mirror>/bin/linux/debian etch-cran/
+
+from now on. I updated the README for Debian accordingly.
+
+I modelled the archive after the half-official backports.org Debian
+archive. Sorry for any inconvenience.
+
+I would also like to announce the immediate availability of the
+backporto of the maintenance release 0.4.9a of the KDE GUI rkward,
+compiled against R 2.7.0 on Debian etch.
+
+Best regards,
+
+Johannes
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de     Key ID: F649AF90
+UFT Bremen, Leobenerstr. 1         +49 421 218 63373
+D-28359 Bremen                     http://www.uft.uni-bremen.de/chemie/ranke
+
+
+From ff809 at ncf.ca  Tue Apr 29 02:42:22 2008
+From: ff809 at ncf.ca (Brian Lunergan)
+Date: Mon, 28 Apr 2008 20:42:22 -0400
+Subject: [R-sig-Debian] Problem installing some packages on Ubuntu 7.10
+Message-ID: <48166EEE.8000004@ncf.ca>
+
+Evening all:
+
+Recently moved over to Ubuntu 7.10. Installed version 2.7.0 of R from 
+the U of T site in Ontario, Canada. Working on installing Rcmdr as my 
+GUI of choice (yes, I know lots of you probably prefer an emacs/ess 
+combination but give me a break. It's what I was comfortable with using 
+R under XP). For the most part the installs have gone well in a regular 
+terminal window using sudo R or just R in a root terminal window, but 
+some of the packages just don't seem to be going quietly.
+
+I could use some advice as to what I might need to add to my setup or 
+correct to get things to install. I'll deal with them one at a time so I 
+can follow through on any suggestions offered before moving on to the 
+next troublemaker. There are six involved, some of them being key 
+players in the desired setup. First up is XML. I've included everything 
+install.package() spit out to avoid confusion. My apologies if it's TOO 
+much, but I'm no programmer so I didn't want to error by cutting 
+something out that might have turned out to be useful.
+
+ > install.packages("XML",dependencies=TRUE)
+Warning in install.packages("XML", dependencies = TRUE) :
+  argument 'lib' is missing: using '/usr/local/lib/R/site-library'
+--- Please select a CRAN mirror for use in this session ---
+Loading Tcl/Tk interface ... done
+trying URL 'http://probability.ca/cran/src/contrib/XML_1.93-2.tar.gz'
+Content type 'application/x-tar' length 870234 bytes (849 Kb)
+opened URL
+==================================================
+downloaded 849 Kb
+
+* Installing *source* package 'XML' ...
+checking for gcc... gcc
+checking for C compiler default output file name... a.out
+checking whether the C compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables...
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ISO C89... none needed
+checking how to run the C preprocessor... gcc -E
+checking for sed... /bin/sed
+checking for xml2-config... no
+Cannot find xml2-config
+ERROR: configuration failed for package 'XML'
+** Removing '/usr/local/lib/R/site-library/XML'
+
+The downloaded packages are in
+        /tmp/RtmpRMfnUs/downloaded_packages
+Warning message:
+In install.packages("XML", dependencies = TRUE) :
+  installation of package 'XML' had non-zero exit status
+ >
+
+-- 
+
+Brian Lunergan
+Nepean, Ontario
+Canada
+
+
+From edd at debian.org  Tue Apr 29 03:25:27 2008
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 28 Apr 2008 20:25:27 -0500
+Subject: [R-sig-Debian] Problem installing some packages on Ubuntu 7.10
+In-Reply-To: <48166EEE.8000004@ncf.ca>
+References: <48166EEE.8000004@ncf.ca>
+Message-ID: <18454.30983.570147.113866@ron.nulle.part>
+
+
+Brian,
+
+On 28 April 2008 at 20:42, Brian Lunergan wrote:
+| Recently moved over to Ubuntu 7.10. Installed version 2.7.0 of R from 
+| the U of T site in Ontario, Canada. Working on installing Rcmdr as my 
+[...]
+| I could use some advice as to what I might need to add to my setup or 
+| correct to get things to install. I'll deal with them one at a time so I 
+| can follow through on any suggestions offered before moving on to the 
+| next troublemaker. There are six involved, some of them being key 
+| players in the desired setup. First up is XML. I've included everything 
+
+For both, you could use the packaged versions available in your Ubuntu
+repositories:
+
+  $ sudo apt-get update; sudo apt-get install r-cran-rcmdr r-cran-xml
+
+Otherwise, you need to know which of the '-dev' packages to have installed to
+be able to compile packages. So as a first step until you know your system
+and its pieces better, stick with what's pre-packaged.
+
+Also,
+
+  $ apt-cache search r-cran-
+
+shows you what's available. Far from all on CRAN, but a fair number.
+
+Hope this helps, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+

@@ -1,0 +1,1276 @@
+From arinbasu at cashette.com  Thu Jun  8 10:04:41 2006
+From: arinbasu at cashette.com (arin basu)
+Date: Thu, 8 Jun 2006 01:04:41 -0700 (PDT)
+Subject: [R-sig-Debian] Query about building R-2.3.1 for Ubuntu
+Message-ID: <9509.1149753881046.JavaMail.Administrator@appsrv>
+
+Hi All:
+
+Is a distribution of R version 2.3.1 (the current version) available for the Ubuntu Linux? If I want to build a .deb package for R-2.3.1 for Ubuntu, are there specific requirements that I should be aware of? Is a tutorial available? I searched the web, and the repositories, but oculd not locate an appropriate file.
+
+TIA,
+Arin Basu
+
+
+From edd at debian.org  Thu Jun  8 12:27:14 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 8 Jun 2006 05:27:14 -0500
+Subject: [R-sig-Debian] Query about building R-2.3.1 for Ubuntu
+In-Reply-To: <9509.1149753881046.JavaMail.Administrator@appsrv>
+References: <9509.1149753881046.JavaMail.Administrator@appsrv>
+Message-ID: <17543.64386.524534.204842@basebud.nulle.part>
+
+
+On 8 June 2006 at 01:04, arin basu wrote:
+| Is a distribution of R version 2.3.1 (the current version) available for
+| the Ubuntu Linux? 
+
+Maybe a question for the Ubuntu lists ??
+
+| If I want to build a .deb package for R-2.3.1 for Ubuntu,
+| are there specific requirements that I should be aware of? Is a tutorial
+
+Specific to R ? Why ? 
+
+| available? I searched the web, and the repositories, but oculd not locate an
+| appropriate file. 
+
+My workstation at work is a relatively recent Ubuntu install. What I do there
+is simply:
+
+a)  add Debian unstable sources [ but not binaries ] to /etc/apt/sources.list
+b)  run 'apt-get source foo' any $foo I want
+c)  edit foo-*/debian/changelog to note that it is a local build
+d)  dpkg-builpackage -rfakeroot -us -uc -tc
+e)  install the locally-built package
+
+Works well enough. Does anybody have anything slicker?
+
+Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From adi at roda.ro  Fri Jun  9 07:17:43 2006
+From: adi at roda.ro (Adrian DUSA)
+Date: Fri, 9 Jun 2006 08:17:43 +0300
+Subject: [R-sig-Debian] Query about building R-2.3.1 for Ubuntu
+In-Reply-To: <9509.1149753881046.JavaMail.Administrator@appsrv>
+References: <9509.1149753881046.JavaMail.Administrator@appsrv>
+Message-ID: <200606090817.44025.adi@roda.ro>
+
+Hello Arin,
+
+I doubt anyone has built a deb package for the latest release. What I do is to 
+compile R from sources. It takes about 15 minutes or so, but it's worth it: 
+you'll have a perfect installation for your box.
+I use this command (having previously installed tcl and tk and their 
+corresponding dev packages):
+
+./configure --with-tcl-config=/usr/lib/tcl8.4/tclConfig.sh 
+--with-tk-config=usr/lib/tk8.4/tkConfig.sh
+make
+sudo make install
+
+HTH,
+Adrian
+
+On Thursday 08 June 2006 11:04, arin basu wrote:
+> Hi All:
+>
+> Is a distribution of R version 2.3.1 (the current version) available for
+> the Ubuntu Linux? If I want to build a .deb package for R-2.3.1 for Ubuntu,
+> are there specific requirements that I should be aware of? Is a tutorial
+> available? I searched the web, and the repositories, but oculd not locate
+> an appropriate file.
+>
+> TIA,
+> Arin Basu
+
+-- 
+Adrian DUSA
+Arhiva Romana de Date Sociale
+Bd. Schitu Magureanu nr.1
+050025 Bucuresti sectorul 5
+Romania
+Tel./Fax: +40 21 3126618 \
+          +40 21 3120210 / int.101
+
+
+From edd at debian.org  Fri Jun  9 13:27:39 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 9 Jun 2006 06:27:39 -0500
+Subject: [R-sig-Debian] Query about building R-2.3.1 for Ubuntu
+In-Reply-To: <200606090817.44025.adi@roda.ro>
+References: <9509.1149753881046.JavaMail.Administrator@appsrv>
+	<200606090817.44025.adi@roda.ro>
+Message-ID: <17545.23339.364109.848299@basebud.nulle.part>
+
+
+On 9 June 2006 at 08:17, Adrian DUSA wrote:
+| Hello Arin,
+| 
+| I doubt anyone has built a deb package for the latest release. 
+
+Wrong. See e.g. one of  
+	http://changelogs.debian.net/r-base
+	http://packages.qa.debian.org/r/r-base.html
+	
+As all previous releases R 2.3.1 was in Debian within a day, in this case
+within hours, of its release.
+
+| What I do is to 
+| compile R from sources. It takes about 15 minutes or so, but it's worth it: 
+| you'll have a perfect installation for your box.
+| I use this command (having previously installed tcl and tk and their 
+| corresponding dev packages):
+| 
+| ./configure --with-tcl-config=/usr/lib/tcl8.4/tclConfig.sh 
+| --with-tk-config=usr/lib/tk8.4/tkConfig.sh
+| make
+| sudo make install
+
+And you miss several customizations and enhancements the package has. 
+
+Regards, Dirk
+
+
+| HTH,
+| Adrian
+| 
+| On Thursday 08 June 2006 11:04, arin basu wrote:
+| > Hi All:
+| >
+| > Is a distribution of R version 2.3.1 (the current version) available for
+| > the Ubuntu Linux? If I want to build a .deb package for R-2.3.1 for Ubuntu,
+| > are there specific requirements that I should be aware of? Is a tutorial
+| > available? I searched the web, and the repositories, but oculd not locate
+| > an appropriate file.
+| >
+| > TIA,
+| > Arin Basu
+| 
+| -- 
+| Adrian DUSA
+| Arhiva Romana de Date Sociale
+| Bd. Schitu Magureanu nr.1
+| 050025 Bucuresti sectorul 5
+| Romania
+| Tel./Fax: +40 21 3126618 \
+|           +40 21 3120210 / int.101
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From adi at roda.ro  Fri Jun  9 14:47:58 2006
+From: adi at roda.ro (Adrian DUSA)
+Date: Fri, 9 Jun 2006 15:47:58 +0300
+Subject: [R-sig-Debian] Query about building R-2.3.1 for Ubuntu
+In-Reply-To: <17545.23339.364109.848299@basebud.nulle.part>
+References: <9509.1149753881046.JavaMail.Administrator@appsrv>
+	<200606090817.44025.adi@roda.ro>
+	<17545.23339.364109.848299@basebud.nulle.part>
+Message-ID: <200606091547.58650.adi@roda.ro>
+
+Thanks a lot!
+I'll have a look on it right away :)
+
+On Friday 09 June 2006 14:27, Dirk Eddelbuettel wrote:
+> On 9 June 2006 at 08:17, Adrian DUSA wrote:
+> | Hello Arin,
+> |
+> | I doubt anyone has built a deb package for the latest release.
+>
+> Wrong. See e.g. one of
+> 	http://changelogs.debian.net/r-base
+> 	http://packages.qa.debian.org/r/r-base.html
+>
+> As all previous releases R 2.3.1 was in Debian within a day, in this case
+> within hours, of its release.
+>
+> | What I do is to
+> | compile R from sources. It takes about 15 minutes or so, but it's worth
+> | it: you'll have a perfect installation for your box.
+> | I use this command (having previously installed tcl and tk and their
+> | corresponding dev packages):
+> |
+> | ./configure --with-tcl-config=/usr/lib/tcl8.4/tclConfig.sh
+> | --with-tk-config=usr/lib/tk8.4/tkConfig.sh
+> | make
+> | sudo make install
+>
+> And you miss several customizations and enhancements the package has.
+>
+> Regards, Dirk
+>
+> | HTH,
+> | Adrian
+> |
+> | On Thursday 08 June 2006 11:04, arin basu wrote:
+> | > Hi All:
+> | >
+> | > Is a distribution of R version 2.3.1 (the current version) available
+> | > for the Ubuntu Linux? If I want to build a .deb package for R-2.3.1 for
+> | > Ubuntu, are there specific requirements that I should be aware of? Is a
+> | > tutorial available? I searched the web, and the repositories, but oculd
+> | > not locate an appropriate file.
+> | >
+> | > TIA,
+> | > Arin Basu
+> |
+> | --
+> | Adrian DUSA
+> | Arhiva Romana de Date Sociale
+> | Bd. Schitu Magureanu nr.1
+> | 050025 Bucuresti sectorul 5
+> | Romania
+> | Tel./Fax: +40 21 3126618 \
+> |           +40 21 3120210 / int.101
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Adrian DUSA
+Arhiva Romana de Date Sociale
+Bd. Schitu Magureanu nr.1
+050025 Bucuresti sectorul 5
+Romania
+Tel./Fax: +40 21 3126618 \
+          +40 21 3120210 / int.101
+
+
+From blomsp at ozemail.com.au  Thu Jun 15 06:51:55 2006
+From: blomsp at ozemail.com.au (Simon Blomberg)
+Date: Thu, 15 Jun 2006 14:51:55 +1000
+Subject: [R-sig-Debian] annoying warnings in ESS/Emacs
+Message-ID: <4490E76B.1000608@ozemail.com.au>
+
+Hi,
+
+I'm not sure if this is an R problem, a Debian problem, a GNU Emacs 
+problem or an ESS problem. I get the following warning the first time I 
+call help on a command in a session, for example:
+
+ > ?sessionInfo
+Warning message:
+use of NULL environment is deprecated
+
+This only occurs in GNU Emacs, not when running R from bash, and not 
+with Xemacs. It started happening when I updated R and a lot of packages 
+to 2.3.1. I checked the archives and found this message: 
+http://tolstoy.newcastle.edu.au/R/devel/06/05/5278.html. My packages are 
+all up-to-date. I tried manually removing a package and re-installing it 
+using install.packages. The install went OK, but it had no effect (the 
+warning still appeared). Any help would be greatly appreciated.
+
+I am running the Quantian distro inside a VMware virtual machine, on a 
+Windows XP Pro host.
+
+Thanks,
+
+Simon.
+
+ > sessionInfo()
+Version 2.3.1 (2006-06-01)
+i386-pc-linux-gnu
+
+attached base packages:
+[1] "methods"   "stats"     "graphics"  "grDevices" "utils"     "datasets"
+[7] "base"
+
+-- 
+Simon Blomberg, B.Sc.(Hons.), Ph.D, M.App.Stat.
+Centre for Resource and Environmental Studies
+The Australian National University
+Canberra ACT 0200
+Australia
+T: +61 2 6125 7800 email: Simon.Blomberg_at_anu.edu.au
+F: +61 2 6125 0757
+CRICOS Provider # 00120C
+
+
+From blomsp at ozemail.com.au  Thu Jun 15 07:26:33 2006
+From: blomsp at ozemail.com.au (Simon Blomberg)
+Date: Thu, 15 Jun 2006 15:26:33 +1000
+Subject: [R-sig-Debian] annoying warnings in ESS/Emacs
+In-Reply-To: <4490E76B.1000608@ozemail.com.au>
+References: <4490E76B.1000608@ozemail.com.au>
+Message-ID: <4490EF89.2090101@ozemail.com.au>
+
+Hi again,
+
+After some fiddling around, I think that r-recommended is not getting 
+updated properly. I have the following output from apt-get. It looks 
+like there is a problem with file r-recommended_2.3.1-0sarge2_i386.deb
+
+Again, any help would be appreciated.
+
+Thanks,
+
+Simon.
+
+root at Quantian:apt-get -f install
+Reading package lists... 0%
+Reading package lists... 0%
+Reading package lists... 2%
+Reading package lists... Done
+Building dependency tree... 0%
+Building dependency tree... 0%
+Building dependency tree... 50%
+Building dependency tree... 50%
+Building dependency tree... 97%
+Building dependency tree... Done
+Correcting dependencies... Done
+The following extra packages will be installed:
+  r-recommended
+The following packages will be upgraded:
+  r-recommended
+1 upgraded, 0 newly installed, 0 to remove and 102 not upgraded.
+3 not fully installed or removed.
+Need to get 0B/6264kB of archives.
+After unpacking 24.6MB of additional disk space will be used.
+Do you want to continue [Y/n]? Y
+WARNING: The following packages cannot be authenticated!
+  r-recommended
+Install these packages without verification [y/N]? Y
+W: Couldn't stat source package list http://ndiswrapper.sourceforge.net 
+./ Packages 
+(/var/lib/apt/lists/ndiswrapper.sourceforge.net_debian_._Packages) - 
+stat (2 No such file or directory)
+W: Couldn't stat source package list http://kanotix.com ./ Packages 
+(/var/lib/apt/lists/kanotix.com_files_debian_._Packages) - stat (2 No 
+such file or directory)
+(Reading database ... 325419 files and directories currently installed.)
+Preparing to replace r-recommended 2.3.0-1 (using 
+.../r-recommended_2.3.1-0sarge2_i386.deb) ...
+Unpacking replacement r-recommended ...
+Replacing files in old package r-cran-vr ...
+Replacing files in old package r-cran-boot ...
+Replacing files in old package r-cran-cluster ...
+Replacing files in old package r-cran-foreign ...
+dpkg: error processing 
+/var/cache/apt/archives/r-recommended_2.3.1-0sarge2_i386.deb (--unpack):
+ trying to overwrite `/usr/lib/R/library/grid/html/00Index.html', which 
+is also in package r-base-html
+dpkg-deb: subprocess paste killed by signal (Broken pipe)
+Errors were encountered while processing:
+ /var/cache/apt/archives/r-recommended_2.3.1-0sarge2_i386.deb
+W: Couldn't stat source package list http://ndiswrapper.sourceforge.net 
+./ Packages 
+(/var/lib/apt/lists/ndiswrapper.sourceforge.net_debian_._Packages) - 
+stat (2 No such file or directory)
+W: Couldn't stat source package list http://kanotix.com ./ Packages 
+(/var/lib/apt/lists/kanotix.com_files_debian_._Packages) - stat (2 No 
+such file or directory)
+W: Couldn't stat source package list http://ndiswrapper.sourceforge.net 
+./ Packages 
+(/var/lib/apt/lists/ndiswrapper.sourceforge.net_debian_._Packages) - 
+stat (2 No such file or directory)
+W: Couldn't stat source package list http://kanotix.com ./ Packages 
+(/var/lib/apt/lists/kanotix.com_files_debian_._Packages) - stat (2 No 
+such file or directory)
+W: You may want to run apt-get update to correct these problems
+E: Sub-process /usr/bin/dpkg returned an error code (1)
+
+Simon Blomberg wrote:
+> Hi,
+>
+> I'm not sure if this is an R problem, a Debian problem, a GNU Emacs 
+> problem or an ESS problem. I get the following warning the first time I 
+> call help on a command in a session, for example:
+>
+>  > ?sessionInfo
+> Warning message:
+> use of NULL environment is deprecated
+>
+> This only occurs in GNU Emacs, not when running R from bash, and not 
+> with Xemacs. It started happening when I updated R and a lot of packages 
+> to 2.3.1. I checked the archives and found this message: 
+> http://tolstoy.newcastle.edu.au/R/devel/06/05/5278.html. My packages are 
+> all up-to-date. I tried manually removing a package and re-installing it 
+> using install.packages. The install went OK, but it had no effect (the 
+> warning still appeared). Any help would be greatly appreciated.
+>
+> I am running the Quantian distro inside a VMware virtual machine, on a 
+> Windows XP Pro host.
+>
+> Thanks,
+>
+> Simon.
+>
+>  > sessionInfo()
+> Version 2.3.1 (2006-06-01)
+> i386-pc-linux-gnu
+>
+> attached base packages:
+> [1] "methods"   "stats"     "graphics"  "grDevices" "utils"     "datasets"
+> [7] "base"
+>
+>   
+
+
+-- 
+Simon Blomberg, B.Sc.(Hons.), Ph.D, M.App.Stat.
+Centre for Resource and Environmental Studies
+The Australian National University
+Canberra ACT 0200
+Australia
+T: +61 2 6125 7800 email: Simon.Blomberg_at_anu.edu.au
+F: +61 2 6125 0757
+CRICOS Provider # 00120C
+
+
+From edd at debian.org  Fri Jun 16 13:53:28 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 16 Jun 2006 06:53:28 -0500
+Subject: [R-sig-Debian] annoying warnings in ESS/Emacs
+In-Reply-To: <4490E76B.1000608@ozemail.com.au>
+References: <4490E76B.1000608@ozemail.com.au>
+Message-ID: <17554.39864.243071.179260@basebud.nulle.part>
+
+
+
+On 15 June 2006 at 14:51, Simon Blomberg wrote:
+| Hi,
+| 
+| I'm not sure if this is an R problem, a Debian problem, a GNU Emacs 
+| problem or an ESS problem. I get the following warning the first time I 
+| call help on a command in a session, for example:
+| 
+|  > ?sessionInfo
+| Warning message:
+| use of NULL environment is deprecated
+
+Howdy from UseR. I think this has to do with a change in R 2.3.* and you may
+be out of sync between ess and r-base-core.
+ 
+| This only occurs in GNU Emacs, not when running R from bash, and not 
+| with Xemacs. It started happening when I updated R and a lot of packages 
+| to 2.3.1. I checked the archives and found this message: 
+
+ESS adds some initialization code. I can try to compare this when I get
+home. An ess upgrade may cure it.
+
+Dirk
+
+| http://tolstoy.newcastle.edu.au/R/devel/06/05/5278.html. My packages are 
+| all up-to-date. I tried manually removing a package and re-installing it 
+| using install.packages. The install went OK, but it had no effect (the 
+| warning still appeared). Any help would be greatly appreciated.
+| 
+| I am running the Quantian distro inside a VMware virtual machine, on a 
+| Windows XP Pro host.
+
+Quantian,which I'll take about in 10 minutes, is in need of an R upgrade to
+2.3.1. Hopefully in the next few weeks...
+
+Dirk
+
+| 
+| Thanks,
+| 
+| Simon.
+| 
+|  > sessionInfo()
+| Version 2.3.1 (2006-06-01)
+| i386-pc-linux-gnu
+| 
+| attached base packages:
+| [1] "methods"   "stats"     "graphics"  "grDevices" "utils"     "datasets"
+| [7] "base"
+| 
+| -- 
+| Simon Blomberg, B.Sc.(Hons.), Ph.D, M.App.Stat.
+| Centre for Resource and Environmental Studies
+| The Australian National University
+| Canberra ACT 0200
+| Australia
+| T: +61 2 6125 7800 email: Simon.Blomberg_at_anu.edu.au
+| F: +61 2 6125 0757
+| CRICOS Provider # 00120C
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From edd at debian.org  Fri Jun 16 13:54:33 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 16 Jun 2006 06:54:33 -0500
+Subject: [R-sig-Debian] annoying warnings in ESS/Emacs
+In-Reply-To: <4490EF89.2090101@ozemail.com.au>
+References: <4490E76B.1000608@ozemail.com.au> <4490EF89.2090101@ozemail.com.au>
+Message-ID: <17554.39929.240024.181473@basebud.nulle.part>
+
+
+On 15 June 2006 at 15:26, Simon Blomberg wrote:
+| Hi again,
+| 
+| After some fiddling around, I think that r-recommended is not getting 
+| updated properly. I have the following output from apt-get. It looks 
+| like there is a problem with file r-recommended_2.3.1-0sarge2_i386.deb
+| 
+| Again, any help would be appreciated.
+
+r-recommended is 'virtual'. It will not pull newer version of the underlying
+things in.
+ 
+apt-get dist-upgrade, on the other hand, should.
+
+Hth, Dirk
+
+| Thanks,
+| 
+| Simon.
+| 
+| root at Quantian:apt-get -f install
+| Reading package lists... 0%
+| Reading package lists... 0%
+| Reading package lists... 2%
+| Reading package lists... Done
+| Building dependency tree... 0%
+| Building dependency tree... 0%
+| Building dependency tree... 50%
+| Building dependency tree... 50%
+| Building dependency tree... 97%
+| Building dependency tree... Done
+| Correcting dependencies... Done
+| The following extra packages will be installed:
+|   r-recommended
+| The following packages will be upgraded:
+|   r-recommended
+| 1 upgraded, 0 newly installed, 0 to remove and 102 not upgraded.
+| 3 not fully installed or removed.
+| Need to get 0B/6264kB of archives.
+| After unpacking 24.6MB of additional disk space will be used.
+| Do you want to continue [Y/n]? Y
+| WARNING: The following packages cannot be authenticated!
+|   r-recommended
+| Install these packages without verification [y/N]? Y
+| W: Couldn't stat source package list http://ndiswrapper.sourceforge.net 
+| ./ Packages 
+| (/var/lib/apt/lists/ndiswrapper.sourceforge.net_debian_._Packages) - 
+| stat (2 No such file or directory)
+| W: Couldn't stat source package list http://kanotix.com ./ Packages 
+| (/var/lib/apt/lists/kanotix.com_files_debian_._Packages) - stat (2 No 
+| such file or directory)
+| (Reading database ... 325419 files and directories currently installed.)
+| Preparing to replace r-recommended 2.3.0-1 (using 
+| .../r-recommended_2.3.1-0sarge2_i386.deb) ...
+| Unpacking replacement r-recommended ...
+| Replacing files in old package r-cran-vr ...
+| Replacing files in old package r-cran-boot ...
+| Replacing files in old package r-cran-cluster ...
+| Replacing files in old package r-cran-foreign ...
+| dpkg: error processing 
+| /var/cache/apt/archives/r-recommended_2.3.1-0sarge2_i386.deb (--unpack):
+|  trying to overwrite `/usr/lib/R/library/grid/html/00Index.html', which 
+| is also in package r-base-html
+| dpkg-deb: subprocess paste killed by signal (Broken pipe)
+| Errors were encountered while processing:
+|  /var/cache/apt/archives/r-recommended_2.3.1-0sarge2_i386.deb
+| W: Couldn't stat source package list http://ndiswrapper.sourceforge.net 
+| ./ Packages 
+| (/var/lib/apt/lists/ndiswrapper.sourceforge.net_debian_._Packages) - 
+| stat (2 No such file or directory)
+| W: Couldn't stat source package list http://kanotix.com ./ Packages 
+| (/var/lib/apt/lists/kanotix.com_files_debian_._Packages) - stat (2 No 
+| such file or directory)
+| W: Couldn't stat source package list http://ndiswrapper.sourceforge.net 
+| ./ Packages 
+| (/var/lib/apt/lists/ndiswrapper.sourceforge.net_debian_._Packages) - 
+| stat (2 No such file or directory)
+| W: Couldn't stat source package list http://kanotix.com ./ Packages 
+| (/var/lib/apt/lists/kanotix.com_files_debian_._Packages) - stat (2 No 
+| such file or directory)
+| W: You may want to run apt-get update to correct these problems
+| E: Sub-process /usr/bin/dpkg returned an error code (1)
+| 
+| Simon Blomberg wrote:
+| > Hi,
+| >
+| > I'm not sure if this is an R problem, a Debian problem, a GNU Emacs 
+| > problem or an ESS problem. I get the following warning the first time I 
+| > call help on a command in a session, for example:
+| >
+| >  > ?sessionInfo
+| > Warning message:
+| > use of NULL environment is deprecated
+| >
+| > This only occurs in GNU Emacs, not when running R from bash, and not 
+| > with Xemacs. It started happening when I updated R and a lot of packages 
+| > to 2.3.1. I checked the archives and found this message: 
+| > http://tolstoy.newcastle.edu.au/R/devel/06/05/5278.html. My packages are 
+| > all up-to-date. I tried manually removing a package and re-installing it 
+| > using install.packages. The install went OK, but it had no effect (the 
+| > warning still appeared). Any help would be greatly appreciated.
+| >
+| > I am running the Quantian distro inside a VMware virtual machine, on a 
+| > Windows XP Pro host.
+| >
+| > Thanks,
+| >
+| > Simon.
+| >
+| >  > sessionInfo()
+| > Version 2.3.1 (2006-06-01)
+| > i386-pc-linux-gnu
+| >
+| > attached base packages:
+| > [1] "methods"   "stats"     "graphics"  "grDevices" "utils"     "datasets"
+| > [7] "base"
+| >
+| >   
+| 
+| 
+| -- 
+| Simon Blomberg, B.Sc.(Hons.), Ph.D, M.App.Stat.
+| Centre for Resource and Environmental Studies
+| The Australian National University
+| Canberra ACT 0200
+| Australia
+| T: +61 2 6125 7800 email: Simon.Blomberg_at_anu.edu.au
+| F: +61 2 6125 0757
+| CRICOS Provider # 00120C
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From blomsp at ozemail.com.au  Mon Jun 19 02:53:29 2006
+From: blomsp at ozemail.com.au (Simon Blomberg)
+Date: Mon, 19 Jun 2006 10:53:29 +1000
+Subject: [R-sig-Debian] annoying warnings in ESS/Emacs
+In-Reply-To: <17554.39929.240024.181473@basebud.nulle.part>
+References: <4490E76B.1000608@ozemail.com.au>	<4490EF89.2090101@ozemail.com.au>
+	<17554.39929.240024.181473@basebud.nulle.part>
+Message-ID: <4495F589.10902@ozemail.com.au>
+
+Dirk Eddelbuettel wrote:
+> On 15 June 2006 at 15:26, Simon Blomberg wrote:
+> | Hi again,
+> | 
+> | After some fiddling around, I think that r-recommended is not getting 
+> | updated properly. I have the following output from apt-get. It looks 
+> | like there is a problem with file r-recommended_2.3.1-0sarge2_i386.deb
+> | 
+> | Again, any help would be appreciated.
+>
+> r-recommended is 'virtual'. It will not pull newer version of the underlying
+> things in.
+>  
+> apt-get dist-upgrade, on the other hand, should.
+>   
+Thanks Dirk. I tried that, but still the same error messages, and the 
+same problem. I also tried updating ESS, but still no luck. I am using 
+ESS 5.2.10.
+
+Thanks,
+
+Simon.
+> Hth, Dirk
+>
+> | Thanks,
+> | 
+> | Simon.
+> | 
+> | root at Quantian:apt-get -f install
+> | Reading package lists... 0%
+> | Reading package lists... 0%
+> | Reading package lists... 2%
+> | Reading package lists... Done
+> | Building dependency tree... 0%
+> | Building dependency tree... 0%
+> | Building dependency tree... 50%
+> | Building dependency tree... 50%
+> | Building dependency tree... 97%
+> | Building dependency tree... Done
+> | Correcting dependencies... Done
+> | The following extra packages will be installed:
+> |   r-recommended
+> | The following packages will be upgraded:
+> |   r-recommended
+> | 1 upgraded, 0 newly installed, 0 to remove and 102 not upgraded.
+> | 3 not fully installed or removed.
+> | Need to get 0B/6264kB of archives.
+> | After unpacking 24.6MB of additional disk space will be used.
+> | Do you want to continue [Y/n]? Y
+> | WARNING: The following packages cannot be authenticated!
+> |   r-recommended
+> | Install these packages without verification [y/N]? Y
+> | W: Couldn't stat source package list http://ndiswrapper.sourceforge.net 
+> | ./ Packages 
+> | (/var/lib/apt/lists/ndiswrapper.sourceforge.net_debian_._Packages) - 
+> | stat (2 No such file or directory)
+> | W: Couldn't stat source package list http://kanotix.com ./ Packages 
+> | (/var/lib/apt/lists/kanotix.com_files_debian_._Packages) - stat (2 No 
+> | such file or directory)
+> | (Reading database ... 325419 files and directories currently installed.)
+> | Preparing to replace r-recommended 2.3.0-1 (using 
+> | .../r-recommended_2.3.1-0sarge2_i386.deb) ...
+> | Unpacking replacement r-recommended ...
+> | Replacing files in old package r-cran-vr ...
+> | Replacing files in old package r-cran-boot ...
+> | Replacing files in old package r-cran-cluster ...
+> | Replacing files in old package r-cran-foreign ...
+> | dpkg: error processing 
+> | /var/cache/apt/archives/r-recommended_2.3.1-0sarge2_i386.deb (--unpack):
+> |  trying to overwrite `/usr/lib/R/library/grid/html/00Index.html', which 
+> | is also in package r-base-html
+> | dpkg-deb: subprocess paste killed by signal (Broken pipe)
+> | Errors were encountered while processing:
+> |  /var/cache/apt/archives/r-recommended_2.3.1-0sarge2_i386.deb
+> | W: Couldn't stat source package list http://ndiswrapper.sourceforge.net 
+> | ./ Packages 
+> | (/var/lib/apt/lists/ndiswrapper.sourceforge.net_debian_._Packages) - 
+> | stat (2 No such file or directory)
+> | W: Couldn't stat source package list http://kanotix.com ./ Packages 
+> | (/var/lib/apt/lists/kanotix.com_files_debian_._Packages) - stat (2 No 
+> | such file or directory)
+> | W: Couldn't stat source package list http://ndiswrapper.sourceforge.net 
+> | ./ Packages 
+> | (/var/lib/apt/lists/ndiswrapper.sourceforge.net_debian_._Packages) - 
+> | stat (2 No such file or directory)
+> | W: Couldn't stat source package list http://kanotix.com ./ Packages 
+> | (/var/lib/apt/lists/kanotix.com_files_debian_._Packages) - stat (2 No 
+> | such file or directory)
+> | W: You may want to run apt-get update to correct these problems
+> | E: Sub-process /usr/bin/dpkg returned an error code (1)
+> | 
+> | Simon Blomberg wrote:
+> | > Hi,
+> | >
+> | > I'm not sure if this is an R problem, a Debian problem, a GNU Emacs 
+> | > problem or an ESS problem. I get the following warning the first time I 
+> | > call help on a command in a session, for example:
+> | >
+> | >  > ?sessionInfo
+> | > Warning message:
+> | > use of NULL environment is deprecated
+> | >
+> | > This only occurs in GNU Emacs, not when running R from bash, and not 
+> | > with Xemacs. It started happening when I updated R and a lot of packages 
+> | > to 2.3.1. I checked the archives and found this message: 
+> | > http://tolstoy.newcastle.edu.au/R/devel/06/05/5278.html. My packages are 
+> | > all up-to-date. I tried manually removing a package and re-installing it 
+> | > using install.packages. The install went OK, but it had no effect (the 
+> | > warning still appeared). Any help would be greatly appreciated.
+> | >
+> | > I am running the Quantian distro inside a VMware virtual machine, on a 
+> | > Windows XP Pro host.
+> | >
+> | > Thanks,
+> | >
+> | > Simon.
+> | >
+> | >  > sessionInfo()
+> | > Version 2.3.1 (2006-06-01)
+> | > i386-pc-linux-gnu
+> | >
+> | > attached base packages:
+> | > [1] "methods"   "stats"     "graphics"  "grDevices" "utils"     "datasets"
+> | > [7] "base"
+> | >
+> | >   
+> | 
+> | 
+> | -- 
+> | Simon Blomberg, B.Sc.(Hons.), Ph.D, M.App.Stat.
+> | Centre for Resource and Environmental Studies
+> | The Australian National University
+> | Canberra ACT 0200
+> | Australia
+> | T: +61 2 6125 7800 email: Simon.Blomberg_at_anu.edu.au
+> | F: +61 2 6125 0757
+> | CRICOS Provider # 00120C
+> | 
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+>
+
+
+From edd at debian.org  Mon Jun 19 03:24:11 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 18 Jun 2006 20:24:11 -0500
+Subject: [R-sig-Debian] annoying warnings in ESS/Emacs
+In-Reply-To: <4495F589.10902@ozemail.com.au>
+References: <4490E76B.1000608@ozemail.com.au> <4490EF89.2090101@ozemail.com.au>
+	<17554.39929.240024.181473@basebud.nulle.part>
+	<4495F589.10902@ozemail.com.au>
+Message-ID: <17557.64699.572809.404894@basebud.nulle.part>
+
+
+On 19 June 2006 at 10:53, Simon Blomberg wrote:
+| Dirk Eddelbuettel wrote:
+| > On 15 June 2006 at 15:26, Simon Blomberg wrote:
+| > | Hi again,
+| > | 
+| > | After some fiddling around, I think that r-recommended is not getting 
+| > | updated properly. I have the following output from apt-get. It looks 
+| > | like there is a problem with file r-recommended_2.3.1-0sarge2_i386.deb
+| > | 
+| > | Again, any help would be appreciated.
+| >
+| > r-recommended is 'virtual'. It will not pull newer version of the underlying
+| > things in.
+| >  
+| > apt-get dist-upgrade, on the other hand, should.
+| >   
+| Thanks Dirk. I tried that, but still the same error messages, and the 
+| same problem. I also tried updating ESS, but still no luck. I am using 
+| ESS 5.2.10.
+
+Try upgrading ESS -- here is what I get on my Debian testing system (with
+ess-5.3.0-1, but still r-base-core-2.3.0-1) now that I am back at home:
+
+   > if(!exists("baseenv", mode="function")) baseenv <- function() NULL
+   options(STERM='iESS', editor='emacsclient')
+   > > 
+
+As you can see, ESS adds some code to catch the change in baseenv. That ought
+to fix the issue for you. Let us know if that works.
+
+Dirk
+
+
+| Thanks,
+| 
+| Simon.
+| > Hth, Dirk
+| >
+| > | Thanks,
+| > | 
+| > | Simon.
+| > | 
+| > | root at Quantian:apt-get -f install
+| > | Reading package lists... 0%
+| > | Reading package lists... 0%
+| > | Reading package lists... 2%
+| > | Reading package lists... Done
+| > | Building dependency tree... 0%
+| > | Building dependency tree... 0%
+| > | Building dependency tree... 50%
+| > | Building dependency tree... 50%
+| > | Building dependency tree... 97%
+| > | Building dependency tree... Done
+| > | Correcting dependencies... Done
+| > | The following extra packages will be installed:
+| > |   r-recommended
+| > | The following packages will be upgraded:
+| > |   r-recommended
+| > | 1 upgraded, 0 newly installed, 0 to remove and 102 not upgraded.
+| > | 3 not fully installed or removed.
+| > | Need to get 0B/6264kB of archives.
+| > | After unpacking 24.6MB of additional disk space will be used.
+| > | Do you want to continue [Y/n]? Y
+| > | WARNING: The following packages cannot be authenticated!
+| > |   r-recommended
+| > | Install these packages without verification [y/N]? Y
+| > | W: Couldn't stat source package list http://ndiswrapper.sourceforge.net 
+| > | ./ Packages 
+| > | (/var/lib/apt/lists/ndiswrapper.sourceforge.net_debian_._Packages) - 
+| > | stat (2 No such file or directory)
+| > | W: Couldn't stat source package list http://kanotix.com ./ Packages 
+| > | (/var/lib/apt/lists/kanotix.com_files_debian_._Packages) - stat (2 No 
+| > | such file or directory)
+| > | (Reading database ... 325419 files and directories currently installed.)
+| > | Preparing to replace r-recommended 2.3.0-1 (using 
+| > | .../r-recommended_2.3.1-0sarge2_i386.deb) ...
+| > | Unpacking replacement r-recommended ...
+| > | Replacing files in old package r-cran-vr ...
+| > | Replacing files in old package r-cran-boot ...
+| > | Replacing files in old package r-cran-cluster ...
+| > | Replacing files in old package r-cran-foreign ...
+| > | dpkg: error processing 
+| > | /var/cache/apt/archives/r-recommended_2.3.1-0sarge2_i386.deb (--unpack):
+| > |  trying to overwrite `/usr/lib/R/library/grid/html/00Index.html', which 
+| > | is also in package r-base-html
+| > | dpkg-deb: subprocess paste killed by signal (Broken pipe)
+| > | Errors were encountered while processing:
+| > |  /var/cache/apt/archives/r-recommended_2.3.1-0sarge2_i386.deb
+| > | W: Couldn't stat source package list http://ndiswrapper.sourceforge.net 
+| > | ./ Packages 
+| > | (/var/lib/apt/lists/ndiswrapper.sourceforge.net_debian_._Packages) - 
+| > | stat (2 No such file or directory)
+| > | W: Couldn't stat source package list http://kanotix.com ./ Packages 
+| > | (/var/lib/apt/lists/kanotix.com_files_debian_._Packages) - stat (2 No 
+| > | such file or directory)
+| > | W: Couldn't stat source package list http://ndiswrapper.sourceforge.net 
+| > | ./ Packages 
+| > | (/var/lib/apt/lists/ndiswrapper.sourceforge.net_debian_._Packages) - 
+| > | stat (2 No such file or directory)
+| > | W: Couldn't stat source package list http://kanotix.com ./ Packages 
+| > | (/var/lib/apt/lists/kanotix.com_files_debian_._Packages) - stat (2 No 
+| > | such file or directory)
+| > | W: You may want to run apt-get update to correct these problems
+| > | E: Sub-process /usr/bin/dpkg returned an error code (1)
+| > | 
+| > | Simon Blomberg wrote:
+| > | > Hi,
+| > | >
+| > | > I'm not sure if this is an R problem, a Debian problem, a GNU Emacs 
+| > | > problem or an ESS problem. I get the following warning the first time I 
+| > | > call help on a command in a session, for example:
+| > | >
+| > | >  > ?sessionInfo
+| > | > Warning message:
+| > | > use of NULL environment is deprecated
+| > | >
+| > | > This only occurs in GNU Emacs, not when running R from bash, and not 
+| > | > with Xemacs. It started happening when I updated R and a lot of packages 
+| > | > to 2.3.1. I checked the archives and found this message: 
+| > | > http://tolstoy.newcastle.edu.au/R/devel/06/05/5278.html. My packages are 
+| > | > all up-to-date. I tried manually removing a package and re-installing it 
+| > | > using install.packages. The install went OK, but it had no effect (the 
+| > | > warning still appeared). Any help would be greatly appreciated.
+| > | >
+| > | > I am running the Quantian distro inside a VMware virtual machine, on a 
+| > | > Windows XP Pro host.
+| > | >
+| > | > Thanks,
+| > | >
+| > | > Simon.
+| > | >
+| > | >  > sessionInfo()
+| > | > Version 2.3.1 (2006-06-01)
+| > | > i386-pc-linux-gnu
+| > | >
+| > | > attached base packages:
+| > | > [1] "methods"   "stats"     "graphics"  "grDevices" "utils"     "datasets"
+| > | > [7] "base"
+| > | >
+| > | >   
+| > | 
+| > | 
+| > | -- 
+| > | Simon Blomberg, B.Sc.(Hons.), Ph.D, M.App.Stat.
+| > | Centre for Resource and Environmental Studies
+| > | The Australian National University
+| > | Canberra ACT 0200
+| > | Australia
+| > | T: +61 2 6125 7800 email: Simon.Blomberg_at_anu.edu.au
+| > | F: +61 2 6125 0757
+| > | CRICOS Provider # 00120C
+| > | 
+| > | _______________________________________________
+| > | R-SIG-Debian mailing list
+| > | R-SIG-Debian at r-project.org
+| > | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| >
+| >   
+| 
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From blomsp at ozemail.com.au  Mon Jun 19 07:33:50 2006
+From: blomsp at ozemail.com.au (Simon Blomberg)
+Date: Mon, 19 Jun 2006 15:33:50 +1000
+Subject: [R-sig-Debian] annoying warnings in ESS/Emacs
+In-Reply-To: <17557.64699.572809.404894@basebud.nulle.part>
+References: <4490E76B.1000608@ozemail.com.au>	<4490EF89.2090101@ozemail.com.au>	<17554.39929.240024.181473@basebud.nulle.part>	<4495F589.10902@ozemail.com.au>
+	<17557.64699.572809.404894@basebud.nulle.part>
+Message-ID: <4496373E.4070805@ozemail.com.au>
+
+Hi Dirk,
+
+After struggling with apt-get, which kept telling me that ESS was the 
+latest version, I finally downloaded 5.3.1 and installed it manually 
+using dpkg. That got rid of the annoying warnings in R/Emacs/ESS. 
+Thanks! Now I still have some dependency issues with R (I am very 
+dependent on R for my work! :-) ), but I think I can wait for the next 
+release, and update everything then.
+
+Cheers,
+
+Simon.
+
+ Dirk Eddelbuettel wrote:
+> On 19 June 2006 at 10:53, Simon Blomberg wrote:
+> | Dirk Eddelbuettel wrote:
+> | > On 15 June 2006 at 15:26, Simon Blomberg wrote:
+> | > | Hi again,
+> | > | 
+> | > | After some fiddling around, I think that r-recommended is not getting 
+> | > | updated properly. I have the following output from apt-get. It looks 
+> | > | like there is a problem with file r-recommended_2.3.1-0sarge2_i386.deb
+> | > | 
+> | > | Again, any help would be appreciated.
+> | >
+> | > r-recommended is 'virtual'. It will not pull newer version of the underlying
+> | > things in.
+> | >  
+> | > apt-get dist-upgrade, on the other hand, should.
+> | >   
+> | Thanks Dirk. I tried that, but still the same error messages, and the 
+> | same problem. I also tried updating ESS, but still no luck. I am using 
+> | ESS 5.2.10.
+>
+> Try upgrading ESS -- here is what I get on my Debian testing system (with
+> ess-5.3.0-1, but still r-base-core-2.3.0-1) now that I am back at home:
+>
+>    > if(!exists("baseenv", mode="function")) baseenv <- function() NULL
+>    options(STERM='iESS', editor='emacsclient')
+>    > > 
+>
+> As you can see, ESS adds some code to catch the change in baseenv. That ought
+> to fix the issue for you. Let us know if that works.
+>
+> Dirk
+>
+>
+
+
+From spluque at gmail.com  Wed Jun 28 05:59:52 2006
+From: spluque at gmail.com (Sebastian Luque)
+Date: Tue, 27 Jun 2006 22:59:52 -0500
+Subject: [R-sig-Debian] annoying warnings in ESS/Emacs
+References: <4490E76B.1000608@ozemail.com.au>
+Message-ID: <87lkri3p6v.fsf@arctocephalus.homelinux.org>
+
+Simon Blomberg <blomsp at ozemail.com.au> wrote:
+
+[...]
+
+> This only occurs in GNU Emacs, not when running R from bash, and not
+> with Xemacs. It started happening when I updated R and a lot of packages 
+> to 2.3.1. I checked the archives and found this message: 
+> http://tolstoy.newcastle.edu.au/R/devel/06/05/5278.html.
+
+Currently, I'm getting the following at startup in my system, whether from
+Emacs/ESS or a console:
+
+
+---<---------------cut here---------------start-------------->---
+During startup - Warning message:
+use of NULL environment is deprecated 
+R> if(!exists("baseenv", mode="function")) baseenv <- function() NULL
+options(STERM='iESS', editor='emacsclient')
+R> R> sessionInfo()
+Version 2.3.1 (2006-06-01) 
+i486-pc-linux-gnu 
+
+attached base packages:
+[1] "methods"   "stats"     "graphics"  "grDevices" "utils"     "datasets" 
+[7] "base"     
+
+other attached packages:
+   chron  gmodels  lattice 
+ "2.3-3" "2.12.0" "0.13-8" 
+---<---------------cut here---------------end---------------->---
+
+
+Of the packages showing as attached, only chron is installed in a local
+library.  I've narrowed down the culprit of the warning at startup to
+gmodels, which I've gotten from r-cran-gmodels, from the unstable
+distribution.  From reading this thread, and the one Simon refers to, is
+it right to say that there's not much we (as users) can do until the
+gmodels package maintainer replaces use of the NULL environment in the
+source?  Likewise for other Debian R packages generating the warning when
+loading them?
+
+
+Cheers,
+
+-- 
+Seb
+
+
+From edd at debian.org  Wed Jun 28 13:25:38 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 28 Jun 2006 06:25:38 -0500
+Subject: [R-sig-Debian] annoying warnings in ESS/Emacs
+In-Reply-To: <87lkri3p6v.fsf@arctocephalus.homelinux.org>
+References: <4490E76B.1000608@ozemail.com.au>
+	<87lkri3p6v.fsf@arctocephalus.homelinux.org>
+Message-ID: <17570.26418.374961.899519@basebud.nulle.part>
+
+
+On 27 June 2006 at 22:59, Sebastian Luque wrote:
+| Simon Blomberg <blomsp at ozemail.com.au> wrote:
+| 
+| [...]
+| 
+| > This only occurs in GNU Emacs, not when running R from bash, and not
+| > with Xemacs. It started happening when I updated R and a lot of packages 
+| > to 2.3.1. I checked the archives and found this message: 
+| > http://tolstoy.newcastle.edu.au/R/devel/06/05/5278.html.
+| 
+| Currently, I'm getting the following at startup in my system, whether from
+| Emacs/ESS or a console:
+| 
+| 
+| ---<---------------cut here---------------start-------------->---
+| During startup - Warning message:
+| use of NULL environment is deprecated 
+| R> if(!exists("baseenv", mode="function")) baseenv <- function() NULL
+| options(STERM='iESS', editor='emacsclient')
+| R> R> sessionInfo()
+| Version 2.3.1 (2006-06-01) 
+| i486-pc-linux-gnu 
+| 
+| attached base packages:
+| [1] "methods"   "stats"     "graphics"  "grDevices" "utils"     "datasets" 
+| [7] "base"     
+| 
+| other attached packages:
+|    chron  gmodels  lattice 
+|  "2.3-3" "2.12.0" "0.13-8" 
+| ---<---------------cut here---------------end---------------->---
+| 
+| 
+| Of the packages showing as attached, only chron is installed in a local
+| library.  I've narrowed down the culprit of the warning at startup to
+| gmodels, which I've gotten from r-cran-gmodels, from the unstable
+| distribution.  From reading this thread, and the one Simon refers to, is
+| it right to say that there's not much we (as users) can do until the
+| gmodels package maintainer replaces use of the NULL environment in the
+| source?  Likewise for other Debian R packages generating the warning when
+| loading them?
+
+AFAIK a simple rebuild would cure it. Could you try a) removing 'our' gmodels
+and b) installing a 'local' one from CRAN and see if that helps?
+
+Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From spluque at gmail.com  Wed Jun 28 14:35:15 2006
+From: spluque at gmail.com (Sebastian Luque)
+Date: Wed, 28 Jun 2006 07:35:15 -0500
+Subject: [R-sig-Debian] annoying warnings in ESS/Emacs
+References: <4490E76B.1000608@ozemail.com.au>
+	<87lkri3p6v.fsf@arctocephalus.homelinux.org>
+	<17570.26418.374961.899519@basebud.nulle.part>
+Message-ID: <87d5ct4fwc.fsf@arctocephalus.homelinux.org>
+
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+[...]
+
+> AFAIK a simple rebuild would cure it. Could you try a) removing 'our' gmodels
+> and b) installing a 'local' one from CRAN and see if that helps?
+
+Yes, doing that does solve the issue.  Thanks!
+
+
+-- 
+Seb
+
+
+From jp.statalist at gmail.com  Fri Jun 30 00:44:02 2006
+From: jp.statalist at gmail.com (JP Azevedo)
+Date: Thu, 29 Jun 2006 19:44:02 -0300
+Subject: [R-sig-Debian] R 2.3.0 + R-gnome + Ubuntu (i686 & amd64)
+Message-ID: <e0902e340606291544u25d124a2k486bdbe9694eb335@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+Url: https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20060629/89e57412/attachment.pl 
+
+From edd at debian.org  Fri Jun 30 01:11:17 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 29 Jun 2006 18:11:17 -0500
+Subject: [R-sig-Debian] R 2.3.0 + R-gnome + Ubuntu (i686 & amd64)
+In-Reply-To: <e0902e340606291544u25d124a2k486bdbe9694eb335@mail.gmail.com>
+References: <e0902e340606291544u25d124a2k486bdbe9694eb335@mail.gmail.com>
+Message-ID: <17572.24085.837267.315192@basebud.nulle.part>
+
+
+On 29 June 2006 at 19:44, JP Azevedo wrote:
+| Hello,
+| I am trying to run R-gnome on my Debian distro (Ubuntu 6.06), but something
+| strange is happening.  Inspite of having apperently sucessfully installed
+| Rgnome 2.3.0 I keep getting the error message below, saying that Rgnome is
+| not found. I have actually checked the folder and  Rgnome is not being
+| properly installed.
+
+You probably need to install the CRAN package gnomeGUI.  
+
+The Debian/Ubuntu package is 'empty' and just a placeholder ever since
+upstream move the GUI out of the upstream sources into gnomeGUI.
+
+Hth, Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From jp.statalist at gmail.com  Fri Jun 30 14:59:37 2006
+From: jp.statalist at gmail.com (JP Azevedo)
+Date: Fri, 30 Jun 2006 09:59:37 -0300
+Subject: [R-sig-Debian] Rgnome Desktop Icon
+Message-ID: <e0902e340606300559r5431a89dw1866acc671aa171c@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+Url: https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20060630/98ec14ca/attachment.pl 
+
+From friendly at yorku.ca  Fri Jun 30 15:26:17 2006
+From: friendly at yorku.ca (Michael Friendly)
+Date: Fri, 30 Jun 2006 09:26:17 -0400
+Subject: [R-sig-Debian] Rgnome Desktop Icon
+In-Reply-To: <e0902e340606300559r5431a89dw1866acc671aa171c@mail.gmail.com>
+References: <e0902e340606300559r5431a89dw1866acc671aa171c@mail.gmail.com>
+Message-ID: <44A52679.1050905@yorku.ca>
+
+In KDE, from the KDE menu, navigate to Rgnome and drag it
+to your desktop.  Select 'Copy here' from the popup.
+You can then change the icon if you like from the Properties
+menu (rt-click on Rgnome dessktop icon).
+
+JP Azevedo wrote:
+
+> Hello,
+> I would like to know if it is possible to create a desktop icon of Rgnome?
+> And is so, how?
+> Cheers,
+> JP
+> 
+> 	[[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Michael Friendly     Email: friendly AT yorku DOT ca
+Professor, Psychology Dept.
+York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+4700 Keele Street    http://www.math.yorku.ca/SCS/friendly.html
+Toronto, ONT  M3J 1P3 CANADA
+
+

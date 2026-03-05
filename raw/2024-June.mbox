@@ -1,0 +1,212 @@
+From wo||g@ng@v|echtb@uer @end|ng |rom m@@@tr|chtun|ver@|ty@n|  Sun Jun 23 18:39:54 2024
+From: wo||g@ng@v|echtb@uer @end|ng |rom m@@@tr|chtun|ver@|ty@n| (Viechtbauer, Wolfgang (NP))
+Date: Sun, 23 Jun 2024 16:39:54 +0000
+Subject: [R-sig-Debian] Issue with pkgconf when upgrading to 4.4.1
+Message-ID: <AS8PR08MB9193016C9E3D786BC8CDB1338BCB2@AS8PR08MB9193.eurprd08.prod.outlook.com>
+
+Hi all,
+
+I am running Ubuntu 20.04.6 (focal) (yes, planning to upgrade soon) and just updated to 4.4.1. However, the process did not quite go as smoothly. 'sudo apt upgrade' ran but 'r-base-dev' was not updated because of a dependency issue:
+
+[08:57] ? wviechtb at wv-x5 ? ~/ ? sudo apt upgrade r-base-dev
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+Calculating upgrade... Done
+Some packages could not be installed. This may mean that you have
+requested an impossible situation or if you are using the unstable
+distribution that some required packages have not yet been created
+or been moved out of Incoming.
+The following information may help to resolve the situation:
+
+The following packages have unmet dependencies:
+ r-base-dev : Depends: pkgconf but it is not going to be installed
+E: Broken packages
+
+I was brave/foolish enough to just plow ahead:
+
+[08:58] ? wviechtb at wv-x5 ? ~/ ? sudo apt install pkgconf
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following additional packages will be installed:
+  libpkgconf3
+The following packages will be REMOVED:
+  pkg-config
+The following NEW packages will be installed:
+  libpkgconf3 pkgconf
+0 upgraded, 2 newly installed, 1 to remove and 1 not upgraded.
+Need to get 61.9 kB of archives.
+After this operation, 39.9 kB of additional disk space will be used.
+Do you want to continue? [Y/n]
+Get:1 http://de.archive.ubuntu.com/ubuntu focal/universe amd64 libpkgconf3 amd64 1.6.3-5 [28.5 kB]
+Get:2 http://de.archive.ubuntu.com/ubuntu focal/universe amd64 pkgconf amd64 1.6.3-5 [33.4 kB]
+Fetched 61.9 kB in 10s (6,106 B/s)
+Selecting previously unselected package libpkgconf3:amd64.
+(Reading database ... 579412 files and directories currently installed.)
+Preparing to unpack .../libpkgconf3_1.6.3-5_amd64.deb ...
+Unpacking libpkgconf3:amd64 (1.6.3-5) ...
+dpkg: pkg-config: dependency problems, but removing anyway as you requested:
+ r-base-dev depends on pkg-config.
+ libmkl-dev:amd64 depends on pkg-config.
+ libmagickwand-6.q16-dev:amd64 depends on pkg-config.
+ libmagickcore-6.q16-dev:amd64 depends on pkg-config.
+ libmagick++-6.q16-dev:amd64 depends on pkg-config.
+ libglib2.0-dev:amd64 depends on pkg-config.
+ libfontconfig1-dev:amd64 depends on pkg-config.
+ libextutils-pkgconfig-perl depends on pkg-config.
+ libdap-dev:amd64 depends on pkg-config; however:
+  Package pkg-config is to be removed.
+
+(Reading database ... 579417 files and directories currently installed.)
+Removing pkg-config (0.29.1-0ubuntu4) ...
+Selecting previously unselected package pkgconf.
+(Reading database ... 579403 files and directories currently installed.)
+Preparing to unpack .../pkgconf_1.6.3-5_amd64.deb ...
+Adding 'diversion of /usr/bin/pkg-config to /usr/bin/pkg-config.real by pkgconf'
+Adding 'diversion of /usr/share/aclocal/pkg.m4 to /usr/share/aclocal/pkg.real.m4 by pkgconf'
+Adding 'diversion of /usr/share/man/man1/pkg-config.1.gz to /usr/share/man/man1/pkg-config.real.1.gz by pkgconf'
+Adding 'diversion of /usr/share/pkg-config-crosswrapper to /usr/share/pkg-config-crosswrapper.real by pkgconf'
+Unpacking pkgconf (1.6.3-5) ...
+Setting up libpkgconf3:amd64 (1.6.3-5) ...
+Setting up pkgconf (1.6.3-5) ...
+Processing triggers for man-db (2.9.1-1) ...
+Processing triggers for libc-bin (2.31-0ubuntu9.16) ...
+
+After which 'sudo apt upgrade r-base-dev' ran. As far as I can tell, I haven't totally borked my system (yet), and R 4.4.1 runs just fine, plus I am not getting any further complaints from apt. But the process probably isn't quite as intended.
+
+Reporting this here after this came up on Mastodon by another user who ran into the same issue:
+
+https://emacs.ch/@pglpm/112664623789549089
+
+and Dirk's suggestion to post this here.
+
+Best,
+Wolfgang
+
+From edd @end|ng |rom deb|@n@org  Sun Jun 23 19:10:59 2024
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Sun, 23 Jun 2024 12:10:59 -0500
+Subject: [R-sig-Debian] Issue with pkgconf when upgrading to 4.4.1
+In-Reply-To: <AS8PR08MB9193016C9E3D786BC8CDB1338BCB2@AS8PR08MB9193.eurprd08.prod.outlook.com>
+References: <AS8PR08MB9193016C9E3D786BC8CDB1338BCB2@AS8PR08MB9193.eurprd08.prod.outlook.com>
+Message-ID: <26232.22307.811697.808840@rob.eddelbuettel.com>
+
+
+On 23 June 2024 at 16:39, Viechtbauer, Wolfgang (NP) wrote:
+| Hi all,
+| 
+| I am running Ubuntu 20.04.6 (focal) (yes, planning to upgrade soon) and just updated to 4.4.1. However, the process did not quite go as smoothly. 'sudo apt upgrade' ran but 'r-base-dev' was not updated because of a dependency issue:
+| 
+| [08:57] ? wviechtb at wv-x5 ? ~/ ? sudo apt upgrade r-base-dev
+| Reading package lists... Done
+| Building dependency tree
+| Reading state information... Done
+| Calculating upgrade... Done
+| Some packages could not be installed. This may mean that you have
+| requested an impossible situation or if you are using the unstable
+| distribution that some required packages have not yet been created
+| or been moved out of Incoming.
+| The following information may help to resolve the situation:
+| 
+| The following packages have unmet dependencies:
+|  r-base-dev : Depends: pkgconf but it is not going to be installed
+| E: Broken packages
+| 
+| I was brave/foolish enough to just plow ahead:
+| 
+| [08:58] ? wviechtb at wv-x5 ? ~/ ? sudo apt install pkgconf
+| Reading package lists... Done
+| Building dependency tree
+| Reading state information... Done
+| The following additional packages will be installed:
+|   libpkgconf3
+| The following packages will be REMOVED:
+|   pkg-config
+| The following NEW packages will be installed:
+|   libpkgconf3 pkgconf
+| 0 upgraded, 2 newly installed, 1 to remove and 1 not upgraded.
+| Need to get 61.9 kB of archives.
+| After this operation, 39.9 kB of additional disk space will be used.
+| Do you want to continue? [Y/n]
+| Get:1 http://de.archive.ubuntu.com/ubuntu focal/universe amd64 libpkgconf3 amd64 1.6.3-5 [28.5 kB]
+| Get:2 http://de.archive.ubuntu.com/ubuntu focal/universe amd64 pkgconf amd64 1.6.3-5 [33.4 kB]
+| Fetched 61.9 kB in 10s (6,106 B/s)
+| Selecting previously unselected package libpkgconf3:amd64.
+| (Reading database ... 579412 files and directories currently installed.)
+| Preparing to unpack .../libpkgconf3_1.6.3-5_amd64.deb ...
+| Unpacking libpkgconf3:amd64 (1.6.3-5) ...
+| dpkg: pkg-config: dependency problems, but removing anyway as you requested:
+|  r-base-dev depends on pkg-config.
+|  libmkl-dev:amd64 depends on pkg-config.
+|  libmagickwand-6.q16-dev:amd64 depends on pkg-config.
+|  libmagickcore-6.q16-dev:amd64 depends on pkg-config.
+|  libmagick++-6.q16-dev:amd64 depends on pkg-config.
+|  libglib2.0-dev:amd64 depends on pkg-config.
+|  libfontconfig1-dev:amd64 depends on pkg-config.
+|  libextutils-pkgconfig-perl depends on pkg-config.
+|  libdap-dev:amd64 depends on pkg-config; however:
+|   Package pkg-config is to be removed.
+| 
+| (Reading database ... 579417 files and directories currently installed.)
+| Removing pkg-config (0.29.1-0ubuntu4) ...
+| Selecting previously unselected package pkgconf.
+| (Reading database ... 579403 files and directories currently installed.)
+| Preparing to unpack .../pkgconf_1.6.3-5_amd64.deb ...
+| Adding 'diversion of /usr/bin/pkg-config to /usr/bin/pkg-config.real by pkgconf'
+| Adding 'diversion of /usr/share/aclocal/pkg.m4 to /usr/share/aclocal/pkg.real.m4 by pkgconf'
+| Adding 'diversion of /usr/share/man/man1/pkg-config.1.gz to /usr/share/man/man1/pkg-config.real.1.gz by pkgconf'
+| Adding 'diversion of /usr/share/pkg-config-crosswrapper to /usr/share/pkg-config-crosswrapper.real by pkgconf'
+| Unpacking pkgconf (1.6.3-5) ...
+| Setting up libpkgconf3:amd64 (1.6.3-5) ...
+| Setting up pkgconf (1.6.3-5) ...
+| Processing triggers for man-db (2.9.1-1) ...
+| Processing triggers for libc-bin (2.31-0ubuntu9.16) ...
+| 
+| After which 'sudo apt upgrade r-base-dev' ran. As far as I can tell, I haven't totally borked my system (yet), and R 4.4.1 runs just fine, plus I am not getting any further complaints from apt. But the process probably isn't quite as intended.
+| 
+| Reporting this here after this came up on Mastodon by another user who ran into the same issue:
+| 
+| https://emacs.ch/@pglpm/112664623789549089
+| 
+| and Dirk's suggestion to post this here.
+
+This is mostly likely 'merely' a change coming from the other end
+(i.e. Debian unstable/testing where I did what [1] shows) and which is out of
+sync on a four years older (!!) release like focal until a) someone tells us
+and/or b) someone sends us a tested / improved build recipe.
+
+Most likely Michael (once he is back from a short trip) can just make an sed
+call to adjust the debian/control file gets from my (current, Debian
+unstable/testing) sources for these backports; switching pkgconf back to
+pkg-config may be all it takes.
+
+For what it is worth, I built also a 'local' build on 23.10 and it had no
+issues. Focal is older, you value its stability but there will an occassional
+'tax' to pay on these deltas.
+
+Thanks for reporting it though. These things can only be improved if we're aware.
+
+Dirk
+
+[1] The corresponding debian/changelog was
+
+r-base (4.4.0-2) unstable; urgency=medium
+
+  * debian/control: Add libdeflate-dev to Depends of r-base-dev (Closes: #1069842)
+  * debian/control: Change pkg-config to pkgconf in Depends of r-base-dev [lintian]
+
+ -- Dirk Eddelbuettel <edd at debian.org>  Fri, 26 Apr 2024 08:46:14 -0500
+
+
+| Best,
+| Wolfgang
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+

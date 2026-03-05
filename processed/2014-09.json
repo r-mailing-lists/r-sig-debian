@@ -1,0 +1,559 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2014-09",
+  "messages": [
+    {
+      "id": "msg-c6824a424941",
+      "message_id": "<5414611F.5050708@mdowle.plus.com>",
+      "from_name": "Matt Dowle",
+      "from_email_hash": "da70e29f21357922d3ff71dee2915877599edde846f651e4da8287df362c75d3",
+      "date": "2014-09-13T16:22:07+01:00",
+      "subject": "[R-sig-Debian] Picking 'rgl' as source package instead of 'r-cran-rgl'",
+      "subject_clean": "Picking 'rgl' as source package instead of 'r-cran-rgl'",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi,\n\n$ more /etc/apt/sources.list.d/additional-repositories.list\ndeb http://www.stats.bris.ac.uk/R/bin/linux/debian wheezy-cran3/\ndeb-src http://www.stats.bris.ac.uk/R/bin/linux/debian wheezy-cran3/\n\n$ sudo apt-get update\n\n$ sudo apt-get install r-cran-rgl      # works great\n\n$ sudo apt-get build-dep r-cran-rgl\nReading package lists... Done\nBuilding dependency tree\nReading state information... Done\nPicking 'rgl' as source package instead of 'r-cran-rgl'\nE: Unable to find a source package for rgl\n\nWhat have I done wrong?!\n\nThanks, Matt",
+      "body_snippet": "Hi,\n\n$ more /etc/apt/sources.list.d/additional-repositories.list\ndeb http://www.stats.bris.ac.uk/R/bin/linux/debian wheezy-cran3/\ndeb-src http://www.stats.bris.ac.uk/R/bin/linux/debian wheezy-cran3/\n\n",
+      "thread_id": "thread-c6824a424941",
+      "thread_depth": 0,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-a35cdc1af55e",
+      "message_id": "<54148132.9070305@mdowle.plus.com>",
+      "from_name": "Matt Dowle",
+      "from_email_hash": "da70e29f21357922d3ff71dee2915877599edde846f651e4da8287df362c75d3",
+      "date": "2014-09-13T18:38:58+01:00",
+      "subject": "[R-sig-Debian] Picking 'rgl' as source package instead of 'r-cran-rgl'",
+      "subject_clean": "Picking 'rgl' as source package instead of 'r-cran-rgl'",
+      "in_reply_to": "<5414611F.5050708@mdowle.plus.com>",
+      "references": [
+        "<5414611F.5050708@mdowle.plus.com>"
+      ],
+      "body_plain": "On 13/09/14 16:22, Matt Dowle wrote:\n> Hi,\n>\n> $ more /etc/apt/sources.list.d/additional-repositories.list\n> deb http://www.stats.bris.ac.uk/R/bin/linux/debian wheezy-cran3/\n> deb-src http://www.stats.bris.ac.uk/R/bin/linux/debian wheezy-cran3/\n>\n> $ sudo apt-get update\n>\n> $ sudo apt-get install r-cran-rgl      # works great\n>\n> $ sudo apt-get build-dep r-cran-rgl\n> Reading package lists... Done\n> Building dependency tree\n> Reading state information... Done\n> Picking 'rgl' as source package instead of 'r-cran-rgl'\n> E: Unable to find a source package for rgl\n>\n> What have I done wrong?!\n>\n> Thanks, Matt\n>\n>\n\nThanks to Prof Nash and Dirk,  I was missing deb-src entries on the main \nDebian repos.\nI went to Administration->Software Source,  selected \"Enable source code \nrepos\"\nThen the following file appeared :\n\n$ more /etc/apt/sources.list.d/official-source-repositories.list\ndeb-src http://packages.linuxmint.com debian main upstream import\n\ndeb-src http://debian.linuxmint.com/latest/ testing main contrib non-free\ndeb-src http://debian.linuxmint.com/latest/security testing/updates main \ncontrib non-free\ndeb-src http://debian.linuxmint.com/latest/multimedia testing main non-free\n\ndeb-src http://extra.linuxmint.com debian main\n$\n\nThen it worked :\n\n$ sudo apt-get update\n$ sudo apt-get build-dep r-cran-rgl\n\nThanks!\nMatt",
+      "body_snippet": "On 13/09/14 16:22, Matt Dowle wrote:\n> Hi,\n>\n> $ more /etc/apt/sources.list.d/additional-repositories.list\n> deb http://www.stats.bris.ac.uk/R/bin/linux/debian wheezy-cran3/\n> deb-src http://www.stats",
+      "thread_id": "thread-c6824a424941",
+      "thread_depth": 1,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-d866ca2516fb",
+      "message_id": "<FF014E3CAA79414894DBC6CF5B7B596C4B6E8FBD@billexch01.VerticaCorp.com>",
+      "from_name": "Pratibha Rana",
+      "from_email_hash": "d806be24d9f6ed02ba60f50861f380dbd57a4cbbe7f157b9824a64ce39fd3960",
+      "date": "2014-09-18T15:03:41Z",
+      "subject": "[R-sig-Debian] difference between install from source and install from repositories",
+      "subject_clean": "difference between install from source and install from repositories",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi,\n\nWhat is the difference between the R installation from source and the R\ninstallation from ubuntu repositories. Specifically when I install\nR-3.1.1 on ubuntu 14.04 from sources ldflags and CXXFLAGS are different\nthat those from the installation from a repo.\n\nInstallation from sources:\n\nR CMD config --ldflags\n\n-Wl,--export-dynamic -fopenmp  -L/home/prana/prana_R/third-party/install/lib/R/lib -lR -lrt -ldl -lm\n\nR CMD config CXXFLAGS\n\n\n\nInstallation from repo:\n\n R CMD config --ldflags\n\n-Wl,--export-dynamic -fopenmp  -L/usr/lib/R/lib -lR -lpcre -llzma -lbz2 -lz -lrt -ldl -lm\n\nR CMD config CXXFLAGS\n\n-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g\n\nThese are the steps that I followed to install from sources\n\n./configure  --enable-R-shlib --with-x=no --with-readline=no\n--prefix=/home/prana/software/install/\nmake\nmake install\n\n\n\nPratibha\n\n\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Hi,\n\nWhat is the difference between the R installation from source and the R\ninstallation from ubuntu repositories. Specifically when I install\nR-3.1.1 on ubuntu 14.04 from sources ldflags and CXXFLAG",
+      "thread_id": "thread-d866ca2516fb",
+      "thread_depth": 0,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-f109a51f2aea",
+      "message_id": "<21530.63343.515513.641943@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2014-09-18T10:17:03-05:00",
+      "subject": "[R-sig-Debian] difference between install from source and install\tfrom repositories",
+      "subject_clean": "difference between install from source and install\tfrom repositories",
+      "in_reply_to": "<FF014E3CAA79414894DBC6CF5B7B596C4B6E8FBD@billexch01.VerticaCorp.com>",
+      "references": [
+        "<FF014E3CAA79414894DBC6CF5B7B596C4B6E8FBD@billexch01.VerticaCorp.com>"
+      ],
+      "body_plain": "On 18 September 2014 at 15:03, Pratibha Rana wrote:\n| What is the difference between the R installation from source and the R\n| installation from ubuntu repositories. Specifically when I install\n| R-3.1.1 on ubuntu 14.04 from sources ldflags and CXXFLAGS are different\n| that those from the installation from a repo.\n\nR records the arguments it receives from the 'configure' call.  As a\nconvenience measure, you can access these via a softlinked file in\n/etc/R/Makeconf which makes it easy to read and study.\n \n| Installation from sources:\n| \n| R CMD config --ldflags\n| \n| -Wl,--export-dynamic -fopenmp  -L/home/prana/prana_R/third-party/install/lib/R/lib -lR -lrt -ldl -lm\n| \n| R CMD config CXXFLAGS\n| \n| \n| \n| Installation from repo:\n| \n|  R CMD config --ldflags\n| \n| -Wl,--export-dynamic -fopenmp  -L/usr/lib/R/lib -lR -lpcre -llzma -lbz2 -lz -lrt -ldl -lm\n| \n| R CMD config CXXFLAGS\n| \n| -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g\n| \n| These are the steps that I followed to install from sources\n| \n| ./configure  --enable-R-shlib --with-x=no --with-readline=no\n| --prefix=/home/prana/software/install/\n| make\n| make install\n\nAnd I as Debian maintainer use a different set of values. See debian/rules\nwhich thanks to some fine work by Zach and others you can even browse via the\nweb:\n\n   http://sources.debian.net/src/r-base/3.1.1-1/debian/rules/\n\nThe file is long and somewhat convoluted as it has grown over 15 or so\nyears.  But the values chosen are in alignment with the Debian Policy which\nis documented in other places.\n\nIn short, we have \"-lpcre -llzma -lbz2 -lz -lrt -ldl\" because we use external\nlibraries where possible. \n\nOn more current systems CXXFLAGS is even longer:\n\nedd at max:~$ R CMD config CXXFLAGS\n-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g -O3 -Wall -pipe -Wno-unused -pedantic\nedd at max:~$ \n\nbecause I (finally) turned on some security-related switches.  This is on my\nUbuntu 14.04 system at home using the Ubuntu binaries available at CRAN\nthanks to the backported builds run by Michael (see the README on each CRAN\nmirror $CRAN_mirror/bin/linux/ubuntu/ )\n\n\nNow:  for your day-to-day work with R __none of this should matter__.  \n\nIf you think it does, a reproducible example would help.\n\nHope this helps.  \n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 18 September 2014 at 15:03, Pratibha Rana wrote:\n| What is the difference between the R installation from source and the R\n| installation from ubuntu repositories. Specifically when I install\n| R-3",
+      "thread_id": "thread-d866ca2516fb",
+      "thread_depth": 1,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-98090074c595",
+      "message_id": "<FF014E3CAA79414894DBC6CF5B7B596C4B6E90AA@billexch01.VerticaCorp.com>",
+      "from_name": "Pratibha Rana",
+      "from_email_hash": "d806be24d9f6ed02ba60f50861f380dbd57a4cbbe7f157b9824a64ce39fd3960",
+      "date": "2014-09-18T15:50:32Z",
+      "subject": "[R-sig-Debian] difference between install from source and install\tfrom repositories",
+      "subject_clean": "difference between install from source and install\tfrom repositories",
+      "in_reply_to": null,
+      "references": [
+        "<FF014E3CAA79414894DBC6CF5B7B596C4B6E8FBD@billexch01.VerticaCorp.com>",
+        "<21530.63343.515513.641943@max.nulle.part>"
+      ],
+      "body_plain": "On 09/18/2014 11:16 AM, Dirk Eddelbuettel wrote:\n> On 18 September 2014 at 15:03, Pratibha Rana wrote:\n> | What is the difference between the R installation from source and the R\n> | installation from ubuntu repositories. Specifically when I install\n> | R-3.1.1 on ubuntu 14.04 from sources ldflags and CXXFLAGS are different\n> | that those from the installation from a repo.\n>\n> R records the arguments it receives from the 'configure' call.  As a\n> convenience measure, you can access these via a softlinked file in\n> /etc/R/Makeconf which makes it easy to read and study.\nI see . I'll take a look at that and see if I can bring my source\ninstallation at parity.\n>  \n> | Installation from sources:\n> | \n> | R CMD config --ldflags\n> | \n> | -Wl,--export-dynamic -fopenmp  -L/home/prana/prana_R/third-party/install/lib/R/lib -lR -lrt -ldl -lm\n> | \n> | R CMD config CXXFLAGS\n> | \n> | \n> | \n> | Installation from repo:\n> | \n> |  R CMD config --ldflags\n> | \n> | -Wl,--export-dynamic -fopenmp  -L/usr/lib/R/lib -lR -lpcre -llzma -lbz2 -lz -lrt -ldl -lm\n> | \n> | R CMD config CXXFLAGS\n> | \n> | -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g\n> | \n> | These are the steps that I followed to install from sources\n> | \n> | ./configure  --enable-R-shlib --with-x=no --with-readline=no\n> | --prefix=/home/prana/software/install/\n> | make\n> | make install\n>\n> And I as Debian maintainer use a different set of values. See debian/rules\n> which thanks to some fine work by Zach and others you can even browse via the\n> web:\n>\n>    http://sources.debian.net/src/r-base/3.1.1-1/debian/rules/\n>\n> The file is long and somewhat convoluted as it has grown over 15 or so\n> years.  But the values chosen are in alignment with the Debian Policy which\n> is documented in other places.\n>\n> In short, we have \"-lpcre -llzma -lbz2 -lz -lrt -ldl\" because we use external\n> libraries where possible. \n>\n> On more current systems CXXFLAGS is even longer:\n>\n> edd at max:~$ R CMD config CXXFLAGS\n> -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g -O3 -Wall -pipe -Wno-unused -pedantic\n> edd at max:~$ \n>\n> because I (finally) turned on some security-related switches.  This is on my\n> Ubuntu 14.04 system at home using the Ubuntu binaries available at CRAN\n> thanks to the backported builds run by Michael (see the README on each CRAN\n> mirror $CRAN_mirror/bin/linux/ubuntu/ )\n>\n>\n> Now:  for your day-to-day work with R __none of this should matter__.  \n>\n> If you think it does, a reproducible example would help.\nI do have an example which goes into an infinite recursion while\ncreating a NumericVector if I try to run it on an installation from\nsources but runs fine on an installation from the repository. But if you\nstart looking at the code, most of it doesn't do anything useful since I\ntrimmed down the original code as much as possible in my attempt to\nisolate the problem. But in the current code if I try to trim any piece\nof code the problem goes away. I understand that the reproducer is not\nas minimal as it should be, but in my defence the bug is wierd and\ncommenting out even seemingly harmless code makes the code work. Try\ncommenting out any of the functions in RInterface.cpp and the code works\njust fine. Also the same piece of code works in one function but not the\nother.\n>\n> Hope this helps.  \n>\n> Dirk\n>",
+      "body_snippet": "On 09/18/2014 11:16 AM, Dirk Eddelbuettel wrote:\n> On 18 September 2014 at 15:03, Pratibha Rana wrote:\n> | What is the difference between the R installation from source and the R\n> | installation from",
+      "thread_id": "thread-d866ca2516fb",
+      "thread_depth": 2,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-a179de8d16f5",
+      "message_id": "<21531.3311.696427.467393@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2014-09-18T11:48:47-05:00",
+      "subject": "[R-sig-Debian] difference between install from source and install\tfrom repositories",
+      "subject_clean": "difference between install from source and install\tfrom repositories",
+      "in_reply_to": "<FF014E3CAA79414894DBC6CF5B7B596C4B6E90AA@billexch01.VerticaCorp.com>",
+      "references": [
+        "<FF014E3CAA79414894DBC6CF5B7B596C4B6E8FBD@billexch01.VerticaCorp.com>",
+        "<21530.63343.515513.641943@max.nulle.part>",
+        "<FF014E3CAA79414894DBC6CF5B7B596C4B6E90AA@billexch01.VerticaCorp.com>"
+      ],
+      "body_plain": "On 18 September 2014 at 15:50, Pratibha Rana wrote:\n| On 09/18/2014 11:16 AM, Dirk Eddelbuettel wrote:\n| > R records the arguments it receives from the 'configure' call.  As a\n| > convenience measure, you can access these via a softlinked file in\n| > /etc/R/Makeconf which makes it easy to read and study.\n| I see . I'll take a look at that and see if I can bring my source\n| installation at parity.\n\nIn all honesty, you may want to think a little about this and just consider\nusing R from the Ubuntu repo at CRAN.  I put a fair amount of care into them,\nrelease the day of R releases, and Michael and the mirroring typically catch\nup in another day or two.\n\nThese work. Reliably. I use them on a number of machines at work.\n\n[...]\n\n| > If you think it does, a reproducible example would help.\n| I do have an example which goes into an infinite recursion while\n| creating a NumericVector if I try to run it on an installation from\n| sources but runs fine on an installation from the repository. But if you\n| start looking at the code, most of it doesn't do anything useful since I\n| trimmed down the original code as much as possible in my attempt to\n| isolate the problem. But in the current code if I try to trim any piece\n| of code the problem goes away. I understand that the reproducer is not\n| as minimal as it should be, but in my defence the bug is wierd and\n| commenting out even seemingly harmless code makes the code work. Try\n| commenting out any of the functions in RInterface.cpp and the code works\n| just fine. Also the same piece of code works in one function but not the\n| other.\n\nThat's an Rcpp issue, so I would have to send you back to the rcpp-devel list :)\n\nBut if I understand you correctly it works with the R binaries, which is what\nI ran.  So nothing to replicate at my end.  You may need to work this out at\nyour end.  [ But sending code to rcpp-devel may engage someone else into\ntrying this for you. ]\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 18 September 2014 at 15:50, Pratibha Rana wrote:\n| On 09/18/2014 11:16 AM, Dirk Eddelbuettel wrote:\n| > R records the arguments it receives from the 'configure' call.  As a\n| > convenience measure,",
+      "thread_id": "thread-d866ca2516fb",
+      "thread_depth": 3,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-d58f7eb17abc",
+      "message_id": "<FF014E3CAA79414894DBC6CF5B7B596C4B6E9200@billexch01.VerticaCorp.com>",
+      "from_name": "Pratibha Rana",
+      "from_email_hash": "d806be24d9f6ed02ba60f50861f380dbd57a4cbbe7f157b9824a64ce39fd3960",
+      "date": "2014-09-18T17:01:39Z",
+      "subject": "[R-sig-Debian] difference between install from source and install\tfrom repositories",
+      "subject_clean": "difference between install from source and install\tfrom repositories",
+      "in_reply_to": null,
+      "references": [
+        "<FF014E3CAA79414894DBC6CF5B7B596C4B6E8FBD@billexch01.VerticaCorp.com>",
+        "<21530.63343.515513.641943@max.nulle.part>",
+        "<FF014E3CAA79414894DBC6CF5B7B596C4B6E90AA@billexch01.VerticaCorp.com>",
+        "<21531.3311.696427.467393@max.nulle.part>"
+      ],
+      "body_plain": "While installing from sources I used the configure options from\n/etc/R/makeconf and that solved my problem. I do think that the problem\nwas due to the R installation because on both the setups I installed\nRcpp and RInside from the sources and it works properly on the one where\nR is installed from repositories and crashes on the other. I'll\ndefinitely post this on Rcpp-devel.\n\nAnother thing, the issue is reproducible on multiple machines. I tried\nit on three different machines to make sure that its not my local setup.\nOne was Ubuntu 14.04, and the other two were centOS 6.5.\n\nPratibha\n\nOn 09/18/2014 12:48 PM, Dirk Eddelbuettel wrote:\n> On 18 September 2014 at 15:50, Pratibha Rana wrote:\n> | On 09/18/2014 11:16 AM, Dirk Eddelbuettel wrote:\n> | > R records the arguments it receives from the 'configure' call.  As a\n> | > convenience measure, you can access these via a softlinked file in\n> | > /etc/R/Makeconf which makes it easy to read and study.\n> | I see . I'll take a look at that and see if I can bring my source\n> | installation at parity.\n>\n> In all honesty, you may want to think a little about this and just consider\n> using R from the Ubuntu repo at CRAN.  I put a fair amount of care into them,\n> release the day of R releases, and Michael and the mirroring typically catch\n> up in another day or two.\n>\n> These work. Reliably. I use them on a number of machines at work.\n>\n> [...]\n>\n> | > If you think it does, a reproducible example would help.\n> | I do have an example which goes into an infinite recursion while\n> | creating a NumericVector if I try to run it on an installation from\n> | sources but runs fine on an installation from the repository. But if you\n> | start looking at the code, most of it doesn't do anything useful since I\n> | trimmed down the original code as much as possible in my attempt to\n> | isolate the problem. But in the current code if I try to trim any piece\n> | of code the problem goes away. I understand that the reproducer is not\n> | as minimal as it should be, but in my defence the bug is wierd and\n> | commenting out even seemingly harmless code makes the code work. Try\n> | commenting out any of the functions in RInterface.cpp and the code works\n> | just fine. Also the same piece of code works in one function but not the\n> | other.\n>\n> That's an Rcpp issue, so I would have to send you back to the rcpp-devel list :)\n>\n> But if I understand you correctly it works with the R binaries, which is what\n> I ran.  So nothing to replicate at my end.  You may need to work this out at\n> your end.  [ But sending code to rcpp-devel may engage someone else into\n> trying this for you. ]\n>\n> Dirk\n>",
+      "body_snippet": "While installing from sources I used the configure options from\n/etc/R/makeconf and that solved my problem. I do think that the problem\nwas due to the R installation because on both the setups I insta",
+      "thread_id": "thread-d866ca2516fb",
+      "thread_depth": 4,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-d5b8cb4229f1",
+      "message_id": "<21531.4594.136072.299432@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2014-09-18T12:10:10-05:00",
+      "subject": "[R-sig-Debian] difference between install from source and install\tfrom repositories",
+      "subject_clean": "difference between install from source and install\tfrom repositories",
+      "in_reply_to": "<FF014E3CAA79414894DBC6CF5B7B596C4B6E9200@billexch01.VerticaCorp.com>",
+      "references": [
+        "<FF014E3CAA79414894DBC6CF5B7B596C4B6E8FBD@billexch01.VerticaCorp.com>",
+        "<21530.63343.515513.641943@max.nulle.part>",
+        "<FF014E3CAA79414894DBC6CF5B7B596C4B6E90AA@billexch01.VerticaCorp.com>",
+        "<21531.3311.696427.467393@max.nulle.part>",
+        "<FF014E3CAA79414894DBC6CF5B7B596C4B6E9200@billexch01.VerticaCorp.com>"
+      ],
+      "body_plain": "On 18 September 2014 at 17:01, Pratibha Rana wrote:\n| While installing from sources I used the configure options from\n| /etc/R/makeconf and that solved my problem. I do think that the problem\n| was due to the R installation because on both the setups I installed\n| Rcpp and RInside from the sources and it works properly on the one where\n| R is installed from repositories and crashes on the other. I'll\n| definitely post this on Rcpp-devel.\n| \n| Another thing, the issue is reproducible on multiple machines. I tried\n| it on three different machines to make sure that its not my local setup.\n| One was Ubuntu 14.04, and the other two were centOS 6.5.\n\nThere is no news here, or no need to follow-up.\n\nWhen you link different components into a single executable you need\nconsistent compile options.  \n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 18 September 2014 at 17:01, Pratibha Rana wrote:\n| While installing from sources I used the configure options from\n| /etc/R/makeconf and that solved my problem. I do think that the problem\n| was du",
+      "thread_id": "thread-d866ca2516fb",
+      "thread_depth": 5,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-b1008ceb3806",
+      "message_id": "<54259BB4.1060802@mdowle.plus.com>",
+      "from_name": "Matt Dowle",
+      "from_email_hash": "da70e29f21357922d3ff71dee2915877599edde846f651e4da8287df362c75d3",
+      "date": "2014-09-26T18:00:36+01:00",
+      "subject": "[R-sig-Debian] configure: error: linking to Fortran libraries from C fails",
+      "subject_clean": "configure: error: linking to Fortran libraries from C fails",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi all,\n\nNice one for a Friday afternoon ...\n\nI'm trying to follow this section of the manual :\n\nhttp://cran.r-project.org/doc/manuals/r-devel/R-exts.html#Using-Undefined-Behaviour-Sanitizer\n\nto build R-devel (as of a few hours ago: rev 66684) with \n-fsanitize=undefined,address.\n\nMy OS is Linux Mint Debian Edition.  To get gcc-4.9 I added Debian \ntesting to my apt sources and ran :\n\n    sudo apt-get install gcc-4.9, g++-4.9 gfortran-4.9\n\nin the root of a clean Rtrunk.  I then started simple with just ASAN \nfirst of all :\n\n./configure CC=\"gcc-4.9 -std=gnu99 -fsanitize=address\" \nCFLAGS=\"-fno-omit-frame-pointer -O0 -g -Wall -pedantic -mtune=native\" \n--without-recommended-packages --enable-strict-barrier \n--disable-byte-compiled-packages\n\nThis runs for a while and then returns the following error :\n\nchecking for dummy main to link with Fortran 77 libraries... unknown\nconfigure: error: in `/home/mdowle/R/Rtrunk':\nconfigure: error: linking to Fortran libraries from C fails\nSee `config.log' for more details\n\nLooking in config.log there are a lot of errors but I believe that's the \nway it works as it tests what is available on the system.  If I change \n\"gcc-4.9\" to \"gcc\" (which is 4.8.2 on my system), then it works fine \n(but then I won't be able to do UBSAN with gcc).\n\nLooking at the last error in config.log,  it seems to be this :\n\nconfigure:23682: gcc-4.9 -std=gnu99 -fsanitize=address -o conftest \n-fno-omit-frame-pointer -O0 -g -Wall -pedantic -mtune=native \n-I/usr/local/include -L/usr/local/lib conftest.c -ldl -lm \n-L/usr/lib/gcc/x86_64-linux-gnu/4.8 -lgfortran -lm -lquadmath >&5\n/usr/lib/gcc/x86_64-linux-gnu/4.9/libasan_preinit.o:(.preinit_array+0x0): undefined \nreference to `__asan_init_v3'\n/tmp/cchWOhDV.o: In function `_GLOBAL__sub_I_00099_0__main':\n/home/mdowle/R/Rtrunk/conftest.c:113: undefined reference to \n`__asan_init_v3'\ncollect2: error: ld returned 1 exit status\nconfigure:23682: $? = 1\nconfigure: failed program was:\n| /* confdefs.h */\n| #define PACKAGE_NAME \"R\"\n| #define PACKAGE_TARNAME \"R\"\n| #define PACKAGE_VERSION \"3.2.0\"\n| #define PACKAGE_STRING \"R 3.2.0\"\n| #define PACKAGE_BUGREPORT \"http://bugs.r-project.org\"\n| #define PACKAGE_URL \"http://www.r-project.org\"\n| #define PACKAGE \"R\"\n| #define VERSION \"3.2.0\"\n| #define R_PLATFORM \"x86_64-unknown-linux-gnu\"\n| #define R_CPU \"x86_64\"\n| #define R_VENDOR \"unknown\"\n| #define R_OS \"linux-gnu\"\n| #define Unix 1\n| #define TESTING_WRITE_BARRIER 1\n| #define R_ARCH \"\"\n| #define HAVE_VISIBILITY_ATTRIBUTE 1\n| #define STDC_HEADERS 1\n| #define HAVE_SYS_TYPES_H 1\n| #define HAVE_SYS_STAT_H 1\n| #define HAVE_STDLIB_H 1\n| #define HAVE_STRING_H 1\n| #define HAVE_MEMORY_H 1\n| #define HAVE_STRINGS_H 1\n| #define HAVE_INTTYPES_H 1\n| #define HAVE_STDINT_H 1\n| #define HAVE_UNISTD_H 1\n| #define __EXTENSIONS__ 1\n| #define _ALL_SOURCE 1\n| #define _GNU_SOURCE 1\n| #define _POSIX_PTHREAD_SEMANTICS 1\n| #define _TANDEM_SOURCE 1\n| #define HAVE_DLFCN_H 1\n| #define LT_OBJDIR \".libs/\"\n| #define HAVE_LIBM 1\n| #define HAVE_LIBDL 1\n| #define HAVE_READLINE_HISTORY_H 1\n| #define HAVE_READLINE_READLINE_H 1\n| #define HAVE_LIBREADLINE 1\n| #define HAVE_HISTORY_TRUNCATE_FILE 1\n| #define HAVE_RL_COMPLETION_MATCHES 1\n| #define STDC_HEADERS 1\n| #define HAVE_DIRENT_H 1\n| #define HAVE_SYS_WAIT_H 1\n| #define HAVE_ARPA_INET_H 1\n| #define HAVE_DLFCN_H 1\n| #define HAVE_ELF_H 1\n| #define HAVE_FCNTL_H 1\n| #define HAVE_FPU_CONTROL_H 1\n| #define HAVE_GLOB_H 1\n| #define HAVE_GRP_H 1\n| #define HAVE_LANGINFO_H 1\n| #define HAVE_NETDB_H 1\n| #define HAVE_NETINET_IN_H 1\n| #define HAVE_PWD_H 1\n| #define HAVE_SCHED_H 1\n| #define HAVE_STRINGS_H 1\n| #define HAVE_SYS_PARAM_H 1\n| #define HAVE_SYS_RESOURCE_H 1\n| #define HAVE_SYS_SELECT_H 1\n| #define HAVE_SYS_SOCKET_H 1\n| #define HAVE_SYS_STAT_H 1\n| #define HAVE_SYS_TIME_H 1\n| #define HAVE_SYS_TIMES_H 1\n| #define HAVE_SYS_UTSNAME_H 1\n| #define HAVE_UNISTD_H 1\n| #define HAVE_UTIME_H 1\n| #define HAVE_ERRNO_H 1\n| #define HAVE_INTTYPES_H 1\n| #define HAVE_LIMITS_H 1\n| #define HAVE_LOCALE_H 1\n| #define HAVE_STDARG_H 1\n| #define HAVE_STDBOOL_H 1\n| #define HAVE_STDINT_H 1\n| #define HAVE_STRING_H 1\n| #define HAVE_DECL_SIGSETJMP 1\n| #define HAVE_DECL_SIGLONGJMP 1\n| #define HAVE_POSIX_SETJMP 1\n| #define HAVE_GLIBC2 1\n| #define RETSIGTYPE void\n| #define HAVE_INT64_T 1\n| #define HAVE_INT_FAST64_T 1\n| #define HAVE_DECL_SIZE_MAX 1\n| #define R_SOCKLEN_T socklen_t\n| #define HAVE_STACK_T 1\n| #define HAVE_INTPTR_T 1\n| #define HAVE_UINTPTR_T 1\n| #define R_INLINE inline\n| #define SIZEOF_INT 4\n| #define INT_32_BITS 1\n| #define SIZEOF_LONG 8\n| #define SIZEOF_LONG_LONG 8\n| #define SIZEOF_DOUBLE 8\n| #define SIZEOF_SIZE_T 8\n| #define HAVE_LONG_DOUBLE 1\n| #define SIZEOF_LONG_DOUBLE 16\n| /* end confdefs.h.  */\n| #define F77_DUMMY_MAIN _main\n| #ifdef F77_DUMMY_MAIN\n|\n| #  ifdef __cplusplus\n|      extern \"C\"\n| #  endif\n|    int F77_DUMMY_MAIN() { return 1; }\n|\n| #endif\n| int\n| main ()\n| {\n|\n|   ;\n|   return 0;\n| }\nconfigure:23698: result: unknown\nconfigure:23715: error: in `/home/mdowle/R/Rtrunk':\nconfigure:23717: error: linking to Fortran libraries from C fails\nSee `config.log' for more details\n\nI've searched for the error messages but no luck so far.  Can anyone see \nwhat I've done wrong?\n\nI just installed  lib64gcc-4.9-dev  as well (includes quadmath and asan \nlibraries) but that didn't help, same error as above.\n\nThanks!\nMatt",
+      "body_snippet": "Hi all,\n\nNice one for a Friday afternoon ...\n\nI'm trying to follow this section of the manual :\n\nhttp://cran.r-project.org/doc/manuals/r-devel/R-exts.html#Using-Undefined-Behaviour-Sanitizer\n\nto build",
+      "thread_id": "thread-b1008ceb3806",
+      "thread_depth": 0,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-35b440555138",
+      "message_id": "<21541.41784.507108.18475@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2014-09-26T12:32:40-05:00",
+      "subject": "[R-sig-Debian] configure: error: linking to Fortran libraries from C fails",
+      "subject_clean": "configure: error: linking to Fortran libraries from C fails",
+      "in_reply_to": "<54259BB4.1060802@mdowle.plus.com>",
+      "references": [
+        "<54259BB4.1060802@mdowle.plus.com>"
+      ],
+      "body_plain": "Hi Matt,\n\nOn 26 September 2014 at 18:00, Matt Dowle wrote:\n| Nice one for a Friday afternoon ...\n| \n| I'm trying to follow this section of the manual :\n| \n| http://cran.r-project.org/doc/manuals/r-devel/R-exts.html#Using-Undefined-Behaviour-Sanitizer\n| \n| to build R-devel (as of a few hours ago: rev 66684) with \n| -fsanitize=undefined,address.\n| \n| My OS is Linux Mint Debian Edition.  To get gcc-4.9 I added Debian \n\nI can't speak to Mint but I have set up ASAN/UBSAN detection via Dockerfiles\nand provide Docker containers you can run 'as is' (ie no building).\n\nThat used plain Debian testing; the recipes are on\n\n   https://github.com/eddelbuettel/docker-debian-r\n\nbut will morph/move more to \n\n   https://github.com/eddelbuettel/rocker\n\nwhich is a repo Carl Boettiger (CC'ed) and I are working on.\n\nI hope to update some files this weekend; right now only two of the rocker\n'recipes' (ie Dockerfiles) are up-to-date.  You can get the images via\n\n   https://registry.hub.docker.com/u/eddelbuettel/\n\nA working demonstration was at the end of my useR! keynote, and I alluded to\nthat again yesterday in a talk to the Docker Chicago Meetup.\n\nNow, I can't from the top of my head see what you did wrong. Besides not using\nDebian (ie I have no idea what is different at Mint, maybe nothing).  \n\nWith a bit of luck I may get to updating the ASAN/UBSAN image in the next few\ndays and few can compare notes then.\n\nHth, Dirk\n\n\n\n| testing to my apt sources and ran :\n| \n|     sudo apt-get install gcc-4.9, g++-4.9 gfortran-4.9\n| \n| in the root of a clean Rtrunk.  I then started simple with just ASAN \n| first of all :\n| \n| ./configure CC=\"gcc-4.9 -std=gnu99 -fsanitize=address\" \n| CFLAGS=\"-fno-omit-frame-pointer -O0 -g -Wall -pedantic -mtune=native\" \n| --without-recommended-packages --enable-strict-barrier \n| --disable-byte-compiled-packages\n| \n| This runs for a while and then returns the following error :\n| \n| checking for dummy main to link with Fortran 77 libraries... unknown\n| configure: error: in `/home/mdowle/R/Rtrunk':\n| configure: error: linking to Fortran libraries from C fails\n| See `config.log' for more details\n| \n| Looking in config.log there are a lot of errors but I believe that's the \n| way it works as it tests what is available on the system.  If I change \n| \"gcc-4.9\" to \"gcc\" (which is 4.8.2 on my system), then it works fine \n| (but then I won't be able to do UBSAN with gcc).\n| \n| Looking at the last error in config.log,  it seems to be this :\n| \n| configure:23682: gcc-4.9 -std=gnu99 -fsanitize=address -o conftest \n| -fno-omit-frame-pointer -O0 -g -Wall -pedantic -mtune=native \n| -I/usr/local/include -L/usr/local/lib conftest.c -ldl -lm \n| -L/usr/lib/gcc/x86_64-linux-gnu/4.8 -lgfortran -lm -lquadmath >&5\n| /usr/lib/gcc/x86_64-linux-gnu/4.9/libasan_preinit.o:(.preinit_array+0x0): undefined \n| reference to `__asan_init_v3'\n| /tmp/cchWOhDV.o: In function `_GLOBAL__sub_I_00099_0__main':\n| /home/mdowle/R/Rtrunk/conftest.c:113: undefined reference to \n| `__asan_init_v3'\n| collect2: error: ld returned 1 exit status\n| configure:23682: $? = 1\n| configure: failed program was:\n| | /* confdefs.h */\n| | #define PACKAGE_NAME \"R\"\n| | #define PACKAGE_TARNAME \"R\"\n| | #define PACKAGE_VERSION \"3.2.0\"\n| | #define PACKAGE_STRING \"R 3.2.0\"\n| | #define PACKAGE_BUGREPORT \"http://bugs.r-project.org\"\n| | #define PACKAGE_URL \"http://www.r-project.org\"\n| | #define PACKAGE \"R\"\n| | #define VERSION \"3.2.0\"\n| | #define R_PLATFORM \"x86_64-unknown-linux-gnu\"\n| | #define R_CPU \"x86_64\"\n| | #define R_VENDOR \"unknown\"\n| | #define R_OS \"linux-gnu\"\n| | #define Unix 1\n| | #define TESTING_WRITE_BARRIER 1\n| | #define R_ARCH \"\"\n| | #define HAVE_VISIBILITY_ATTRIBUTE 1\n| | #define STDC_HEADERS 1\n| | #define HAVE_SYS_TYPES_H 1\n| | #define HAVE_SYS_STAT_H 1\n| | #define HAVE_STDLIB_H 1\n| | #define HAVE_STRING_H 1\n| | #define HAVE_MEMORY_H 1\n| | #define HAVE_STRINGS_H 1\n| | #define HAVE_INTTYPES_H 1\n| | #define HAVE_STDINT_H 1\n| | #define HAVE_UNISTD_H 1\n| | #define __EXTENSIONS__ 1\n| | #define _ALL_SOURCE 1\n| | #define _GNU_SOURCE 1\n| | #define _POSIX_PTHREAD_SEMANTICS 1\n| | #define _TANDEM_SOURCE 1\n| | #define HAVE_DLFCN_H 1\n| | #define LT_OBJDIR \".libs/\"\n| | #define HAVE_LIBM 1\n| | #define HAVE_LIBDL 1\n| | #define HAVE_READLINE_HISTORY_H 1\n| | #define HAVE_READLINE_READLINE_H 1\n| | #define HAVE_LIBREADLINE 1\n| | #define HAVE_HISTORY_TRUNCATE_FILE 1\n| | #define HAVE_RL_COMPLETION_MATCHES 1\n| | #define STDC_HEADERS 1\n| | #define HAVE_DIRENT_H 1\n| | #define HAVE_SYS_WAIT_H 1\n| | #define HAVE_ARPA_INET_H 1\n| | #define HAVE_DLFCN_H 1\n| | #define HAVE_ELF_H 1\n| | #define HAVE_FCNTL_H 1\n| | #define HAVE_FPU_CONTROL_H 1\n| | #define HAVE_GLOB_H 1\n| | #define HAVE_GRP_H 1\n| | #define HAVE_LANGINFO_H 1\n| | #define HAVE_NETDB_H 1\n| | #define HAVE_NETINET_IN_H 1\n| | #define HAVE_PWD_H 1\n| | #define HAVE_SCHED_H 1\n| | #define HAVE_STRINGS_H 1\n| | #define HAVE_SYS_PARAM_H 1\n| | #define HAVE_SYS_RESOURCE_H 1\n| | #define HAVE_SYS_SELECT_H 1\n| | #define HAVE_SYS_SOCKET_H 1\n| | #define HAVE_SYS_STAT_H 1\n| | #define HAVE_SYS_TIME_H 1\n| | #define HAVE_SYS_TIMES_H 1\n| | #define HAVE_SYS_UTSNAME_H 1\n| | #define HAVE_UNISTD_H 1\n| | #define HAVE_UTIME_H 1\n| | #define HAVE_ERRNO_H 1\n| | #define HAVE_INTTYPES_H 1\n| | #define HAVE_LIMITS_H 1\n| | #define HAVE_LOCALE_H 1\n| | #define HAVE_STDARG_H 1\n| | #define HAVE_STDBOOL_H 1\n| | #define HAVE_STDINT_H 1\n| | #define HAVE_STRING_H 1\n| | #define HAVE_DECL_SIGSETJMP 1\n| | #define HAVE_DECL_SIGLONGJMP 1\n| | #define HAVE_POSIX_SETJMP 1\n| | #define HAVE_GLIBC2 1\n| | #define RETSIGTYPE void\n| | #define HAVE_INT64_T 1\n| | #define HAVE_INT_FAST64_T 1\n| | #define HAVE_DECL_SIZE_MAX 1\n| | #define R_SOCKLEN_T socklen_t\n| | #define HAVE_STACK_T 1\n| | #define HAVE_INTPTR_T 1\n| | #define HAVE_UINTPTR_T 1\n| | #define R_INLINE inline\n| | #define SIZEOF_INT 4\n| | #define INT_32_BITS 1\n| | #define SIZEOF_LONG 8\n| | #define SIZEOF_LONG_LONG 8\n| | #define SIZEOF_DOUBLE 8\n| | #define SIZEOF_SIZE_T 8\n| | #define HAVE_LONG_DOUBLE 1\n| | #define SIZEOF_LONG_DOUBLE 16\n| | /* end confdefs.h.  */\n| | #define F77_DUMMY_MAIN _main\n| | #ifdef F77_DUMMY_MAIN\n| |\n| | #  ifdef __cplusplus\n| |      extern \"C\"\n| | #  endif\n| |    int F77_DUMMY_MAIN() { return 1; }\n| |\n| | #endif\n| | int\n| | main ()\n| | {\n| |\n| |   ;\n| |   return 0;\n| | }\n| configure:23698: result: unknown\n| configure:23715: error: in `/home/mdowle/R/Rtrunk':\n| configure:23717: error: linking to Fortran libraries from C fails\n| See `config.log' for more details\n| \n| I've searched for the error messages but no luck so far.  Can anyone see \n| what I've done wrong?\n| \n| I just installed  lib64gcc-4.9-dev  as well (includes quadmath and asan \n| libraries) but that didn't help, same error as above.\n| \n| Thanks!\n| Matt\n| \n| _______________________________________________\n| R-SIG-Debian mailing list\n| R-SIG-Debian at r-project.org\n| https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "Hi Matt,\n\nOn 26 September 2014 at 18:00, Matt Dowle wrote:\n| Nice one for a Friday afternoon ...\n| \n| I'm trying to follow this section of the manual :\n| \n| http://cran.r-project.org/doc/manuals/r-dev",
+      "thread_id": "thread-b1008ceb3806",
+      "thread_depth": 1,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-80ef1b3f6a4c",
+      "message_id": "<4DAF4098-D31E-44E4-BFFE-E0EBA108E2BB@mail.missouri.edu>",
+      "from_name": "Wang, Ting    (MU-Student)",
+      "from_email_hash": "e43d8037d3fe8b34ff934244e999b29b518746fce709b18279cd771f009fd1df",
+      "date": "2014-09-27T12:15:18Z",
+      "subject": "[R-sig-Debian] subscription",
+      "subject_clean": "subscription",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "",
+      "body_snippet": "",
+      "thread_id": "thread-80ef1b3f6a4c",
+      "thread_depth": 0,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-fef5524ee2b5",
+      "message_id": "<54270B45.1050500@gmail.com>",
+      "from_name": "Matthieu",
+      "from_email_hash": "8be7d9af3aa05df3cb73327099ca82a1e00b62ae5b6e52d77e9d9908c4ad6d37",
+      "date": "2014-09-27T12:08:53-07:00",
+      "subject": "[R-sig-Debian] r-cran-rgdal: dependency on libgdal1 unsatisfied in ubuntu 12.04?",
+      "subject_clean": "r-cran-rgdal: dependency on libgdal1 unsatisfied in ubuntu 12.04?",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi\n\nI am trying to install the rgdal package through r-cran-rgdal (I had \nadded the ppa), and run into an error in Ubuntu 12.04:\nr-cran-rgdal : D?pend: libgdal1 (>= 1.9.0) mais il n'est pas installable\n\nin English, libgdal1 1.9 does not seem available in Ubuntu 12.04 (I \nthink version 1.7) comes.\n\nAnd indeed, a:\n$sudo apt-get install  libgdal1\n\nGives also an error message, saying libgdal1 not available, but \nsuggesting libgdal1h, although installing the latter does not solve \nanything.\n\nI looked into several forums, tried to install from several  ppas, but \nwas not able to get it working. Would someone have an idea how to \ninstall this unsatisfied dependency?\n\nThanks!\n\nMatthieu",
+      "body_snippet": "Hi\n\nI am trying to install the rgdal package through r-cran-rgdal (I had \nadded the ppa), and run into an error in Ubuntu 12.04:\nr-cran-rgdal : D?pend: libgdal1 (>= 1.9.0) mais il n'est pas installabl",
+      "thread_id": "thread-fef5524ee2b5",
+      "thread_depth": 0,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-9770ca9d182c",
+      "message_id": "<21543.4194.381639.789918@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2014-09-27T14:30:42-05:00",
+      "subject": "[R-sig-Debian] r-cran-rgdal: dependency on libgdal1 unsatisfied in\tubuntu 12.04?",
+      "subject_clean": "r-cran-rgdal: dependency on libgdal1 unsatisfied in\tubuntu 12.04?",
+      "in_reply_to": "<54270B45.1050500@gmail.com>",
+      "references": [
+        "<54270B45.1050500@gmail.com>"
+      ],
+      "body_plain": "On 27 September 2014 at 12:08, Matthieu wrote:\n| Hi\n| \n| I am trying to install the rgdal package through r-cran-rgdal (I had \n| added the ppa), and run into an error in Ubuntu 12.04:\n| r-cran-rgdal : D?pend: libgdal1 (>= 1.9.0) mais il n'est pas installable\n| \n| in English, libgdal1 1.9 does not seem available in Ubuntu 12.04 (I \n| think version 1.7) comes.\n| \n| And indeed, a:\n| $sudo apt-get install  libgdal1\n| \n| Gives also an error message, saying libgdal1 not available, but \n| suggesting libgdal1h, although installing the latter does not solve \n| anything.\n| \n| I looked into several forums, tried to install from several  ppas, but \n| was not able to get it working. Would someone have an idea how to \n| install this unsatisfied dependency?\n\nHave you tried ignoring the pre-built r-cran-rgdal, and installing rgdal\ndirectly from source?\n\nDirk\n\nPS Ubuntu 12.04 is ancient. I would upgrade, which I do every six months. In\nany there *is* a newer LTS for you in 14.04.\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 27 September 2014 at 12:08, Matthieu wrote:\n| Hi\n| \n| I am trying to install the rgdal package through r-cran-rgdal (I had \n| added the ppa), and run into an error in Ubuntu 12.04:\n| r-cran-rgdal :",
+      "thread_id": "thread-fef5524ee2b5",
+      "thread_depth": 1,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-c39e7fd29098",
+      "message_id": "<5427138E.9070203@mdowle.plus.com>",
+      "from_name": "Matt Dowle",
+      "from_email_hash": "da70e29f21357922d3ff71dee2915877599edde846f651e4da8287df362c75d3",
+      "date": "2014-09-27T20:44:14+01:00",
+      "subject": "[R-sig-Debian] r-cran-rgdal: dependency on libgdal1 unsatisfied in ubuntu 12.04?",
+      "subject_clean": "r-cran-rgdal: dependency on libgdal1 unsatisfied in ubuntu 12.04?",
+      "in_reply_to": "<54270B45.1050500@gmail.com>",
+      "references": [
+        "<54270B45.1050500@gmail.com>"
+      ],
+      "body_plain": "Hi,\n\nWhat I needed to do was :\n\nsudo apt-get install libgdal-dev libproj-dev\n\nMind you, I'm on Linux Mint Debian Edition, so Ubuntu may be completely \ndifferent.  I'm not sure.\n\nThe trick seems to be searching for subsets of the package name; e.g.\n\n$ apt-cache search gdal\ndans-gdal-scripts - GDAL contributed tools by Geographic Information \nNetwork of Alaska\ngdal-bin - Geospatial Data Abstraction Library - Utility programs\nlibgdal-dev - Geospatial Data Abstraction Library - Development files\nlibgdal-doc - Documentation for the Geospatial Data Abstraction Library\nlibgdal-perl - Perl bindings to the Geospatial Data Abstraction Library\nlibgdal-ruby - Ruby bindings to the Geospatial Data Abstraction Library\nlibgdal-ruby1.8 - Ruby 1.8 bindings to the Geospatial Data Abstraction \nLibrary\nlibgdal1 - Geospatial Data Abstraction Library\nlibgdal1-dev - Geospatial Data Abstraction Library - Development files\npython-gdal - Python bindings to the Geospatial Data Abstraction Library\nlibgdal1-1.9.0-grass - GRASS extension for the GDAL library\nqlandkartegt - GPS mapping (GeoTiff and vector) and GPSr management\n\nSee what that returns for you and just keep installing likely candidates \nuntil it works.  That's what I do.  It sometimes seems to be the ones \nending -dev (or similar) that are needed.  Even though we aren't \n\"developing\" such packages for R I suppose because we need to install \nfrom source on Linux, in a sense we are.\n\nI seem to remember that package needs libproj-dev as well,  which is why \nI included it above. May be wrong on that.\n\nWhat beats me is why the Linux package dependencies aren't included in \nthe package DESCRIPTION file.  I guess that's because they're different \nnames on each distro (again, something else that puzzles me)?  So then I \nwonder why not include dependencies for the common distros like Ubuntu \nand Debian derivatives:  that'd be a start.\n\nStill, much better than Windows.\n\nMatt\n\n\nOn 27/09/14 20:08, Matthieu wrote:\n> Hi\n>\n> I am trying to install the rgdal package through r-cran-rgdal (I had \n> added the ppa), and run into an error in Ubuntu 12.04:\n> r-cran-rgdal : D?pend: libgdal1 (>= 1.9.0) mais il n'est pas installable\n>\n> in English, libgdal1 1.9 does not seem available in Ubuntu 12.04 (I \n> think version 1.7) comes.\n>\n> And indeed, a:\n> $sudo apt-get install  libgdal1\n>\n> Gives also an error message, saying libgdal1 not available, but \n> suggesting libgdal1h, although installing the latter does not solve \n> anything.\n>\n> I looked into several forums, tried to install from several  ppas, but \n> was not able to get it working. Would someone have an idea how to \n> install this unsatisfied dependency?\n>\n> Thanks!\n>\n> Matthieu\n>\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "Hi,\n\nWhat I needed to do was :\n\nsudo apt-get install libgdal-dev libproj-dev\n\nMind you, I'm on Linux Mint Debian Edition, so Ubuntu may be completely \ndifferent.  I'm not sure.\n\nThe trick seems to be ",
+      "thread_id": "thread-fef5524ee2b5",
+      "thread_depth": 1,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-e7e782dc81d1",
+      "message_id": "<21543.6178.174302.548220@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2014-09-27T15:03:46-05:00",
+      "subject": "[R-sig-Debian] r-cran-rgdal: dependency on libgdal1 unsatisfied in ubuntu 12.04?",
+      "subject_clean": "r-cran-rgdal: dependency on libgdal1 unsatisfied in ubuntu 12.04?",
+      "in_reply_to": "<5427138E.9070203@mdowle.plus.com>",
+      "references": [
+        "<54270B45.1050500@gmail.com>",
+        "<5427138E.9070203@mdowle.plus.com>"
+      ],
+      "body_plain": "On 27 September 2014 at 20:44, Matt Dowle wrote:\n| \n| Hi,\n| \n| What I needed to do was :\n| \n| sudo apt-get install libgdal-dev libproj-dev\n| \n| Mind you, I'm on Linux Mint Debian Edition, so Ubuntu may be completely \n| different.  I'm not sure.\n| \n| The trick seems to be searching for subsets of the package name; e.g.\n\n12.04 is an old system, and Matthieu works with a backported *EXTERNAL* repo,\nie packages via cran / the marutter PPA. That is harder to tighten.\n \n| $ apt-cache search gdal\n| dans-gdal-scripts - GDAL contributed tools by Geographic Information \n| Network of Alaska\n| gdal-bin - Geospatial Data Abstraction Library - Utility programs\n| libgdal-dev - Geospatial Data Abstraction Library - Development files\n| libgdal-doc - Documentation for the Geospatial Data Abstraction Library\n| libgdal-perl - Perl bindings to the Geospatial Data Abstraction Library\n| libgdal-ruby - Ruby bindings to the Geospatial Data Abstraction Library\n| libgdal-ruby1.8 - Ruby 1.8 bindings to the Geospatial Data Abstraction \n| Library\n| libgdal1 - Geospatial Data Abstraction Library\n| libgdal1-dev - Geospatial Data Abstraction Library - Development files\n| python-gdal - Python bindings to the Geospatial Data Abstraction Library\n| libgdal1-1.9.0-grass - GRASS extension for the GDAL library\n| qlandkartegt - GPS mapping (GeoTiff and vector) and GPSr management\n| \n| See what that returns for you and just keep installing likely candidates \n| until it works.  That's what I do.  It sometimes seems to be the ones \n\nYou can be a little more scientific / engineering mindes and *SEE WHERE THE\nBUILD BREAKS* which configure and gcc will tell you: generally 'foo.h not\nfound'.  Then use packages.debian.org [ or equivalent at Ubuntu etc pp ] to\nsearch for the package supplying foo.h, install that package and try again.\nThat usually does it.\n\nNow, a binary package such as r-cran-gdal should of course have working\ndependencies.  But for an external backport (see above) fewer checks and\nbalances exist.\n\n| ending -dev (or similar) that are needed.  Even though we aren't \n| \"developing\" such packages for R I suppose because we need to install \n| from source on Linux, in a sense we are.\n| \n| I seem to remember that package needs libproj-dev as well,  which is why \n| I included it above. May be wrong on that.\n| \n| What beats me is why the Linux package dependencies aren't included in \n| the package DESCRIPTION file.  I guess that's because they're different \n| names on each distro (again, something else that puzzles me)?  So then I \n| wonder why not include dependencies for the common distros like Ubuntu \n| and Debian derivatives:  that'd be a start.\n\nI look forward to you launching and spear-heading such an effort. After all,\nyou *only* need to coordinate with maybe ~ 1000 different CRAN authors, check\nover maybe six or seven different flavors and distros, keep track of library\nrenamings when they happen (libfoo3 -> libfoo4) (but keep those seperate for\ndifferent release flavours of your seven target distros), construct a bulk\nchecking mechanism etc pp.\n\nOf course this is \"trivial\" to do \"in theory\". Hoever, \"in practice\" it is a\nmetric fuckton of work which is why we all have been waiting for you to warm\nup to it. ;-)\n\nSeriously, people talked about doing this for RH/FC when we first managed a\nproof via cran2deb (mind you: one target distro, one release) and could not\neven get that one other target distro going....  It's simply a hard problem.\n\n| Still, much better than Windows.\n\nWell that is an admiringly low bar to clear...\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 27 September 2014 at 20:44, Matt Dowle wrote:\n| \n| Hi,\n| \n| What I needed to do was :\n| \n| sudo apt-get install libgdal-dev libproj-dev\n| \n| Mind you, I'm on Linux Mint Debian Edition, so Ubuntu ma",
+      "thread_id": "thread-fef5524ee2b5",
+      "thread_depth": 2,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-8c94d38751f9",
+      "message_id": "<5427183E.6030502@mdowle.plus.com>",
+      "from_name": "Matt Dowle",
+      "from_email_hash": "da70e29f21357922d3ff71dee2915877599edde846f651e4da8287df362c75d3",
+      "date": "2014-09-27T21:04:14+01:00",
+      "subject": "[R-sig-Debian] r-cran-rgdal: dependency on libgdal1 unsatisfied in\tubuntu 12.04?",
+      "subject_clean": "r-cran-rgdal: dependency on libgdal1 unsatisfied in\tubuntu 12.04?",
+      "in_reply_to": "<21543.4194.381639.789918@max.nulle.part>",
+      "references": [
+        "<54270B45.1050500@gmail.com>",
+        "<21543.4194.381639.789918@max.nulle.part>"
+      ],
+      "body_plain": "On 27/09/14 20:30, Dirk Eddelbuettel wrote:\n\n>\n> PS Ubuntu 12.04 is ancient. I would upgrade, which I do every six months. In\n> any there *is* a newer LTS for you in 14.04.\n>\nThe fear may be that a fresh install will be needed (a pain) as \nupgrading the existing installation often comes with warnings that it \nmight not work.  That's why I switched to a rolling release (LMDE) so \nI'll never need to upgrade and reinstall and setup all the software I \nneed and config again.  So they tell me.   I'll tell you if it's true in \na few years!   My /home is mounted on its own partition, so that's not a \npain (but is for users who don't know how to use gparted to do that),  \nbut even then I fear problems if I point a new release to my single \n/home and then need to roll back (the new release may have changed files \nin ~).\nDo you do a fresh install every 6 months or do you upgrade your existing?\n\nMatt",
+      "body_snippet": "On 27/09/14 20:30, Dirk Eddelbuettel wrote:\n\n>\n> PS Ubuntu 12.04 is ancient. I would upgrade, which I do every six months. In\n> any there *is* a newer LTS for you in 14.04.\n>\nThe fear may be that a fr",
+      "thread_id": "thread-fef5524ee2b5",
+      "thread_depth": 2,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-2a196931ad5e",
+      "message_id": "<21543.6838.773912.11766@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2014-09-27T15:14:46-05:00",
+      "subject": "[R-sig-Debian] r-cran-rgdal: dependency on libgdal1 unsatisfied in\tubuntu 12.04?",
+      "subject_clean": "r-cran-rgdal: dependency on libgdal1 unsatisfied in\tubuntu 12.04?",
+      "in_reply_to": "<5427183E.6030502@mdowle.plus.com>",
+      "references": [
+        "<54270B45.1050500@gmail.com>",
+        "<21543.4194.381639.789918@max.nulle.part>",
+        "<5427183E.6030502@mdowle.plus.com>"
+      ],
+      "body_plain": "On 27 September 2014 at 21:04, Matt Dowle wrote:\n| On 27/09/14 20:30, Dirk Eddelbuettel wrote:\n| The fear may be that a fresh install will be needed (a pain) as \n\nBut Matt, I never said or implied \"fresh install\". My exact words, from two\nemails ago:\n\n   \"I would upgrade, which I do every six months.\"\n\nUpgrade, not \"reinstall\".\n\n| might not work.  That's why I switched to a rolling release (LMDE) so \n\nRolling releases rock. Debian pretty much invented this with \"testing\" which\nis a rolling release receiving packages from the top (aka \"unstable\") if\n(approximatly) no new upload was made, no critical bugs appeared and it is\nnot blocking another packages dependency graph.  So in essence \"always ten\ndays fresh\" (as eg for my R builds).  That rocks, and it is getting more\nrecognition now.\n\n| I'll never need to upgrade and reinstall and setup all the software I \n| need and config again.  So they tell me.   I'll tell you if it's true in \n| a few years!   My /home is mounted on its own partition, so that's not a \n| pain (but is for users who don't know how to use gparted to do that),  \n| but even then I fear problems if I point a new release to my single \n| /home and then need to roll back (the new release may have changed files \n| in ~).\n| Do you do a fresh install every 6 months or do you upgrade your existing?\n\nFor one reason or another the majority of my machines (at home and work) are\nactually running Ubuntu.\n\nAnd I __always__ updated __all of them__ every six months __whenever a new\nrelease comes out__.  Some of these may now have had over ten upgrades. No\nissues.  I tend to do the auxiliary machines at home first, then my main\nlaptop, then the server and then the machines at work.  \n\nIt. just. works.  \n\nAnd is the least amount of work as far as I can tell.\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 27 September 2014 at 21:04, Matt Dowle wrote:\n| On 27/09/14 20:30, Dirk Eddelbuettel wrote:\n| The fear may be that a fresh install will be needed (a pain) as \n\nBut Matt, I never said or implied \"fr",
+      "thread_id": "thread-fef5524ee2b5",
+      "thread_depth": 3,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-4cbc47b121aa",
+      "message_id": "<54271EAD.2010002@mdowle.plus.com>",
+      "from_name": "Matt Dowle",
+      "from_email_hash": "da70e29f21357922d3ff71dee2915877599edde846f651e4da8287df362c75d3",
+      "date": "2014-09-27T21:31:41+01:00",
+      "subject": "[R-sig-Debian] r-cran-rgdal: dependency on libgdal1 unsatisfied in\tubuntu 12.04?",
+      "subject_clean": "r-cran-rgdal: dependency on libgdal1 unsatisfied in\tubuntu 12.04?",
+      "in_reply_to": "<21543.6838.773912.11766@max.nulle.part>",
+      "references": [
+        "<54270B45.1050500@gmail.com>",
+        "<21543.4194.381639.789918@max.nulle.part>",
+        "<5427183E.6030502@mdowle.plus.com>",
+        "<21543.6838.773912.11766@max.nulle.part>"
+      ],
+      "body_plain": "On 27/09/14 21:14, Dirk Eddelbuettel wrote:\n> On 27 September 2014 at 21:04, Matt Dowle wrote:\n> | On 27/09/14 20:30, Dirk Eddelbuettel wrote:\n> | The fear may be that a fresh install will be needed (a pain) as\n>\n> But Matt, I never said or implied \"fresh install\". My exact words, from two\n> emails ago:\n>\n>     \"I would upgrade, which I do every six months.\"\n>\n> Upgrade, not \"reinstall\".\n>\n> | might not work.  That's why I switched to a rolling release (LMDE) so\n>\n> Rolling releases rock. Debian pretty much invented this with \"testing\" which\n> is a rolling release receiving packages from the top (aka \"unstable\") if\n> (approximatly) no new upload was made, no critical bugs appeared and it is\n> not blocking another packages dependency graph.  So in essence \"always ten\n> days fresh\" (as eg for my R builds).  That rocks, and it is getting more\n> recognition now.\n>\n> | I'll never need to upgrade and reinstall and setup all the software I\n> | need and config again.  So they tell me.   I'll tell you if it's true in\n> | a few years!   My /home is mounted on its own partition, so that's not a\n> | pain (but is for users who don't know how to use gparted to do that),\n> | but even then I fear problems if I point a new release to my single\n> | /home and then need to roll back (the new release may have changed files\n> | in ~).\n> | Do you do a fresh install every 6 months or do you upgrade your existing?\n>\n> For one reason or another the majority of my machines (at home and work) are\n> actually running Ubuntu.\n>\n> And I __always__ updated __all of them__ every six months __whenever a new\n> release comes out__.  Some of these may now have had over ten upgrades. No\n> issues.  I tend to do the auxiliary machines at home first, then my main\n> laptop, then the server and then the machines at work.\n>\n> It. just. works.\n>\n> And is the least amount of work as far as I can tell.\n>\n> Dirk\n>\nVery interesting. Ok, yep, Matthieu really has no excuse for not \nupgrading then.\n\nMatt",
+      "body_snippet": "On 27/09/14 21:14, Dirk Eddelbuettel wrote:\n> On 27 September 2014 at 21:04, Matt Dowle wrote:\n> | On 27/09/14 20:30, Dirk Eddelbuettel wrote:\n> | The fear may be that a fresh install will be needed (",
+      "thread_id": "thread-fef5524ee2b5",
+      "thread_depth": 4,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-f1788c121e0e",
+      "message_id": "<21543.13545.699507.403718@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2014-09-27T17:06:33-05:00",
+      "subject": "[R-sig-Debian] r-cran-rgdal: dependency on libgdal1 unsatisfied in\tubuntu 12.04?",
+      "subject_clean": "r-cran-rgdal: dependency on libgdal1 unsatisfied in\tubuntu 12.04?",
+      "in_reply_to": "<54271EAD.2010002@mdowle.plus.com>",
+      "references": [
+        "<54270B45.1050500@gmail.com>",
+        "<21543.4194.381639.789918@max.nulle.part>",
+        "<5427183E.6030502@mdowle.plus.com>",
+        "<21543.6838.773912.11766@max.nulle.part>",
+        "<54271EAD.2010002@mdowle.plus.com>"
+      ],
+      "body_plain": "On 27 September 2014 at 21:31, Matt Dowle wrote:\n| On 27/09/14 21:14, Dirk Eddelbuettel wrote:\n| Very interesting. Ok, yep, Matthieu really has no excuse for not \n| upgrading then.\n\nThe two possible caveats are of course that a) I do stay abreast of general\nDebian / Ubuntu issues so if something thorny were to happen I am not too\nworried that I will get out of it and b) he is in a tougher spot as 12.04 is\nfour releases behind 14.04. I am not sure what the recommended upgrade path\nis as I never slip that far behind.\n\nWorking distributions can be a wonderful thing for those of us who do\nactually like being on a Linux box.  Maybe the next big thing really is\ncontainerization where we can bring the clear advantage of how distributions\nto those who still prefer an OS X or (worse!) winWhatever box.\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 27 September 2014 at 21:31, Matt Dowle wrote:\n| On 27/09/14 21:14, Dirk Eddelbuettel wrote:\n| Very interesting. Ok, yep, Matthieu really has no excuse for not \n| upgrading then.\n\nThe two possible c",
+      "thread_id": "thread-fef5524ee2b5",
+      "thread_depth": 5,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-567d2cadda86",
+      "message_id": "<5427B95F.8060503@uottawa.ca>",
+      "from_name": "Prof J C Nash (U30A)",
+      "from_email_hash": "3bf13e4030d6ccfb8b926ecacccb28843cbf6d33b7b988bdff965495e66e883c",
+      "date": "2014-09-28T03:31:43-04:00",
+      "subject": "[R-sig-Debian] r-cran-rgdal: dependency on libgdal1 unsatisfied in\tubuntu 12.04?",
+      "subject_clean": "r-cran-rgdal: dependency on libgdal1 unsatisfied in\tubuntu 12.04?",
+      "in_reply_to": "<54271EAD.2010002@mdowle.plus.com>",
+      "references": [
+        "<54270B45.1050500@gmail.com>",
+        "<21543.4194.381639.789918@max.nulle.part>",
+        "<5427183E.6030502@mdowle.plus.com>",
+        "<21543.6838.773912.11766@max.nulle.part>",
+        "<54271EAD.2010002@mdowle.plus.com>"
+      ],
+      "body_plain": "I upgrade too, but with some trepidation. I was an unfortunate victim of \na bad disk space estimator script in the upgrade software (now some \nyears ago on an early Ubuntu). The Ubuntu folk were apologetic, but ...\n\nAn upgrade that hits the filesystem limit gives one a very \nunsatisfactory system.\n\nJohn Nash\n-- who seems to be the finder of such bugs.\n\n\nOn 14-09-27 04:31 PM, Matt Dowle wrote:\n> On 27/09/14 21:14, Dirk Eddelbuettel wrote:\n>> On 27 September 2014 at 21:04, Matt Dowle wrote:\n>> | On 27/09/14 20:30, Dirk Eddelbuettel wrote:\n>> | The fear may be that a fresh install will be needed (a pain) as\n>>\n>> But Matt, I never said or implied \"fresh install\". My exact words,\n>> from two\n>> emails ago:\n>>\n>>     \"I would upgrade, which I do every six months.\"\n>>\n>> Upgrade, not \"reinstall\".\n>>\n>> | might not work.  That's why I switched to a rolling release (LMDE) so\n>>\n>> Rolling releases rock. Debian pretty much invented this with \"testing\"\n>> which\n>> is a rolling release receiving packages from the top (aka \"unstable\") if\n>> (approximatly) no new upload was made, no critical bugs appeared and\n>> it is\n>> not blocking another packages dependency graph.  So in essence \"always\n>> ten\n>> days fresh\" (as eg for my R builds).  That rocks, and it is getting more\n>> recognition now.\n>>\n>> | I'll never need to upgrade and reinstall and setup all the software I\n>> | need and config again.  So they tell me.   I'll tell you if it's\n>> true in\n>> | a few years!   My /home is mounted on its own partition, so that's\n>> not a\n>> | pain (but is for users who don't know how to use gparted to do that),\n>> | but even then I fear problems if I point a new release to my single\n>> | /home and then need to roll back (the new release may have changed\n>> files\n>> | in ~).\n>> | Do you do a fresh install every 6 months or do you upgrade your\n>> existing?\n>>\n>> For one reason or another the majority of my machines (at home and\n>> work) are\n>> actually running Ubuntu.\n>>\n>> And I __always__ updated __all of them__ every six months __whenever a\n>> new\n>> release comes out__.  Some of these may now have had over ten\n>> upgrades. No\n>> issues.  I tend to do the auxiliary machines at home first, then my main\n>> laptop, then the server and then the machines at work.\n>>\n>> It. just. works.\n>>\n>> And is the least amount of work as far as I can tell.\n>>\n>> Dirk\n>>\n> Very interesting. Ok, yep, Matthieu really has no excuse for not\n> upgrading then.\n>\n> Matt\n>\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "I upgrade too, but with some trepidation. I was an unfortunate victim of \na bad disk space estimator script in the upgrade software (now some \nyears ago on an early Ubuntu). The Ubuntu folk were apolo",
+      "thread_id": "thread-fef5524ee2b5",
+      "thread_depth": 5,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-195c78517c75",
+      "message_id": "<CABBC9T2rLkNTjhpsMvLX9zyj_GfAcjmdYC54688=sn+Ls-0RkQ@mail.gmail.com>",
+      "from_name": "Miguel Angel Barros",
+      "from_email_hash": "efd0d3b63a4e1bdeae53db14805978339aef80143aa49d2eaa94bef5796f10cf",
+      "date": "2014-09-30T09:24:01-03:00",
+      "subject": "[R-sig-Debian] error in Ubuntu",
+      "subject_clean": "error in Ubuntu",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hello,\nI've got this error while I'm try to install R on Ubuntu 12.04. The cran\nthat I used was from Argentina.\n\"E:Type 'http://cran.r-project.org/bin/linux/ubuntu' is not known on line\n60 in source list /etc/apt/sources.list  \"\n\nSo, please, Could everyone help me with this error.\n\nThank you so much\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Hello,\nI've got this error while I'm try to install R on Ubuntu 12.04. The cran\nthat I used was from Argentina.\n\"E:Type 'http://cran.r-project.org/bin/linux/ubuntu' is not known on line\n60 in source l",
+      "thread_id": "thread-195c78517c75",
+      "thread_depth": 0,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-7d9a45173629",
+      "message_id": "<21546.41569.236236.448328@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2014-09-30T07:30:25-05:00",
+      "subject": "[R-sig-Debian] error in Ubuntu",
+      "subject_clean": "error in Ubuntu",
+      "in_reply_to": "<CABBC9T2rLkNTjhpsMvLX9zyj_GfAcjmdYC54688=sn+Ls-0RkQ@mail.gmail.com>",
+      "references": [
+        "<CABBC9T2rLkNTjhpsMvLX9zyj_GfAcjmdYC54688=sn+Ls-0RkQ@mail.gmail.com>"
+      ],
+      "body_plain": "On 30 September 2014 at 09:24, Miguel Angel Barros wrote:\n| I've got this error while I'm try to install R on Ubuntu 12.04. The cran\n| that I used was from Argentina.\n| \"E:Type 'http://cran.r-project.org/bin/linux/ubuntu' is not known on line\n| 60 in source list /etc/apt/sources.list  \"\n| \n| So, please, Could everyone help me with this error.\n\nI suspect a mistyped line. Re-read the README for the proper format.\n\nHere is what I use:\n\n   edd at max:~$ cat /etc/apt/sources.list.d/cran.list\n   # edd 08 Nov 2009  CRAN via R-Project.org\n   #        Apr 2014  switched to RStudio CDN\n   deb http://cran.rstudio.com/bin/linux/ubuntu trusty/ \n   edd at max:~$ \n\nHth, Dirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 30 September 2014 at 09:24, Miguel Angel Barros wrote:\n| I've got this error while I'm try to install R on Ubuntu 12.04. The cran\n| that I used was from Argentina.\n| \"E:Type 'http://cran.r-project.",
+      "thread_id": "thread-195c78517c75",
+      "thread_depth": 1,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-575042752ed8",
+      "message_id": "<DUB131-W893508712C3ED0A8740A46F8BB0@phx.gbl>",
+      "from_name": "Ali Youssef",
+      "from_email_hash": "d956704266471dea986eaf50ee97bff8ea8ea4e52a47661a0b2c1cff5e88bf1c",
+      "date": "2014-09-30T20:09:24+02:00",
+      "subject": "[R-sig-Debian] String Kernel for R 3.1.1",
+      "subject_clean": "String Kernel for R 3.1.1",
+      "in_reply_to": "<DUB131-W89A63CB15CBDEA6C70AEC0F8BB0@phx.gbl>",
+      "references": [
+        "<DUB131-W89A63CB15CBDEA6C70AEC0F8BB0@phx.gbl>"
+      ],
+      "body_plain": "Dear all , \n\nMay you inform me how  to use the function of gapweightkernel() from stringkernel Library . where the library is not for R 3.1.1 . I am using R 3.1.1 .\n\nsincerely \n \t\t \t   \t\t   \t\t \t   \t\t  \n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Dear all , \n\nMay you inform me how  to use the function of gapweightkernel() from stringkernel Library . where the library is not for R 3.1.1 . I am using R 3.1.1 .\n\nsincerely \n \t\t \t   \t\t   \t\t \t   \t\t ",
+      "thread_id": "thread-575042752ed8",
+      "thread_depth": 0,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-853abf142a57",
+      "message_id": "<5139523.lWa1OnN68h@stiller>",
+      "from_name": "Johannes Ranke",
+      "from_email_hash": "8d7dc9cf8d248719dcd9a94c124dab5545d72861321d11f36ce7fddb3c609524",
+      "date": "2014-09-30T20:44:02+02:00",
+      "subject": "[R-sig-Debian] String Kernel for R 3.1.1",
+      "subject_clean": "String Kernel for R 3.1.1",
+      "in_reply_to": "<DUB131-W893508712C3ED0A8740A46F8BB0@phx.gbl>",
+      "references": [
+        "<DUB131-W89A63CB15CBDEA6C70AEC0F8BB0@phx.gbl>",
+        "<DUB131-W893508712C3ED0A8740A46F8BB0@phx.gbl>"
+      ],
+      "body_plain": "Dear Ali,\n\nObviously the stringkernels package is not maintained any more, at least it \nhas been removed from CRAN:\n\nhttp://cran.r-project.org/web/packages/stringkernels/index.html\n\nYou could try to download the latest version from the archive and install it \nfrom source using the command line\n\n  R CMD INSTALL stringkernels_0.8.9.tar.gz\n\nbut you need r-base-dev installed and maybe additional dependencies, and even \nthen it may not be compatible with current R versions.\n\nKind regards,\n\nJohannes\n\nAm Dienstag, 30. September 2014, 20:09:24 schrieb Ali Youssef:\n> Dear all ,\n> \n> May you inform me how  to use the function of gapweightkernel() from\n> stringkernel Library . where the library is not for R 3.1.1 . I am using R\n> 3.1.1 .\n> \n> sincerely\n> \n> \t[[alternative HTML version deleted]]\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "Dear Ali,\n\nObviously the stringkernels package is not maintained any more, at least it \nhas been removed from CRAN:\n\nhttp://cran.r-project.org/web/packages/stringkernels/index.html\n\nYou could try to d",
+      "thread_id": "thread-575042752ed8",
+      "thread_depth": 1,
+      "month": "2014-09"
+    },
+    {
+      "id": "msg-7db48421aed6",
+      "message_id": "<DUB131-W48F406D14952E081566B4CF8BB0@phx.gbl>",
+      "from_name": "Ali Youssef",
+      "from_email_hash": "d956704266471dea986eaf50ee97bff8ea8ea4e52a47661a0b2c1cff5e88bf1c",
+      "date": "2014-09-30T22:53:16+02:00",
+      "subject": "[R-sig-Debian] String Kernel for R 3.1.1",
+      "subject_clean": "String Kernel for R 3.1.1",
+      "in_reply_to": "<5139523.lWa1OnN68h@stiller>",
+      "references": [
+        "<DUB131-W89A63CB15CBDEA6C70AEC0F8BB0@phx.gbl>",
+        "<DUB131-W893508712C3ED0A8740A46F8BB0@phx.gbl>",
+        "<5139523.lWa1OnN68h@stiller>"
+      ],
+      "body_plain": "Thanks for your replay . Actually I tried  but it is always the same error message !. May you help if  in R 3.1.1 there  is any library supports using the function \n\ngapweightkernel()    ## a simple gappy substring kernels  ! \n\nor  any other function works as well as this does ! \n\nSincerely \n\nALI \n\n\n\n\n\n\n\n--------------------------------------\n\n> From: jranke at uni-bremen.de\n> To: r-sig-debian at r-project.org\n> CC: ali_youssef at live.com\n> Subject: Re: [R-sig-Debian] String Kernel for R 3.1.1\n> Date: Tue, 30 Sep 2014 20:44:02 +0200\n> \n> Dear Ali,\n> \n> Obviously the stringkernels package is not maintained any more, at least it \n> has been removed from CRAN:\n> \n> http://cran.r-project.org/web/packages/stringkernels/index.html\n> \n> You could try to download the latest version from the archive and install it \n> from source using the command line\n> \n>   R CMD INSTALL stringkernels_0.8.9.tar.gz\n> \n> but you need r-base-dev installed and maybe additional dependencies, and even \n> then it may not be compatible with current R versions.\n> \n> Kind regards,\n> \n> Johannes\n> \n> Am Dienstag, 30. September 2014, 20:09:24 schrieb Ali Youssef:\n> > Dear all ,\n> > \n> > May you inform me how  to use the function of gapweightkernel() from\n> > stringkernel Library . where the library is not for R 3.1.1 . I am using R\n> > 3.1.1 .\n> > \n> > sincerely\n> > \n> > \t[[alternative HTML version deleted]]\n> > \n> > _______________________________________________\n> > R-SIG-Debian mailing list\n> > R-SIG-Debian at r-project.org\n> > https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n> \n \t\t \t   \t\t  \n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Thanks for your replay . Actually I tried  but it is always the same error message !. May you help if  in R 3.1.1 there  is any library supports using the function \n\ngapweightkernel()    ## a simple g",
+      "thread_id": "thread-575042752ed8",
+      "thread_depth": 2,
+      "month": "2014-09"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-c6824a424941",
+      "subject": "Picking 'rgl' as source package instead of 'r-cran-rgl'",
+      "message_count": 2,
+      "participants": [
+        "Matt Dowle"
+      ],
+      "started": "2014-09-13T16:22:07+01:00",
+      "last_reply": "2014-09-13T18:38:58+01:00",
+      "root_message_id": "msg-c6824a424941"
+    },
+    {
+      "id": "thread-d866ca2516fb",
+      "subject": "difference between install from source and install from repositories",
+      "message_count": 6,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Pratibha Rana"
+      ],
+      "started": "2014-09-18T15:03:41+00:00",
+      "last_reply": "2014-09-18T12:10:10-05:00",
+      "root_message_id": "msg-d866ca2516fb"
+    },
+    {
+      "id": "thread-b1008ceb3806",
+      "subject": "configure: error: linking to Fortran libraries from C fails",
+      "message_count": 2,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Matt Dowle"
+      ],
+      "started": "2014-09-26T18:00:36+01:00",
+      "last_reply": "2014-09-26T12:32:40-05:00",
+      "root_message_id": "msg-b1008ceb3806"
+    },
+    {
+      "id": "thread-fef5524ee2b5",
+      "subject": "r-cran-rgdal: dependency on libgdal1 unsatisfied in ubuntu 12.04?",
+      "message_count": 9,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Matt Dowle",
+        "Matthieu",
+        "Prof J C Nash (U30A)"
+      ],
+      "started": "2014-09-27T12:08:53-07:00",
+      "last_reply": "2014-09-28T03:31:43-04:00",
+      "root_message_id": "msg-fef5524ee2b5"
+    },
+    {
+      "id": "thread-80ef1b3f6a4c",
+      "subject": "subscription",
+      "message_count": 1,
+      "participants": [
+        "Wang, Ting    (MU-Student)"
+      ],
+      "started": "2014-09-27T12:15:18+00:00",
+      "last_reply": "2014-09-27T12:15:18+00:00",
+      "root_message_id": "msg-80ef1b3f6a4c"
+    },
+    {
+      "id": "thread-195c78517c75",
+      "subject": "error in Ubuntu",
+      "message_count": 2,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Miguel Angel Barros"
+      ],
+      "started": "2014-09-30T09:24:01-03:00",
+      "last_reply": "2014-09-30T07:30:25-05:00",
+      "root_message_id": "msg-195c78517c75"
+    },
+    {
+      "id": "thread-575042752ed8",
+      "subject": "String Kernel for R 3.1.1",
+      "message_count": 3,
+      "participants": [
+        "Ali Youssef",
+        "Johannes Ranke"
+      ],
+      "started": "2014-09-30T20:09:24+02:00",
+      "last_reply": "2014-09-30T22:53:16+02:00",
+      "root_message_id": "msg-575042752ed8"
+    }
+  ]
+}

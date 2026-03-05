@@ -1,0 +1,1359 @@
+From gregor.gorjanc at gmail.com  Sat Mar 11 01:58:30 2006
+From: gregor.gorjanc at gmail.com (Gregor Gorjanc)
+Date: Sat, 11 Mar 2006 01:58:30 +0100
+Subject: [R-sig-Debian] Multiple versions of R
+Message-ID: <441220B6.5030207@bfro.uni-lj.si>
+
+Hello!
+
+I have testing version of Debian packages and I now I have the following
+version of R
+
+dpkg -s r-base
+...
+Version: 2.2.0.final-4
+...
+
+In unstable, the version of R is
+
+apt-cache show r-base
+...
+Version: 2.2.1-6
+...
+...
+
+Is it possible to have both versions installed at the same time? Which
+version do you usually use for R i.e. stable, testing, unstable?
+
+-- 
+Lep pozdrav / With regards,
+    Gregor Gorjanc
+
+----------------------------------------------------------------------
+University of Ljubljana     PhD student
+Biotechnical Faculty
+Zootechnical Department     URI: http://www.bfro.uni-lj.si/MR/ggorjan
+Groblje 3                   mail: gregor.gorjanc <at> bfro.uni-lj.si
+
+SI-1230 Domzale             tel: +386 (0)1 72 17 861
+Slovenia, Europe            fax: +386 (0)1 72 17 888
+
+----------------------------------------------------------------------
+"One must learn by doing the thing; for though you think you know it,
+ you have no certainty until you try." Sophocles ~ 450 B.C.
+
+
+From edd at debian.org  Sat Mar 11 03:02:14 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 10 Mar 2006 20:02:14 -0600
+Subject: [R-sig-Debian] Multiple versions of R
+In-Reply-To: <441220B6.5030207@bfro.uni-lj.si>
+References: <441220B6.5030207@bfro.uni-lj.si>
+Message-ID: <17426.12198.100334.990662@basebud.nulle.part>
+
+
+On 11 March 2006 at 01:58, Gregor Gorjanc wrote:
+| Hello!
+| 
+| I have testing version of Debian packages and I now I have the following
+| version of R
+| 
+| dpkg -s r-base
+| ...
+| Version: 2.2.0.final-4
+| ...
+| 
+| In unstable, the version of R is
+| 
+| apt-cache show r-base
+| ...
+| Version: 2.2.1-6
+| ...
+| ...
+| 
+| Is it possible to have both versions installed at the same time? 
+
+No -- as they would both claim to be /usr/bin/R, live in /usr/lib/R etc pp
+and would hence conflict. 
+
+Conceptually, the Debian packaging could be altered to allow for parallel
+versions just like, say, emacs20 and emacs21 do. In fact, I once implemented
+just that to allow octave2.0, the then stable release, to co-exist with
+octave2.1 which was then bleeding edge but ...
+
+... I rather strongly feel that this is not worth the effort for R. My
+informal survey of R Core indicates that developers simply install into
+different branches of /usr/local, say /usr/local/lib/R-$version which works
+well enough for frequently changing builds.  And the R release cycle is both
+frequent enough, and reliable enough, to get you new versions every six
+months anyway (plus maybe .1 point releases).
+
+You are of course free to create your own 'r-devel' package to live alongside
+mine ...
+
+| Which version do you usually use for R i.e. stable, testing, unstable?
+
+Always the newest released version of R which may or may not be in Debian
+unstable.  For the couple of years that I maintained the package, it almost
+always immediately installed on testing too.  Sometime you need apt-pinning
+(google for that if you don't know it).   On Debian stable I would take the
+backport to stable provided via CRAN. Also without hesitation.
+
+In other words, the R release process is so sound that I have no problem
+throwing the newest R at whatever machine I have. 
+
+At work I sometimes need(ed) r-devel versions, but those tend to be
+non-Debian machines (Solaris, RH, ...) anyway where I'd build manually in
+/usr/local anyway ....
+
+Hope this helps,  Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From friendly at yorku.ca  Fri Mar 10 17:14:11 2006
+From: friendly at yorku.ca (Michael Friendly)
+Date: Fri, 10 Mar 2006 11:14:11 -0500
+Subject: [R-sig-Debian] installing/updating R packages: apt-get vs.
+ install.packages() and .libPaths()
+Message-ID: <4411A5D3.5050300@yorku.ca>
+
+I recently had to rebuild my entire debian system to correct some severe 
+dependency
+conflicts and security issues.  I installed a new harddisk, linux kernel 
+and started from
+scratch, keeping my old disk mounted as /olddisk.  In the process I 
+switched from unstable
+to stable distros as recommended by a local sysadmin to avoid such 
+problems in the future.
+
+Now I want to be able to install and update R and R packages with ease 
+and with minimal
+confusion about different versions in different libraries, so that I can 
+(a) install new
+packages in a consistent way with my current R version, (b)  install a new
+R version with apt-get install r-base, ...  (c) run update.packages() or 
+something equivalent
+to update all the packages coherently. 
+
+ I'm confused about where things go based on apt-get install 
+{r-base,r-cran}* vs install.packages()
+and whether I am running as root vs me.  If I want to update.packages() 
+I don't want to have
+to worry about whether I am currently root or me -- I just want to be 
+*me* and have it work.
+
+ > .libPaths()
+[1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"
+[3] "/usr/lib/R/library"
+ >
+
+"/usr/lib/R/library"   for apt-get install r-base, as root
+"/usr/lib/R/site-library"    for apt-get install r-cran, as root
+"/usr/local/lib/R/site-library"   for install.packages() as {me,root}
+
+My machine is single user; should I just give myself chmod g+w privs 
+under  /usr/lib/R/site-library
+and maybe /usr/lib/R/library?  What is the recommended discipline?
+
+thx,
+
+-- 
+Michael Friendly     Email: friendly at yorku.ca 
+Professor, Psychology Dept.
+York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+4700 Keele Street    http://www.math.yorku.ca/SCS/friendly.html
+Toronto, ONT  M3J 1P3 CANADA
+
+
+From edd at debian.org  Sat Mar 11 04:01:43 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 10 Mar 2006 21:01:43 -0600
+Subject: [R-sig-Debian] installing/updating R packages: apt-get vs.
+ install.packages() and .libPaths()
+In-Reply-To: <4411A5D3.5050300@yorku.ca>
+References: <4411A5D3.5050300@yorku.ca>
+Message-ID: <17426.15767.514928.663573@basebud.nulle.part>
+
+
+[ Delayed, and the manually approved as Michael posted without being
+  subscribed under this address. Please consider subscribing.  --Dirk ]
+
+Hi Michael,
+
+On 10 March 2006 at 11:14, Michael Friendly wrote:
+| I recently had to rebuild my entire debian system to correct some severe 
+| dependency 
+| conflicts and security issues. 
+
+That should only happen by accident or some sort of negligence. I have
+systems that I continuously upgraded for many, many years without problems.
+Mind you they are also behind firewalls and not quite as visible as a
+yorku.ca machine ...
+
+| I installed a new harddisk, linux kernel 
+| and started from
+| scratch, keeping my old disk mounted as /olddisk.  In the process I 
+| switched from unstable
+| to stable distros as recommended by a local sysadmin to avoid such 
+| problems in the future.
+| 
+| Now I want to be able to install and update R and R packages with ease 
+| and with minimal
+| confusion about different versions in different libraries, 
+
+No problem so far.
+
+| so that I can 
+| (a) install new packages in a consistent way with my current R version, 
+
+Ok. More on that below.
+
+| (b)  install a new R version with apt-get install r-base, ...  
+
+That is in conflict with your approach from the very first paragraph.  By the
+suggestion of your sysadmin, you cannot install new R version as they may
+create 'severe dependency conflicts and security issues'.  All kidding aside,
+you either believe that 
+
+  I)  you want a stable system so you don't install new software, not
+      even R, or
+
+  II) you need current software, maybe only R, so you're willing to make
+      compromises.
+
+II) is possible via the backports of current R version that are on CRAN. Just
+don't tell your sysadmin....  If you point to the apt-get'able archive
+provided by CRAN you get new Debian packages of new R releases withins days
+of the R release.
+
+| (c) run update.packages() or something equivalent
+| to update all the packages coherently. 
+
+Also possible.
+
+|  I'm confused about where things go based on apt-get install 
+| {r-base,r-cran}* vs install.packages()
+| and whether I am running as root vs me.  If I want to update.packages() 
+| I don't want to have
+| to worry about whether I am currently root or me -- I just want to be 
+| *me* and have it work.
+
+That works _provided you prepare your territory__. This is unix, so "you"
+can only write there if your root let's you write. So you could for example
+
+i)   add yourself to group adm in /etc/groups
+ii)  chgrp adm /usr/local/lib/R/site-library/
+iii) chmod g+w /usr/local/lib/R/site-library/
+
+Now you should be able to say (inside R) 
+
+	> update.packages(lib.loc="/usr/local/lib/R/site-library/")
+
+In fact, I just did that.  You may need ii) and iii) with an added -R so that
+you are allowed to overwrite previously installed versions, if any:
+
+iv)  chgrp -R adm /usr/local/lib/R/site-library/
+v)   chmod -R g+w /usr/local/lib/R/site-library/
+
+|  > .libPaths()
+| [1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"
+| [3] "/usr/lib/R/library"
+|  >
+| 
+| "/usr/lib/R/library"   for apt-get install r-base, as root
+
+Per a suggestion by Fritz and Kurt at one of the Vienna conferences, this
+directory is reserved for everything from r-base-core and r-recommended (ie
+boot, MASS, ...) and *nothing* else. So these would get updated via apt-get
+and dpkg.
+
+| "/usr/lib/R/site-library"    for apt-get install r-cran, as root
+
+Per a suggestion by Fritz and Kurt at one of the Vienna conferences, this
+directory is reserved for whatever R packages _Debian_ adds to the system.
+So these would get updated via apt-get and dpkg as well.
+
+| "/usr/local/lib/R/site-library"   for install.packages() as {me,root}
+
+Per a suggestion by Fritz and Kurt at one of the Vienna conferences, this
+directory is reserved for whatever the local user/admin installs.  I used to
+do that as root, but the method I suggest above is actually nicer.  So yes,
+you can do that provided you (as root) give yourself (as you) the proper
+permissions.
+
+| My machine is single user; should I just give myself chmod g+w privs 
+| under  /usr/lib/R/site-library
+| and maybe /usr/lib/R/library?  What is the recommended discipline?
+
+Only for /usr/local/lib/R/ as you need root permissions (or at least sudo) to
+interact with apt-get / dpkg anyway.
+
+I hope this is of help and wasn;t too terse.  We should expand this where
+needed and maybe post it on the R Wiki or maybe even polish it up for a quick
+one-pager in R News...
+
+Best regards,  Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From gregor.gorjanc at gmail.com  Sun Mar 12 03:55:39 2006
+From: gregor.gorjanc at gmail.com (Gregor Gorjanc)
+Date: Sun, 12 Mar 2006 03:55:39 +0100
+Subject: [R-sig-Debian] installing/updating R packages: apt-get vs.
+ install.packages() and .libPaths()
+References: 4411A5D3.5050300@yorku.ca
+Message-ID: <44138DAB.8030306@gmail.com>
+
+Hi!
+
+Nice explanation Dirk! I agree that a one-pager for R news would be
+nice. I am posting the following code, which can warn you about multiple
+copies of packages. Using different installation systems has also some
+of its drawback. You can easily end up with "several" copies of packages
+and you might know which one is loaded after library() is issued - order
+is as in .libPaths()
+
+tmp <- table(dir(.libPaths()))
+tmp <- tmp[names(tmp) != "R.css"]
+test <- sum(tmp > 1)
+if (test > 0) {
+  cat("\n Warning: you have multiple copies of the following packages:\n")
+  print(tmp[tmp > 1])
+}
+
+-- 
+Lep pozdrav / With regards,
+    Gregor Gorjanc
+
+----------------------------------------------------------------------
+University of Ljubljana     PhD student
+Biotechnical Faculty
+Zootechnical Department     URI: http://www.bfro.uni-lj.si/MR/ggorjan
+Groblje 3                   mail: gregor.gorjanc <at> bfro.uni-lj.si
+
+SI-1230 Domzale             tel: +386 (0)1 72 17 861
+Slovenia, Europe            fax: +386 (0)1 72 17 888
+
+----------------------------------------------------------------------
+"One must learn by doing the thing; for though you think you know it,
+ you have no certainty until you try." Sophocles ~ 450 B.C.
+
+
+From friendly at yorku.ca  Sun Mar 12 18:13:41 2006
+From: friendly at yorku.ca (Michael Friendly)
+Date: Sun, 12 Mar 2006 12:13:41 -0500
+Subject: [R-sig-Debian] installing/updating R packages: apt-get vs.
+ install.packages() and .libPaths()
+In-Reply-To: <17426.15767.514928.663573@basebud.nulle.part>
+References: <4411A5D3.5050300@yorku.ca>
+	<17426.15767.514928.663573@basebud.nulle.part>
+Message-ID: <441456C5.6000002@yorku.ca>
+
+
+
+Dirk Eddelbuettel wrote:
+
+> [ Delayed, and the manually approved as Michael posted without being
+>   subscribed under this address. Please consider subscribing.  --Dirk ]
+
+[I've subscribed 3 times, always with the same outgoing email address
+> Your subscription request has been received, and will soon be acted upon. Depending on the configuration of this mailing list, your subscription request may have to be first confirmed by you via email, or approved by the list moderator. If confirmation is required, you will soon get a confirmation email which contains further instructions.
+
+But I never get a confirmation, or the digest postings I requested.]
+
+Aparently, I wasn't the only one confused:
+Jeremy wrote:
+> I couldn't find anything on the R FAQ's mentioning Debian
+> specifically.  And a simple search for 'upgrade' in the FAQ also
+> turned up nothing.  I even used Google to search for a way to upgrade
+> R using CRAN, with no relevant results.  After a little bit of
+> searching around the CRAN site I found this :
+> 
+> http://cran.r-project.org/bin/linux/debian/README
+> 
+> Which was all the information I needed.  Thanks for all the help.
+> 
+> Jeremy
+[I think the point here was not that debian didn't appear in the FAQ,
+but rather that the information there was not sufficiently detailed.]
+
+I would recommend the following:
+
+1) In the R-FAQ, add the the lines:
+
+More details on installing and administering R on debian linux may be
+found at
+
+     <link>http://cran.r-project.org/bin/linux/debian/README</link>
+
+2) Add a section to the above README along the following lines of:
+(feel free to edit in any way)
+
+* DEBIAN ADMINISTRATION AND MAINTENANCE
+
+The recommended policy for installing and maintaining R on debian linux 
+is as follows:
+
+    *  The r-base-core and r-recommended debian packages are normally 
+installed and updated using apt-get (as root) to /usr/lib/R/library.
+
+    *  Other debian packages (e.g., r-cran-*) are normally installed and 
+updated using apt-get (as root) to /usr/lib/R/site-library.
+
+    *  Still other packages may be installed by the local user/admin
+from source or using install.packeges() to 
+/usr/local/lib/R/site-library/.  This depends on local policy and 
+setting the proper permissions.
+
+    *  Users are always free to install packages in $HOME/lib/R/library
+(or elsewhere).  This requires adding any such library to the .lib.paths
+list, e.g., in .Rprofile ...
+
+> 
+> |  I'm confused about where things go based on apt-get install 
+> | {r-base,r-cran}* vs install.packages()
+> | and whether I am running as root vs me.  If I want to update.packages() 
+> | I don't want to have
+> | to worry about whether I am currently root or me -- I just want to be 
+> | *me* and have it work.
+> 
+> That works _provided you prepare your territory__. This is unix, so "you"
+> can only write there if your root let's you write. So you could for example
+> 
+> i)   add yourself to group adm in /etc/groups
+> ii)  chgrp adm /usr/local/lib/R/site-library/
+> iii) chmod g+w /usr/local/lib/R/site-library/
+> 
+> Now you should be able to say (inside R) 
+> 
+> 	> update.packages(lib.loc="/usr/local/lib/R/site-library/")
+
+OK, but implicit in my original post was the question of what happens 
+when there are packages to be upgraded in more than one library.  If I
+specify lib.loc="/usr/local/lib/R/site-library/", then, presumably the
+r-cran-* packages will be upgraded there, rather than in 
+/usr/lib/R/site-library vs. upgrading with apt-get.   The help for 
+update.packages is mute on what happens when lib.loc=NULL.
+
+  lib.loc: character vector describing the location of R library trees
+           to search through (and update packages therein).
+
+
+
+> In fact, I just did that.  You may need ii) and iii) with an added -R so that
+> you are allowed to overwrite previously installed versions, if any:
+> 
+> iv)  chgrp -R adm /usr/local/lib/R/site-library/
+> v)   chmod -R g+w /usr/local/lib/R/site-library/
+> 
+> |  > .libPaths()
+> | [1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"
+> | [3] "/usr/lib/R/library"
+> |  >
+> | 
+> | "/usr/lib/R/library"   for apt-get install r-base, as root
+> 
+> Per a suggestion by Fritz and Kurt at one of the Vienna conferences, this
+> directory is reserved for everything from r-base-core and r-recommended (ie
+> boot, MASS, ...) and *nothing* else. So these would get updated via apt-get
+> and dpkg.
+> 
+> | "/usr/lib/R/site-library"    for apt-get install r-cran, as root
+> 
+> Per a suggestion by Fritz and Kurt at one of the Vienna conferences, this
+> directory is reserved for whatever R packages _Debian_ adds to the system.
+> So these would get updated via apt-get and dpkg as well.
+> 
+> | "/usr/local/lib/R/site-library"   for install.packages() as {me,root}
+> 
+> Per a suggestion by Fritz and Kurt at one of the Vienna conferences, this
+> directory is reserved for whatever the local user/admin installs.  I used to
+> do that as root, but the method I suggest above is actually nicer.  So yes,
+> you can do that provided you (as root) give yourself (as you) the proper
+> permissions.
+> 
+> | My machine is single user; should I just give myself chmod g+w privs 
+> | under  /usr/lib/R/site-library
+> | and maybe /usr/lib/R/library?  What is the recommended discipline?
+> 
+> Only for /usr/local/lib/R/ as you need root permissions (or at least sudo) to
+> interact with apt-get / dpkg anyway.
+> 
+> I hope this is of help and wasn;t too terse.  We should expand this where
+> needed and maybe post it on the R Wiki or maybe even polish it up for a quick
+> one-pager in R News...
+
+This was certainly helpful.  Yes, something on the R Wiki or R News 
+would be useful.
+> Best regards,  Dirk
+> 
+
+-- 
+Michael Friendly     Email: friendly AT yorku DOT ca
+Professor, Psychology Dept.
+York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+4700 Keele Street    http://www.math.yorku.ca/SCS/friendly.html
+Toronto, ONT  M3J 1P3 CANADA
+
+
+From edd at debian.org  Sun Mar 12 18:51:24 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 12 Mar 2006 11:51:24 -0600
+Subject: [R-sig-Debian] installing/updating R packages: apt-get vs.
+ install.packages() and .libPaths()
+In-Reply-To: <441456C5.6000002@yorku.ca>
+References: <4411A5D3.5050300@yorku.ca>
+	<17426.15767.514928.663573@basebud.nulle.part>
+	<441456C5.6000002@yorku.ca>
+Message-ID: <17428.24476.702253.270066@basebud.nulle.part>
+
+
+Michael,
+
+I just had to approve another post of yours ....
+
+On 12 March 2006 at 12:13, Michael Friendly wrote:
+| 
+| 
+| Dirk Eddelbuettel wrote:
+| 
+| > [ Delayed, and the manually approved as Michael posted without being
+| >   subscribed under this address. Please consider subscribing.  --Dirk ]
+| 
+| [I've subscribed 3 times, always with the same outgoing email address
+| > Your subscription request has been received, and will soon be acted upon. Depending on the configuration of this mailing list, your subscription request may have to be first confirmed by you via email, or approved by the list moderator. If confirmation is required, you will soon get a confirmation email which contains further instructions.
+| 
+| But I never get a confirmation, or the digest postings I requested.]
+
+I would take that to mean that you never got the subscription finalised. It
+works with a handshake mechanism via email. Maybe York U blocked the reply,
+maybe your spam filter ate it. I do not know.  I can however confirm that
+'friendly at yorku.ca' is not shown as a list member.
+
+So I just subscribed you manually.  Obviously, this doesn't scale well and I
+do not intend to offer that service for everybody who fails to subscribe
+manually.
+
+| Aparently, I wasn't the only one confused:
+| Jeremy wrote:
+| > I couldn't find anything on the R FAQ's mentioning Debian
+| > specifically.  And a simple search for 'upgrade' in the FAQ also
+| > turned up nothing.  I even used Google to search for a way to upgrade
+| > R using CRAN, with no relevant results.  After a little bit of
+| > searching around the CRAN site I found this :
+| > 
+| > http://cran.r-project.org/bin/linux/debian/README
+| > 
+| > Which was all the information I needed.  Thanks for all the help.
+| > 
+| > Jeremy
+
+That is an unrelated issue of someone failing to read the FAQ. I see no point
+in bringing it up here, really.
+
+| [I think the point here was not that debian didn't appear in the FAQ,
+| but rather that the information there was not sufficiently detailed.]
+| 
+| I would recommend the following:
+| 
+| 1) In the R-FAQ, add the the lines:
+
+For matters related to the FAQ, please email Kurt.Hornik at R-Project.org about
+this (and I will CC him now). I have no influence on the R FAQ. I merely run
+two R-related lists per an invitation by Martin M., and maintain a number of
+Debian R packages.
+
+| More details on installing and administering R on debian linux may be
+| found at
+| 
+|      <link>http://cran.r-project.org/bin/linux/debian/README</link>
+| 
+| 2) Add a section to the above README along the following lines of:
+| (feel free to edit in any way)
+
+I think for changes to the README, a diff or a new version emailed to
+cran at r-project.org is the best way to go about it.
+ 
+| * DEBIAN ADMINISTRATION AND MAINTENANCE
+| 
+| The recommended policy for installing and maintaining R on debian linux 
+| is as follows:
+| 
+|     *  The r-base-core and r-recommended debian packages are normally 
+| installed and updated using apt-get (as root) to /usr/lib/R/library.
+| 
+|     *  Other debian packages (e.g., r-cran-*) are normally installed and 
+| updated using apt-get (as root) to /usr/lib/R/site-library.
+| 
+|     *  Still other packages may be installed by the local user/admin
+| from source or using install.packeges() to 
+| /usr/local/lib/R/site-library/.  This depends on local policy and 
+| setting the proper permissions.
+| 
+|     *  Users are always free to install packages in $HOME/lib/R/library
+| (or elsewhere).  This requires adding any such library to the .lib.paths
+| list, e.g., in .Rprofile ...
+| 
+| > 
+| > |  I'm confused about where things go based on apt-get install 
+| > | {r-base,r-cran}* vs install.packages()
+| > | and whether I am running as root vs me.  If I want to update.packages() 
+| > | I don't want to have
+| > | to worry about whether I am currently root or me -- I just want to be 
+| > | *me* and have it work.
+| > 
+| > That works _provided you prepare your territory__. This is unix, so "you"
+| > can only write there if your root let's you write. So you could for example
+| > 
+| > i)   add yourself to group adm in /etc/groups
+| > ii)  chgrp adm /usr/local/lib/R/site-library/
+| > iii) chmod g+w /usr/local/lib/R/site-library/
+| > 
+| > Now you should be able to say (inside R) 
+| > 
+| > 	> update.packages(lib.loc="/usr/local/lib/R/site-library/")
+| 
+| OK, but implicit in my original post was the question of what happens 
+| when there are packages to be upgraded in more than one library.  If I
+
+I think you should strive to not install more than once. One would have to
+see what R does if confronted with several instances of the same package
+(possibly in several versions).
+
+Gregor posted a script to test for this too.
+
+| specify lib.loc="/usr/local/lib/R/site-library/", then, presumably the
+| r-cran-* packages will be upgraded there, rather than in 
+| /usr/lib/R/site-library vs. upgrading with apt-get.   The help for 
+| update.packages is mute on what happens when lib.loc=NULL.
+| 
+|   lib.loc: character vector describing the location of R library trees
+|            to search through (and update packages therein).
+| 
+| 
+| 
+| > In fact, I just did that.  You may need ii) and iii) with an added -R so that
+| > you are allowed to overwrite previously installed versions, if any:
+| > 
+| > iv)  chgrp -R adm /usr/local/lib/R/site-library/
+| > v)   chmod -R g+w /usr/local/lib/R/site-library/
+| > 
+| > |  > .libPaths()
+| > | [1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"
+| > | [3] "/usr/lib/R/library"
+| > |  >
+| > | 
+| > | "/usr/lib/R/library"   for apt-get install r-base, as root
+| > 
+| > Per a suggestion by Fritz and Kurt at one of the Vienna conferences, this
+| > directory is reserved for everything from r-base-core and r-recommended (ie
+| > boot, MASS, ...) and *nothing* else. So these would get updated via apt-get
+| > and dpkg.
+| > 
+| > | "/usr/lib/R/site-library"    for apt-get install r-cran, as root
+| > 
+| > Per a suggestion by Fritz and Kurt at one of the Vienna conferences, this
+| > directory is reserved for whatever R packages _Debian_ adds to the system.
+| > So these would get updated via apt-get and dpkg as well.
+| > 
+| > | "/usr/local/lib/R/site-library"   for install.packages() as {me,root}
+| > 
+| > Per a suggestion by Fritz and Kurt at one of the Vienna conferences, this
+| > directory is reserved for whatever the local user/admin installs.  I used to
+| > do that as root, but the method I suggest above is actually nicer.  So yes,
+| > you can do that provided you (as root) give yourself (as you) the proper
+| > permissions.
+| > 
+| > | My machine is single user; should I just give myself chmod g+w privs 
+| > | under  /usr/lib/R/site-library
+| > | and maybe /usr/lib/R/library?  What is the recommended discipline?
+| > 
+| > Only for /usr/local/lib/R/ as you need root permissions (or at least sudo) to
+| > interact with apt-get / dpkg anyway.
+| > 
+| > I hope this is of help and wasn;t too terse.  We should expand this where
+| > needed and maybe post it on the R Wiki or maybe even polish it up for a quick
+| > one-pager in R News...
+| 
+| This was certainly helpful.  Yes, something on the R Wiki or R News 
+| would be useful.
+
+Could you possibly volunteer to edit the Wiki along these lines?  That is a
+file that is open to all of us, so we should use it.
+
+Hope this helps,  Dirk
+
+| > Best regards,  Dirk
+| > 
+| 
+| -- 
+| Michael Friendly     Email: friendly AT yorku DOT ca
+| Professor, Psychology Dept.
+| York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+| 4700 Keele Street    http://www.math.yorku.ca/SCS/friendly.html
+| Toronto, ONT  M3J 1P3 CANADA
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From gregor.gorjanc at gmail.com  Wed Mar 15 08:56:13 2006
+From: gregor.gorjanc at gmail.com (Gregor Gorjanc)
+Date: Wed, 15 Mar 2006 08:56:13 +0100
+Subject: [R-sig-Debian] installing/updating R packages: apt-get vs.
+ install.packages() and .libPaths()
+References: 441456C5.6000002@yorku.ca
+Message-ID: <4417C89D.7080406@gmail.com>
+
+Hello!
+
+Dirk has provided a nice solution for a user to install R packages via R
+tools in /usr/local/...
+
+...
+
+> In fact, I just did that.  You may need ii) and iii) with an added -R
+> so that
+> you are allowed to overwrite previously installed versions, if any:
+>
+> iv)  chgrp -R adm /usr/local/lib/R/site-library/
+> v)   chmod -R g+w /usr/local/lib/R/site-library/
+
+This works almost smoothly. I can install and update packages, but I
+repeatedly get the following error
+
+...
+  write.fwf                         text    html    latex   example
+** building package indices ...
+* DONE (ggmisc)
+chmod: changing permissions of `/usr/local/lib/R/site-library/R.css':
+Operation not permitted
+
+I can not update permissions for that file? Why is this so? Here is an
+output of ls -l for mentioned file and one map. However permissions for
+a file R.css are the same as for files in maps, say RColorBrewer in this
+case
+
+drwxrwsr-x   9 root    adm 4096 2006-03-06 16:09 RColorBrewer
+-rw-rw-r--   1 root    adm  608 2006-03-15 08:49 R.css
+
+Any clues?
+
+Greggor
+
+
+From spluque at gmail.com  Tue Mar 21 05:14:56 2006
+From: spluque at gmail.com (Sebastian Luque)
+Date: Mon, 20 Mar 2006 22:14:56 -0600
+Subject: [R-sig-Debian] R CMD check using personal library
+Message-ID: <87fylcl9hb.fsf@arctocephalus.homelinux.org>
+
+Hello,
+
+I have the following set in my ~/.Renviron:
+
+# My local library
+R_LIBS="~/R/library:${R_LIBS}"
+
+which works perfect for installing packages as a normal user, and using
+them.  However, now that I'm trying to build and check a package I'm
+running into trouble with this.  So if a package 'Depends' on another
+that's installed in my local library above, then whenever I do 'R CMD
+check pkg' (as the same normal user), R complains that the latter is not
+available.  Can somebody please explain what I'm missing?
+
+
+Cheers,
+
+-- 
+Sebastian
+
+
+From phddas at yahoo.com  Tue Mar 28 00:52:12 2006
+From: phddas at yahoo.com (Fred J.)
+Date: Mon, 27 Mar 2006 14:52:12 -0800 (PST)
+Subject: [R-sig-Debian] no acceptable C compiler
+Message-ID: <20060327225212.30978.qmail@web54613.mail.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+Url: https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20060327/ff3272ac/attachment.pl 
+
+From edd at debian.org  Tue Mar 28 01:33:54 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 27 Mar 2006 17:33:54 -0600
+Subject: [R-sig-Debian] no acceptable C compiler
+In-Reply-To: <20060327225212.30978.qmail@web54613.mail.yahoo.com>
+References: <20060327225212.30978.qmail@web54613.mail.yahoo.com>
+Message-ID: <17448.30306.953910.831076@basebud.nulle.part>
+
+
+On 27 March 2006 at 14:52, Fred J. wrote:
+| dear R users
+|  
+|  not sure why I am not able to install tkrplot.
+|  > install.pacakges ("tkrplot", dependencies=TRUE)
+
+For this particular package, you can do
+
+	$ apt-get install r-cran-tkrplot
+
+instead :)
+
+|  ...
+|  Configure: error: no acceptable C compiler found in $path
+|  ...
+|  
+|  well,
+|  I am using debian testing 2.6.15, 
+|  R Version 2.2.1  (2005-12-20 r36812)
+|  
+|  #whereis gcc
+|  gcc: /usr/lib/gcc
+
+That looks like a mismatch between what R was built with and what you have
+installed.  What does this show on your box?
+
+edd at basebud:~$ grep ^CC /etc/R/Makeconf 
+CC = gcc
+
+It may want gcc-3.3 or gcc-3.4 in which case you'd need to install that
+package. 
+
+Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From phddas at yahoo.com  Tue Mar 28 10:20:41 2006
+From: phddas at yahoo.com (Fred J.)
+Date: Tue, 28 Mar 2006 00:20:41 -0800 (PST)
+Subject: [R-sig-Debian] no acceptable C compiler
+In-Reply-To: <17448.30306.953910.831076@basebud.nulle.part>
+Message-ID: <20060328082041.43066.qmail@web54602.mail.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+Url: https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20060328/da2b0a29/attachment.ksh 
+
+From edd at debian.org  Tue Mar 28 13:25:43 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 28 Mar 2006 05:25:43 -0600
+Subject: [R-sig-Debian] no acceptable C compiler
+In-Reply-To: <20060328082041.43066.qmail@web54602.mail.yahoo.com>
+References: <17448.30306.953910.831076@basebud.nulle.part>
+	<20060328082041.43066.qmail@web54602.mail.yahoo.com>
+Message-ID: <17449.7479.180000.786931@basebud.nulle.part>
+
+
+(Please consider a different email program, or setup. It is very hard to see
+what you wrote, and what you cited from me.)
+
+On 28 March 2006 at 00:20, Fred J. wrote:
+| 
+|  Dirk Eddelbuettel <edd at debian.org> wrote:  
+| On 27 March 2006 at 14:52, Fred J. wrote:
+| | dear R users
+| |  
+| |  not sure why I am not able to install tkrplot.
+| |  > install.pacakges ("tkrplot", dependencies=TRUE)
+| 
+| For this particular package, you can do
+| 
+|  $ apt-get install r-cran-tkrplot
+| 
+| instead :)
+
+So did you get r-cran-tkrplot installed?
+
+| |  ...
+| |  Configure: error: no acceptable C compiler found in $path
+| |  ...
+| 
+| That looks like a mismatch between what R was built with and what you have
+| installed.  What does this show on your box?
+| 
+| edd at basebud:~$ grep ^CC /etc/R/Makeconf 
+| CC = gcc
+| 
+| It may want gcc-3.3 or gcc-3.4 in which case you'd need to install that
+| package
+|  
+|  fred at debian:~$ grep ^CC /etc/R/Makeconf 
+|   CC = gcc
+|  
+|  # dpkg -l gcc*
+|  Desired=Unknown/Install/Remove/Purge/Hold
+|  | Status=Not/Installed/Config-files/Unpacked/Failed-config/Half-installed
+|  |/ Err?=(none)/Hold/Reinst-required/X=both-problems (Status,Err: uppercase=bad)
+|  ||/ Name           Version        Description
+|  +++-==============-==============-============================================
+|  ii  gcc-3.3-base   3.3.6-10       The GNU Compiler Collection (base package)
+|  ii  gcc-3.4-base   3.4.5-2        The GNU Compiler Collection (base package)
+|  un  gcc-3.5-base   <none>         (no description available)
+|  ii  gcc-4.0-base   4.0.3-1        The GNU Compiler Collection (base package)
+|  un  gcc-4.0-locale <none>         (no description available)
+|  debian:/home/fred# 
+
+Looks like you deleted the package called 'gcc'. Run 'apt-get install gcc'
+and you should be fine. On my testing system:
+
+edd at basebud:~> dpkg -l "gcc*" | grep "4.0"
+ii  gcc             4.0.2-2        The GNU C compiler
+ii  gcc-4.0         4.0.3-1        The GNU C compiler
+ii  gcc-4.0-base    4.0.3-1        The GNU Compiler Collection (base package)
+un  gcc-4.0-doc     <none>         (no description available)
+un  gcc-4.0-locales <none>         (no description available)
+
+
+Hope this helps,  Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From friendly at yorku.ca  Thu Mar 30 22:25:38 2006
+From: friendly at yorku.ca (Michael Friendly)
+Date: Thu, 30 Mar 2006 15:25:38 -0500
+Subject: [R-sig-Debian] dependency errors upgrading to 2.2.1-0sarge1
+Message-ID: <442C3EC2.8000501@yorku.ca>
+
+Running a current, standard debian stable, I added
+deb http://cran.R-project.org/bin/linux/debian stable/
+to /apt/sources.list to get the current backport stable distro.
+
+When I installed r-base, apt-get wanted to remove all my previous 
+r-cran-* packages
+and I let it, but encountered conflicts with things in r-recommended 
+that I've been
+unable to resolve.  It first showed up as (complete transcript below):
+
+dpkg: r-cran-foreign: dependency problems, but removing anyway as you 
+request:
+ r-recommended depends on r-cran-foreign (>= 0.7-2).
+Removing r-cran-foreign ...
+
+----- transcript ------
+euclid: ~ # su - root
+euclid:~# apt-get install r-base
+Reading Package Lists... Done
+Building Dependency Tree... Done
+The following extra packages will be installed:
+  r-base-core r-recommended
+Suggested packages:
+  r-doc-info r-mathlib
+Recommended packages:
+  r-base-html r-base-dev
+The following packages will be REMOVED:
+  r-cran-boot r-cran-cluster r-cran-design r-cran-effects r-cran-foreign
+  r-cran-hmisc r-cran-kernsmooth r-cran-lattice r-cran-mgcv r-cran-nlme
+  r-cran-rcmdr r-cran-rpart r-cran-survival r-cran-vr
+The following packages will be upgraded:
+  r-base r-base-core r-recommended
+3 upgraded, 0 newly installed, 14 to remove and 37 not upgraded.
+Need to get 14.0MB of archives.
+After unpacking 4391kB disk space will be freed.
+Do you want to continue? [Y/n] y
+Get:1 http://cran.R-project.org stable/ r-base 2.2.1-0sarge1 [21.3kB]
+Get:2 http://cran.R-project.org stable/ r-recommended 2.2.1-0sarge1 [6143kB]
+Get:3 http://cran.R-project.org stable/ r-base-core 2.2.1-0sarge1 [7854kB]
+Fetched 14.0MB in 56s (247kB/s)
+(Reading database ... 129141 files and directories currently installed.)
+Removing r-cran-rcmdr ...
+Removing r-cran-design ...
+Removing r-cran-hmisc ...
+Removing r-cran-effects ...
+dpkg: r-cran-foreign: dependency problems, but removing anyway as you 
+request:
+ r-recommended depends on r-cran-foreign (>= 0.7-2).
+Removing r-cran-foreign ...
+dpkg: r-cran-kernsmooth: dependency problems, but removing anyway as you 
+request:
+ r-recommended depends on r-cran-kernsmooth (>= 2.2.14); however:
+  Package r-cran-kernsmooth is to be removed.
+Removing r-cran-kernsmooth ...
+dpkg: r-cran-mgcv: dependency problems, but removing anyway as you request:
+ r-recommended depends on r-cran-mgcv (>= 1.1.5); however:
+  Package r-cran-mgcv is to be removed.
+Removing r-cran-mgcv ...
+dpkg: r-cran-vr: dependency problems, but removing anyway as you request:
+ r-cran-relimp depends on r-cran-vr.
+ r-recommended depends on r-cran-vr (>= 7.2.8); however:
+  Package r-cran-vr is to be removed.
+Removing r-cran-vr ...
+dpkg: r-cran-nlme: dependency problems, but removing anyway as you request:
+ r-recommended depends on r-cran-nlme (>= 3.1.52); however:
+  Package r-cran-nlme is to be removed.
+Removing r-cran-nlme ...
+dpkg: r-cran-lattice: dependency problems, but removing anyway as you 
+request:
+ r-recommended depends on r-cran-lattice (>= 0.10.11); however:
+  Package r-cran-lattice is to be removed.
+Removing r-cran-lattice ...
+dpkg: r-cran-rpart: dependency problems, but removing anyway as you request:
+ r-recommended depends on r-cran-rpart (>= 3.1.20); however:
+  Package r-cran-rpart is to be removed.
+Removing r-cran-rpart ...
+dpkg: r-cran-survival: dependency problems, but removing anyway as you 
+request:
+ r-recommended depends on r-cran-survival (>= 2.13.2-1); however:
+  Package r-cran-survival is to be removed.
+ r-cran-boot depends on r-cran-survival.
+Removing r-cran-survival ...
+dpkg: r-cran-boot: dependency problems, but removing anyway as you request:
+ r-recommended depends on r-cran-boot (>= 1.2.19).
+Removing r-cran-boot ...
+(Reading database ... 125008 files and directories currently installed.)
+Preparing to replace r-base 2.1.0-1 (using 
+.../r-base_2.2.1-0sarge1_all.deb) ...Unpacking replacement r-base ...
+dpkg: r-cran-cluster: dependency problems, but removing anyway as you 
+request:
+ r-recommended depends on r-cran-cluster (>= 1.9.6-2); however:
+  Package r-cran-cluster is to be removed.
+(Reading database ... 125008 files and directories currently installed.)
+Removing r-cran-cluster ...
+(Reading database ... 124781 files and directories currently installed.)
+Preparing to replace r-recommended 2.1.0-1 (using 
+.../r-recommended_2.2.1-0sarge1_i386.deb) ...
+Unpacking replacement r-recommended ...
+dpkg: error processing 
+/var/cache/apt/archives/r-recommended_2.2.1-0sarge1_i386.deb (--unpack):
+ trying to overwrite `/usr/lib/R/library/grid/R/grid', which is also in 
+package r-base-core
+dpkg-deb: subprocess paste killed by signal (Broken pipe)
+Preparing to replace r-base-core 2.1.0-1 (using 
+.../r-base-core_2.2.1-0sarge1_i386.deb) ...
+Unpacking replacement r-base-core ...
+Errors were encountered while processing:
+ /var/cache/apt/archives/r-recommended_2.2.1-0sarge1_i386.deb
+E: Sub-process /usr/bin/dpkg returned an error code (1)
+
+My next step wass to try aapt-get install -f, but this bombed too...
+
+euclid:~# apt-get install -f
+Reading Package Lists... Done
+Building Dependency Tree... Done
+Correcting dependencies... Done
+The following extra packages will be installed:
+  r-recommended
+The following packages will be upgraded:
+  r-recommended
+1 upgraded, 0 newly installed, 0 to remove and 37 not upgraded.
+2 not fully installed or removed.
+Need to get 0B/6143kB of archives.
+After unpacking 24.4MB of additional disk space will be used.
+Do you want to continue? [Y/n] y
+(Reading database ... 125000 files and directories currently installed.)
+Preparing to replace r-recommended 2.1.0-1 (using 
+.../r-recommended_2.2.1-0sarge1_i386.deb) ...
+Unpacking replacement r-recommended ...
+dpkg: error processing 
+/var/cache/apt/archives/r-recommended_2.2.1-0sarge1_i386.deb (--unpack):
+ trying to overwrite `/usr/lib/R/library/grid/latex/Grid.tex', which is 
+also in package r-base-latex
+dpkg-deb: subprocess paste killed by signal (Broken pipe)
+Errors were encountered while processing:
+ /var/cache/apt/archives/r-recommended_2.2.1-0sarge1_i386.deb
+E: Sub-process /usr/bin/dpkg returned an error code (1)
+
+Finally, I tried to reinstall some of the r-cran packages:
+
+euclid:~# apt-get install  r-cran-boot r-cran-cluster r-cran-design 
+r-cran-effects r-cran-foreign
+Reading Package Lists... Done
+Building Dependency Tree... Done
+You might want to run `apt-get -f install' to correct these:
+The following packages have unmet dependencies:
+  r-base: Depends: r-recommended (= 2.2.1-0sarge1) but 2.1.0-1 is to be 
+installed
+  r-cran-boot: Depends: r-cran-survival
+  r-cran-design: Depends: r-cran-hmisc but it is not going to be installed
+                 Depends: r-cran-survival
+  r-cran-effects: Depends: r-cran-lattice (>= 0.10.11)
+  r-cran-relimp: Depends: r-cran-vr
+  r-recommended: Depends: r-base-core (= 2.1.0-1) but 2.2.1-0sarge1 is 
+to be installed
+                 Depends: r-cran-kernsmooth (>= 2.2.14)
+                 Depends: r-cran-lattice (>= 0.10.11)
+                 Depends: r-cran-mgcv (>= 1.1.5)
+                 Depends: r-cran-nlme (>= 3.1.52)
+                 Depends: r-cran-rpart (>= 3.1.20)
+                 Depends: r-cran-survival (>= 2.13.2-1)
+                 Depends: r-cran-vr (>= 7.2.8)
+E: Unmet dependencies. Try 'apt-get -f install' with no packages (or 
+specify a solution).
+
+At this point, I'm stumped.  How do I get everything back working again?
+
+-- 
+Michael Friendly     Email: friendly at yorku.ca 
+Professor, Psychology Dept.
+York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+4700 Keele Street    http://www.math.yorku.ca/SCS/friendly.html
+Toronto, ONT  M3J 1P3 CANADA
+
+
+From edd at debian.org  Thu Mar 30 22:41:59 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 30 Mar 2006 14:41:59 -0600
+Subject: [R-sig-Debian] dependency errors upgrading to 2.2.1-0sarge1
+In-Reply-To: <442C3EC2.8000501@yorku.ca>
+References: <442C3EC2.8000501@yorku.ca>
+Message-ID: <17452.17047.957645.76308@basebud.nulle.part>
+
+
+Michael,
+
+Let's start the other way around: what do you want to achieve?  What do you
+want to avoid? 
+
+The basic premise is that
+
+i) Debian stable at CRAN has only the base R package (ie all packages derived
+   from the source r-base, ie r-base-core, r-base-dev, r-doc-*, r-mathlib...)
+   as well as the r-recommended set (ie r-cran-vr with MASS, nnet, ...,
+   r-cran-boot, r-cran-lattice, ...)  but strictly *no other* r-cran-*
+   packages (beyond what r-recommended provides) --- so no r-cran-rcmdr,
+   r-cran-car, ...
+
+ii) Debian stable at Debian has a fair number of R and CRAN packages -- but
+   they are frozen in time at last spring when Debian stable was released.
+   That is a feature.
+
+iii) Debian testing has a large number (~ 60) of R packages that are current,
+   tested and working.  However, testing != stable and you indicated the last
+   time around that your sysadmin persuaded you to go with stable.
+
+You seem to desire the choice of testing, as well as the fact that these are
+current packages rather than old ones, delived via the stable archive.  This
+does not exist.  You could however recruit a few students to run the
+backport of the missing packages .... or you could just use
+install.packages() with suitable arguments
+
+If you pick Debian stable (a fine choice, in particular for a server or a
+machine that is not meant to change) you must realize that you are giving up
+current packages by your choice. 
+
+Personally, I like testing for my workstation as a best of both worlds
+compromise. Your mileage may vary.
+
+I may have misunderstood what you're after. Apologies if that is the case.
+
+Hope this helps,  Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From friendly at yorku.ca  Fri Mar 31 15:52:45 2006
+From: friendly at yorku.ca (Michael Friendly)
+Date: Fri, 31 Mar 2006 08:52:45 -0500
+Subject: [R-sig-Debian] dependency errors upgrading to 2.2.1-0sarge1
+In-Reply-To: <17452.17047.957645.76308@basebud.nulle.part>
+References: <442C3EC2.8000501@yorku.ca>
+	<17452.17047.957645.76308@basebud.nulle.part>
+Message-ID: <442D342D.90207@yorku.ca>
+
+
+
+Dirk Eddelbuettel wrote:
+
+> Michael,
+> 
+> Let's start the other way around: what do you want to achieve?  What do you
+> want to avoid? 
+
+I wanted to be able to run a more recent R than my older 2.1.0, because 
+I've run into situations where newer packages required a more recent R.
+I guess that means testing for R, but stable for everything else, if 
+that is possible, e.g., with apt pinning.
+
+I thought it should be possible to upgrade r-base* from Debian stable at
+   Cran while keeping the, presumably older, r-cran-* packages from the
+older debian stable distribution.
+
+But, apparently, r-recommended, which was to be upgraded by apt-get
+depends on various r-cran packages,
+
+   r-recommended: Depends: r-base-core (= 2.1.0-1) but 2.2.1-0sarge1 is 
+to be installed
+                  Depends: r-cran-kernsmooth (>= 2.2.14)
+                  Depends: r-cran-lattice (>= 0.10.11)
+                  Depends: r-cran-mgcv (>= 1.1.5)
+                  Depends: r-cran-nlme (>= 3.1.52)
+                  Depends: r-cran-rpart (>= 3.1.20)
+                  Depends: r-cran-survival (>= 2.13.2-1)
+                  Depends: r-cran-vr (>= 7.2.8)
+E: Unmet dependencies. Try 'apt-get -f install' with no packages (or 
+specify a solution).
+
+Fair enough, but I can't upgrade r-recommended now because of another
+conflict with a file in r-base-latex (don't understand why the conflict):
+
+   apt-get -f install
+Reading Package Lists... Done
+Building Dependency Tree... Done
+Correcting dependencies... Done
+The following extra packages will be installed:
+   r-recommended
+The following packages will be upgraded:
+   r-recommended
+1 upgraded, 0 newly installed, 0 to remove and 37 not upgraded.
+2 not fully installed or removed.
+Need to get 0B/6143kB of archives.
+After unpacking 24.4MB of additional disk space will be used.
+Do you want to continue? [Y/n] y
+(Reading database ... 125000 files and directories currently installed.)
+Preparing to replace r-recommended 2.1.0-1 (using 
+.../r-recommended_2.2.1-0sarge1_i386.deb) ...
+Unpacking replacement r-recommended ...
+dpkg: error processing 
+/var/cache/apt/archives/r-recommended_2.2.1-0sarge1_i386.deb (--unpack):
+  trying to overwrite `/usr/lib/R/library/grid/latex/Grid.tex', which is 
+also in package r-base-latex
+Errors were encountered while processing:
+  /var/cache/apt/archives/r-recommended_2.2.1-0sarge1_i386.deb
+E: Sub-process /usr/bin/dpkg returned an error code (1)
+euclid:~# dpkg-deb: subprocess paste killed by signal (Broken pipe)
+
+So, what can I do now to rescue this?
+
+-Michael
+
+
+-- 
+Michael Friendly     Email: friendly AT yorku DOT ca
+Professor, Psychology Dept.
+York University      Voice: 416 736-5115 x66249 Fax: 416 736-5814
+4700 Keele Street    http://www.math.yorku.ca/SCS/friendly.html
+Toronto, ONT  M3J 1P3 CANADA
+
+
+From edd at debian.org  Fri Mar 31 16:20:03 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 31 Mar 2006 08:20:03 -0600
+Subject: [R-sig-Debian] dependency errors upgrading to 2.2.1-0sarge1
+In-Reply-To: <442D342D.90207@yorku.ca>
+References: <442C3EC2.8000501@yorku.ca>
+	<17452.17047.957645.76308@basebud.nulle.part>
+	<442D342D.90207@yorku.ca>
+Message-ID: <17453.14995.146076.592328@basebud.nulle.part>
+
+
+Hi Michael,
+
+On 31 March 2006 at 08:52, Michael Friendly wrote:
+| Dirk Eddelbuettel wrote:
+| > Let's start the other way around: what do you want to achieve?  What do you
+| > want to avoid? 
+| 
+| I wanted to be able to run a more recent R than my older 2.1.0, because 
+| I've run into situations where newer packages required a more recent R.
+
+That should always be possible. Either via the prebuilt 'Debian stable port'
+from CRAN, or by upgrading to testing (which I understand you are hesitant
+about), or by re-building the Debian R package locally from its sources
+(sounds like work, but can be as easy as a one-line shell command) or, if the
+packages management system gives you fits, the old-fashioned way outside of
+Debian into /usr/local.
+
+| I guess that means testing for R, but stable for everything else, if 
+| that is possible, e.g., with apt pinning.
+| 
+| I thought it should be possible to upgrade r-base* from Debian stable at
+|    Cran while keeping the, presumably older, r-cran-* packages from the
+| older debian stable distribution.
+
+Yes it should because it should only upgrade 'forward' ie to higher version
+numbers. 
+
+| But, apparently, r-recommended, which was to be upgraded by apt-get
+| depends on various r-cran packages,
+| 
+|    r-recommended: Depends: r-base-core (= 2.1.0-1) but 2.2.1-0sarge1 is 
+| to be installed
+|                   Depends: r-cran-kernsmooth (>= 2.2.14)
+|                   Depends: r-cran-lattice (>= 0.10.11)
+|                   Depends: r-cran-mgcv (>= 1.1.5)
+|                   Depends: r-cran-nlme (>= 3.1.52)
+|                   Depends: r-cran-rpart (>= 3.1.20)
+|                   Depends: r-cran-survival (>= 2.13.2-1)
+|                   Depends: r-cran-vr (>= 7.2.8)
+| E: Unmet dependencies. Try 'apt-get -f install' with no packages (or 
+| specify a solution).
+
+What you are hitting here is a difference in packaging between what I do for
+the official packages (r-recommended is 'empty' and consists only of Depends:
+entries for the set of r-cran-* packages shown) and what Christian does for
+the backport (r-recommended is a 6mb package containing all the above).
+
+One way to fix that is to get that or the packages by hand.  Download that
+r-recommended package (ie 2.2.1-0sarge1) to /tmp, and install it by hand with
+dpkg -i. You should be fine afterwards.
+
+I am not sure what we need to tell apt to make this happen automagically.
+ 
+| Fair enough, but I can't upgrade r-recommended now because of another
+| conflict with a file in r-base-latex (don't understand why the conflict):
+| 
+|    apt-get -f install
+| Reading Package Lists... Done
+| Building Dependency Tree... Done
+| Correcting dependencies... Done
+| The following extra packages will be installed:
+|    r-recommended
+| The following packages will be upgraded:
+|    r-recommended
+| 1 upgraded, 0 newly installed, 0 to remove and 37 not upgraded.
+| 2 not fully installed or removed.
+| Need to get 0B/6143kB of archives.
+| After unpacking 24.4MB of additional disk space will be used.
+| Do you want to continue? [Y/n] y
+| (Reading database ... 125000 files and directories currently installed.)
+| Preparing to replace r-recommended 2.1.0-1 (using 
+| .../r-recommended_2.2.1-0sarge1_i386.deb) ...
+| Unpacking replacement r-recommended ...
+| dpkg: error processing 
+| /var/cache/apt/archives/r-recommended_2.2.1-0sarge1_i386.deb (--unpack):
+|   trying to overwrite `/usr/lib/R/library/grid/latex/Grid.tex', which is 
+| also in package r-base-latex
+| Errors were encountered while processing:
+|   /var/cache/apt/archives/r-recommended_2.2.1-0sarge1_i386.deb
+| E: Sub-process /usr/bin/dpkg returned an error code (1)
+| euclid:~# dpkg-deb: subprocess paste killed by signal (Broken pipe)
+| 
+| So, what can I do now to rescue this?
+
+That is a packaging bug between Christian and myself that we need to sort
+out.  Thanks for pointing it out.
+
+Amend the command above to also 'force overwriting of conflicting files', ie
+tell dpkg and apt that you know better (which you do) and to just proceed:
+
+	$ dpkg --install --force-overwrite /tmp/r-recommended_2.2.1*deb
+
+should do the trick, and it should be smooth sailing on your preferred
+'Debian stable plus current R' setup afterwards.
+
+Let us know how it goes.
+
+Dirk
+
+
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+

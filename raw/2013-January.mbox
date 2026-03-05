@@ -1,0 +1,236 @@
+From Tom_Roche at pobox.com  Sun Jan 27 18:47:56 2013
+From: Tom_Roche at pobox.com (Tom Roche)
+Date: Sun, 27 Jan 2013 12:47:56 -0500
+Subject: [R-sig-Debian] CRAN-only "Hash Sum mismatch"
+References: <87obgak071.fsf@pobox.com> <20130127134005.GB23703@tal>
+	<87zjzwk39z.fsf@pobox.com> <20130126042549.GB31444@tal>
+	<87r4l7kfd1.fsf@pobox.com>
+Message-ID: <87libejz5f.fsf@pobox.com>
+
+
+summary: updating R .deb's from recommended mirrors @
+
+http://cran.r-project.org/mirrors.html
+
+has allowed me to keep my R version up-to-date for many months. But
+since Friday (25 Jan) I get errors like
+
+Failed to fetch <mirror URI/>/squeeze-cran/<deb name/>: Hash Sum mismatch
+
+but can install .deb's from non-CRAN sources. No fix from
+
+sudo rm /var/cache/apt/pkgcache.bin
+sudo rm /var/cache/apt/srcpkgcache.bin 
+sudo rm /var/lib/apt/lists/*
+sudo rm /var/lib/apt/lists/partial/*
+
+and either
+
+sudo aptitude update
+or
+sudo apt-get update
+
+details:
+
+http://lists.debian.org/debian-user/2013/01/msg00995.html
+> I'm getting
+
+> > E: Failed to fetch http://lib.stat.cmu.edu/R/CRAN/bin/linux/debian/squeeze-cran/r-base-core_2.15.2-1~squeezecran.0_amd64.deb: Hash Sum mismatch
+
+> So I changed my sources.list
+
+> - deb http://lib.stat.cmu.edu/R/CRAN/bin/linux/debian squeeze-cran/
+> + deb http://watson.nci.nih.gov/cran_mirror/bin/linux/debian squeeze-cran/
+
+> did `sudo aptitude update`, and got
+
+> > W: Failed to fetch bzip2:/var/lib/apt/lists/partial/watson.nci.nih.gov_cran%5fmirror_bin_linux_debian_squeeze-cran_Packages: Hash Sum mismatch
+
+> So I changed my sources.list
+
+> - deb http://lib.stat.cmu.edu/R/CRAN/bin/linux/debian squeeze-cran/
+> - deb http://watson.nci.nih.gov/cran_mirror/bin/linux/debian squeeze-cran/
+> + deb http://mirrors.nics.utk.edu/cran/bin/linux/debian squeeze-cran/
+
+> did `sudo aptitude update`, and got
+
+> > W: Failed to fetch bzip2:/var/lib/apt/lists/partial/mirrors.nics.utk.edu_cran_bin_linux_debian_squeeze-cran_Packages: Hash Sum mismatch
+
+Note that
+
+* I'm only using mirror hosts from
+
+http://cran.r-project.org/mirrors.html
+
+* I'm only having problems getting/installing .deb's from CRAN:
+  all other debian packages install normally
+
+I got suggestions to try removing/recreating
+
+/var/cache/apt/pkgcache.bin
+/var/cache/apt/srcpkgcache.bin 
+/var/lib/apt/lists/*
+/var/lib/apt/lists/partial/*
+
+but no fix:
+
+me at it:~ $ sudo rm /var/cache/apt/pkgcache.bin /var/cache/apt/srcpkgcache.bin /var/lib/apt/lists/partial/* /var/lib/apt/lists/* ; sudo aptitude update
+...
+Reading package lists... Done
+me at it:~ $ sudo aptitude install r-base r-base-core r-recommended r-base-dev
+...
+E: Failed to fetch http://mirrors.nics.utk.edu/cran/bin/linux/debian/squeeze-cran/r-base-core_2.15.2-1~squeezecran.0_amd64.deb: Hash Sum mismatch
+
+me at it:~ $ sudo emacs -nw -q /etc/apt/sources.list
+me at it:~ $ sudo rm /var/cache/apt/pkgcache.bin /var/cache/apt/srcpkgcache.bin /var/lib/apt/lists/partial/* /var/lib/apt/lists/* ; sudo aptitude update
+...
+Reading package lists... Done
+me at it:~ $ sudo aptitude install r-base r-base-core r-recommended r-base-dev
+...
+E: Failed to fetch http://lib.stat.cmu.edu/R/CRAN/bin/linux/debian/squeeze-cran/r-base-core_2.15.2-1~squeezecran.0_amd64.deb: Hash Sum mismatch
+
+How to fix, or further debug?
+TIA, Tom Roche <Tom_Roche at pobox.com>
+
+
+From jranke at uni-bremen.de  Mon Jan 28 05:30:54 2013
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 28 Jan 2013 05:30:54 +0100
+Subject: [R-sig-Debian] CRAN-only "Hash Sum mismatch"
+In-Reply-To: <87libejz5f.fsf@pobox.com>
+References: <87obgak071.fsf@pobox.com> <20130127134005.GB23703@tal>
+	<87zjzwk39z.fsf@pobox.com> <20130126042549.GB31444@tal>
+	<87r4l7kfd1.fsf@pobox.com> <87libejz5f.fsf@pobox.com>
+Message-ID: <20130128043054.GA4153@stiller>
+
+Hi Tom,
+
+On Sun, Jan 27, 2013 at 12:47:56PM -0500, Tom Roche wrote:
+> 
+> summary: updating R .deb's from recommended mirrors @
+> 
+> http://cran.r-project.org/mirrors.html
+> 
+> has allowed me to keep my R version up-to-date for many months. But
+
+That's nice to know. Please, the next time you ask for help on a Debian
+mailing list, mention from the beginning that you are using a derivative
+(Linux Mint). 
+
+> since Friday (25 Jan) I get errors like
+> 
+> Failed to fetch <mirror URI/>/squeeze-cran/<deb name/>: Hash Sum mismatch
+> 
+> but can install .deb's from non-CRAN sources. No fix from
+> 
+> sudo rm /var/cache/apt/pkgcache.bin
+> sudo rm /var/cache/apt/srcpkgcache.bin 
+> sudo rm /var/lib/apt/lists/*
+> sudo rm /var/lib/apt/lists/partial/*
+> 
+> and either
+> 
+> sudo aptitude update
+> or
+> sudo apt-get update
+> 
+> details:
+> 
+> http://lists.debian.org/debian-user/2013/01/msg00995.html
+
+Meanwhile you got some more hints on this thread on debian-user.
+
+> > I'm getting
+> 
+> > > E: Failed to fetch http://lib.stat.cmu.edu/R/CRAN/bin/linux/debian/squeeze-cran/r-base-core_2.15.2-1~squeezecran.0_amd64.deb: Hash Sum mismatch
+> 
+> > So I changed my sources.list
+> 
+> > - deb http://lib.stat.cmu.edu/R/CRAN/bin/linux/debian squeeze-cran/
+> > + deb http://watson.nci.nih.gov/cran_mirror/bin/linux/debian squeeze-cran/
+
+I just tried the latter entry on squeeze, and the indices download fine
+after doing aptitude update:
+
+....
+
+Get:4 http://mirrors.nics.utk.edu squeeze-cran/ Release.gpg [198 B]                       
+Ign http://mirrors.nics.utk.edu/cran/bin/linux/debian/ squeeze-cran/
+Translation-de                                        
+Ign http://mirrors.nics.utk.edu/cran/bin/linux/debian/ squeeze-cran/
+Translation-en                                        
+Get:5 http://mirrors.nics.utk.edu squeeze-cran/ Release [3651 B]                                                           
+Get:6 http://mirrors.nics.utk.edu squeeze-cran/ Packages [16.9 kB]                               
+Fetched 392 kB in 1s (206 kB/s)
+
+so the problem may be an incomplete upgrade at your end (just guessing,
+based on the thread on debian-user). Maybe try removing the CRAN
+sources, complete the upgrade, and try again. However, please bear in
+mind that you are using a repository for Debian squeeze, and I have no
+idea in what way the Linux Mint release you are using deviates from
+Debian stable.
+
+Regards,
+
+Johannes
+
+> > did `sudo aptitude update`, and got
+> 
+> > > W: Failed to fetch bzip2:/var/lib/apt/lists/partial/watson.nci.nih.gov_cran%5fmirror_bin_linux_debian_squeeze-cran_Packages: Hash Sum mismatch
+
+> 
+> > So I changed my sources.list
+> 
+> > - deb http://lib.stat.cmu.edu/R/CRAN/bin/linux/debian squeeze-cran/
+> > - deb http://watson.nci.nih.gov/cran_mirror/bin/linux/debian squeeze-cran/
+> > + deb http://mirrors.nics.utk.edu/cran/bin/linux/debian squeeze-cran/
+> 
+> > did `sudo aptitude update`, and got
+> 
+> > > W: Failed to fetch bzip2:/var/lib/apt/lists/partial/mirrors.nics.utk.edu_cran_bin_linux_debian_squeeze-cran_Packages: Hash Sum mismatch
+> 
+> Note that
+> 
+> * I'm only using mirror hosts from
+> 
+> http://cran.r-project.org/mirrors.html
+> 
+> * I'm only having problems getting/installing .deb's from CRAN:
+>   all other debian packages install normally
+> 
+> I got suggestions to try removing/recreating
+> 
+> /var/cache/apt/pkgcache.bin
+> /var/cache/apt/srcpkgcache.bin 
+> /var/lib/apt/lists/*
+> /var/lib/apt/lists/partial/*
+> 
+> but no fix:
+> 
+> me at it:~ $ sudo rm /var/cache/apt/pkgcache.bin /var/cache/apt/srcpkgcache.bin /var/lib/apt/lists/partial/* /var/lib/apt/lists/* ; sudo aptitude update
+> ...
+> Reading package lists... Done
+> me at it:~ $ sudo aptitude install r-base r-base-core r-recommended r-base-dev
+> ...
+> E: Failed to fetch http://mirrors.nics.utk.edu/cran/bin/linux/debian/squeeze-cran/r-base-core_2.15.2-1~squeezecran.0_amd64.deb: Hash Sum mismatch
+> 
+> me at it:~ $ sudo emacs -nw -q /etc/apt/sources.list
+> me at it:~ $ sudo rm /var/cache/apt/pkgcache.bin /var/cache/apt/srcpkgcache.bin /var/lib/apt/lists/partial/* /var/lib/apt/lists/* ; sudo aptitude update
+> ...
+> Reading package lists... Done
+> me at it:~ $ sudo aptitude install r-base r-base-core r-recommended r-base-dev
+> ...
+> E: Failed to fetch http://lib.stat.cmu.edu/R/CRAN/bin/linux/debian/squeeze-cran/r-base-core_2.15.2-1~squeezecran.0_amd64.deb: Hash Sum mismatch
+> 
+> How to fix, or further debug?
+> TIA, Tom Roche <Tom_Roche at pobox.com>
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+

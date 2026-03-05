@@ -1,0 +1,560 @@
+From ogbos.okike at gmail.com  Wed Jun  1 08:29:03 2011
+From: ogbos.okike at gmail.com (ogbos okike)
+Date: Wed, 1 Jun 2011 08:29:03 +0200
+Subject: [R-sig-Debian] Installing R on ubuntu 10.04 LTS: Solved
+Message-ID: <BANLkTimz8He-E2P=b91G7s1pRYKY8ejVTA@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20110601/f08e9e27/attachment.pl>
+
+From msalibian at yahoo.ca  Mon Jun  6 21:38:44 2011
+From: msalibian at yahoo.ca (Matias Salibian-Barrera)
+Date: Mon, 6 Jun 2011 12:38:44 -0700 (PDT)
+Subject: [R-sig-Debian] Lapack or Blas crashing R when using "large"
+	matrices (Ubuntu 11.04)
+Message-ID: <278609.17505.qm@web161615.mail.bf1.yahoo.com>
+
+
+
+Hello,
+
+
+This simple SVD calculation (commands are copied immediately below) crashes on my Ubuntu machine (R 2.13.0). However it 
+worked fine with R.12 and Ubuntu 10.04, and it also works fine on my Windows 7 machine with R 2.13, so I suspect there's a problem with (my?) Ubuntu and / or R. 
+
+I'm using the R distribution that is accessible with Ubuntu's repositories manager, I am not building my own. 
+
+Can anybody else reproduce it (with Ubuntu 11.04)? Thanks in advance. 
+
+Matias
+
+p <- 500
+n <- 300
+set.seed(1234)
+x <- matrix(rnorm(n*p), n, p)
+sih <- var(x)
+b <- svd(sih)
+
+produces:
+?
+?*** caught illegal operation ***
+address 0x42b8c9, cause 'illegal operand'
+
+Traceback:
+?1: .Call("La_svd", jobu, jobv, x, double(min(n, p)), u, v,? "dgsedd",???? PACKAGE = "base")
+?2: La.svd(x, nu, nv)
+?3: svd(sih)
+?
+I'm using Ubuntu 11.04 and 
+>  version
+??????????????? _??????????????????????????? 
+?platform?????? i686-pc-linux-gnu??????????? 
+?arch?????????? i686???????????????????????? 
+?os???????????? linux-gnu??????????????????? 
+?system???????? i686, linux-gnu????????????? 
+?status????????????????????????????????????? 
+?major????????? 2??????????????????????????? 
+?minor????????? 13.0???????????????????????? 
+?year?????????? 2011???????????????????????? 
+?month????????? 04?????????????????????????? 
+?day??????????? 13?????????????????????????? 
+?svn rev??????? 55427??????????????????????? 
+?language?????? R??????????????????????????? 
+?version.string R version 2.13.0 (2011-04-13)
+?
+?Thanks,
+?
+?Matias
+
+
+From edd at debian.org  Mon Jun  6 21:55:36 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 6 Jun 2011 14:55:36 -0500
+Subject: [R-sig-Debian] Lapack or Blas crashing R when using
+	"large"	matrices (Ubuntu 11.04)
+In-Reply-To: <278609.17505.qm@web161615.mail.bf1.yahoo.com>
+References: <278609.17505.qm@web161615.mail.bf1.yahoo.com>
+Message-ID: <19949.12472.968186.521686@max.nulle.part>
+
+
+Works fine here (Ubuntu 11.04, R 2.13.0 from CRAN):
+
+edd at max:~$ cat /tmp/matias.r 
+p <- 500
+n <- 300
+set.seed(1234)
+x <- matrix(rnorm(n*p), n, p)
+sih <- var(x)
+b <- svd(sih)
+
+cat("All good\n")
+edd at max:~$ r /tmp/matias.r 
+All good
+edd at max:~$ 
+
+Maybe you have the wrong atlas package installed?  What does this yield for
+you:
+
+edd at max:~$ dpkg -l | grep "atlas\|blas"
+ii  gotoblas2-helper                 0.1-12.local.1                   GotoBLAS2 helper
+ii  libatlas-headers                 3.6.0-24ubuntu1                  Automatically Tuned Linear Algebra Software,C header files
+ii  libatlas3gf-base                 3.8.3-29                         Automatically Tuned Linear Algebra Software, generic shared
+ii  libblas-dev                      1.2-8                            Basic Linear Algebra Subroutines 3, static library
+ii  libblas-test                     1.2-8                            Basic Linear Algebra Subroutines 3, testing programs
+ii  libblas3gf                       1.2-8                            Basic Linear Algebra Reference implementations, shared library
+edd at max:~$ 
+
+showing that I use the standard Atlas package from Ubuntu.
+
+Dirk
+
+-- 
+Gauss once played himself in a zero-sum game and won $50.
+                      -- #11 at http://www.gaussfacts.com
+
+
+From msalibian at yahoo.ca  Mon Jun  6 22:51:33 2011
+From: msalibian at yahoo.ca (Matias Salibian-Barrera)
+Date: Mon, 6 Jun 2011 13:51:33 -0700 (PDT)
+Subject: [R-sig-Debian] Lapack or Blas crashing R when using "large"
+	matrices (Ubuntu 11.04)
+In-Reply-To: <19949.12472.968186.521686@max.nulle.part>
+References: <278609.17505.qm@web161615.mail.bf1.yahoo.com>
+	<19949.12472.968186.521686@max.nulle.part>
+Message-ID: <539369.83691.qm@web161616.mail.bf1.yahoo.com>
+
+Thanks Dirk. I'm far from a linux power user.
+
+I re-installed the atlas and blas packages, and I removed and re-installed R 2.13 from cran.
+
+
+Checking for the installed atlas package gives:
+
+matias at tukey:~$ dpkg -l | grep "atlas\|blas"
+ii? libatlas-base-dev?????? 3.8.3-29????????? Automatically Tuned Linear Algebra Software, generic static
+ii? libatlas-dev??????????????? 3.8.3-29???????? Automatically Tuned Linear Algebra Software, C header files
+ii? libatlas-test??????????????? 3.8.3-29???????? Automatically Tuned Linear Algebra Software, test programs
+ii? libatlas3gf-base????????? 3.8.3-29???????? Automatically Tuned Linear Algebra Software, generic shared
+ii? libblas-dev???????????????? 1.2-8????????????? Basic Linear Algebra Subroutines 3, static library
+ii? libblas-test???????????????? 1.2-8????????????? Basic Linear Algebra Subroutines 3, testing programs
+ii? libblas3gf?????????????????? 1.2-8????????????? Basic Linear Algebra Reference implementations, shared library
+
+
+So it seems everything is fine, but the call to svd() in R still produces:
+?*** caught illegal operation ***
+address 0x8398c9, cause 'illegal operand'
+
+Traceback:
+?1: .Call("La_svd", jobu, jobv, x, double(min(n, p)), u, v, "dgsedd",???? PACKAGE = "base")
+?2: La.svd(x, nu, nv)
+?3: svd(sih)
+
+This time, though I also got some more information on the crash:
+
+*** longjmp causes uninitialized stack frame ***: /usr/lib/R/bin/exec/R terminated
+======= Backtrace: =========
+/lib/i386-linux-gnu/libc.so.6(__fortify_fail+0x50)[0x527df0]
+/lib/i386-linux-gnu/libc.so.6(+0xe5d5a)[0x527d5a]
+/usr/lib/R/lib/libR.so(+0x1cd6fe)[0x2dd6fe]
+[0xfd2400]
+/usr/lib/libblas.so.3gf(ATL_join_tree+0x4c)[0x72c34c]
+
+I really don't know what's behind this. Any help / or further pointer would be much appreciated.
+
+Matias
+
+
+
+
+
+
+----- Original Message -----
+> From: Dirk Eddelbuettel <edd at debian.org>
+> To: Matias Salibian-Barrera <msalibian at yahoo.ca>
+> Cc: "r-sig-debian at r-project.org" <r-sig-debian at r-project.org>
+> Sent: Monday, June 6, 2011 12:55:36 PM
+> Subject: Re: [R-sig-Debian] Lapack or Blas crashing R when using "large" matrices (Ubuntu 11.04)
+> 
+> 
+> Works fine here (Ubuntu 11.04, R 2.13.0 from CRAN):
+> 
+> edd at max:~$ cat /tmp/matias.r 
+> p <- 500
+> n <- 300
+> set.seed(1234)
+> x <- matrix(rnorm(n*p), n, p)
+> sih <- var(x)
+> b <- svd(sih)
+> 
+> cat("All good\n")
+> edd at max:~$ r /tmp/matias.r 
+> All good
+> edd at max:~$ 
+> 
+> Maybe you have the wrong atlas package installed?? What does this yield for
+> you:
+> 
+> edd at max:~$ dpkg -l | grep "atlas\|blas"
+> ii? gotoblas2-helper? ? ? ? ? ? ? ?  0.1-12.local.1? ? ? ? ? ? ? ? ?  GotoBLAS2 
+> helper
+> ii? libatlas-headers? ? ? ? ? ? ? ?  3.6.0-24ubuntu1? ? ? ? ? ? ? ? ? 
+> Automatically Tuned Linear Algebra Software,C header files
+> ii? libatlas3gf-base? ? ? ? ? ? ? ?  3.8.3-29? ? ? ? ? ? ? ? ? ? ? ? 
+> Automatically Tuned Linear Algebra Software, generic shared
+> ii? libblas-dev? ? ? ? ? ? ? ? ? ? ? 1.2-8? ? ? ? ? ? ? ? ? ? ? ? ? ? Basic 
+> Linear Algebra Subroutines 3, static library
+> ii? libblas-test? ? ? ? ? ? ? ? ? ?  1.2-8? ? ? ? ? ? ? ? ? ? ? ? ? ? Basic 
+> Linear Algebra Subroutines 3, testing programs
+> ii? libblas3gf? ? ? ? ? ? ? ? ? ? ?  1.2-8? ? ? ? ? ? ? ? ? ? ? ? ? ? Basic 
+> Linear Algebra Reference implementations, shared library
+> edd at max:~$ 
+> 
+> showing that I use the standard Atlas package from Ubuntu.
+> 
+> Dirk
+> 
+> -- 
+> Gauss once played himself in a zero-sum game and won $50.
+> ? ? ? ? ? ? ? ? ? ? ? -- #11 at http://www.gaussfacts.com
+>
+
+
+From hyu0401 at hotmail.com  Tue Jun 21 14:06:08 2011
+From: hyu0401 at hotmail.com (YuHong)
+Date: Tue, 21 Jun 2011 12:06:08 +0000
+Subject: [R-sig-Debian] plot() dislays NO axis and X11 font error
+In-Reply-To: <alpine.LFD.2.02.1106201422280.17238@toucan.stats.ox.ac.uk>
+References: <COL122-W76CFEDE76DBFBBE18BC7BF2670@phx.gbl><SNT132-ds21DFE20AAC66FB1BF1D9CCAE690@phx.gbl><snt0-eas135892751FD185EC4B30480F2690@phx.gbl><SNT132-ds8266C1B39833CEE8EBF1BAE6B0@phx.gbl><SNT132-ds3F53E367441BEB3FF3470AE6A0@phx.gbl><BANLkTim6zXQe2_hUoS3P7rpsQRhmC3PoLQ@mail.gmail.com>,
+	<SNT132-ds20C52D6E1714B4A2402AC1AE6A0@phx.gbl>, 
+	<FA07C4306DEF5743AC1DB451680DFF59033964FE@MKEXCHVS4.Mail.Fiserv.net>
+	<SNT132-w5D769F347582EE63BB2A7AE6E0@phx.gbl>
+	<SNT132-ds8606B50A8D4E48B517E1BAE6E0@phx.gbl>
+	<SNT132-ds2BFD55299AE7672266C3AAE6E0@phx.gbl>,
+	<alpine.LFD.2.02.1106201422280.17238@toucan.stats.ox.ac.uk>
+Message-ID: <SNT132-w3608938DFE0E1E4F60EB71AE510@phx.gbl>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20110621/6ea6bd1a/attachment.pl>
+
+From mar36 at psu.edu  Tue Jun 21 14:38:59 2011
+From: mar36 at psu.edu (Michael Rutter)
+Date: Tue, 21 Jun 2011 08:38:59 -0400
+Subject: [R-sig-Debian] plot() dislays NO axis and X11 font error
+In-Reply-To: <SNT132-w3608938DFE0E1E4F60EB71AE510@phx.gbl>
+References: <COL122-W76CFEDE76DBFBBE18BC7BF2670@phx.gbl><SNT132-ds21DFE20AAC66FB1BF1D9CCAE690@phx.gbl><snt0-eas135892751FD185EC4B30480F2690@phx.gbl><SNT132-ds8266C1B39833CEE8EBF1BAE6B0@phx.gbl><SNT132-ds3F53E367441BEB3FF3470AE6A0@phx.gbl><BANLkTim6zXQe2_hUoS3P7rpsQRhmC3PoLQ@mail.gmail.com>,
+	<SNT132-ds20C52D6E1714B4A2402AC1AE6A0@phx.gbl>,
+	<FA07C4306DEF5743AC1DB451680DFF59033964FE@MKEXCHVS4.Mail.Fiserv.net>	<SNT132-w5D769F347582EE63BB2A7AE6E0@phx.gbl>	<SNT132-ds8606B50A8D4E48B517E1BAE6E0@phx.gbl>	<SNT132-ds2BFD55299AE7672266C3AAE6E0@phx.gbl>,
+	<alpine.LFD.2.02.1106201422280.17238@toucan.stats.ox.ac.uk>
+	<SNT132-w3608938DFE0E1E4F60EB71AE510@phx.gbl>
+Message-ID: <4E0090E3.1080203@psu.edu>
+
+
+On 06/21/2011 08:06 AM, YuHong wrote:
+>
+>
+> I wish for help on the following issue with GNU R.
+>
+> I have on my Ubuntu-Linux-10.04-LTS compiled R-2.13.0 from source, and then installed under some local directory.  After I launched the R interactive console, the plot() etc. graphics functions showed only points but no axis, and reported the following errors from console line:
+>
+> -- could not find any X11 fonts
+> -- locale not supported by Xlib: some X ops will operate in C locale
+> X cannot set locale modifiers
+>
+> I read more about R-admin.pdf but haven't made progress on the issue.  Therefore really appreciate it if any suggestions.  Thanks a lot!
+>
+> Regards,
+>
+> Hong Yu
+>
+>   		 	   		
+> 	[[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+Hong,
+
+Since you are using Ubuntu, my first suggestion would be to use the 
+binary packages available on CRAN 
+(http://cran.r-project.org/bin/linux/ubuntu/).  That will likely solve 
+the problem.
+
+You can also run "capabilities()" in R.  My Ubuntu box returns the 
+following:
+
+ > capabilities()
+     jpeg      png     tiff    tcltk      X11     aqua http/ftp  sockets
+     TRUE     TRUE     TRUE     TRUE     TRUE    FALSE     TRUE     TRUE
+   libxml     fifo   cledit    iconv      NLS  profmem    cairo
+     TRUE     TRUE     TRUE     TRUE     TRUE     TRUE     TRUE
+
+If any of the TRUE values are FALSE on your system, that would likely be 
+the cause of the error.  For example, X11 might not be available to R, 
+and you would need to resolve that.
+
+Hope this helps,
+Michael
+
+
+
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From hyu0401 at hotmail.com  Wed Jun 22 10:23:31 2011
+From: hyu0401 at hotmail.com (Hong Yu)
+Date: Wed, 22 Jun 2011 16:23:31 +0800
+Subject: [R-sig-Debian] plot() dislays NO axis and X11 font error
+In-Reply-To: <4E0090E3.1080203@psu.edu>
+References: <COL122-W76CFEDE76DBFBBE18BC7BF2670@phx.gbl><SNT132-ds21DFE20AAC66FB1BF1D9CCAE690@phx.gbl><snt0-eas135892751FD185EC4B30480F2690@phx.gbl><SNT132-ds8266C1B39833CEE8EBF1BAE6B0@phx.gbl><SNT132-ds3F53E367441BEB3FF3470AE6A0@phx.gbl><BANLkTim6zXQe2_hUoS3P7rpsQRhmC3PoLQ@mail.gmail.com>,
+	<SNT132-ds20C52D6E1714B4A2402AC1AE6A0@phx.gbl>,
+	<FA07C4306DEF5743AC1DB451680DFF59033964FE@MKEXCHVS4.Mail.Fiserv.net>	<SNT132-w5D769F347582EE63BB2A7AE6E0@phx.gbl>	<SNT132-ds8606B50A8D4E48B517E1BAE6E0@phx.gbl>	<SNT132-ds2BFD55299AE7672266C3AAE6E0@phx.gbl>,
+	<alpine.LFD.2.02.1106201422280.17238@toucan.stats.ox.ac.uk><SNT132-w3608938DFE0E1E4F60EB71AE510@phx.gbl>
+	<4E0090E3.1080203@psu.edu>
+Message-ID: <SNT132-ds16B16E0A91BB1971CCFB01AE500@phx.gbl>
+
+
+Hi, thanks!  Got an installer newer than the downloaded source, and the 
+plot() displays axis now.
+
+Regards,
+
+Hong Yu
+
+
+
+-----Original Message----- 
+From: Michael Rutter
+Sent: Tuesday, June 21, 2011 8:38 PM
+To: r-sig-debian at r-project.org
+Subject: Re: [R-sig-Debian] plot() dislays NO axis and X11 font error
+
+Hong,
+
+Since you are using Ubuntu, my first suggestion would be to use the
+binary packages available on CRAN
+(http://cran.r-project.org/bin/linux/ubuntu/).  That will likely solve
+the problem.
+
+You can also run "capabilities()" in R.  My Ubuntu box returns the
+following:
+
+> capabilities()
+     jpeg      png     tiff    tcltk      X11     aqua http/ftp  sockets
+     TRUE     TRUE     TRUE     TRUE     TRUE    FALSE     TRUE     TRUE
+   libxml     fifo   cledit    iconv      NLS  profmem    cairo
+     TRUE     TRUE     TRUE     TRUE     TRUE     TRUE     TRUE
+
+If any of the TRUE values are FALSE on your system, that would likely be
+the cause of the error.  For example, X11 might not be available to R,
+and you would need to resolve that.
+
+Hope this helps,
+Michael
+
+
+
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+_______________________________________________
+R-SIG-Debian mailing list
+R-SIG-Debian at r-project.org
+https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From cdclinux at gmail.com  Thu Jun 23 02:27:50 2011
+From: cdclinux at gmail.com (=?GB2312?B?1cXWvsCk?=)
+Date: Thu, 23 Jun 2011 08:27:50 +0800
+Subject: [R-sig-Debian] Help: how to install "rgdal package" on Ubuntu
+	desktop?
+Message-ID: <BANLkTinkw5yTRbc4j87bwN=9KxQ=a5ddNA@mail.gmail.com>
+
+Dear groups:
+I have tried to install rgdal in my Ubuntu, but it is not as straight
+as installing "sp". It demand the pre-installed GDAL and proj.4.
+I searched the source code in http://trac.osgeo.org/proj/ and
+http://trac.osgeo.org/gdal/wiki/DownloadSource. but don't know how to
+compile them.
+Who will give me a hint?
+Thanks a lot.
+
+
+Ethan Chang
+Centers for Disease Control & Prevention
+Wei Guo Bei Lu #52
+Tangshan, 063000
+PR China
+Tel: 86(0315)2726308
+Fax:86(0315)2726309
+
+
+From Lee.Hachadoorian+L at gmail.com  Thu Jun 23 07:15:46 2011
+From: Lee.Hachadoorian+L at gmail.com (Lee Hachadoorian)
+Date: Thu, 23 Jun 2011 01:15:46 -0400
+Subject: [R-sig-Debian] Help: how to install "rgdal package" on Ubuntu
+ desktop?
+In-Reply-To: <BANLkTinkw5yTRbc4j87bwN=9KxQ=a5ddNA@mail.gmail.com>
+References: <BANLkTinkw5yTRbc4j87bwN=9KxQ=a5ddNA@mail.gmail.com>
+Message-ID: <4E02CC02.10808@gmail.com>
+
+On 06/22/2011 08:27 PM, ??? wrote:
+> Dear groups:
+> I have tried to install rgdal in my Ubuntu, but it is not as straight
+> as installing "sp". It demand the pre-installed GDAL and proj.4.
+> I searched the source code in http://trac.osgeo.org/proj/ and
+> http://trac.osgeo.org/gdal/wiki/DownloadSource. but don't know how to
+> compile them.
+
+Ethan,
+
+You need the development packages of GDAL and proj4. Probably easier to
+install from repository than from source. Try:
+
+$ sudo apt-get install libgdal1-dev libproj-dev
+$ sudo R
+> install.packages("rgdal")
+
+Best,
+--Lee
+
+-- 
+Lee Hachadoorian
+PhD Student, Geography
+Program in Earth & Environmental Sciences
+CUNY Graduate Center
+
+
+From r.m.krug at gmail.com  Thu Jun 23 09:47:54 2011
+From: r.m.krug at gmail.com (Rainer M Krug)
+Date: Thu, 23 Jun 2011 09:47:54 +0200
+Subject: [R-sig-Debian] Help: how to install "rgdal package" on Ubuntu
+	desktop?
+In-Reply-To: <4E02CC02.10808@gmail.com>
+References: <BANLkTinkw5yTRbc4j87bwN=9KxQ=a5ddNA@mail.gmail.com>
+	<4E02CC02.10808@gmail.com>
+Message-ID: <BANLkTikzT8SrkREnWWYYa1RvN1jjAjNoaFMD52--SJfkLjJcmA@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20110623/96088692/attachment.pl>
+
+From edd at debian.org  Fri Jun 24 15:52:44 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 24 Jun 2011 08:52:44 -0500
+Subject: [R-sig-Debian] Help: how to install "rgdal package" on
+	Ubuntu	desktop?
+In-Reply-To: <BANLkTikzT8SrkREnWWYYa1RvN1jjAjNoaFMD52--SJfkLjJcmA@mail.gmail.com>
+References: <BANLkTinkw5yTRbc4j87bwN=9KxQ=a5ddNA@mail.gmail.com>
+	<4E02CC02.10808@gmail.com>
+	<BANLkTikzT8SrkREnWWYYa1RvN1jjAjNoaFMD52--SJfkLjJcmA@mail.gmail.com>
+Message-ID: <19972.38572.487917.854655@max.nulle.part>
+
+
+On 23 June 2011 at 09:47, Rainer M Krug wrote:
+| On Thu, Jun 23, 2011 at 7:15 AM, Lee Hachadoorian <
+| Lee.Hachadoorian+L at gmail.com> wrote:
+| 
+| > On 06/22/2011 08:27 PM, ??? wrote:
+| > > Dear groups:
+| > > I have tried to install rgdal in my Ubuntu, but it is not as straight
+| > > as installing "sp". It demand the pre-installed GDAL and proj.4.
+| > > I searched the source code in http://trac.osgeo.org/proj/ and
+| > > http://trac.osgeo.org/gdal/wiki/DownloadSource. but don't know how to
+| > > compile them.
+| >
+| > Ethan,
+| >
+| > You need the development packages of GDAL and proj4. Probably easier to
+| > install from repository than from source. Try:
+| >
+| > $ sudo apt-get install libgdal1-dev libproj-dev
+| >
+| 
+| I would actually *not recommend* to use sudo to run R - unless you need a
+| systemwide installation. I usually use R without sudo, and the packages are
+| installed in my home directory, which I prefer
+
+I tend to recommend against that for the standard use case (ie apart from,
+say, development packages), and have instrumented the R packages for Debian /
+Ubuntu to use /usr/local/lib/R/site-library --- which is set set to be group
+'staff' with group-write permissions.  If you add yourself to 'staff' (or
+switch the directory to another group you like) you can write there.
+
+Unix is after all meant to be multi-user.
+
+Dirk
+ 
+| Cheers,
+| 
+| Rainer
+| 
+| 
+| > $ sudo R
+| > > install.packages("rgdal")
+| >
+| > Best,
+| > --Lee
+| >
+| > --
+| > Lee Hachadoorian
+| > PhD Student, Geography
+| > Program in Earth & Environmental Sciences
+| > CUNY Graduate Center
+| >
+| > _______________________________________________
+| > R-SIG-Debian mailing list
+| > R-SIG-Debian at r-project.org
+| > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| >
+| 
+| 
+| 
+| -- 
+| Rainer M. Krug, PhD (Conservation Ecology, SUN), MSc (Conservation Biology,
+| UCT), Dipl. Phys. (Germany)
+| 
+| Centre of Excellence for Invasion Biology
+| Stellenbosch University
+| South Africa
+| 
+| Tel :       +33 - (0)9 53 10 27 44
+| Cell:       +33 - (0)6 85 62 59 98
+| Fax (F):       +33 - (0)9 58 10 27 44
+| 
+| Fax (D):    +49 - (0)3 21 21 25 22 44
+| 
+| email:      Rainer at krugs.de
+| 
+| Skype:      RMkrug
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| 
+| ----------------------------------------------------------------------
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Gauss once played himself in a zero-sum game and won $50.
+                      -- #11 at http://www.gaussfacts.com
+
+

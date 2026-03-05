@@ -1,0 +1,2326 @@
+From atp at piskorski.com  Wed Sep 14 16:18:55 2011
+From: atp at piskorski.com (Andrew Piskorski)
+Date: Wed, 14 Sep 2011 10:18:55 -0400
+Subject: [R-sig-Debian] make check reg-tests-1b.R fails with Ubuntu R
+Message-ID: <20110914141855.GA47129@piskorski.com>
+
+Today I built R from source on a 32-bit Ubuntu 10.04.3 LTS box, and
+saw that the "make check" tests/reg-tests-1b.R failed.  From the
+output at the end of my "tests/reg-tests-1b.Rout.fail" file, the
+problem is appearing in the "identical(z, x %*% t(y))" test code
+below.
+
+I then tried the stock R provided by the Ubuntu r-base-core binary
+package, and to my surprise, it failed the test in exactly the same
+way!
+
+So this is NOT solely a problem with my from-source build (I merely
+happened to notice it first that way).  It probably indicates some
+sort of system-wide bug or misconfiguration, at least on my machine,
+perhaps on others' too.
+
+Could someone please advise me:  What is the significance of this test
+from reg-tests-1b.R failing, and what should I do to further track it
+down and fix it?
+
+Thanks!  Much more detail is below.
+
+------------------------------------------------------------
+
+# Here's the excerpt from the "make check" output where I first
+# noticed the problem:
+
+running regression tests ...
+make[3]: Entering directory `/net/brain/home/local-x86_32-ubuntu/nobackup/co-R/R-2-12-branch/Build-x86_32/tests'
+running code in '../../tests/reg-tests-1.R' ... OK
+running code in '../../tests/reg-tests-1b.R' ...make[3]: *** [reg-tests-1b.Rout] Error 1
+make[3]: Leaving directory `/net/brain/home/local-x86_32-ubuntu/nobackup/co-R/R-2-12-branch/Build-x86_32/tests'
+make[2]: *** [test-Reg] Error 2
+make[2]: Leaving directory `/net/brain/home/local-x86_32-ubuntu/nobackup/co-R/R-2-12-branch/Build-x86_32/tests'
+make[1]: *** [test-all-basics] Error 1
+make[1]: Leaving directory `/net/brain/home/local-x86_32-ubuntu/nobackup/co-R/R-2-12-branch/Build-x86_32/tests'
+make: *** [check] Error 2
+
+
+# This is the Ubuntu machine where I found the error:
+
+andy at n88:~$ lsb_release -d
+Description:	Ubuntu 10.04.3 LTS
+andy at n88:~$ uname -a
+Linux n88 2.6.32-33-generic #72-Ubuntu SMP Fri Jul 29 21:08:37 UTC 2011 i686 GNU/Linux
+andy at n88:~$ dpkg -l r-base-core | grep r-base
+ii  r-base-core   2.10.1-2   GNU R core of statistical computation and graphics system
+
+
+# Stock Ubuntu-provided R has the same failure:
+
+andy at n88:~$ /usr/bin/R -q --vanilla
+> dtk.R.version()
+[1] "R 2.10.1, 2009-12-14, svn.rev 50720, i486-pc-linux-gnu"
+> x <- matrix(c(1, 0, NA, 1), 2, 2) ; y <- matrix(c(1, 0, 0, 2, 1, 0), 3, 2)
+> (z <- tcrossprod(x, y))
+     [,1] [,2] [,3]
+[1,]   NA   NA    0
+[2,]    2    1    0
+> identical(z, x %*% t(y))
+[1] FALSE
+
+
+# R I just built from scratch, same failure as stock R:
+
+andy at n88:~$ /usr/local/pkg/R-2.12-branch-20110914/bin/R -q --vanilla
+> dtk.R.version()
+[1] "R 2.12.2 (Patched), 2011-03-18, svn.rev 57004, i686-pc-linux-gnu"
+> x <- matrix(c(1, 0, NA, 1), 2, 2) ; y <- matrix(c(1, 0, 0, 2, 1, 0), 3, 2)
+> (z <- tcrossprod(x, y))
+     [,1] [,2] [,3]
+[1,]   NA   NA    0
+[2,]    2    1    0
+> identical(z, x %*% t(y))
+[1] FALSE
+
+
+# Apparently the correct output is supposed to look like this:
+
+andy at dax:~$ /usr/bin/R -q --vanilla
+> x <- matrix(c(1, 0, NA, 1), 2, 2) ; y <- matrix(c(1, 0, 0, 2, 1, 0), 3, 2)
+> (z <- tcrossprod(x, y))
+     [,1] [,2] [,3]
+[1,]   NA   NA   NA
+[2,]    2    1    0
+> identical(z, x %*% t(y))
+[1] TRUE
+
+# Note that the correct output above was run on a different machine,
+# which happens to be x86-64:
+
+andy at dax:~$ lsb_release -d
+Description:	Ubuntu 10.04.3 LTS
+andy at dax:~$ uname -a
+Linux dax 2.6.32.29+drm33.13-custom #1 SMP Fri Apr 8 13:42:18 EDT 2011 x86_64 GNU/Linux
+
+
+# Function I used to print out the version number info above:
+dtk.R.version <- function() {
+   patched.str <- version$status
+   if (patched.str != "")
+      patched.str <- paste(" (" ,patched.str ,")" ,sep="")
+   paste(paste(version$language  ," "
+               ,paste(version[c("major","minor")] ,collapse=".")
+               ,patched.str  ,sep="")
+         ,paste(version[c("year","month","day")] ,collapse="-")
+         ,paste("svn.rev" ,version$"svn rev")
+         ,version$platform
+         ,sep=", " ,collapse=" ")
+}
+
+-- 
+Andrew Piskorski <atp at piskorski.com>
+http://www.piskorski.com/
+
+
+From edd at debian.org  Wed Sep 14 16:45:44 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 14 Sep 2011 09:45:44 -0500
+Subject: [R-sig-Debian] make check reg-tests-1b.R fails with Ubuntu R
+In-Reply-To: <20110914141855.GA47129@piskorski.com>
+References: <20110914141855.GA47129@piskorski.com>
+Message-ID: <20080.48664.585447.425741@max.nulle.part>
+
+
+Andrew,
+
+Crossprod etc all dispatch to BLAS / LAPACK.  The error appears to be that
+z[1,3] is 0 whereas a NA gets expected.
+
+I just verified this on another 32bit box where I had stock R and little
+else:
+
+> x <- matrix(c(1, 0, NA, 1), 2, 2) ; y <- matrix(c(1, 0, 0, 2, 1, 0), 3, 2)
+> (z <- tcrossprod(x, y))
+     [,1] [,2] [,3]
+[1,]   NA   NA    0
+[2,]    2    1    0
+>  identical(z, x %*% t(y))
+[1] FALSE
+>
+
+but all it takes is 
+
+wajig install libatlas3gf-base
+
+after which we get 
+
+dd at chibud:~$ R
+
+R version 2.13.1 (2011-07-08)
+Copyright (C) 2011 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: i686-pc-linux-gnu (32-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+>  x <- matrix(c(1, 0, NA, 1), 2, 2) ; y <- matrix(c(1, 0, 0, 2, 1, 0), 3, 2)
+> (z <- tcrossprod(x, y))
+     [,1] [,2] [,3]
+[1,]   NA   NA   NA
+[2,]    2    1    0
+>  identical(z, x %*% t(y))
+[1] TRUE
+> 
+
+
+So try installing 'a better BLAS'.  Maybe we can distill this into a pure C
+program exhibiting the same issue and bring it to the BLAS maintainer?
+
+Dirk
+
+
+-- 
+New Rcpp master class for R and C++ integration is scheduled for 
+San Francisco (Oct 8), more details / reg.info available at
+http://www.revolutionanalytics.com/products/training/public/rcpp-master-class.php
+
+
+From mar36 at psu.edu  Wed Sep 14 16:47:07 2011
+From: mar36 at psu.edu (Michael Rutter)
+Date: Wed, 14 Sep 2011 10:47:07 -0400
+Subject: [R-sig-Debian] make check reg-tests-1b.R fails with Ubuntu R
+In-Reply-To: <20110914141855.GA47129@piskorski.com>
+References: <20110914141855.GA47129@piskorski.com>
+Message-ID: <4E70BE6B.2050806@psu.edu>
+
+On 09/14/2011 10:18 AM, Andrew Piskorski wrote:
+> Today I built R from source on a 32-bit Ubuntu 10.04.3 LTS box, and
+> saw that the "make check" tests/reg-tests-1b.R failed.  From the
+> output at the end of my "tests/reg-tests-1b.Rout.fail" file, the
+> problem is appearing in the "identical(z, x %*% t(y))" test code
+> below.
+>
+> I then tried the stock R provided by the Ubuntu r-base-core binary
+> package, and to my surprise, it failed the test in exactly the same
+> way!
+>
+> So this is NOT solely a problem with my from-source build (I merely
+> happened to notice it first that way).  It probably indicates some
+> sort of system-wide bug or misconfiguration, at least on my machine,
+> perhaps on others' too.
+>
+> Could someone please advise me:  What is the significance of this test
+> from reg-tests-1b.R failing, and what should I do to further track it
+> down and fix it?
+>
+> Thanks!  Much more detail is below.
+>
+> ------------------------------------------------------------
+>
+> # Here's the excerpt from the "make check" output where I first
+> # noticed the problem:
+>
+> running regression tests ...
+> make[3]: Entering directory `/net/brain/home/local-x86_32-ubuntu/nobackup/co-R/R-2-12-branch/Build-x86_32/tests'
+> running code in '../../tests/reg-tests-1.R' ... OK
+> running code in '../../tests/reg-tests-1b.R' ...make[3]: *** [reg-tests-1b.Rout] Error 1
+> make[3]: Leaving directory `/net/brain/home/local-x86_32-ubuntu/nobackup/co-R/R-2-12-branch/Build-x86_32/tests'
+> make[2]: *** [test-Reg] Error 2
+> make[2]: Leaving directory `/net/brain/home/local-x86_32-ubuntu/nobackup/co-R/R-2-12-branch/Build-x86_32/tests'
+> make[1]: *** [test-all-basics] Error 1
+> make[1]: Leaving directory `/net/brain/home/local-x86_32-ubuntu/nobackup/co-R/R-2-12-branch/Build-x86_32/tests'
+> make: *** [check] Error 2
+>
+>
+> # This is the Ubuntu machine where I found the error:
+>
+> andy at n88:~$ lsb_release -d
+> Description:	Ubuntu 10.04.3 LTS
+> andy at n88:~$ uname -a
+> Linux n88 2.6.32-33-generic #72-Ubuntu SMP Fri Jul 29 21:08:37 UTC 2011 i686 GNU/Linux
+> andy at n88:~$ dpkg -l r-base-core | grep r-base
+> ii  r-base-core   2.10.1-2   GNU R core of statistical computation and graphics system
+>
+>
+> # Stock Ubuntu-provided R has the same failure:
+>
+> andy at n88:~$ /usr/bin/R -q --vanilla
+>> dtk.R.version()
+> [1] "R 2.10.1, 2009-12-14, svn.rev 50720, i486-pc-linux-gnu"
+>> x<- matrix(c(1, 0, NA, 1), 2, 2) ; y<- matrix(c(1, 0, 0, 2, 1, 0), 3, 2)
+>> (z<- tcrossprod(x, y))
+>       [,1] [,2] [,3]
+> [1,]   NA   NA    0
+> [2,]    2    1    0
+>> identical(z, x %*% t(y))
+> [1] FALSE
+>
+>
+> # R I just built from scratch, same failure as stock R:
+>
+> andy at n88:~$ /usr/local/pkg/R-2.12-branch-20110914/bin/R -q --vanilla
+>> dtk.R.version()
+> [1] "R 2.12.2 (Patched), 2011-03-18, svn.rev 57004, i686-pc-linux-gnu"
+>> x<- matrix(c(1, 0, NA, 1), 2, 2) ; y<- matrix(c(1, 0, 0, 2, 1, 0), 3, 2)
+>> (z<- tcrossprod(x, y))
+>       [,1] [,2] [,3]
+> [1,]   NA   NA    0
+> [2,]    2    1    0
+>> identical(z, x %*% t(y))
+> [1] FALSE
+>
+>
+> # Apparently the correct output is supposed to look like this:
+>
+> andy at dax:~$ /usr/bin/R -q --vanilla
+>> x<- matrix(c(1, 0, NA, 1), 2, 2) ; y<- matrix(c(1, 0, 0, 2, 1, 0), 3, 2)
+>> (z<- tcrossprod(x, y))
+>       [,1] [,2] [,3]
+> [1,]   NA   NA   NA
+> [2,]    2    1    0
+>> identical(z, x %*% t(y))
+> [1] TRUE
+>
+> # Note that the correct output above was run on a different machine,
+> # which happens to be x86-64:
+>
+> andy at dax:~$ lsb_release -d
+> Description:	Ubuntu 10.04.3 LTS
+> andy at dax:~$ uname -a
+> Linux dax 2.6.32.29+drm33.13-custom #1 SMP Fri Apr 8 13:42:18 EDT 2011 x86_64 GNU/Linux
+>
+>
+> # Function I used to print out the version number info above:
+> dtk.R.version<- function() {
+>     patched.str<- version$status
+>     if (patched.str != "")
+>        patched.str<- paste(" (" ,patched.str ,")" ,sep="")
+>     paste(paste(version$language  ," "
+>                 ,paste(version[c("major","minor")] ,collapse=".")
+>                 ,patched.str  ,sep="")
+>           ,paste(version[c("year","month","day")] ,collapse="-")
+>           ,paste("svn.rev" ,version$"svn rev")
+>           ,version$platform
+>           ,sep=", " ,collapse=" ")
+> }
+
+On my i386 machine:
+
+~/D/R> lsb_release -d
+Description:	Ubuntu 10.04.3 LTS
+
+I get the following:
+
+ > dtk.R.version()
+[1] "R 2.13.1, 2011-07-08, svn.rev 56322, i486-pc-linux-gnu"
+ > x <- matrix(c(1, 0, NA, 1), 2, 2)
+ > y <- matrix(c(1, 0, 0, 2, 1, 0), 3, 2)
+ > (z <- tcrossprod(x, y))
+ > identical(z, x %*% t(y))
+      [,1] [,2] [,3]
+[1,]   NA   NA   NA
+[2,]    2    1    0
+[1] TRUE
+
+This is using the R available on CRAN.  I can think of two possible causes:
+
+1.  It is an error that was found prior to 2.13.1 and has been fixed.
+2.  You have installed a non-standard, math-related library on your 
+machine that is causing the error. A LAPACK library or the Revolution 
+computing libraries available in Ubuntu are examples.
+
+To test, I downgraded my R back to 2.10.1-2, the version from Ubuntu, 
+not from CRAN.  Here are my results:
+
+ > x <- matrix(c(1, 0, NA, 1), 2, 2)
+ > y <- matrix(c(1, 0, 0, 2, 1, 0), 3, 2)
+ > (z <- tcrossprod(x, y))
+      [,1] [,2] [,3]
+[1,]   NA   NA   NA
+[2,]    2    1    0
+ > identical(z, x %*% t(y))
+[1] TRUE
+ > dtk.R.version()
+[1] "R 2.10.1, 2009-12-14, svn.rev 50720, i486-pc-linux-gnu"
+
+This leads me to believe cause number 2 is the likely culprit.
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From atp at piskorski.com  Wed Sep 14 16:53:05 2011
+From: atp at piskorski.com (Andrew Piskorski)
+Date: Wed, 14 Sep 2011 10:53:05 -0400
+Subject: [R-sig-Debian] make check reg-tests-1b.R fails with Ubuntu R
+In-Reply-To: <20110914141855.GA47129@piskorski.com>
+References: <20110914141855.GA47129@piskorski.com>
+Message-ID: <20110914145305.GA48051@piskorski.com>
+
+Ah, with some different google searches, I found an older report of
+this problem:
+
+  http://r.789695.n4.nabble.com/R-2-12-0-beta-r53110-fails-make-check-on-Ubuntu-hardy-td2954249.html
+  http://comments.gmane.org/gmane.comp.lang.r.devel/25646
+
+Further below is the configure output from my from-source build.  It
+says "External libraries:  [...]  BLAS(generic)", so apparently the
+Ubuntu-provided BLAS is bad?  Really?!
+
+I also don't know how to get that sort of configure information from
+an already installed R.  Can you advise please?
+
+I suspect R is linked against libraries from Ubuntu's libblas3gf
+1.2-2build1 package (which is the Fortran 77 reference implementation,
+modulo any Debian tweaks), but I'm not sure, and I don't know how to
+check.  (Perhaps I need some magic ar, nm, or objdump incantation?)
+
+I think my from-source builds on older versions of Ubuntu have used
+the built-in BLAS provided by R, but something has switched it on me.
+I suspect the main solution for me is to figure out how to either
+switch back to the built-in BLAS, or to a faster optimized BLAS like
+Atlas.
+
+Any advice on how I should best straighten this would be appreciated...
+Ideally, I'd like to fix both the stock Ubuntu R and my own
+from-source installs.  However of the two, making the from-source
+install correct is much more important to me.
+
+On Wed, Sep 14, 2011 at 10:18:55AM -0400, Andrew Piskorski wrote:
+
+> # R I just built from scratch, same failure as stock R:
+> andy at n88:~$ /usr/local/pkg/R-2.12-branch-20110914/bin/R -q --vanilla
+> > dtk.R.version()
+> [1] "R 2.12.2 (Patched), 2011-03-18, svn.rev 57004, i686-pc-linux-gnu"
+
+Here's the corresponding build configuration:
+------------------------------------------------------------ 
+R is now configured for i686-pc-linux-gnu  
+ 
+  Source directory:          ..  
+  Installation directory:    /usr/local/pkg/R-2.12-branch-20110914  
+ 
+  C compiler:                gcc -std=gnu99  -g -O2  
+  Fortran 77 compiler:       gfortran  -g -O2  
+ 
+  C++ compiler:              g++  -g -O2  
+  Fortran 90/95 compiler:    gfortran -g -O2  
+  Obj-C compiler:               
+ 
+  Interfaces supported:      X11, tcltk  
+  External libraries:        readline, BLAS(generic), LAPACK(generic)  
+  Additional capabilities:   PNG, JPEG, NLS  
+  Options enabled:           shared R library, R profiling, Java  
+
+-- 
+Andrew Piskorski <atp at piskorski.com>
+http://www.piskorski.com/
+
+
+From mar36 at psu.edu  Wed Sep 14 16:57:37 2011
+From: mar36 at psu.edu (Michael Rutter)
+Date: Wed, 14 Sep 2011 10:57:37 -0400
+Subject: [R-sig-Debian] make check reg-tests-1b.R fails with Ubuntu R
+In-Reply-To: <20080.48664.585447.425741@max.nulle.part>
+References: <20110914141855.GA47129@piskorski.com>
+	<20080.48664.585447.425741@max.nulle.part>
+Message-ID: <4E70C0E1.10307@psu.edu>
+
+On 09/14/2011 10:45 AM, Dirk Eddelbuettel wrote:
+>
+> Andrew,
+>
+> Crossprod etc all dispatch to BLAS / LAPACK.  The error appears to be that
+> z[1,3] is 0 whereas a NA gets expected.
+>
+> I just verified this on another 32bit box where I had stock R and little
+> else:
+>
+>> x<- matrix(c(1, 0, NA, 1), 2, 2) ; y<- matrix(c(1, 0, 0, 2, 1, 0), 3, 2)
+>> (z<- tcrossprod(x, y))
+>       [,1] [,2] [,3]
+> [1,]   NA   NA    0
+> [2,]    2    1    0
+>>   identical(z, x %*% t(y))
+> [1] FALSE
+>>
+>
+> but all it takes is
+>
+> wajig install libatlas3gf-base
+>
+> after which we get
+>
+> dd at chibud:~$ R
+>
+> R version 2.13.1 (2011-07-08)
+> Copyright (C) 2011 The R Foundation for Statistical Computing
+> ISBN 3-900051-07-0
+> Platform: i686-pc-linux-gnu (32-bit)
+>
+> R is free software and comes with ABSOLUTELY NO WARRANTY.
+> You are welcome to redistribute it under certain conditions.
+> Type 'license()' or 'licence()' for distribution details.
+>
+>    Natural language support but running in an English locale
+>
+> R is a collaborative project with many contributors.
+> Type 'contributors()' for more information and
+> 'citation()' on how to cite R or R packages in publications.
+>
+> Type 'demo()' for some demos, 'help()' for on-line help, or
+> 'help.start()' for an HTML browser interface to help.
+> Type 'q()' to quit R.
+>
+>>   x<- matrix(c(1, 0, NA, 1), 2, 2) ; y<- matrix(c(1, 0, 0, 2, 1, 0), 3, 2)
+>> (z<- tcrossprod(x, y))
+>       [,1] [,2] [,3]
+> [1,]   NA   NA   NA
+> [2,]    2    1    0
+>>   identical(z, x %*% t(y))
+> [1] TRUE
+>>
+>
+>
+> So try installing 'a better BLAS'.  Maybe we can distill this into a pure C
+> program exhibiting the same issue and bring it to the BLAS maintainer?
+>
+> Dirk
+>
+>
+
+If I had just waited three more minutes for Dirk to reply, the email I 
+sent before would not be  incorrect.  I thought I was working on a stock 
+machine, but I had installed libatlas3gf-base myself at some point, so I 
+am getting the same results as Dirk.  Please ignore that email.
+
+Sorry about the misdiagnosis,
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From atp at piskorski.com  Wed Sep 14 17:16:12 2011
+From: atp at piskorski.com (Andrew Piskorski)
+Date: Wed, 14 Sep 2011 11:16:12 -0400
+Subject: [R-sig-Debian] make check reg-tests-1b.R fails with Ubuntu R
+In-Reply-To: <20080.48664.585447.425741@max.nulle.part>
+References: <20110914141855.GA47129@piskorski.com>
+	<20080.48664.585447.425741@max.nulle.part>
+Message-ID: <20110914151612.GA53670@piskorski.com>
+
+On Wed, Sep 14, 2011 at 09:45:44AM -0500, Dirk Eddelbuettel wrote:
+
+> but all it takes is 
+> 
+> wajig install libatlas3gf-base
+
+Aha!  I installed that, and now on that machine BOTH the stock Ubuntu
+R and my own built-from-source R get the correct answer.  Wonderful!
+
+Is there a good way to run the "make check" tests from an already
+installed R?  ("R check" doesn't do it.)
+
+> So try installing 'a better BLAS'.  Maybe we can distill this into a pure C
+> program exhibiting the same issue and bring it to the BLAS maintainer?
+
+I know nothing about BLAS C hacking, but the test case R is using does
+sound pretty simple.  For bug reporting purposes, I may try setting up
+an equivalent C test case a month or two down the road, but I can't
+justify the time sink right now.
+
+-- 
+Andrew Piskorski <atp at piskorski.com>
+http://www.piskorski.com/
+
+
+From Johan.Nylander at abc.se  Mon Sep 19 09:03:38 2011
+From: Johan.Nylander at abc.se (Johan Nylander)
+Date: Mon, 19 Sep 2011 09:03:38 +0200
+Subject: [R-sig-Debian] Rscript path problem on R 2.13.1 for Ubuntu 11.04?
+Message-ID: <1316415818.2372.1.camel@nylander-laptop>
+
+Dear all,
+
+finally decided to do an Ubuntu upgrade and a new clean R install from
+http://cran.r-project.org/bin/linux/ubuntu/.
+
+However, while trying to install a package from R-forge I encountered
+problems, involving error messages saying "Rscript execution error: No
+such file or directory" (see below).
+
+The same procedure works on Ubuntu 11.04 running R 2.12.1-1 from the
+Ubuntu repositories.
+
+The behavior of Rscript on my (11.04 + 2.13.1) machine:
+  $ which Rscript
+  /usr/local/bin/Rscript
+  $ Rscript --version
+  R scripting front-end version 49838
+  $ Rscript -e 'rnorm(1)'
+  Rscript execution error: No such file or directory
+
+on my 11.04 + 2.12.1:
+  $ which Rscript
+  /usr/bin/Rscript
+  $ Rscript --version
+  R scripting front-end version 2.12.1 (2010-12-16)
+  $ Rscript -e 'rnorm(1)'
+  [1] 0.9278564
+
+Seems like this problem has been seen before
+(http://bugs.r-project.org/bugzilla3/show_bug.cgi?id=14493), and that the
+wrong PATH and/or RHOME is involved.
+
+Any suggestions? Solutions?
+
+Cheers
+Johan
+
+--------------------------------------------
+Install Error output (On Ubuntu Linux 11.04 64bit, R version 2.13.1
+(2011-07-08). R installed from CRAN Ubuntu bin repositories.)
+
+$ sudo R
+>
+> install.packages("earthmovdist", repos = "http://R-forge.R-project.org")
+Installing package(s) into ?/usr/local/lib/R/site-library?
+(as ?lib? is unspecified)
+trying URL
+'http://R-forge.R-project.org/src/contrib/earthmovdist_0.1.1.tar.gz'
+Content type 'application/x-gzip' length 15819 bytes (15 Kb)
+opened URL
+==================================================
+downloaded 15 Kb
+
+* installing *source* package ?earthmovdist? ...
+** libs
+g++ -I/usr/share/R/include  
+-I"/usr/local/lib/R/site-library/Rcpp/include"   -fpic  -O3 -pipe  -g -c
+emdL1.cpp -o emdL1.o
+g++ -I/usr/share/R/include  
+-I"/usr/local/lib/R/site-library/Rcpp/include"   -fpic  -O3 -pipe  -g -c
+emdL1_R.cpp -o emdL1_R.o
+Rscript execution error: No such file or directory
+Rscript execution error: No such file or directory
+g++ -shared -o earthmovdist.so emdL1.o emdL1_R.o -L/usr/lib64/R/lib -lR
+installing to /usr/local/lib/R/site-library/earthmovdist/libs
+** R
+** inst
+** preparing package for lazy loading
+** help
+*** installing help indices
+** building package indices ...
+** testing if installed package can be loaded
+Error in dyn.load(file, DLLpath = DLLpath, ...) :
+  unable to load shared object
+'/usr/local/lib/R/site-library/earthmovdist/libs/earthmovdist.so':
+  /usr/local/lib/R/site-library/earthmovdist/libs/earthmovdist.so:
+undefined symbol: _ZTIN4Rcpp7RObjectE
+Error: loading failed
+Execution halted
+ERROR: loading failed
+* removing ?/usr/local/lib/R/site-library/earthmovdist?
+
+The downloaded packages are in
+        ?/tmp/RtmpdFcoSz/downloaded_packages?
+Warning message:
+In install.packages("earthmovdist", repos = "http://R-forge.R-project.org") :
+  installation of package 'earthmovdist' had non-zero exit status
+>
+
+
+From syrus.nn at gmail.com  Mon Sep 19 15:54:08 2011
+From: syrus.nn at gmail.com (Syrus Nemat-Nasser)
+Date: Mon, 19 Sep 2011 06:54:08 -0700
+Subject: [R-sig-Debian] Rscript path problem on R 2.13.1 for Ubuntu
+	11.04?
+In-Reply-To: <1316415818.2372.1.camel@nylander-laptop>
+References: <1316415818.2372.1.camel@nylander-laptop>
+Message-ID: <CAOPo2f5X4sw-GotYs1_dUafjG91vdsFAiq4RKiUK00KnnuFL8w@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20110919/59e4a085/attachment.pl>
+
+From mar36 at psu.edu  Mon Sep 19 16:16:40 2011
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 19 Sep 2011 10:16:40 -0400
+Subject: [R-sig-Debian] Rscript path problem on R 2.13.1 for Ubuntu
+	11.04?
+In-Reply-To: <CAOPo2f5X4sw-GotYs1_dUafjG91vdsFAiq4RKiUK00KnnuFL8w@mail.gmail.com>
+References: <1316415818.2372.1.camel@nylander-laptop>
+	<CAOPo2f5X4sw-GotYs1_dUafjG91vdsFAiq4RKiUK00KnnuFL8w@mail.gmail.com>
+Message-ID: <4E774EC8.1040809@psu.edu>
+
+On 09/19/2011 09:54 AM, Syrus Nemat-Nasser wrote:
+> Hi Johan,
+>
+> I have 2.13 installed on my Ubuntu 11.04 machine, but Rscript is located in
+> /usr/bin:
+>
+> snn at d630snn:~/bin$ which Rscript
+> /usr/bin/Rscript
+>
+> I installed R from CRAN using the instructions at
+> http://cran.r-project.org/bin/linux/ubuntu/README
+>
+> Perhaps it has something to do with how you installed R 2.13 on your
+> machine?
+>
+> Regards, --Syrus
+>
+
+When I look at my installed files list for r-base-core (2.13.1-1lucid2), 
+it lists the following:
+
+/usr/bin/Rscript
+
+Johan, did you do an upgrade to 11.04 or a clean install of 11.04? 
+Upgrades from one release of Ubuntu to another can sometimes cause 
+strange issues.  This could a side effect of doing an upgrade.
+
+Are there any other R related programs in /usr/local/bin?  What is 
+strange is that when I ask for the version of Rscript, I get
+
+ > Rscript --version
+R scripting front-end version 2.13.1 (2011-07-08)
+
+I am not even sure where "version 49838" is coming from.  It seems to be 
+to a leftover file from another install.  Is Rscript also in /usr/bin? I 
+would delete the /usr/local/bin/Rscript manually, and then reinstall R.
+
+Michael
+
+>> Dear all,
+>>
+>> finally decided to do an Ubuntu upgrade and a new clean R install from
+>> http://cran.r-project.org/bin/linux/ubuntu/.
+>>
+>> However, while trying to install a package from R-forge I encountered
+>> problems, involving error messages saying "Rscript execution error: No
+>> such file or directory" (see below).
+>>
+>> The same procedure works on Ubuntu 11.04 running R 2.12.1-1 from the
+>> Ubuntu repositories.
+>>
+>> The behavior of Rscript on my (11.04 + 2.13.1) machine:
+>>   $ which Rscript
+>>   /usr/local/bin/Rscript
+>>   $ Rscript --version
+>>   R scripting front-end version 49838
+>>   $ Rscript -e 'rnorm(1)'
+>>   Rscript execution error: No such file or directory
+>>
+>> on my 11.04 + 2.12.1:
+>>   $ which Rscript
+>>   /usr/bin/Rscript
+>>   $ Rscript --version
+>>   R scripting front-end version 2.12.1 (2010-12-16)
+>>   $ Rscript -e 'rnorm(1)'
+>>   [1] 0.9278564
+>>
+>> Seems like this problem has been seen before
+>> (http://bugs.r-project.org/bugzilla3/show_bug.cgi?id=14493), and that the
+>> wrong PATH and/or RHOME is involved.
+>>
+>> Any suggestions? Solutions?
+>>
+>> Cheers
+>> Johan
+>>
+>> --------------------------------------------
+>> Install Error output (On Ubuntu Linux 11.04 64bit, R version 2.13.1
+>> (2011-07-08). R installed from CRAN Ubuntu bin repositories.)
+>>
+>> $ sudo R
+>>>
+>>> install.packages("earthmovdist", repos = "http://R-forge.R-project.org")
+>> Installing package(s) into ?/usr/local/lib/R/site-library?
+>> (as ?lib? is unspecified)
+>> trying URL
+>> 'http://R-forge.R-project.org/src/contrib/earthmovdist_0.1.1.tar.gz'
+>> Content type 'application/x-gzip' length 15819 bytes (15 Kb)
+>> opened URL
+>> ==================================================
+>> downloaded 15 Kb
+>>
+>> * installing *source* package ?earthmovdist? ...
+>> ** libs
+>> g++ -I/usr/share/R/include
+>> -I"/usr/local/lib/R/site-library/Rcpp/include"   -fpic  -O3 -pipe  -g -c
+>> emdL1.cpp -o emdL1.o
+>> g++ -I/usr/share/R/include
+>> -I"/usr/local/lib/R/site-library/Rcpp/include"   -fpic  -O3 -pipe  -g -c
+>> emdL1_R.cpp -o emdL1_R.o
+>> Rscript execution error: No such file or directory
+>> Rscript execution error: No such file or directory
+>> g++ -shared -o earthmovdist.so emdL1.o emdL1_R.o -L/usr/lib64/R/lib -lR
+>> installing to /usr/local/lib/R/site-library/earthmovdist/libs
+>> ** R
+>> ** inst
+>> ** preparing package for lazy loading
+>> ** help
+>> *** installing help indices
+>> ** building package indices ...
+>> ** testing if installed package can be loaded
+>> Error in dyn.load(file, DLLpath = DLLpath, ...) :
+>>   unable to load shared object
+>> '/usr/local/lib/R/site-library/earthmovdist/libs/earthmovdist.so':
+>>   /usr/local/lib/R/site-library/earthmovdist/libs/earthmovdist.so:
+>> undefined symbol: _ZTIN4Rcpp7RObjectE
+>> Error: loading failed
+>> Execution halted
+>> ERROR: loading failed
+>> * removing ?/usr/local/lib/R/site-library/earthmovdist?
+>>
+>> The downloaded packages are in
+>>         ?/tmp/RtmpdFcoSz/downloaded_packages?
+>> Warning message:
+>> In install.packages("earthmovdist", repos = "http://R-forge.R-project.org")
+>> :
+>>   installation of package 'earthmovdist' had non-zero exit status
+>>>
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+>
+>
+>
+>
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From Johan.Nylander at abc.se  Mon Sep 19 16:25:35 2011
+From: Johan.Nylander at abc.se (Johan Nylander)
+Date: Mon, 19 Sep 2011 16:25:35 +0200
+Subject: [R-sig-Debian] [SOLVED] Rscript path problem on R 2.13.1 for
+	Ubuntu 11.04?
+Message-ID: <1316442335.2372.8.camel@nylander-laptop>
+
+Dear all,
+
+I Located my previous problem: an orphan Rscript was still in /usr/local/bin,
+and since /usr/local/bin came before /usr/bin/ in the PATH, the "wrong"
+Rscript was called. Removing /usr/local/bin/Rscript solved the installation
+issue with Ubuntu 11.04+R 2.13.1 but I'm still unsure on the exact details
+why/where/when the error "Rscript execution error: No such file or directory"
+is given.
+Yours
+Johan
+
+Previous error messages:
+
+>The behavior of Rscript on my (11.04 + 2.13.1) machine:
+>  $ which Rscript
+>  /usr/local/bin/Rscript
+>  $ Rscript --version
+>  R scripting front-end version 49838
+>  $ Rscript -e 'rnorm(1)'
+>  Rscript execution error: No such file or directory
+
+>on my 11.04 + 2.12.1:
+>  $ which Rscript
+>  /usr/bin/Rscript
+>  $ Rscript --version
+>  R scripting front-end version 2.12.1 (2010-12-16)
+>  $ Rscript -e 'rnorm(1)'
+>  [1] 0.9278564
+
+
+From chrishold at psyctc.org  Tue Sep 20 22:20:07 2011
+From: chrishold at psyctc.org (Chris Evans)
+Date: Tue, 20 Sep 2011 21:20:07 +0100
+Subject: [R-sig-Debian] update.packages() as ordinary user,
+ /usr/lib/R/site-library is not writable
+Message-ID: <4E78F577.6040707@psyctc.org>
+
+I am moving from windoze on a Dell laptop to Debian but I seem to have 
+hit a snag for R.  I managed to find the information to point an 
+/etc/apt/sources.list entry at my local CRAN repository and have 
+installed R 2.13.1 for squeeze from the Bristol UK repository.
+
+I  installed a number of the additional R packages using synaptic which 
+reported no errors but when I run my first update.packages() as an 
+ordinary user I get this:
+
+
+The downloaded packages are in
+	?/tmp/Rtmp9LYziU/downloaded_packages?
+Warning in install.packages(update[instlib == l, "Package"], l, 
+contriburl = contriburl,  :
+   'lib = "/usr/lib/R/library"' is not writable
+Error in install.packages(update[instlib == l, "Package"], l, contriburl 
+= contriburl,  :
+   unable to install packages
+In addition: Warning messages:
+1: In install.packages(update[instlib == l, "Package"], l, contriburl = 
+contriburl,  :
+   installation of package 'rgl' had non-zero exit status
+2: In install.packages(update[instlib == l, "Package"], l, contriburl = 
+contriburl,  :
+   installation of package 'XML' had non-zero exit status
+
+Although all the compilations have run through, presumably with errors 
+for rgl and XML, clearly the "not writable" status of /usr/lib/R/library 
+has genuinely prevented the update.
+
+I thought I'd seen strong advice here recently against updating 
+libraries as root so I'm intrigued about this.  Can someone advise me 
+what I should do?
+
+Thanks in advance and huge thanks to all who do the porting to Debian 
+and generally make R so good.
+
+Chris
+
+-- 
+Chris Evans <chris at psyctc.org> Skype: chris-psyctc
+Consultant Psychiatrist in Psychotherapy, Notts. PDD network;
+Professor, Psychotherapy, Nottingham University
+*If I am writing from one of those roles, it will be clear. Otherwise*
+*my views are my own and not representative of those institutions    *
+If you have difficulty Emailing me on this address or getting a reply,
+send again but cc to:       chris dot evans at nottshc dot nhs dot uk
+and to:                     c dot evans at nottingham dot ac dot uk
+
+
+From edd at debian.org  Tue Sep 20 22:37:30 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 20 Sep 2011 15:37:30 -0500
+Subject: [R-sig-Debian] update.packages() as ordinary user,
+ /usr/lib/R/site-library is not writable
+In-Reply-To: <4E78F577.6040707@psyctc.org>
+References: <4E78F577.6040707@psyctc.org>
+Message-ID: <20088.63882.513780.596935@max.nulle.part>
+
+
+Welcome!
+
+On 20 September 2011 at 21:20, Chris Evans wrote:
+| I am moving from windoze on a Dell laptop to Debian but I seem to have 
+| hit a snag for R.  I managed to find the information to point an 
+| /etc/apt/sources.list entry at my local CRAN repository and have 
+| installed R 2.13.1 for squeeze from the Bristol UK repository.
+
+Good so far.
+ 
+| I  installed a number of the additional R packages using synaptic which 
+| reported no errors but when I run my first update.packages() as an 
+| ordinary user I get this:
+
+*Every* interaction with the package management system in Debian or Ubuntu
+has to happen as root.  So do NOT say 'synaptic', say 'sudo synaptic'.
+ 
+| The downloaded packages are in
+| 	?/tmp/Rtmp9LYziU/downloaded_packages?
+| Warning in install.packages(update[instlib == l, "Package"], l, 
+| contriburl = contriburl,  :
+|    'lib = "/usr/lib/R/library"' is not writable
+| Error in install.packages(update[instlib == l, "Package"], l, contriburl 
+| = contriburl,  :
+|    unable to install packages
+| In addition: Warning messages:
+| 1: In install.packages(update[instlib == l, "Package"], l, contriburl = 
+| contriburl,  :
+|    installation of package 'rgl' had non-zero exit status
+| 2: In install.packages(update[instlib == l, "Package"], l, contriburl = 
+| contriburl,  :
+|    installation of package 'XML' had non-zero exit status
+
+If you get this, and think you used synaptic, you're confused.
+
+Synaptic gets you prebuilt binaries from the repos it knows about.
+
+What you show here is local compilation, possibly triggered by R. Not at all
+the same.
+ 
+| Although all the compilations have run through, presumably with errors 
+| for rgl and XML, clearly the "not writable" status of /usr/lib/R/library 
+
+Both r-cran-rgl and r-cran-xml exists _as pre-built binaries_. See above, do
+not build them locally unless you have to AND know how to.
+
+| has genuinely prevented the update.
+| 
+| I thought I'd seen strong advice here recently against updating 
+| libraries as root so I'm intrigued about this.  Can someone advise me 
+| what I should do?
+| 
+| Thanks in advance and huge thanks to all who do the porting to Debian 
+| and generally make R so good.
+
+It works actually really well indeed, but it is still on Linux / Unix --
+which is a whole new world onto itself for people just joining.  As the joke
+goes: "Unix is user-friendly, but it is picky about its friends."
+
+Is there a local user group or a colleague you could bug locally?
+
+Dirk
+ 
+| Chris
+| 
+| -- 
+| Chris Evans <chris at psyctc.org> Skype: chris-psyctc
+| Consultant Psychiatrist in Psychotherapy, Notts. PDD network;
+| Professor, Psychotherapy, Nottingham University
+| *If I am writing from one of those roles, it will be clear. Otherwise*
+| *my views are my own and not representative of those institutions    *
+| If you have difficulty Emailing me on this address or getting a reply,
+| send again but cc to:       chris dot evans at nottshc dot nhs dot uk
+| and to:                     c dot evans at nottingham dot ac dot uk
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+New Rcpp master class for R and C++ integration is scheduled for 
+San Francisco (Oct 8), more details / reg.info available at
+http://www.revolutionanalytics.com/products/training/public/rcpp-master-class.php
+
+
+From edd at debian.org  Tue Sep 20 22:57:20 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 20 Sep 2011 15:57:20 -0500
+Subject: [R-sig-Debian] update.packages() as ordinary user,
+ /usr/lib/R/site-library is not writable
+In-Reply-To: <20088.63882.513780.596935@max.nulle.part>
+References: <4E78F577.6040707@psyctc.org>
+	<20088.63882.513780.596935@max.nulle.part>
+Message-ID: <20088.65072.739624.647519@max.nulle.part>
+
+
+Also, as an aside, R should not have tried to write to
+/usr/lib/R/site-library.  Via the file /etc/R/Renviron, we define the library
+path.  You should see this in R:
+
+R> .libPaths()
+[1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"       "/usr/lib/R/library"           
+R> 
+
+and /usr/local/lib/R/site-library as the 1st directory in this path should be
+the one being written too.   You can then make that very directory writeable
+by you (my preference) or run the install step as root in R (more clumsy in
+my book).
+
+Dirk
+
+-- 
+New Rcpp master class for R and C++ integration is scheduled for 
+San Francisco (Oct 8), more details / reg.info available at
+http://www.revolutionanalytics.com/products/training/public/rcpp-master-class.php
+
+
+From jranke at uni-bremen.de  Tue Sep 20 23:41:43 2011
+From: jranke at uni-bremen.de (jranke at uni-bremen.de)
+Date: Tue, 20 Sep 2011 23:41:43 +0200
+Subject: [R-sig-Debian] update.packages() as ordinary user,
+ /usr/lib/R/site-library is not writable
+In-Reply-To: <20088.63882.513780.596935@max.nulle.part>
+References: <4E78F577.6040707@psyctc.org>
+	<20088.63882.513780.596935@max.nulle.part>
+Message-ID: <20110920234143.4200134jcirwh3mf@webmail.uni-bremen.de>
+
+Dear Chris, Dirk, dear list,
+
+let me add some thoughts here:
+
+Zitat von Dirk Eddelbuettel <edd at debian.org>:
+>
+> Welcome!
+>
+> On 20 September 2011 at 21:20, Chris Evans wrote:
+> | I am moving from windoze on a Dell laptop to Debian but I seem to have
+> | hit a snag for R.  I managed to find the information to point an
+> | /etc/apt/sources.list entry at my local CRAN repository and have
+> | installed R 2.13.1 for squeeze from the Bristol UK repository.
+>
+> Good so far.
+
+So you are using the R binary packages I am maintaining for CRAN.
+
+> | I  installed a number of the additional R packages using synaptic which
+> | reported no errors but when I run my first update.packages() as an
+> | ordinary user I get this:
+
+As Dirk pointed out, updating packages from within R under Linux/Unix  
+requires a bit more than under Windows. However it is not a black art.  
+Basically you need to have r-base-dev installed plus development  
+packages for any libraries your R package is linking against.
+
+> *Every* interaction with the package management system in Debian or Ubuntu
+> has to happen as root.  So do NOT say 'synaptic', say 'sudo synaptic'.
+
+@Dirk: He said he used update.packages() as an ordinary user.
+
+>
+> | The downloaded packages are in
+> | 	?/tmp/Rtmp9LYziU/downloaded_packages?
+> | Warning in install.packages(update[instlib == l, "Package"], l,
+> | contriburl = contriburl,  :
+> |    'lib = "/usr/lib/R/library"' is not writable
+> | Error in install.packages(update[instlib == l, "Package"], l, contriburl
+> | = contriburl,  :
+> |    unable to install packages
+> | In addition: Warning messages:
+> | 1: In install.packages(update[instlib == l, "Package"], l, contriburl =
+> | contriburl,  :
+> |    installation of package 'rgl' had non-zero exit status
+> | 2: In install.packages(update[instlib == l, "Package"], l, contriburl =
+> | contriburl,  :
+> |    installation of package 'XML' had non-zero exit status
+>
+> If you get this, and think you used synaptic, you're confused.
+>
+> Synaptic gets you prebuilt binaries from the repos it knows about.
+
+It seems to me that Chris has r-cran-rgl and r-cran-xml from Debian  
+squeeze, and R 2.13.1 from CRAN.
+
+> What you show here is local compilation, possibly triggered by R. Not at all
+> the same.
+>
+> | Although all the compilations have run through, presumably with errors
+> | for rgl and XML, clearly the "not writable" status of /usr/lib/R/library
+>
+> Both r-cran-rgl and r-cran-xml exists _as pre-built binaries_. See above, do
+> not build them locally unless you have to AND know how to.
+
+I agree that I would not recommend upgrading them if there is no good  
+reason for doing so.
+
+>
+> | has genuinely prevented the update.
+> |
+> | I thought I'd seen strong advice here recently against updating
+> | libraries as root so I'm intrigued about this.  Can someone advise me
+> | what I should do?
+> |
+> | Thanks in advance and huge thanks to all who do the porting to Debian
+> | and generally make R so good.
+>
+> It works actually really well indeed, but it is still on Linux / Unix --
+> which is a whole new world onto itself for people just joining.  As the joke
+> goes: "Unix is user-friendly, but it is picky about its friends."
+>
+> Is there a local user group or a colleague you could bug locally?
+
+If you really want to upgrade R packages like rgl and XML that are  
+available in Debian, I would recommend to do it the Debian way. This  
+means adding the unstable sources to your /etc/apt/sources.list,  
+running as root (using aptitude/apt as I am not familiar with synaptic)
+
+     aptitude build-dep r-cran-rgl r-cran-xml
+
+which gets build dependencies, then as a normal user go to some  
+location where you want to build, i.e. ~/tmp and
+
+     apt-get source -b r-cran-rgl r-cran-xml
+
+You will find, if all goes well, updated .deb packages in your working  
+directory that you can then install (again as root) e.g. using dpkg -i.
+
+In this way you do not mix the packaging systems of Debian and R.
+
+If you really want to do regular upgrades of all packages from within  
+R (even though you decided to use Debian stable), you can get the  
+build dependencies as above, but I believe Dirk would agree it would  
+be better to remove the Debian packages first and then install R  
+packages from within R in the first place.
+
+Kind regards,
+
+Johannes
+
+
+
+>
+> Dirk
+>
+> | Chris
+> |
+> | --
+> | Chris Evans <chris at psyctc.org> Skype: chris-psyctc
+> | Consultant Psychiatrist in Psychotherapy, Notts. PDD network;
+> | Professor, Psychotherapy, Nottingham University
+> | *If I am writing from one of those roles, it will be clear. Otherwise*
+> | *my views are my own and not representative of those institutions    *
+> | If you have difficulty Emailing me on this address or getting a reply,
+> | send again but cc to:       chris dot evans at nottshc dot nhs dot uk
+> | and to:                     c dot evans at nottingham dot ac dot uk
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+> --
+> New Rcpp master class for R and C++ integration is scheduled for
+> San Francisco (Oct 8), more details / reg.info available at
+> http://www.revolutionanalytics.com/products/training/public/rcpp-master-class.php
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From chrishold at psyctc.org  Wed Sep 21 08:49:30 2011
+From: chrishold at psyctc.org (Chris Evans)
+Date: Wed, 21 Sep 2011 07:49:30 +0100
+Subject: [R-sig-Debian] update.packages() as ordinary user,
+ /usr/lib/R/site-library is not writable
+In-Reply-To: <20088.63882.513780.596935@max.nulle.part>
+References: <4E78F577.6040707@psyctc.org>
+	<20088.63882.513780.596935@max.nulle.part>
+Message-ID: <4E7988FA.2030101@psyctc.org>
+
+Dirk Eddelbuettel sent the following at 20/09/11 21:37:
+> Welcome!
+>    
+
+Thanks!
+> On 20 September 2011 at 21:20, Chris Evans wrote:
+> | I am moving from windoze on a Dell laptop to Debian but I seem to have
+> | hit a snag for R.  I managed to find the information to point an
+> | /etc/apt/sources.list entry at my local CRAN repository and have
+> | installed R 2.13.1 for squeeze from the Bristol UK repository.
+>
+> Good so far.
+>
+> | I  installed a number of the additional R packages using synaptic which
+> | reported no errors but when I run my first update.packages() as an
+> | ordinary user I get this:
+>
+> *Every* interaction with the package management system in Debian or Ubuntu
+> has to happen as root.  So do NOT say 'synaptic', say 'sudo synaptic'.
+>    
+
+I ran synaptic from the Debian application menu which defaults to root 
+after askling for the root password the first time I invoke it after a 
+reboot. (I probably should have said that I've been using Debian for my 
+internet server work for about 15 years: I'm not a Debian/linux newbie, 
+just someone finally throwing away the reins from M$ to have a laptop 
+running Debian as well!)
+>
+> | The downloaded packages are in
+> | 	???/tmp/Rtmp9LYziU/downloaded_packages???
+> | Warning in install.packages(update[instlib == l, "Package"], l,
+> | contriburl = contriburl,  :
+> |    'lib = "/usr/lib/R/library"' is not writable
+> | Error in install.packages(update[instlib == l, "Package"], l, contriburl
+> | = contriburl,  :
+> |    unable to install packages
+> | In addition: Warning messages:
+> | 1: In install.packages(update[instlib == l, "Package"], l, contriburl =
+> | contriburl,  :
+> |    installation of package 'rgl' had non-zero exit status
+> | 2: In install.packages(update[instlib == l, "Package"], l, contriburl =
+> | contriburl,  :
+> |    installation of package 'XML' had non-zero exit status
+>
+> If you get this, and think you used synaptic, you're confused.
+>    
+
+Perhaps but not how you think (I think!: just not clear in what I said.
+
+I get that from invoking update.packages() in an R session launched from 
+a user (chris) terminal session. Before that I had done an install of 
+2.13.1 from synaptic calling r-cran-base and then finding R worked and 
+then running synaptic again and getting those additional debs I wanted 
+from the ones you packaged and the Bristol CRAN repository provided 
+(r-cran-abind, r-cran-amelia, and others).
+
+> Synaptic gets you prebuilt binaries from the repos it knows about.
+>
+> What you show here is local compilation, possibly triggered by R. Not at all
+> the same.
+>    
+Agree and sorry I wasn't clear.
+>
+> | Although all the compilations have run through, presumably with errors
+> | for rgl and XML, clearly the "not writable" status of /usr/lib/R/library
+>
+> Both r-cran-rgl and r-cran-xml exists _as pre-built binaries_. See above, do
+> not build them locally unless you have to AND know how to.
+>    
+
+I wouldn't dream of compiling locally anything I can get from a deb you 
+rolled!!
+> | has genuinely prevented the update.
+> |
+> | I thought I'd seen strong advice here recently against updating
+> | libraries as root so I'm intrigued about this.  Can someone advise me
+> | what I should do?
+> |
+> | Thanks in advance and huge thanks to all who do the porting to Debian
+> | and generally make R so good.
+>
+> It works actually really well indeed, but it is still on Linux / Unix --
+> which is a whole new world onto itself for people just joining.  As the joke
+> goes: "Unix is user-friendly, but it is picky about its friends."
+>    
+
+I like that phrase, hadn't heard it: nice. I do try to adapt to its 
+demands and be a good friend and in 15 years have virtually never found 
+it truly whimsical, it's usaully got a reason it doesn't like you even 
+if it doesn't always tell you clearly what you did to offend!
+> Is there a local user group or a colleague you could bug locally?
+>    
+Good question, in 15 years I haven't needed that but if someone on the 
+list knows of them I could explore that.
+
+However, I come back to feeling that there must be three separate 
+problems here that come from within the packages I added after the 
+initial r-cran-base install. My hunch is that there are things with XML 
+and rgl that I will be able to track down when restrict to just updating 
+them but that at the moment there is a more global problem which I'm 
+guessing is caused by one package overriding the order of library path 
+options seen in .libPaths() which starts with a perfectly writable local 
+user directory and I am guessing there is some way that package has 
+insisted that the install tries /usr/lib/R/library.
+
+I don't know enough about the way that R and linux work agree the use of 
+those library location options. From ?.libPaths and a bit more hunting 
+around the R help I had the impression that the .libPath options would 
+be used in order. I think I can remove the /usr ones by hacking in 
+/etc/R but that presumably risks losing access to the main libraries 
+that will have been installed there so that doesn't look a good step 
+forward except perhaps to debug things.
+
+I suspect that I could do a complete remove of all of R, start again 
+installing r-cran-base, check that R installed by that updates fine run 
+by a user and then I could use synaptic to add the additional deb 
+packages you provide but doing that one by one and running R and 
+update.packages() after each one to see if I don't hit this until afetr 
+a particular deb but that's going to take quite a long time so I 
+wondered if you or the list had quicker suggestions to debug this.
+
+Sorry for length but hope that's clearer (got to try to be an acceptable 
+friend on R lists as well as with linux and I really, really do 
+appreciate the generosity of this list).
+
+Chris
+
+-- 
+Chris Evans<chris at psyctc.org>  Skype: chris-psyctc
+Consultant Psychiatrist in Psychotherapy, Notts. PDD network;
+Professor, Psychotherapy, Nottingham University
+*If I am writing from one of those roles, it will be clear. Otherwise*
+*my views are my own and not representative of those institutions    *
+If you have difficulty Emailing me on this address or getting a reply,
+send again but cc to:       chris dot evans at nottshc dot nhs dot uk
+and to:                     c dot evans at nottingham dot ac dot uk
+
+
+From edd at debian.org  Wed Sep 21 14:49:22 2011
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 21 Sep 2011 07:49:22 -0500
+Subject: [R-sig-Debian] update.packages() as ordinary user,
+ /usr/lib/R/site-library is not writable
+In-Reply-To: <4E7988FA.2030101@psyctc.org>
+References: <4E78F577.6040707@psyctc.org>
+	<20088.63882.513780.596935@max.nulle.part>
+	<4E7988FA.2030101@psyctc.org>
+Message-ID: <20089.56658.309578.522593@max.nulle.part>
+
+
+Hi Chris,
+
+Thanks for patient follow-up even after I (as Johannes noted) evidently
+overlooked key parts of your first email.
+
+On 21 September 2011 at 07:49, Chris Evans wrote:
+| I ran synaptic from the Debian application menu which defaults to root 
+| after askling for the root password the first time I invoke it after a 
+| reboot. (I probably should have said that I've been using Debian for my 
+| internet server work for about 15 years: I'm not a Debian/linux newbie, 
+| just someone finally throwing away the reins from M$ to have a laptop 
+| running Debian as well!)
+
+Perfect.
+
+| I get that from invoking update.packages() in an R session launched from 
+| a user (chris) terminal session. Before that I had done an install of 
+
+I do that too, as well as calling the 'install.r' helper script from littler
+(in its examples/ diretory, if interested).
+
+This requires that you make /usr/local/lib/R/site-library/ writable for _you_
+as user chris, else you cannot.
+
+[ It also assumes that the Renviron setting mentioned last time is still
+valid, do this:
+
+edd at max:~$ R -q -e 'print(.libPaths())'
+R> print(.libPaths())
+[1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"       "/usr/lib/R/library"           
+R> 
+R> 
+
+It _must_ be first as here.  ]
+
+Now, /usr/local/lib/R/site-library/ comes shipped from the r-base-core
+package as owned by group 'staff' so one solution is to add yourself to group
+staff:
+
+edd at max:~$ ls -ld /usr/local/lib/R/site-library/
+drwxrwsr-x 136 root staff 4096 2011-09-20 07:44 /usr/local/lib/R/site-library/
+edd at max:~$ id
+uid=1000(edd) gid=1000(edd)
+groups=1000(edd),4(adm),20(dialout),24(cdrom),27(sudo),44(video),46(plugdev),50(staff),[.....]
+edd at max:~$ 
+
+If those two conditions are met, you should be able to run install.packages()
+as you.  I still prefer it from the shell as I sometimes need another apt-get
+call for a missing library etc.
+
+| I wouldn't dream of compiling locally anything I can get from a deb you 
+| rolled!!
+
+:-)
+
+| However, I come back to feeling that there must be three separate 
+| problems here that come from within the packages I added after the 
+| initial r-cran-base install. My hunch is that there are things with XML 
+| and rgl that I will be able to track down when restrict to just updating 
+
+"I would not dream of compiling locally" either.  You could start by locally
+re-building the packages.  Which requires the build depends.
+
+| them but that at the moment there is a more global problem which I'm 
+| guessing is caused by one package overriding the order of library path 
+| options seen in .libPaths() which starts with a perfectly writable local 
+| user directory and I am guessing there is some way that package has 
+| insisted that the install tries /usr/lib/R/library.
+
+Agreed on the first bit.  I think /usr/lib/R/library -- where we as users
+should never tread as it is /usr which belongs to apt/dpkg -- is just the
+fallback.  Somehow the value got nuked.
+ 
+| I don't know enough about the way that R and linux work agree the use of 
+| those library location options. From ?.libPaths and a bit more hunting 
+| around the R help I had the impression that the .libPath options would 
+| be used in order. I think I can remove the /usr ones by hacking in 
+
+Correct.
+
+| /etc/R but that presumably risks losing access to the main libraries 
+| that will have been installed there so that doesn't look a good step 
+| forward except perhaps to debug things.
+
+An easier option ... is to _explicitly add_ the
+/usr/local/lib/R/site-library/ destination as an argument to install.packages!
+ 
+| I suspect that I could do a complete remove of all of R, start again 
+| installing r-cran-base, check that R installed by that updates fine run 
+| by a user and then I could use synaptic to add the additional deb 
+| packages you provide but doing that one by one and running R and 
+| update.packages() after each one to see if I don't hit this until afetr 
+| a particular deb but that's going to take quite a long time so I 
+| wondered if you or the list had quicker suggestions to debug this.
+
+That sounds too involved.
+ 
+| Sorry for length but hope that's clearer (got to try to be an acceptable 
+| friend on R lists as well as with linux and I really, really do 
+| appreciate the generosity of this list).
+
+No sweat. We're all just building karma :)
+
+Dirk
+
+-- 
+New Rcpp master class for R and C++ integration is scheduled for 
+San Francisco (Oct 8), more details / reg.info available at
+http://www.revolutionanalytics.com/products/training/public/rcpp-master-class.php
+
+
+From chrishold at psyctc.org  Thu Sep 22 12:20:34 2011
+From: chrishold at psyctc.org (Chris Evans)
+Date: Thu, 22 Sep 2011 11:20:34 +0100
+Subject: [R-sig-Debian] update.packages() as ordinary user,
+ /usr/lib/R/site-library is not writable
+In-Reply-To: <20089.56658.309578.522593@max.nulle.part>
+References: <4E78F577.6040707@psyctc.org>	<20088.63882.513780.596935@max.nulle.part>	<4E7988FA.2030101@psyctc.org>
+	<20089.56658.309578.522593@max.nulle.part>
+Message-ID: <4E7B0BF2.4010805@psyctc.org>
+
+Huge thanks to Johannes (sorry, Johannes, I think I implied that Dirk 
+was doing all the hard work in rolling things in my earlier reply, the 
+"you" is plural!)
+
+What I've done:
+A) removed r-cran-rgl and r-cran-xml using synaptic as root
+B) re-entered new R session as user chris, confirmed that the packages 
+had gone using installed.packages() and grep()!
+C) ran "adduser chris staff" as root
+D) logged off gnome session (ah, that bit's a pain when making group 
+membership changes which won't otherwise propagate to current session!)
+E) logged back in!
+F) checked I was now member of staff: yes!
+G) checked I can write to /usr/local/lib/R/site-library: yes!
+H) ran R as user chris ... now it gets interesting and frustrating:
+     no damn joy, update.packages and selecting only abind to update 
+without specifying instlib says it runs fine but next time I run 
+update.packages it still shows the old version and wants to do the 
+update again so I
+I) (and this was a debugging mistake for which I apologise) did the same 
+but specifying instlib as /usr/local ... and it runs fine again (this 
+time I checked that it had updated in /usr/local/... and there it was in 
+solitary splendour as my first updated library/package there) ... but  ...
+J) that hasn't gained me anything (I suspect the previous update without 
+the "instlib=" may have been fine too) as update.packages still wants to 
+update it ...
+K) so I get thoughtful: clearly update.packages is reading from /usr/lib 
+not /usr/local ...
+L) so I check .libPaths():
+ > .libPaths()
+[1] "/home/chris/R/i486-pc-linux-gnu-library/2.13"
+[2] "/usr/local/lib/R/site-library"
+[3] "/usr/lib/R/site-library"
+[4] "/usr/lib/R/library"
+M) Hm.  Looks good to me but I see Dirk is telling me /usr/local/... 
+should be first so I go to /etc/R/Renviron and I find:
+R_LIBS_SITE=${R_LIBS_SITE-'/usr/local/lib/R/site-library:/usr/lib/R/site-library:/usr/lib/R/library'}
+and nothing I can see in Renviron.site that would override that.
+
+I _THINK_ I see a logic:  installation is happening "first come, first 
+used" on the libPaths but update.packages() is reading from all the 
+library locations and the later are overriting the earlier ... that 
+would explain things but surely it would mean that no-one, including 
+Dirk, would be able to run update.packages() successfully as a non-root 
+user.
+
+So now I'm baffled as to how to be friendly with R and linux/Debian on 
+this machine!
+
+Perhaps I should say that I would like to work by:
+1) having the cran deb line in /etc/apt/sources.list and doing basic 
+installation of R from there as my understanding is that that will get 
+me the latest R for Debian when you (plural) have rolled it and put it 
+on CRAN getting me round the downloading and replacing I used to do on 
+windoze and also making it pretty likely that you'll have sorted out 
+dependency problems etc.
+2) would like then to rely on update.packages() from within R
+3) but running as local user as I can see the logic of that
+
+#1 and #2 are what I've always done on my Debian web server (where I was 
+running some cgi-bin scripts invoking R) but I always did the 
+update.packages() as root.  I've now moved that server to a shell 
+account at mythic-beasts (great guys) so I'll have to do #3 for that too 
+in future and though I could update as root on this laptop I do see the 
+logic of not doing that and clearly you both and presumably many others 
+on this list do #1, #2 and #3 so why is it not working for me?!
+
+Suggestions gratefully received!
+
+Very best & karma to all,
+
+Chris
+
+
+
+Dirk Eddelbuettel sent the following  at 21/09/11 13:49:
+> Hi Chris,
+>
+> Thanks for patient follow-up even after I (as Johannes noted) evidently
+> overlooked key parts of your first email.
+>
+> On 21 September 2011 at 07:49, Chris Evans wrote:
+> | I ran synaptic from the Debian application menu which defaults to root
+> | after askling for the root password the first time I invoke it after a
+> | reboot. (I probably should have said that I've been using Debian for my
+> | internet server work for about 15 years: I'm not a Debian/linux newbie,
+> | just someone finally throwing away the reins from M$ to have a laptop
+> | running Debian as well!)
+>
+> Perfect.
+>
+> | I get that from invoking update.packages() in an R session launched from
+> | a user (chris) terminal session. Before that I had done an install of
+>
+> I do that too, as well as calling the 'install.r' helper script from littler
+> (in its examples/ diretory, if interested).
+>
+> This requires that you make /usr/local/lib/R/site-library/ writable for _you_
+> as user chris, else you cannot.
+>
+> [ It also assumes that the Renviron setting mentioned last time is still
+> valid, do this:
+>
+> edd at max:~$ R -q -e 'print(.libPaths())'
+> R>  print(.libPaths())
+> [1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"       "/usr/lib/R/library"
+> R>
+> R>
+>
+> It _must_ be first as here.  ]
+>
+> Now, /usr/local/lib/R/site-library/ comes shipped from the r-base-core
+> package as owned by group 'staff' so one solution is to add yourself to group
+> staff:
+>
+> edd at max:~$ ls -ld /usr/local/lib/R/site-library/
+> drwxrwsr-x 136 root staff 4096 2011-09-20 07:44 /usr/local/lib/R/site-library/
+> edd at max:~$ id
+> uid=1000(edd) gid=1000(edd)
+> groups=1000(edd),4(adm),20(dialout),24(cdrom),27(sudo),44(video),46(plugdev),50(staff),[.....]
+> edd at max:~$
+>
+> If those two conditions are met, you should be able to run install.packages()
+> as you.  I still prefer it from the shell as I sometimes need another apt-get
+> call for a missing library etc.
+>
+> | I wouldn't dream of compiling locally anything I can get from a deb you
+> | rolled!!
+>
+> :-)
+>
+> | However, I come back to feeling that there must be three separate
+> | problems here that come from within the packages I added after the
+> | initial r-cran-base install. My hunch is that there are things with XML
+> | and rgl that I will be able to track down when restrict to just updating
+>
+> "I would not dream of compiling locally" either.  You could start by locally
+> re-building the packages.  Which requires the build depends.
+>
+> | them but that at the moment there is a more global problem which I'm
+> | guessing is caused by one package overriding the order of library path
+> | options seen in .libPaths() which starts with a perfectly writable local
+> | user directory and I am guessing there is some way that package has
+> | insisted that the install tries /usr/lib/R/library.
+>
+> Agreed on the first bit.  I think /usr/lib/R/library -- where we as users
+> should never tread as it is /usr which belongs to apt/dpkg -- is just the
+> fallback.  Somehow the value got nuked.
+>
+> | I don't know enough about the way that R and linux work agree the use of
+> | those library location options. From ?.libPaths and a bit more hunting
+> | around the R help I had the impression that the .libPath options would
+> | be used in order. I think I can remove the /usr ones by hacking in
+>
+> Correct.
+>
+> | /etc/R but that presumably risks losing access to the main libraries
+> | that will have been installed there so that doesn't look a good step
+> | forward except perhaps to debug things.
+>
+> An easier option ... is to _explicitly add_ the
+> /usr/local/lib/R/site-library/ destination as an argument to install.packages!
+>
+> | I suspect that I could do a complete remove of all of R, start again
+> | installing r-cran-base, check that R installed by that updates fine run
+> | by a user and then I could use synaptic to add the additional deb
+> | packages you provide but doing that one by one and running R and
+> | update.packages() after each one to see if I don't hit this until afetr
+> | a particular deb but that's going to take quite a long time so I
+> | wondered if you or the list had quicker suggestions to debug this.
+>
+> That sounds too involved.
+>
+> | Sorry for length but hope that's clearer (got to try to be an acceptable
+> | friend on R lists as well as with linux and I really, really do
+> | appreciate the generosity of this list).
+>
+> No sweat. We're all just building karma :)
+>
+> Dirk
+>
+>    
+
+
+-- 
+Chris Evans<chris at psyctc.org>  Skype: chris-psyctc
+Consultant Psychiatrist in Psychotherapy, Notts. PDD network;
+Professor, Psychotherapy, Nottingham University
+*If I am writing from one of those roles, it will be clear. Otherwise*
+*my views are my own and not representative of those institutions    *
+If you have difficulty Emailing me on this address or getting a reply,
+send again but cc to:       chris dot evans at nottshc dot nhs dot uk
+and to:                     c dot evans at nottingham dot ac dot uk
+
+
+From jranke at uni-bremen.de  Thu Sep 22 13:52:32 2011
+From: jranke at uni-bremen.de (jranke at uni-bremen.de)
+Date: Thu, 22 Sep 2011 13:52:32 +0200
+Subject: [R-sig-Debian] update.packages() as ordinary user,
+ /usr/lib/R/site-library is not writable
+In-Reply-To: <4E7B0BF2.4010805@psyctc.org>
+References: <4E78F577.6040707@psyctc.org>
+	<20088.63882.513780.596935@max.nulle.part>
+	<4E7988FA.2030101@psyctc.org>
+	<20089.56658.309578.522593@max.nulle.part>
+	<4E7B0BF2.4010805@psyctc.org>
+Message-ID: <20110922135232.11054m0vqawy1bb4@webmail.uni-bremen.de>
+
+Zitat von Chris Evans <chrishold at psyctc.org>:
+
+> Huge thanks to Johannes (sorry, Johannes, I think I implied that  
+> Dirk was doing all the hard work in rolling things in my earlier  
+> reply, the "you" is plural!)
+
+Never mind - you are absolutely right that Dirk is doing the heavy  
+lifting, i.e. packaging and I just recompile some of his packages for  
+Debian stable.
+
+> What I've done:
+> A) removed r-cran-rgl and r-cran-xml using synaptic as root
+> B) re-entered new R session as user chris, confirmed that the  
+> packages had gone using installed.packages() and grep()!
+> C) ran "adduser chris staff" as root
+> D) logged off gnome session (ah, that bit's a pain when making group  
+> membership changes which won't otherwise propagate to current  
+> session!)
+> E) logged back in!
+> F) checked I was now member of staff: yes!
+> G) checked I can write to /usr/local/lib/R/site-library: yes!
+> H) ran R as user chris ... now it gets interesting and frustrating:
+>     no damn joy, update.packages and selecting only abind to update  
+> without specifying instlib says it runs fine but next time I run  
+> update.packages it still shows the old version and wants to do the  
+> update again so I
+Where does abind live on your system? update.packages() always  
+mentions where it finds its candidates.
+
+> I) (and this was a debugging mistake for which I apologise) did the  
+> same but specifying instlib as /usr/local ... and it runs fine again  
+> (this time I checked that it had updated in /usr/local/... and there  
+> it was in solitary splendour as my first updated library/package  
+> there) ... but  ...
+> J) that hasn't gained me anything (I suspect the previous update  
+> without the "instlib=" may have been fine too) as update.packages  
+> still wants to update it ...
+> K) so I get thoughtful: clearly update.packages is reading from  
+> /usr/lib not /usr/local ...
+> L) so I check .libPaths():
+>> .libPaths()
+> [1] "/home/chris/R/i486-pc-linux-gnu-library/2.13"
+
+So at some point in time you let update.packages() create a directory  
+in your home directory that would have precedence over system wide  
+installations.
+
+> [2] "/usr/local/lib/R/site-library"
+> [3] "/usr/lib/R/site-library"
+> [4] "/usr/lib/R/library"
+> M) Hm.  Looks good to me but I see Dirk is telling me /usr/local/...  
+> should be first so I go to /etc/R/Renviron and I find:
+> R_LIBS_SITE=${R_LIBS_SITE-'/usr/local/lib/R/site-library:/usr/lib/R/site-library:/usr/lib/R/library'}
+> and nothing I can see in Renviron.site that would override that.
+>
+> I _THINK_ I see a logic:  installation is happening "first come,  
+> first used" on the libPaths but update.packages() is reading from  
+> all the library locations and the later are overriting the earlier  
+> ... that would explain things but surely it would mean that no-one,  
+> including Dirk, would be able to run update.packages() successfully  
+> as a non-root user.
+
+Yes, you and I can run update.packages() successfully, but only on  
+paths with write permissions. As it does not seem a good idea to give  
+a normal user write permissions on /usr/lib/ anywhere, I would suggest  
+doing (from within R)
+
+update.packages(.libPaths()[1])
+update.packages(.libPaths()[2])
+
+This has just worked nicely for me on my Debian stable laptop.
+
+The other packages should (please correct me if I am wrong Dirk)  
+remain under control of the Debian package management.
+
+If you want to update such packages as well, you need to bug me or  
+help me in creating those backports (or use apt pinning e.g. to  
+testing, but I think this would make things too complicated). For  
+example, I only update R base packages on CRAN/Debian (like  
+r-cran-foreign, r-cran-nlme etc.) when a new R version is released.  
+And there are a lot of packages that Dirk meticulously updates in  
+Debian unstable that I have never backported for Debian stable, like  
+r-cran-xml and r-cran-rgl.
+
+Regards,
+
+Johannes
+
+P.S.: I also mainly use my own R distribution for Debian stable on  
+servers, just recently started to use it on my laptop (going back from  
+Ubuntu).
+
+
+
+>
+> So now I'm baffled as to how to be friendly with R and linux/Debian  
+> on this machine!
+>
+> Perhaps I should say that I would like to work by:
+> 1) having the cran deb line in /etc/apt/sources.list and doing basic  
+> installation of R from there as my understanding is that that will  
+> get me the latest R for Debian when you (plural) have rolled it and  
+> put it on CRAN getting me round the downloading and replacing I used  
+> to do on windoze and also making it pretty likely that you'll have  
+> sorted out dependency problems etc.
+> 2) would like then to rely on update.packages() from within R
+> 3) but running as local user as I can see the logic of that
+>
+> #1 and #2 are what I've always done on my Debian web server (where I  
+> was running some cgi-bin scripts invoking R) but I always did the  
+> update.packages() as root.  I've now moved that server to a shell  
+> account at mythic-beasts (great guys) so I'll have to do #3 for that  
+> too in future and though I could update as root on this laptop I do  
+> see the logic of not doing that and clearly you both and presumably  
+> many others on this list do #1, #2 and #3 so why is it not working  
+> for me?!
+>
+> Suggestions gratefully received!
+>
+> Very best & karma to all,
+>
+> Chris
+>
+>
+>
+> Dirk Eddelbuettel sent the following  at 21/09/11 13:49:
+>> Hi Chris,
+>>
+>> Thanks for patient follow-up even after I (as Johannes noted) evidently
+>> overlooked key parts of your first email.
+>>
+>> On 21 September 2011 at 07:49, Chris Evans wrote:
+>> | I ran synaptic from the Debian application menu which defaults to root
+>> | after askling for the root password the first time I invoke it after a
+>> | reboot. (I probably should have said that I've been using Debian for my
+>> | internet server work for about 15 years: I'm not a Debian/linux newbie,
+>> | just someone finally throwing away the reins from M$ to have a laptop
+>> | running Debian as well!)
+>>
+>> Perfect.
+>>
+>> | I get that from invoking update.packages() in an R session launched from
+>> | a user (chris) terminal session. Before that I had done an install of
+>>
+>> I do that too, as well as calling the 'install.r' helper script from littler
+>> (in its examples/ diretory, if interested).
+>>
+>> This requires that you make /usr/local/lib/R/site-library/ writable  
+>> for _you_
+>> as user chris, else you cannot.
+>>
+>> [ It also assumes that the Renviron setting mentioned last time is still
+>> valid, do this:
+>>
+>> edd at max:~$ R -q -e 'print(.libPaths())'
+>> R>  print(.libPaths())
+>> [1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"        
+>> "/usr/lib/R/library"
+>> R>
+>> R>
+>>
+>> It _must_ be first as here.  ]
+>>
+>> Now, /usr/local/lib/R/site-library/ comes shipped from the r-base-core
+>> package as owned by group 'staff' so one solution is to add  
+>> yourself to group
+>> staff:
+>>
+>> edd at max:~$ ls -ld /usr/local/lib/R/site-library/
+>> drwxrwsr-x 136 root staff 4096 2011-09-20 07:44  
+>> /usr/local/lib/R/site-library/
+>> edd at max:~$ id
+>> uid=1000(edd) gid=1000(edd)
+>> groups=1000(edd),4(adm),20(dialout),24(cdrom),27(sudo),44(video),46(plugdev),50(staff),[.....]
+>> edd at max:~$
+>>
+>> If those two conditions are met, you should be able to run  
+>> install.packages()
+>> as you.  I still prefer it from the shell as I sometimes need  
+>> another apt-get
+>> call for a missing library etc.
+>>
+>> | I wouldn't dream of compiling locally anything I can get from a deb you
+>> | rolled!!
+>>
+>> :-)
+>>
+>> | However, I come back to feeling that there must be three separate
+>> | problems here that come from within the packages I added after the
+>> | initial r-cran-base install. My hunch is that there are things with XML
+>> | and rgl that I will be able to track down when restrict to just updating
+>>
+>> "I would not dream of compiling locally" either.  You could start by locally
+>> re-building the packages.  Which requires the build depends.
+>>
+>> | them but that at the moment there is a more global problem which I'm
+>> | guessing is caused by one package overriding the order of library path
+>> | options seen in .libPaths() which starts with a perfectly writable local
+>> | user directory and I am guessing there is some way that package has
+>> | insisted that the install tries /usr/lib/R/library.
+>>
+>> Agreed on the first bit.  I think /usr/lib/R/library -- where we as users
+>> should never tread as it is /usr which belongs to apt/dpkg -- is just the
+>> fallback.  Somehow the value got nuked.
+>>
+>> | I don't know enough about the way that R and linux work agree the use of
+>> | those library location options. From ?.libPaths and a bit more hunting
+>> | around the R help I had the impression that the .libPath options would
+>> | be used in order. I think I can remove the /usr ones by hacking in
+>>
+>> Correct.
+>>
+>> | /etc/R but that presumably risks losing access to the main libraries
+>> | that will have been installed there so that doesn't look a good step
+>> | forward except perhaps to debug things.
+>>
+>> An easier option ... is to _explicitly add_ the
+>> /usr/local/lib/R/site-library/ destination as an argument to  
+>> install.packages!
+>>
+>> | I suspect that I could do a complete remove of all of R, start again
+>> | installing r-cran-base, check that R installed by that updates fine run
+>> | by a user and then I could use synaptic to add the additional deb
+>> | packages you provide but doing that one by one and running R and
+>> | update.packages() after each one to see if I don't hit this until afetr
+>> | a particular deb but that's going to take quite a long time so I
+>> | wondered if you or the list had quicker suggestions to debug this.
+>>
+>> That sounds too involved.
+>>
+>> | Sorry for length but hope that's clearer (got to try to be an acceptable
+>> | friend on R lists as well as with linux and I really, really do
+>> | appreciate the generosity of this list).
+>>
+>> No sweat. We're all just building karma :)
+>>
+>> Dirk
+>>
+>>
+>
+>
+> -- 
+> Chris Evans<chris at psyctc.org>  Skype: chris-psyctc
+> Consultant Psychiatrist in Psychotherapy, Notts. PDD network;
+> Professor, Psychotherapy, Nottingham University
+> *If I am writing from one of those roles, it will be clear. Otherwise*
+> *my views are my own and not representative of those institutions    *
+> If you have difficulty Emailing me on this address or getting a reply,
+> send again but cc to:       chris dot evans at nottshc dot nhs dot uk
+> and to:                     c dot evans at nottingham dot ac dot uk
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From chrishold at psyctc.org  Thu Sep 22 21:47:56 2011
+From: chrishold at psyctc.org (Chris Evans)
+Date: Thu, 22 Sep 2011 20:47:56 +0100
+Subject: [R-sig-Debian] update.packages() as ordinary user,
+ /usr/lib/R/site-library is not writable
+In-Reply-To: <20110922135232.11054m0vqawy1bb4@webmail.uni-bremen.de>
+References: <4E78F577.6040707@psyctc.org>
+	<20088.63882.513780.596935@max.nulle.part>
+	<4E7988FA.2030101@psyctc.org>
+	<20089.56658.309578.522593@max.nulle.part>
+	<4E7B0BF2.4010805@psyctc.org>
+	<20110922135232.11054m0vqawy1bb4@webmail.uni-bremen.de>
+Message-ID: <4E7B90EC.5050806@psyctc.org>
+
+Oh dear.  The saga continues.  See below.
+
+jranke at uni-bremen.de sent the following  at 22/09/11 12:52:
+> Zitat von Chris Evans <chrishold at psyctc.org>:
+>
+>> Huge thanks to Johannes (sorry, Johannes, I think I implied that Dirk 
+>> was doing all the hard work in rolling things in my earlier reply, 
+>> the "you" is plural!)
+>
+> Never mind - you are absolutely right that Dirk is doing the heavy 
+> lifting, i.e. packaging and I just recompile some of his packages for 
+> Debian stable.
+>
+>> What I've done:
+>> A) removed r-cran-rgl and r-cran-xml using synaptic as root
+>> B) re-entered new R session as user chris, confirmed that the 
+>> packages had gone using installed.packages() and grep()!
+>> C) ran "adduser chris staff" as root
+>> D) logged off gnome session (ah, that bit's a pain when making group 
+>> membership changes which won't otherwise propagate to current session!)
+>> E) logged back in!
+>> F) checked I was now member of staff: yes!
+>> G) checked I can write to /usr/local/lib/R/site-library: yes!
+>> H) ran R as user chris ... now it gets interesting and frustrating:
+>>     no damn joy, update.packages and selecting only abind to update 
+>> without specifying instlib says it runs fine but next time I run 
+>> update.packages it still shows the old version and wants to do the 
+>> update again so I
+> Where does abind live on your system? update.packages() always 
+> mentions where it finds its candidates.
+>
+>> I) (and this was a debugging mistake for which I apologise) did the 
+>> same but specifying instlib as /usr/local ... and it runs fine again 
+>> (this time I checked that it had updated in /usr/local/... and there 
+>> it was in solitary splendour as my first updated library/package 
+>> there) ... but  ...
+>> J) that hasn't gained me anything (I suspect the previous update 
+>> without the "instlib=" may have been fine too) as update.packages 
+>> still wants to update it ...
+>> K) so I get thoughtful: clearly update.packages is reading from 
+>> /usr/lib not /usr/local ...
+>> L) so I check .libPaths():
+>>> .libPaths()
+>> [1] "/home/chris/R/i486-pc-linux-gnu-library/2.13"
+>
+> So at some point in time you let update.packages() create a directory 
+> in your home directory that would have precedence over system wide 
+> installations.
+
+Yes.  I think the first time I ran the update.packages() it asked me if 
+I'd like to create that directory and I said yes.
+
+>
+>> [2] "/usr/local/lib/R/site-library"
+>> [3] "/usr/lib/R/site-library"
+>> [4] "/usr/lib/R/library"
+>> M) Hm.  Looks good to me but I see Dirk is telling me /usr/local/... 
+>> should be first so I go to /etc/R/Renviron and I find:
+>> R_LIBS_SITE=${R_LIBS_SITE-'/usr/local/lib/R/site-library:/usr/lib/R/site-library:/usr/lib/R/library'} 
+>>
+>> and nothing I can see in Renviron.site that would override that.
+>>
+>> I _THINK_ I see a logic:  installation is happening "first come, 
+>> first used" on the libPaths but update.packages() is reading from all 
+>> the library locations and the later are overriting the earlier ... 
+>> that would explain things but surely it would mean that no-one, 
+>> including Dirk, would be able to run update.packages() successfully 
+>> as a non-root user.
+>
+> Yes, you and I can run update.packages() successfully, but only on 
+> paths with write permissions. As it does not seem a good idea to give 
+> a normal user write permissions on /usr/lib/ anywhere, I would suggest 
+> doing (from within R)
+>
+> update.packages(.libPaths()[1])
+> update.packages(.libPaths()[2])
+>
+> This has just worked nicely for me on my Debian stable laptop.
+
+I think on my machine the equivalent is update.packages(.libPaths()[2]) 
+and then [3].  I did run [1] and [2] and the first run prompted me for 
+the CRAN repository and then exited silently and instantly: I assume 
+there's no package in my /home/... directory that needs updating.  Then 
+I ran for .libPaths()[2] and it no longer needed to prompt for 
+repository and exited silently and instantly.  Then I ran for 
+.libPaths()[3] and it asked me about many libraries that could be 
+updated starting with abind telling me it was in /usr/lib/R/site-library 
+and at version 1.1.0 with 1.3.0 available via CRAN but when I asked it 
+to upgrade abind it failed complaining that it couldn't write to the 
+directory.  So what I did then was:
+
+update.packages(.libPaths()[3],instlib="/usr/local/lib/R/site-lib")
+
+That seemed to run fine, installed to /usr/local/... and I confess I've 
+now gone into /usr/lib/R/... and deleted the now outdated libraries 
+there and then used mv to move the remaining ones to /usr/local/...
+
+All that begs the question how I got myself here.  I think the learning 
+point is that there may be a way to make the instructions in the deb 
+packages in stable (well, in the next stable I guess) spell out the 
+relationship between the deb repository in stable, the deb repository in 
+CRAN (with a link to the page in CRAN about the debs there) and the 
+non-deb libraries in CRAN.  You might spell out options which I have as:
+1) you can stay with the debs in stable, and update within R as an 
+ordinary user, you won't get automatic R updates but you should get the 
+package updates that are possible for that version of R
+2) you can go with the debs in CRAN which will usually give you the 
+latest version of R shortly after it is released.  In that  case [just 
+my take and I can see that I could be quite wrong] you are best off 
+doing  a complete remove of the version of R you installed from your 
+Debian stable mirror using synaptic (or your own preferred package 
+handler), _before_ adding the necessary line in /etc/apt/sources.list to 
+get your local CRAN deb repository, after which you can do a clean 
+install of R
+3) you are probably wise to do adduser yourself staff to get write 
+access to /usr/local/lib/R/site-library/
+4) you should then find that things update fine through R and 
+update.packages() running R as an ordinary user and you will be getting 
+the latest R very soon after each upgrade and the latest upgrades of the 
+packages you have installed.
+
+It sounds to me as if there's another option which is use the debian 
+backports deb repository/mirror but I'm not sure I understand the 
+relationship between that option and the option of going to the CRAN debs.
+
+Very best all & thanks again to you both Dirk & Johannes,
+
+Chris
+
+
+... rest of Johannes's reply and the thread follows for the record ...
+
+>
+> The other packages should (please correct me if I am wrong Dirk) 
+> remain under control of the Debian package management.
+>
+> If you want to update such packages as well, you need to bug me or 
+> help me in creating those backports (or use apt pinning e.g. to 
+> testing, but I think this would make things too complicated). For 
+> example, I only update R base packages on CRAN/Debian (like 
+> r-cran-foreign, r-cran-nlme etc.) when a new R version is released. 
+> And there are a lot of packages that Dirk meticulously updates in 
+> Debian unstable that I have never backported for Debian stable, like 
+> r-cran-xml and r-cran-rgl.
+>
+> Regards,
+>
+> Johannes
+>
+> P.S.: I also mainly use my own R distribution for Debian stable on 
+> servers, just recently started to use it on my laptop (going back from 
+> Ubuntu).
+>
+>
+>
+>>
+>> So now I'm baffled as to how to be friendly with R and linux/Debian 
+>> on this machine!
+>>
+>> Perhaps I should say that I would like to work by:
+>> 1) having the cran deb line in /etc/apt/sources.list and doing basic 
+>> installation of R from there as my understanding is that that will 
+>> get me the latest R for Debian when you (plural) have rolled it and 
+>> put it on CRAN getting me round the downloading and replacing I used 
+>> to do on windoze and also making it pretty likely that you'll have 
+>> sorted out dependency problems etc.
+>> 2) would like then to rely on update.packages() from within R
+>> 3) but running as local user as I can see the logic of that
+>>
+>> #1 and #2 are what I've always done on my Debian web server (where I 
+>> was running some cgi-bin scripts invoking R) but I always did the 
+>> update.packages() as root.  I've now moved that server to a shell 
+>> account at mythic-beasts (great guys) so I'll have to do #3 for that 
+>> too in future and though I could update as root on this laptop I do 
+>> see the logic of not doing that and clearly you both and presumably 
+>> many others on this list do #1, #2 and #3 so why is it not working 
+>> for me?!
+>>
+>> Suggestions gratefully received!
+>>
+>> Very best & karma to all,
+>>
+>> Chris
+>>
+>>
+>>
+>> Dirk Eddelbuettel sent the following  at 21/09/11 13:49:
+>>> Hi Chris,
+>>>
+>>> Thanks for patient follow-up even after I (as Johannes noted) evidently
+>>> overlooked key parts of your first email.
+>>>
+>>> On 21 September 2011 at 07:49, Chris Evans wrote:
+>>> | I ran synaptic from the Debian application menu which defaults to 
+>>> root
+>>> | after askling for the root password the first time I invoke it 
+>>> after a
+>>> | reboot. (I probably should have said that I've been using Debian 
+>>> for my
+>>> | internet server work for about 15 years: I'm not a Debian/linux 
+>>> newbie,
+>>> | just someone finally throwing away the reins from M$ to have a laptop
+>>> | running Debian as well!)
+>>>
+>>> Perfect.
+>>>
+>>> | I get that from invoking update.packages() in an R session 
+>>> launched from
+>>> | a user (chris) terminal session. Before that I had done an install of
+>>>
+>>> I do that too, as well as calling the 'install.r' helper script from 
+>>> littler
+>>> (in its examples/ diretory, if interested).
+>>>
+>>> This requires that you make /usr/local/lib/R/site-library/ writable 
+>>> for _you_
+>>> as user chris, else you cannot.
+>>>
+>>> [ It also assumes that the Renviron setting mentioned last time is 
+>>> still
+>>> valid, do this:
+>>>
+>>> edd at max:~$ R -q -e 'print(.libPaths())'
+>>> R>  print(.libPaths())
+>>> [1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"       
+>>> "/usr/lib/R/library"
+>>> R>
+>>> R>
+>>>
+>>> It _must_ be first as here.  ]
+>>>
+>>> Now, /usr/local/lib/R/site-library/ comes shipped from the r-base-core
+>>> package as owned by group 'staff' so one solution is to add yourself 
+>>> to group
+>>> staff:
+>>>
+>>> edd at max:~$ ls -ld /usr/local/lib/R/site-library/
+>>> drwxrwsr-x 136 root staff 4096 2011-09-20 07:44 
+>>> /usr/local/lib/R/site-library/
+>>> edd at max:~$ id
+>>> uid=1000(edd) gid=1000(edd)
+>>> groups=1000(edd),4(adm),20(dialout),24(cdrom),27(sudo),44(video),46(plugdev),50(staff),[.....] 
+>>>
+>>> edd at max:~$
+>>>
+>>> If those two conditions are met, you should be able to run 
+>>> install.packages()
+>>> as you.  I still prefer it from the shell as I sometimes need 
+>>> another apt-get
+>>> call for a missing library etc.
+>>>
+>>> | I wouldn't dream of compiling locally anything I can get from a 
+>>> deb you
+>>> | rolled!!
+>>>
+>>> :-)
+>>>
+>>> | However, I come back to feeling that there must be three separate
+>>> | problems here that come from within the packages I added after the
+>>> | initial r-cran-base install. My hunch is that there are things 
+>>> with XML
+>>> | and rgl that I will be able to track down when restrict to just 
+>>> updating
+>>>
+>>> "I would not dream of compiling locally" either.  You could start by 
+>>> locally
+>>> re-building the packages.  Which requires the build depends.
+>>>
+>>> | them but that at the moment there is a more global problem which I'm
+>>> | guessing is caused by one package overriding the order of library 
+>>> path
+>>> | options seen in .libPaths() which starts with a perfectly writable 
+>>> local
+>>> | user directory and I am guessing there is some way that package has
+>>> | insisted that the install tries /usr/lib/R/library.
+>>>
+>>> Agreed on the first bit.  I think /usr/lib/R/library -- where we as 
+>>> users
+>>> should never tread as it is /usr which belongs to apt/dpkg -- is 
+>>> just the
+>>> fallback.  Somehow the value got nuked.
+>>>
+>>> | I don't know enough about the way that R and linux work agree the 
+>>> use of
+>>> | those library location options. From ?.libPaths and a bit more 
+>>> hunting
+>>> | around the R help I had the impression that the .libPath options 
+>>> would
+>>> | be used in order. I think I can remove the /usr ones by hacking in
+>>>
+>>> Correct.
+>>>
+>>> | /etc/R but that presumably risks losing access to the main libraries
+>>> | that will have been installed there so that doesn't look a good step
+>>> | forward except perhaps to debug things.
+>>>
+>>> An easier option ... is to _explicitly add_ the
+>>> /usr/local/lib/R/site-library/ destination as an argument to 
+>>> install.packages!
+>>>
+>>> | I suspect that I could do a complete remove of all of R, start again
+>>> | installing r-cran-base, check that R installed by that updates 
+>>> fine run
+>>> | by a user and then I could use synaptic to add the additional deb
+>>> | packages you provide but doing that one by one and running R and
+>>> | update.packages() after each one to see if I don't hit this until 
+>>> afetr
+>>> | a particular deb but that's going to take quite a long time so I
+>>> | wondered if you or the list had quicker suggestions to debug this.
+>>>
+>>> That sounds too involved.
+>>>
+>>> | Sorry for length but hope that's clearer (got to try to be an 
+>>> acceptable
+>>> | friend on R lists as well as with linux and I really, really do
+>>> | appreciate the generosity of this list).
+>>>
+>>> No sweat. We're all just building karma :)
+>>>
+>>> Dirk
+>>>
+>>>
+>>
+>>
+>> -- 
+>> Chris Evans<chris at psyctc.org>  Skype: chris-psyctc
+>> Consultant Psychiatrist in Psychotherapy, Notts. PDD network;
+>> Professor, Psychotherapy, Nottingham University
+>> *If I am writing from one of those roles, it will be clear. Otherwise*
+>> *my views are my own and not representative of those institutions    *
+>> If you have difficulty Emailing me on this address or getting a reply,
+>> send again but cc to:       chris dot evans at nottshc dot nhs dot uk
+>> and to:                     c dot evans at nottingham dot ac dot uk
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+>
+>
+>
+>
+>
+
+
+-- 
+Chris Evans<chris at psyctc.org>  Skype: chris-psyctc
+Consultant Psychiatrist in Psychotherapy, Notts. PDD network;
+Professor, Psychotherapy, Nottingham University
+*If I am writing from one of those roles, it will be clear. Otherwise*
+*my views are my own and not representative of those institutions    *
+If you have difficulty Emailing me on this address or getting a reply,
+send again but cc to:       chris dot evans at nottshc dot nhs dot uk
+and to:                     c dot evans at nottingham dot ac dot uk
+
+

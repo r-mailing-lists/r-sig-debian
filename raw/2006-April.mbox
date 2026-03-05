@@ -1,0 +1,329 @@
+From gregor.gorjanc at gmail.com  Tue Apr  4 22:37:27 2006
+From: gregor.gorjanc at gmail.com (Gregor Gorjanc)
+Date: Tue, 04 Apr 2006 22:37:27 +0200
+Subject: [R-sig-Debian] Update packages
+Message-ID: <4432D907.2010707@bfro.uni-lj.si>
+
+Hello!
+
+Posts from Dirk in thread[1] last month clarified the place of R
+packages that are in Debian and others. Updating packages that are in
+Debian is simply a matter of apt, but what about other packages? I just
+used
+
+> update.packages(lib.loc=.libPaths()[1])
+
+where .libPaths[1] point to "/usr/local/lib/R/site-library". And it all
+went smoothly. Any comments on this?
+
+[1]https://stat.ethz.ch/pipermail/r-sig-debian/2006-March/000066.html
+
+-- 
+Lep pozdrav / With regards,
+    Gregor Gorjanc
+
+----------------------------------------------------------------------
+University of Ljubljana     PhD student
+Biotechnical Faculty
+Zootechnical Department     URI: http://www.bfro.uni-lj.si/MR/ggorjan
+Groblje 3                   mail: gregor.gorjanc <at> bfro.uni-lj.si
+
+SI-1230 Domzale             tel: +386 (0)1 72 17 861
+Slovenia, Europe            fax: +386 (0)1 72 17 888
+
+----------------------------------------------------------------------
+"One must learn by doing the thing; for though you think you know it,
+ you have no certainty until you try." Sophocles ~ 450 B.C.
+
+
+From deepayan at cs.wisc.edu  Tue Apr 18 23:23:47 2006
+From: deepayan at cs.wisc.edu (deepayan at cs.wisc.edu)
+Date: Tue, 18 Apr 2006 16:23:47 -0500 (CDT)
+Subject: [R-sig-Debian] levelplot
+In-Reply-To: <44452777.4090302@geo.uu.nl>
+References: <4444F9AF.8080908@geo.uu.nl>
+	<49561.128.104.48.110.1145380231.squirrel@webmail.cs.wisc.edu>
+	<44452777.4090302@geo.uu.nl>
+Message-ID: <49627.128.104.49.126.1145395427.squirrel@webmail.cs.wisc.edu>
+
+
+> I'm running debian unstable, and have been happy with the packages
+> that Dirk provides for unstable so far. update.packages() doesn't seem to
+> update lattice to 0.13.
+
+It's in a special directory (because it's not compatible with R 2.2) that
+update.packages doesn't know about (I think).
+
+> Perhaps email to r-sig-debian?
+
+Sounds like the proper way to go, so I'm CC-ing.
+
+I realise that this is a tricky situation: there are multiple copies of
+recommended packages, one set that goes with an R release and another that
+gets updated more or less independently. I'm not sure what the best
+strategy would be from the Debian packaging perspective (perhaps looking
+in both places and choosing the one with higher version number but still
+compatible with the corresponding R version).
+
+Deepayan
+
+> --
+> Edzer
+>
+> deepayan at cs.wisc.edu wrote:
+>>> Deepayan, after updating to R 2.3.0 (beta), I noticed that levelplot
+>>> now
+>>> seems to draw boxes around the coloured squares. Is this intentional?
+>>> Is
+>>> there
+>>> a way to not draw them? Need I rebuild lattice?
+>>>
+>>
+>> Well, the lattice version should be 0.13-something. Depending on how you
+>> got the R 2.3.0 sources, you may need to run ./tools/rsync-recommended.
+>> Can you check with that? I don't see any problem in my installation.
+>>
+>> Deepayan
+>>
+>>
+>>> Best regards,
+>>> --
+>>> Edzer
+>>>
+>>>  > version
+>>>                _
+>>> platform       i486-pc-linux-gnu
+>>> arch           i486
+>>> os             linux-gnu
+>>> system         i486, linux-gnu
+>>> status         alpha
+>>> major          2
+>>> minor          3.0
+>>> year           2006
+>>> month          04
+>>> day            07
+>>> svn rev        37668
+>>> language       R
+>>> version.string Version 2.3.0 alpha (2006-04-07 r37668)
+>>>  >ip = installed.packages()
+>>>  > ip[row.names(ip) == "lattice",]
+>>>         Package   LibPath                   Version   Priority
+>>> Bundle
+>>> lattice "lattice" "/usr/lib/R/library"      "0.12-11" "recommended" NA
+>>> lattice "lattice" "/usr/lib/R/site-library" "0.12-11" "recommended" NA
+>>>         Contains Depends        Suggests Imports
+>>> lattice NA       "R (>= 2.2.0)" "grid"   "grid, grDevices, graphics,
+>>> stats"
+>>> lattice NA       "R (>= 2.2.0)" "grid"   "grid, grDevices, graphics,
+>>> stats"
+>>>         Built
+>>> lattice "2.2.0"
+>>> lattice "2.2.1"
+>>>  >
+>>>
+>>>
+>>>
+>>
+>>
+>>
+>
+
+
+From edd at debian.org  Tue Apr 18 23:44:35 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 18 Apr 2006 16:44:35 -0500
+Subject: [R-sig-Debian] levelplot
+In-Reply-To: <49627.128.104.49.126.1145395427.squirrel@webmail.cs.wisc.edu>
+References: <4444F9AF.8080908@geo.uu.nl>
+	<49561.128.104.48.110.1145380231.squirrel@webmail.cs.wisc.edu>
+	<44452777.4090302@geo.uu.nl>
+	<49627.128.104.49.126.1145395427.squirrel@webmail.cs.wisc.edu>
+Message-ID: <17477.24003.37293.744483@basebud.nulle.part>
+
+
+On 18 April 2006 at 16:23, deepayan at cs.wisc.edu wrote:
+| 
+| > I'm running debian unstable, and have been happy with the packages
+| > that Dirk provides for unstable so far. update.packages() doesn't seem to
+| > update lattice to 0.13.
+| 
+| It's in a special directory (because it's not compatible with R 2.2) that
+| update.packages doesn't know about (I think).
+
+Ahh. And while Dirk checks daily, he only checks in $CRAN/src/contrib and
+doesn't see it there.  And I just checked via update.packages() in the R
+2.3.0 snapshot I am running -- Version 2.3.0 beta (2006-04-14 r37779) -- and
+that doesn't point to the subdir either. 
+
+So that's a bug, but more on the human interaction side between Deepayan,
+CRAN and me :)  
+
+Seriously, with the versioned Depends: we can easily produce versions of
+packages that depends on the upcoming-but-already-in-Debian releases.  But
+someone needs to tell me ....
+
+| > Perhaps email to r-sig-debian?
+| 
+| Sounds like the proper way to go, so I'm CC-ing.
+| 
+| I realise that this is a tricky situation: there are multiple copies of
+| recommended packages, one set that goes with an R release and another that
+| gets updated more or less independently. I'm not sure what the best
+| strategy would be from the Debian packaging perspective (perhaps looking
+| in both places and choosing the one with higher version number but still
+| compatible with the corresponding R version).
+
+I am sure we can work something out.  Generally speaking, I am happy with the
+general policy of 'Debian has the most recent R release in unstable, and
+hence almost always also in testing' and helping R Core with pre-release in
+Debian unstable prior to a new release. The prereleases never make it to
+testing -- by ensuring I replace them frequently enough.
+
+This seems to server most of us well.  We can, I think, augment this with
+updates of r-recommended in unstable as well.  All we need is proper Depends
+a la     Depends: r-base-core (>> 2.2.1)   which would ensure that the
+package cannot slip into testing as testing has R 2.2.1 -- whereas unstable
+has what I currently call 2.2.1.svn$SVNRELEASE where $SVNRELEASE is the
+five-digit number.  
+
+Does this make sense?
+
+Dirk
+
+| 
+| Deepayan
+| 
+| > --
+| > Edzer
+| >
+| > deepayan at cs.wisc.edu wrote:
+| >>> Deepayan, after updating to R 2.3.0 (beta), I noticed that levelplot
+| >>> now
+| >>> seems to draw boxes around the coloured squares. Is this intentional?
+| >>> Is
+| >>> there
+| >>> a way to not draw them? Need I rebuild lattice?
+| >>>
+| >>
+| >> Well, the lattice version should be 0.13-something. Depending on how you
+| >> got the R 2.3.0 sources, you may need to run ./tools/rsync-recommended.
+| >> Can you check with that? I don't see any problem in my installation.
+| >>
+| >> Deepayan
+| >>
+| >>
+| >>> Best regards,
+| >>> --
+| >>> Edzer
+| >>>
+| >>>  > version
+| >>>                _
+| >>> platform       i486-pc-linux-gnu
+| >>> arch           i486
+| >>> os             linux-gnu
+| >>> system         i486, linux-gnu
+| >>> status         alpha
+| >>> major          2
+| >>> minor          3.0
+| >>> year           2006
+| >>> month          04
+| >>> day            07
+| >>> svn rev        37668
+| >>> language       R
+| >>> version.string Version 2.3.0 alpha (2006-04-07 r37668)
+| >>>  >ip = installed.packages()
+| >>>  > ip[row.names(ip) == "lattice",]
+| >>>         Package   LibPath                   Version   Priority
+| >>> Bundle
+| >>> lattice "lattice" "/usr/lib/R/library"      "0.12-11" "recommended" NA
+| >>> lattice "lattice" "/usr/lib/R/site-library" "0.12-11" "recommended" NA
+| >>>         Contains Depends        Suggests Imports
+| >>> lattice NA       "R (>= 2.2.0)" "grid"   "grid, grDevices, graphics,
+| >>> stats"
+| >>> lattice NA       "R (>= 2.2.0)" "grid"   "grid, grDevices, graphics,
+| >>> stats"
+| >>>         Built
+| >>> lattice "2.2.0"
+| >>> lattice "2.2.1"
+| >>>  >
+| >>>
+| >>>
+| >>>
+| >>
+| >>
+| >>
+| >
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From edd at debian.org  Wed Apr 19 05:08:29 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 18 Apr 2006 22:08:29 -0500
+Subject: [R-sig-Debian] Recommended packages for 2.3.0 (Was:  levelplot)
+In-Reply-To: <17477.24003.37293.744483@basebud.nulle.part>
+References: <4444F9AF.8080908@geo.uu.nl>
+	<49561.128.104.48.110.1145380231.squirrel@webmail.cs.wisc.edu>
+	<44452777.4090302@geo.uu.nl>
+	<49627.128.104.49.126.1145395427.squirrel@webmail.cs.wisc.edu>
+	<17477.24003.37293.744483@basebud.nulle.part>
+Message-ID: <17477.43437.9071.60710@basebud.nulle.part>
+
+
+Further to the issue raised by Edzer and Deepayan, I have just uploaded new
+and current versions of all the recommended packages that were waiting for R
+2.3.0 (i.e. KernSmooth, VR, foreign, lattice, mgcv, nlme, rpart; the boot,
+cluster and survival packages were already current via their versions from
+the normal CRAN directory src/contrib/).
+
+As these packages have proper Depends on r-base-core (>> 2.2.1), they can now
+be used in Debian unstable with the current (and presumably last) snapshot
+for R 2.3.0.  This new R release should join them Monday in unstable, and
+after the usual 10+ day delay these should all migrate to testing.
+
+Hope this helps,  Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From gregor.gorjanc at gmail.com  Wed Apr 19 11:46:13 2006
+From: gregor.gorjanc at gmail.com (Gregor Gorjanc)
+Date: Wed, 19 Apr 2006 11:46:13 +0200
+Subject: [R-sig-Debian] R Wiki
+Message-ID: <444606E5.1040302@gmail.com>
+
+Hello!
+
+I have started a Wiki page[1] on Debian specific stuff. This is only a
+scratch so please join and help me! This could be a start for an article
+in R News Edd was hopping for.
+
+[1]http://wiki.r-project.org/rwiki/doku.php?id=getting-started:installation:debian
+
+-- 
+Lep pozdrav / With regards,
+    Gregor Gorjanc
+
+----------------------------------------------------------------------
+University of Ljubljana     PhD student
+Biotechnical Faculty
+Zootechnical Department     URI: http://www.bfro.uni-lj.si/MR/ggorjan
+Groblje 3                   mail: gregor.gorjanc <at> bfro.uni-lj.si
+
+SI-1230 Domzale             tel: +386 (0)1 72 17 861
+Slovenia, Europe            fax: +386 (0)1 72 17 888
+
+----------------------------------------------------------------------
+"One must learn by doing the thing; for though you think you know it,
+ you have no certainty until you try." Sophocles ~ 450 B.C.
+
+

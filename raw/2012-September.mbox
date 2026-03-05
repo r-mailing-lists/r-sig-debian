@@ -1,0 +1,2070 @@
+From charles-r-nospam at plessy.org  Wed Sep  5 12:30:12 2012
+From: charles-r-nospam at plessy.org (Charles Plessy)
+Date: Wed, 5 Sep 2012 19:30:12 +0900
+Subject: [R-sig-Debian] Refresh times very slow for simple plots.
+Message-ID: <20120905103012.GA4636@falafel.plessy.net>
+
+Hello everybody,
+
+On my system (R 2.15.1-4 on Debian Stable plus some updates), resizing graphic
+windows (by stretching their borders with the mouse) takes one order of
+magnitude more time than redrawing them (by running the command again).
+
+For instance, the command ??plot(data.frame(rnorm(10), rnorm(10), rnorm(10)))??
+is executed almost instantely, but if I resize the graphics window, it takes 3
+to 4 seconds to refresh. It looks related to drawing the lines making the
+frames, the axis and the ticks, for instance ??heatmap(cor(data.frame(rnorm(10),
+rnorm(10), rnorm(10))))?? is also strongly affected.  Even if each dendrogram is
+only made of five segments, I can see them being plotted one after the other.
+
+This becomes very handicaping when working on real-life datasets, as a graph
+that takes a few seconds to draw will block my session for a few minutes if I
+resize it by mistake.
+
+I was wondering if somebody else was affected by this strange bug ?
+
+As per the R FAQ here is the output of sessionInfo()
+
+R version 2.15.1 (2012-06-22)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_GB.utf8       LC_NUMERIC=C             
+ [3] LC_TIME=en_GB.utf8        LC_COLLATE=en_GB.utf8    
+ [5] LC_MONETARY=en_GB.utf8    LC_MESSAGES=en_GB.utf8   
+ [7] LC_PAPER=C                LC_NAME=C                
+ [9] LC_ADDRESS=C              LC_TELEPHONE=C           
+[11] LC_MEASUREMENT=en_GB.utf8 LC_IDENTIFICATION=C      
+
+attached base packages:
+[1] splines   stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] gdata_2.8.0   edgeR_2.6.1   limma_3.12.1  vegan_2.0-3   permute_0.7-0
+
+loaded via a namespace (and not attached):
+[1] grid_2.15.1    gtools_2.6.2   lattice_0.18-8
+
+Have a nice day,
+
+-- 
+Charles Plessy
+Tsurumi, Kanagawa, Japan
+
+
+From edd at debian.org  Wed Sep  5 13:44:16 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 5 Sep 2012 06:44:16 -0500
+Subject: [R-sig-Debian] Refresh times very slow for simple plots.
+In-Reply-To: <20120905103012.GA4636@falafel.plessy.net>
+References: <20120905103012.GA4636@falafel.plessy.net>
+Message-ID: <20551.15120.729908.791057@max.nulle.part>
+
+
+Yes, I suffer from that too, especially as I mostly have the x11() windows
+pop up on a machine different from the one doing the calculation (the latter
+being a headless server).
+
+If you look at help(x11), you see that there are (at least) three device
+types. At one point I made 'nbcairo' (non-buffered cairo) the default and it
+seemed to help.
+
+The real culprit, though, is the R device model. And a real alternative is
+offered eg by Simon's 'xplots extremes' using OpenGL acceleration, see
+http://rforge.net/Acinonyx/
+
+He gave absolutely stunning live presentations using this. May be a good
+alternative for 'large' data.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From chewning_keith at yahoo.com  Tue Sep 11 05:56:54 2012
+From: chewning_keith at yahoo.com (Keith Chewning)
+Date: Mon, 10 Sep 2012 20:56:54 -0700 (PDT)
+Subject: [R-sig-Debian] ubuntu 12.04 install issues
+Message-ID: <1347335814.46220.YahooMailClassic@web160302.mail.bf1.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120910/3e6b0128/attachment.pl>
+
+From s.blomberg1 at uq.edu.au  Tue Sep 11 06:08:36 2012
+From: s.blomberg1 at uq.edu.au (Simon Blomberg)
+Date: Tue, 11 Sep 2012 14:08:36 +1000
+Subject: [R-sig-Debian] ubuntu 12.04 install issues
+In-Reply-To: <1347335814.46220.YahooMailClassic@web160302.mail.bf1.yahoo.com>
+References: <1347335814.46220.YahooMailClassic@web160302.mail.bf1.yahoo.com>
+Message-ID: <504EB944.7010806@uq.edu.au>
+
+Did you try first installing tk from the Ubuntu archive?
+
+Cheers,
+
+Simon.
+
+On 11/09/12 13:56, Keith Chewning wrote:
+> Hello:
+>
+> I have a new install of Ubuntu 12.04. I have tried to install R via source,
+> apt-get, and the deb packages from a cran mirror. Each of these had issues.
+> I followed the secure apt key install. The apt-get and deb installs each
+> have the same error. So, let's ignore the source install for now. This is the error:
+>
+>>> sudo dpkg -i r-base-core_2.15.1-1precise2_i386.deb
+> (Reading database ... 244318 files and directories currently installed.)
+> Preparing to replace r-base-core 2.15.1-1precise2 (using r-base-core_2.15.1-1precise2_i386.deb) ...
+> Unpacking replacement r-base-core ...
+> dpkg: dependency problems prevent configuration of r-base-core:
+>   r-base-core depends on tk8.5 (>= 8.5.0); however:
+>    Package tk8.5 is not installed.
+> dpkg: error processing r-base-core (--install):
+>   dependency problems - leaving unconfigured
+> ...
+>   r-base-core
+>
+> Or, with apt-get
+>
+>>> sudo apt-get install r-base-core
+> Reading package lists... Done
+> Building dependency tree
+> Reading state information... Done
+> Some packages could not be installed. This may mean that you have
+> requested an impossible situation or if you are using the unstable
+> distribution that some required packages have not yet been created
+> or been moved out of Incoming.
+> The following information may help to resolve the situation:
+>
+> The following packages have unmet dependencies:
+>   r-base-core : Depends: tk8.5 (>= 8.5.0) but it is not installable
+>                 Recommends: r-recommended but it is not going to be installed
+>                 Recommends: r-base-dev but it is not going to be installed
+>                 Recommends: r-doc-html but it is not going to be installed
+> E: Unable to correct problems, you have held broken packages.
+>
+> Obviously the hurdle here is tk8.5. I installed
+> ActiveTcl8.5.12.0.296033-linux-ix86-threaded.tar.gz from
+> http://www.activestate.com/activetcl/downloads, which www.tcl.tk
+> suggested for obtaining binaries. This however did not make R
+> any happier. Any suggestions would be greatly appreciated.
+>
+> Thanks,
+> kc
+>
+>
+>
+>
+>
+> 	[[alternative HTML version deleted]]
+>
+
+-- 
+Simon Blomberg, BSc (Hons), PhD, MAppStat, AStat.
+Lecturer and Consultant Statistician
+School of Biological Sciences
+The University of Queensland
+St. Lucia Queensland 4072
+Australia
+T: +61 7 3365 2506
+email: S.Blomberg1_at_uq.edu.au
+http://www.uq.edu.au/~uqsblomb/
+
+Policies:
+1.  I will NOT analyse your data for you.
+2.  Your deadline is your problem.
+
+Statistics is the grammar of science - Karl Pearson.
+
+
+From chewning_keith at yahoo.com  Tue Sep 11 07:00:43 2012
+From: chewning_keith at yahoo.com (Keith Chewning)
+Date: Mon, 10 Sep 2012 22:00:43 -0700 (PDT)
+Subject: [R-sig-Debian] ubuntu 12.04 install issues
+Message-ID: <1347339643.27939.YahooMailClassic@web160301.mail.bf1.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120910/15c5e333/attachment.pl>
+
+From edd at debian.org  Tue Sep 11 12:18:17 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 11 Sep 2012 05:18:17 -0500
+Subject: [R-sig-Debian] ubuntu 12.04 install issues
+In-Reply-To: <1347335814.46220.YahooMailClassic@web160302.mail.bf1.yahoo.com>
+References: <1347335814.46220.YahooMailClassic@web160302.mail.bf1.yahoo.com>
+Message-ID: <20559.4073.113037.774944@max.nulle.part>
+
+
+On 10 September 2012 at 20:56, Keith Chewning wrote:
+| Hello:
+| 
+| I have a new install of Ubuntu 12.04. I have tried to install R via source,
+| apt-get, and the deb packages from a cran mirror. Each of these had issues.
+| I followed the secure apt key install. The apt-get and deb installs each 
+| have the same error. So, let's ignore the source install for now. This is the error:
+| 
+| >> sudo dpkg -i r-base-core_2.15.1-1precise2_i386.deb
+| (Reading database ... 244318 files and directories currently installed.)
+| Preparing to replace r-base-core 2.15.1-1precise2 (using r-base-core_2.15.1-1precise2_i386.deb) ...
+| Unpacking replacement r-base-core ...
+| dpkg: dependency problems prevent configuration of r-base-core:
+| ?r-base-core depends on tk8.5 (>= 8.5.0); however:
+| ? Package tk8.5 is not installed.
+| dpkg: error processing r-base-core (--install):
+| ?dependency problems - leaving unconfigured
+| ...
+| ?r-base-core
+
+Package "tk8.5" is missing.
+
+| Obviously the hurdle here is tk8.5. I installed 
+| ActiveTcl8.5.12.0.296033-linux-ix86-threaded.tar.gz from 
+| http://www.activestate.com/activetcl/downloads, which www.tcl.tk
+| suggested for obtaining binaries. This however did not make R
+| any happier. Any suggestions would be greatly appreciated.
+
+Why did you think that would matter? Why did you think you needed something
+from outside Ubuntu itself>
+
+Just use the regular tk8.5 package, which apt-get should have suggested
+and pulled in anyway:
+
+edd at max:~$ apt-cache policy tk8.5
+tk8.5:
+  Installed: 8.5.11-1
+  Candidate: 8.5.11-1
+  Version table:
+ *** 8.5.11-1 0
+        500 http://us.archive.ubuntu.com/ubuntu/ precise/main amd64 Packages
+        100 /var/lib/dpkg/status
+edd at max:~$ dpkg -s tk8.5
+Package: tk8.5
+Status: install ok installed
+Priority: optional
+Section: libs
+Installed-Size: 2963
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss at lists.ubuntu.com>
+Architecture: amd64
+Version: 8.5.11-1
+Provides: wish
+Depends: libc6 (>= 2.7), libfontconfig1 (>= 2.8.0), libx11-6, libxft2 (>> 2.1.1), libxss1, tcl8.5 (>= 8.5.0)
+Recommends: xterm | x-terminal-emulator
+Conflicts: libtk-img (<< 1.2.5), tk40 (<= 4.0p3-2)
+Description: Tk toolkit for Tcl and X11, v8.5 - run-time files
+ Tk is a cross-platform graphical toolkit which provides the Motif
+ look-and-feel and is implemented using the Tcl scripting language.
+ This package contains everything you need to run Tk (wish) scripts
+ and Tk-enabled apps.
+Original-Maintainer: Tcl/Tk Debian Packagers <pkg-tcltk-devel at lists.alioth.debian.org>
+Homepage: http://www.tcl.tk/
+edd at max:~$ 
+
+Dirk 
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com  
+
+
+From chewning_keith at yahoo.com  Tue Sep 11 19:16:05 2012
+From: chewning_keith at yahoo.com (Keith Chewning)
+Date: Tue, 11 Sep 2012 10:16:05 -0700 (PDT)
+Subject: [R-sig-Debian] ubuntu 12.04 install issues
+Message-ID: <1347383765.40609.YahooMailClassic@web160303.mail.bf1.yahoo.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120911/c6a056e0/attachment.pl>
+
+From benweinstein2010 at gmail.com  Tue Sep 11 19:55:43 2012
+From: benweinstein2010 at gmail.com (Ben Weinstein)
+Date: Tue, 11 Sep 2012 13:55:43 -0400
+Subject: [R-sig-Debian] Rgdal installation error
+Message-ID: <CAC28k7RX=MAE6y2L65e2iYj8C9R3LjsRv+TGaqtw5pywucYBPw@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120911/28fcadb8/attachment.pl>
+
+From edd at debian.org  Tue Sep 11 20:05:50 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 11 Sep 2012 13:05:50 -0500
+Subject: [R-sig-Debian] ubuntu 12.04 install issues
+In-Reply-To: <1347383765.40609.YahooMailClassic@web160303.mail.bf1.yahoo.com>
+References: <1347383765.40609.YahooMailClassic@web160303.mail.bf1.yahoo.com>
+Message-ID: <20559.32126.476100.660749@max.nulle.part>
+
+
+On 11 September 2012 at 10:16, Keith Chewning wrote:
+| 
+| 
+| Hello Dirk:
+| 
+| Thank you for your reply. I thought that I need to install tk8.5 from
+| an external source because a search with apt-cache search did
+| not return that library. Paul L. helped me resolve this issue. In
+| synaptic the "Software Sources" dialog box did not have Canonical
+| Supported and From Source checked. I check this and did an
+| apt-get update. I could then see the tk8.5 library, which then allowed
+| me to install R :-) This is a new install of 12.04, I am not sure why
+| that checkbox was unselected by default.
+
+Thanks for reporting back. I was afraid something worse was hosed on your
+system -- good to know you're up and running now.
+
+Dirk
+
+ 
+| Thanks,
+| kc
+| 
+| --- On Tue, 9/11/12, Dirk Eddelbuettel <edd at debian.org> wrote:
+| 
+| 
+|     From: Dirk Eddelbuettel <edd at debian.org>
+|     Subject: Re: [R-sig-Debian] ubuntu 12.04 install issues
+|     To: "Keith Chewning" <chewning_keith at yahoo.com>
+|     Cc: r-sig-debian at r-project.org
+|     Date: Tuesday, September 11, 2012, 6:18 AM
+| 
+| 
+|     On 10 September 2012 at 20:56, Keith Chewning wrote:
+|     | Hello:
+|     |
+|     | I have a new install of Ubuntu 12.04. I have tried to install R via
+|     source,
+|     | apt-get, and the deb packages from a cran mirror. Each of these had
+|     issues.
+|     | I followed the secure apt key install. The apt-get and deb installs each
+|     | have the same error. So, let's ignore the source install for now. This is
+|     the error:
+|     |
+|     | >> sudo dpkg -i r-base-core_2.15.1-1precise2_i386.deb
+|     | (Reading database ... 244318 files and directories currently installed.)
+|     | Preparing to replace r-base-core 2.15.1-1precise2 (using
+|     r-base-core_2.15.1-1precise2_i386.deb) ...
+|     | Unpacking replacement r-base-core ...
+|     | dpkg: dependency problems prevent configuration of r-base-core:
+|     |  r-base-core depends on tk8.5 (>= 8.5.0); however:
+|     |   Package tk8.5 is not installed.
+|     | dpkg: error processing r-base-core (--install):
+|     |  dependency problems - leaving unconfigured
+|     | ...
+|     |  r-base-core
+| 
+|     Package "tk8.5" is missing.
+| 
+|     | Obviously the hurdle here is tk8.5. I installed
+|     | ActiveTcl8.5.12.0.296033-linux-ix86-threaded.tar.gz from
+|     | http://www.activestate.com/activetcl/downloads, which www.tcl.tk
+|     | suggested for obtaining binaries. This however did not make R
+|     | any happier. Any suggestions would be greatly appreciated.
+| 
+|     Why did you think that would matter? Why did you think you needed something
+|     from outside Ubuntu itself>
+| 
+|     Just use the regular tk8.5 package, which apt-get should have suggested
+|     and pulled in anyway:
+| 
+|     edd at max:~$ apt-cache policy tk8.5
+|     tk8.5:
+|       Installed: 8.5.11-1
+|       Candidate: 8.5.11-1
+|       Version table:
+|     *** 8.5.11-1 0
+|             500 http://us.archive.ubuntu.com/ubuntu/ precise/main amd64
+|     Packages
+|             100 /var/lib/dpkg/status
+|     edd at max:~$ dpkg -s tk8.5
+|     Package: tk8.5
+|     Status: install ok installed
+|     Priority: optional
+|     Section: libs
+|     Installed-Size: 2963
+|     Maintainer: Ubuntu Developers <ubuntu-devel-discuss at lists.ubuntu.com>
+|     Architecture: amd64
+|     Version: 8.5.11-1
+|     Provides: wish
+|     Depends: libc6 (>= 2.7), libfontconfig1 (>= 2.8.0), libx11-6, libxft2 (>>
+|     2.1.1), libxss1, tcl8.5 (>= 8.5.0)
+|     Recommends: xterm | x-terminal-emulator
+|     Conflicts: libtk-img (<< 1.2.5), tk40 (<= 4.0p3-2)
+|     Description: Tk toolkit for Tcl and X11, v8.5 - run-time files
+|     Tk is a cross-platform graphical toolkit which provides the Motif
+|     look-and-feel and is implemented using the Tcl scripting language.
+|     This package contains everything you need to run Tk (wish) scripts
+|     and Tk-enabled apps.
+|     Original-Maintainer: Tcl/Tk Debian Packagers <
+|     pkg-tcltk-devel at lists.alioth.debian.org>
+|     Homepage: http://www.tcl.tk/
+|     edd at max:~$
+| 
+|     Dirk
+| 
+|     --
+|     Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com 
+| 
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From h_a_patience at hotmail.com  Mon Sep 17 18:13:37 2012
+From: h_a_patience at hotmail.com (Hugh Patience)
+Date: Mon, 17 Sep 2012 16:13:37 +0000
+Subject: [R-sig-Debian] Ensuring latest version of R is installed
+In-Reply-To: <BLU166-W20370A224C7E5E05849894C7950@phx.gbl>
+References: <BLU166-W54CB63AEB8FD063431DC22C7960@phx.gbl>,
+	<BLU166-W563F214760FAD38CA67B84C7960@phx.gbl>,
+	<BLU166-W62DFA8661E35C314FDE739C7960@phx.gbl>,
+	<BLU166-W20370A224C7E5E05849894C7950@phx.gbl>
+Message-ID: <BLU166-W46996284ED8B41700F9A84C7950@phx.gbl>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120917/f4ddfc75/attachment.pl>
+
+From edd at debian.org  Mon Sep 17 19:13:20 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 17 Sep 2012 12:13:20 -0500
+Subject: [R-sig-Debian] Ensuring latest version of R is installed
+In-Reply-To: <BLU166-W46996284ED8B41700F9A84C7950@phx.gbl>
+References: <BLU166-W54CB63AEB8FD063431DC22C7960@phx.gbl>
+	<BLU166-W563F214760FAD38CA67B84C7960@phx.gbl>
+	<BLU166-W62DFA8661E35C314FDE739C7960@phx.gbl>
+	<BLU166-W20370A224C7E5E05849894C7950@phx.gbl>
+	<BLU166-W46996284ED8B41700F9A84C7950@phx.gbl>
+Message-ID: <20567.23088.27087.815832@max.nulle.part>
+
+
+On 17 September 2012 at 16:13, Hugh Patience wrote:
+| Hi there, 
+| following the instructions shown here:
+| http://www.r-bloggers.com/ec2-micro-instance-of-rstudio/
+| 
+| I used 
+|  
+| sudo apt-get install r-baseto insall R on an Amazon EC2 server, but when I do that I get an old cersion of R
+|  
+| > R.version.string
+| [1] "R version 2.12.1 (2010-12-16)" 
+|  
+| Do you know how I can change this command so that it installs the latest version?Also are the ubuntu version numbers exactly equivalent to their windows version numbers? 
+| In particular I want to ensure the package "parallel" is installed. 
+
+Please read the README in the bin/linux/ubuntu/ directory on any CRAN mirror, eg
+
+   http://cran.us.r-project.org/bin/linux/ubuntu
+
+and follow the instructions.  By adding a new and current source of R
+packages, provided by CRAN, you get the current version of R -- ie 2.15.1	    
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From nashjc at uottawa.ca  Thu Sep 20 02:38:55 2012
+From: nashjc at uottawa.ca (John C Nash)
+Date: Wed, 19 Sep 2012 20:38:55 -0400
+Subject: [R-sig-Debian] rjags install on Ubuntu 10.04
+Message-ID: <505A659F.6040404@uottawa.ca>
+
+I have been having trouble with rjags on Ubuntu 10.04
+
+
+> library(rjags)
+Loading required package: coda
+Loading required package: lattice
+linking to JAGS 3.2.0
+module basemod loaded
+Error : .onLoad failed in loadNamespace() for 'rjags', details:
+  call: dyn.load(file)
+  error: unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+  /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+Error: package/namespace load failed for ?rjags?
+
+
+> sessionInfo()
+R version 2.15.1 (2012-06-22)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+ [7] LC_PAPER=C                 LC_NAME=C
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base
+>
+
+Also I have tried
+
+> dyn.load("/usr/lib/JAGS/modules-3/bugs.so")
+Error in dyn.load("/usr/lib/JAGS/modules-3/bugs.so") :
+  unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+  /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+
+After several uninstalls and reinstalls of jags and rjags, I did (as superuser)
+
+apt-get remove --purge r-base-core
+apt-get autoremove
+
+then reinstalled R, then rjags (the Michael Rutter PPA is in my sources list), i.e.,
+
+apt-get install r-base-dev
+apt-get install rjags
+
+(I used the dev to make sure I got some of the tools etc.)
+
+No joy.
+
+On crunchbang stattler linux (under VirtualBox), things loaded fine. I haven't tried
+actual computations though. (This is a debian squeeze variant.)
+
+Suggestions welcome, especially about the fprec symbol above. I am planning to upgrade the
+10.04 to something else soon, probably Mint Mate, but wanted to wait a few more weeks to
+avoid doing this when having to travel.
+
+Cheers, JN
+
+
+From edd at debian.org  Thu Sep 20 03:16:44 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 19 Sep 2012 20:16:44 -0500
+Subject: [R-sig-Debian] rjags install on Ubuntu 10.04
+In-Reply-To: <505A659F.6040404@uottawa.ca>
+References: <505A659F.6040404@uottawa.ca>
+Message-ID: <20570.28284.229410.360751@max.nulle.part>
+
+
+On 19 September 2012 at 20:38, John C Nash wrote:
+| I have been having trouble with rjags on Ubuntu 10.04
+                                           ^^^^^^^^^^^^
+
+You may be on your own here. I would suggest updating to something current,
+and remaining current -- at least that works for me. On Ubuntu 12.04 it
+just works:
+
+  R> library(rjags)
+  Loading required package: coda
+  Loading required package: lattice
+  linking to JAGS 3.2.0
+  module basemod loaded
+  module bugs loaded
+  R> 
+
+Using 
+  edd at max:~$ COLUMNS=76 dpkg -l | grep jags
+  ii  jags           3.2.0-1precise Just Another Gibbs Sampler for Bayesian MCMC
+  ii  r-cran-rjags   3.3-1          R interface to the JAGS Bayesian statistics 
+  edd at max:~$ 
+ 
+| > library(rjags)
+| Loading required package: coda
+| Loading required package: lattice
+| linking to JAGS 3.2.0
+| module basemod loaded
+| Error : .onLoad failed in loadNamespace() for 'rjags', details:
+|   call: dyn.load(file)
+|   error: unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+|   /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+| Error: package/namespace load failed for ?rjags?
+| 
+| 
+| > sessionInfo()
+| R version 2.15.1 (2012-06-22)
+| Platform: x86_64-pc-linux-gnu (64-bit)
+| 
+| locale:
+|  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+|  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+|  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+|  [7] LC_PAPER=C                 LC_NAME=C
+|  [9] LC_ADDRESS=C               LC_TELEPHONE=C
+| [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+| 
+| attached base packages:
+| [1] stats     graphics  grDevices utils     datasets  methods   base
+| >
+| 
+| Also I have tried
+| 
+| > dyn.load("/usr/lib/JAGS/modules-3/bugs.so")
+| Error in dyn.load("/usr/lib/JAGS/modules-3/bugs.so") :
+|   unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+|   /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+| 
+| After several uninstalls and reinstalls of jags and rjags, I did (as superuser)
+| 
+| apt-get remove --purge r-base-core
+
+Please.  R has not bearing here. 
+
+You have a package out of sorts. Worst, remove the package (here: jags, as
+'dpkg -S /usr/lib/JAGS/modules-3/bugs.so' clearly tells you) and install
+locally.
+
+Dirk
+
+| apt-get autoremove
+| 
+| then reinstalled R, then rjags (the Michael Rutter PPA is in my sources list), i.e.,
+| 
+| apt-get install r-base-dev
+| apt-get install rjags
+| 
+| (I used the dev to make sure I got some of the tools etc.)
+| 
+| No joy.
+| 
+| On crunchbang stattler linux (under VirtualBox), things loaded fine. I haven't tried
+| actual computations though. (This is a debian squeeze variant.)
+| 
+| Suggestions welcome, especially about the fprec symbol above. I am planning to upgrade the
+| 10.04 to something else soon, probably Mint Mate, but wanted to wait a few more weeks to
+| avoid doing this when having to travel.
+| 
+| Cheers, JN
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com  
+
+
+From mar36 at psu.edu  Thu Sep 20 03:24:03 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Wed, 19 Sep 2012 21:24:03 -0400
+Subject: [R-sig-Debian] rjags install on Ubuntu 10.04
+In-Reply-To: <20570.28284.229410.360751@max.nulle.part>
+References: <505A659F.6040404@uottawa.ca>
+	<20570.28284.229410.360751@max.nulle.part>
+Message-ID: <505A7033.9070502@psu.edu>
+
+
+
+On 09/19/2012 09:16 PM, Dirk Eddelbuettel wrote:
+>
+> On 19 September 2012 at 20:38, John C Nash wrote:
+> | I have been having trouble with rjags on Ubuntu 10.04
+>                                             ^^^^^^^^^^^^
+>
+> You may be on your own here. I would suggest updating to something current,
+> and remaining current -- at least that works for me. On Ubuntu 12.04 it
+> just works:
+
+There is also a numbering issue at work here.  Version 3.3-1 is supplied 
+by Ubuntu, while my PPA has 3-5, a newer version from Martyn, but not 
+for Ubuntu.  For apt, 3.3 is > 3-5, so one solution is to use synaptic 
+to force the install of the more recent version and see if that fixes 
+the issue, although I would recommend upgrading Ubuntu as the first step.
+
+Conveniently, Martyn release version 3-7 of the package Wednesday 
+(9/18), so new versions will be hitting the PPA shortly, as soon as I 
+resolve the numbering issue.
+
+Michael
+
+>    R> library(rjags)
+>    Loading required package: coda
+>    Loading required package: lattice
+>    linking to JAGS 3.2.0
+>    module basemod loaded
+>    module bugs loaded
+>    R>
+>
+> Using
+>    edd at max:~$ COLUMNS=76 dpkg -l | grep jags
+>    ii  jags           3.2.0-1precise Just Another Gibbs Sampler for Bayesian MCMC
+>    ii  r-cran-rjags   3.3-1          R interface to the JAGS Bayesian statistics
+>    edd at max:~$
+>
+> | > library(rjags)
+> | Loading required package: coda
+> | Loading required package: lattice
+> | linking to JAGS 3.2.0
+> | module basemod loaded
+> | Error : .onLoad failed in loadNamespace() for 'rjags', details:
+> |   call: dyn.load(file)
+> |   error: unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+> |   /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+> | Error: package/namespace load failed for ?rjags?
+> |
+> |
+> | > sessionInfo()
+> | R version 2.15.1 (2012-06-22)
+> | Platform: x86_64-pc-linux-gnu (64-bit)
+> |
+> | locale:
+> |  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+> |  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+> |  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+> |  [7] LC_PAPER=C                 LC_NAME=C
+> |  [9] LC_ADDRESS=C               LC_TELEPHONE=C
+> | [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+> |
+> | attached base packages:
+> | [1] stats     graphics  grDevices utils     datasets  methods   base
+> | >
+> |
+> | Also I have tried
+> |
+> | > dyn.load("/usr/lib/JAGS/modules-3/bugs.so")
+> | Error in dyn.load("/usr/lib/JAGS/modules-3/bugs.so") :
+> |   unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+> |   /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+> |
+> | After several uninstalls and reinstalls of jags and rjags, I did (as superuser)
+> |
+> | apt-get remove --purge r-base-core
+>
+> Please.  R has not bearing here.
+>
+> You have a package out of sorts. Worst, remove the package (here: jags, as
+> 'dpkg -S /usr/lib/JAGS/modules-3/bugs.so' clearly tells you) and install
+> locally.
+>
+> Dirk
+>
+> | apt-get autoremove
+> |
+> | then reinstalled R, then rjags (the Michael Rutter PPA is in my sources list), i.e.,
+> |
+> | apt-get install r-base-dev
+> | apt-get install rjags
+> |
+> | (I used the dev to make sure I got some of the tools etc.)
+> |
+> | No joy.
+> |
+> | On crunchbang stattler linux (under VirtualBox), things loaded fine. I haven't tried
+> | actual computations though. (This is a debian squeeze variant.)
+> |
+> | Suggestions welcome, especially about the fprec symbol above. I am planning to upgrade the
+> | 10.04 to something else soon, probably Mint Mate, but wanted to wait a few more weeks to
+> | avoid doing this when having to travel.
+> |
+> | Cheers, JN
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+4205 College Drive
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+mar36 at psu.edu
+
+
+From nashjc at uottawa.ca  Thu Sep 20 03:34:38 2012
+From: nashjc at uottawa.ca (John C Nash)
+Date: Wed, 19 Sep 2012 21:34:38 -0400
+Subject: [R-sig-Debian] rjags install on Ubuntu 10.04
+In-Reply-To: <505A7033.9070502@psu.edu>
+References: <505A659F.6040404@uottawa.ca>
+	<20570.28284.229410.360751@max.nulle.part>
+	<505A7033.9070502@psu.edu>
+Message-ID: <505A72AE.5080802@uottawa.ca>
+
+OK. I figured it may be getting late in the LTS cycle. However, I'll be making two trips
+in next 18 days, so don't want to rebuild my laptop just now. It has way too many
+different tools on it that I'm using and have forgotten that they take time and bandwidth
+to install. The folk who want jags runs are just going to have to wait.
+
+Given I have tried Unity twice and Ubuntu's alternative Gnome once, I think I'll go to
+Mint Mate (Ubuntu based) or else CrunchBang (debian squeeze).
+
+JN
+
+
+
+On 09/19/2012 09:24 PM, Michael Rutter wrote:
+> 
+> 
+> On 09/19/2012 09:16 PM, Dirk Eddelbuettel wrote:
+>>
+>> On 19 September 2012 at 20:38, John C Nash wrote:
+>> | I have been having trouble with rjags on Ubuntu 10.04
+>>                                             ^^^^^^^^^^^^
+>>
+>> You may be on your own here. I would suggest updating to something current,
+>> and remaining current -- at least that works for me. On Ubuntu 12.04 it
+>> just works:
+> 
+> There is also a numbering issue at work here.  Version 3.3-1 is supplied by Ubuntu, while
+> my PPA has 3-5, a newer version from Martyn, but not for Ubuntu.  For apt, 3.3 is > 3-5,
+> so one solution is to use synaptic to force the install of the more recent version and see
+> if that fixes the issue, although I would recommend upgrading Ubuntu as the first step.
+> 
+> Conveniently, Martyn release version 3-7 of the package Wednesday (9/18), so new versions
+> will be hitting the PPA shortly, as soon as I resolve the numbering issue.
+> 
+> Michael
+> 
+>>    R> library(rjags)
+>>    Loading required package: coda
+>>    Loading required package: lattice
+>>    linking to JAGS 3.2.0
+>>    module basemod loaded
+>>    module bugs loaded
+>>    R>
+>>
+>> Using
+>>    edd at max:~$ COLUMNS=76 dpkg -l | grep jags
+>>    ii  jags           3.2.0-1precise Just Another Gibbs Sampler for Bayesian MCMC
+>>    ii  r-cran-rjags   3.3-1          R interface to the JAGS Bayesian statistics
+>>    edd at max:~$
+>>
+>> | > library(rjags)
+>> | Loading required package: coda
+>> | Loading required package: lattice
+>> | linking to JAGS 3.2.0
+>> | module basemod loaded
+>> | Error : .onLoad failed in loadNamespace() for 'rjags', details:
+>> |   call: dyn.load(file)
+>> |   error: unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+>> |   /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+>> | Error: package/namespace load failed for ?rjags?
+>> |
+>> |
+>> | > sessionInfo()
+>> | R version 2.15.1 (2012-06-22)
+>> | Platform: x86_64-pc-linux-gnu (64-bit)
+>> |
+>> | locale:
+>> |  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+>> |  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+>> |  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+>> |  [7] LC_PAPER=C                 LC_NAME=C
+>> |  [9] LC_ADDRESS=C               LC_TELEPHONE=C
+>> | [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+>> |
+>> | attached base packages:
+>> | [1] stats     graphics  grDevices utils     datasets  methods   base
+>> | >
+>> |
+>> | Also I have tried
+>> |
+>> | > dyn.load("/usr/lib/JAGS/modules-3/bugs.so")
+>> | Error in dyn.load("/usr/lib/JAGS/modules-3/bugs.so") :
+>> |   unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+>> |   /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+>> |
+>> | After several uninstalls and reinstalls of jags and rjags, I did (as superuser)
+>> |
+>> | apt-get remove --purge r-base-core
+>>
+>> Please.  R has not bearing here.
+>>
+>> You have a package out of sorts. Worst, remove the package (here: jags, as
+>> 'dpkg -S /usr/lib/JAGS/modules-3/bugs.so' clearly tells you) and install
+>> locally.
+>>
+>> Dirk
+>>
+>> | apt-get autoremove
+>> |
+>> | then reinstalled R, then rjags (the Michael Rutter PPA is in my sources list), i.e.,
+>> |
+>> | apt-get install r-base-dev
+>> | apt-get install rjags
+>> |
+>> | (I used the dev to make sure I got some of the tools etc.)
+>> |
+>> | No joy.
+>> |
+>> | On crunchbang stattler linux (under VirtualBox), things loaded fine. I haven't tried
+>> | actual computations though. (This is a debian squeeze variant.)
+>> |
+>> | Suggestions welcome, especially about the fprec symbol above. I am planning to upgrade
+>> the
+>> | 10.04 to something else soon, probably Mint Mate, but wanted to wait a few more weeks to
+>> | avoid doing this when having to travel.
+>> |
+>> | Cheers, JN
+>> |
+>> | _______________________________________________
+>> | R-SIG-Debian mailing list
+>> | R-SIG-Debian at r-project.org
+>> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+>
+
+
+From kjetil1001 at gmail.com  Thu Sep 20 04:17:08 2012
+From: kjetil1001 at gmail.com (Kjetil brinchmann Halvorsen)
+Date: Wed, 19 Sep 2012 22:17:08 -0400
+Subject: [R-sig-Debian] rjags install on Ubuntu 10.04
+In-Reply-To: <505A72AE.5080802@uottawa.ca>
+References: <505A659F.6040404@uottawa.ca>
+	<20570.28284.229410.360751@max.nulle.part>
+	<505A7033.9070502@psu.edu> <505A72AE.5080802@uottawa.ca>
+Message-ID: <CAH=m5MgYPL3Boy=T9cSaftBd3i+98mcud_ibZOvzWiKio-2fMA@mail.gmail.com>
+
+see inline below.
+
+On Wed, Sep 19, 2012 at 10:34 PM, John C Nash <nashjc at uottawa.ca> wrote:
+> OK. I figured it may be getting late in the LTS cycle. However, I'll be making two trips
+> in next 18 days, so don't want to rebuild my laptop just now. It has way too many
+> different tools on it that I'm using and have forgotten that they take time and bandwidth
+> to install. The folk who want jags runs are just going to have to wait.
+>
+> Given I have tried Unity twice and Ubuntu's alternative Gnome once, I think I'll go to
+> Mint Mate (Ubuntu based) or else CrunchBang (debian squeeze).
+
+If you don like unity but otherwise like ubuntu, another alternative
+is lubuntu. I have just installed this and it works very well!
+lubuntu is ubuntu, but with LXDE desktop     http://lxde.org/
+LXDE seems also to be based on gtk, so software working with gnome
+should work there.
+
+Kjetil
+
+
+>
+> JN
+>
+>
+>
+> On 09/19/2012 09:24 PM, Michael Rutter wrote:
+>>
+>>
+>> On 09/19/2012 09:16 PM, Dirk Eddelbuettel wrote:
+>>>
+>>> On 19 September 2012 at 20:38, John C Nash wrote:
+>>> | I have been having trouble with rjags on Ubuntu 10.04
+>>>                                             ^^^^^^^^^^^^
+>>>
+>>> You may be on your own here. I would suggest updating to something current,
+>>> and remaining current -- at least that works for me. On Ubuntu 12.04 it
+>>> just works:
+>>
+>> There is also a numbering issue at work here.  Version 3.3-1 is supplied by Ubuntu, while
+>> my PPA has 3-5, a newer version from Martyn, but not for Ubuntu.  For apt, 3.3 is > 3-5,
+>> so one solution is to use synaptic to force the install of the more recent version and see
+>> if that fixes the issue, although I would recommend upgrading Ubuntu as the first step.
+>>
+>> Conveniently, Martyn release version 3-7 of the package Wednesday (9/18), so new versions
+>> will be hitting the PPA shortly, as soon as I resolve the numbering issue.
+>>
+>> Michael
+>>
+>>>    R> library(rjags)
+>>>    Loading required package: coda
+>>>    Loading required package: lattice
+>>>    linking to JAGS 3.2.0
+>>>    module basemod loaded
+>>>    module bugs loaded
+>>>    R>
+>>>
+>>> Using
+>>>    edd at max:~$ COLUMNS=76 dpkg -l | grep jags
+>>>    ii  jags           3.2.0-1precise Just Another Gibbs Sampler for Bayesian MCMC
+>>>    ii  r-cran-rjags   3.3-1          R interface to the JAGS Bayesian statistics
+>>>    edd at max:~$
+>>>
+>>> | > library(rjags)
+>>> | Loading required package: coda
+>>> | Loading required package: lattice
+>>> | linking to JAGS 3.2.0
+>>> | module basemod loaded
+>>> | Error : .onLoad failed in loadNamespace() for 'rjags', details:
+>>> |   call: dyn.load(file)
+>>> |   error: unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+>>> |   /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+>>> | Error: package/namespace load failed for ?rjags?
+>>> |
+>>> |
+>>> | > sessionInfo()
+>>> | R version 2.15.1 (2012-06-22)
+>>> | Platform: x86_64-pc-linux-gnu (64-bit)
+>>> |
+>>> | locale:
+>>> |  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+>>> |  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+>>> |  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+>>> |  [7] LC_PAPER=C                 LC_NAME=C
+>>> |  [9] LC_ADDRESS=C               LC_TELEPHONE=C
+>>> | [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+>>> |
+>>> | attached base packages:
+>>> | [1] stats     graphics  grDevices utils     datasets  methods   base
+>>> | >
+>>> |
+>>> | Also I have tried
+>>> |
+>>> | > dyn.load("/usr/lib/JAGS/modules-3/bugs.so")
+>>> | Error in dyn.load("/usr/lib/JAGS/modules-3/bugs.so") :
+>>> |   unable to load shared object '/usr/lib/JAGS/modules-3/bugs.so':
+>>> |   /usr/lib/JAGS/modules-3/bugs.so: undefined symbol: fprec
+>>> |
+>>> | After several uninstalls and reinstalls of jags and rjags, I did (as superuser)
+>>> |
+>>> | apt-get remove --purge r-base-core
+>>>
+>>> Please.  R has not bearing here.
+>>>
+>>> You have a package out of sorts. Worst, remove the package (here: jags, as
+>>> 'dpkg -S /usr/lib/JAGS/modules-3/bugs.so' clearly tells you) and install
+>>> locally.
+>>>
+>>> Dirk
+>>>
+>>> | apt-get autoremove
+>>> |
+>>> | then reinstalled R, then rjags (the Michael Rutter PPA is in my sources list), i.e.,
+>>> |
+>>> | apt-get install r-base-dev
+>>> | apt-get install rjags
+>>> |
+>>> | (I used the dev to make sure I got some of the tools etc.)
+>>> |
+>>> | No joy.
+>>> |
+>>> | On crunchbang stattler linux (under VirtualBox), things loaded fine. I haven't tried
+>>> | actual computations though. (This is a debian squeeze variant.)
+>>> |
+>>> | Suggestions welcome, especially about the fprec symbol above. I am planning to upgrade
+>>> the
+>>> | 10.04 to something else soon, probably Mint Mate, but wanted to wait a few more weeks to
+>>> | avoid doing this when having to travel.
+>>> |
+>>> | Cheers, JN
+>>> |
+>>> | _______________________________________________
+>>> | R-SIG-Debian mailing list
+>>> | R-SIG-Debian at r-project.org
+>>> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>>
+>>
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+
+-- 
+"If you want a picture of the future - imagine a boot stamping on the
+human face - forever."
+
+George Orwell (1984)
+
+
+From nashjc at uottawa.ca  Thu Sep 20 04:34:57 2012
+From: nashjc at uottawa.ca (John C Nash)
+Date: Wed, 19 Sep 2012 22:34:57 -0400
+Subject: [R-sig-Debian] rjags install on Ubuntu 10.04
+In-Reply-To: <CAH=m5MgYPL3Boy=T9cSaftBd3i+98mcud_ibZOvzWiKio-2fMA@mail.gmail.com>
+References: <505A659F.6040404@uottawa.ca>
+	<20570.28284.229410.360751@max.nulle.part>
+	<505A7033.9070502@psu.edu> <505A72AE.5080802@uottawa.ca>
+	<CAH=m5MgYPL3Boy=T9cSaftBd3i+98mcud_ibZOvzWiKio-2fMA@mail.gmail.com>
+Message-ID: <505A80D1.1040201@uottawa.ca>
+
+To return to the original topic.
+
+I installed Ubuntu Lucid on a VirtualBox platform (not, unfortunatly my laptop -- too
+little disk left) and went through the huge initial updates and setting up R and Michaels
+PPA. Installed rjags and things load fine.
+
+So, it seems there's something in my laptop that is getting in the way. Possibly a 32/64
+issue, since the laptop is amd64, but VBox guests seem to only like 32 bit mode.
+
+This is annoying, but not devastating. I'll upgrade the laptop in a couple of weeks.
+
+Best, JN
+
+
+From michael.conklin131 at gmail.com  Thu Sep 20 22:33:54 2012
+From: michael.conklin131 at gmail.com (Michael Conklin)
+Date: Thu, 20 Sep 2012 15:33:54 -0500
+Subject: [R-sig-Debian] Installing R2.15.1 on ubuntu
+Message-ID: <CAO2a7mBATuNuS+At6LbO2wHX6jb_wVV6hiFY7UM6HE25Ve2PKw@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120920/ce16e61c/attachment.pl>
+
+From mar36 at psu.edu  Fri Sep 21 00:36:54 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Thu, 20 Sep 2012 18:36:54 -0400
+Subject: [R-sig-Debian] Installing R2.15.1 on ubuntu
+In-Reply-To: <CAO2a7mBATuNuS+At6LbO2wHX6jb_wVV6hiFY7UM6HE25Ve2PKw@mail.gmail.com>
+References: <CAO2a7mBATuNuS+At6LbO2wHX6jb_wVV6hiFY7UM6HE25Ve2PKw@mail.gmail.com>
+Message-ID: <505B9A86.80009@psu.edu>
+
+
+
+On 09/20/2012 04:33 PM, Michael Conklin wrote:
+> Per the suggestion of this list when I posted on the r-help list, I have
+> gone to cran, linux downloads and read the read me file to try and install
+> the binary for R 2.15.1 on my ubuntu AMD64 machine.  I added to my
+> sources.list the deb http:\\cran.wustl.edu\bin\linux\ubuntu precise main  .
+> Then I ran sudo apt-get update and sudo apt-get install r-base.  The system
+> promptly installs R 2.14.1 .  I have tried this with 2 different cran
+> mirrors with the same results.  Any suggestions would be greatly
+> appreciated. I have very little experience with ubuntu or linux although I
+> feel I am being forced to learn quite a bit very quickly, so specific
+> suggestions are more helpful than generic ones.
+>
+> Michael Conklin
+>
+
+Michael,
+
+I think the easiest way to get the current R packages is to use the PPA 
+that supplies CRAN.  To enable that, at a command line enter
+
+  sudo apt-add-repository ppa:marutter/rrutter
+
+That will add the correct information into your apt sources list.
+
+More infomration can be found out my Ubuntu and R blog, 
+http://tiny.cc/ubunturblog.
+
+Michael
+
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+4205 College Drive
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+mar36 at psu.edu
+
+
+From michael.conklin131 at gmail.com  Fri Sep 21 17:13:50 2012
+From: michael.conklin131 at gmail.com (Michael Conklin)
+Date: Fri, 21 Sep 2012 10:13:50 -0500
+Subject: [R-sig-Debian] Installing R2.15.1 on ubuntu
+In-Reply-To: <505B9A86.80009@psu.edu>
+References: <CAO2a7mBATuNuS+At6LbO2wHX6jb_wVV6hiFY7UM6HE25Ve2PKw@mail.gmail.com>
+	<505B9A86.80009@psu.edu>
+Message-ID: <CAO2a7mCC540NO79NUd6XFW88HaB_MDrd4GVqK3ULKxoHL0pnRQ@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120921/c1ccf5bb/attachment.pl>
+
+From marius.hofert at math.ethz.ch  Sat Sep 22 18:54:22 2012
+From: marius.hofert at math.ethz.ch (Marius Hofert)
+Date: Sat, 22 Sep 2012 18:54:22 +0200
+Subject: [R-sig-Debian] How to upgrade from 2.15.1 to 2.15.1 patched?
+Message-ID: <87y5k23sn5.fsf@sklar.v.cablecom.net>
+
+Hi,
+
+I would like to upgrade R-2.15.1 to R-2.15.1 patched (under Ubuntu 12.04). What's
+the recommended way to do so?
+
+I did the following steps for installing R under Ubuntu 12.04 (as far as I
+remember, Dirk Eddelbuettel recommended this and helped me on several occasions
+with the installation):
+
+1) sudo emacs /etc/apt/sources.list
+2) add:
+   deb http://stat.ethz.ch/CRAN/bin/linux/ubuntu precise/
+3) do:
+   gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
+   gpg -a --export E084DAB9 | sudo apt-key add -
+4) do:
+   sudo apt-get update
+   sudo apt-get install r-base
+
+Cheers,
+
+Marius
+
+
+From mar36 at psu.edu  Sat Sep 22 19:47:56 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Sat, 22 Sep 2012 13:47:56 -0400
+Subject: [R-sig-Debian] How to upgrade from 2.15.1 to 2.15.1 patched?
+In-Reply-To: <87y5k23sn5.fsf@sklar.v.cablecom.net>
+References: <87y5k23sn5.fsf@sklar.v.cablecom.net>
+Message-ID: <505DF9CC.8050603@psu.edu>
+
+
+
+On 09/22/2012 12:54 PM, Marius Hofert wrote:
+> Hi,
+>
+> I would like to upgrade R-2.15.1 to R-2.15.1 patched (under Ubuntu 12.04). What's
+> the recommended way to do so?
+>
+> I did the following steps for installing R under Ubuntu 12.04 (as far as I
+> remember, Dirk Eddelbuettel recommended this and helped me on several occasions
+> with the installation):
+>
+> 1) sudo emacs /etc/apt/sources.list
+> 2) add:
+>     deb http://stat.ethz.ch/CRAN/bin/linux/ubuntu precise/
+> 3) do:
+>     gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
+>     gpg -a --export E084DAB9 | sudo apt-key add -
+> 4) do:
+>     sudo apt-get update
+>     sudo apt-get install r-base
+>
+> Cheers,
+>
+> Marius
+
+Marius,
+
+That should work.  Not sure what you mean by "patched" however.  Is 
+there something in particular you are hoping to get from the CRAN 
+version of R for Ubuntu?
+
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+4205 College Drive
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+mar36 at psu.edu
+
+
+From marius.hofert at math.ethz.ch  Sat Sep 22 19:57:11 2012
+From: marius.hofert at math.ethz.ch (Marius Hofert)
+Date: Sat, 22 Sep 2012 19:57:11 +0200
+Subject: [R-sig-Debian] How to upgrade from 2.15.1 to 2.15.1 patched?
+In-Reply-To: <505DF9CC.8050603@psu.edu> (Michael Rutter's message of "Sat, 22
+	Sep 2012 13:47:56 -0400")
+References: <87y5k23sn5.fsf@sklar.v.cablecom.net> <505DF9CC.8050603@psu.edu>
+Message-ID: <87haqq3pqg.fsf@sklar.v.cablecom.net>
+
+
+
+Michael Rutter <mar36 at psu.edu> writes:
+
+> On 09/22/2012 12:54 PM, Marius Hofert wrote:
+>> Hi,
+>>
+>> I would like to upgrade R-2.15.1 to R-2.15.1 patched (under Ubuntu 12.04). What's
+>> the recommended way to do so?
+>>
+>> I did the following steps for installing R under Ubuntu 12.04 (as far as I
+>> remember, Dirk Eddelbuettel recommended this and helped me on several occasions
+>> with the installation):
+>>
+>> 1) sudo emacs /etc/apt/sources.list
+>> 2) add:
+>>     deb http://stat.ethz.ch/CRAN/bin/linux/ubuntu precise/
+>> 3) do:
+>>     gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
+>>     gpg -a --export E084DAB9 | sudo apt-key add -
+>> 4) do:
+>>     sudo apt-get update
+>>     sudo apt-get install r-base
+>>
+>> Cheers,
+>>
+>> Marius
+>
+> Marius,
+>
+> That should work.  Not sure what you mean by "patched" however.  Is there
+> something in particular you are hoping to get from the CRAN version of R for
+> Ubuntu?
+>
+> Michael
+
+Dear Michael,
+
+thanks for helping. The above steps only work for installing R-2.15.1 (from
+June), but how can I obtain the latest patched version? In the patched version,
+a couple of bugs were fixed, one of which affects me, that's why I would like to
+install the patched version. I used to install R from source, but I remember
+that Dirk did not recommend this (I had some troubles while doing so), so I was
+hoping that there is an "easy" (like the above) way to install the patched
+version. 
+
+Cheers,
+
+Marius
+
+
+From pauljohn32 at gmail.com  Mon Sep 24 16:23:08 2012
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Mon, 24 Sep 2012 09:23:08 -0500
+Subject: [R-sig-Debian] How to upgrade from 2.15.1 to 2.15.1 patched?
+In-Reply-To: <87haqq3pqg.fsf@sklar.v.cablecom.net>
+References: <87y5k23sn5.fsf@sklar.v.cablecom.net> <505DF9CC.8050603@psu.edu>
+	<87haqq3pqg.fsf@sklar.v.cablecom.net>
+Message-ID: <CAErODj_Tt6_nD7JcMbH0TT+oHgjD6fYzzOjGM8YKeuBZh6cH_w@mail.gmail.com>
+
+Gosh, I hope I'm not out of date on this.  I think there is no "deb"
+packaged version of R-patched. The patched version comes out very
+often, and they don't intend it to go into the packaging based
+distributions. It is still in testing, you know.
+
+Here is what you should do to make a package. I have done this on
+Debian, it will work.  Basically, you want to get the Debian packaging
+materials, then replace the R version with the patched tarball, then
+build. If you have never built a deb package before, this is a
+learning & testing process for you, but basically, get the R packaging
+source:
+
+apt-get source r-base
+
+Second, get the R-patched tarball, then Third, Copy the debian folder
+inside the source folder to the R-patched folder. Then you may have to
+fiddle the debian/changelog file to make it match the source. Then use
+the package  builder.
+
+That's an involved process. I should probably have written "if you
+have not built a package  before, quit now and wait for an official R
+release."
+
+pj
+
+On Sat, Sep 22, 2012 at 12:57 PM, Marius Hofert
+<marius.hofert at math.ethz.ch> wrote:
+>
+>
+> Michael Rutter <mar36 at psu.edu> writes:
+>
+>> On 09/22/2012 12:54 PM, Marius Hofert wrote:
+>>> Hi,
+>>>
+>>> I would like to upgrade R-2.15.1 to R-2.15.1 patched (under Ubuntu 12.04). What's
+>>> the recommended way to do so?
+>>>
+>>> I did the following steps for installing R under Ubuntu 12.04 (as far as I
+>>> remember, Dirk Eddelbuettel recommended this and helped me on several occasions
+>>> with the installation):
+>>>
+>>> 1) sudo emacs /etc/apt/sources.list
+>>> 2) add:
+>>>     deb http://stat.ethz.ch/CRAN/bin/linux/ubuntu precise/
+>>> 3) do:
+>>>     gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
+>>>     gpg -a --export E084DAB9 | sudo apt-key add -
+>>> 4) do:
+>>>     sudo apt-get update
+>>>     sudo apt-get install r-base
+>>>
+>>> Cheers,
+>>>
+>>> Marius
+>>
+>> Marius,
+>>
+>> That should work.  Not sure what you mean by "patched" however.  Is there
+>> something in particular you are hoping to get from the CRAN version of R for
+>> Ubuntu?
+>>
+>> Michael
+>
+> Dear Michael,
+>
+> thanks for helping. The above steps only work for installing R-2.15.1 (from
+> June), but how can I obtain the latest patched version? In the patched version,
+> a couple of bugs were fixed, one of which affects me, that's why I would like to
+> install the patched version. I used to install R from source, but I remember
+> that Dirk did not recommend this (I had some troubles while doing so), so I was
+> hoping that there is an "easy" (like the above) way to install the patched
+> version.
+>
+> Cheers,
+>
+> Marius
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+
+-- 
+Paul E. Johnson
+Professor, Political Science    Assoc. Director
+1541 Lilac Lane, Room 504     Center for Research Methods
+University of Kansas               University of Kansas
+http://pj.freefaculty.org            http://quant.ku.edu
+
+
+From r.m.krug at gmail.com  Mon Sep 24 17:03:59 2012
+From: r.m.krug at gmail.com (Rainer M Krug)
+Date: Mon, 24 Sep 2012 17:03:59 +0200
+Subject: [R-sig-Debian] How to upgrade from 2.15.1 to 2.15.1 patched?
+In-Reply-To: <CAErODj_Tt6_nD7JcMbH0TT+oHgjD6fYzzOjGM8YKeuBZh6cH_w@mail.gmail.com>
+References: <87y5k23sn5.fsf@sklar.v.cablecom.net> <505DF9CC.8050603@psu.edu>
+	<87haqq3pqg.fsf@sklar.v.cablecom.net>
+	<CAErODj_Tt6_nD7JcMbH0TT+oHgjD6fYzzOjGM8YKeuBZh6cH_w@mail.gmail.com>
+Message-ID: <5060765F.7040300@gmail.com>
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On 24/09/12 16:23, Paul Johnson wrote:
+> Gosh, I hope I'm not out of date on this.  I think there is no "deb" packaged version of
+> R-patched. The patched version comes out very often, and they don't intend it to go into the
+> packaging based distributions. It is still in testing, you know.
+
+I also don't think that there is a deb available, but I have self-compile R along with deb R and
+never had problems - you don't have to install R to run it, just do the usual:
+
+./configure
+make
+
+but NOT
+make install
+
+
+Cheers,
+
+Rainer
+
+> 
+> Here is what you should do to make a package. I have done this on Debian, it will work.
+> Basically, you want to get the Debian packaging materials, then replace the R version with the
+> patched tarball, then build. If you have never built a deb package before, this is a learning &
+> testing process for you, but basically, get the R packaging source:
+> 
+> apt-get source r-base
+> 
+> Second, get the R-patched tarball, then Third, Copy the debian folder inside the source folder
+> to the R-patched folder. Then you may have to fiddle the debian/changelog file to make it match
+> the source. Then use the package  builder.
+> 
+> That's an involved process. I should probably have written "if you have not built a package
+> before, quit now and wait for an official R release."
+> 
+> pj
+> 
+> On Sat, Sep 22, 2012 at 12:57 PM, Marius Hofert <marius.hofert at math.ethz.ch> wrote:
+>> 
+>> 
+>> Michael Rutter <mar36 at psu.edu> writes:
+>> 
+>>> On 09/22/2012 12:54 PM, Marius Hofert wrote:
+>>>> Hi,
+>>>> 
+>>>> I would like to upgrade R-2.15.1 to R-2.15.1 patched (under Ubuntu 12.04). What's the
+>>>> recommended way to do so?
+>>>> 
+>>>> I did the following steps for installing R under Ubuntu 12.04 (as far as I remember, Dirk
+>>>> Eddelbuettel recommended this and helped me on several occasions with the installation):
+>>>> 
+>>>> 1) sudo emacs /etc/apt/sources.list 2) add: deb http://stat.ethz.ch/CRAN/bin/linux/ubuntu
+>>>> precise/ 3) do: gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9 gpg -a --export
+>>>> E084DAB9 | sudo apt-key add - 4) do: sudo apt-get update sudo apt-get install r-base
+>>>> 
+>>>> Cheers,
+>>>> 
+>>>> Marius
+>>> 
+>>> Marius,
+>>> 
+>>> That should work.  Not sure what you mean by "patched" however.  Is there something in
+>>> particular you are hoping to get from the CRAN version of R for Ubuntu?
+>>> 
+>>> Michael
+>> 
+>> Dear Michael,
+>> 
+>> thanks for helping. The above steps only work for installing R-2.15.1 (from June), but how
+>> can I obtain the latest patched version? In the patched version, a couple of bugs were fixed,
+>> one of which affects me, that's why I would like to install the patched version. I used to
+>> install R from source, but I remember that Dirk did not recommend this (I had some troubles
+>> while doing so), so I was hoping that there is an "easy" (like the above) way to install the
+>> patched version.
+>> 
+>> Cheers,
+>> 
+>> Marius
+>> 
+>> _______________________________________________ R-SIG-Debian mailing list 
+>> R-SIG-Debian at r-project.org https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+> 
+> 
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://www.enigmail.net/
+
+iEYEARECAAYFAlBgdl8ACgkQoYgNqgF2egokqgCeNxSzFkvkBy0mx9yyTr/+dDwi
+DrAAn0WJFCQHpb9Bg0oWtC2l13AyjCCy
+=3aJ7
+-----END PGP SIGNATURE-----
+
+
+From edd at debian.org  Mon Sep 24 17:12:57 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 24 Sep 2012 10:12:57 -0500
+Subject: [R-sig-Debian] How to upgrade from 2.15.1 to 2.15.1 patched?
+In-Reply-To: <87y5k23sn5.fsf@sklar.v.cablecom.net>
+References: <87y5k23sn5.fsf@sklar.v.cablecom.net>
+Message-ID: <20576.30841.965333.714196@max.nulle.part>
+
+
+On 22 September 2012 at 18:54, Marius Hofert wrote:
+| Hi,
+| 
+| I would like to upgrade R-2.15.1 to R-2.15.1 patched (under Ubuntu 12.04). What's
+| the recommended way to do so?
+| 
+| I did the following steps for installing R under Ubuntu 12.04 (as far as I
+| remember, Dirk Eddelbuettel recommended this and helped me on several occasions
+| with the installation):
+| 
+| 1) sudo emacs /etc/apt/sources.list
+| 2) add:
+|    deb http://stat.ethz.ch/CRAN/bin/linux/ubuntu precise/
+| 3) do:
+|    gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
+|    gpg -a --export E084DAB9 | sudo apt-key add -
+| 4) do:
+|    sudo apt-get update
+|    sudo apt-get install r-base
+
+We generally follow R Core releases, and the packaged versions are the actual
+releases.
+
+In other words, there are no .deb packages I am aware of that contain patch
+releases.  
+
+Dirk
+
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From edd at debian.org  Mon Sep 24 18:47:00 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 24 Sep 2012 11:47:00 -0500
+Subject: [R-sig-Debian] How to upgrade from 2.15.1 to 2.15.1 patched?
+In-Reply-To: <5060765F.7040300@gmail.com>
+References: <87y5k23sn5.fsf@sklar.v.cablecom.net> <505DF9CC.8050603@psu.edu>
+	<87haqq3pqg.fsf@sklar.v.cablecom.net>
+	<CAErODj_Tt6_nD7JcMbH0TT+oHgjD6fYzzOjGM8YKeuBZh6cH_w@mail.gmail.com>
+	<5060765F.7040300@gmail.com>
+Message-ID: <20576.36484.289818.352438@max.nulle.part>
+
+
+On 24 September 2012 at 17:03, Rainer M Krug wrote:
+| -----BEGIN PGP SIGNED MESSAGE-----
+| Hash: SHA1
+| 
+| On 24/09/12 16:23, Paul Johnson wrote:
+| > Gosh, I hope I'm not out of date on this.  I think there is no "deb" packaged version of
+| > R-patched. The patched version comes out very often, and they don't intend it to go into the
+| > packaging based distributions. It is still in testing, you know.
+| 
+| I also don't think that there is a deb available, but I have self-compile R along with deb R and
+| never had problems - you don't have to install R to run it, just do the usual:
+| 
+| ./configure
+| make
+
+You can do /much/ better than the default configure.  
+
+For local builds of eg R-devel (straight off SVN) I have a script which was
+posted here not so long ago, and Michael also posted it on his new-ish
+blog. You can trivially substitute R-patched for R-devel.
+
+Now, if someone __really__ wants or needs R-patched packaged, we could
+conceivably look into this (re-)using the launchpad infrastructure. I won't
+have time to drive this in the near future, and I presume Michael has more
+pressing issues too, but we are generally happy to help others.
+
+Dirk
+ 
+| but NOT
+| make install
+| 
+| 
+| Cheers,
+| 
+| Rainer
+| 
+| > 
+| > Here is what you should do to make a package. I have done this on Debian, it will work.
+| > Basically, you want to get the Debian packaging materials, then replace the R version with the
+| > patched tarball, then build. If you have never built a deb package before, this is a learning &
+| > testing process for you, but basically, get the R packaging source:
+| > 
+| > apt-get source r-base
+| > 
+| > Second, get the R-patched tarball, then Third, Copy the debian folder inside the source folder
+| > to the R-patched folder. Then you may have to fiddle the debian/changelog file to make it match
+| > the source. Then use the package  builder.
+| > 
+| > That's an involved process. I should probably have written "if you have not built a package
+| > before, quit now and wait for an official R release."
+| > 
+| > pj
+| > 
+| > On Sat, Sep 22, 2012 at 12:57 PM, Marius Hofert <marius.hofert at math.ethz.ch> wrote:
+| >> 
+| >> 
+| >> Michael Rutter <mar36 at psu.edu> writes:
+| >> 
+| >>> On 09/22/2012 12:54 PM, Marius Hofert wrote:
+| >>>> Hi,
+| >>>> 
+| >>>> I would like to upgrade R-2.15.1 to R-2.15.1 patched (under Ubuntu 12.04). What's the
+| >>>> recommended way to do so?
+| >>>> 
+| >>>> I did the following steps for installing R under Ubuntu 12.04 (as far as I remember, Dirk
+| >>>> Eddelbuettel recommended this and helped me on several occasions with the installation):
+| >>>> 
+| >>>> 1) sudo emacs /etc/apt/sources.list 2) add: deb http://stat.ethz.ch/CRAN/bin/linux/ubuntu
+| >>>> precise/ 3) do: gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9 gpg -a --export
+| >>>> E084DAB9 | sudo apt-key add - 4) do: sudo apt-get update sudo apt-get install r-base
+| >>>> 
+| >>>> Cheers,
+| >>>> 
+| >>>> Marius
+| >>> 
+| >>> Marius,
+| >>> 
+| >>> That should work.  Not sure what you mean by "patched" however.  Is there something in
+| >>> particular you are hoping to get from the CRAN version of R for Ubuntu?
+| >>> 
+| >>> Michael
+| >> 
+| >> Dear Michael,
+| >> 
+| >> thanks for helping. The above steps only work for installing R-2.15.1 (from June), but how
+| >> can I obtain the latest patched version? In the patched version, a couple of bugs were fixed,
+| >> one of which affects me, that's why I would like to install the patched version. I used to
+| >> install R from source, but I remember that Dirk did not recommend this (I had some troubles
+| >> while doing so), so I was hoping that there is an "easy" (like the above) way to install the
+| >> patched version.
+| >> 
+| >> Cheers,
+| >> 
+| >> Marius
+| >> 
+| >> _______________________________________________ R-SIG-Debian mailing list 
+| >> R-SIG-Debian at r-project.org https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| > 
+| > 
+| > 
+| 
+| -----BEGIN PGP SIGNATURE-----
+| Version: GnuPG v1.4.11 (GNU/Linux)
+| Comment: Using GnuPG with Mozilla - http://www.enigmail.net/
+| 
+| iEYEARECAAYFAlBgdl8ACgkQoYgNqgF2egokqgCeNxSzFkvkBy0mx9yyTr/+dDwi
+| DrAAn0WJFCQHpb9Bg0oWtC2l13AyjCCy
+| =3aJ7
+| -----END PGP SIGNATURE-----
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From gnwiii at gmail.com  Mon Sep 24 18:55:28 2012
+From: gnwiii at gmail.com (George N. White III)
+Date: Mon, 24 Sep 2012 13:55:28 -0300
+Subject: [R-sig-Debian] How to upgrade from 2.15.1 to 2.15.1 patched?
+In-Reply-To: <20576.30841.965333.714196@max.nulle.part>
+References: <87y5k23sn5.fsf@sklar.v.cablecom.net>
+	<20576.30841.965333.714196@max.nulle.part>
+Message-ID: <CAKTOP45202+d61nkavuehrhmr+y24jO2awacFQtQ04-GzWtLnw@mail.gmail.com>
+
+On Mon, Sep 24, 2012 at 12:12 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> On 22 September 2012 at 18:54, Marius Hofert wrote:
+> | Hi,
+> |
+> | I would like to upgrade R-2.15.1 to R-2.15.1 patched (under Ubuntu 12.04). What's
+> | the recommended way to do so?
+> |
+> | I did the following steps for installing R under Ubuntu 12.04 (as far as I
+> | remember, Dirk Eddelbuettel recommended this and helped me on several occasions
+> | with the installation):
+> |
+> | 1) sudo emacs /etc/apt/sources.list
+> | 2) add:
+> |    deb http://stat.ethz.ch/CRAN/bin/linux/ubuntu precise/
+> | 3) do:
+> |    gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
+> |    gpg -a --export E084DAB9 | sudo apt-key add -
+> | 4) do:
+> |    sudo apt-get update
+> |    sudo apt-get install r-base
+>
+> We generally follow R Core releases, and the packaged versions are the actual
+> releases.
+>
+> In other words, there are no .deb packages I am aware of that contain patch
+> releases.
+
+I've been in the same pickle (e.g., a patched bug is affecting my
+work) a very few
+times.  I don't mind building R-patched from source every once and a
+while.   If you
+are able to install source packages you probably won't need much more
+(if any) work
+to build R from scratch, and it is satisfying to know that you really
+can "use the
+source"(TM) when the need arises.   The hard work of figuring out the
+appropriate
+compilers and options has already been done and is recorded in the Makeconf
+files, and can be copied into a "config.site" file.
+
+You can install the patched version somewhere that won't affect the debian
+packaged version (e.g., /opt/R-project/) and install (current versions
+of) libraries
+you are using.
+
+
+-- 
+George N. White III <aa056 at chebucto.ns.ca>
+Head of St. Margarets Bay, Nova Scotia
+
+
+From r.m.krug at gmail.com  Mon Sep 24 19:02:56 2012
+From: r.m.krug at gmail.com (Rainer M Krug)
+Date: Mon, 24 Sep 2012 19:02:56 +0200
+Subject: [R-sig-Debian] How to upgrade from 2.15.1 to 2.15.1 patched?
+In-Reply-To: <20576.36484.289818.352438@max.nulle.part>
+References: <87y5k23sn5.fsf@sklar.v.cablecom.net> <505DF9CC.8050603@psu.edu>
+	<87haqq3pqg.fsf@sklar.v.cablecom.net>
+	<CAErODj_Tt6_nD7JcMbH0TT+oHgjD6fYzzOjGM8YKeuBZh6cH_w@mail.gmail.com>
+	<5060765F.7040300@gmail.com>
+	<20576.36484.289818.352438@max.nulle.part>
+Message-ID: <50609240.7060804@gmail.com>
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On 24/09/12 18:47, Dirk Eddelbuettel wrote:
+> 
+> On 24 September 2012 at 17:03, Rainer M Krug wrote: | -----BEGIN PGP SIGNED MESSAGE----- |
+> Hash: SHA1 | | On 24/09/12 16:23, Paul Johnson wrote: | > Gosh, I hope I'm not out of date on
+> this.  I think there is no "deb" packaged version of | > R-patched. The patched version comes
+> out very often, and they don't intend it to go into the | > packaging based distributions. It
+> is still in testing, you know. | | I also don't think that there is a deb available, but I have
+> self-compile R along with deb R and | never had problems - you don't have to install R to run
+> it, just do the usual: | | ./configure | make
+> 
+> You can do /much/ better than the default configure.
+
+No question about that - but, I guess (as I don't know the script you mention below),  the basic
+idea is the same.
+
+> 
+> For local builds of eg R-devel (straight off SVN) I have a script which was posted here not so
+> long ago, and Michael also posted it on his new-ish blog. You can trivially substitute
+> R-patched for R-devel.
+> 
+> Now, if someone __really__ wants or needs R-patched packaged, we could conceivably look into
+> this (re-)using the launchpad infrastructure. I won't have time to drive this in the near
+> future, and I presume Michael has more pressing issues too, but we are generally happy to help
+> others.
+
+There is always the issue, that if you offer a binary, more people will use it and more can report
+bugs. But on the other hand, more users not that experienced will use it and this can cause problems.
+
+I would say: R-patched is only for advanced users, so a script to compile it is perfectly fine.
+
+Cheers,
+
+Rainer
+
+
+> 
+> Dirk
+> 
+> | but NOT | make install | | | Cheers, | | Rainer | | > | > Here is what you should do to make
+> a package. I have done this on Debian, it will work. | > Basically, you want to get the Debian
+> packaging materials, then replace the R version with the | > patched tarball, then build. If
+> you have never built a deb package before, this is a learning & | > testing process for you,
+> but basically, get the R packaging source: | > | > apt-get source r-base | > | > Second, get
+> the R-patched tarball, then Third, Copy the debian folder inside the source folder | > to the
+> R-patched folder. Then you may have to fiddle the debian/changelog file to make it match | >
+> the source. Then use the package  builder. | > | > That's an involved process. I should
+> probably have written "if you have not built a package | > before, quit now and wait for an
+> official R release." | > | > pj | > | > On Sat, Sep 22, 2012 at 12:57 PM, Marius Hofert
+> <marius.hofert at math.ethz.ch> wrote: | >> | >> | >> Michael Rutter <mar36 at psu.edu> writes: | >>
+>  | >>> On 09/22/2012 12:54 PM, Marius Hofert wrote: | >>>> Hi, | >>>> | >>>> I would like to
+> upgrade R-2.15.1 to R-2.15.1 patched (under Ubuntu 12.04). What's the | >>>> recommended way to
+> do so? | >>>> | >>>> I did the following steps for installing R under Ubuntu 12.04 (as far as I
+> remember, Dirk | >>>> Eddelbuettel recommended this and helped me on several occasions with the
+> installation): | >>>> | >>>> 1) sudo emacs /etc/apt/sources.list 2) add: deb
+> http://stat.ethz.ch/CRAN/bin/linux/ubuntu | >>>> precise/ 3) do: gpg --keyserver
+> keyserver.ubuntu.com --recv-key E084DAB9 gpg -a --export | >>>> E084DAB9 | sudo apt-key add -
+> 4) do: sudo apt-get update sudo apt-get install r-base | >>>> | >>>> Cheers, | >>>> | >>>>
+> Marius | >>> | >>> Marius, | >>> | >>> That should work.  Not sure what you mean by "patched"
+> however.  Is there something in | >>> particular you are hoping to get from the CRAN version of
+> R for Ubuntu? | >>> | >>> Michael | >> | >> Dear Michael, | >> | >> thanks for helping. The
+> above steps only work for installing R-2.15.1 (from June), but how | >> can I obtain the latest
+> patched version? In the patched version, a couple of bugs were fixed, | >> one of which affects
+> me, that's why I would like to install the patched version. I used to | >> install R from
+> source, but I remember that Dirk did not recommend this (I had some troubles | >> while doing
+> so), so I was hoping that there is an "easy" (like the above) way to install the | >> patched
+> version. | >> | >> Cheers, | >> | >> Marius | >> | >>
+> _______________________________________________ R-SIG-Debian mailing list | >>
+> R-SIG-Debian at r-project.org https://stat.ethz.ch/mailman/listinfo/r-sig-debian | > | > | > | |
+> -----BEGIN PGP SIGNATURE----- | Version: GnuPG v1.4.11 (GNU/Linux) | Comment: Using GnuPG with
+> Mozilla - http://www.enigmail.net/ | |
+> iEYEARECAAYFAlBgdl8ACgkQoYgNqgF2egokqgCeNxSzFkvkBy0mx9yyTr/+dDwi |
+> DrAAn0WJFCQHpb9Bg0oWtC2l13AyjCCy | =3aJ7 | -----END PGP SIGNATURE----- | |
+> _______________________________________________ | R-SIG-Debian mailing list |
+> R-SIG-Debian at r-project.org | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+
+
+- -- 
+Rainer M. Krug, PhD (Conservation Ecology, SUN), MSc (Conservation Biology, UCT), Dipl. Phys.
+(Germany)
+
+Centre of Excellence for Invasion Biology
+Stellenbosch University
+South Africa
+
+Tel :       +33 - (0)9 53 10 27 44
+Cell:       +33 - (0)6 85 62 59 98
+Fax :       +33 - (0)9 58 10 27 44
+
+Fax (D):    +49 - (0)3 21 21 25 22 44
+
+email:      Rainer at krugs.de
+
+Skype:      RMkrug
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://www.enigmail.net/
+
+iEYEARECAAYFAlBgkj8ACgkQoYgNqgF2egqhEACfecwhy1W+AcGaSHFE1aDwzON/
+b8EAoInwRwdoogX3DFz0TqnyhxcLfksz
+=Qx7p
+-----END PGP SIGNATURE-----
+
+
+From marius.hofert at math.ethz.ch  Mon Sep 24 19:39:35 2012
+From: marius.hofert at math.ethz.ch (Marius Hofert)
+Date: Mon, 24 Sep 2012 19:39:35 +0200
+Subject: [R-sig-Debian] How to upgrade from 2.15.1 to 2.15.1 patched?
+In-Reply-To: <20576.36484.289818.352438@max.nulle.part> (Dirk Eddelbuettel's
+	message of "Mon, 24 Sep 2012 11:47:00 -0500")
+References: <87y5k23sn5.fsf@sklar.v.cablecom.net> <505DF9CC.8050603@psu.edu>
+	<87haqq3pqg.fsf@sklar.v.cablecom.net>
+	<CAErODj_Tt6_nD7JcMbH0TT+oHgjD6fYzzOjGM8YKeuBZh6cH_w@mail.gmail.com>
+	<5060765F.7040300@gmail.com>
+	<20576.36484.289818.352438@max.nulle.part>
+Message-ID: <87d31b48x4.fsf@sklar.v.cablecom.net>
+
+Dirk Eddelbuettel <edd at debian.org> writes:
+
+> On 24 September 2012 at 17:03, Rainer M Krug wrote:
+> | -----BEGIN PGP SIGNED MESSAGE-----
+> | Hash: SHA1
+> | 
+> | On 24/09/12 16:23, Paul Johnson wrote:
+> | > Gosh, I hope I'm not out of date on this.  I think there is no "deb" packaged version of
+> | > R-patched. The patched version comes out very often, and they don't intend it to go into the
+> | > packaging based distributions. It is still in testing, you know.
+> | 
+> | I also don't think that there is a deb available, but I have self-compile R along with deb R and
+> | never had problems - you don't have to install R to run it, just do the usual:
+> | 
+> | ./configure
+> | make
+>
+> You can do /much/ better than the default configure.  
+>
+> For local builds of eg R-devel (straight off SVN) I have a script which was
+> posted here not so long ago, and Michael also posted it on his new-ish
+> blog. You can trivially substitute R-patched for R-devel.
+>
+> Now, if someone __really__ wants or needs R-patched packaged, we could
+> conceivably look into this (re-)using the launchpad infrastructure. I won't
+> have time to drive this in the near future, and I presume Michael has more
+> pressing issues too, but we are generally happy to help others.
+
+Thanks a lot, this is a great list. I hope I have some more problems for this
+list in the future :-)
+
+The patch is indeed not too serious in my case, so I might stick with the 2.15.1 version
+then, given that I'm not experienced with creating deb's (but I'll give it a try
+just to see how far I can get). 
+
+Concerning patched versions of R in general, as far as I know, R Core is going
+towards a new system. Instead of having two new releases per year, they plan to
+have one major release and then a (smaller) patch-release. Now at the moment,
+it seems that there is no "single" patch release (yet). But if that will come at
+some point in the future, it might be good to have a packaged version. I would
+definitely upgrade. 
+
+Thanks again to all.
+
+Cheers,
+
+Marius
+
+>
+> Dirk
+>  
+> | but NOT
+> | make install
+> | 
+> | 
+> | Cheers,
+> | 
+> | Rainer
+> | 
+> | > 
+> | > Here is what you should do to make a package. I have done this on Debian, it will work.
+> | > Basically, you want to get the Debian packaging materials, then replace the R version with the
+> | > patched tarball, then build. If you have never built a deb package before, this is a learning &
+> | > testing process for you, but basically, get the R packaging source:
+> | > 
+> | > apt-get source r-base
+> | > 
+> | > Second, get the R-patched tarball, then Third, Copy the debian folder inside the source folder
+> | > to the R-patched folder. Then you may have to fiddle the debian/changelog file to make it match
+> | > the source. Then use the package  builder.
+> | > 
+> | > That's an involved process. I should probably have written "if you have not built a package
+> | > before, quit now and wait for an official R release."
+> | > 
+> | > pj
+> | > 
+> | > On Sat, Sep 22, 2012 at 12:57 PM, Marius Hofert <marius.hofert at math.ethz.ch> wrote:
+> | >> 
+> | >> 
+> | >> Michael Rutter <mar36 at psu.edu> writes:
+> | >> 
+> | >>> On 09/22/2012 12:54 PM, Marius Hofert wrote:
+> | >>>> Hi,
+> | >>>> 
+> | >>>> I would like to upgrade R-2.15.1 to R-2.15.1 patched (under Ubuntu 12.04). What's the
+> | >>>> recommended way to do so?
+> | >>>> 
+> | >>>> I did the following steps for installing R under Ubuntu 12.04 (as far as I remember, Dirk
+> | >>>> Eddelbuettel recommended this and helped me on several occasions with the installation):
+> | >>>> 
+> | >>>> 1) sudo emacs /etc/apt/sources.list 2) add: deb http://stat.ethz.ch/CRAN/bin/linux/ubuntu
+> | >>>> precise/ 3) do: gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9 gpg -a --export
+> | >>>> E084DAB9 | sudo apt-key add - 4) do: sudo apt-get update sudo apt-get install r-base
+> | >>>> 
+> | >>>> Cheers,
+> | >>>> 
+> | >>>> Marius
+> | >>> 
+> | >>> Marius,
+> | >>> 
+> | >>> That should work.  Not sure what you mean by "patched" however.  Is there something in
+> | >>> particular you are hoping to get from the CRAN version of R for Ubuntu?
+> | >>> 
+> | >>> Michael
+> | >> 
+> | >> Dear Michael,
+> | >> 
+> | >> thanks for helping. The above steps only work for installing R-2.15.1 (from June), but how
+> | >> can I obtain the latest patched version? In the patched version, a couple of bugs were fixed,
+> | >> one of which affects me, that's why I would like to install the patched version. I used to
+> | >> install R from source, but I remember that Dirk did not recommend this (I had some troubles
+> | >> while doing so), so I was hoping that there is an "easy" (like the above) way to install the
+> | >> patched version.
+> | >> 
+> | >> Cheers,
+> | >> 
+> | >> Marius
+> | >> 
+> | >> _______________________________________________ R-SIG-Debian mailing list 
+> | >> R-SIG-Debian at r-project.org https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> | > 
+> | > 
+> | > 
+> | 
+> | -----BEGIN PGP SIGNATURE-----
+> | Version: GnuPG v1.4.11 (GNU/Linux)
+> | Comment: Using GnuPG with Mozilla - http://www.enigmail.net/
+> | 
+> | iEYEARECAAYFAlBgdl8ACgkQoYgNqgF2egokqgCeNxSzFkvkBy0mx9yyTr/+dDwi
+> | DrAAn0WJFCQHpb9Bg0oWtC2l13AyjCCy
+> | =3aJ7
+> | -----END PGP SIGNATURE-----
+> | 
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From edd at debian.org  Mon Sep 24 20:10:20 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 24 Sep 2012 13:10:20 -0500
+Subject: [R-sig-Debian] How to upgrade from 2.15.1 to 2.15.1 patched?
+In-Reply-To: <87d31b48x4.fsf@sklar.v.cablecom.net>
+References: <87y5k23sn5.fsf@sklar.v.cablecom.net> <505DF9CC.8050603@psu.edu>
+	<87haqq3pqg.fsf@sklar.v.cablecom.net>
+	<CAErODj_Tt6_nD7JcMbH0TT+oHgjD6fYzzOjGM8YKeuBZh6cH_w@mail.gmail.com>
+	<5060765F.7040300@gmail.com>
+	<20576.36484.289818.352438@max.nulle.part>
+	<87d31b48x4.fsf@sklar.v.cablecom.net>
+Message-ID: <20576.41484.546603.464508@max.nulle.part>
+
+
+On 24 September 2012 at 19:39, Marius Hofert wrote:
+| The patch is indeed not too serious in my case, so I might stick with the 2.15.1 version
+| then, given that I'm not experienced with creating deb's (but I'll give it a try
+| just to see how far I can get). 
+
+I'd recommend starting with much smaller + simpler packages.
+
+But this is inded a very useful trick I have often deployed myself, so it is
+worth learning it.
+ 
+| Concerning patched versions of R in general, as far as I know, R Core is going
+| towards a new system. Instead of having two new releases per year, they plan to
+
+It is public knowledge and was clearly announced.  No more fall release, and
+after 2.15.0 this spring we will have wait til next spring for 2.16.0.  
+
+In between, minor releases are being made as before on a "as needed" basis.
+That was always good enough and the main reason we never went for interim
+patch releases.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+

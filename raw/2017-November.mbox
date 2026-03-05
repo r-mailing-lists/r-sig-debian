@@ -1,0 +1,296 @@
+From bill_harris at facilitatedsystems.com  Sun Nov 19 00:17:16 2017
+From: bill_harris at facilitatedsystems.com (Bill Harris)
+Date: Sat, 18 Nov 2017 15:17:16 -0800
+Subject: [R-sig-Debian] Debian backport on Stretch?
+Message-ID: <CAOBquGpK42+p5Db+nPGCPtaGhaiPtEY2WghO-PR5nRLCu3zhRg@mail.gmail.com>
+
+I got a new laptop in September and installed Stretch (I had been using
+Jessie), and I tried to follow the instructions on
+https://cran.r-project.org/bin/linux/debian/, as I had multiple times in
+the past: I added
+
+deb http://cran.wustl.edu/bin/linux/debian stretch-cran34/
+
+to the end of sources.list, I followed the rest of the above directions as
+of early September, as best I recall, and I only got a partial
+installation.  3.4.2 is installed, but I'm limited in what packages I can
+load using aptitude (I haven't tried install.packages()).  From my reading,
+this has to do with r-api-3 problems. If my problem isn't obvious, I'll be
+glad to provide more details.
+
+My question is there a successful and not too difficult way to install
+3.4.2, or is deleting this R, deleting the wustl.edu backport entry, and
+reinstalling R and its packages  from the standard Stretch repo the best
+approach at this time?
+
+If I should go back to the standard Stretch install, does that mean I need
+to be especially cautious about installing packages with install.packages()
+inside R, because that would get me a package that depended on r-api-34?  I
+use a few packages like rstan, rstanarm, and brms that I don't see when I
+do aptitude search, and I'm not sure what that means I should do.
+
+Thanks,
+
+Bill
+
+	[[alternative HTML version deleted]]
+
+
+From bill_harris at facilitatedsystems.com  Sun Nov 19 00:26:53 2017
+From: bill_harris at facilitatedsystems.com (Bill Harris)
+Date: Sat, 18 Nov 2017 15:26:53 -0800
+Subject: [R-sig-Debian] Debian backport on Stretch?
+In-Reply-To: <CAOBquGpK42+p5Db+nPGCPtaGhaiPtEY2WghO-PR5nRLCu3zhRg@mail.gmail.com>
+References: <CAOBquGpK42+p5Db+nPGCPtaGhaiPtEY2WghO-PR5nRLCu3zhRg@mail.gmail.com>
+Message-ID: <CAOBquGq4MZzD67SpiM6Zw6sZQ0V-UNzj+OWDEMuzJB08CbV2HQ@mail.gmail.com>
+
+Incidentally, you can see a bit more complete description at
+https://unix.stackexchange.com/questions/402560/how-do-i-install-r-on-debian-stretch-given-the-r-api-3-issue
+.
+
+On Sat, Nov 18, 2017 at 3:17 PM, Bill Harris <
+bill_harris at facilitatedsystems.com> wrote:
+
+> I got a new laptop in September and installed Stretch (I had been using
+> Jessie), and I tried to follow the instructions on
+> https://cran.r-project.org/bin/linux/debian/, as I had multiple times in
+> the past: I added
+>
+> deb http://cran.wustl.edu/bin/linux/debian stretch-cran34/
+>
+> to the end of sources.list, I followed the rest of the above directions as
+> of early September, as best I recall, and I only got a partial
+> installation.  3.4.2 is installed, but I'm limited in what packages I can
+> load using aptitude (I haven't tried install.packages()).  From my reading,
+> this has to do with r-api-3 problems. If my problem isn't obvious, I'll be
+> glad to provide more details.
+>
+> My question is there a successful and not too difficult way to install
+> 3.4.2, or is deleting this R, deleting the wustl.edu backport entry, and
+> reinstalling R and its packages  from the standard Stretch repo the best
+> approach at this time?
+>
+> If I should go back to the standard Stretch install, does that mean I need
+> to be especially cautious about installing packages with install.packages()
+> inside R, because that would get me a package that depended on r-api-34?  I
+> use a few packages like rstan, rstanarm, and brms that I don't see when I
+> do aptitude search, and I'm not sure what that means I should do.
+>
+> Thanks,
+>
+> Bill
+>
+>
+
+	[[alternative HTML version deleted]]
+
+
+From charles-r-nospam at plessy.org  Sun Nov 19 11:02:53 2017
+From: charles-r-nospam at plessy.org (Charles Plessy)
+Date: Sun, 19 Nov 2017 19:02:53 +0900
+Subject: [R-sig-Debian] Debian backport on Stretch?
+In-Reply-To: <CAOBquGq4MZzD67SpiM6Zw6sZQ0V-UNzj+OWDEMuzJB08CbV2HQ@mail.gmail.com>
+References: <CAOBquGpK42+p5Db+nPGCPtaGhaiPtEY2WghO-PR5nRLCu3zhRg@mail.gmail.com>
+ <CAOBquGq4MZzD67SpiM6Zw6sZQ0V-UNzj+OWDEMuzJB08CbV2HQ@mail.gmail.com>
+Message-ID: <20171119100205.j23xyacq6kvtmtra@kumo.plessy.net>
+
+Le Sat, Nov 18, 2017 at 03:26:53PM -0800, Bill Harris a ?crit :
+> Incidentally, you can see a bit more complete description at
+> https://unix.stackexchange.com/questions/402560/how-do-i-install-r-on-debian-stretch-given-the-r-api-3-issue
+> .
+
+Hi Bill and everybody,
+
+if one installs R >= 3.4.2 from any source, then some Debian packages
+will be broken.  The change of r-api virtual dependency prevents this to
+happen.
+
+Since you install R from CRAN's Debian packages, can't you also upgrade
+the r-cran-* packages using `apt-get install -t stretch-cran34` as
+suggested in
+<https://cran.r-project.org/bin/linux/debian/#debian-stretch-stable> ?
+
+Have a nice day,
+
+Charles
+
+--
+Charles Plessy
+Debian Med packaging team,
+http://www.debian.org/devel/debian-med
+Tsurumi, Kanagawa, Japan
+
+
+From edd at debian.org  Sun Nov 19 16:06:04 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 19 Nov 2017 09:06:04 -0600
+Subject: [R-sig-Debian] Debian backport on Stretch?
+In-Reply-To: <20171119100205.j23xyacq6kvtmtra@kumo.plessy.net>
+References: <CAOBquGpK42+p5Db+nPGCPtaGhaiPtEY2WghO-PR5nRLCu3zhRg@mail.gmail.com>
+ <CAOBquGq4MZzD67SpiM6Zw6sZQ0V-UNzj+OWDEMuzJB08CbV2HQ@mail.gmail.com>
+ <20171119100205.j23xyacq6kvtmtra@kumo.plessy.net>
+Message-ID: <23057.40412.480076.604948@bud.eddelbuettel.com>
+
+
+On 19 November 2017 at 19:02, Charles Plessy wrote:
+| Le Sat, Nov 18, 2017 at 03:26:53PM -0800, Bill Harris a ?crit :
+| > Incidentally, you can see a bit more complete description at
+| > https://unix.stackexchange.com/questions/402560/how-do-i-install-r-on-debian-stretch-given-the-r-api-3-issue
+| > .
+| 
+| Hi Bill and everybody,
+| 
+| if one installs R >= 3.4.2 from any source, then some Debian packages
+| will be broken.  The change of r-api virtual dependency prevents this to
+| happen.
+
+Note that this was a transition forced upon the maintainer (ie me) by a group
+consensus and override. I argued against it as the underlying issue was
+rather minute [1] yet the imposition of the r-api change imposes this "omg
+everything is borked" side effect I consider overkill.
+ 
+| Since you install R from CRAN's Debian packages, can't you also upgrade
+| the r-cran-* packages using `apt-get install -t stretch-cran34` as
+| suggested in
+| <https://cran.r-project.org/bin/linux/debian/#debian-stretch-stable> ?
+
+In short, you need matching toolchains. For a given r-base-core package, you
+need the corresponding r-cran-*
+
+Personally, I don't use these backports. My 'development' work happens where
+Debian is fresh and new ("unstable", and "testing"); my deployments at work
+and elsewhere happens to be on Ubuntu (different story).
+
+So I cannot speak to the state of these backports as that is a project by
+Johannes outside of the official Debian scope.  He may chime in.
+
+Dirk
+
+[1] http://eddelbuettel.github.io/rcppapt/binnmuAfterR340.html
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From jranke at uni-bremen.de  Mon Nov 20 11:48:58 2017
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 20 Nov 2017 11:48:58 +0100
+Subject: [R-sig-Debian] Debian backport on Stretch?
+In-Reply-To: <23057.40412.480076.604948@bud.eddelbuettel.com>
+References: <CAOBquGpK42+p5Db+nPGCPtaGhaiPtEY2WghO-PR5nRLCu3zhRg@mail.gmail.com>
+ <20171119100205.j23xyacq6kvtmtra@kumo.plessy.net>
+ <23057.40412.480076.604948@bud.eddelbuettel.com>
+Message-ID: <7794910.FJfe4qXa1V@tux>
+
+Am Sonntag, 19. November 2017, 09:06:04 CET schrieb Dirk Eddelbuettel:
+> On 19 November 2017 at 19:02, Charles Plessy wrote:
+> | Le Sat, Nov 18, 2017 at 03:26:53PM -0800, Bill Harris a ?crit :
+> | > Incidentally, you can see a bit more complete description at
+> | > https://unix.stackexchange.com/questions/402560/how-do-i-install-r-on-de
+> | > bian-stretch-given-the-r-api-3-issue .
+> | 
+> | Hi Bill and everybody,
+> | 
+> | if one installs R >= 3.4.2 from any source, then some Debian packages
+> | will be broken.  The change of r-api virtual dependency prevents this to
+> | happen.
+> 
+> Note that this was a transition forced upon the maintainer (ie me) by a
+> group consensus and override. I argued against it as the underlying issue
+> was rather minute [1] yet the imposition of the r-api change imposes this
+> "omg everything is borked" side effect I consider overkill.
+> 
+> | Since you install R from CRAN's Debian packages, can't you also upgrade
+> | the r-cran-* packages using `apt-get install -t stretch-cran34` as
+> | suggested in
+> | <https://cran.r-project.org/bin/linux/debian/#debian-stretch-stable> ?
+> 
+> In short, you need matching toolchains. For a given r-base-core package, you
+> need the corresponding r-cran-*
+> 
+> Personally, I don't use these backports. My 'development' work happens where
+> Debian is fresh and new ("unstable", and "testing"); my deployments at work
+> and elsewhere happens to be on Ubuntu (different story).
+> 
+> So I cannot speak to the state of these backports as that is a project by
+> Johannes outside of the official Debian scope.  He may chime in.
+
+Here I am:
+
+packages fixed in unstable by rebuilding against current R do not propagate to 
+stretch and jessie or older Ubuntu distributions.
+
+Therefore, as the backport of R 3.4.2 to Ubuntu still provides r-api-3, I was 
+under the impression that the 46 packages that you are listing in the current 
+version of your document [1] must be broken in some way when using the current 
+R backports on CRAN for Ubuntu. And I thought it is a good thing that they are 
+not installable on Debian stretch/jessie when using the CRAN backport 
+providing r-api-3.4.
+
+In order to check the relevance of this once again, I selected r-cran-
+data.table from your list. However, ironically, this package only uses .C() in 
+a comment... So not really affected...
+
+My next try was MCMCpack. Grepping the sources I found lots of calls to .C(), 
+e.g. in the function MCMChlogit().
+
+me at box:~/tmp/r-cran-mcmcpack-1.4-0/R$ grep "\.C(" *
+...
+MCMChlogit.R:  Sample <- .C("cMCMChlogit",
+...
+
+However, on Ubuntu Xenial using the backport of R 3.4.2 that still provides r-
+api-3, this function works beautifully (against my expectation).
+
+Finally, I tried deSolve as packaged in r-cran-desolve. It uses .C in all many  
+of its major functions:
+
+me at box:~/tmp/r-cran-desolve-1.20/R$ grep "\.C(" * 
+daspk.R:  on.exit(.C("unlock_solver")) 
+euler.R:    on.exit(.C("unlock_solver")) 
+iteration.R:    on.exit(.C("unlock_solver")) 
+lsoda.R:  on.exit(.C("unlock_solver"))     
+lsodar.R:  on.exit(.C("unlock_solver")) 
+lsode.R:  on.exit(.C("unlock_solver")) 
+...
+
+But e.g. the function lsode() from the old r-cran-lsode package from Xenial 
+(uploaded long before R 3.4.x) works nicely together with the R 3.4.2 
+backport. 
+
+This leads me suspect that only calls to .C() (I didn't look at Fortran()) are 
+affected that have the names of R objects as first argument, and not quoted 
+strings like "unlock_solver". What got the whole issue rolling were the 
+function coxph() in package survival [2] that uses internally a call
+
+  coxres <- .C(Ccoxmart, as.integer(n),
+
+and the case that I found myself [3] involving the call 
+
+   z <-  .C(lqs_fitlots,
+
+in package MASS. 
+
+Therefore, in the light of the above, the list of Breaks: that I have pledged 
+for [4] could have been even shorter than we thought.
+
+In fact, I am thinking about trying to produce such a shortened list for the 
+backport of R 3.4.3 that is scheduled to be released end of this month, to be 
+able to switch back to r-api-3 for the CRAN backports to stretch and jessie. 
+Thoughts and/or helpful hands appreciated.
+
+I believe the best thing about all this is that we will all be prepared for 
+the upcoming change of r-api-* next year.
+
+Cheers,
+
+Johannes
+
+> Dirk
+> 
+> [1] http://eddelbuettel.github.io/rcppapt/binnmuAfterR340.html
+[2] https://stat.ethz.ch/pipermail/r-sig-debian/2017-April/002680.html
+[3] https://stat.ethz.ch/pipermail/r-sig-debian/2017-April/002683.html
+[4] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=861333#95
+
+

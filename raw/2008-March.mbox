@@ -1,0 +1,298 @@
+From tyler.smith at mail.mcgill.ca  Sun Mar  2 20:51:02 2008
+From: tyler.smith at mail.mcgill.ca (tyler)
+Date: Sun, 2 Mar 2008 15:51:02 -0400
+Subject: [R-sig-Debian] fonts in eps files
+Message-ID: <20080302195102.GA26507@sedgenet>
+
+Hi,
+
+I've got a paper ready for publication, but the .eps files I produced
+are giving the editor problems. I received the following complaint:
+
+     I tried to rasterize the eps files you sent, but I got a warning
+     message that they contain a font that I don't have. The program
+     will substitute another font, which can result in different
+     placement and wrapping of the text as well as different
+     appearance of the characters.
+
+I think I've managed to produce an acceptable tiff, by importing the
+.eps file into Gimp at the required resolution (1200 dpi), and then
+saving as .tiff. However, it should be possible to use the .eps if the
+fonts are set up correctly? What am I missing here?
+
+I'm running R 2.6.1 on testing. I haven't done anything unusual with
+the R install, but I'm not sure about the fonts on the system. Is
+there a way to check that I've got standard fonts installed? I'm not
+sure where to start trouble-shooting this.
+
+Thanks!
+
+Tyler
+
+-- 
+I'm Tyler Smith and I approve of this email.
+
+
+From edd at debian.org  Sun Mar  2 18:12:03 2008
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 2 Mar 2008 11:12:03 -0600
+Subject: [R-sig-Debian] fonts in eps files
+In-Reply-To: <20080302195102.GA26507@sedgenet>
+References: <20080302195102.GA26507@sedgenet>
+Message-ID: <18378.57315.283753.519488@ron.nulle.part>
+
+
+On 2 March 2008 at 15:51, tyler wrote:
+| I've got a paper ready for publication, but the .eps files I produced
+| are giving the editor problems. I received the following complaint:
+| 
+|      I tried to rasterize the eps files you sent, but I got a warning
+|      message that they contain a font that I don't have. The program
+|      will substitute another font, which can result in different
+|      placement and wrapping of the text as well as different
+|      appearance of the characters.
+| 
+| I think I've managed to produce an acceptable tiff, by importing the
+| .eps file into Gimp at the required resolution (1200 dpi), and then
+| saving as .tiff. However, it should be possible to use the .eps if the
+| fonts are set up correctly? What am I missing here?
+| 
+| I'm running R 2.6.1 on testing. I haven't done anything unusual with
+| the R install, but I'm not sure about the fonts on the system. Is
+| there a way to check that I've got standard fonts installed? I'm not
+| sure where to start trouble-shooting this.
+
+One idea would be to recreate your charts as .pdf and include those in latex?
+Wouldn't that 'freeze' those fonts?  Maybe with an additional option to
+include font files in the pdf itself?
+
+Dirk
+
+| I'm Tyler Smith and I approve of this email.
+
+Nice one, but a) there's campaign going on back north (though that may change
+soon) and b) Canadian election laws don't require that as I recall.  It's
+been a while since in lived in .ca though...
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From tyler.smith at mail.mcgill.ca  Thu Mar 13 19:01:21 2008
+From: tyler.smith at mail.mcgill.ca (tyler)
+Date: Thu, 13 Mar 2008 15:01:21 -0300
+Subject: [R-sig-Debian] info files
+Message-ID: <20080313180121.GA12726@sedgenet>
+
+Hi,
+
+I'm a little confused as to how Debian deals with texinfo files. The R
+docs are a good example of my problems, so maybe you folks can explain
+how this works.
+
+What I've noticed is that the texinfo files for R get appended/indexed
+in /usr/share/info/dir as well as /usr/local/info. This results in
+duplicated entries when I browse the info tree from Emacs. The only
+solutions I can come up with involve personally editing the various
+dir files on my system. This is not a good solution, as it requires
+additional attention whenever I update the docs from the repositories.
+Is there a better way to either set up things at my end, or to deal
+with the way the docs are packaged?
+
+The fact that I'm running Emacs 22.1.1 installed from sources provided
+upstream may be part of this problem. (I got tired of trying to chase
+down what parts of Emacs were Debian-approved, and which were
+"non-free" or just plain missing).
+
+Thanks for your continuing efforts!
+
+Tyler
+
+-- 
+Friends don't let friends send Word documents
+
+http://www.nothingisreal.com/dfki/no-word
+
+
+From edd at debian.org  Thu Mar 13 20:23:17 2008
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 13 Mar 2008 14:23:17 -0500
+Subject: [R-sig-Debian] info files
+In-Reply-To: <20080313180121.GA12726@sedgenet>
+References: <20080313180121.GA12726@sedgenet>
+Message-ID: <18393.32549.20171.649144@ron.nulle.part>
+
+
+On 13 March 2008 at 15:01, tyler wrote:
+| I'm a little confused as to how Debian deals with texinfo files. The R
+| docs are a good example of my problems, so maybe you folks can explain
+| how this works.
+| 
+| What I've noticed is that the texinfo files for R get appended/indexed
+| in /usr/share/info/dir as well as /usr/local/info. This results in
+
+Careful. The Debian package places them in the former location as 'dpkg -L'
+on the package name shows you rather convincingly.  And no Debian package
+will ever touch /usr/local [ apart from creating empty stanza directories
+like /usr/local/lib/R/site-library/ ] ie no files should _ever_ be written
+there.
+
+| duplicated entries when I browse the info tree from Emacs. The only
+| solutions I can come up with involve personally editing the various
+| dir files on my system. This is not a good solution, as it requires
+| additional attention whenever I update the docs from the repositories.
+| Is there a better way to either set up things at my end, or to deal
+| with the way the docs are packaged?
+
+Now, if your question is how to combine entries from packages and from manual
+install -- I don't have a good solution. I think you're own your own.  Maybe
+a system like doc-base can help.
+ 
+| The fact that I'm running Emacs 22.1.1 installed from sources provided
+
+Yes. Because now you have Debian and non-Debian messing around with your
+texinfo index files. You may have to clean that up yourself.
+
+When I play with newer emacsen. I typically just rebuild the Debian package
+from unstable.
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From tyler.smith at mail.mcgill.ca  Fri Mar 14 13:25:53 2008
+From: tyler.smith at mail.mcgill.ca (tyler)
+Date: Fri, 14 Mar 2008 09:25:53 -0300
+Subject: [R-sig-Debian] info files
+In-Reply-To: <18393.32549.20171.649144@ron.nulle.part>
+References: <20080313180121.GA12726@sedgenet>
+	<18393.32549.20171.649144@ron.nulle.part>
+Message-ID: <20080314122553.GB15485@sedgenet>
+
+On Thu, Mar 13, 2008 at 02:23:17PM -0500, Dirk Eddelbuettel wrote:
+> 
+> On 13 March 2008 at 15:01, tyler wrote:
+> | I'm a little confused as to how Debian deals with texinfo files. The R
+> | docs are a good example of my problems, so maybe you folks can explain
+> | how this works.
+> | 
+> | What I've noticed is that the texinfo files for R get appended/indexed
+> | in /usr/share/info/dir as well as /usr/local/info. This results in
+> 
+> Careful. The Debian package places them in the former location as 'dpkg -L'
+> on the package name shows you rather convincingly.  And no Debian package
+> will ever touch /usr/local [ apart from creating empty stanza directories
+> like /usr/local/lib/R/site-library/ ] ie no files should _ever_ be written
+> there.
+
+Thanks! I haven't used dpkg before, that's quite handy. The info files
+do indeed only go to one place, and not in /usr/local. What I had
+noticed, though, was that more than one dir file had references to the
+r-doc-info files. However, on purging and reinstalling r-doc-info, I
+no longer have that problem, and can only assume I made the mess
+myself and then forgot about it.
+
+> 
+> Now, if your question is how to combine entries from packages and from manual
+> install -- I don't have a good solution. I think you're own your own.  Maybe
+> a system like doc-base can help.
+>  
+> | The fact that I'm running Emacs 22.1.1 installed from sources provided
+> 
+> Yes. Because now you have Debian and non-Debian messing around with your
+> texinfo index files. You may have to clean that up yourself.
+> 
+
+Alright then. I'll have to come up with a consistent personal policy
+then, and hope I remember what it is before I ask for help next time.
+
+Cheers,
+
+Tyler
+
+-- 
+I'm Tyler Smith and I approve of this email.
+
+
+From edd at debian.org  Fri Mar 14 15:18:42 2008
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 14 Mar 2008 09:18:42 -0500
+Subject: [R-sig-Debian] info files
+In-Reply-To: <20080314122553.GB15485@sedgenet>
+References: <20080313180121.GA12726@sedgenet>
+	<18393.32549.20171.649144@ron.nulle.part>
+	<20080314122553.GB15485@sedgenet>
+Message-ID: <18394.35138.925390.732492@ron.nulle.part>
+
+
+On 14 March 2008 at 09:25, tyler wrote:
+| Thanks! I haven't used dpkg before, that's quite handy. The info files
+
+Off-topic hint: Install 'wajig', a wonderful front-end command-line tool
+(which a matching gui caleld 'jig') to dpk, apt-get, apt-cache, aptitude,
+... and a number of other packages.  When you get used to wajig you no longer
+have to remember which of the gazillion little Debian helper did what :)
+
+It's by Graham Williams who also wrote the rather impressve 'rattle'
+front-end to a number of data-mining apps in R.  Rattle is not in Debian
+though. 
+
+Glad to hear you're getting your file confusion sorted out. It is easy to mix
+this up, as it is easy to accidentally mix CRAN packages via direct
+installation and Debian installation (though at least that doesn't mess up
+any indices). 
+
+Regards, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From tyler.smith at mail.mcgill.ca  Fri Mar 14 15:47:40 2008
+From: tyler.smith at mail.mcgill.ca (tyler)
+Date: Fri, 14 Mar 2008 11:47:40 -0300
+Subject: [R-sig-Debian] info files
+In-Reply-To: <18394.35138.925390.732492@ron.nulle.part>
+References: <20080313180121.GA12726@sedgenet>
+	<18393.32549.20171.649144@ron.nulle.part>
+	<20080314122553.GB15485@sedgenet>
+	<18394.35138.925390.732492@ron.nulle.part>
+Message-ID: <20080314144740.GA22518@sedgenet>
+
+On Fri, Mar 14, 2008 at 09:18:42AM -0500, Dirk Eddelbuettel wrote:
+> 
+> On 14 March 2008 at 09:25, tyler wrote:
+> | Thanks! I haven't used dpkg before, that's quite handy. The info files
+> 
+> Off-topic hint: Install 'wajig', a wonderful front-end command-line tool
+> (which a matching gui caleld 'jig') to dpk, apt-get, apt-cache, aptitude,
+> ... and a number of other packages.  When you get used to wajig you no longer
+> have to remember which of the gazillion little Debian helper did what :)
+> 
+
+Wow, that's super! I periodically try and decipher the various
+apt-get, apt-cache, dpkg tools, only to forget which does what almost
+immediately. wajig looks like a nice unified solution.
+
+Tyler
+ 
+-- 
+Support standardized open formats and control your own data -
+	Reject Microsoft OOXML
+
+http://noooxml.org
+
+
+From ghislainv at gmail.com  Sat Mar  8 16:17:22 2008
+From: ghislainv at gmail.com (Ghislain Vieilledent)
+Date: Sat, 08 Mar 2008 15:17:22 -0000
+Subject: [R-sig-Debian] Installing odesolve package of R under Ubuntu
+	(Debian) Linux
+Message-ID: <ff51f0220803080716s56384924sacc32ce2d14238b5@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20080308/85848abb/attachment.pl>
+

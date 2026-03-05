@@ -1,0 +1,349 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2021-12",
+  "messages": [
+    {
+      "id": "msg-6254ca418096",
+      "message_id": "<37b23df4-7e8e-3569-b204-3d672a4cf29c@inmodelia.com>",
+      "from_name": "Patrice Kiener",
+      "from_email_hash": "cf1aa32602150f97ccb1ba97f89371b4fe239803c3a13aa53caab285b4334fd9",
+      "date": "2021-12-17T18:48:29+01:00",
+      "subject": "[R-sig-Debian] Open a text file with vi/vim in another Terminal",
+      "subject_clean": "Open a text file with vi/vim in another Terminal",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "With Debian and macOS, the default editor (getenv(\"EDITOR\") or \ngetOption(\"editor\")) is \"vi\" which opens vi/vim. The following instruction:\n\n   fileREP <- file.path(R.home(\"etc\"), \"repositories\")\n   system2(getOption(\"editor\"), fileREP, wait = FALSE)\n\nworks fine with Windows but is inappropriate in the Debian/RStudio/RCode \nconsole as it launchs vi/vim, warns about input and outputs and prints \nthe text file WITHIN the R console and then does nothing. Closing vi/vim \nrequires a manual action. In several tests, I even had to force R to \nrecover. Hence My question is:\n\nWhat is the system(), sytem2(), eventually file.edit() instruction that \nopens the text file with vi/vim in a NEW Unix terminal and allows to \nkeep working in the R console?\n\nThank you for your advices.\n\n-- \nPatrice Kiener",
+      "body_snippet": "With Debian and macOS, the default editor (getenv(\"EDITOR\") or \ngetOption(\"editor\")) is \"vi\" which opens vi/vim. The following instruction:\n\n   fileREP <- file.path(R.home(\"etc\"), \"repositories\")\n   s",
+      "thread_id": "thread-6254ca418096",
+      "thread_depth": 0,
+      "month": "2021-12"
+    },
+    {
+      "id": "msg-d75f1f536874",
+      "message_id": "<25020.55213.611132.47137@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2021-12-17T12:32:13-06:00",
+      "subject": "[R-sig-Debian] Open a text file with vi/vim in another Terminal",
+      "subject_clean": "Open a text file with vi/vim in another Terminal",
+      "in_reply_to": "<37b23df4-7e8e-3569-b204-3d672a4cf29c@inmodelia.com>",
+      "references": [
+        "<37b23df4-7e8e-3569-b204-3d672a4cf29c@inmodelia.com>"
+      ],
+      "body_plain": "On 17 December 2021 at 18:48, Patrice Kiener wrote:\n| \n| With Debian and macOS, the default editor (getenv(\"EDITOR\") or \n| getOption(\"editor\")) is \"vi\" which opens vi/vim. The following instruction:\n| \n|    fileREP <- file.path(R.home(\"etc\"), \"repositories\")\n|    system2(getOption(\"editor\"), fileREP, wait = FALSE)\n| \n| works fine with Windows but is inappropriate in the Debian/RStudio/RCode \n| console as it launchs vi/vim, warns about input and outputs and prints \n| the text file WITHIN the R console and then does nothing. Closing vi/vim \n| requires a manual action. In several tests, I even had to force R to \n| recover. Hence My question is:\n| \n| What is the system(), sytem2(), eventually file.edit() instruction that \n| opens the text file with vi/vim in a NEW Unix terminal and allows to \n| keep working in the R console?\n\nIt all depends on (on all systems including Debian) your value of EDITOR,\nwhich also reflects the value of VISUAL. In shell that is written (in\nRenviron) as\n\n    ## Default editor\n    EDITOR=${EDITOR-${VISUAL-vi}}\n\nwhich takes vi if VISUAL is not set, and the value of that if EDITOR is not\nset.\n\nNow vi itself can be one several vi implementations. Right now on my system\n\n    /etc/alternatives/vi -> /usr/bin/vim.basic\n\nbut one could also use nvi etc. You could possibly set up a shell script to\ntake the file name argument and do tricks with terminal (say) and or\nsessions.  So the idea is that this under your control.\n\nThat said, I don't have tips. If I need to edit, I edit outside of R and/or R\nalready runs in an editor, or ...\n\nDirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 17 December 2021 at 18:48, Patrice Kiener wrote:\n| \n| With Debian and macOS, the default editor (getenv(\"EDITOR\") or \n| getOption(\"editor\")) is \"vi\" which opens vi/vim. The following instruction:\n|",
+      "thread_id": "thread-6254ca418096",
+      "thread_depth": 1,
+      "month": "2021-12"
+    },
+    {
+      "id": "msg-3967e836599c",
+      "message_id": "<20211217214659.69a18ab7@Tarkus>",
+      "from_name": "Ivan Krylov",
+      "from_email_hash": "72bda76034efaa18cd166b722c373c5159885b988468de351df8992020f3856a",
+      "date": "2021-12-17T21:46:59+03:00",
+      "subject": "[R-sig-Debian] Open a text file with vi/vim in another Terminal",
+      "subject_clean": "Open a text file with vi/vim in another Terminal",
+      "in_reply_to": "<37b23df4-7e8e-3569-b204-3d672a4cf29c@inmodelia.com>",
+      "references": [
+        "<37b23df4-7e8e-3569-b204-3d672a4cf29c@inmodelia.com>"
+      ],
+      "body_plain": "On Fri, 17 Dec 2021 18:48:29 +0100\nPatrice Kiener <patrice.kiener at inmodelia.com> wrote:\n\n>    system2(getOption(\"editor\"), fileREP, wait = FALSE)\n\nStarting a new terminal is somewhat hard, but the shortest path to\ngetting this particular command working would be options(editor =\n'gvim'). It's almost like Vim in a terminal, plus a few features useful\nin a windowed interface.\n\nNote that gvim backgrounds itself by default, so this would break\nedit() and file.edit(): since the GVim process started by R terminates\nalmost immediately after spawning a child to do the rest of the work, R\ndecides that the editing session is done. Unfortunately, it's hard to\nmake R's edit() pass the -f flag to gvim to prevent it from doing that,\nbut a trivial shell script wrapper could be used for that purpose:\n\n#!/bin/sh\nexec gvim -f \"$@\"\n\n-- \nBest regards,\nIvan",
+      "body_snippet": "On Fri, 17 Dec 2021 18:48:29 +0100\nPatrice Kiener <patrice.kiener at inmodelia.com> wrote:\n\n>    system2(getOption(\"editor\"), fileREP, wait = FALSE)\n\nStarting a new terminal is somewhat hard, but the ",
+      "thread_id": "thread-6254ca418096",
+      "thread_depth": 1,
+      "month": "2021-12"
+    },
+    {
+      "id": "msg-bf1816851f7e",
+      "message_id": "<25020.58084.2120.492010@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2021-12-17T13:20:04-06:00",
+      "subject": "[R-sig-Debian] Open a text file with vi/vim in another Terminal",
+      "subject_clean": "Open a text file with vi/vim in another Terminal",
+      "in_reply_to": "<20211217214659.69a18ab7@Tarkus>",
+      "references": [
+        "<37b23df4-7e8e-3569-b204-3d672a4cf29c@inmodelia.com>",
+        "<20211217214659.69a18ab7@Tarkus>"
+      ],
+      "body_plain": "Patrice,\n\nAlso: if you are on a terminal, have you discovered tmux / byobu yet to multiplex?\nIt is fairly magic as you can just open as many 'sessions with the outer\nsessions', the sessions persist and many more advantages.  I talked a little\nabout this (with short videos) last year\n\n    https://dirk.eddelbuettel.com/blog/code/t4/\n\nin episodes 4, 5 and 6.\n\nDirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "Patrice,\n\nAlso: if you are on a terminal, have you discovered tmux / byobu yet to multiplex?\nIt is fairly magic as you can just open as many 'sessions with the outer\nsessions', the sessions persist an",
+      "thread_id": "thread-6254ca418096",
+      "thread_depth": 2,
+      "month": "2021-12"
+    },
+    {
+      "id": "msg-5159c9e822b5",
+      "message_id": "<81e30645-6685-6c90-23c3-43f39a1bd94d@inmodelia.com>",
+      "from_name": "Patrice Kiener",
+      "from_email_hash": "cf1aa32602150f97ccb1ba97f89371b4fe239803c3a13aa53caab285b4334fd9",
+      "date": "2021-12-17T21:13:12+01:00",
+      "subject": "[R-sig-Debian] Open a text file with vi/vim in another Terminal",
+      "subject_clean": "Open a text file with vi/vim in another Terminal",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "To Dirk and Ivan,\n\nThank you for your suggestions. Let's give more details. The idea is to \ninsert the code in a function and then in a (private) package. We have \nto rely on the default editors provided by the OS to R and cannot invent \na new editor, as R CMD check could fail on exotic platforms. We cannot \nassume that Geany, even nano, is available everywhere. Something like:\n\nswitch(Sys.info()[[\"sysname\"]],\n   \"Windows\" = switch(type,\n     \"pager\"  = file.show(filename, header = filename, title = \"Pager\"),\n     \"editor\" = file.edit(filename, title = filename, fileEncoding = \"\"),\n     shell.exec(filename)\n     ),\n   \"Darwin\"  =  switch(type,\n     \"pager\"  = file.show(filename, header = filename, title = \"Pager\"),\n     #?\"editor\" = system2(getOption(\"editor\"), filename, wait = FALSE),\n     system2(\"open\", filename, wait = FALSE)\n     ),\n   switch(type,\n     \"pager\" = file.show(filename, header = filename, title = \"Pager\"),\n     #?\"editor\" = system2(getOption(\"editor\"), filename, wait = FALSE),\n     system2(\"xdg-open\", filename, wait = FALSE)\n     )\n)\n\nThe instruction for the pager\n\n   file.show(filename, header = filename, title = \"Pager\")\n\nlaunchs the pager on Windows, Debian and macOS and it works fine on \nthese 3 platforms. On Debian, it is within the R console and it \nterminates properly and gives the hand back to R.\n\nThe instruction for the text editor\n\n  system2(getOption(\"editor\"), fileREP, wait = FALSE)\n\nworks fine on Windows (it opens Notepad.exe, or Notepad++.exe in my \nRprofile.site) but not on Unix. I assumed there was something similar on \nUnix (You have understood that I am not a Unix specialist). R includes a \nfew library statically compiled. Could R incorporate a decent text \neditor on Unix Oses?\n\n\nDirk, I will watch your videos. Thank you for these links. I discover them.\n\nPatrice\n\n\n\nLe 17/12/2021 ? 20:20, Dirk Eddelbuettel a ?crit :\nPatrice,\nAlso: if you are on a terminal, have you discovered tmux / byobu yet to \nmultiplex? It is fairly magic as you can just open as many 'sessions \nwith the outer sessions', the sessions persist and many more advantages. \n  I talked a little about this (with short videos) last year\n    https://dirk.eddelbuettel.com/blog/code/t4/\nin episodes 4, 5 and 6.\nDirk\n\n\nLe 17/12/2021 ? 19:46, Ivan Krylov a ?crit :\n    system2(getOption(\"editor\"), fileREP, wait = FALSE)\nStarting a new terminal is somewhat hard, but the shortest path to\ngetting this particular command working would be options(editor =\n'gvim'). It's almost like Vim in a terminal, plus a few features useful\nin a windowed interface.\nNote that gvim backgrounds itself by default, so this would break\nedit() and file.edit(): since the GVim process started by R terminates\nalmost immediately after spawning a child to do the rest of the work, R\ndecides that the editing session is done. Unfortunately, it's hard to\nmake R's edit() pass the -f flag to gvim to prevent it from doing that,\nbut a trivial shell script wrapper could be used for that purpose:\n > #!/bin/sh\n > exec gvim -f \"$@\"",
+      "body_snippet": "To Dirk and Ivan,\n\nThank you for your suggestions. Let's give more details. The idea is to \ninsert the code in a function and then in a (private) package. We have \nto rely on the default editors provi",
+      "thread_id": "thread-5159c9e822b5",
+      "thread_depth": 0,
+      "month": "2021-12"
+    },
+    {
+      "id": "msg-d05b80b03124",
+      "message_id": "<25020.63034.150258.427908@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2021-12-17T14:42:34-06:00",
+      "subject": "[R-sig-Debian] Open a text file with vi/vim in another Terminal",
+      "subject_clean": "Open a text file with vi/vim in another Terminal",
+      "in_reply_to": "<81e30645-6685-6c90-23c3-43f39a1bd94d@inmodelia.com>",
+      "references": [
+        "<81e30645-6685-6c90-23c3-43f39a1bd94d@inmodelia.com>"
+      ],
+      "body_plain": "On 17 December 2021 at 21:13, Patrice Kiener wrote:\n| Thank you for your suggestions. Let's give more details. The idea is to \n| insert the code in a function and then in a (private) package. We have \n| to rely on the default editors provided by the OS to R and cannot invent \n| a new editor, as R CMD check could fail on exotic platforms. We cannot \n| assume that Geany, even nano, is available everywhere.\n\nBut you can (and likely: should !!) test for their presence via\nSys.which(prog):\n\n    > Sys.which(\"vi\")\n               vi \n    \"/usr/bin/vi\" \n    > Sys.which(\"notExisting\")\n    notExisting \n             \"\" \n    > \n\nIn short, you have no guarantee that what is EDITOR is actually sane!\n\n| The instruction for the text editor\n| \n|   system2(getOption(\"editor\"), fileREP, wait = FALSE)\n| \n| works fine on Windows (it opens Notepad.exe, or Notepad++.exe in my \n| Rprofile.site) but not on Unix. I assumed there was something similar on \n| Unix (You have understood that I am not a Unix specialist). R includes a \n\nAs Ivan was hinted this gets more complicated with apps being launched\nsynchronousy or asynchronously.\n\nWhat you are after is actually a hard problem, portably, across OSs.\n\nDirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 17 December 2021 at 21:13, Patrice Kiener wrote:\n| Thank you for your suggestions. Let's give more details. The idea is to \n| insert the code in a function and then in a (private) package. We have ",
+      "thread_id": "thread-5159c9e822b5",
+      "thread_depth": 1,
+      "month": "2021-12"
+    },
+    {
+      "id": "msg-23dd80112931",
+      "message_id": "<20211218000708.59f500f5@Tarkus>",
+      "from_name": "Ivan Krylov",
+      "from_email_hash": "72bda76034efaa18cd166b722c373c5159885b988468de351df8992020f3856a",
+      "date": "2021-12-18T00:07:08+03:00",
+      "subject": "[R-sig-Debian] Open a text file with vi/vim in another Terminal",
+      "subject_clean": "Open a text file with vi/vim in another Terminal",
+      "in_reply_to": "<81e30645-6685-6c90-23c3-43f39a1bd94d@inmodelia.com>",
+      "references": [
+        "<81e30645-6685-6c90-23c3-43f39a1bd94d@inmodelia.com>"
+      ],
+      "body_plain": "On Fri, 17 Dec 2021 21:13:12 +0100\nPatrice Kiener <patrice.kiener at inmodelia.com> wrote:\n\n> The instruction for the text editor\n> \n>   system2(getOption(\"editor\"), fileREP, wait = FALSE)\n> \n> works fine on Windows (it opens Notepad.exe, or Notepad++.exe in my \n> Rprofile.site) but not on Unix. \n\n\"A file.edit() but with the editor running in parallel with the R\nsession\" is a hard problem.\n\nSuppose that the user is running an R session on a server without a\ngraphical display over remote command line. The user is probably\nrunning a graphical session with different windows, but R is unaware of\nit; it's only got one text terminal. What should our hypothetical\nfile.edit.in.background() do in this case? It's fair to\nstopifnot(interactive()), but this counts as an interactive session. In\ntheory, R could bundle a terminal multiplexer like tmux, split the\nterminal window in half and emulate a smaller terminal for the editor\nto run in, but there's no such functionality (or plans to implement it).\n\nOn Debian, there's the /usr/bin/x-terminal-emulator symlink (typically\npresent, but not 100% guaranteed to exist) pointing to _a_ graphical\nterminal emulator (if you can assume a running graphical session), but\ndifferent terminal emulators take subtly different options to run\ncommand lines inside them. For example, xterm runs the rest of the\ncommand line after -e, while xfce4-terminal takes only one argument to\n-e but the rest of the command line after -x. The result is that you\ncan't reliably pass arguments to the command you intend to launch. This\n*could* be worked around by writing a temporary shell script in /tmp,\nbut the resulting solution accumulates too many moving parts to inspire\nany confidence and doesn't work on other distros or macOS.\n\nBesides, the user could plausibly prefer a text editor with a GUI when\nrunning a graphical session. Can you ask your users to specify an\neditor to run in the background? They could say it's 'emacs', c('xterm',\n'-e', 'joe'), c('xfce4-terminal', '-x', 'ed') or anything else.\n\nWhat do you intend to do with the file being edited by the user?\nPerhaps there's some other way to achieve the goal.\n\n(Not sure whether it's a better question for R-help or R-pkg-devel.)\n\n-- \nBest regards,\nIvan",
+      "body_snippet": "On Fri, 17 Dec 2021 21:13:12 +0100\nPatrice Kiener <patrice.kiener at inmodelia.com> wrote:\n\n> The instruction for the text editor\n> \n>   system2(getOption(\"editor\"), fileREP, wait = FALSE)\n> \n> works ",
+      "thread_id": "thread-5159c9e822b5",
+      "thread_depth": 1,
+      "month": "2021-12"
+    },
+    {
+      "id": "msg-7189076752cd",
+      "message_id": "<25021.57940.852626.134974@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2021-12-18T07:29:56-06:00",
+      "subject": "[R-sig-Debian] Open a text file with vi/vim in another Terminal",
+      "subject_clean": "Open a text file with vi/vim in another Terminal",
+      "in_reply_to": "<20211218000708.59f500f5@Tarkus>",
+      "references": [
+        "<81e30645-6685-6c90-23c3-43f39a1bd94d@inmodelia.com>",
+        "<20211218000708.59f500f5@Tarkus>"
+      ],
+      "body_plain": "On 18 December 2021 at 00:07, Ivan Krylov wrote:\n| (Not sure whether it's a better question for R-help or R-pkg-devel.)\n\nAgreed. There is nothing Debian-specific here, these are UI-musings which, as\ndiscussed, are actually _hard_ if not impossible to solve in general.\n\n(20 years I played with R's tcltk package as it was (and still is) the only\ncrossplatform tool allowing you to spawn a UI component on all OSs. And even\nthen it isn't installed everywhere [as it is optional on Windows with the\nbase R install] and will not work in pure \"tty\" text sessions.)\n\nDirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 18 December 2021 at 00:07, Ivan Krylov wrote:\n| (Not sure whether it's a better question for R-help or R-pkg-devel.)\n\nAgreed. There is nothing Debian-specific here, these are UI-musings which, as\nd",
+      "thread_id": "thread-5159c9e822b5",
+      "thread_depth": 2,
+      "month": "2021-12"
+    },
+    {
+      "id": "msg-7cc492dba312",
+      "message_id": "<e96645b9-68e7-56ed-95d8-6aa39975b647@comcast.net>",
+      "from_name": "David Winsemius",
+      "from_email_hash": "960cf691f34cc2709527dabb6de874fb0a4c64edacd6eb5108b4fb7e2aa36670",
+      "date": "2021-12-19T18:14:21-08:00",
+      "subject": "[R-sig-Debian] Cpp Error installing CRAN version of MatrixExtra on Ubuntu 18.04",
+      "subject_clean": "Cpp Error installing CRAN version of MatrixExtra on Ubuntu 18.04",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "I initially attempted installation of pkg:MatrixExtra with \n`install.packages on my Ubuntu 18.04 LTS system from within RStudio. It \nfailed with an error attempting to compile a function named \"matmul.cpp\" \nso I tried running R from a Terminal session. Same error. Finally I \ndownloaded from CRAN and this is the session result of an effort with R \nCMD INSTALL:\n\n(The name of my library is a historical accident, but I'm running R \nversion 4.1.2 (2021-11-01) -- \"Bird Hippie\" and almost all of my other \n1536 packages have been updated without reported errors using \n`update.packages(checkBuilt=TRUE)`\n\n======================================\n\ndavid at davids:/usr/lib/R$ R CMD INSTALL ~/MatrixExtra_0.1.9.tar.gz\n* installing to library ?/home/david/R/x86_64-pc-linux-gnu-library/3.5.1?\n* installing *source* package ?MatrixExtra? ...\n** package ?MatrixExtra? successfully unpacked and MD5 sums checked\n** using staged installation\nchecking for g++... g++\nchecking whether the C++ compiler works... yes\nchecking for C++ compiler default output file name... a.out\nchecking for suffix of executables...\nchecking whether we are cross compiling... no\nchecking for suffix of object files... o\nchecking whether the compiler supports GNU C++... yes\nchecking whether g++ accepts -g... yes\nchecking for g++ option to enable C++11 features... none needed\nconfigure: creating ./config.status\nconfig.status: creating src/Makevars\n** libs\ng++ -std=gnu++11 -I\"/usr/share/R/include\" -DNDEBUG -DUSE_ROBINMAP \n-DHAS_LD=1 -DSUPPORTS_RESTRICT=1 \n-I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/Rcpp/include' \n-I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/float/include' \n-fopenmp -fno-trapping-math -fno-math-errno -fvisibility=hidden -fpic? \n-g -O2 -fdebug-prefix-map=/build/r-base-J7pprH/r-base-4.1.2=. \n-fstack-protector-strong -Wformat -Werror=format-security -Wdate-time \n-D_FORTIFY_SOURCE=2 -g? -Wno-ignored-attributes -c RcppExports.cpp -o \nRcppExports.o\ng++ -std=gnu++11 -I\"/usr/share/R/include\" -DNDEBUG -DUSE_ROBINMAP \n-DHAS_LD=1 -DSUPPORTS_RESTRICT=1 \n-I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/Rcpp/include' \n-I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/float/include' \n-fopenmp -fno-trapping-math -fno-math-errno -fvisibility=hidden -fpic? \n-g -O2 -fdebug-prefix-map=/build/r-base-J7pprH/r-base-4.1.2=. \n-fstack-protector-strong -Wformat -Werror=format-security -Wdate-time \n-D_FORTIFY_SOURCE=2 -g? -Wno-ignored-attributes -c assignment.cpp -o \nassignment.o\ng++ -std=gnu++11 -I\"/usr/share/R/include\" -DNDEBUG -DUSE_ROBINMAP \n-DHAS_LD=1 -DSUPPORTS_RESTRICT=1 \n-I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/Rcpp/include' \n-I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/float/include' \n-fopenmp -fno-trapping-math -fno-math-errno -fvisibility=hidden -fpic? \n-g -O2 -fdebug-prefix-map=/build/r-base-J7pprH/r-base-4.1.2=. \n-fstack-protector-strong -Wformat -Werror=format-security -Wdate-time \n-D_FORTIFY_SOURCE=2 -g? -Wno-ignored-attributes -c cbind.cpp -o cbind.o\ng++ -std=gnu++11 -I\"/usr/share/R/include\" -DNDEBUG -DUSE_ROBINMAP \n-DHAS_LD=1 -DSUPPORTS_RESTRICT=1 \n-I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/Rcpp/include' \n-I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/float/include' \n-fopenmp -fno-trapping-math -fno-math-errno -fvisibility=hidden -fpic? \n-g -O2 -fdebug-prefix-map=/build/r-base-J7pprH/r-base-4.1.2=. \n-fstack-protector-strong -Wformat -Werror=format-security -Wdate-time \n-D_FORTIFY_SOURCE=2 -g? -Wno-ignored-attributes -c matmul.cpp -o matmul.o\nmatmul.cpp: In function ?void gemm_csr_drm_as_dcm(int, int, const int*, \nconst int*, const double*, const real_t*, size_t, real_t*, int, int)?:\nmatmul.cpp:137:41: error: ?ldc? is predetermined ?shared? for ?shared?\n ???????????? private(write_ptr, temp_arr)\n ???????????????????????????????????????? ^\n/usr/lib/R/etc/Makeconf:177: recipe for target 'matmul.o' failed\nmake: *** [matmul.o] Error 1\nERROR: compilation failed for package ?MatrixExtra?\n* removing ?/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/MatrixExtra?\n\n=======from an R console session==============================\n\n > sessionInfo()\nR version 4.1.2 (2021-11-01)\nPlatform: x86_64-pc-linux-gnu (64-bit)\nRunning under: Ubuntu 18.04.5 LTS\n\nMatrix products: default\nBLAS:?? /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3\nLAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so\n\nlocale:\n ?[1] LC_CTYPE=en_US.UTF-8?????? LC_NUMERIC=C\n ?[3] LC_TIME=en_US.UTF-8??????? LC_COLLATE=en_US.UTF-8\n ?[5] LC_MONETARY=en_US.UTF-8??? LC_MESSAGES=en_US.UTF-8\n ?[7] LC_PAPER=en_US.UTF-8?????? LC_NAME=C\n ?[9] LC_ADDRESS=C?????????????? LC_TELEPHONE=C\n[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C\n\nattached base packages:\n[1] stats???? graphics? grDevices utils???? datasets? methods base\n\nloaded via a namespace (and not attached):\n[1] compiler_4.1.2\n\nThanks for any suggestions.\n\nDavid Winsemius",
+      "body_snippet": "I initially attempted installation of pkg:MatrixExtra with \n`install.packages on my Ubuntu 18.04 LTS system from within RStudio. It \nfailed with an error attempting to compile a function named \"matmul",
+      "thread_id": "thread-7cc492dba312",
+      "thread_depth": 0,
+      "month": "2021-12"
+    },
+    {
+      "id": "msg-6a3f254b0f8a",
+      "message_id": "<25024.37081.957317.44651@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2021-12-20T08:19:05-06:00",
+      "subject": "[R-sig-Debian]  Cpp Error installing CRAN version of MatrixExtra on Ubuntu 18.04",
+      "subject_clean": "Cpp Error installing CRAN version of MatrixExtra on Ubuntu 18.04",
+      "in_reply_to": "<e96645b9-68e7-56ed-95d8-6aa39975b647@comcast.net>",
+      "references": [
+        "<e96645b9-68e7-56ed-95d8-6aa39975b647@comcast.net>"
+      ],
+      "body_plain": "On 19 December 2021 at 18:14, David Winsemius wrote:\n| I initially attempted installation of pkg:MatrixExtra with \n| `install.packages on my Ubuntu 18.04 LTS system from within RStudio. It \n| failed with an error attempting to compile a function named \"matmul.cpp\" \n| so I tried running R from a Terminal session. Same error. Finally I \n\nWell yes. Same system, same compiler and same R.  Can you remind me what\n\n   gcc --version\n\nsays on Ubuntu 18.04. It could be that the g++ version may be too old for\ncurrent coding practices. You may have to expect such errors to occur more\nfrequently on ancient system.  Some of us have started to ship packages using\nC++14 (which is actually R's default in R 4.1.0 and later unless overridden\nto C++11 or lower) and even C++17. Or it could be something else. See below.\n\n| downloaded from CRAN and this is the session result of an effort with R \n| CMD INSTALL:\n| \n| (The name of my library is a historical accident, but I'm running R \n| version 4.1.2 (2021-11-01) -- \"Bird Hippie\" and almost all of my other\n\nYou say R 4.1.2 but we see R 3.5.1 below !!\n\n| 1536 packages have been updated without reported errors using \n| `update.packages(checkBuilt=TRUE)`\n| \n| ======================================\n| \n| david at davids:/usr/lib/R$ R CMD INSTALL ~/MatrixExtra_0.1.9.tar.gz\n| * installing to library ?/home/david/R/x86_64-pc-linux-gnu-library/3.5.1?\n\nThat is very suspicious.  Why R/x86_64_pc-linux-gnu-library/3.5.1 ?\n\nThat looks like an error.  There _was_ a change from R before 4.0 to 4.0.\nAs I recall you need to rebuild everything for R 4.0.* or R 4.1.*.\n\n| * installing *source* package ?MatrixExtra? ...\n| ** package ?MatrixExtra? successfully unpacked and MD5 sums checked\n| ** using staged installation\n| checking for g++... g++\n| checking whether the C++ compiler works... yes\n| checking for C++ compiler default output file name... a.out\n| checking for suffix of executables...\n| checking whether we are cross compiling... no\n| checking for suffix of object files... o\n| checking whether the compiler supports GNU C++... yes\n| checking whether g++ accepts -g... yes\n| checking for g++ option to enable C++11 features... none needed\n\nSo far it is happy with C++11.\n\n| configure: creating ./config.status\n| config.status: creating src/Makevars\n| ** libs\n| g++ -std=gnu++11 -I\"/usr/share/R/include\" -DNDEBUG -DUSE_ROBINMAP \n| -DHAS_LD=1 -DSUPPORTS_RESTRICT=1 \n| -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/Rcpp/include' \n| -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/float/include' \n| -fopenmp -fno-trapping-math -fno-math-errno -fvisibility=hidden -fpic? \n| -g -O2 -fdebug-prefix-map=/build/r-base-J7pprH/r-base-4.1.2=. \n| -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time \n| -D_FORTIFY_SOURCE=2 -g? -Wno-ignored-attributes -c RcppExports.cpp -o \n| RcppExports.o\n\nAnd uses C++11\n\n| g++ -std=gnu++11 -I\"/usr/share/R/include\" -DNDEBUG -DUSE_ROBINMAP \n| -DHAS_LD=1 -DSUPPORTS_RESTRICT=1 \n| -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/Rcpp/include' \n| -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/float/include' \n| -fopenmp -fno-trapping-math -fno-math-errno -fvisibility=hidden -fpic? \n| -g -O2 -fdebug-prefix-map=/build/r-base-J7pprH/r-base-4.1.2=. \n| -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time \n| -D_FORTIFY_SOURCE=2 -g? -Wno-ignored-attributes -c assignment.cpp -o \n| assignment.o\n| g++ -std=gnu++11 -I\"/usr/share/R/include\" -DNDEBUG -DUSE_ROBINMAP \n| -DHAS_LD=1 -DSUPPORTS_RESTRICT=1 \n| -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/Rcpp/include' \n| -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/float/include' \n| -fopenmp -fno-trapping-math -fno-math-errno -fvisibility=hidden -fpic? \n| -g -O2 -fdebug-prefix-map=/build/r-base-J7pprH/r-base-4.1.2=. \n| -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time \n| -D_FORTIFY_SOURCE=2 -g? -Wno-ignored-attributes -c cbind.cpp -o cbind.o\n| g++ -std=gnu++11 -I\"/usr/share/R/include\" -DNDEBUG -DUSE_ROBINMAP \n| -DHAS_LD=1 -DSUPPORTS_RESTRICT=1 \n| -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/Rcpp/include' \n| -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/float/include' \n| -fopenmp -fno-trapping-math -fno-math-errno -fvisibility=hidden -fpic? \n| -g -O2 -fdebug-prefix-map=/build/r-base-J7pprH/r-base-4.1.2=. \n| -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time \n| -D_FORTIFY_SOURCE=2 -g? -Wno-ignored-attributes -c matmul.cpp -o matmul.o\n| matmul.cpp: In function ?void gemm_csr_drm_as_dcm(int, int, const int*, \n| const int*, const double*, const real_t*, size_t, real_t*, int, int)?:\n| matmul.cpp:137:41: error: ?ldc? is predetermined ?shared? for ?shared?\n|  ???????????? private(write_ptr, temp_arr)\n|  ???????????????????????????????????????? ^\n| /usr/lib/R/etc/Makeconf:177: recipe for target 'matmul.o' failed\n| make: *** [matmul.o] Error 1\n| ERROR: compilation failed for package ?MatrixExtra?\n| * removing ?/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/MatrixExtra?\n\nI have never seen that error. No idea.\n\nBut again the '3.5.1' seems out of whack with your use of R 4.1.2.\n\nDirk\n\n\n| =======from an R console session==============================\n| \n|  > sessionInfo()\n| R version 4.1.2 (2021-11-01)\n| Platform: x86_64-pc-linux-gnu (64-bit)\n| Running under: Ubuntu 18.04.5 LTS\n| \n| Matrix products: default\n| BLAS:?? /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3\n| LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so\n| \n| locale:\n|  ?[1] LC_CTYPE=en_US.UTF-8?????? LC_NUMERIC=C\n|  ?[3] LC_TIME=en_US.UTF-8??????? LC_COLLATE=en_US.UTF-8\n|  ?[5] LC_MONETARY=en_US.UTF-8??? LC_MESSAGES=en_US.UTF-8\n|  ?[7] LC_PAPER=en_US.UTF-8?????? LC_NAME=C\n|  ?[9] LC_ADDRESS=C?????????????? LC_TELEPHONE=C\n| [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C\n| \n| attached base packages:\n| [1] stats???? graphics? grDevices utils???? datasets? methods base\n| \n| loaded via a namespace (and not attached):\n| [1] compiler_4.1.2\n| \n| Thanks for any suggestions.\n| \n| David Winsemius\n| \n| _______________________________________________\n| R-SIG-Debian mailing list\n| R-SIG-Debian at r-project.org\n| https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 19 December 2021 at 18:14, David Winsemius wrote:\n| I initially attempted installation of pkg:MatrixExtra with \n| `install.packages on my Ubuntu 18.04 LTS system from within RStudio. It \n| failed w",
+      "thread_id": "thread-7cc492dba312",
+      "thread_depth": 1,
+      "month": "2021-12"
+    },
+    {
+      "id": "msg-ecc884a737c8",
+      "message_id": "<729fd75e-698b-c04e-f601-adc603822029@fau.de>",
+      "from_name": "Sebastian Meyer",
+      "from_email_hash": "b32c09dd3a31073d640ca6b0e4a9622b24387f298b03dc425beea12447839a33",
+      "date": "2021-12-20T15:48:15+01:00",
+      "subject": "[R-sig-Debian]  Cpp Error installing CRAN version of MatrixExtra on Ubuntu 18.04",
+      "subject_clean": "Cpp Error installing CRAN version of MatrixExtra on Ubuntu 18.04",
+      "in_reply_to": "<25024.37081.957317.44651@rob.eddelbuettel.com>",
+      "references": [
+        "<e96645b9-68e7-56ed-95d8-6aa39975b647@comcast.net>",
+        "<25024.37081.957317.44651@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Am 20.12.21 um 15:19 schrieb Dirk Eddelbuettel:\n> \n> On 19 December 2021 at 18:14, David Winsemius wrote:\n> | I initially attempted installation of pkg:MatrixExtra with\n> | `install.packages on my Ubuntu 18.04 LTS system from within RStudio. It\n> | failed with an error attempting to compile a function named \"matmul.cpp\"\n> | so I tried running R from a Terminal session. Same error. Finally I\n> \n> Well yes. Same system, same compiler and same R.  Can you remind me what\n> \n>     gcc --version\n> \n> says on Ubuntu 18.04. \n\ngcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0\n\nFWIW, \"MatrixExtra\" installs without problems for me on \"ancient\"\n\n> R version 4.1.2 (2021-11-01)\n> Platform: x86_64-pc-linux-gnu (64-bit)\n> Running under: Ubuntu 18.04.6 LTS\n> \n> Matrix products: default\n> BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1\n> LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1\n\nI see openblas in your sessionInfo(). Could that be a problem?\n\nBest wishes,\n\n\tSebastian Meyer\n\n\n> It could be that the g++ version may be too old for\n> current coding practices. You may have to expect such errors to occur more\n> frequently on ancient system.  Some of us have started to ship packages using\n> C++14 (which is actually R's default in R 4.1.0 and later unless overridden\n> to C++11 or lower) and even C++17. Or it could be something else. See below.\n> \n> | downloaded from CRAN and this is the session result of an effort with R\n> | CMD INSTALL:\n> |\n> | (The name of my library is a historical accident, but I'm running R\n> | version 4.1.2 (2021-11-01) -- \"Bird Hippie\" and almost all of my other\n> \n> You say R 4.1.2 but we see R 3.5.1 below !!\n> \n> | 1536 packages have been updated without reported errors using\n> | `update.packages(checkBuilt=TRUE)`\n> |\n> | ======================================\n> |\n> | david at davids:/usr/lib/R$ R CMD INSTALL ~/MatrixExtra_0.1.9.tar.gz\n> | * installing to library ?/home/david/R/x86_64-pc-linux-gnu-library/3.5.1?\n> \n> That is very suspicious.  Why R/x86_64_pc-linux-gnu-library/3.5.1 ?\n> \n> That looks like an error.  There _was_ a change from R before 4.0 to 4.0.\n> As I recall you need to rebuild everything for R 4.0.* or R 4.1.*.\n> \n> | * installing *source* package ?MatrixExtra? ...\n> | ** package ?MatrixExtra? successfully unpacked and MD5 sums checked\n> | ** using staged installation\n> | checking for g++... g++\n> | checking whether the C++ compiler works... yes\n> | checking for C++ compiler default output file name... a.out\n> | checking for suffix of executables...\n> | checking whether we are cross compiling... no\n> | checking for suffix of object files... o\n> | checking whether the compiler supports GNU C++... yes\n> | checking whether g++ accepts -g... yes\n> | checking for g++ option to enable C++11 features... none needed\n> \n> So far it is happy with C++11.\n> \n> | configure: creating ./config.status\n> | config.status: creating src/Makevars\n> | ** libs\n> | g++ -std=gnu++11 -I\"/usr/share/R/include\" -DNDEBUG -DUSE_ROBINMAP\n> | -DHAS_LD=1 -DSUPPORTS_RESTRICT=1\n> | -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/Rcpp/include'\n> | -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/float/include'\n> | -fopenmp -fno-trapping-math -fno-math-errno -fvisibility=hidden -fpic\n> | -g -O2 -fdebug-prefix-map=/build/r-base-J7pprH/r-base-4.1.2=.\n> | -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time\n> | -D_FORTIFY_SOURCE=2 -g? -Wno-ignored-attributes -c RcppExports.cpp -o\n> | RcppExports.o\n> \n> And uses C++11\n> \n> | g++ -std=gnu++11 -I\"/usr/share/R/include\" -DNDEBUG -DUSE_ROBINMAP\n> | -DHAS_LD=1 -DSUPPORTS_RESTRICT=1\n> | -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/Rcpp/include'\n> | -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/float/include'\n> | -fopenmp -fno-trapping-math -fno-math-errno -fvisibility=hidden -fpic\n> | -g -O2 -fdebug-prefix-map=/build/r-base-J7pprH/r-base-4.1.2=.\n> | -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time\n> | -D_FORTIFY_SOURCE=2 -g? -Wno-ignored-attributes -c assignment.cpp -o\n> | assignment.o\n> | g++ -std=gnu++11 -I\"/usr/share/R/include\" -DNDEBUG -DUSE_ROBINMAP\n> | -DHAS_LD=1 -DSUPPORTS_RESTRICT=1\n> | -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/Rcpp/include'\n> | -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/float/include'\n> | -fopenmp -fno-trapping-math -fno-math-errno -fvisibility=hidden -fpic\n> | -g -O2 -fdebug-prefix-map=/build/r-base-J7pprH/r-base-4.1.2=.\n> | -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time\n> | -D_FORTIFY_SOURCE=2 -g? -Wno-ignored-attributes -c cbind.cpp -o cbind.o\n> | g++ -std=gnu++11 -I\"/usr/share/R/include\" -DNDEBUG -DUSE_ROBINMAP\n> | -DHAS_LD=1 -DSUPPORTS_RESTRICT=1\n> | -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/Rcpp/include'\n> | -I'/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/float/include'\n> | -fopenmp -fno-trapping-math -fno-math-errno -fvisibility=hidden -fpic\n> | -g -O2 -fdebug-prefix-map=/build/r-base-J7pprH/r-base-4.1.2=.\n> | -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time\n> | -D_FORTIFY_SOURCE=2 -g? -Wno-ignored-attributes -c matmul.cpp -o matmul.o\n> | matmul.cpp: In function ?void gemm_csr_drm_as_dcm(int, int, const int*,\n> | const int*, const double*, const real_t*, size_t, real_t*, int, int)?:\n> | matmul.cpp:137:41: error: ?ldc? is predetermined ?shared? for ?shared?\n> |  ???????????? private(write_ptr, temp_arr)\n> |  ???????????????????????????????????????? ^\n> | /usr/lib/R/etc/Makeconf:177: recipe for target 'matmul.o' failed\n> | make: *** [matmul.o] Error 1\n> | ERROR: compilation failed for package ?MatrixExtra?\n> | * removing ?/home/david/R/x86_64-pc-linux-gnu-library/3.5.1/MatrixExtra?\n> \n> I have never seen that error. No idea.\n> \n> But again the '3.5.1' seems out of whack with your use of R 4.1.2.\n> \n> Dirk\n> \n> \n> | =======from an R console session==============================\n> |\n> |  > sessionInfo()\n> | R version 4.1.2 (2021-11-01)\n> | Platform: x86_64-pc-linux-gnu (64-bit)\n> | Running under: Ubuntu 18.04.5 LTS\n> |\n> | Matrix products: default\n> | BLAS:?? /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3\n> | LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so\n> |\n> | locale:\n> |  ?[1] LC_CTYPE=en_US.UTF-8?????? LC_NUMERIC=C\n> |  ?[3] LC_TIME=en_US.UTF-8??????? LC_COLLATE=en_US.UTF-8\n> |  ?[5] LC_MONETARY=en_US.UTF-8??? LC_MESSAGES=en_US.UTF-8\n> |  ?[7] LC_PAPER=en_US.UTF-8?????? LC_NAME=C\n> |  ?[9] LC_ADDRESS=C?????????????? LC_TELEPHONE=C\n> | [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C\n> |\n> | attached base packages:\n> | [1] stats???? graphics? grDevices utils???? datasets? methods base\n> |\n> | loaded via a namespace (and not attached):\n> | [1] compiler_4.1.2\n> |\n> | Thanks for any suggestions.\n> |\n> | David Winsemius\n> |\n> | _______________________________________________\n> | R-SIG-Debian mailing list\n> | R-SIG-Debian at r-project.org\n> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n>",
+      "body_snippet": "Am 20.12.21 um 15:19 schrieb Dirk Eddelbuettel:\n> \n> On 19 December 2021 at 18:14, David Winsemius wrote:\n> | I initially attempted installation of pkg:MatrixExtra with\n> | `install.packages on my Ubu",
+      "thread_id": "thread-7cc492dba312",
+      "thread_depth": 2,
+      "month": "2021-12"
+    },
+    {
+      "id": "msg-0e61de05c819",
+      "message_id": "<25024.46123.883224.487184@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2021-12-20T10:49:47-06:00",
+      "subject": "[R-sig-Debian]  Cpp Error installing CRAN version of MatrixExtra on Ubuntu 18.04",
+      "subject_clean": "Cpp Error installing CRAN version of MatrixExtra on Ubuntu 18.04",
+      "in_reply_to": "<729fd75e-698b-c04e-f601-adc603822029@fau.de>",
+      "references": [
+        "<e96645b9-68e7-56ed-95d8-6aa39975b647@comcast.net>",
+        "<25024.37081.957317.44651@rob.eddelbuettel.com>",
+        "<729fd75e-698b-c04e-f601-adc603822029@fau.de>"
+      ],
+      "body_plain": "On 20 December 2021 at 15:48, Sebastian Meyer wrote:\n| Am 20.12.21 um 15:19 schrieb Dirk Eddelbuettel:\n| > \n| > On 19 December 2021 at 18:14, David Winsemius wrote:\n| > | I initially attempted installation of pkg:MatrixExtra with\n| > | `install.packages on my Ubuntu 18.04 LTS system from within RStudio. It\n| > | failed with an error attempting to compile a function named \"matmul.cpp\"\n| > | so I tried running R from a Terminal session. Same error. Finally I\n| > \n| > Well yes. Same system, same compiler and same R.  Can you remind me what\n| > \n| >     gcc --version\n| > \n| > says on Ubuntu 18.04. \n| \n| gcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0\n\nThat should be good enough.\n \n| FWIW, \"MatrixExtra\" installs without problems for me on \"ancient\"\n\nI am fairly certain that the (accidental ?) mishap of mixing current R,\ni.e. his 4.1.2, with a 3.5.1 library is the issue.\n\nIt has been so long since I converted from pre-4.0.* that I forgot what the\nerror message looks like but the arcanae one in David's post may qualify.\n\n| > R version 4.1.2 (2021-11-01)\n| > Platform: x86_64-pc-linux-gnu (64-bit)\n| > Running under: Ubuntu 18.04.6 LTS\n| > \n| > Matrix products: default\n| > BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1\n| > LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1\n| \n| I see openblas in your sessionInfo(). Could that be a problem?\n\nI do not think. Stable interface, unchanged for decades, hot-swappable.\n\nDirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 20 December 2021 at 15:48, Sebastian Meyer wrote:\n| Am 20.12.21 um 15:19 schrieb Dirk Eddelbuettel:\n| > \n| > On 19 December 2021 at 18:14, David Winsemius wrote:\n| > | I initially attempted install",
+      "thread_id": "thread-7cc492dba312",
+      "thread_depth": 3,
+      "month": "2021-12"
+    },
+    {
+      "id": "msg-cbea27f37030",
+      "message_id": "<1363b0ba-8c78-26e3-2953-673457883f56@comcast.net>",
+      "from_name": "David Winsemius",
+      "from_email_hash": "960cf691f34cc2709527dabb6de874fb0a4c64edacd6eb5108b4fb7e2aa36670",
+      "date": "2021-12-20T11:25:10-08:00",
+      "subject": "[R-sig-Debian] [Solved]... was Cpp Error installing CRAN version of MatrixExtra on Ubuntu 18.04",
+      "subject_clean": "[Solved]... was Cpp Error installing CRAN version of MatrixExtra on Ubuntu 18.04",
+      "in_reply_to": "<25024.46123.883224.487184@rob.eddelbuettel.com>",
+      "references": [
+        "<e96645b9-68e7-56ed-95d8-6aa39975b647@comcast.net>",
+        "<25024.37081.957317.44651@rob.eddelbuettel.com>",
+        "<729fd75e-698b-c04e-f601-adc603822029@fau.de>",
+        "<25024.46123.883224.487184@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "On 12/20/21 8:49 AM, Dirk Eddelbuettel wrote:\n> On 20 December 2021 at 15:48, Sebastian Meyer wrote:\n> | Am 20.12.21 um 15:19 schrieb Dirk Eddelbuettel:\n> | >\n> | > On 19 December 2021 at 18:14, David Winsemius wrote:\n> | > | I initially attempted installation of pkg:MatrixExtra with\n> | > | `install.packages on my Ubuntu 18.04 LTS system from within RStudio. It\n> | > | failed with an error attempting to compile a function named \"matmul.cpp\"\n> | > | so I tried running R from a Terminal session. Same error. Finally I\n> | >\n> | > Well yes. Same system, same compiler and same R.  Can you remind me what\n> | >\n> | >     gcc --version\n> | >\n> | > says on Ubuntu 18.04.\n> |\n> | gcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0\n>\n> That should be good enough.\n>   \n\nI also get gcc version:\n\ngcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0\n\n> | FWIW, \"MatrixExtra\" installs without problems for me on \"ancient\"\n>\n> I am fairly certain that the (accidental ?) mishap of mixing current R,\n> i.e. his 4.1.2, with a 3.5.1 library is the issue.\n\n\nIt was just an R user library. I don't have a 3.5.1 library. I'll change \nit to something that doesn't bother you.\n\nBefore: from Sys.getenv()\n\nR_HOME???????????????????????? /usr/lib/R\nR_INCLUDE_DIR????????????????? /usr/share/R/include\nR_LIBS_SITE \n/usr/local/lib/R/site-library:/usr/lib/R/site-library:/usr/lib/R/library\nR_LIBS_USER /home/david/R/x86_64-pc-linux-gnu-library/3.5.1/\n\nAfter changing R_LIBS_USER value:\n\nR_HOME???????????????????????? /usr/lib/R\nR_INCLUDE_DIR????????????????? /usr/share/R/include\nR_LIBS_SITE \n/usr/local/lib/R/site-library:/usr/lib/R/site-library:/usr/lib/R/library\nR_LIBS_USER??????????????????? /home/david/R/Local_user_lib\n\n > .libPaths( c( \"/home/david/R/Local_user_lib\", .libPaths()[2:4]) )\n > install.packages(\"MatrixExtra\")\nInstalling package into ?/home/david/R/Local_user_lib?\n(as ?lib? is unspecified)\nalso installing the dependencies ?Matrix?, ?RhpcBLASctl?, ?float?\n\ntrying URL 'https://cloud.r-project.org/src/contrib/Matrix_1.4-0.tar.gz'\nContent type 'application/x-gzip' length 2849865 bytes (2.7 MB)\n==================================================\ndownloaded 2.7 MB\n\ntrying URL \n'https://cloud.r-project.org/src/contrib/RhpcBLASctl_0.21-247.1.tar.gz'\nContent type 'application/x-gzip' length 41291 bytes (40 KB)\n==================================================\ndownloaded 40 KB\n\ntrying URL 'https://cloud.r-project.org/src/contrib/float_0.2-6.tar.gz'\nContent type 'application/x-gzip' length 1373196 bytes (1.3 MB)\n==================================================\ndownloaded 1.3 MB\n\ntrying URL \n'https://cloud.r-project.org/src/contrib/MatrixExtra_0.1.9-1.tar.gz'\nContent type 'application/x-gzip' length 218705 bytes (213 KB)\n==================================================\ndownloaded 213 KB\n\n* installing *source* package ?Matrix? ...\n** package ?Matrix? successfully unpacked and MD5 sums checked\n** using staged installation\n** libs\n\n---------------snipped intermediate----------\n\ninstalling to /home/david/R/Local_user_lib/00LOCK-Matrix/00new/Matrix/libs\n** R\n** data\n** inst\n** byte-compile and prepare package for lazy loading\nError: package ?lattice? was installed before R 4.0.0: please re-install it\nExecution halted\nERROR: lazy loading failed for package ?Matrix?\n* removing ?/home/david/R/Local_user_lib/Matrix?\n\n-------------snipped----\n\ninstalling to \n/home/david/R/Local_user_lib/00LOCK-MatrixExtra/00new/MatrixExtra/libs\n** R\n** inst\n** byte-compile and prepare package for lazy loading\nError: package ?Matrix? 1.2.18 was found, but >= 1.3 is required by \n?MatrixExtra?\nExecution halted\n\n------------end copy------------\n\nRan `update.packages()` again and found quite a few not-yet-updated \npackages, many of them fairly essential, but NOT in the directory you \nwere worried about, but rather such as in '/usr/lib/R/site-library' and \n'/usr/lib/R/library'\n\n-----fragment of listing of outdated packages----------\n\nlattice :\n ?Version 0.20-41 installed in /usr/lib/R/library built under R 3.6.3\n ?Version 0.20-45 available at https://cloud.r-project.org\n\n---------\n\n\nSo now I have a bunch of properly updated packages and MatrixExtra \ninstalls without complaint.\n\n\n** testing if installed package can be loaded from final location\n** testing if installed package keeps a record of temporary installation \npath\n* DONE (MatrixExtra)\n\n-- \n\nThanks for the impetus to change that annoying, but eventually \nmisleading, local user library name. I'd been meaning to do that for a \nwhile, and thanks for the advice to recheck version numbers. I'm not \nquite sure how I got away with this for so long.\n\n\n-- \n\nDavid.\n\n\n\n>\n> It has been so long since I converted from pre-4.0.* that I forgot what the\n> error message looks like but the arcanae one in David's post may qualify.\n>\n> | > R version 4.1.2 (2021-11-01)\n> | > Platform: x86_64-pc-linux-gnu (64-bit)\n> | > Running under: Ubuntu 18.04.6 LTS\n> | >\n> | > Matrix products: default\n> | > BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1\n> | > LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1\n> |\n> | I see openblas in your sessionInfo(). Could that be a problem?\n>\n> I do not think. Stable interface, unchanged for decades, hot-swappable.\n>\n> Dirk\n>",
+      "body_snippet": "On 12/20/21 8:49 AM, Dirk Eddelbuettel wrote:\n> On 20 December 2021 at 15:48, Sebastian Meyer wrote:\n> | Am 20.12.21 um 15:19 schrieb Dirk Eddelbuettel:\n> | >\n> | > On 19 December 2021 at 18:14, David",
+      "thread_id": "thread-7cc492dba312",
+      "thread_depth": 4,
+      "month": "2021-12"
+    },
+    {
+      "id": "msg-6399f7c65945",
+      "message_id": "<CAFDcVCRY1xU+aUi_TVfmVGN_F0iCxc6vxn_c1ATw-eVFXDgXvg@mail.gmail.com>",
+      "from_name": "Henrik Bengtsson",
+      "from_email_hash": "4861a2b833132ccee758def2caa0ac4dc6bbdf1b2c4e2f28a1b1b8a43ceeb278",
+      "date": "2021-12-20T11:34:49-08:00",
+      "subject": "[R-sig-Debian]  [Solved]... was Cpp Error installing CRAN version of MatrixExtra on Ubuntu 18.04",
+      "subject_clean": "[Solved]... was Cpp Error installing CRAN version of MatrixExtra on Ubuntu 18.04",
+      "in_reply_to": "<1363b0ba-8c78-26e3-2953-673457883f56@comcast.net>",
+      "references": [
+        "<e96645b9-68e7-56ed-95d8-6aa39975b647@comcast.net>",
+        "<25024.37081.957317.44651@rob.eddelbuettel.com>",
+        "<729fd75e-698b-c04e-f601-adc603822029@fau.de>",
+        "<25024.46123.883224.487184@rob.eddelbuettel.com>",
+        "<1363b0ba-8c78-26e3-2953-673457883f56@comcast.net>"
+      ],
+      "body_plain": "MatrixExtra 1.9.0 introduced this problem and required something newer\nthan gcc 8.3.1, e.g. gcc 9.3.1\n(https://github.com/david-cortes/MatrixExtra/issues/2).  It's been\nfixed in MatrixExtra 0.1.9-1, which is on CRAN since a yesterday or\nso.  I've confirmed that this new version installs out of the box on\nUbuntu 18.04 LTS with its default gcc 7.5.0.\n\n/Henrik\n\nOn Mon, Dec 20, 2021 at 11:25 AM David Winsemius <dwinsemius at comcast.net> wrote:\n>\n>\n> On 12/20/21 8:49 AM, Dirk Eddelbuettel wrote:\n> > On 20 December 2021 at 15:48, Sebastian Meyer wrote:\n> > | Am 20.12.21 um 15:19 schrieb Dirk Eddelbuettel:\n> > | >\n> > | > On 19 December 2021 at 18:14, David Winsemius wrote:\n> > | > | I initially attempted installation of pkg:MatrixExtra with\n> > | > | `install.packages on my Ubuntu 18.04 LTS system from within RStudio. It\n> > | > | failed with an error attempting to compile a function named \"matmul.cpp\"\n> > | > | so I tried running R from a Terminal session. Same error. Finally I\n> > | >\n> > | > Well yes. Same system, same compiler and same R.  Can you remind me what\n> > | >\n> > | >     gcc --version\n> > | >\n> > | > says on Ubuntu 18.04.\n> > |\n> > | gcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0\n> >\n> > That should be good enough.\n> >\n>\n> I also get gcc version:\n>\n> gcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0\n>\n> > | FWIW, \"MatrixExtra\" installs without problems for me on \"ancient\"\n> >\n> > I am fairly certain that the (accidental ?) mishap of mixing current R,\n> > i.e. his 4.1.2, with a 3.5.1 library is the issue.\n>\n>\n> It was just an R user library. I don't have a 3.5.1 library. I'll change\n> it to something that doesn't bother you.\n>\n> Before: from Sys.getenv()\n>\n> R_HOME                         /usr/lib/R\n> R_INCLUDE_DIR                  /usr/share/R/include\n> R_LIBS_SITE\n> /usr/local/lib/R/site-library:/usr/lib/R/site-library:/usr/lib/R/library\n> R_LIBS_USER /home/david/R/x86_64-pc-linux-gnu-library/3.5.1/\n>\n> After changing R_LIBS_USER value:\n>\n> R_HOME                         /usr/lib/R\n> R_INCLUDE_DIR                  /usr/share/R/include\n> R_LIBS_SITE\n> /usr/local/lib/R/site-library:/usr/lib/R/site-library:/usr/lib/R/library\n> R_LIBS_USER                    /home/david/R/Local_user_lib\n>\n>  > .libPaths( c( \"/home/david/R/Local_user_lib\", .libPaths()[2:4]) )\n>  > install.packages(\"MatrixExtra\")\n> Installing package into ?/home/david/R/Local_user_lib?\n> (as ?lib? is unspecified)\n> also installing the dependencies ?Matrix?, ?RhpcBLASctl?, ?float?\n>\n> trying URL 'https://cloud.r-project.org/src/contrib/Matrix_1.4-0.tar.gz'\n> Content type 'application/x-gzip' length 2849865 bytes (2.7 MB)\n> ==================================================\n> downloaded 2.7 MB\n>\n> trying URL\n> 'https://cloud.r-project.org/src/contrib/RhpcBLASctl_0.21-247.1.tar.gz'\n> Content type 'application/x-gzip' length 41291 bytes (40 KB)\n> ==================================================\n> downloaded 40 KB\n>\n> trying URL 'https://cloud.r-project.org/src/contrib/float_0.2-6.tar.gz'\n> Content type 'application/x-gzip' length 1373196 bytes (1.3 MB)\n> ==================================================\n> downloaded 1.3 MB\n>\n> trying URL\n> 'https://cloud.r-project.org/src/contrib/MatrixExtra_0.1.9-1.tar.gz'\n> Content type 'application/x-gzip' length 218705 bytes (213 KB)\n> ==================================================\n> downloaded 213 KB\n>\n> * installing *source* package ?Matrix? ...\n> ** package ?Matrix? successfully unpacked and MD5 sums checked\n> ** using staged installation\n> ** libs\n>\n> ---------------snipped intermediate----------\n>\n> installing to /home/david/R/Local_user_lib/00LOCK-Matrix/00new/Matrix/libs\n> ** R\n> ** data\n> ** inst\n> ** byte-compile and prepare package for lazy loading\n> Error: package ?lattice? was installed before R 4.0.0: please re-install it\n> Execution halted\n> ERROR: lazy loading failed for package ?Matrix?\n> * removing ?/home/david/R/Local_user_lib/Matrix?\n>\n> -------------snipped----\n>\n> installing to\n> /home/david/R/Local_user_lib/00LOCK-MatrixExtra/00new/MatrixExtra/libs\n> ** R\n> ** inst\n> ** byte-compile and prepare package for lazy loading\n> Error: package ?Matrix? 1.2.18 was found, but >= 1.3 is required by\n> ?MatrixExtra?\n> Execution halted\n>\n> ------------end copy------------\n>\n> Ran `update.packages()` again and found quite a few not-yet-updated\n> packages, many of them fairly essential, but NOT in the directory you\n> were worried about, but rather such as in '/usr/lib/R/site-library' and\n> '/usr/lib/R/library'\n>\n> -----fragment of listing of outdated packages----------\n>\n> lattice :\n>   Version 0.20-41 installed in /usr/lib/R/library built under R 3.6.3\n>   Version 0.20-45 available at https://cloud.r-project.org\n>\n> ---------\n>\n>\n> So now I have a bunch of properly updated packages and MatrixExtra\n> installs without complaint.\n>\n>\n> ** testing if installed package can be loaded from final location\n> ** testing if installed package keeps a record of temporary installation\n> path\n> * DONE (MatrixExtra)\n>\n> --\n>\n> Thanks for the impetus to change that annoying, but eventually\n> misleading, local user library name. I'd been meaning to do that for a\n> while, and thanks for the advice to recheck version numbers. I'm not\n> quite sure how I got away with this for so long.\n>\n>\n> --\n>\n> David.\n>\n>\n>\n> >\n> > It has been so long since I converted from pre-4.0.* that I forgot what the\n> > error message looks like but the arcanae one in David's post may qualify.\n> >\n> > | > R version 4.1.2 (2021-11-01)\n> > | > Platform: x86_64-pc-linux-gnu (64-bit)\n> > | > Running under: Ubuntu 18.04.6 LTS\n> > | >\n> > | > Matrix products: default\n> > | > BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1\n> > | > LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1\n> > |\n> > | I see openblas in your sessionInfo(). Could that be a problem?\n> >\n> > I do not think. Stable interface, unchanged for decades, hot-swappable.\n> >\n> > Dirk\n> >\n>\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "MatrixExtra 1.9.0 introduced this problem and required something newer\nthan gcc 8.3.1, e.g. gcc 9.3.1\n(https://github.com/david-cortes/MatrixExtra/issues/2).  It's been\nfixed in MatrixExtra 0.1.9-1, w",
+      "thread_id": "thread-7cc492dba312",
+      "thread_depth": 5,
+      "month": "2021-12"
+    },
+    {
+      "id": "msg-ff21bc8a739f",
+      "message_id": "<25024.56507.649717.877099@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2021-12-20T13:42:51-06:00",
+      "subject": "[R-sig-Debian]  [Solved]... was Cpp Error installing CRAN version of MatrixExtra on Ubuntu 18.04",
+      "subject_clean": "[Solved]... was Cpp Error installing CRAN version of MatrixExtra on Ubuntu 18.04",
+      "in_reply_to": "<1363b0ba-8c78-26e3-2953-673457883f56@comcast.net>",
+      "references": [
+        "<e96645b9-68e7-56ed-95d8-6aa39975b647@comcast.net>",
+        "<25024.37081.957317.44651@rob.eddelbuettel.com>",
+        "<729fd75e-698b-c04e-f601-adc603822029@fau.de>",
+        "<25024.46123.883224.487184@rob.eddelbuettel.com>",
+        "<1363b0ba-8c78-26e3-2953-673457883f56@comcast.net>"
+      ],
+      "body_plain": "On 20 December 2021 at 11:25, David Winsemius wrote:\n| Ran `update.packages()` again and found quite a few not-yet-updated \n| packages, many of them fairly essential, but NOT in the directory you \n| were worried about, but rather such as in '/usr/lib/R/site-library' and \n| '/usr/lib/R/library'\n[...]\n| Thanks for the impetus to change that annoying, but eventually \n| misleading, local user library name. I'd been meaning to do that for a \n| while, and thanks for the advice to recheck version numbers. I'm not \n| quite sure how I got away with this for so long.\n\nGlad to hear you are sorted out!\n\nFor what it is worth I\n\n - do not use private user libraries [1]\n - run update.packages() (over all of .libPaths()) daily to weekly\n\nNo issues.\n\nDirk\n\n[1] That is personal preference I reflected in the Debian package for your\nactively suppressing them til I was told I can't / shouldn't. Now I just\nsuppress them at my end by setting the env vars to empty strings (and of\ncourse ensure that /usr/local/lib/R/site-library is group-writeable by a\ngroup I am in.)\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 20 December 2021 at 11:25, David Winsemius wrote:\n| Ran `update.packages()` again and found quite a few not-yet-updated \n| packages, many of them fairly essential, but NOT in the directory you \n| w",
+      "thread_id": "thread-7cc492dba312",
+      "thread_depth": 5,
+      "month": "2021-12"
+    },
+    {
+      "id": "msg-92d4d94398e6",
+      "message_id": "<25028.34217.452603.685920@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "26604783910298c073ad132e77cb72b30037ddd7369ecad11e5fe08281600547",
+      "date": "2021-12-23T08:20:25-06:00",
+      "subject": "[R-sig-Debian] Open a text file with vi/vim in another Terminal",
+      "subject_clean": "Open a text file with vi/vim in another Terminal",
+      "in_reply_to": "<25021.57940.852626.134974@rob.eddelbuettel.com>",
+      "references": [
+        "<81e30645-6685-6c90-23c3-43f39a1bd94d@inmodelia.com>",
+        "<20211218000708.59f500f5@Tarkus>",
+        "<25021.57940.852626.134974@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "FYI, and as a follow-up, someone mentioned in a another thread\n\n   utils::file.edit()     (see https://rdrr.io/r/utils/file.edit.html)\n\nand the general rule still holds: \"if it is generally useful, it probably\nalready is in base R\" ...\n\nDirk\n\n-- \nhttps://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "FYI, and as a follow-up, someone mentioned in a another thread\n\n   utils::file.edit()     (see https://rdrr.io/r/utils/file.edit.html)\n\nand the general rule still holds: \"if it is generally useful, it",
+      "thread_id": "thread-5159c9e822b5",
+      "thread_depth": 3,
+      "month": "2021-12"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-6254ca418096",
+      "subject": "Open a text file with vi/vim in another Terminal",
+      "message_count": 4,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Ivan Krylov",
+        "Patrice Kiener"
+      ],
+      "started": "2021-12-17T18:48:29+01:00",
+      "last_reply": "2021-12-17T13:20:04-06:00",
+      "root_message_id": "msg-6254ca418096"
+    },
+    {
+      "id": "thread-5159c9e822b5",
+      "subject": "Open a text file with vi/vim in another Terminal",
+      "message_count": 5,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Ivan Krylov",
+        "Patrice Kiener"
+      ],
+      "started": "2021-12-17T21:13:12+01:00",
+      "last_reply": "2021-12-23T08:20:25-06:00",
+      "root_message_id": "msg-5159c9e822b5"
+    },
+    {
+      "id": "thread-7cc492dba312",
+      "subject": "Cpp Error installing CRAN version of MatrixExtra on Ubuntu 18.04",
+      "message_count": 7,
+      "participants": [
+        "David Winsemius",
+        "Dirk Eddelbuettel",
+        "Henrik Bengtsson",
+        "Sebastian Meyer"
+      ],
+      "started": "2021-12-19T18:14:21-08:00",
+      "last_reply": "2021-12-20T13:42:51-06:00",
+      "root_message_id": "msg-7cc492dba312"
+    }
+  ]
+}

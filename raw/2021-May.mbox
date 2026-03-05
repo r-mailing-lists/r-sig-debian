@@ -1,0 +1,266 @@
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Fri May 21 10:56:36 2021
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Fri, 21 May 2021 10:56:36 +0200
+Subject: [R-sig-Debian] R 4.1.0 and Graphics Packages
+Message-ID: <4844796.BOxAeFuOYR@ryz>
+
+Hi all,
+
+The NEWS for R 4.1.0 contain the note:
+
+- The graphics engine version, R_GE_version, has been bumped to 14 and so 
+packages that provide graphics devices should be reinstalled
+
+And indeed, I just ran into this and got a 
+
+  Graphics API version mismatch
+
+error when using the tikzDevice package with my fresh CRAN backport of R 4.1.0 
+that Dirk uploaded to experimental. The error went away after reinstalling 
+tikzDevice.
+
+For CRAN backports users, I just added a note on the Debian page
+
+  https://cran.r-project.org/bin/linux/debian/#debian-bullseye-testing 
+
+(it will take a while for the mirrors to sync).
+
+Before the r-api system was introduced, I used to set up fresh repositories 
+when R introduced breaking changes, in order to avoid that an apt-get upgrade 
+breaks installed R package functionality. This one slipped by my attention.
+
+For the Debian R packages, I think we should find out which of the R packages 
+in the Debian archive are affected by this (r-cran-rgl, r-cran-svglite, r-cran-
+vdiffr which embeds svglite, ggplot2, ...) and add versioned Breaks.
+
+Or should the r-api Version be bumped from r-api-4.0 to r-api-4.1?
+
+Cheers,
+
+Johannes
+
+
+
+
+
+
+
+
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Fri May 21 19:03:59 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Fri, 21 May 2021 12:03:59 -0500
+Subject: [R-sig-Debian] R 4.1.0 and Graphics Packages
+In-Reply-To: <4844796.BOxAeFuOYR@ryz>
+References: <4844796.BOxAeFuOYR@ryz>
+Message-ID: <24743.59391.802298.482958@rob.eddelbuettel.com>
+
+
+On 21 May 2021 at 10:56, Johannes Ranke wrote:
+| Hi all,
+| 
+| The NEWS for R 4.1.0 contain the note:
+| 
+| - The graphics engine version, R_GE_version, has been bumped to 14 and so 
+| packages that provide graphics devices should be reinstalled
+| 
+| And indeed, I just ran into this and got a 
+| 
+|   Graphics API version mismatch
+| 
+| error when using the tikzDevice package with my fresh CRAN backport of R 4.1.0 
+| that Dirk uploaded to experimental. The error went away after reinstalling 
+| tikzDevice.
+
+Eeek. Didn't think of that.
+ 
+| For CRAN backports users, I just added a note on the Debian page
+| 
+|   https://cran.r-project.org/bin/linux/debian/#debian-bullseye-testing 
+| 
+| (it will take a while for the mirrors to sync).
+| 
+| Before the r-api system was introduced, I used to set up fresh repositories 
+| when R introduced breaking changes, in order to avoid that an apt-get upgrade 
+| breaks installed R package functionality. This one slipped by my attention.
+| 
+| For the Debian R packages, I think we should find out which of the R packages 
+| in the Debian archive are affected by this (r-cran-rgl, r-cran-svglite, r-cran-
+| vdiffr which embeds svglite, ggplot2, ...) and add versioned Breaks.
+| 
+| Or should the r-api Version be bumped from r-api-4.0 to r-api-4.1?
+
+I would prefer not, and don't think it is called for. But then I often argued
+for a more 'laissez-faire' approach that others (on the other list, i.e. debian-r). 
+
+Once the release is made, I will put R 4.1.0-* into unstable and rebuild at
+least all the packages from experimental.  Me thinks we can handle this via
+the normal bug track mechanism. But the backport may have extra issue. But
+maybe your list of 'has graphics' packages is good enough?
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Tue May 25 08:47:58 2021
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Tue, 25 May 2021 08:47:58 +0200
+Subject: [R-sig-Debian] R 4.1.0 and Graphics Packages
+In-Reply-To: <24743.59391.802298.482958@rob.eddelbuettel.com>
+References: <4844796.BOxAeFuOYR@ryz>
+ <24743.59391.802298.482958@rob.eddelbuettel.com>
+Message-ID: <6388852.kXAsSdvdp7@ryz>
+
+Am Freitag, 21. Mai 2021, 19:03:59 CEST schrieb Dirk Eddelbuettel:
+> On 21 May 2021 at 10:56, Johannes Ranke wrote:
+> | Hi all,
+> | 
+> | The NEWS for R 4.1.0 contain the note:
+> | 
+> | - The graphics engine version, R_GE_version, has been bumped to 14 and so
+> | packages that provide graphics devices should be reinstalled
+> | 
+> | And indeed, I just ran into this and got a
+> | 
+> |   Graphics API version mismatch
+> | 
+> | error when using the tikzDevice package with my fresh CRAN backport of R
+> | 4.1.0 that Dirk uploaded to experimental. The error went away after
+> | reinstalling tikzDevice.
+> 
+> Eeek. Didn't think of that.
+> 
+> | For CRAN backports users, I just added a note on the Debian page
+> | 
+> |   https://cran.r-project.org/bin/linux/debian/#debian-bullseye-testing
+> | 
+> | (it will take a while for the mirrors to sync).
+> | 
+> | Before the r-api system was introduced, I used to set up fresh
+> | repositories
+> | when R introduced breaking changes, in order to avoid that an apt-get
+> | upgrade breaks installed R package functionality. This one slipped by my
+> | attention.
+> | 
+> | For the Debian R packages, I think we should find out which of the R
+> | packages in the Debian archive are affected by this (r-cran-rgl,
+> | r-cran-svglite, r-cran- vdiffr which embeds svglite, ggplot2, ...) and
+> | add versioned Breaks.
+> | 
+> | Or should the r-api Version be bumped from r-api-4.0 to r-api-4.1?
+> 
+> I would prefer not, and don't think it is called for. But then I often
+> argued for a more 'laissez-faire' approach that others (on the other list,
+> i.e. debian-r).
+> 
+> Once the release is made, I will put R 4.1.0-* into unstable and rebuild at
+> least all the packages from experimental.  Me thinks we can handle this via
+> the normal bug track mechanism.
+
+A more systematic way would be to have R 4.1.0-2 provide r-graphics-api_14 and 
+only upload packages providing graphics devices that have a respective 
+dependency from now on. But I don't know if it's worth the trouble.
+
+> But the backport may have extra issue. But
+> maybe your list of 'has graphics' packages is good enough?
+
+At this point I don't really see what we can do other than spreading the word 
+so the backports users can quickly address the problem by reinstalling the 
+affected packages.
+
+Cheers,
+
+Johannes
+> 
+> Dirk
+
+
+-- 
+Johannes Ranke
+Wissenschaftlicher Berater
+07624 8099027
+https://jrwb.de
+
+
+From edd @end|ng |rom deb|@n@org  Tue May 25 14:35:53 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 25 May 2021 07:35:53 -0500
+Subject: [R-sig-Debian] R 4.1.0 and Graphics Packages
+In-Reply-To: <6388852.kXAsSdvdp7@ryz>
+References: <4844796.BOxAeFuOYR@ryz>
+ <24743.59391.802298.482958@rob.eddelbuettel.com>
+ <6388852.kXAsSdvdp7@ryz>
+Message-ID: <24748.61225.342459.87239@rob.eddelbuettel.com>
+
+
+On 25 May 2021 at 08:47, Johannes Ranke wrote:
+| A more systematic way would be to have R 4.1.0-2 provide r-graphics-api_14 and 
+| only upload packages providing graphics devices that have a respective 
+| dependency from now on. But I don't know if it's worth the trouble.
+
+If you wanted to you could do that locally for just the backport. 
+ 
+| At this point I don't really see what we can do other than spreading the word 
+| so the backports users can quickly address the problem by reinstalling the 
+| affected packages.
+
+We can rebuild all the affected packages.  An 'apt update; apt upgrade' would
+then pull them in.  That is generally my preferred approach.
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From |nvogt603 @end|ng |rom gm@||@com  Tue May 25 14:53:58 2021
+From: |nvogt603 @end|ng |rom gm@||@com (Irene V. Siemen)
+Date: Tue, 25 May 2021 08:53:58 -0400
+Subject: [R-sig-Debian] Mailing list
+Message-ID: <CACXTnTo0bhRsYFLdVTfAhwoHwdO3_S_kUGYLYZ9MvD_6La-xmg@mail.gmail.com>
+
+Can you remove me from this list?
+
+Thanks,
+Irene
+
+	[[alternative HTML version deleted]]
+
+
+From r@turner @end|ng |rom @uck|@nd@@c@nz  Wed May 26 02:55:01 2021
+From: r@turner @end|ng |rom @uck|@nd@@c@nz (Rolf Turner)
+Date: Wed, 26 May 2021 12:55:01 +1200
+Subject: [R-sig-Debian] Mailing list
+In-Reply-To: <CACXTnTo0bhRsYFLdVTfAhwoHwdO3_S_kUGYLYZ9MvD_6La-xmg@mail.gmail.com>
+References: <CACXTnTo0bhRsYFLdVTfAhwoHwdO3_S_kUGYLYZ9MvD_6La-xmg@mail.gmail.com>
+Message-ID: <20210526125501.132c7327@rolf-Latitude-E7470>
+
+
+On Tue, 25 May 2021 08:53:58 -0400
+"Irene V. Siemen" <invogt603 at gmail.com> wrote:
+
+> Can you remove me from this list?
+> 
+> Thanks,
+> Irene
+
+No.  Only you can remove yourself.  Go to the link given at the end of
+all postings to this list, and scroll down to "Unsubscribe or edit
+options."
+
+cheers,
+
+Rolf Turner
+
+-- 
+Honorary Research Fellow
+Department of Statistics
+University of Auckland
+Phone: +64-9-373-7599 ext. 88276
+
+

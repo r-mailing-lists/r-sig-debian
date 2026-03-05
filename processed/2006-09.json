@@ -1,0 +1,54 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2006-09",
+  "messages": [
+    {
+      "id": "msg-2bb3f3a34291",
+      "message_id": "<17681.39994.635813.314622@basebud.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2006-09-20T14:53:30-05:00",
+      "subject": "[R-sig-Debian] R 2.4.0 pre-release in unstable may break some packages",
+      "subject_clean": "R 2.4.0 pre-release in unstable may break some packages",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi all,\n\nToday's apt-get update should bring the first R 2.4.0 snapshot packages. As\nwith previous releases, I intend to renew the packages every week until the\nrelease of 2.4.0 by R Core that is scheduled for October 3.  That way, R\n2.3.1-3 will remain the version in testing.\n\nAs you may have seen on the r-devel list, 2.4.0 will require that packages\nusing S4 classes and the methods package will need to be rebuilt. In other\nwords, your current unstable installation may break.  If that is a concern\nplease put r-base-core on hold using e.g.  $ echo \"r-cran-base hold\" | dpkg\n--set-selections\n\nWe will try to establish which r-cran-* et al packages need an update and hope\nto get updated Debian packages of those CRAN package -- with a Depends on\n\"r-base-core (>> 2.3.1)\" into the archive.\n\nCheers, Dirk\n\n-- \nHell, there are no rules here - we're trying to accomplish something. \n                                                  -- Thomas A. Edison",
+      "body_snippet": "Hi all,\n\nToday's apt-get update should bring the first R 2.4.0 snapshot packages. As\nwith previous releases, I intend to renew the packages every week until the\nrelease of 2.4.0 by R Core that is sche",
+      "thread_id": "thread-2bb3f3a34291",
+      "thread_depth": 0,
+      "month": "2006-09"
+    },
+    {
+      "id": "msg-3dfabcb7d7f7",
+      "message_id": "<17682.6292.906846.534865@basebud.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2006-09-20T23:44:04-05:00",
+      "subject": "[R-sig-Debian] R 2.4.0 pre-release in unstable may break some\tpackages",
+      "subject_clean": "R 2.4.0 pre-release in unstable may break some\tpackages",
+      "in_reply_to": "<17681.39994.635813.314622@basebud.nulle.part>",
+      "references": [
+        "<17681.39994.635813.314622@basebud.nulle.part>"
+      ],
+      "body_plain": "On 20 September 2006 at 14:53, Dirk Eddelbuettel wrote:\n| \n| Hi all,\n| \n| Today's apt-get update should bring the first R 2.4.0 snapshot packages. As\n| with previous releases, I intend to renew the packages every week until the\n| release of 2.4.0 by R Core that is scheduled for October 3.  That way, R\n| 2.3.1-3 will remain the version in testing.\n| \n| As you may have seen on the r-devel list, 2.4.0 will require that packages\n| using S4 classes and the methods package will need to be rebuilt. In other\n| words, your current unstable installation may break.  If that is a concern\n| please put r-base-core on hold using e.g.  $ echo \"r-cran-base hold\" | dpkg\n| --set-selections\n| \n| We will try to establish which r-cran-* et al packages need an update and hope\n| to get updated Debian packages of those CRAN package -- with a Depends on\n| \"r-base-core (>> 2.3.1)\" into the archive.\n\nI may have overlooked something deeper, but as a first pass, the following\napproach (encoded in the script below) worked:\ni)   make sure all available packages are installed\nii)  loop over a library() directory and try to install each package therein\niii) rinse and repeat ii)\n\nI uploaded new versions of Matrix, its, latticeExtra, foreign and lme4 and\nasked Chris to update eco  --  the rest seems to work. For now, I am ignoring\n(as the last line indicates) a few of the older packages in my /usr/local/\ntree. \n\nCheers, Dirk\n\n\n#!/bin/sh -e\n\nfunction installAllAvailable() {\n  ## install all available packages (and let apt skip current ones)\n  pkgs=`apt-cache search ^r-.* | grep ^r- | grep -v \"r-base\\|r-doc\\|r-gnome\\|r-math\\|r-recom\" | grep -vi dummy | sort | cut -f1 -d\" \"`\n  sudo apt-get -t unstable install $pkgs\n}\n\nfunction iterateOver() {\n  dirs=`find $1 -maxdepth 1 -mindepth 1 -type d | sort | grep -v $2`\n  for f in $dirs\n  do\n    p=`basename $f`\n    echo \"\"\n    echo \"Looking at $p\"\n    echo \"stopifnot(require($p, quiet=TRUE)); cat('--- works: $p\\n')\"| R --slave\n  done\n}\n\n## uncomment whatever needs to be run ...\n\n#installAllAvailable\n#iterateOver /usr/lib/R/site-library \"eco\"\n#iterateOver /usr/lib/R/library \"nothingToIgnore\"\n\n## for comparison, my /usr/local tree also tripped up a few\n#iterateOver /usr/local/lib/R/site-library \"JGR\\|JavaGD\\|Ruuid\\|Rgraphviz\\|VGAM\\|VLMC\\|graph\\|iWidgets\\|iplots\\|portfolio\\|rJava\"\n\necho \"Done!\"\n\n\n-- \nHell, there are no rules here - we're trying to accomplish something. \n                                                  -- Thomas A. Edison",
+      "body_snippet": "On 20 September 2006 at 14:53, Dirk Eddelbuettel wrote:\n| \n| Hi all,\n| \n| Today's apt-get update should bring the first R 2.4.0 snapshot packages. As\n| with previous releases, I intend to renew the pa",
+      "thread_id": "thread-2bb3f3a34291",
+      "thread_depth": 1,
+      "month": "2006-09"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-2bb3f3a34291",
+      "subject": "R 2.4.0 pre-release in unstable may break some packages",
+      "message_count": 2,
+      "participants": [
+        "Dirk Eddelbuettel"
+      ],
+      "started": "2006-09-20T14:53:30-05:00",
+      "last_reply": "2006-09-20T23:44:04-05:00",
+      "root_message_id": "msg-2bb3f3a34291"
+    }
+  ]
+}

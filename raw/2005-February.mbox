@@ -1,0 +1,380 @@
+From bates at stat.wisc.edu  Sat Feb 19 16:23:53 2005
+From: bates at stat.wisc.edu (Douglas Bates)
+Date: Sat Feb 19 17:36:20 2005
+Subject: [R-sig-Debian] Re: [R] Problems installing quantreg
+In-Reply-To: <Pine.SGI.4.40.0502190917380.13061061-100000@origin.chass.utoronto.ca>
+References: <Pine.SGI.4.40.0502190917380.13061061-100000@origin.chass.utoronto.ca>
+Message-ID: <42175A09.7070309@stat.wisc.edu>
+
+Jean Eid wrote:
+> I have the same problem as well. I installed atalas3-sse2 and still hasd
+> the same problem. Here's the log of messages
+> * Installing *source* package 'quantreg' ...
+> ** libs
+> g77   -fPIC  -g -O2 -c akj.f -o akj.o
+> g77   -fPIC  -g -O2 -c boot.f -o boot.o
+> g77   -fPIC  -g -O2 -c boundc.f -o boundc.o
+> g77   -fPIC  -g -O2 -c bound.f -o bound.o
+> g77   -fPIC  -g -O2 -c chlfct.f -o chlfct.o
+> g77   -fPIC  -g -O2 -c cholesky.f -o cholesky.o
+> g77   -fPIC  -g -O2 -c extract.f -o extract.o
+> gcc -I/usr/lib/R/include     -fPIC  -g -O2 -c mcmb.c -o mcmb.o
+> g77   -fPIC  -g -O2 -c penalty.f -o penalty.o
+> g77   -fPIC  -g -O2 -c rls.f -o rls.o
+> g77   -fPIC  -g -O2 -c rq1.f -o rq1.o
+> g77   -fPIC  -g -O2 -c rqbr.f -o rqbr.o
+> rqbr.f: In subroutine `rqbr':
+> rqbr.f:418: warning:
+>          go to 60
+>                1
+> rqbr.f:547: (continued):
+>    60    idxcf = idxcf+1
+>    2
+> Reference to label at (1) is outside block containing definition at (2)
+> rqbr.f:405: warning:
+>          go to 70
+>                1
+> rqbr.f:551: (continued):
+>    70    if(lup)then
+>    2
+> Reference to label at (1) is outside block containing definition at (2)
+> g77   -fPIC  -g -O2 -c rqfnb.f -o rqfnb.o
+> g77   -fPIC  -g -O2 -c rqfnc.f -o rqfnc.o
+> g77   -fPIC  -g -O2 -c rqfn.f -o rqfn.o
+> g77   -fPIC  -g -O2 -c sparskit2.f -o sparskit2.o
+> g77   -fPIC  -g -O2 -c srqfnc.f -o srqfnc.o
+> g77   -fPIC  -g -O2 -c srqfn.f -o srqfn.o
+> g77   -fPIC  -g -O2 -c srtpai.f -o srtpai.o
+> g77   -fPIC  -g -O2 -c xlapack.f -o xlapack.o
+> gcc -shared  -o quantreg.so akj.o boot.o boundc.o bound.o chlfct.o
+> cholesky.o extract.o mcmb.o penalty.o rls.o rq1.o rqbr.o rqfnb.o rqfnc.o
+> rqfn.o sparskit2.o srqfnc.o srqfn.o srtpai.o xlapack.o -lblas-3
+> -L/usr/lib/gcc-lib/i486-linux/3.3.5
+> -L/usr/lib/gcc-lib/i486-linux/3.3.5/../../.. -lfrtbegin -lg2c -lm -lgcc_s
+> -L/usr/lib/R/lib -lR
+> /usr/bin/ld: cannot find -lblas-3
+> collect2: ld returned 1 exit status
+> make: *** [quantreg.so] Error 1
+> ERROR: compilation failed for package 'quantreg'
+> ** Removing '/usr/local/lib/R/site-library/quantreg'
+> ** Restoring previous '/usr/local/lib/R/site-library/quantreg'
+
+Hmm.  Perhaps we should take this off-list or to the newly created 
+R-SIG-Debian list.
+
+Could you do a quick check of
+
+  locate libblas-3
+
+and send me (either privately or on the R-SIG-Debian list) the results. 
+  The output should include /etc/alternatives/libblas-3.so and 
+/usr/lib/libblas-3.so
+
+From bates at stat.wisc.edu  Sun Feb 20 14:45:25 2005
+From: bates at stat.wisc.edu (Douglas Bates)
+Date: Sun Feb 20 14:45:11 2005
+Subject: [R-sig-Debian] Re: [R] Problems installing quantreg
+In-Reply-To: <200502191502.48362.engle@unr.nevada.edu>
+References: <Pine.SGI.4.40.0502190917380.13061061-100000@origin.chass.utoronto.ca>
+	<42175A09.7070309@stat.wisc.edu>
+	<200502191502.48362.engle@unr.nevada.edu>
+Message-ID: <42189475.9040701@stat.wisc.edu>
+
+mark engle wrote:
+> Sorry if I posted to the wrong list, I am a new user of R.  Locate libblas-3 
+> doesn't return anything.  The closest file I can find 
+> is /usr/lib/libblas.so.2 and I don't have a etc/alternatives/.  I am using 
+> the debs from apt-get that Dirk mantains for R-base and the other R-packages.
+> 
+> Any ideas?  Thanks for your time.
+> -Mark
+>  
+
+I suggest that you remove and re-install the atlas3-base or atlas3-sse2 
+or atlas3-3dnow package.  They do not contain the libblas-3 file but the 
+act of installing them creates the links in /etc/alternatives and in 
+/usr/lib
+
+BTW, I will be off line until Monday evening so I suggest you follow up 
+to R-SIG-Debian@R-project.org
+
+From engle at unr.nevada.edu  Tue Feb 22 07:42:23 2005
+From: engle at unr.nevada.edu (mark engle)
+Date: Tue Feb 22 13:12:06 2005
+Subject: [R-sig-Debian] Having problems with quantreg
+Message-ID: <200502212242.23169.engle@unr.nevada.edu>
+
+Hi All,
+     I'm still having significantly difficulty getting the quantreg library 
+running in R.  I'm running R on MEPIS using the debs created by Dirk 
+Eddelbuettel and placed in apt testing.  When I try to install quantreg using 
+the install.packages() function it fails with:  /usr/bin/ld: cannot find 
+-lblas-3
+
+Dirk was nice enough to send me a .deb for quantreg which installs without 
+error.  However, when I try to run the rq command after entering 
+library(quantreg), I get: Error: Object "rq" not found
+
+I've tried reinstalling atlas3-base (as Douglas Bates suggested), every R 
+package on my machine and ripping out every config file I can find and 
+re-installing to no avail.    I am a true beginner at R and could certainly 
+be doing something or just be missing a package.  If anyone has anymore 
+ideas, I'd love to hear them.  Thanks for the help.
+-Mark
+
+engle at unr dot nevada dot edu
+
+From edd at debian.org  Tue Feb 22 14:16:08 2005
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue Feb 22 14:16:20 2005
+Subject: [R-sig-Debian] Having problems with quantreg
+In-Reply-To: <200502212242.23169.engle@unr.nevada.edu>
+References: <200502212242.23169.engle@unr.nevada.edu>
+Message-ID: <16923.12440.368266.728525@basebud.nulle.part>
+
+
+On 21 February 2005 at 22:42, mark engle wrote:
+| Hi All,
+|      I'm still having significantly difficulty getting the quantreg library 
+| running in R.  I'm running R on MEPIS using the debs created by Dirk 
+| Eddelbuettel and placed in apt testing.  When I try to install quantreg using 
+| the install.packages() function it fails with:  /usr/bin/ld: cannot find 
+| -lblas-3
+| 
+| Dirk was nice enough to send me a .deb for quantreg which installs without 
+| error.  However, when I try to run the rq command after entering 
+| library(quantreg), I get: Error: Object "rq" not found
+| 
+| I've tried reinstalling atlas3-base (as Douglas Bates suggested), every R 
+| package on my machine and ripping out every config file I can find and 
+| re-installing to no avail.    I am a true beginner at R and could certainly 
+| be doing something or just be missing a package.  If anyone has anymore 
+| ideas, I'd love to hear them.  Thanks for the help.
+
+i)   I know little about MEPIS, and in particular R on MEPIS. Take everything
+     with a grain of salt, and if in doubt, test on a proper Debian machine.
+     Try to find one somewhere at nevada.edu. It will easier for us to get it
+     to work there -- and let's then try to apply what we learned on your
+     MEPIS box.
+
+ii)  The (autogenerated) quantreg package I sent you has Depends as follows:
+
+edd@chibud:~> dpkg -f src/progs/perl/cran2deb/builds/r-cran-quantreg_3.50-0.r2d.1_i386.deb
+Package: r-cran-quantreg
+Version: 3.50-0.r2d.1
+Section: math
+Priority: optional
+Architecture: i386
+Depends: atlas3-base | refblas3 | libblas.so.3, libc6 (>= 2.3.2.ds1-4), libg2c0(>= 1:3.3.4-1), libgcc1 (>= 1:3.4.1-3), r-base-core
+Installed-Size: 848
+Maintainer: Dirk Eddelbuettel <edd@debian.org>
+Source: quantreg
+Description: GNU R package "Quantile Regression"
+ Quantile  regression and related methods.
+ .
+ Author(s): Roger Koenker <rkoenker@uiuc.edu>
+ Initial R port from Splus by Brian Ripley <ripley@stats.ox.ac.uk>
+ Date:
+ .
+ URL: http://www.econ.uiuc.edu/~roger/research/rq/rq.html
+
+ 
+     Notice how it says "atlas3-base | refblas3 | libblas.so.3"  What you
+     need is a concrete package that provides the virtual package
+     libblas.so.3.
+
+     You tried atlas3-base, and it didn't work.  The next thing to try would
+     be refblas3. Install that and see what it does.
+
+     Afterwards there are the others:
+
+edd@chibud:~> apt-cache showpkg libblas.so.3
+Package: libblas.so.3
+Versions:
+
+Reverse Depends:
+  r-cran-matrix,libblas.so.3
+  r-cran-rscalapack,libblas.so.3
+[...]
+Dependencies:
+Provides:
+Reverse Provides:
+refblas3 1.2-6
+atlas3-sse2 3.6.0-19
+atlas3-sse 3.6.0-19
+atlas3-base 3.6.0-19
+atlas3-3dnow 3.6.0-19
+edd@chibud:~>                     
+
+     Anyone of those after the "Reverse Provides" will do, but the
+     hardware-optimised ones (atlas3-sse2, -sse2, -3dnow) only makes
+     sense on the matching hardware.
+
+Hope this helps, Dirk
+
+
+| -Mark
+| 
+| engle at unr dot nevada dot edu
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian@r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Better to have an approximate answer to the right question than a precise 
+answer to the wrong question.  --  John Tukey as quoted by John Chambers
+
+From engle at unr.nevada.edu  Wed Feb 23 00:01:26 2005
+From: engle at unr.nevada.edu (mark engle)
+Date: Wed Feb 23 00:53:55 2005
+Subject: [R-sig-Debian] (Solved) Having problems with quantreg
+In-Reply-To: <16923.12440.368266.728525@basebud.nulle.part>
+References: <200502212242.23169.engle@unr.nevada.edu>
+	<16923.12440.368266.728525@basebud.nulle.part>
+Message-ID: <200502221501.26978.engle@unr.nevada.edu>
+
+Thanks for all of the help.  I had already installed refblas3.  I installed 
+atlas3-sse, which didn't seem to change anything.  I then added 
+atlas3-base-dev (seems kind of obvious now) and the quantreg package compiled 
+from source and commands from the package are now recognized.  I'm going to 
+give it a quick run around the block but I think that will solve everything 
+for me.  Thanks again.
+-Mark
+
+
+On Tuesday 22 February 2005 5:16, Dirk Eddelbuettel wrote:
+> On 21 February 2005 at 22:42, mark engle wrote:
+> | Hi All,
+> |      I'm still having significantly difficulty getting the quantreg
+> | library running in R.  I'm running R on MEPIS using the debs created by
+> | Dirk Eddelbuettel and placed in apt testing.  When I try to install
+> | quantreg using the install.packages() function it fails with: 
+> | /usr/bin/ld: cannot find -lblas-3
+> |
+> | Dirk was nice enough to send me a .deb for quantreg which installs
+> | without error.  However, when I try to run the rq command after entering
+> | library(quantreg), I get: Error: Object "rq" not found
+> |
+> | I've tried reinstalling atlas3-base (as Douglas Bates suggested), every R
+> | package on my machine and ripping out every config file I can find and
+> | re-installing to no avail.    I am a true beginner at R and could
+> | certainly be doing something or just be missing a package.  If anyone has
+> | anymore ideas, I'd love to hear them.  Thanks for the help.
+>
+> i)   I know little about MEPIS, and in particular R on MEPIS. Take
+> everything with a grain of salt, and if in doubt, test on a proper Debian
+> machine. Try to find one somewhere at nevada.edu. It will easier for us to
+> get it to work there -- and let's then try to apply what we learned on your
+> MEPIS box.
+>
+> ii)  The (autogenerated) quantreg package I sent you has Depends as
+> follows:
+>
+> edd@chibud:~> dpkg -f
+> src/progs/perl/cran2deb/builds/r-cran-quantreg_3.50-0.r2d.1_i386.deb
+> Package: r-cran-quantreg
+> Version: 3.50-0.r2d.1
+> Section: math
+> Priority: optional
+> Architecture: i386
+> Depends: atlas3-base | refblas3 | libblas.so.3, libc6 (>= 2.3.2.ds1-4),
+> libg2c0(>= 1:3.3.4-1), libgcc1 (>= 1:3.4.1-3), r-base-core Installed-Size:
+> 848
+> Maintainer: Dirk Eddelbuettel <edd@debian.org>
+> Source: quantreg
+> Description: GNU R package "Quantile Regression"
+>  Quantile  regression and related methods.
+>  .
+>  Author(s): Roger Koenker <rkoenker@uiuc.edu>
+>  Initial R port from Splus by Brian Ripley <ripley@stats.ox.ac.uk>
+>  Date:
+>  .
+>  URL: http://www.econ.uiuc.edu/~roger/research/rq/rq.html
+>
+>
+>      Notice how it says "atlas3-base | refblas3 | libblas.so.3"  What you
+>      need is a concrete package that provides the virtual package
+>      libblas.so.3.
+>
+>      You tried atlas3-base, and it didn't work.  The next thing to try
+> would be refblas3. Install that and see what it does.
+>
+>      Afterwards there are the others:
+>
+> edd@chibud:~> apt-cache showpkg libblas.so.3
+> Package: libblas.so.3
+> Versions:
+>
+> Reverse Depends:
+>   r-cran-matrix,libblas.so.3
+>   r-cran-rscalapack,libblas.so.3
+> [...]
+> Dependencies:
+> Provides:
+> Reverse Provides:
+> refblas3 1.2-6
+> atlas3-sse2 3.6.0-19
+> atlas3-sse 3.6.0-19
+> atlas3-base 3.6.0-19
+> atlas3-3dnow 3.6.0-19
+> edd@chibud:~>
+>
+>      Anyone of those after the "Reverse Provides" will do, but the
+>      hardware-optimised ones (atlas3-sse2, -sse2, -3dnow) only makes
+>      sense on the matching hardware.
+>
+> Hope this helps, Dirk
+>
+> | -Mark
+> |
+> | engle at unr dot nevada dot edu
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian@r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Mark Engle
+Dept. of Nat. Res. and Env. Sci.
+Mail Stop 370
+University of Nevada
+Reno, NV 89557
+engle@unr.nevada.edu
+(775)784-4966
+
+From edd at debian.org  Wed Feb 23 03:18:00 2005
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed Feb 23 03:18:18 2005
+Subject: [R-sig-Debian] Re: (Solved) Having problems with quantreg
+In-Reply-To: <200502221501.26978.engle@unr.nevada.edu>
+References: <200502212242.23169.engle@unr.nevada.edu>
+	<16923.12440.368266.728525@basebud.nulle.part>
+	<200502221501.26978.engle@unr.nevada.edu>
+Message-ID: <16923.59352.146969.327918@basebud.nulle.part>
+
+
+On 22 February 2005 at 15:01, mark engle wrote:
+| Thanks for all of the help.  I had already installed refblas3.  I installed 
+| atlas3-sse, which didn't seem to change anything.  I then added 
+| atlas3-base-dev (seems kind of obvious now) and the quantreg package compiled 
+| from source and commands from the package are now recognized.  I'm going to 
+| give it a quick run around the block but I think that will solve everything 
+| for me.  Thanks again.
+
+So I suspect you never had the r-base-dev package installed which would have
+lead you to having a -dev package providing blas-3 development headers and
+libs.  
+
+Hm, Doug and I should have checked that first ...
+
+Anyway, glad to hear you have it working now.
+
+Regards,  Dirk
+
+-- 
+Better to have an approximate answer to the right question than a precise 
+answer to the wrong question.  --  John Tukey as quoted by John Chambers
+

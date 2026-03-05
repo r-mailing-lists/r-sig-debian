@@ -1,0 +1,1555 @@
+From joh@n@@ndre@en @end|ng |rom gm@||@com  Tue Jun  6 18:55:27 2023
+From: joh@n@@ndre@en @end|ng |rom gm@||@com (Johan Andresen)
+Date: Tue, 6 Jun 2023 18:55:27 +0200
+Subject: [R-sig-Debian] why is KEYWORDS.db not in '/usr/lib/R/doc/' but in
+ '/usr/share/R/doc/'?
+Message-ID: <CAAKTTZ9hZvCnmRPWrt0Vsr6awDdQYf1GJvZJ_JuYZCP8O4wM2Q@mail.gmail.com>
+
+Hi r-sig-debian,
+
+I feel lucky to have found out that `/doc/KEYWORDS.db` is in `/usr/share/R/`,
+not in `usr/lib/R/` where rpy2 in python apparently looks for it when
+trying to search help in R from the python environment. it returned this
+error: `cannot open file '/usr/lib/R/doc/KEYWORDS.db': No such file or
+directory`.
+
+What to do now?
+- is this a problem with rpy2 looking for `/doc/KEYWORDS.db` that should
+not be in `usr/lib/R/`? -> *edit its script to point at the correct path?*
+- or is it a problem with R for debian bullseye putting  `/doc/KEYWORDS.db`
+in '/usr/share/R/doc/' where it should not be? -> why does it do that?
+Should it be this way? Can I change it?
+
+To be sure, searching help in RStudio and `help('help`) in R from the
+terminal both worked. I installed both the way you suggest on lib.stat.cmu/R
+/CRAN/bin/linux/debian/.
+
+See also https://github.com/rpy2/rpy2/issues/1033
+
+Johan
+with his first question on a, not just thus, mail list
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Tue Jun  6 19:20:27 2023
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 6 Jun 2023 12:20:27 -0500
+Subject: [R-sig-Debian] 
+ why is KEYWORDS.db not in '/usr/lib/R/doc/' but in
+ '/usr/share/R/doc/'?
+In-Reply-To: <CAAKTTZ9hZvCnmRPWrt0Vsr6awDdQYf1GJvZJ_JuYZCP8O4wM2Q@mail.gmail.com>
+References: <CAAKTTZ9hZvCnmRPWrt0Vsr6awDdQYf1GJvZJ_JuYZCP8O4wM2Q@mail.gmail.com>
+Message-ID: <25727.27355.52486.876132@rob.eddelbuettel.com>
+
+
+Hi Johan,
+
+On 6 June 2023 at 18:55, Johan Andresen wrote:
+| Hi r-sig-debian,
+| 
+| I feel lucky to have found out that `/doc/KEYWORDS.db` is in `/usr/share/R/`,
+| not in `usr/lib/R/` where rpy2 in python apparently looks for it when
+| trying to search help in R from the python environment. it returned this
+| error: `cannot open file '/usr/lib/R/doc/KEYWORDS.db': No such file or
+| directory`.
+| 
+| What to do now?
+| - is this a problem with rpy2 looking for `/doc/KEYWORDS.db` that should
+| not be in `usr/lib/R/`? -> *edit its script to point at the correct path?*
+
+Yes, in essence.  The longer story is that for (many, MANY) years we followed
+_Debian_ Policy where architecture-dependent files are in /usr/lib and
+architecture-indepdendent files are in /usr/share.  As such we (ie Debian)
+differ from a "plain vanilla from source" installation.  But then all (or
+most) other distros do too.  It is the right (and/or was when multi-arch ie
+32 and 64 bit was more common).
+
+Even R itself recently patched another accessor because the right way to do
+this is to expand the R.home() function rather than to append to the
+environment variable R_HOME (or RHOME).
+
+To show, on my system:
+
+   > file.path( R.home("doc"), "KEYWORDS.db" )
+   [1] "/usr/share/R/doc/KEYWORDS.db"
+   > 
+
+So ideally rpy2 to should try to figure out where doc/ is for R and then
+append KEYWORDS.db. I am CCing Laurent now.
+
+| - or is it a problem with R for debian bullseye putting  `/doc/KEYWORDS.db`
+| in '/usr/share/R/doc/' where it should not be? -> why does it do that?
+| Should it be this way? Can I change it?
+
+It was change brought to me (as Debian maintainer) by other Debian developers
+/ Debian Policy.  As such it is pretty irreversible.
+
+But "R known" and access via e.g. R.home() is the right way. Also not that
+/etc/R/Makeconf has, inter alia
+
+   '--datadir=/usr/share/R/share'
+
+and
+
+   include $(R_SHARE_DIR)/make/vars.mk
+   MKINSTALLDIRS = "$(R_HOME)/bin/mkinstalldirs"
+   R_XTRA_CPPFLAGS =  -I"$(R_INCLUDE_DIR)" -DNDEB
+
+so R does have the notion of different directories just fine. Also:
+
+   > envs <- Sys.getenv()
+   > envs[grepl("^R_", names(envs))]
+   R_ARCH                                                      
+   R_BROWSER                                                   xdg-open
+   R_BZIPCMD                                                   /bin/bzip2
+   R_DOC_DIR                                                   /usr/share/R/doc
+   R_GZIPCMD                                                   /bin/gzip -n
+   R_HOME                                                      /usr/lib/R
+   R_INCLUDE_DIR                                               /usr/share/R/include
+   R_LIBS_SITE                                                 /usr/local/lib/R/site-library:/usr/lib/R/site-library
+   R_LIBS_USER                                                 
+   R_MAX_NUM_DLLS                                              500
+   R_PAPERSIZE                                                 letter
+   R_PAPERSIZE_USER                                            letter
+   R_PDFVIEWER                                                 /usr/bin/xdg-open
+   R_PLATFORM                                                  x86_64-pc-linux-gnu
+   R_PRINTCMD                                                  /usr/bin/lpr
+   R_RD4PDF                                                    times,inconsolata,hyper
+   R_SESSION_TMPDIR                                            /tmp/RtmpoU2ifO
+   R_SHARE_DIR                                                 /usr/share/R/share
+   R_STRIP_SHARED_LIB                                          strip --strip-unneeded
+   R_STRIP_STATIC_LIB                                          strip --strip-debug
+   R_SYSTEM_ABI                                                linux,gcc,gxx,gfortran,gfortran
+   R_TEXI2DVICMD                                               /usr/bin/texi2dvi
+   R_UNZIPCMD                                                  /usr/bin/unzip
+   R_ZIPCMD                                                    /usr/bin/zip
+   >
+   
+| To be sure, searching help in RStudio and `help('help`) in R from the
+| terminal both worked. I installed both the way you suggest on lib.stat.cmu/R
+| /CRAN/bin/linux/debian/.
+| 
+| See also https://github.com/rpy2/rpy2/issues/1033
+
+Oh, nice, I should link back to this reply once it hits the mailing list archive.
+
+| Johan
+| with his first question on a, not just thus, mail list
+
+Thanks for the detailed and high-quality post. Keep'em coming!
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From kry|ov@r00t @end|ng |rom gm@||@com  Tue Jun  6 19:25:03 2023
+From: kry|ov@r00t @end|ng |rom gm@||@com (Ivan Krylov)
+Date: Tue, 6 Jun 2023 20:25:03 +0300
+Subject: [R-sig-Debian] 
+ why is KEYWORDS.db not in '/usr/lib/R/doc/' but in
+ '/usr/share/R/doc/'?
+In-Reply-To: <CAAKTTZ9hZvCnmRPWrt0Vsr6awDdQYf1GJvZJ_JuYZCP8O4wM2Q@mail.gmail.com>
+References: <CAAKTTZ9hZvCnmRPWrt0Vsr6awDdQYf1GJvZJ_JuYZCP8O4wM2Q@mail.gmail.com>
+Message-ID: <20230606202503.2010925a@arachnoid>
+
+Hello Johan and welcome to R-SIG-Debian!
+
+? Tue, 6 Jun 2023 18:55:27 +0200
+Johan Andresen <johan.andresen at gmail.com> ?????:
+
+> I feel lucky to have found out that `/doc/KEYWORDS.db` is in
+> `/usr/share/R/`, not in `usr/lib/R/` where rpy2 in python apparently
+> looks for it when trying to search help in R from the python
+> environment. it returned this error: `cannot open file
+> '/usr/lib/R/doc/KEYWORDS.db': No such file or directory`.
+> 
+> What to do now?
+> - is this a problem with rpy2 looking for `/doc/KEYWORDS.db` that
+> should not be in `usr/lib/R/`? -> *edit its script to point at the
+> correct path?*
+
+It seems that R.home('doc') doesn't return the right path when running
+from under rpy2 for some reason. (With Debian packages, it should
+return "/usr/share/R/doc", not "/usr/lib/R/doc".)
+
+It's documented in ?R.home that on Unix-like OSes, the function relies
+on environment variables like R_DOC_DIR being set during startup.
+
+How does rpy2 launch R? It looks like rpy2 drives an embedded R like a
+frontend. I think that at least under Unix-alikes, the required
+environment variables are set by launching the frontend via `R CMD
+/path/to/frontend/executable` (see WRE 8.1 [*]), except this isn't
+convenient for the Python process. I guess rpy2 could obtain the
+additional variables the same way it currently extracts LD_LIBRARY_PATH.
+
+> Johan
+> with his first question on a, not just thus, mail list
+
+>	[[alternative HTML version deleted]]
+
+One tiny detail: this mailing list (and other R project mailing lists)
+removes the HTML part of the messages it processes, so it's best to
+compose in plain text. But the rest of it you're doing absolutely right!
+
+-- 
+Best regards,
+Ivan
+
+[*]
+https://cran.r-project.org/doc/manuals/R-exts.html#Embedding-R-under-Unix_002dalikes
+
+
+From joh@n@@ndre@en @end|ng |rom gm@||@com  Tue Jun  6 19:37:04 2023
+From: joh@n@@ndre@en @end|ng |rom gm@||@com (Johan Andresen)
+Date: Tue, 6 Jun 2023 19:37:04 +0200
+Subject: [R-sig-Debian] package interflex
+Message-ID: <CAAKTTZ-UcpaXM8STU+0k+WVecprd=-Z2tQ4_qcewFqXK0Yb7xg@mail.gmail.com>
+
+Hi
+
+I'd like input on how to install interflex
+<https://github.com/xuyiqing/interflex> (note the instructions on its
+github).
+
+The installation failed on stable/bullseye, also when I updated to the
+newer R version 4.3.0 through secure apt and the additional source.list
+<https://cran.r-project.org/bin/linux/debian/#secure-apt> element.
+1. $ `sudo apt r-base-dev`
+2. RStudio install.packages('pacman')
+3. RStudio pacman::p_load('interflex')
+
+Warning messages:
+
+> 1: In utils::install.packages(package, ...) :
+>  installation of package 'nloptr' had non-zero exit status
+> 2: In utils::install.packages(package, ...) :
+>  installation of package 'lme4' had non-zero exit status
+> 3: In utils::install.packages(package, ...) :
+>  installation of package 'pbkrtest' had non-zero exit status
+> 4: In utils::install.packages(package, ...) :
+>  installation of package 'car' had non-zero exit status
+> 5: In utils::install.packages(package, ...) :
+
+ installation of package 'AER' had non-zero exit status
+> 6: In utils::install.packages(package, ...) :
+>  installation of package 'interflex' had non-zero exit status
+> 7: In p_install(package, character.only = TRUE, ...) :
+> 8: In library(package, lib.loc = lib.loc, character.only = TRUE,
+> logical.return = TRUE, :
+>  there is no package called 'interflex'
+> 9: In pacman::p_load("interflex") : Failed to install/load:
+>  interflex
+
+
+Johan
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Tue Jun  6 19:58:46 2023
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 6 Jun 2023 12:58:46 -0500
+Subject: [R-sig-Debian] package interflex
+In-Reply-To: <CAAKTTZ-UcpaXM8STU+0k+WVecprd=-Z2tQ4_qcewFqXK0Yb7xg@mail.gmail.com>
+References: <CAAKTTZ-UcpaXM8STU+0k+WVecprd=-Z2tQ4_qcewFqXK0Yb7xg@mail.gmail.com>
+Message-ID: <25727.29654.588386.347133@rob.eddelbuettel.com>
+
+
+On 6 June 2023 at 19:37, Johan Andresen wrote:
+| I'd like input on how to install interflex
+| <https://github.com/xuyiqing/interflex> (note the instructions on its
+| github).
+
+It says   install.packages("interflex")   -- did you try that?
+
+| The installation failed on stable/bullseye, also when I updated to the
+| newer R version 4.3.0 through secure apt and the additional source.list
+| <https://cran.r-project.org/bin/linux/debian/#secure-apt> element.
+| 1. $ `sudo apt r-base-dev`
+| 2. RStudio install.packages('pacman')
+| 3. RStudio pacman::p_load('interflex')
+
+Sorry but that is non-standard and not what a) the R documentation suggests
+or b) the package itself suggests.  You're on your own there; maybe try the
+RStudio / posit help forums for pacman.  
+
+My preference these days is r2u (on Ubuntu 22.04) and a quick
+
+   $ time docker run --rm -ti rocker/r2u:22.04 install.r interflex
+
+succeeded in 22 seconds (!!) installing a total of 91 (!!) different .deb
+packages. I like r2u a _lot_ for this ease, speed and reliability of fully
+dependency-declared .deb packages (for Ubuntu 22.04 and 20.04, NOT for
+Debian).  See   https://eddelbuettel.github.io/r2u/   for more.
+
+| Warning messages:
+| 
+| > 1: In utils::install.packages(package, ...) :
+| >  installation of package 'nloptr' had non-zero exit status
+| > 2: In utils::install.packages(package, ...) :
+| >  installation of package 'lme4' had non-zero exit status
+| > 3: In utils::install.packages(package, ...) :
+| >  installation of package 'pbkrtest' had non-zero exit status
+| > 4: In utils::install.packages(package, ...) :
+| >  installation of package 'car' had non-zero exit status
+| > 5: In utils::install.packages(package, ...) :
+| 
+|  installation of package 'AER' had non-zero exit status
+| > 6: In utils::install.packages(package, ...) :
+| >  installation of package 'interflex' had non-zero exit status
+| > 7: In p_install(package, character.only = TRUE, ...) :
+| > 8: In library(package, lib.loc = lib.loc, character.only = TRUE,
+| > logical.return = TRUE, :
+| >  there is no package called 'interflex'
+| > 9: In pacman::p_load("interflex") : Failed to install/load:
+| >  interflex
+
+There is a saying that you try to walk before you run. _Many_ of those
+packages failing to install from source (== harder, you need dependencies,
+and also slower) are in fact available as r-cran-xyz package for
+Debian. Try 'apt-cache search r-cran-xyz' for different values of xyz.
+
+Cheers, Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From joh@n@@ndre@en @end|ng |rom gm@||@com  Tue Jun  6 22:29:53 2023
+From: joh@n@@ndre@en @end|ng |rom gm@||@com (Johan Andresen)
+Date: Tue, 6 Jun 2023 22:29:53 +0200
+Subject: [R-sig-Debian] 
+ why is KEYWORDS.db not in '/usr/lib/R/doc/' but in
+ '/usr/share/R/doc/'?
+In-Reply-To: <20230606202503.2010925a@arachnoid>
+References: <CAAKTTZ9hZvCnmRPWrt0Vsr6awDdQYf1GJvZJ_JuYZCP8O4wM2Q@mail.gmail.com>
+ <20230606202503.2010925a@arachnoid>
+Message-ID: <CAAKTTZ_MZGQb2jJXwfTvY-KcMvoSbkof1Jwd7esGwdaFmDF6eg@mail.gmail.com>
+
+Thanks, Dirk and Ivan
+
+Now I better understand what is going on. Sweet this help is already in the
+github issue.
+
+Johan
+
+Den tirs. 6. jun. 2023 kl. 19.25 skrev Ivan Krylov <krylov.r00t at gmail.com>:
+
+> Hello Johan and welcome to R-SIG-Debian!
+>
+> ? Tue, 6 Jun 2023 18:55:27 +0200
+> Johan Andresen <johan.andresen at gmail.com> ?????:
+>
+> > I feel lucky to have found out that `/doc/KEYWORDS.db` is in
+> > `/usr/share/R/`, not in `usr/lib/R/` where rpy2 in python apparently
+> > looks for it when trying to search help in R from the python
+> > environment. it returned this error: `cannot open file
+> > '/usr/lib/R/doc/KEYWORDS.db': No such file or directory`.
+> >
+> > What to do now?
+> > - is this a problem with rpy2 looking for `/doc/KEYWORDS.db` that
+> > should not be in `usr/lib/R/`? -> *edit its script to point at the
+> > correct path?*
+>
+> It seems that R.home('doc') doesn't return the right path when running
+> from under rpy2 for some reason. (With Debian packages, it should
+> return "/usr/share/R/doc", not "/usr/lib/R/doc".)
+>
+> It's documented in ?R.home that on Unix-like OSes, the function relies
+> on environment variables like R_DOC_DIR being set during startup.
+>
+> How does rpy2 launch R? It looks like rpy2 drives an embedded R like a
+> frontend. I think that at least under Unix-alikes, the required
+> environment variables are set by launching the frontend via `R CMD
+> /path/to/frontend/executable` (see WRE 8.1 [*]), except this isn't
+> convenient for the Python process. I guess rpy2 could obtain the
+> additional variables the same way it currently extracts LD_LIBRARY_PATH.
+>
+> > Johan
+> > with his first question on a, not just thus, mail list
+>
+> >       [[alternative HTML version deleted]]
+>
+> One tiny detail: this mailing list (and other R project mailing lists)
+> removes the HTML part of the messages it processes, so it's best to
+> compose in plain text. But the rest of it you're doing absolutely right!
+>
+> --
+> Best regards,
+> Ivan
+>
+> [*]
+>
+> https://cran.r-project.org/doc/manuals/R-exts.html#Embedding-R-under-Unix_002dalikes
+>
+
+	[[alternative HTML version deleted]]
+
+
+From joh@n@@ndre@en @end|ng |rom gm@||@com  Tue Jun  6 23:33:50 2023
+From: joh@n@@ndre@en @end|ng |rom gm@||@com (Johan Andresen)
+Date: Tue, 6 Jun 2023 23:33:50 +0200
+Subject: [R-sig-Debian] Fwd:  package interflex
+In-Reply-To: <CAAKTTZ9J5bjvCKQePVT9cgYJ75aVbp0PG_Q7KjP7Qj3pj1u+LA@mail.gmail.com>
+References: <CAAKTTZ-UcpaXM8STU+0k+WVecprd=-Z2tQ4_qcewFqXK0Yb7xg@mail.gmail.com>
+ <25727.29654.588386.347133@rob.eddelbuettel.com>
+ <CAAKTTZ9J5bjvCKQePVT9cgYJ75aVbp0PG_Q7KjP7Qj3pj1u+LA@mail.gmail.com>
+Message-ID: <CAAKTTZ_4yHFnuy=vE=hFLVtuyOoK0kNSLwJQWkraJnQSAhmEHw@mail.gmail.com>
+
+Cheers - my response mixes up the order of things:
+
+The suggested apt way INSTALLED INTERFLEX nicely. Lesson learned: install
+dependencies from apt if a package/library isn't in apt search.
+
+Yes I also tried install.packages('interflex'). RStudio console complained
+about the same packages like this:
+ERROR: dependency 'xyz' is not available for package ''abc"
+* removing '/home/............/4.3/abc'
+Warning in install.packages :
+ installation of package 'abc' had non-zero exit status.
+
+ok, AFAIU, wanting to manage R dependencies as easily as possible suggests
+using Ubuntu with r2u instead of Debian. Be my guest to evaluate this
+interpretation.
+
+Johan
+
+
+
+
+Den tirs. 6. jun. 2023 kl. 19.58 skrev Dirk Eddelbuettel <edd at debian.org>:
+
+>
+> On 6 June 2023 at 19:37, Johan Andresen wrote:
+> | I'd like input on how to install interflex
+> | <https://github.com/xuyiqing/interflex> (note the instructions on its
+> | github).
+>
+> It says   install.packages("interflex")   -- did you try that?
+>
+> | The installation failed on stable/bullseye, also when I updated to the
+> | newer R version 4.3.0 through secure apt and the additional source.list
+> | <https://cran.r-project.org/bin/linux/debian/#secure-apt> element.
+> | 1. $ `sudo apt r-base-dev`
+> | 2. RStudio install.packages('pacman')
+> | 3. RStudio pacman::p_load('interflex')
+>
+> Sorry but that is non-standard and not what a) the R documentation suggests
+> or b) the package itself suggests.  You're on your own there; maybe try the
+> RStudio / posit help forums for pacman.
+>
+> My preference these days is r2u (on Ubuntu 22.04) and a quick
+>
+>    $ time docker run --rm -ti rocker/r2u:22.04 install.r interflex
+>
+> succeeded in 22 seconds (!!) installing a total of 91 (!!) different .deb
+> packages. I like r2u a _lot_ for this ease, speed and reliability of fully
+> dependency-declared .deb packages (for Ubuntu 22.04 and 20.04, NOT for
+> Debian).  See   https://eddelbuettel.github.io/r2u/   for more.
+>
+> | Warning messages:
+> |
+> | > 1: In utils::install.packages(package, ...) :
+> | >  installation of package 'nloptr' had non-zero exit status
+> | > 2: In utils::install.packages(package, ...) :
+> | >  installation of package 'lme4' had non-zero exit status
+> | > 3: In utils::install.packages(package, ...) :
+> | >  installation of package 'pbkrtest' had non-zero exit status
+> | > 4: In utils::install.packages(package, ...) :
+> | >  installation of package 'car' had non-zero exit status
+> | > 5: In utils::install.packages(package, ...) :
+> |
+> |  installation of package 'AER' had non-zero exit status
+> | > 6: In utils::install.packages(package, ...) :
+> | >  installation of package 'interflex' had non-zero exit status
+> | > 7: In p_install(package, character.only = TRUE, ...) :
+> | > 8: In library(package, lib.loc = lib.loc, character.only = TRUE,
+> | > logical.return = TRUE, :
+> | >  there is no package called 'interflex'
+> | > 9: In pacman::p_load("interflex") : Failed to install/load:
+> | >  interflex
+>
+> There is a saying that you try to walk before you run. _Many_ of those
+> packages failing to install from source (== harder, you need dependencies,
+> and also slower) are in fact available as r-cran-xyz package for
+> Debian. Try 'apt-cache search r-cran-xyz' for different values of xyz.
+>
+> Cheers, Dirk
+>
+> --
+> dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Tue Jun  6 23:58:33 2023
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 6 Jun 2023 16:58:33 -0500
+Subject: [R-sig-Debian] 
+ why is KEYWORDS.db not in '/usr/lib/R/doc/' but in
+ '/usr/share/R/doc/'?
+In-Reply-To: <CAAKTTZ_MZGQb2jJXwfTvY-KcMvoSbkof1Jwd7esGwdaFmDF6eg@mail.gmail.com>
+References: <CAAKTTZ9hZvCnmRPWrt0Vsr6awDdQYf1GJvZJ_JuYZCP8O4wM2Q@mail.gmail.com>
+ <20230606202503.2010925a@arachnoid>
+ <CAAKTTZ_MZGQb2jJXwfTvY-KcMvoSbkof1Jwd7esGwdaFmDF6eg@mail.gmail.com>
+Message-ID: <25727.44041.104879.533133@rob.eddelbuettel.com>
+
+
+On 6 June 2023 at 22:29, Johan Andresen wrote:
+| Thanks, Dirk and Ivan
+| 
+| Now I better understand what is going on. Sweet this help is already in the
+| github issue.
+
+It's an issue somewhere between Laurent (for rpy2) and me (for the R package
+and his rpy2 on Debian) and we should be able to sort it out.  Maybe easiest
+at the GH issue, I am sure I will hear from Laurent about it too. (CCing
+Laurent again: not sure if you were CCed on Ivan's message quoted below:
+looks like rpy2 comes up with the wrong value on Debian.)
+
+Best,  Dirk
+ 
+| Johan
+| 
+| Den tirs. 6. jun. 2023 kl. 19.25 skrev Ivan Krylov <krylov.r00t at gmail.com>:
+| 
+| > Hello Johan and welcome to R-SIG-Debian!
+| >
+| > ? Tue, 6 Jun 2023 18:55:27 +0200
+| > Johan Andresen <johan.andresen at gmail.com> ?????:
+| >
+| > > I feel lucky to have found out that `/doc/KEYWORDS.db` is in
+| > > `/usr/share/R/`, not in `usr/lib/R/` where rpy2 in python apparently
+| > > looks for it when trying to search help in R from the python
+| > > environment. it returned this error: `cannot open file
+| > > '/usr/lib/R/doc/KEYWORDS.db': No such file or directory`.
+| > >
+| > > What to do now?
+| > > - is this a problem with rpy2 looking for `/doc/KEYWORDS.db` that
+| > > should not be in `usr/lib/R/`? -> *edit its script to point at the
+| > > correct path?*
+| >
+| > It seems that R.home('doc') doesn't return the right path when running
+| > from under rpy2 for some reason. (With Debian packages, it should
+| > return "/usr/share/R/doc", not "/usr/lib/R/doc".)
+| >
+| > It's documented in ?R.home that on Unix-like OSes, the function relies
+| > on environment variables like R_DOC_DIR being set during startup.
+| >
+| > How does rpy2 launch R? It looks like rpy2 drives an embedded R like a
+| > frontend. I think that at least under Unix-alikes, the required
+| > environment variables are set by launching the frontend via `R CMD
+| > /path/to/frontend/executable` (see WRE 8.1 [*]), except this isn't
+| > convenient for the Python process. I guess rpy2 could obtain the
+| > additional variables the same way it currently extracts LD_LIBRARY_PATH.
+| >
+| > > Johan
+| > > with his first question on a, not just thus, mail list
+| >
+| > >       [[alternative HTML version deleted]]
+| >
+| > One tiny detail: this mailing list (and other R project mailing lists)
+| > removes the HTML part of the messages it processes, so it's best to
+| > compose in plain text. But the rest of it you're doing absolutely right!
+| >
+| > --
+| > Best regards,
+| > Ivan
+| >
+| > [*]
+| >
+| > https://cran.r-project.org/doc/manuals/R-exts.html#Embedding-R-under-Unix_002dalikes
+| >
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jun  7 00:03:42 2023
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 6 Jun 2023 17:03:42 -0500
+Subject: [R-sig-Debian] Fwd:  package interflex
+In-Reply-To: <CAAKTTZ_4yHFnuy=vE=hFLVtuyOoK0kNSLwJQWkraJnQSAhmEHw@mail.gmail.com>
+References: <CAAKTTZ-UcpaXM8STU+0k+WVecprd=-Z2tQ4_qcewFqXK0Yb7xg@mail.gmail.com>
+ <25727.29654.588386.347133@rob.eddelbuettel.com>
+ <CAAKTTZ9J5bjvCKQePVT9cgYJ75aVbp0PG_Q7KjP7Qj3pj1u+LA@mail.gmail.com>
+ <CAAKTTZ_4yHFnuy=vE=hFLVtuyOoK0kNSLwJQWkraJnQSAhmEHw@mail.gmail.com>
+Message-ID: <25727.44350.445739.106280@rob.eddelbuettel.com>
+
+
+On 6 June 2023 at 23:33, Johan Andresen wrote:
+| Cheers - my response mixes up the order of things:
+| 
+| The suggested apt way INSTALLED INTERFLEX nicely. Lesson learned: install
+| dependencies from apt if a package/library isn't in apt search.
+| 
+| Yes I also tried install.packages('interflex'). RStudio console complained
+| about the same packages like this:
+| ERROR: dependency 'xyz' is not available for package ''abc"
+| * removing '/home/............/4.3/abc'
+| Warning in install.packages?:
+| ?installation of package 'abc' had non-zero exit status.
+
+That can happen when a compile-from-source fails for lack of a (for
+compilation from source) needed -dev packages.
+
+Which is why _reliable_ and _complete_ provision of binaries is such a game
+changer. I have been at this for 20+ years (as it was that long ago that
+injected the first few r-cran-* packages into Debian).
+
+And having r2u is a complete gamechanger.
+
+I can drop into a random code repository (as today for work), run my
+`installDeps.r` helper to install everything, or in the demo for you just do
+`install.r interflex` (or, if one prefers run it as an R command via eg a
+simple `Rscript -e 'install.packages("interflex")'`).
+
+And getting all of that in under 30 seconds _reliably_ is pure magic.
+ 
+| ok, AFAIU, wanting to manage R?dependencies as easily as possible suggests
+| using Ubuntu with r2u instead of Debian. Be my guest to evaluate this
+| interpretation.
+
+It would be sweet if we could do something like r2u for Debian, but for now
+we can't.  Switching between Debian and Ubuntu is not that onerous though.
+
+Cheers, Dirk
+
+| Johan
+| 
+| 
+| 
+| 
+| Den tirs. 6. jun. 2023 kl. 19.58 skrev Dirk Eddelbuettel <edd at debian.org>:
+| 
+| 
+|     On 6 June 2023 at 19:37, Johan Andresen wrote:
+|     | I'd like input on how to install interflex
+|     | <https://github.com/xuyiqing/interflex> (note the instructions on its
+|     | github).
+| 
+|     It says? ?install.packages("interflex")? ?-- did you try that?
+| 
+|     | The installation failed on stable/bullseye, also when I updated to the
+|     | newer R version 4.3.0 through secure apt and the additional source.list
+|     | <https://cran.r-project.org/bin/linux/debian/#secure-apt> element.
+|     | 1. $ `sudo apt r-base-dev`
+|     | 2. RStudio install.packages('pacman')
+|     | 3. RStudio pacman::p_load('interflex')
+| 
+|     Sorry but that is non-standard and not what a) the R documentation suggests
+|     or b) the package itself suggests.? You're on your own there; maybe try the
+|     RStudio / posit help forums for pacman.?
+| 
+|     My preference these days is r2u (on Ubuntu 22.04) and a quick
+| 
+|     ? ?$ time docker run --rm -ti rocker/r2u:22.04 install.r interflex
+| 
+|     succeeded in 22 seconds (!!) installing a total of 91 (!!) different .deb
+|     packages. I like r2u a _lot_ for this ease, speed and reliability of fully
+|     dependency-declared .deb packages (for Ubuntu 22.04 and 20.04, NOT for
+|     Debian).? See? ?https://eddelbuettel.github.io/r2u/? ?for more.
+| 
+|     | Warning messages:
+|     |
+|     | > 1: In utils::install.packages(package, ...) :
+|     | >? installation of package 'nloptr' had non-zero exit status
+|     | > 2: In utils::install.packages(package, ...) :
+|     | >? installation of package 'lme4' had non-zero exit status
+|     | > 3: In utils::install.packages(package, ...) :
+|     | >? installation of package 'pbkrtest' had non-zero exit status
+|     | > 4: In utils::install.packages(package, ...) :
+|     | >? installation of package 'car' had non-zero exit status
+|     | > 5: In utils::install.packages(package, ...) :
+|     |
+|     |? installation of package 'AER' had non-zero exit status
+|     | > 6: In utils::install.packages(package, ...) :
+|     | >? installation of package 'interflex' had non-zero exit status
+|     | > 7: In p_install(package, character.only = TRUE, ...) :
+|     | > 8: In library(package, lib.loc = lib.loc, character.only = TRUE,
+|     | > logical.return = TRUE, :
+|     | >? there is no package called 'interflex'
+|     | > 9: In pacman::p_load("interflex") : Failed to install/load:
+|     | >? interflex
+| 
+|     There is a saying that you try to walk before you run. _Many_ of those
+|     packages failing to install from source (== harder, you need dependencies,
+|     and also slower) are in fact available as r-cran-xyz package for
+|     Debian. Try 'apt-cache search r-cran-xyz' for different values of xyz.
+| 
+|     Cheers, Dirk
+| 
+|     --
+|     dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+| 
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From pub||c @end|ng |rom c@re@g@@net  Wed Jun  7 02:53:34 2023
+From: pub||c @end|ng |rom c@re@g@@net (Richard Careaga)
+Date: Tue, 6 Jun 2023 17:53:34 -0700
+Subject: [R-sig-Debian] Fwd:  package interflex
+In-Reply-To: <25727.44350.445739.106280@rob.eddelbuettel.com>
+References: <25727.44350.445739.106280@rob.eddelbuettel.com>
+Message-ID: <2471EA8D-52C1-42AE-9F64-BDA3FB772810@careaga.net>
+
+I was delighted I with how fast (faster than a tickled toddler giggles) r2u scarfed packages I. up my Pop!_OS (Ubuntu in party attire tuned for System76). But, despite 40 years as my own sys admin (classic fool for a client?), I bolluxed up, ending up with an install chain that was inferior to compiling from source, despite having to occasionally track down system dependencies. Absolutely no criticism of the Spidey Precept, and it?s hard to make things foolproof because we fools are so ingenious. 
+
+I may be foolish but it?s possible that I?m more knowledgeable than the large majority of R users, so I hope that the future of this brilliant tool lies in easing the paths. Assuming, always, that it?s just not me.
+
+Best regards,
+
+Richard Careaga
+
+On Jun 6, 2023, at 3:08 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+
+?
+On 6 June 2023 at 23:33, Johan Andresen wrote:
+| Cheers - my response mixes up the order of things:
+| 
+| The suggested apt way INSTALLED INTERFLEX nicely. Lesson learned: install
+| dependencies from apt if a package/library isn't in apt search.
+| 
+| Yes I also tried install.packages('interflex'). RStudio console complained
+| about the same packages like this:
+| ERROR: dependency 'xyz' is not available for package ''abc"
+| * removing '/home/............/4.3/abc'
+| Warning in install.packages :
+|  installation of package 'abc' had non-zero exit status.
+
+That can happen when a compile-from-source fails for lack of a (for
+compilation from source) needed -dev packages.
+
+Which is why _reliable_ and _complete_ provision of binaries is such a game
+changer. I have been at this for 20+ years (as it was that long ago that
+injected the first few r-cran-* packages into Debian).
+
+And having r2u is a complete gamechanger.
+
+I can drop into a random code repository (as today for work), run my
+`installDeps.r` helper to install everything, or in the demo for you just do
+`install.r interflex` (or, if one prefers run it as an R command via eg a
+simple `Rscript -e 'install.packages("interflex")'`).
+
+And getting all of that in under 30 seconds _reliably_ is pure magic.
+
+| ok, AFAIU, wanting to manage R dependencies as easily as possible suggests
+| using Ubuntu with r2u instead of Debian. Be my guest to evaluate this
+| interpretation.
+
+It would be sweet if we could do something like r2u for Debian, but for now
+we can't.  Switching between Debian and Ubuntu is not that onerous though.
+
+Cheers, Dirk
+
+| Johan
+| 
+| 
+| 
+| 
+| Den tirs. 6. jun. 2023 kl. 19.58 skrev Dirk Eddelbuettel <edd at debian.org>:
+| 
+| 
+|     On 6 June 2023 at 19:37, Johan Andresen wrote:
+|     | I'd like input on how to install interflex
+|     | <https://github.com/xuyiqing/interflex> (note the instructions on its
+|     | github).
+| 
+|     It says   install.packages("interflex")   -- did you try that?
+| 
+|     | The installation failed on stable/bullseye, also when I updated to the
+|     | newer R version 4.3.0 through secure apt and the additional source.list
+|     | <https://cran.r-project.org/bin/linux/debian/#secure-apt> element.
+|     | 1. $ `sudo apt r-base-dev`
+|     | 2. RStudio install.packages('pacman')
+|     | 3. RStudio pacman::p_load('interflex')
+| 
+|     Sorry but that is non-standard and not what a) the R documentation suggests
+|     or b) the package itself suggests.  You're on your own there; maybe try the
+|     RStudio / posit help forums for pacman. 
+| 
+|     My preference these days is r2u (on Ubuntu 22.04) and a quick
+| 
+|        $ time docker run --rm -ti rocker/r2u:22.04 install.r interflex
+| 
+|     succeeded in 22 seconds (!!) installing a total of 91 (!!) different .deb
+|     packages. I like r2u a _lot_ for this ease, speed and reliability of fully
+|     dependency-declared .deb packages (for Ubuntu 22.04 and 20.04, NOT for
+|     Debian).  See   https://eddelbuettel.github.io/r2u/   for more.
+| 
+|     | Warning messages:
+|     |
+|     | > 1: In utils::install.packages(package, ...) :
+|     | >  installation of package 'nloptr' had non-zero exit status
+|     | > 2: In utils::install.packages(package, ...) :
+|     | >  installation of package 'lme4' had non-zero exit status
+|     | > 3: In utils::install.packages(package, ...) :
+|     | >  installation of package 'pbkrtest' had non-zero exit status
+|     | > 4: In utils::install.packages(package, ...) :
+|     | >  installation of package 'car' had non-zero exit status
+|     | > 5: In utils::install.packages(package, ...) :
+|     |
+|     |  installation of package 'AER' had non-zero exit status
+|     | > 6: In utils::install.packages(package, ...) :
+|     | >  installation of package 'interflex' had non-zero exit status
+|     | > 7: In p_install(package, character.only = TRUE, ...) :
+|     | > 8: In library(package, lib.loc = lib.loc, character.only = TRUE,
+|     | > logical.return = TRUE, :
+|     | >  there is no package called 'interflex'
+|     | > 9: In pacman::p_load("interflex") : Failed to install/load:
+|     | >  interflex
+| 
+|     There is a saying that you try to walk before you run. _Many_ of those
+|     packages failing to install from source (== harder, you need dependencies,
+|     and also slower) are in fact available as r-cran-xyz package for
+|     Debian. Try 'apt-cache search r-cran-xyz' for different values of xyz.
+| 
+|     Cheers, Dirk
+| 
+|     --
+|     dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+| 
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+_______________________________________________
+R-SIG-Debian mailing list
+R-SIG-Debian at r-project.org
+https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From joh@n@@ndre@en @end|ng |rom gm@||@com  Wed Jun  7 08:37:13 2023
+From: joh@n@@ndre@en @end|ng |rom gm@||@com (Johan Andresen)
+Date: Wed, 7 Jun 2023 08:37:13 +0200
+Subject: [R-sig-Debian] Fwd:  package interflex
+In-Reply-To: <25727.44350.445739.106280@rob.eddelbuettel.com>
+References: <CAAKTTZ-UcpaXM8STU+0k+WVecprd=-Z2tQ4_qcewFqXK0Yb7xg@mail.gmail.com>
+ <25727.29654.588386.347133@rob.eddelbuettel.com>
+ <CAAKTTZ9J5bjvCKQePVT9cgYJ75aVbp0PG_Q7KjP7Qj3pj1u+LA@mail.gmail.com>
+ <CAAKTTZ_4yHFnuy=vE=hFLVtuyOoK0kNSLwJQWkraJnQSAhmEHw@mail.gmail.com>
+ <25727.44350.445739.106280@rob.eddelbuettel.com>
+Message-ID: <CAAKTTZ8ynSC-+eCDeCtBHDfB0_-Tr7+YD-+e3znM0g7EALD1Zw@mail.gmail.com>
+
+I can understand why it changes the game.
+
+It would be sweet if we could do something like r2u for Debian, but for now
+> we can't.  Switching between Debian and Ubuntu is not that onerous though.
+
+
+Do you mind clarifying what you do here? Do you operate Ubuntu when working
+in R? Or do you somehow operate Ubuntu to manage R packages and
+dependencies, and then switch back into Debian to carry out the R work? And
+what is required on Debian for something like this to function, and what
+are the prospects (next stable or longer)?
+
+Den ons. 7. jun. 2023 kl. 00.03 skrev Dirk Eddelbuettel <edd at debian.org>:
+
+>
+> On 6 June 2023 at 23:33, Johan Andresen wrote:
+> | Cheers - my response mixes up the order of things:
+> |
+> | The suggested apt way INSTALLED INTERFLEX nicely. Lesson learned: install
+> | dependencies from apt if a package/library isn't in apt search.
+> |
+> | Yes I also tried install.packages('interflex'). RStudio console
+> complained
+> | about the same packages like this:
+> | ERROR: dependency 'xyz' is not available for package ''abc"
+> | * removing '/home/............/4.3/abc'
+> | Warning in install.packages :
+> |  installation of package 'abc' had non-zero exit status.
+>
+> That can happen when a compile-from-source fails for lack of a (for
+> compilation from source) needed -dev packages.
+>
+> Which is why _reliable_ and _complete_ provision of binaries is such a game
+> changer. I have been at this for 20+ years (as it was that long ago that
+> injected the first few r-cran-* packages into Debian).
+>
+> And having r2u is a complete gamechanger.
+>
+> I can drop into a random code repository (as today for work), run my
+> `installDeps.r` helper to install everything, or in the demo for you just
+> do
+> `install.r interflex` (or, if one prefers run it as an R command via eg a
+> simple `Rscript -e 'install.packages("interflex")'`).
+>
+> And getting all of that in under 30 seconds _reliably_ is pure magic.
+>
+> | ok, AFAIU, wanting to manage R dependencies as easily as possible
+> suggests
+> | using Ubuntu with r2u instead of Debian. Be my guest to evaluate this
+> | interpretation.
+>
+> It would be sweet if we could do something like r2u for Debian, but for now
+> we can't.  Switching between Debian and Ubuntu is not that onerous though.
+>
+> Cheers, Dirk
+>
+> | Johan
+> |
+> |
+> |
+> |
+> | Den tirs. 6. jun. 2023 kl. 19.58 skrev Dirk Eddelbuettel <edd at debian.org
+> >:
+> |
+> |
+> |     On 6 June 2023 at 19:37, Johan Andresen wrote:
+> |     | I'd like input on how to install interflex
+> |     | <https://github.com/xuyiqing/interflex> (note the instructions on
+> its
+> |     | github).
+> |
+> |     It says   install.packages("interflex")   -- did you try that?
+> |
+> |     | The installation failed on stable/bullseye, also when I updated to
+> the
+> |     | newer R version 4.3.0 through secure apt and the additional
+> source.list
+> |     | <https://cran.r-project.org/bin/linux/debian/#secure-apt> element.
+> |     | 1. $ `sudo apt r-base-dev`
+> |     | 2. RStudio install.packages('pacman')
+> |     | 3. RStudio pacman::p_load('interflex')
+> |
+> |     Sorry but that is non-standard and not what a) the R documentation
+> suggests
+> |     or b) the package itself suggests.  You're on your own there; maybe
+> try the
+> |     RStudio / posit help forums for pacman.
+> |
+> |     My preference these days is r2u (on Ubuntu 22.04) and a quick
+> |
+> |        $ time docker run --rm -ti rocker/r2u:22.04 install.r interflex
+> |
+> |     succeeded in 22 seconds (!!) installing a total of 91 (!!) different
+> .deb
+> |     packages. I like r2u a _lot_ for this ease, speed and reliability of
+> fully
+> |     dependency-declared .deb packages (for Ubuntu 22.04 and 20.04, NOT
+> for
+> |     Debian).  See   https://eddelbuettel.github.io/r2u/   for more.
+> |
+> |     | Warning messages:
+> |     |
+> |     | > 1: In utils::install.packages(package, ...) :
+> |     | >  installation of package 'nloptr' had non-zero exit status
+> |     | > 2: In utils::install.packages(package, ...) :
+> |     | >  installation of package 'lme4' had non-zero exit status
+> |     | > 3: In utils::install.packages(package, ...) :
+> |     | >  installation of package 'pbkrtest' had non-zero exit status
+> |     | > 4: In utils::install.packages(package, ...) :
+> |     | >  installation of package 'car' had non-zero exit status
+> |     | > 5: In utils::install.packages(package, ...) :
+> |     |
+> |     |  installation of package 'AER' had non-zero exit status
+> |     | > 6: In utils::install.packages(package, ...) :
+> |     | >  installation of package 'interflex' had non-zero exit status
+> |     | > 7: In p_install(package, character.only = TRUE, ...) :
+> |     | > 8: In library(package, lib.loc = lib.loc, character.only = TRUE,
+> |     | > logical.return = TRUE, :
+> |     | >  there is no package called 'interflex'
+> |     | > 9: In pacman::p_load("interflex") : Failed to install/load:
+> |     | >  interflex
+> |
+> |     There is a saying that you try to walk before you run. _Many_ of
+> those
+> |     packages failing to install from source (== harder, you need
+> dependencies,
+> |     and also slower) are in fact available as r-cran-xyz package for
+> |     Debian. Try 'apt-cache search r-cran-xyz' for different values of
+> xyz.
+> |
+> |     Cheers, Dirk
+> |
+> |     --
+> |     dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+> |
+>
+> --
+> dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+	[[alternative HTML version deleted]]
+
+
+From joh@n@@ndre@en @end|ng |rom gm@||@com  Wed Jun  7 11:55:20 2023
+From: joh@n@@ndre@en @end|ng |rom gm@||@com (Johan Andresen)
+Date: Wed, 7 Jun 2023 11:55:20 +0200
+Subject: [R-sig-Debian] Fwd:  package interflex
+In-Reply-To: <CAAKTTZ8ynSC-+eCDeCtBHDfB0_-Tr7+YD-+e3znM0g7EALD1Zw@mail.gmail.com>
+References: <CAAKTTZ-UcpaXM8STU+0k+WVecprd=-Z2tQ4_qcewFqXK0Yb7xg@mail.gmail.com>
+ <25727.29654.588386.347133@rob.eddelbuettel.com>
+ <CAAKTTZ9J5bjvCKQePVT9cgYJ75aVbp0PG_Q7KjP7Qj3pj1u+LA@mail.gmail.com>
+ <CAAKTTZ_4yHFnuy=vE=hFLVtuyOoK0kNSLwJQWkraJnQSAhmEHw@mail.gmail.com>
+ <25727.44350.445739.106280@rob.eddelbuettel.com>
+ <CAAKTTZ8ynSC-+eCDeCtBHDfB0_-Tr7+YD-+e3znM0g7EALD1Zw@mail.gmail.com>
+Message-ID: <CAAKTTZ8Kh+e2WbPGaoQ0NgXeKy5gCntbsFdPx0x8n7bu=UwF0g@mail.gmail.com>
+
+Btw Dirk, can I help package interflex for apt? Please be welcome to refer
+me to guidelines/a manual for doing so if you can imagine it happening.
+
+Johan
+
+Den ons. 7. jun. 2023 kl. 08.37 skrev Johan Andresen <
+johan.andresen at gmail.com>:
+
+> I can understand why it changes the game.
+>
+> It would be sweet if we could do something like r2u for Debian, but for now
+>> we can't.  Switching between Debian and Ubuntu is not that onerous though.
+>
+>
+> Do you mind clarifying what you do here? Do you operate Ubuntu when
+> working in R? Or do you somehow operate Ubuntu to manage R packages and
+> dependencies, and then switch back into Debian to carry out the R work? And
+> what is required on Debian for something like this to function, and what
+> are the prospects (next stable or longer)?
+>
+> Den ons. 7. jun. 2023 kl. 00.03 skrev Dirk Eddelbuettel <edd at debian.org>:
+>
+>>
+>> On 6 June 2023 at 23:33, Johan Andresen wrote:
+>> | Cheers - my response mixes up the order of things:
+>> |
+>> | The suggested apt way INSTALLED INTERFLEX nicely. Lesson learned:
+>> install
+>> | dependencies from apt if a package/library isn't in apt search.
+>> |
+>> | Yes I also tried install.packages('interflex'). RStudio console
+>> complained
+>> | about the same packages like this:
+>> | ERROR: dependency 'xyz' is not available for package ''abc"
+>> | * removing '/home/............/4.3/abc'
+>> | Warning in install.packages :
+>> |  installation of package 'abc' had non-zero exit status.
+>>
+>> That can happen when a compile-from-source fails for lack of a (for
+>> compilation from source) needed -dev packages.
+>>
+>> Which is why _reliable_ and _complete_ provision of binaries is such a
+>> game
+>> changer. I have been at this for 20+ years (as it was that long ago that
+>> injected the first few r-cran-* packages into Debian).
+>>
+>> And having r2u is a complete gamechanger.
+>>
+>> I can drop into a random code repository (as today for work), run my
+>> `installDeps.r` helper to install everything, or in the demo for you just
+>> do
+>> `install.r interflex` (or, if one prefers run it as an R command via eg a
+>> simple `Rscript -e 'install.packages("interflex")'`).
+>>
+>> And getting all of that in under 30 seconds _reliably_ is pure magic.
+>>
+>> | ok, AFAIU, wanting to manage R dependencies as easily as possible
+>> suggests
+>> | using Ubuntu with r2u instead of Debian. Be my guest to evaluate this
+>> | interpretation.
+>>
+>> It would be sweet if we could do something like r2u for Debian, but for
+>> now
+>> we can't.  Switching between Debian and Ubuntu is not that onerous though.
+>>
+>> Cheers, Dirk
+>>
+>> | Johan
+>> |
+>> |
+>> |
+>> |
+>> | Den tirs. 6. jun. 2023 kl. 19.58 skrev Dirk Eddelbuettel <
+>> edd at debian.org>:
+>> |
+>> |
+>> |     On 6 June 2023 at 19:37, Johan Andresen wrote:
+>> |     | I'd like input on how to install interflex
+>> |     | <https://github.com/xuyiqing/interflex> (note the instructions
+>> on its
+>> |     | github).
+>> |
+>> |     It says   install.packages("interflex")   -- did you try that?
+>> |
+>> |     | The installation failed on stable/bullseye, also when I updated
+>> to the
+>> |     | newer R version 4.3.0 through secure apt and the additional
+>> source.list
+>> |     | <https://cran.r-project.org/bin/linux/debian/#secure-apt>
+>> element.
+>> |     | 1. $ `sudo apt r-base-dev`
+>> |     | 2. RStudio install.packages('pacman')
+>> |     | 3. RStudio pacman::p_load('interflex')
+>> |
+>> |     Sorry but that is non-standard and not what a) the R documentation
+>> suggests
+>> |     or b) the package itself suggests.  You're on your own there; maybe
+>> try the
+>> |     RStudio / posit help forums for pacman.
+>> |
+>> |     My preference these days is r2u (on Ubuntu 22.04) and a quick
+>> |
+>> |        $ time docker run --rm -ti rocker/r2u:22.04 install.r interflex
+>> |
+>> |     succeeded in 22 seconds (!!) installing a total of 91 (!!)
+>> different .deb
+>> |     packages. I like r2u a _lot_ for this ease, speed and reliability
+>> of fully
+>> |     dependency-declared .deb packages (for Ubuntu 22.04 and 20.04, NOT
+>> for
+>> |     Debian).  See   https://eddelbuettel.github.io/r2u/   for more.
+>> |
+>> |     | Warning messages:
+>> |     |
+>> |     | > 1: In utils::install.packages(package, ...) :
+>> |     | >  installation of package 'nloptr' had non-zero exit status
+>> |     | > 2: In utils::install.packages(package, ...) :
+>> |     | >  installation of package 'lme4' had non-zero exit status
+>> |     | > 3: In utils::install.packages(package, ...) :
+>> |     | >  installation of package 'pbkrtest' had non-zero exit status
+>> |     | > 4: In utils::install.packages(package, ...) :
+>> |     | >  installation of package 'car' had non-zero exit status
+>> |     | > 5: In utils::install.packages(package, ...) :
+>> |     |
+>> |     |  installation of package 'AER' had non-zero exit status
+>> |     | > 6: In utils::install.packages(package, ...) :
+>> |     | >  installation of package 'interflex' had non-zero exit status
+>> |     | > 7: In p_install(package, character.only = TRUE, ...) :
+>> |     | > 8: In library(package, lib.loc = lib.loc, character.only = TRUE,
+>> |     | > logical.return = TRUE, :
+>> |     | >  there is no package called 'interflex'
+>> |     | > 9: In pacman::p_load("interflex") : Failed to install/load:
+>> |     | >  interflex
+>> |
+>> |     There is a saying that you try to walk before you run. _Many_ of
+>> those
+>> |     packages failing to install from source (== harder, you need
+>> dependencies,
+>> |     and also slower) are in fact available as r-cran-xyz package for
+>> |     Debian. Try 'apt-cache search r-cran-xyz' for different values of
+>> xyz.
+>> |
+>> |     Cheers, Dirk
+>> |
+>> |     --
+>> |     dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>> |
+>>
+>> --
+>> dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>>
+>
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jun  7 14:10:02 2023
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 7 Jun 2023 07:10:02 -0500
+Subject: [R-sig-Debian] Fwd:  package interflex
+In-Reply-To: <2471EA8D-52C1-42AE-9F64-BDA3FB772810@careaga.net>
+References: <25727.44350.445739.106280@rob.eddelbuettel.com>
+ <2471EA8D-52C1-42AE-9F64-BDA3FB772810@careaga.net>
+Message-ID: <25728.29594.719475.761719@rob.eddelbuettel.com>
+
+
+On 6 June 2023 at 17:53, Richard Careaga wrote:
+| I was delighted I with how fast (faster than a tickled toddler giggles) r2u scarfed packages I. up my Pop!_OS (Ubuntu in party attire tuned for System76). But, despite 40 years as my own sys admin (classic fool for a client?), I bolluxed up, ending up with an install chain that was inferior to compiling from source, despite having to occasionally track down system dependencies. Absolutely no criticism of the Spidey Precept, and it?s hard to make things foolproof because we fools are so ingenious. 
+| 
+| I may be foolish but it?s possible that I?m more knowledgeable than the large majority of R users, so I hope that the future of this brilliant tool lies in easing the paths. Assuming, always, that it?s just not me.
+
+Sorry to hear -- but reproducible example always help us "help you".
+
+I use r2u as the basis for all my CI, including jobs at work more people look
+at / would get mad if they failed.  It simply assembles an 'apt' system, and
+those "just work". (Note that I refer to plain Ubuntu 22.04; I am not a PopOS
+user so that may throw a spanner in as may other derivatives. Or it may
+work. I just do not know.)
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jun  7 14:13:18 2023
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 7 Jun 2023 07:13:18 -0500
+Subject: [R-sig-Debian] Fwd:  package interflex
+In-Reply-To: <CAAKTTZ8Kh+e2WbPGaoQ0NgXeKy5gCntbsFdPx0x8n7bu=UwF0g@mail.gmail.com>
+References: <CAAKTTZ-UcpaXM8STU+0k+WVecprd=-Z2tQ4_qcewFqXK0Yb7xg@mail.gmail.com>
+ <25727.29654.588386.347133@rob.eddelbuettel.com>
+ <CAAKTTZ9J5bjvCKQePVT9cgYJ75aVbp0PG_Q7KjP7Qj3pj1u+LA@mail.gmail.com>
+ <CAAKTTZ_4yHFnuy=vE=hFLVtuyOoK0kNSLwJQWkraJnQSAhmEHw@mail.gmail.com>
+ <25727.44350.445739.106280@rob.eddelbuettel.com>
+ <CAAKTTZ8ynSC-+eCDeCtBHDfB0_-Tr7+YD-+e3znM0g7EALD1Zw@mail.gmail.com>
+ <CAAKTTZ8Kh+e2WbPGaoQ0NgXeKy5gCntbsFdPx0x8n7bu=UwF0g@mail.gmail.com>
+Message-ID: <25728.29790.501086.340859@rob.eddelbuettel.com>
+
+
+On 7 June 2023 at 11:55, Johan Andresen wrote:
+| Btw Dirk, can I help package interflex for apt? Please be welcome to refer me
+| to guidelines/a manual for doing so if you can imagine it happening.
+
+Well I already replied to you saying that for me
+
+   Rscript -e 'install.packages("interflex")'
+
+installed all 91 packages in 22 seconds as expected. So I would need more precise
+request than "thing not work". Tell us (briefly) what you did and what your
+setup was and maybe some volunteer feels incline to look into it.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jun  7 14:19:38 2023
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 7 Jun 2023 07:19:38 -0500
+Subject: [R-sig-Debian] Fwd:  package interflex
+In-Reply-To: <CAAKTTZ8ynSC-+eCDeCtBHDfB0_-Tr7+YD-+e3znM0g7EALD1Zw@mail.gmail.com>
+References: <CAAKTTZ-UcpaXM8STU+0k+WVecprd=-Z2tQ4_qcewFqXK0Yb7xg@mail.gmail.com>
+ <25727.29654.588386.347133@rob.eddelbuettel.com>
+ <CAAKTTZ9J5bjvCKQePVT9cgYJ75aVbp0PG_Q7KjP7Qj3pj1u+LA@mail.gmail.com>
+ <CAAKTTZ_4yHFnuy=vE=hFLVtuyOoK0kNSLwJQWkraJnQSAhmEHw@mail.gmail.com>
+ <25727.44350.445739.106280@rob.eddelbuettel.com>
+ <CAAKTTZ8ynSC-+eCDeCtBHDfB0_-Tr7+YD-+e3znM0g7EALD1Zw@mail.gmail.com>
+Message-ID: <25728.30170.764897.825633@rob.eddelbuettel.com>
+
+
+On 7 June 2023 at 08:37, Johan Andresen wrote:
+| I can understand why it changes the game.
+| 
+| 
+|     It would be sweet if we could do something like r2u for Debian, but for now
+|     we can't.? Switching between Debian and Ubuntu is not that onerous though.
+| 
+| 
+| Do you mind clarifying what you do here? Do you operate Ubuntu when working in
+| R? Or do you somehow operate Ubuntu to manage R packages and dependencies, and
+| then switch back into Debian to carry out the R work? And what is required on
+| Debian for something like this to function,?and what are the prospects (next
+| stable or longer)?
+
+If you look (carefully) at the r2u docs (and maybe code) you will likely
+understand what it does and how. In order to do exactly that for Debian it
+would need ingredients that are not provided. No more, no less.
+
+r2u was effectively cooked up by my in two weekends as a first test, and then
+extended. (Arguably after spending 20 years laying groundwork and having code
+infrastructure for Debian packaging and package creation from R as myself and
+others had done three to four prior incantations.) It also relies on existing
+binaries (from RSPM/PPM) which simply do not exist for Debian. All that said
+it is of course possible for another motivated volunteer (or group of people)
+to fill in (all) gaps to make it happen on Debian. I am just saying it likely
+won't be me as I am busy enough with the projects I have ... and more than
+happy enough with the outsomes such as r2u on Ubuntu.
+
+Hth, Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From |@go@g|ne @end|ng |rom @jd@e@  Wed Jun 21 09:48:17 2023
+From: |@go@g|ne @end|ng |rom @jd@e@ (=?iso-8859-1?Q?Iago_Gin=E9_V=E1zquez?=)
+Date: Wed, 21 Jun 2023 07:48:17 +0000
+Subject: [R-sig-Debian] R 4.3.1 on Debian bullseye-cran40 repository
+Message-ID: <AM6PR02MB4423A3BAB0601229ABE619BD945DA@AM6PR02MB4423.eurprd02.prod.outlook.com>
+
+Hello,
+
+Although R 4.3.1 has been released some days ago, and in http://cloud.r-project.org/bin/linux/debian/ it is claimed that
+
+
+Debian bullseye has been released with R 4.0.4. If you want to upgrade to R 4.3.1 on bullseye, you can use the following repository.
+
+deb http://cloud.r-project.org/bin/linux/debian bullseye-cran40/
+
+
+it seems that it is not working yet. Yesterday, after `apt update`, `apt upgrade` only a couple of r core packages were upgraded (matrix and some other), but R version was yet 4.3.0.
+
+Further, searching 4.3.1 in http://cloud.r-project.org/bin/linux/debian/bullseye-cran40/ it shows that there is only an i386 build, while in http://cloud.r-project.org/bin/linux/debian/bookworm-cran40/ there are various amd64 builds.
+
+Is this expected?
+
+Thanks!
+
+Iago
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Wed Jun 21 13:36:02 2023
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 21 Jun 2023 06:36:02 -0500
+Subject: [R-sig-Debian] R 4.3.1 on Debian bullseye-cran40 repository
+In-Reply-To: <AM6PR02MB4423A3BAB0601229ABE619BD945DA@AM6PR02MB4423.eurprd02.prod.outlook.com>
+References: <AM6PR02MB4423A3BAB0601229ABE619BD945DA@AM6PR02MB4423.eurprd02.prod.outlook.com>
+Message-ID: <25746.57506.296435.706339@rob.eddelbuettel.com>
+
+
+On 21 June 2023 at 07:48, Iago Gin? V?zquez wrote:
+| Although R 4.3.1 has been released some days ago, and in http://cloud.r-project.org/bin/linux/debian/ it is claimed that
+| 
+| 
+| Debian bullseye has been released with R 4.0.4. If you want to upgrade to R 4.3.1 on bullseye, you can use the following repository.
+| 
+| deb http://cloud.r-project.org/bin/linux/debian bullseye-cran40/
+| 
+| 
+| it seems that it is not working yet. Yesterday, after `apt update`, `apt upgrade` only a couple of r core packages were upgraded (matrix and some other), but R version was yet 4.3.0.
+| 
+| Further, searching 4.3.1 in http://cloud.r-project.org/bin/linux/debian/bullseye-cran40/ it shows that there is only an i386 build, while in http://cloud.r-project.org/bin/linux/debian/bookworm-cran40/ there are various amd64 builds.
+| 
+| Is this expected?
+
+Each of these 'binary ports' has a maintainer, for Debian it is Johannes who
+is active on this list and whom you could have contacted directly too.  I am
+sure he will take a closer look. Thanks for pointing it out.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Wed Jun 21 15:04:07 2023
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Wed, 21 Jun 2023 15:04:07 +0200
+Subject: [R-sig-Debian] R 4.3.1 on Debian bullseye-cran40 repository
+In-Reply-To: <AM6PR02MB4423A3BAB0601229ABE619BD945DA@AM6PR02MB4423.eurprd02.prod.outlook.com>
+References: <AM6PR02MB4423A3BAB0601229ABE619BD945DA@AM6PR02MB4423.eurprd02.prod.outlook.com>
+Message-ID: <2374969.CQOukoFCf9@ryz>
+
+Am Mittwoch, 21. Juni 2023, 09:48:17 CEST schrieb Iago Gin? V?zquez:
+> Hello,
+> 
+> Although R 4.3.1 has been released some days ago, and in
+> http://cloud.r-project.org/bin/linux/debian/ it is claimed that
+> 
+> 
+> Debian bullseye has been released with R 4.0.4. If you want to upgrade to R
+> 4.3.1 on bullseye, you can use the following repository.
+> 
+> deb http://cloud.r-project.org/bin/linux/debian bullseye-cran40/
+> 
+> 
+> it seems that it is not working yet. Yesterday, after `apt update`, `apt
+> upgrade` only a couple of r core packages were upgraded (matrix and some
+> other), but R version was yet 4.3.0.
+> 
+> Further, searching 4.3.1 in
+> http://cloud.r-project.org/bin/linux/debian/bullseye-cran40/ it shows that
+> there is only an i386 build, while in
+> http://cloud.r-project.org/bin/linux/debian/bookworm-cran40/ there are
+> various amd64 builds.
+> 
+> Is this expected?
+
+No, this is a mistake on my end. The amd64 binaries for bullseye are on their 
+way to CRAN, if I am not mistaken they should be fetched by CRAN at 18:00 my 
+time, i.e. in three hours.
+
+Sorry for the inconvenience,
+
+Johannes
+
+> 
+> Thanks!
+> 
+> Iago
+> 
+> 	[[alternative HTML version deleted]]
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Thu Jun 22 07:00:00 2023
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Thu, 22 Jun 2023 07:00:00 +0200
+Subject: [R-sig-Debian] R 4.3.1 on Debian bullseye-cran40 repository
+In-Reply-To: <2374969.CQOukoFCf9@ryz>
+References: <AM6PR02MB4423A3BAB0601229ABE619BD945DA@AM6PR02MB4423.eurprd02.prod.outlook.com>
+ <2374969.CQOukoFCf9@ryz>
+Message-ID: <4790620.ejJDZkT8p0@ryz>
+
+Am Mittwoch, 21. Juni 2023, 15:04:07 CEST schrieb Johannes Ranke:
+> Am Mittwoch, 21. Juni 2023, 09:48:17 CEST schrieb Iago Gin? V?zquez:
+> > Hello,
+> > 
+> > Although R 4.3.1 has been released some days ago, and in
+> > http://cloud.r-project.org/bin/linux/debian/ it is claimed that
+> > 
+> > 
+> > Debian bullseye has been released with R 4.0.4. If you want to upgrade to
+> > R
+> > 4.3.1 on bullseye, you can use the following repository.
+> > 
+> > deb http://cloud.r-project.org/bin/linux/debian bullseye-cran40/
+> > 
+> > 
+> > it seems that it is not working yet. Yesterday, after `apt update`, `apt
+> > upgrade` only a couple of r core packages were upgraded (matrix and some
+> > other), but R version was yet 4.3.0.
+> > 
+> > Further, searching 4.3.1 in
+> > http://cloud.r-project.org/bin/linux/debian/bullseye-cran40/ it shows that
+> > there is only an i386 build, while in
+> > http://cloud.r-project.org/bin/linux/debian/bookworm-cran40/ there are
+> > various amd64 builds.
+> > 
+> > Is this expected?
+> 
+> No, this is a mistake on my end. The amd64 binaries for bullseye are on
+> their way to CRAN, if I am not mistaken they should be fetched by CRAN at
+> 18:00 my time, i.e. in three hours.
+
+Sorry, I was in a hurry yesterday and did not look properly. R 4.3.1 for 
+bullseye is now on its way to CRAN for i386 and amd64. Should be available 
+later today.
+
+Kind regards,
+
+Johannes
+
+> 
+> Sorry for the inconvenience,
+> 
+> Johannes
+> 
+> > Thanks!
+> > 
+> > Iago
+> > 
+> > 	[[alternative HTML version deleted]]
+> > 
+> > _______________________________________________
+> > R-SIG-Debian mailing list
+> > R-SIG-Debian at r-project.org
+> > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+-- 
+Johannes Ranke
+Wissenschaftlicher Berater
+07624 8099027
+https://jrwb.de
+
+
+From |@go@g|ne @end|ng |rom @jd@e@  Thu Jun 22 16:17:31 2023
+From: |@go@g|ne @end|ng |rom @jd@e@ (=?iso-8859-1?Q?Iago_Gin=E9_V=E1zquez?=)
+Date: Thu, 22 Jun 2023 14:17:31 +0000
+Subject: [R-sig-Debian] R 4.3.1 on Debian bullseye-cran40 repository
+In-Reply-To: <4790620.ejJDZkT8p0@ryz>
+References: <AM6PR02MB4423A3BAB0601229ABE619BD945DA@AM6PR02MB4423.eurprd02.prod.outlook.com>
+ <2374969.CQOukoFCf9@ryz> <4790620.ejJDZkT8p0@ryz>
+Message-ID: <AM6PR02MB44234C1AC245C5E533A6B78B9422A@AM6PR02MB4423.eurprd02.prod.outlook.com>
+
+Thank you both Johannes and Dirk.
+
+Iago
+________________________________
+De: R-SIG-Debian <r-sig-debian-bounces at r-project.org> de part de Johannes Ranke <johannes.ranke at jrwb.de>
+Enviat el: dijous, 22 de juny de 2023 7:00
+Per a: r-sig-debian at r-project.org <r-sig-debian at r-project.org>
+Tema: Re: [R-sig-Debian] R 4.3.1 on Debian bullseye-cran40 repository
+
+Am Mittwoch, 21. Juni 2023, 15:04:07 CEST schrieb Johannes Ranke:
+> Am Mittwoch, 21. Juni 2023, 09:48:17 CEST schrieb Iago Gin? V?zquez:
+> > Hello,
+> >
+> > Although R 4.3.1 has been released some days ago, and in
+> > http://cloud.r-project.org/bin/linux/debian/ it is claimed that
+> >
+> >
+> > Debian bullseye has been released with R 4.0.4. If you want to upgrade to
+> > R
+> > 4.3.1 on bullseye, you can use the following repository.
+> >
+> > deb http://cloud.r-project.org/bin/linux/debian bullseye-cran40/
+> >
+> >
+> > it seems that it is not working yet. Yesterday, after `apt update`, `apt
+> > upgrade` only a couple of r core packages were upgraded (matrix and some
+> > other), but R version was yet 4.3.0.
+> >
+> > Further, searching 4.3.1 in
+> > http://cloud.r-project.org/bin/linux/debian/bullseye-cran40/ it shows that
+> > there is only an i386 build, while in
+> > http://cloud.r-project.org/bin/linux/debian/bookworm-cran40/ there are
+> > various amd64 builds.
+> >
+> > Is this expected?
+>
+> No, this is a mistake on my end. The amd64 binaries for bullseye are on
+> their way to CRAN, if I am not mistaken they should be fetched by CRAN at
+> 18:00 my time, i.e. in three hours.
+
+Sorry, I was in a hurry yesterday and did not look properly. R 4.3.1 for
+bullseye is now on its way to CRAN for i386 and amd64. Should be available
+later today.
+
+Kind regards,
+
+Johannes
+
+>
+> Sorry for the inconvenience,
+>
+> Johannes
+>
+> > Thanks!
+> >
+> > Iago
+> >
+> >      [[alternative HTML version deleted]]
+> >
+> > _______________________________________________
+> > R-SIG-Debian mailing list
+> > R-SIG-Debian at r-project.org
+> > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+--
+Johannes Ranke
+Wissenschaftlicher Berater
+07624 8099027
+https://jrwb.de
+
+_______________________________________________
+R-SIG-Debian mailing list
+R-SIG-Debian at r-project.org
+https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+	[[alternative HTML version deleted]]
+
+

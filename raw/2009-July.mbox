@@ -1,0 +1,1663 @@
+From jranke at uni-bremen.de  Tue Jul  7 16:21:22 2009
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Tue, 7 Jul 2009 16:21:22 +0200
+Subject: [R-sig-Debian] Backport of R 2.9.1 to lenny available
+Message-ID: <20090707142122.GA6090@localdomain>
+
+Dear all,
+
+You can now find i386 and amd64 packages of R 2.9.1 compiled for lenny
+in the usual place on CRAN.
+
+I have switched from using permanent schroot environments to exclusively
+using pbuilder, in order to check build dependencies as early in the
+process as possible.
+
+Is anyone in need of an R 2.9.1 backport to etch (oldstable)? I do not
+need it myself, so I am thinking of leaving it at R 2.9.0 for etch.
+
+Kind regards, and happy R-ring,
+
+Johannes
+
+
+From paulgeeleher at gmail.com  Thu Jul  9 14:46:56 2009
+From: paulgeeleher at gmail.com (Paul Geeleher)
+Date: Thu, 9 Jul 2009 13:46:56 +0100
+Subject: [R-sig-Debian] Rpy not working after upgrade to R2.9.1
+Message-ID: <2402860e0907090546l722630c6r45c3c5876072b2b0@mail.gmail.com>
+
+Hi,
+
+I'm running Ubuntu Jaunty, downloading R and Rpy from this repository:
+
+deb http://cran.uk.r-project.org/bin/linux/ubuntu jaunty/
+
+When was automatically upgraded, Rpy (which should be downloaded from
+the same repository) seems to have stopped working. I've tried
+re-installing the python-rpy package manually. I get the following
+error when I try to import rpy:
+
+
+>>> import rpy
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/lib/python2.6/dist-packages/rpy.py", line 134, in <module>
+    """ % RVERSION)
+RuntimeError: No module named _rpy2091
+
+      RPy module can not be imported. Please check if your rpy
+      installation supports R 2.9.1. If you have multiple R versions
+      installed, you may need to set RHOME before importing rpy. For
+      example:
+
+      >>> from rpy_options import set_options
+      >>> set_options(RHOME='c:/progra~1/r/rw2011/')
+      >>> from rpy import *
+
+
+
+Advice on how to proceed would be greatly appreciated.
+
+
+-- 
+Paul Geeleher
+School of Mathematics, Statistics and Applied Mathematics
+National University of Ireland
+Galway
+Ireland
+
+
+From edd at debian.org  Thu Jul  9 17:54:00 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 9 Jul 2009 10:54:00 -0500
+Subject: [R-sig-Debian] Rpy not working after upgrade to R2.9.1
+In-Reply-To: <2402860e0907090546l722630c6r45c3c5876072b2b0@mail.gmail.com>
+References: <2402860e0907090546l722630c6r45c3c5876072b2b0@mail.gmail.com>
+Message-ID: <19030.4760.506410.834696@ron.nulle.part>
+
+
+Paul,
+
+On 9 July 2009 at 13:46, Paul Geeleher wrote:
+| Hi,
+| 
+| I'm running Ubuntu Jaunty, downloading R and Rpy from this repository:
+| 
+| deb http://cran.uk.r-project.org/bin/linux/ubuntu jaunty/
+| 
+| When was automatically upgraded, Rpy (which should be downloaded from
+| the same repository) seems to have stopped working. I've tried
+| re-installing the python-rpy package manually. I get the following
+| error when I try to import rpy:
+| 
+| 
+| >>> import rpy
+| Traceback (most recent call last):
+|   File "<stdin>", line 1, in <module>
+|   File "/usr/lib/python2.6/dist-packages/rpy.py", line 134, in <module>
+|     """ % RVERSION)
+| RuntimeError: No module named _rpy2091
+| 
+|       RPy module can not be imported. Please check if your rpy
+|       installation supports R 2.9.1. If you have multiple R versions
+|       installed, you may need to set RHOME before importing rpy. For
+|       example:
+| 
+|       >>> from rpy_options import set_options
+|       >>> set_options(RHOME='c:/progra~1/r/rw2011/')
+|       >>> from rpy import *
+| 
+| 
+| 
+| Advice on how to proceed would be greatly appreciated.
+
+Sorry -- rpy (as opposed to rpy2) requires a rebuild each time the R version
+changes, and I had not yet built one so I presume that the Ubuntua builds by
+Vincent and Michael that are distributed via CRAN were also still behind.
+
+I just uploaded 1.0.3-8 to Debian, the CRAN builds should get updated in the
+next few days.  In the meantime, you could install from source.
+
+Dirk
+
+ 
+| -- 
+| Paul Geeleher
+| School of Mathematics, Statistics and Applied Mathematics
+| National University of Ireland
+| Galway
+| Ireland
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From cathrinemitchell at gmail.com  Mon Jul 13 16:43:21 2009
+From: cathrinemitchell at gmail.com (Cathy Mitchell)
+Date: Mon, 13 Jul 2009 15:43:21 +0100
+Subject: [R-sig-Debian] Problems installing R
+Message-ID: <426b17390907130743s563442d0x7ef4fb707fc5ec55@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20090713/2a52a5d0/attachment.pl>
+
+From mar36 at psu.edu  Mon Jul 13 17:27:33 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 13 Jul 2009 11:27:33 -0400
+Subject: [R-sig-Debian] Problems installing R
+In-Reply-To: <426b17390907130743s563442d0x7ef4fb707fc5ec55@mail.gmail.com>
+References: <426b17390907130743s563442d0x7ef4fb707fc5ec55@mail.gmail.com>
+Message-ID: <fce144590907130827q727339bl941033272a666703@mail.gmail.com>
+
+Cathy,
+
+In order to add the depository to sources.list, you need root access.
+If you are the administrator, then all you need to do is:
+
+sudo gedit /etc/apt/sources.list
+
+If someone else is administering the machine, the simplest thing is to
+request them to do it and install the latest versions R.
+
+As for affy itslef, it is not in the cran repository since it is a
+bioconductor package.  To install it under R you need root access and
+I would do the following:
+
+sudo R
+>source("http://bioconductor.org/biocLite.R")
+>biocLite("affy")
+
+This allowed me to install affy on jaunty, but it should work for
+hardy as well.  It gave me a warning about the lib argument missing,
+but it used the default.  If it doesn't work under hardy, I can look
+into it some more.
+
+Hope this helps,
+Michael
+
+On Mon, Jul 13, 2009 at 10:43 AM, Cathy
+Mitchell<cathrinemitchell at gmail.com> wrote:
+> Hi,
+>
+> I am new to Linux and have a linux machine running ubuntu (hardy heron). I
+> installed R 2.9.1 using the deb file provided on the R website. However I
+> can't install 'affy' - one of the R packages and apparently this is because
+> of the lib settings. I've tried to install R using the command line but I
+> can't add:
+>
+> deb http://cran.uk.r-project.org/bin/linux/ubuntu hardy
+>
+> to my /etc/apt/sources.list file because it says that the permission to do
+> so is denied. I don't know how to fix this problem or if this is the
+> problem. All I want to be able to do is run affy in R on my machine.
+>
+> I would be very greatful if someone could help me.
+> Thank you.
+>
+> Cathy
+>
+> ? ? ? ?[[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From gunnar.hoyer at uni-oldenburg.de  Mon Jul 13 21:58:24 2009
+From: gunnar.hoyer at uni-oldenburg.de (Gunnar Hoyer)
+Date: Mon, 13 Jul 2009 21:58:24 +0200
+Subject: [R-sig-Debian] Ubuntu und R
+Message-ID: <1247515104.8359.2.camel@gunnar-laptop>
+
+Hallo Zusammen,
+
+hatte gestern die Schnauze voll von Vista und habe mir daraufhin Ubuntu
+installiert. Bin also mit Ubuntu ?berhaupt nicht vertraut. 
+
+Nun habe ich ohne Erfolg versucht, R zu installieren.  
+
+Soweit ich der Anleitung folgen konnte habe ich es so wie auf
+http://wiki.ubuntuusers.de/R gemacht.
+
+Im Terminal kann ich R problemlos starten. 
+
+Allerdings bei der Installation von "JGR" kommt es zu erheblichen
+Problemen.  
+
+Bin wie folgt vorgegangen:
+
+{{{sudo -s        # root werden
+R CMD javareconf}}} 
+
+'''
+Dann kam folgende Meldung:'''
+{{{
+root at gunnar-laptop:~# R CMD javareconf 
+Java interpreter : /usr/bin/java
+Java version     : 1.6.0_13
+Java home path   : /usr/lib/jvm/java-6-sun-1.6.0.13/jre
+Java compiler    : /usr/bin/javac
+Java headers gen.: /usr/bin/javah
+Java archive tool: /usr/bin/jar
+Java library path: $(JAVA_HOME)/lib/i386/client:$(JAVA_HOME)/lib/i386:
+$(JAVA_HOME)/../lib/i386::/usr/java/packages/lib/i386:/lib:/usr/lib
+JNI linker flags : -L$(JAVA_HOME)/lib/i386/client -L
+$(JAVA_HOME)/lib/i386 -L$(JAVA_HOME)/../lib/i386 -L
+-L/usr/java/packages/lib/i386 -L/lib -L/usr/lib -ljvm
+JNI cpp flags    : -I$(JAVA_HOME)/../include -I
+$(JAVA_HOME)/../include/linux
+
+Updating Java configuration in /etc/R
+Done.
+
+}}}
+
+
+Im n?chsten Schritt habe ich R im Terminal gestartet. War auch kein
+Prob.
+
+Dann habe ich versucht "JGR"  versucht zu installieren 
+
+install.packages("JGR", dep=TRUE) 
+
+Dann kam folgende Fehlermeldung:
+
+Warnmeldungen:
+{{{
+Fehler: konnte das Verzeichnis nicht blockieren
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+Versuche zu entfernen
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+Fehler: konnte das Verzeichnis nicht blockieren
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+Versuche zu entfernen
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+Fehler: konnte das Verzeichnis nicht blockieren
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+Versuche zu entfernen
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+Fehler: konnte das Verzeichnis nicht blockieren
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+Versuche zu entfernen
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+
+1: In install.packages("JGR", dep = TRUE) :
+  Installation des Pakets 'rJava' hatte Exit-Status ungleich 0
+2: In install.packages("JGR", dep = TRUE) :
+  Installation des Pakets 'JavaGD' hatte Exit-Status ungleich 0
+3: In install.packages("JGR", dep = TRUE) :
+  Installation des Pakets 'iplots' hatte Exit-Status ungleich 0
+4: In install.packages("JGR", dep = TRUE) :
+  Installation des Pakets 'JGR' hatte Exit-Status ungleich 0
+}}}
+ 
+
+Es hat irgendwie nichts so funktioniert wie es in der Anleitung auf
+http://wiki.ubuntuusers.de/R stad bzw. ich habe alles falsche gemacht,
+was man falsch machen konnte. Die Eintr?ge zu diesem Thema weiter oben
+und auf ander Seiten habe ich gefunden und gelesen. Leider haben Sie mir
+nicht weitergeholfen, da ich "noch" keine Ahnung von Linux habe. Leider!
+Kann mir vielleicht jemand die gesamte Installation Schritt f?r Schritt
+erkl?ren. Mit richtigen Eintr?gen f?r die Paketverwaltung. Wie man
+"multiverse" aktivert etc. Ich habe nun wirklich schon alles versucht. 
+
+Danke im Voraus!!!!
+
+Viele Gr??e
+
+
+From edd at debian.org  Mon Jul 13 22:21:15 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 13 Jul 2009 15:21:15 -0500
+Subject: [R-sig-Debian] Ubuntu und R
+In-Reply-To: <1247515104.8359.2.camel@gunnar-laptop>
+References: <1247515104.8359.2.camel@gunnar-laptop>
+Message-ID: <19035.38715.262811.378638@ron.nulle.part>
+
+
+Gunnar,
+
+On 13 July 2009 at 21:58, Gunnar Hoyer wrote:
+| Hallo Zusammen,
+
+Welcome but please note that this an English-language list.
+
+| hatte gestern die Schnauze voll von Vista und habe mir daraufhin Ubuntu
+| installiert. Bin also mit Ubuntu ?berhaupt nicht vertraut. 
+| 
+| Nun habe ich ohne Erfolg versucht, R zu installieren.  
+| 
+| Soweit ich der Anleitung folgen konnte habe ich es so wie auf
+| http://wiki.ubuntuusers.de/R gemacht.
+
+I do not know that page, but we do have decent READMEs at
+
+	http://cran.r-project.org/bin/linux/ubuntu
+
+| Im Terminal kann ich R problemlos starten. 
+| 
+| Allerdings bei der Installation von "JGR" kommt es zu erheblichen
+| Problemen.  
+
+JGR is unfortunately one of the more complicated packages as you need one
+particular set of Java packages (the Sun JDK ones) and not any of the
+competing ones.
+
+| Bin wie folgt vorgegangen:
+| 
+| {{{sudo -s        # root werden
+| R CMD javareconf}}} 
+| 
+| '''
+| Dann kam folgende Meldung:'''
+| {{{
+| root at gunnar-laptop:~# R CMD javareconf 
+| Java interpreter : /usr/bin/java
+| Java version     : 1.6.0_13
+| Java home path   : /usr/lib/jvm/java-6-sun-1.6.0.13/jre
+| Java compiler    : /usr/bin/javac
+| Java headers gen.: /usr/bin/javah
+| Java archive tool: /usr/bin/jar
+| Java library path: $(JAVA_HOME)/lib/i386/client:$(JAVA_HOME)/lib/i386:
+| $(JAVA_HOME)/../lib/i386::/usr/java/packages/lib/i386:/lib:/usr/lib
+| JNI linker flags : -L$(JAVA_HOME)/lib/i386/client -L
+| $(JAVA_HOME)/lib/i386 -L$(JAVA_HOME)/../lib/i386 -L
+| -L/usr/java/packages/lib/i386 -L/lib -L/usr/lib -ljvm
+| JNI cpp flags    : -I$(JAVA_HOME)/../include -I
+| $(JAVA_HOME)/../include/linux
+| 
+| Updating Java configuration in /etc/R
+| Done.
+| 
+| }}}
+| 
+| 
+| Im n?chsten Schritt habe ich R im Terminal gestartet. War auch kein
+| Prob.
+| 
+| Dann habe ich versucht "JGR"  versucht zu installieren 
+| 
+| install.packages("JGR", dep=TRUE) 
+
+So far so good.  But you do need to either start R from within 'sudo' or 
+as root.
+
+| Dann kam folgende Fehlermeldung:
+| 
+| Warnmeldungen:
+| {{{
+| Fehler: konnte das Verzeichnis nicht blockieren
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+| Versuche zu entfernen
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+
+That is even weirder. Firstly, on Debian/Ubuntu you normally do not end up
+with per-user library directories, but rather a 'global for all users' in
+/usr/local/lib/R/site-library. 
+
+| Fehler: konnte das Verzeichnis nicht blockieren
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+| Versuche zu entfernen
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+| Fehler: konnte das Verzeichnis nicht blockieren
+
+Simple locking issue. You may another access in another session, or you have
+root access issues.
+
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+| Versuche zu entfernen
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+| Fehler: konnte das Verzeichnis nicht blockieren
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+| Versuche zu entfernen
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+| 
+| 1: In install.packages("JGR", dep = TRUE) :
+|   Installation des Pakets 'rJava' hatte Exit-Status ungleich 0
+| 2: In install.packages("JGR", dep = TRUE) :
+|   Installation des Pakets 'JavaGD' hatte Exit-Status ungleich 0
+| 3: In install.packages("JGR", dep = TRUE) :
+|   Installation des Pakets 'iplots' hatte Exit-Status ungleich 0
+| 4: In install.packages("JGR", dep = TRUE) :
+|   Installation des Pakets 'JGR' hatte Exit-Status ungleich 0
+| }}}
+|  
+| 
+| Es hat irgendwie nichts so funktioniert wie es in der Anleitung auf
+| http://wiki.ubuntuusers.de/R stad bzw. ich habe alles falsche gemacht,
+| was man falsch machen konnte. Die Eintr?ge zu diesem Thema weiter oben
+| und auf ander Seiten habe ich gefunden und gelesen. Leider haben Sie mir
+| nicht weitergeholfen, da ich "noch" keine Ahnung von Linux habe. Leider!
+
+As not all CRAN packages are available pre-built for Ubuntu, you do
+unfortunately need to know a bit of Linux / Unix to move along, esp with
+packages like JGR.
+
+But we will try our best to help you from here.  Did the right thing by
+posting your detailed steps, just do it in English the next time.
+
+Dirk
+
+| Kann mir vielleicht jemand die gesamte Installation Schritt f?r Schritt
+| erkl?ren. Mit richtigen Eintr?gen f?r die Paketverwaltung. Wie man
+| "multiverse" aktivert etc. Ich habe nun wirklich schon alles versucht. 
+| 
+| Danke im Voraus!!!!
+
+
+| 
+| Viele Gr??e
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From edd at debian.org  Mon Jul 13 22:44:21 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 13 Jul 2009 15:44:21 -0500
+Subject: [R-sig-Debian] [ANNOUNCEMENT] cran2deb: 1700+ new Debian / R
+	packages
+Message-ID: <19035.40101.199706.453815@ron.nulle.part>
+
+
+Announcing cran2deb: 1700+ Debian packages from almost all of CRAN
+------------------------------------------------------------------
+
+Last Friday's presentation at UseR! 2009 was the first really public mention
+of 'cran2deb'. It provides Debian packages of all of CRAN. It started as
+Charles' project from last year's Google Summer of Code, was further extended
+by us over the last year.
+
+We currently build for the testing distribution and the i386 and amd64
+architectures. This is now publically useable and we welcome wider testing
+by Debian users. We hope to extend this to Ubuntu during the summer or fall.
+
+I include what I blogged earlier (which you may have seen via Planet Debian
+and/or Planet R).  This also contains the /etc/apt/sources.list entries:
+
+
+   cran2deb: Would you like 1700+ new Debian / R packages ?
+
+   As I mentioned in my [8]quick write-up of UseR 2009, one of my talks
+   was about cran2deb: a system to turn (essentially) all [1]CRAN packages
+   into directly apt-get-able binary packages.
+
+   This is essentially a '2.0' version of earlier work with Steffen
+   Moeller and David Vernazobres which we had presented in 2007. Then, the
+   approach was top-down and monolithic which started to show its limits.
+   This time, the idea was to borrow the successful bottom-up approach of
+   my [2]CRANberries feed.
+
+   The bulk of the work was done by Charles Blundell as part of his Google
+   Summer of Code 2008 project which I had suggested and mentored. After
+   that project had concluded, we both felt we should continue with it and
+   bring it to 'production'. The CRAN hosts provided us with a (virtual
+   Xen) machine to build on, and we are now ready to more publically
+   announce the availability of the repositories for i386 and amd64:
+
+      deb http://debian.cran.r-project.org/cran2deb/debian-i386 testing/
+
+   and
+  
+      deb http://debian.cran.r-project.org/cran2deb/debian-amd64 testing/
+
+   A few more details are provided in [3]our presentation slides. We look
+   forward to hearing from folks using; the r-sig-debian list may be a
+   good venue for this.
+
+
+   References
+   1. http://cran.r-project.org/
+   2. http://dirk.eddelbuettel.com/cranberries
+   3. http://dirk.eddelbuettel.com/papers/useR2009cran2deb.pdf
+
+
+Please direct questions to r-sig-debian (which has subscriber-only posts) or
+debian-science. 
+
+Regards,  Dirk and Charles
+ 
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From gunnar.hoyer at uni-oldenburg.de  Mon Jul 13 22:54:55 2009
+From: gunnar.hoyer at uni-oldenburg.de (Gunnar Hoyer)
+Date: Mon, 13 Jul 2009 22:54:55 +0200
+Subject: [R-sig-Debian] Ubuntu und R
+In-Reply-To: <19035.38715.262811.378638@ron.nulle.part>
+References: <1247515104.8359.2.camel@gunnar-laptop>
+	<19035.38715.262811.378638@ron.nulle.part>
+Message-ID: <1247518495.3419.15.camel@gunnar-laptop>
+
+Am Montag, den 13.07.2009, 15:21 -0500 schrieb Dirk Eddelbuettel:
+
+Hello Dirk,
+
+first off all, thanks for your super fast answer. The first posting was
+in German because I just copied and pasted one entry I posted on a
+german Ubuntu forum. No answer yet. 
+> 
+> 	http://cran.r-project.org/bin/linux/ubuntu
+
+I know this page. But I just could not manage somehow. 
+
+1. I do not which one I have to choose (jaunty/, iintrepidred etc.)
+2. I do not know where to add the entry
+3. I do not know if and how to activate "backports" repositories. 
+4. Basically I do not know anything.
+
+I do need an super easy instruction (step by step) on how to install 
+R and how to get it running on a graphic interface. I really need to get
+R running as soon as possible since I have to finish a few papers and
+therefore I need to acces my workspace which I worked on under Windows.
+Hopefully that is possible. I do want to reinstall to Vista.  
+
+
+> 
+> So far so good.  But you do need to either start R from within 'sudo' or 
+> as root.
+
+I done that. 
+
+> That is even weirder. Firstly, on Debian/Ubuntu you normally do not end up
+> with per-user library directories, but rather a 'global for all users' in
+> /usr/local/lib/R/site-library. 
+
+Maybe I can delete R one time an reinstall form the beginning. But I do 
+not how to deinstall R. 
+
+> Simple locking issue. You may another access in another session, or you have
+> root access issues.
+> 
+
+What does that mean. 
+
+
+> As not all CRAN packages are available pre-built for Ubuntu, you do
+> unfortunately need to know a bit of Linux / Unix to move along, esp with
+> packages like JGR.
+> 
+
+I will work on it. But first of all I need to get it running. 
+
+Best wishes,
+Gunnar
+
+
+From gunnar.hoyer at uni-oldenburg.de  Mon Jul 13 23:22:16 2009
+From: gunnar.hoyer at uni-oldenburg.de (Gunnar Hoyer)
+Date: Mon, 13 Jul 2009 23:22:16 +0200
+Subject: [R-sig-Debian] Ubuntu und R
+In-Reply-To: <19035.38715.262811.378638@ron.nulle.part>
+References: <1247515104.8359.2.camel@gunnar-laptop>
+	<19035.38715.262811.378638@ron.nulle.part>
+Message-ID: <1247520136.3419.33.camel@gunnar-laptop>
+
+Hello,
+
+
+Here is exactly what I done: I followed the instruction on this page
+http://cran.r-project.org/bin/linux/ubuntu/README.html
+
+1.  root at gunnar-laptop:~# sudo gedit /etc/apt/sources.list
+
+output source.list:
+
+## Uncomment the following two lines to add software from Canonical's
+## 'partner' repository.
+## This software is not part of Ubuntu, but is offered by Canonical and
+the
+## respective vendors as a service to Ubuntu users.
+# deb http://archive.canonical.com/ubuntu jaunty partner
+# deb-src http://archive.canonical.com/ubuntu jaunty partner
+
+deb http://de.archive.ubuntu.com/ubuntu/ jaunty-security main restricted
+deb-src http://de.archive.ubuntu.com/ubuntu/ jaunty-security restricted
+main multiverse universe #Added by software-properties
+deb http://de.archive.ubuntu.com/ubuntu/ jaunty-security universe
+deb http://de.archive.ubuntu.com/ubuntu/ jaunty-security multiverse
+deb http://http://ftp5.gwdg.de/pub/misc/cran/bin/linux/ubuntu jaunty/
+
+
+I added than the following:
+
+deb http://cran.mirroring.de/bin/linux/ubuntu/ jaunty/
+
+Than I tried to update:
+
+sudo apt-get update
+
+
+The following message came:
+
+zip2: (stdin) is not a bzip2 file.
+Fehl http://http jaunty/
+Packages                                              
+  Unterprozess bzip2 ist mit einem Fehlercode zur?ckgekehrt (2)
+Es wurden 193kB in 6s geholt
+(28,6kB/s)                                        
+W: GPG error: http://http jaunty/ Release: Die folgenden Signaturen
+waren ung?ltig: NODATA 1 NODATA 2
+W: Konnte cdrom://Ubuntu 9.04 _Jaunty Jackalope_ - Release i386
+(20090420.1)/dists/jaunty/main/binary-i386/Packages nicht holen  Bitte
+verwenden Sie apt-cdrom, um diese CD-ROM f?r APT erkennbar zu machen.
+apt-get update kann nicht dazu verwendet werden, neue CD-ROMs
+hinzuzuf?gen
+
+W: Konnte cdrom://Ubuntu 9.04 _Jaunty Jackalope_ - Release i386
+(20090420.1)/dists/jaunty/restricted/binary-i386/Packages nicht holen
+Bitte verwenden Sie apt-cdrom, um diese CD-ROM f?r APT erkennbar zu
+machen. apt-get update kann nicht dazu verwendet werden, neue CD-ROMs
+hinzuzuf?gen
+
+W: Konnte
+http://http//ftp5.gwdg.de/pub/misc/cran/bin/linux/ubuntu/jaunty/Packages.bz2 nicht holen  Unterprozess bzip2 ist mit einem Fehlercode zur?ckgekehrt (2)
+
+E: Einige Indexdateien konnten nicht heruntergeladen werden, sie wurden
+ignoriert oder alte an ihrer Stelle benutzt
+
+
+Than:
+
+sudo apt-get install r-base
+
+Following message came:
+
+Paketlisten werden gelesen... Fertig
+Abh?ngigkeitsbaum wird aufgebaut       
+Lese Status-Informationen ein... Fertig
+r-base ist schon die neueste Version.
+0 aktualisiert, 0 neu installiert, 0 zu entfernen und 5 nicht
+aktualisiert.
+
+Installing "JGR" I tried as followed:
+http://edtechdev.blogspot.com/2007/08/getting-r-set-up-in-ubuntu.html
+
+sudo update-alternatives --config java
+
+*         1    /usr/lib/jvm/java-6-sun/jre/bin/java
+ +        2    /usr/lib/jvm/java-6-openjdk/jre/bin/java
+
+I acutally do not have to poste everything. The end of the story is, I
+did not get it running. I tried everything what I found in the Internet.
+
+It would be very kind if one of you could send me an instruction on how
+to get R running on Ubuntu. I do not know about Linux. So the
+instruction should be as easy as possible.
+
+Thanks!!!
+
+Best wishes
+
+
+From piet at bioinf.nl  Tue Jul 14 09:40:23 2009
+From: piet at bioinf.nl (Piet Plomp)
+Date: Tue, 14 Jul 2009 09:40:23 +0200
+Subject: [R-sig-Debian] [ANNOUNCEMENT] cran2deb: 1700+ new Debian /
+	R	packages
+In-Reply-To: <19035.40101.199706.453815@ron.nulle.part>
+References: <19035.40101.199706.453815@ron.nulle.part>
+Message-ID: <20090714074023.GA11078@bioinf.nl>
+
+
+Hi Dirk and Charles,
+
+What a _beautiful_ project! This a giant step forward.
+
+Thanks!
+
+Piet
+
+On Mon, Jul 13, 2009 at 03:44:21PM -0500, Dirk Eddelbuettel wrote:
+> 
+> Announcing cran2deb: 1700+ Debian packages from almost all of CRAN
+> ------------------------------------------------------------------
+> 
+> Last Friday's presentation at UseR! 2009 was the first really public mention
+> of 'cran2deb'. It provides Debian packages of all of CRAN. It started as
+> Charles' project from last year's Google Summer of Code, was further extended
+> by us over the last year.
+> 
+> We currently build for the testing distribution and the i386 and amd64
+> architectures. This is now publically useable and we welcome wider testing
+> by Debian users. We hope to extend this to Ubuntu during the summer or fall.
+> 
+> I include what I blogged earlier (which you may have seen via Planet Debian
+> and/or Planet R).  This also contains the /etc/apt/sources.list entries:
+> 
+> 
+>    cran2deb: Would you like 1700+ new Debian / R packages ?
+> 
+>    As I mentioned in my [8]quick write-up of UseR 2009, one of my talks
+>    was about cran2deb: a system to turn (essentially) all [1]CRAN packages
+>    into directly apt-get-able binary packages.
+> 
+>    This is essentially a '2.0' version of earlier work with Steffen
+>    Moeller and David Vernazobres which we had presented in 2007. Then, the
+>    approach was top-down and monolithic which started to show its limits.
+>    This time, the idea was to borrow the successful bottom-up approach of
+>    my [2]CRANberries feed.
+> 
+>    The bulk of the work was done by Charles Blundell as part of his Google
+>    Summer of Code 2008 project which I had suggested and mentored. After
+>    that project had concluded, we both felt we should continue with it and
+>    bring it to 'production'. The CRAN hosts provided us with a (virtual
+>    Xen) machine to build on, and we are now ready to more publically
+>    announce the availability of the repositories for i386 and amd64:
+> 
+>       deb http://debian.cran.r-project.org/cran2deb/debian-i386 testing/
+> 
+>    and
+>   
+>       deb http://debian.cran.r-project.org/cran2deb/debian-amd64 testing/
+> 
+>    A few more details are provided in [3]our presentation slides. We look
+>    forward to hearing from folks using; the r-sig-debian list may be a
+>    good venue for this.
+> 
+> 
+>    References
+>    1. http://cran.r-project.org/
+>    2. http://dirk.eddelbuettel.com/cranberries
+>    3. http://dirk.eddelbuettel.com/papers/useR2009cran2deb.pdf
+> 
+> 
+> Please direct questions to r-sig-debian (which has subscriber-only posts) or
+> debian-science. 
+> 
+> Regards,  Dirk and Charles
+>  
+> -- 
+> Three out of two people have difficulties with fractions.
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From gunnar.hoyer at uni-oldenburg.de  Tue Jul 14 09:45:45 2009
+From: gunnar.hoyer at uni-oldenburg.de (Gunnar Hoyer)
+Date: Tue, 14 Jul 2009 09:45:45 +0200
+Subject: [R-sig-Debian] Ubuntu JGR
+Message-ID: <1247557545.3810.10.camel@gunnar-laptop>
+
+Hello,
+
+I cannot get JGR installed. 
+
+Here is what I have tried so far http://wiki.ubuntuusers.de/R
+
+1. sudo -s        # root werden
+   R CMD javareconf 
+
+root at gunnar-laptop:~# R CMD javareconf
+Java interpreter : /usr/bin/java
+Java version     : 1.5.0_18
+Java home path   : /usr/lib/jvm/java-1.5.0-sun-1.5.0.18/jre
+Java compiler    : /usr/bin/javac
+Java headers gen.: /usr/bin/javah
+Java archive tool: /usr/bin/jar
+Java library path: $(JAVA_HOME)/lib/i386/client:$(JAVA_HOME)/lib/i386:
+$(JAVA_HOME)/../lib/i386
+JNI linker flags : -L$(JAVA_HOME)/lib/i386/client -L
+$(JAVA_HOME)/lib/i386 -L$(JAVA_HOME)/../lib/i386 -ljvm
+JNI cpp flags    : -I$(JAVA_HOME)/../include -I
+$(JAVA_HOME)/../include/linux
+
+Updating Java configuration in /etc/R
+Done.
+
+Than I started R: 
+
+sudo R
+
+
+ version 2.9.1 (2009-06-26)
+Copyright (C) 2009 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0 ..............................
+
+Than I tried to install "JGR" as followd:
+
+install.packages("JGR", dep=TRUE)
+
+Than I got this message, which shows me that was not installed properly.
+I do not know how to fix it since I have just installed Ubuntu 2 days
+ago. I searched the internet and found some similary probs. But still
+could not work it out. 
+
+Fehler: konnte das Verzeichnis nicht blockieren
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+Versuche zu entfernen
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+Fehler: konnte das Verzeichnis nicht blockieren
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+Versuche zu entfernen
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+Fehler: konnte das Verzeichnis nicht blockieren
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+Versuche zu entfernen
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+Fehler: konnte das Verzeichnis nicht blockieren
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+Versuche zu entfernen
+?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+
+Die heruntergeladenen Pakete sind in 
+	?/tmp/RtmpCTh8aw/downloaded_packages?
+Warnmeldungen:
+1: In install.packages("JGR", dep = TRUE) :
+  Installation des Pakets 'rJava' hatte Exit-Status ungleich 0
+2: In install.packages("JGR", dep = TRUE) :
+  Installation des Pakets 'JavaGD' hatte Exit-Status ungleich 0
+3: In install.packages("JGR", dep = TRUE) :
+  Installation des Pakets 'iplots' hatte Exit-Status ungleich 0
+4: In install.packages("JGR", dep = TRUE) :
+  Installation des Pakets 'JGR' hatte Exit-Status ungleich 0
+
+> library(JGR)
+Fehler in library(JGR) : es gibt kein Paket 'JGR'
+
+
+
+It would be great if somebody could give me an easy to unterstand
+instruction on how to get R running on an graphical interface like 
+under MAC or Windows. 
+
+Thanks in andvance. 
+
+Best wishes
+
+
+From edd at debian.org  Tue Jul 14 10:07:46 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 14 Jul 2009 03:07:46 -0500
+Subject: [R-sig-Debian] Ubuntu JGR
+In-Reply-To: <1247557545.3810.10.camel@gunnar-laptop>
+References: <1247557545.3810.10.camel@gunnar-laptop>
+Message-ID: <19036.15570.267825.252431@ron.nulle.part>
+
+
+On 14 July 2009 at 09:45, Gunnar Hoyer wrote:
+| Hello,
+| 
+| I cannot get JGR installed. 
+| 
+| Here is what I have tried so far http://wiki.ubuntuusers.de/R
+| 
+| 1. sudo -s        # root werden
+|    R CMD javareconf 
+| 
+| root at gunnar-laptop:~# R CMD javareconf
+| Java interpreter : /usr/bin/java
+| Java version     : 1.5.0_18
+| Java home path   : /usr/lib/jvm/java-1.5.0-sun-1.5.0.18/jre
+| Java compiler    : /usr/bin/javac
+| Java headers gen.: /usr/bin/javah
+| Java archive tool: /usr/bin/jar
+| Java library path: $(JAVA_HOME)/lib/i386/client:$(JAVA_HOME)/lib/i386:
+| $(JAVA_HOME)/../lib/i386
+| JNI linker flags : -L$(JAVA_HOME)/lib/i386/client -L
+| $(JAVA_HOME)/lib/i386 -L$(JAVA_HOME)/../lib/i386 -ljvm
+| JNI cpp flags    : -I$(JAVA_HOME)/../include -I
+| $(JAVA_HOME)/../include/linux
+| 
+| Updating Java configuration in /etc/R
+| Done.
+| 
+| Than I started R: 
+| 
+| sudo R
+| 
+| 
+|  version 2.9.1 (2009-06-26)
+| Copyright (C) 2009 The R Foundation for Statistical Computing
+| ISBN 3-900051-07-0 ..............................
+| 
+| Than I tried to install "JGR" as followd:
+| 
+| install.packages("JGR", dep=TRUE)
+| 
+| Than I got this message, which shows me that was not installed properly.
+| I do not know how to fix it since I have just installed Ubuntu 2 days
+| ago. I searched the internet and found some similary probs. But still
+| could not work it out. 
+| 
+| Fehler: konnte das Verzeichnis nicht blockieren
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+| Versuche zu entfernen
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+
+You now posted this error message two or three times. At some point you have
+to sit down and actually look at it yourself:  the file 
+	 ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+had previously been created and cannot be removed.   
+
+You need to figure out why and/or remove it with a local root command.
+
+| Fehler: konnte das Verzeichnis nicht blockieren
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+| Versuche zu entfernen
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+| Fehler: konnte das Verzeichnis nicht blockieren
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+| Versuche zu entfernen
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+| Fehler: konnte das Verzeichnis nicht blockieren
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9? um zu modifizieren
+| Versuche zu entfernen
+| ?/home/gunnar/R/i486-pc-linux-gnu-library/2.9/00LOCK?
+| 
+| Die heruntergeladenen Pakete sind in 
+| 	?/tmp/RtmpCTh8aw/downloaded_packages?
+| Warnmeldungen:
+| 1: In install.packages("JGR", dep = TRUE) :
+|   Installation des Pakets 'rJava' hatte Exit-Status ungleich 0
+| 2: In install.packages("JGR", dep = TRUE) :
+|   Installation des Pakets 'JavaGD' hatte Exit-Status ungleich 0
+| 3: In install.packages("JGR", dep = TRUE) :
+|   Installation des Pakets 'iplots' hatte Exit-Status ungleich 0
+| 4: In install.packages("JGR", dep = TRUE) :
+|   Installation des Pakets 'JGR' hatte Exit-Status ungleich 0
+| 
+| > library(JGR)
+| Fehler in library(JGR) : es gibt kein Paket 'JGR'
+| 
+| 
+| 
+| It would be great if somebody could give me an easy to unterstand
+| instruction on how to get R running on an graphical interface like 
+| under MAC or Windows. 
+
+That is not exactly the scope of this mailing list. We try to help where we
+can with _general Debian / Ubuntu issues_.  If nobody can provide help for
+particular apps like JGR you may have to consider the JGR lists.
+
+Sorry, but I cannot provide anything more detailed. 
+
+Dirk
+ 
+| Thanks in andvance. 
+| 
+| Best wishes
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From mar36 at psu.edu  Tue Jul 14 14:56:51 2009
+From: mar36 at psu.edu (Michael Rutter)
+Date: Tue, 14 Jul 2009 08:56:51 -0400
+Subject: [R-sig-Debian] [ANNOUNCEMENT] cran2deb: 1700+ new Debian / R
+	packages
+In-Reply-To: <19035.40101.199706.453815@ron.nulle.part>
+References: <19035.40101.199706.453815@ron.nulle.part>
+Message-ID: <fce144590907140556n5ede1b1fm72d8e2de2c8f8152@mail.gmail.com>
+
+Dirk,
+
+Looks like a lot of work has created a very useful set of packages.
+Two questions.
+
+1.  Are there any negatives going from an install.packages("foo")
+approach using R then switching to an apt-get install r-cran-foo
+method of installing packages?  If I install a deb package on top of
+an R installed package, will there be issues?
+
+2.  What will it take to do this for Ubuntu?  Are we going to need a
+(virtual) machine for each release or can this be done under chroot
+jails on one server?
+
+Excellent work,
+Michael
+
+
+From edd at debian.org  Tue Jul 14 18:18:45 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 14 Jul 2009 11:18:45 -0500
+Subject: [R-sig-Debian] [ANNOUNCEMENT] cran2deb: 1700+ new Debian / R
+ packages
+In-Reply-To: <1247577657.4588.111.camel@galadriel.uagra.net>
+References: <19035.40101.199706.453815@ron.nulle.part>
+	<1247577657.4588.111.camel@galadriel.uagra.net>
+Message-ID: <19036.45029.444630.899839@ron.nulle.part>
+
+
+Anna,
+
+On 14 July 2009 at 15:20, Anne Ghisla wrote:
+| Hi Dirk, Charles, 
+| 
+| great work, indeed! Centralisation of packages will surely do a world of
+| good.
+
+Thanks!
+ 
+| I just added the line on sources.list, but running aptitude upgrade, it
+| asks for gpg key. Where can I obtain it?
+
+I use apt-get directly and it just ignores it / shows a warning. 
+
+We do have a key, we just don't have any webpages yet to show / provide
+it. "Soon".  In the meantime, please run 'sudo apt-get update' etc by hand.
+
+Dirk
+ 
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From mjantti at abo.fi  Tue Jul 14 20:29:57 2009
+From: mjantti at abo.fi (Markus Jantti)
+Date: Tue, 14 Jul 2009 20:29:57 +0200
+Subject: [R-sig-Debian] [ANNOUNCEMENT] cran2deb: 1700+ new Debian /	R
+ packages
+In-Reply-To: <20090714074023.GA11078@bioinf.nl>
+References: <19035.40101.199706.453815@ron.nulle.part>
+	<20090714074023.GA11078@bioinf.nl>
+Message-ID: <4A5CCEA5.8090902@abo.fi>
+
+I'd like to second this. While R's install.packages() mechanism is very good,
+nothing in my experience beats the Debian way of installing packages. Many
+thanks to Charles and Dirk for providing this service to Debian users.
+
+I will certainly try to provide feedback once I get behind a decent internet
+connection and can install package en-masse (rather than from beind my current
+the tethered iPhone provided GPRS connection that I am using to send this message).
+
+Thanks,
+
+Markus
+
+Piet Plomp wrote:
+> Hi Dirk and Charles,
+> 
+> What a _beautiful_ project! This a giant step forward.
+> 
+> Thanks!
+> 
+> Piet
+> 
+> On Mon, Jul 13, 2009 at 03:44:21PM -0500, Dirk Eddelbuettel wrote:
+>> Announcing cran2deb: 1700+ Debian packages from almost all of CRAN
+>> ------------------------------------------------------------------
+>>
+>> Last Friday's presentation at UseR! 2009 was the first really public mention
+>> of 'cran2deb'. It provides Debian packages of all of CRAN. It started as
+>> Charles' project from last year's Google Summer of Code, was further extended
+>> by us over the last year.
+>>
+>> We currently build for the testing distribution and the i386 and amd64
+>> architectures. This is now publically useable and we welcome wider testing
+>> by Debian users. We hope to extend this to Ubuntu during the summer or fall.
+>>
+>> I include what I blogged earlier (which you may have seen via Planet Debian
+>> and/or Planet R).  This also contains the /etc/apt/sources.list entries:
+>>
+>>
+>>    cran2deb: Would you like 1700+ new Debian / R packages ?
+>>
+>>    As I mentioned in my [8]quick write-up of UseR 2009, one of my talks
+>>    was about cran2deb: a system to turn (essentially) all [1]CRAN packages
+>>    into directly apt-get-able binary packages.
+>>
+>>    This is essentially a '2.0' version of earlier work with Steffen
+>>    Moeller and David Vernazobres which we had presented in 2007. Then, the
+>>    approach was top-down and monolithic which started to show its limits.
+>>    This time, the idea was to borrow the successful bottom-up approach of
+>>    my [2]CRANberries feed.
+>>
+>>    The bulk of the work was done by Charles Blundell as part of his Google
+>>    Summer of Code 2008 project which I had suggested and mentored. After
+>>    that project had concluded, we both felt we should continue with it and
+>>    bring it to 'production'. The CRAN hosts provided us with a (virtual
+>>    Xen) machine to build on, and we are now ready to more publically
+>>    announce the availability of the repositories for i386 and amd64:
+>>
+>>       deb http://debian.cran.r-project.org/cran2deb/debian-i386 testing/
+>>
+>>    and
+>>   
+>>       deb http://debian.cran.r-project.org/cran2deb/debian-amd64 testing/
+>>
+>>    A few more details are provided in [3]our presentation slides. We look
+>>    forward to hearing from folks using; the r-sig-debian list may be a
+>>    good venue for this.
+>>
+>>
+>>    References
+>>    1. http://cran.r-project.org/
+>>    2. http://dirk.eddelbuettel.com/cranberries
+>>    3. http://dirk.eddelbuettel.com/papers/useR2009cran2deb.pdf
+>>
+>>
+>> Please direct questions to r-sig-debian (which has subscriber-only posts) or
+>> debian-science. 
+>>
+>> Regards,  Dirk and Charles
+>>  
+>> -- 
+>> Three out of two people have difficulties with fractions.
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> 
+
+
+-- 
+Markus Jantti
+Professor of Economics
+Swedish Institute for Social Research
+Stockholm University
+
+
+From edd at debian.org  Tue Jul 14 21:02:35 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 14 Jul 2009 14:02:35 -0500
+Subject: [R-sig-Debian] [ANNOUNCEMENT] cran2deb: 1700+ new Debian /	R
+ packages
+In-Reply-To: <4A5CCD75.4040107@iki.fi>
+References: <19035.40101.199706.453815@ron.nulle.part>
+	<20090714074023.GA11078@bioinf.nl> <4A5CCD75.4040107@iki.fi>
+Message-ID: <19036.54859.234731.266054@ron.nulle.part>
+
+
+On 14 July 2009 at 20:24, Markus J?ntti wrote:
+| I'd like to second this. While R's install.packages() mechanism is very good, 
+| nothing in my experience beats the Debian way of installing packages. Many 
+| thanks to Charles and Dirk for providing this service to Debian users.
+
+Thanks!
+
+I also realized after the useR presentation that we didn't really stress the
+point that well in the slides: installing using the tools of the operating
+system is indeed much more powerful and provides much finer control than the
+install.packages() approach.
+
+| I will certainly try to provide feedback once I get behind a decent internet 
+| connection and can install package en-masse (rather than from beind my current 
+| the tethered iPhone provided GPRS connection that I am using to send this message).
+
+It should become much more fun come next Monday when the masters of CRAN are
+back from vacation and we get back to the usual daily flow of packages.  Once
+CRAN gets back to daily updates, we should get daily updates for Debian CRAN
+Debian packages as well.
+
+Dirk
+
+| Thanks,
+| 
+| Markus
+| 
+| Piet Plomp wrote:
+| > Hi Dirk and Charles,
+| > 
+| > What a _beautiful_ project! This a giant step forward.
+| > 
+| > Thanks!
+| > 
+| > Piet
+| > 
+| > On Mon, Jul 13, 2009 at 03:44:21PM -0500, Dirk Eddelbuettel wrote:
+| >> Announcing cran2deb: 1700+ Debian packages from almost all of CRAN
+| >> ------------------------------------------------------------------
+| >>
+| >> Last Friday's presentation at UseR! 2009 was the first really public mention
+| >> of 'cran2deb'. It provides Debian packages of all of CRAN. It started as
+| >> Charles' project from last year's Google Summer of Code, was further extended
+| >> by us over the last year.
+| >>
+| >> We currently build for the testing distribution and the i386 and amd64
+| >> architectures. This is now publically useable and we welcome wider testing
+| >> by Debian users. We hope to extend this to Ubuntu during the summer or fall.
+| >>
+| >> I include what I blogged earlier (which you may have seen via Planet Debian
+| >> and/or Planet R).  This also contains the /etc/apt/sources.list entries:
+| >>
+| >>
+| >>    cran2deb: Would you like 1700+ new Debian / R packages ?
+| >>
+| >>    As I mentioned in my [8]quick write-up of UseR 2009, one of my talks
+| >>    was about cran2deb: a system to turn (essentially) all [1]CRAN packages
+| >>    into directly apt-get-able binary packages.
+| >>
+| >>    This is essentially a '2.0' version of earlier work with Steffen
+| >>    Moeller and David Vernazobres which we had presented in 2007. Then, the
+| >>    approach was top-down and monolithic which started to show its limits.
+| >>    This time, the idea was to borrow the successful bottom-up approach of
+| >>    my [2]CRANberries feed.
+| >>
+| >>    The bulk of the work was done by Charles Blundell as part of his Google
+| >>    Summer of Code 2008 project which I had suggested and mentored. After
+| >>    that project had concluded, we both felt we should continue with it and
+| >>    bring it to 'production'. The CRAN hosts provided us with a (virtual
+| >>    Xen) machine to build on, and we are now ready to more publically
+| >>    announce the availability of the repositories for i386 and amd64:
+| >>
+| >>       deb http://debian.cran.r-project.org/cran2deb/debian-i386 testing/
+| >>
+| >>    and
+| >>   
+| >>       deb http://debian.cran.r-project.org/cran2deb/debian-amd64 testing/
+| >>
+| >>    A few more details are provided in [3]our presentation slides. We look
+| >>    forward to hearing from folks using; the r-sig-debian list may be a
+| >>    good venue for this.
+| >>
+| >>
+| >>    References
+| >>    1. http://cran.r-project.org/
+| >>    2. http://dirk.eddelbuettel.com/cranberries
+| >>    3. http://dirk.eddelbuettel.com/papers/useR2009cran2deb.pdf
+| >>
+| >>
+| >> Please direct questions to r-sig-debian (which has subscriber-only posts) or
+| >> debian-science. 
+| >>
+| >> Regards,  Dirk and Charles
+| >>  
+| >> -- 
+| >> Three out of two people have difficulties with fractions.
+| >>
+| >> _______________________________________________
+| >> R-SIG-Debian mailing list
+| >> R-SIG-Debian at r-project.org
+| >> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| > 
+| > _______________________________________________
+| > R-SIG-Debian mailing list
+| > R-SIG-Debian at r-project.org
+| > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| > 
+| 
+| 
+| -- 
+| Markus Jantti
+| Professor of Economics
+| Swedish Institute for Social Research
+| Stockholm University
+| 
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From edd at debian.org  Tue Jul 14 21:09:12 2009
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 14 Jul 2009 14:09:12 -0500
+Subject: [R-sig-Debian] [ANNOUNCEMENT] cran2deb: 1700+ new Debian / R
+	packages
+In-Reply-To: <7a9ac240907141044w35ead509ia7b7e36e70f9b0f2@mail.gmail.com>
+References: <19035.40101.199706.453815@ron.nulle.part>
+	<fce144590907140556n5ede1b1fm72d8e2de2c8f8152@mail.gmail.com>
+	<7a9ac240907141044w35ead509ia7b7e36e70f9b0f2@mail.gmail.com>
+Message-ID: <19036.55256.266053.161326@ron.nulle.part>
+
+
+Hi Michael,
+
+On 14 July 2009 at 18:44, charles blundell wrote:
+| 2009/7/13 Michael Rutter <mar36 at psu.edu>
+| > 1.  Are there any negatives going from an install.packages("foo")
+| > approach using R then switching to an apt-get install r-cran-foo
+| > method of installing packages?  If I install a deb package on top of
+| > an R installed package, will there be issues?
+| 
+| This should be the same as installing the package twice via R CMD
+| INSTALL; I don't expect any issues but I cannot guarantee that I have
+| not forgotten something.
+
+Right. R_LIBS aka what you see via .libPaths() in R simply makes it possible
+for those in /usr/local/lib/R/site-library [installed via install.packages()]  
+to shadow those in /usr/lib/R/site-library. I can't remember if R is now
+smart enough to pick the highest version; it may.  At some point in the past
+the 'first one found' seemed to win.  So in sum:  no harm, other than maybe
+missing the newest.  We insured that different locations are used which the
+man years of co-existence with r-cran-* packages in Debian possible. We
+simply extend this now.
+
+Longer term, some real work may need to go to make install.packages() aware
+of the OS's package management system. That better work well though...
+
+| > 2.  What will it take to do this for Ubuntu?  Are we going to need a
+| > (virtual) machine for each release or can this be done under chroot
+| > jails on one server?
+| 
+| I think, though have never got very far, that differences in package
+| naming will be the main technical problem with supporting Ubuntu in a
+| similar fashion, assuming re-use of the excellent Debian tools
+| (pbuilder, mini-dinstall, etc) with a different set of base packages.
+| 
+| Each release (i.e., debian i386 testing) requires a chroot
+| environment: it could all be done on one machine. We simply use
+| pbuilder. Maybe you would not want to do this for too many releases
+| (bandwidth, disk space, cpu time).
+
+More details to follow but I may have access to some institutional support
+for this. No details yet though.
+
+Cheers, Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From info at aghmed.fsnet.co.uk  Fri Jul 17 17:20:10 2009
+From: info at aghmed.fsnet.co.uk (Michael Dewey)
+Date: Fri, 17 Jul 2009 16:20:10 +0100
+Subject: [R-sig-Debian] Backport of R 2.9.1 to lenny available
+In-Reply-To: <20090707142122.GA6090@localdomain>
+References: <20090707142122.GA6090@localdomain>
+Message-ID: <Zen-1MRpEW-0007u2-0z@smarthost01.mail.zen.net.uk>
+
+At 15:21 07/07/2009, Johannes Ranke wrote:
+
+>Dear all,
+>
+>You can now find i386 and amd64 packages of R 2.9.1 compiled for lenny
+>in the usual place on CRAN.
+>
+>I have switched from using permanent schroot environments to exclusively
+>using pbuilder, in order to check build dependencies as early in the
+>process as possible.
+>
+>Is anyone in need of an R 2.9.1 backport to etch (oldstable)? I do not
+>need it myself, so I am thinking of leaving it at R 2.9.0 for etch.
+
+Johannes, nobody else seems to have replied to the list but I for one 
+would welcome continued backports to etch-cran although it is not 
+necessary to have all the minor releases (if that is the right name, 
+the ones which only differ after the second .). Perhaps I should say 
+why? I have a netbook (EEEPC) which would probably be tricky to 
+upgrade and I am not yet confident enough to wipe the whole thing and 
+restart with Ubuntu.
+
+Thanks to you and the others on the team who make installation so 
+straightforward enough for novices like me.
+
+>Kind regards, and happy R-ring,
+>
+>Johannes
+>
+>_______________________________________________
+>R-SIG-Debian mailing list
+>R-SIG-Debian at r-project.org
+>https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+Michael Dewey
+http://www.aghmed.fsnet.co.uk
+
+
+From Ted.Harding at manchester.ac.uk  Fri Jul 17 17:37:23 2009
+From: Ted.Harding at manchester.ac.uk ( (Ted Harding))
+Date: Fri, 17 Jul 2009 16:37:23 +0100 (BST)
+Subject: [R-sig-Debian] Backport of R 2.9.1 to lenny available
+In-Reply-To: <Zen-1MRpEW-0007u2-0z@smarthost01.mail.zen.net.uk>
+Message-ID: <XFMail.090717163723.Ted.Harding@manchester.ac.uk>
+
+On 17-Jul-09 15:20:10, Michael Dewey wrote:
+> At 15:21 07/07/2009, Johannes Ranke wrote:
+> 
+>>Dear all,
+>>
+>>You can now find i386 and amd64 packages of R 2.9.1 compiled for lenny
+>>in the usual place on CRAN.
+>>
+>>I have switched from using permanent schroot environments to
+>>exclusively
+>>using pbuilder, in order to check build dependencies as early in the
+>>process as possible.
+>>
+>>Is anyone in need of an R 2.9.1 backport to etch (oldstable)? I do not
+>>need it myself, so I am thinking of leaving it at R 2.9.0 for etch.
+> 
+> Johannes, nobody else seems to have replied to the list but I for one 
+> would welcome continued backports to etch-cran although it is not 
+> necessary to have all the minor releases (if that is the right name, 
+> the ones which only differ after the second .). Perhaps I should say 
+> why? I have a netbook (EEEPC) which would probably be tricky to 
+> upgrade and I am not yet confident enough to wipe the whole thing and 
+> restart with Ubuntu.
+> 
+> Thanks to you and the others on the team who make installation so 
+> straightforward enough for novices like me.
+
+May I add my voice to this? (I somehow overlooked it originally).
+I'm actively running Etch for main work (though experimentally
+trying Lenny on another machine -- so far, Etch seems to suit my
+tastes better). Therefore having etch-cran kept up to date would
+be welcome.
+
+Ted.
+
+--------------------------------------------------------------------
+E-Mail: (Ted Harding) <Ted.Harding at manchester.ac.uk>
+Fax-to-email: +44 (0)870 094 0861
+Date: 17-Jul-09                                       Time: 16:37:20
+------------------------------ XFMail ------------------------------
+
+
+From hzambran.newsgroups at gmail.com  Thu Jul 23 12:03:24 2009
+From: hzambran.newsgroups at gmail.com (Mauricio Zambrano)
+Date: Thu, 23 Jul 2009 12:03:24 +0200
+Subject: [R-sig-Debian] Ubuntu und R
+In-Reply-To: <1247520136.3419.33.camel@gunnar-laptop>
+References: <1247515104.8359.2.camel@gunnar-laptop>
+	<19035.38715.262811.378638@ron.nulle.part>
+	<1247520136.3419.33.camel@gunnar-laptop>
+Message-ID: <63d616b0907230303y45db66a4rf956e721bfb18969@mail.gmail.com>
+
+Dear Gunnar,
+
+I think that the Readme at
+http://cran.r-project.org/bin/linux/ubuntu is clear enough (after some
+familiarization with Ubuntu), but you could try the following:
+
+1) Finding your Ubuntu release:
+
+$ cat /etc/lsb-release # OR
+$ lsb_release -a
+
+
+2) Installing R:
+
+2.1) Optional (if you want the latest release of R)
+Add the line:
+
+   deb http://mirrors.softliste.de/cran/bin/linux/ubuntu jaunty/
+
+changing "jaunty" by the name of your Ubuntu release
+
+to your repository, with
+
+$ sudo gedit /etc/apt/sources.list
+
+2.2) R Installation
+
+$ sudo apt-get install build-essential	#just in case...
+$ sudo apt-get install r-base r-recommended
+$ sudo apt-get install r-base-dev 	     	#to compile packages in the future
+
+3) Installing Java JDK
+$ sudo apt-get install openjdk-6-jdk openjdk-6-jre
+
+3) Setting up java:
+$ sudo R CMD javareconf
+
+I hope this works for you
+
+Kinds,
+
+-- 
+Mauricio
+
+Linux user  #454569 -- Ubuntu user #17469
+
+
+From jranke at uni-bremen.de  Mon Jul 27 06:49:36 2009
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 27 Jul 2009 06:49:36 +0200
+Subject: [R-sig-Debian] Backport of R 2.9.1 to lenny available
+In-Reply-To: <XFMail.090717163723.Ted.Harding@manchester.ac.uk>
+References: <Zen-1MRpEW-0007u2-0z@smarthost01.mail.zen.net.uk>
+	<XFMail.090717163723.Ted.Harding@manchester.ac.uk>
+Message-ID: <20090727044935.GA19894@localdomain>
+
+Hi Ted, hi Michael, hi all,
+
+I had a go at updating the R packages for etch to R 2.9.1 - I ran into 
+the "five-year-old" bug, see 
+
+   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=531569
+
+so I added the repository 
+
+   deb http://people.debian.org/~frank/texlive2009 etch main
+
+of Frank K?ster, one of the tex package maintainers of the Debian
+distribution, to the pbuilder sources.list.
+
+Unfortunately, this does not work for amd64, as no binaries are
+available for the updated packages. 
+
+Therefore I did not update the official etch-cran repository. If you
+would like to have R 2.9.1 on etch for i386, try
+
+   deb http://chem.uft.uni-bremen.de/r-cran etch-cran/
+
+Kind regards,
+
+Johannes
+
+* Ted Harding <Ted.Harding at manchester.ac.uk> [090717 17:40]:
+> On 17-Jul-09 15:20:10, Michael Dewey wrote:
+> > At 15:21 07/07/2009, Johannes Ranke wrote:
+> > 
+> >>Dear all,
+> >>
+> >>You can now find i386 and amd64 packages of R 2.9.1 compiled for lenny
+> >>in the usual place on CRAN.
+> >>
+> >>I have switched from using permanent schroot environments to
+> >>exclusively
+> >>using pbuilder, in order to check build dependencies as early in the
+> >>process as possible.
+> >>
+> >>Is anyone in need of an R 2.9.1 backport to etch (oldstable)? I do not
+> >>need it myself, so I am thinking of leaving it at R 2.9.0 for etch.
+> > 
+> > Johannes, nobody else seems to have replied to the list but I for one 
+> > would welcome continued backports to etch-cran although it is not 
+> > necessary to have all the minor releases (if that is the right name, 
+> > the ones which only differ after the second .). Perhaps I should say 
+> > why? I have a netbook (EEEPC) which would probably be tricky to 
+> > upgrade and I am not yet confident enough to wipe the whole thing and 
+> > restart with Ubuntu.
+> > 
+> > Thanks to you and the others on the team who make installation so 
+> > straightforward enough for novices like me.
+> 
+> May I add my voice to this? (I somehow overlooked it originally).
+> I'm actively running Etch for main work (though experimentally
+> trying Lenny on another machine -- so far, Etch seems to suit my
+> tastes better). Therefore having etch-cran kept up to date would
+> be welcome.
+> 
+> Ted.
+> 
+> --------------------------------------------------------------------
+> E-Mail: (Ted Harding) <Ted.Harding at manchester.ac.uk>
+> Fax-to-email: +44 (0)870 094 0861
+> Date: 17-Jul-09                                       Time: 16:37:20
+> ------------------------------ XFMail ------------------------------
+
+
+From desja004 at umn.edu  Thu Jul 30 17:32:37 2009
+From: desja004 at umn.edu (Christopher David Desjardins)
+Date: Thu, 30 Jul 2009 10:32:37 -0500
+Subject: [R-sig-Debian] cran2deb: 1700+ new Debian / R packages
+Message-ID: <1248967957.3565.2.camel@debian>
+
+Am I correct in thinking that cran2deb is only working with Squeeze (and
+presumably Sid?) at the moment and not with Lenny? If so, are there
+plans to have cran2deb work with Lenny or after Squeeze is released will
+that be the first opportunity for users of stable to try out cran2deb?
+Thanks!
+Chris
+
+
+From jranke at uni-bremen.de  Fri Jul 31 08:19:49 2009
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Fri, 31 Jul 2009 08:19:49 +0200
+Subject: [R-sig-Debian] cran2deb: 1700+ new Debian / R packages
+In-Reply-To: <1248967957.3565.2.camel@debian>
+References: <1248967957.3565.2.camel@debian>
+Message-ID: <20090731061949.GA15703@localdomain>
+
+Dear all,
+
+as I have automated the backporting (compiling) from sid to lenny (and
+to etch) for the set of recommended packages to some degree, it seems to
+me that a similar set of scripts could be developed for the packages
+provided by cran2deb. Build dependencies of R packages on R packages
+might be problematic, when running the build procedure for the first
+time though.  Anyway, I would be willing to help if anybody would like
+to do this.
+
+Johannes
+
+* Christopher David Desjardins <desja004 at umn.edu> [090730 21:10]:
+> Am I correct in thinking that cran2deb is only working with Squeeze (and
+> presumably Sid?) at the moment and not with Lenny? If so, are there
+> plans to have cran2deb work with Lenny or after Squeeze is released will
+> that be the first opportunity for users of stable to try out cran2deb?
+> Thanks!
+> Chris
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Johannes Ranke                 jranke at uni-bremen.de
+
+

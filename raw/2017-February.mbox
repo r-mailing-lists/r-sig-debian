@@ -1,0 +1,473 @@
+From shannon.markiewicz at gmail.com  Wed Feb  1 00:09:34 2017
+From: shannon.markiewicz at gmail.com (Shannon Markiewicz)
+Date: Tue, 31 Jan 2017 18:09:34 -0500
+Subject: [R-sig-Debian] Problems with signature Debian testing
+Message-ID: <79a177df-a7a9-9ea2-260d-c1f723e021dc@gmail.com>
+
+I am getting the following error when trying to update packages for 
+jessie-cran3/
+
+W: GPG error: http://cloud.r-project.org/bin/linux/debian jessie-cran3/ 
+Release: The following signatures were invalid: 
+6212B7B7931C4BB16280BA1306F90DE5381BA480
+E: The repository 'http://cloud.r-project.org/bin/linux/debian 
+jessie-cran3/ Release' is not signed.
+N: Updating from such a repository can't be done securely, and is 
+therefore disabled by default.
+N: See apt-secure(8) manpage for repository creation and user 
+configuration details.
+
+
+I have tried to get the key:
+
+sudo apt-key adv --keyserver keys.gnupg.net --recv-key 
+6212B7B7931C4BB16280BA1306F90DE5381BA480
+
+sudo apt-key adv --keyserver keys.gnupg.net --recv-key 381BA480
+
+Neither works.  Is there some other command I should be using?
+
+
+From kirill.mueller at ivt.baug.ethz.ch  Wed Feb  1 10:21:54 2017
+From: kirill.mueller at ivt.baug.ethz.ch (=?UTF-8?Q?Kirill_M=c3=bcller?=)
+Date: Wed, 1 Feb 2017 10:21:54 +0100
+Subject: [R-sig-Debian] Ubuntu 16.10 Yakkety Yak uses GCC 6 but
+ -std=c++98 is missing
+In-Reply-To: <19dff6e1-ad49-7a6c-8317-a4ce9db8a20e@ivt.baug.ethz.ch>
+References: <8529c871-d102-1455-1867-1d1cb109090b@ivt.baug.ethz.ch>
+	<22566.30722.591714.490930@max.nulle.part>
+	<19dff6e1-ad49-7a6c-8317-a4ce9db8a20e@ivt.baug.ethz.ch>
+Message-ID: <d1265928-b087-2700-08f3-6dd7477e112c@ivt.baug.ethz.ch>
+
+I'm quite happy with -std=c++98 in my /etc/R/Makeconf, but perhaps it's 
+unnecessary.
+
+(My previous message isn't in the mailing list archives. Strange.)
+
+
+-Kirill
+
+
+On 12.11.2016 14:23, Kirill M?ller wrote:
+> Thanks. I have now CXX = g++ -std=c++98 in my /etc/R/Makeconf, it's
+> picked up properly. I can only assume that the last -std= option wins if
+> more than one are given on the same command line [1].
+>
+>
+> -Kirill
+>
+>
+> [1] http://stackoverflow.com/q/40563269/946850
+>
+>
+>
+> On 12.11.2016 03:01, Dirk Eddelbuettel wrote:
+>> On 11 November 2016 at 23:48, Kirill M?ller wrote:
+>> | After upgrading to Ubuntu 16.10, which brings GCC 6, I've noticed that
+>> | packages are compiled in C++14 mode by default. Here's what a g++
+>> | command for compiling one of Rcpp's modules look like on my system:
+>> |
+>> | g++ -I/usr/share/R/include -DNDEBUG -I../inst/include/ -fpic  -g -O2
+>> | -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time
+>> | -D_FORTIFY_SOURCE=2 -g  -c barrier.cpp -o barrier.o
+>> |
+>> | According to GCC news [1], the default is now C++14 if no -std is 
+>> given.
+>> | R-admin suggests adapting the configuration for GCC 6 [2].
+>> |
+>> | I'm using r-base-core in version 3.3.2-1xenial0 from the Ubuntu repo
+>> | [3]. Please advise.
+>>
+>> Hm. We had g++-6.* (which does indeed default to C++14) in Debian 
+>> unstable
+>> for a while now, without problems.
+>>
+>> This issue _may_ be fixable by rebuilding r-base-core, but then it 
+>> would have
+>> been needed for Debian too. Not sure.
+>>
+>> This may be an Ubuntu-lagging-Debian issue because we may be 
+>> rebuilding more
+>> consistently in Debian whereas Ubuntu thinks that R is built with 
+>> gcc-5 (as
+>> it was) but is now used with gcc-6. Ooops.
+>>
+>> You _could_ try idea this by editing /etc/R/Makeconf and inserting the
+>> missing -std=c++-98 for the default CXX builds.
+>>
+>> I am still on 16.04 with my machines as I had too much other stuff 
+>> going on.
+>> Please try a test or two at your end and report back. We should be 
+>> able to
+>> get this squared.
+>>
+>> Dirk
+>>
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From lbraglia at gmail.com  Mon Feb  6 11:19:12 2017
+From: lbraglia at gmail.com (Luca Braglia)
+Date: Mon, 6 Feb 2017 11:19:12 +0100
+Subject: [R-sig-Debian] Fwd: issue
+In-Reply-To: <8d81f657-db14-9de3-9d5a-5a267a8b140b@asmn.re.it>
+References: <8d81f657-db14-9de3-9d5a-5a267a8b140b@asmn.re.it>
+Message-ID: <CAFOm_+7tTgO5BNdCb4NfLrGpd4z_s_vw8ZU+8KuQPpuc6p9Ggw@mail.gmail.com>
+
+Dear all,
+
+i contact you for an issue I encountered after a little time I didn't
+developed/checked packages at work.
+
+The issue I have is from R CMD check:
+
+ > tools:::.check_packages()
+* using log directory ?/home/l/src/rpkg/lbmisc.Rcheck?
+* using R version 3.3.2 (2016-10-31)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using options ?--no-build-vignettes --as-cran?
+* checking for file ?lbmisc/DESCRIPTION? ... OK
+* this is package ?lbmisc? version ?0.3.0?
+* checking CRAN incoming feasibility ...*   Trying 172.23.0.30...
+* TCP_NODELAY set
+* Connected to (nil) (172.23.0.30) port 8080 (#0)
+* ALPN, offering http/1.1
+* Cipher selection: ALL:!EXPORT:!EXPORT40:!EXPORT56:!aNULL:!LOW:!RC4:@
+STRENGTH
+* successfully set certificate verify locations:
+*   CAfile: none
+   CApath: /etc/ssl/certs
+* error:140770FC:SSL routines:SSL23_GET_SERVER_HELLO:unknown protocol
+* Curl_http_done: called premature == 0
+* Closing connection 0
+*   Trying 172.23.0.30...
+* TCP_NODELAY set
+* Connected to (nil) (172.23.0.30) port 8080 (#0)
+* ALPN, offering http/1.1
+* Cipher selection: ALL:!EXPORT:!EXPORT40:!EXPORT56:!aNULL:!LOW:!RC4:@
+STRENGTH
+* successfully set certificate verify locations:
+*   CAfile: none
+   CApath: /etc/ssl/certs
+
+... and now it freezes / goes in timeout..
+
+* Operation timed out after 300000 milliseconds with 0 out of 0 bytes
+received
+* Curl_http_done: called premature == 1
+* stopped the pause stream!
+* Closing connection 0
+*   Trying 172.23.0.30...
+* TCP_NODELAY set
+* Connected to (nil) (172.23.0.30) port 8080 (#0)
+* ALPN, offering http/1.1
+* Cipher selection: ALL:!EXPORT:!EXPORT40:!EXPORT56:!aNULL:!LOW:!RC4:@
+STRENGTH
+* successfully set certificate verify locations:
+*   CAfile: none
+   CApath: /etc/ssl/certs
+* error:140770FC:SSL routines:SSL23_GET_SERVER_HELLO:unknown protocol
+* Curl_http_done: called premature == 0
+* Closing connection 0
+*   Trying 172.23.0.30...
+* TCP_NODELAY set
+* Connected to (nil) (172.23.0.30) port 8080 (#0)
+* ALPN, offering http/1.1
+* Cipher selection: ALL:!EXPORT:!EXPORT40:!EXPORT56:!aNULL:!LOW:!RC4:@
+STRENGTH
+* successfully set certificate verify locations:
+*   CAfile: none
+   CApath: /etc/ssl/certs
+
+... timeout again...
+
+In essence R CMD check became somewhat unusable due to network issues..
+
+I think basically there are download troubles above; I googled a bit
+the messages and found they're curl-related. I reproduced them with, say
+
+ > download.file('https://cran.r-project.org/manuals.html',
+                 destfile = '/tmp/test.html',
+                method = 'libcurl')
+*   Trying 172.23.0.30...
+* TCP_NODELAY set
+* Connected to (nil) (172.23.0.30) port 8080 (#0)
+* ALPN, offering http/1.1
+* Cipher selection: ALL:!EXPORT:!EXPORT40:!EXPORT56:!aNULL:!LOW:!RC4:@
+STRENGTH
+* successfully set certificate verify locations:
+*   CAfile: none
+   CApath: /etc/ssl/certs
+* error:140770FC:SSL routines:SSL23_GET_SERVER_HELLO:unknown protocol
+* Curl_http_done: called premature == 0
+* Closing connection 0
+*   Trying 172.23.0.30...
+* TCP_NODELAY set
+* Connected to (nil) (172.23.0.30) port 8080 (#0)
+* ALPN, offering http/1.1
+* Cipher selection: ALL:!EXPORT:!EXPORT40:!EXPORT56:!aNULL:!LOW:!RC4:@
+STRENGTH
+* successfully set certificate verify locations:
+*   CAfile: none
+   CApath: /etc/ssl/certs
+
+I think it's a certificate problem (eg CAfile is not none at home) but I
+have the certs installed
+
+l at m740n:~$ dpkg -l |grep ca-certificates
+ii  ca-certificates       20161130             all          Common CA
+certificates
+
+l at m740n:~$ head /etc/ssl/certs/ca-certificates.crt
+-----BEGIN CERTIFICATE-----
+MIIH0zCCBbugAwIBAgIIXsO3pkN/pOAwDQYJKoZIhvcNAQEFBQAwQjESMBAGA1UE
+AwwJQUNDVlJBSVoxMRAwDgYDVQQLDAdQS0lBQ0NWMQ0wCwYDVQQKDARBQ0NWMQsw
+CQYDVQQGEwJFUzAeFw0xMTA1MDUwOTM3MzdaFw0zMDEyMzEwOTM3MzdaMEIxEjAQ
+BgNVBAMMCUFDQ1ZSQUlaMTEQMA4GA1UECwwHUEtJQUNDVjENMAsGA1UECgwEQUND
+VjELMAkGA1UEBhMCRVMwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCb
+qau/YUqXry+XZpp0X9DZlv3P4uRm7x8fRzPCRKPfmt4ftVTdFXxpNRFvu8gMjmoY
+HtiP2Ra8EEg2XPBjs5BaXCQ316PWywlxufEBcoSwfdtNgM3802/J+Nq2DoLSRYWo
+G2ioPej0RGy9ocLLA76MPhMAhN9KSMDjIgro6TenGEyxCQ0jVn8ETdkXhBilyNpA
+lHPrzg5XPAOBOp0KoVdDaaxXbXmQeOW1tDvYvEyNKKGno6e6Ak4l0Squ7a4DIrhr
+
+Looking at ?download.file i've tried setting manually
+
+CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+
+in .Renviron, but without success
+
+ > tools:::.check_packages()
+* using log directory ?/home/l/src/rpkg/lbmisc.Rcheck?
+* using R version 3.3.2 (2016-10-31)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using options ?--no-build-vignettes --as-cran?
+* checking for file ?lbmisc/DESCRIPTION? ... OK
+* this is package ?lbmisc? version ?0.3.0?
+* checking CRAN incoming feasibility ...*   Trying 172.23.0.30...
+* TCP_NODELAY set
+* Connected to (nil) (172.23.0.30) port 8080 (#0)
+* ALPN, offering http/1.1
+* Cipher selection: ALL:!EXPORT:!EXPORT40:!EXPORT56:!aNULL:!LOW:!RC4:@
+STRENGTH
+* successfully set certificate verify locations:
+*   CAfile: none
+   CApath: /etc/ssl/certs
+
+Finally i'm behind a proxy at work but shouldn't be a proxy config
+issue since Sys.getenv('https_proxy') and Sys.getenv('http_proxy') are
+set correctly.
+
+So, this goes definitely beyond my troubleshooting abilities; do you
+have any hint here?
+
+any thanks, Luca
+
+	[[alternative HTML version deleted]]
+
+
+From jeroenooms at gmail.com  Sun Feb 12 12:28:21 2017
+From: jeroenooms at gmail.com (Jeroen Ooms)
+Date: Sun, 12 Feb 2017 12:28:21 +0100
+Subject: [R-sig-Debian] Problems installing tibble (ggplot2) in R
+ running Ubuntu 14.04
+In-Reply-To: <5857E059.6030802@imr.no>
+References: <5857E059.6030802@imr.no>
+Message-ID: <CABFfbXvW840NChUFkA+sz_ShhOSV0CfSDLetMEPZGTN1iVj1dw@mail.gmail.com>
+
+On Mon, Dec 19, 2016 at 2:27 PM, Terje J?rgensen <terjej at imr.no> wrote:
+> Hi,
+>
+> I am unable to install tibble, a required package for ggplot2 in R. I am
+> running R (version 3.3.2 ) in RStudio (version 1.0.44). My OS is ubuntu
+> 14.04 (64 bits).
+
+I was able to reproduce this problem. What happened is that you
+installed "r-cran-rcpp" from the ubuntu repositories, which is a few
+years old, and not compatible with the cran version of 'tibble'. You
+should either reinstall Rcpp from CRAN, or, install the development
+version of 'tibble' which resolves the issue.
+
+
+From edd at debian.org  Sun Feb 12 19:15:15 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 12 Feb 2017 12:15:15 -0600
+Subject: [R-sig-Debian] Problems installing tibble (ggplot2) in R
+ running Ubuntu 14.04
+In-Reply-To: <CABFfbXvW840NChUFkA+sz_ShhOSV0CfSDLetMEPZGTN1iVj1dw@mail.gmail.com>
+References: <5857E059.6030802@imr.no>
+	<CABFfbXvW840NChUFkA+sz_ShhOSV0CfSDLetMEPZGTN1iVj1dw@mail.gmail.com>
+Message-ID: <22688.42547.297063.962720@max.eddelbuettel.com>
+
+
+On 12 February 2017 at 12:28, Jeroen Ooms wrote:
+| On Mon, Dec 19, 2016 at 2:27 PM, Terje J?rgensen <terjej at imr.no> wrote:
+| > Hi,
+| >
+| > I am unable to install tibble, a required package for ggplot2 in R. I am
+| > running R (version 3.3.2 ) in RStudio (version 1.0.44). My OS is ubuntu
+| > 14.04 (64 bits).
+| 
+| I was able to reproduce this problem. What happened is that you
+| installed "r-cran-rcpp" from the ubuntu repositories, which is a few
+| years old, and not compatible with the cran version of 'tibble'. You
+| should either reinstall Rcpp from CRAN, or, install the development
+| version of 'tibble' which resolves the issue.
+
+Better still, use the repositories maintained by Michael to get a _wide
+variety_ of _current_ packages:
+
+1. Over 3400 packages from CRAN ready to use as binaries:
+
+   root at 092af40cc094:/# apt-cache search r-cran- | wc -l
+   3411
+   root at 092af40cc094:/# 
+
+2. Obviously a current Rcpp (as well as the distro, here 14.04, one)
+
+   root at 092af40cc094:/# apt-cache policy r-cran-rcpp
+   r-cran-rcpp:
+     Installed: (none)
+     Candidate: 0.12.9-1~ubuntu14.04.1~ppa1
+     Version table:
+        0.12.9-1~ubuntu14.04.1~ppa1 0
+           500 http://ppa.launchpad.net/marutter/c2d4u/ubuntu/ trusty/main amd64 Packages
+        0.11.0-1 0
+           500 http://archive.ubuntu.com/ubuntu/ trusty/universe amd64 Packages
+   root at 092af40cc094:/#
+
+   And if you're beholden to the whateveritscalledtodayverse, it it there too:
+
+   root at 092af40cc094:/# apt-cache policy r-cran-tibble
+   r-cran-tibble:
+     Installed: (none)
+     Candidate: 1.2-1cran1ppa0trusty0
+     Version table:
+        1.2-1cran1ppa0trusty0 0
+           500 http://ppa.launchpad.net/marutter/c2d4u/ubuntu/ trusty/main amd64 Packages
+   root at 092af40cc094:/# 
+
+
+3. Trivial to use:
+
+   root at 092af40cc094:/# cat /etc/apt/sources.list.d/marutter-*list
+   deb http://ppa.launchpad.net/marutter/c2d4u/ubuntu trusty main
+   # deb-src http://ppa.launchpad.net/marutter/c2d4u/ubuntu trusty main
+   deb http://ppa.launchpad.net/marutter/rrutter/ubuntu trusty main
+   # deb-src http://ppa.launchpad.net/marutter/rrutter/ubuntu trusty main
+   root at 092af40cc094:/#
+
+4. Factual support for this email brought to you by a convenient Docker container:
+
+   https://hub.docker.com/r/rocker/r-apt/
+   https://github.com/rocker-org/rocker/tree/master/r-apt
+
+   which exists for all relevant flavours.
+
+Cheers, Dirk
+
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From francois.morneau at ign.fr  Mon Feb 13 09:25:21 2017
+From: francois.morneau at ign.fr (=?UTF-8?Q?Fran=c3=a7ois_Morneau?=)
+Date: Mon, 13 Feb 2017 09:25:21 +0100
+Subject: [R-sig-Debian] Fortune ? [was: Re: Problems installing tibble
+ (ggplot2) in R running Ubuntu 14.04]
+In-Reply-To: <22688.42547.297063.962720@max.eddelbuettel.com>
+References: <5857E059.6030802@imr.no>
+	<CABFfbXvW840NChUFkA+sz_ShhOSV0CfSDLetMEPZGTN1iVj1dw@mail.gmail.com>
+	<22688.42547.297063.962720@max.eddelbuettel.com>
+Message-ID: <022f2e36-bd5d-f49b-e87b-2a7a9abb9f90@ign.fr>
+
+Hello,
+
+I think the line :
+
+"And if you're beholden to the whateveritscalledtodayverse, it it there too"
+
+could be a good candidate for the 'fortunes' package.
+
+And, by the way, thank you Dirk for the R docker containers !
+
+Regards,
+
+Fran?ois
+
+Le 12/02/2017 ? 19:15, Dirk Eddelbuettel a ?crit :
+> On 12 February 2017 at 12:28, Jeroen Ooms wrote:
+> | On Mon, Dec 19, 2016 at 2:27 PM, Terje J?rgensen <terjej at imr.no> wrote:
+> | > Hi,
+> | >
+> | > I am unable to install tibble, a required package for ggplot2 in R. I am
+> | > running R (version 3.3.2 ) in RStudio (version 1.0.44). My OS is ubuntu
+> | > 14.04 (64 bits).
+> |
+> | I was able to reproduce this problem. What happened is that you
+> | installed "r-cran-rcpp" from the ubuntu repositories, which is a few
+> | years old, and not compatible with the cran version of 'tibble'. You
+> | should either reinstall Rcpp from CRAN, or, install the development
+> | version of 'tibble' which resolves the issue.
+>
+> Better still, use the repositories maintained by Michael to get a _wide
+> variety_ of _current_ packages:
+>
+> 1. Over 3400 packages from CRAN ready to use as binaries:
+>
+>     root at 092af40cc094:/# apt-cache search r-cran- | wc -l
+>     3411
+>     root at 092af40cc094:/#
+>
+> 2. Obviously a current Rcpp (as well as the distro, here 14.04, one)
+>
+>     root at 092af40cc094:/# apt-cache policy r-cran-rcpp
+>     r-cran-rcpp:
+>       Installed: (none)
+>       Candidate: 0.12.9-1~ubuntu14.04.1~ppa1
+>       Version table:
+>          0.12.9-1~ubuntu14.04.1~ppa1 0
+>             500 http://ppa.launchpad.net/marutter/c2d4u/ubuntu/ trusty/main amd64 Packages
+>          0.11.0-1 0
+>             500 http://archive.ubuntu.com/ubuntu/ trusty/universe amd64 Packages
+>     root at 092af40cc094:/#
+>
+>     And if you're beholden to the whateveritscalledtodayverse, it it there too:
+>
+>     root at 092af40cc094:/# apt-cache policy r-cran-tibble
+>     r-cran-tibble:
+>       Installed: (none)
+>       Candidate: 1.2-1cran1ppa0trusty0
+>       Version table:
+>          1.2-1cran1ppa0trusty0 0
+>             500 http://ppa.launchpad.net/marutter/c2d4u/ubuntu/ trusty/main amd64 Packages
+>     root at 092af40cc094:/#
+>
+>
+> 3. Trivial to use:
+>
+>     root at 092af40cc094:/# cat /etc/apt/sources.list.d/marutter-*list
+>     deb http://ppa.launchpad.net/marutter/c2d4u/ubuntu trusty main
+>     # deb-src http://ppa.launchpad.net/marutter/c2d4u/ubuntu trusty main
+>     deb http://ppa.launchpad.net/marutter/rrutter/ubuntu trusty main
+>     # deb-src http://ppa.launchpad.net/marutter/rrutter/ubuntu trusty main
+>     root at 092af40cc094:/#
+>
+> 4. Factual support for this email brought to you by a convenient Docker container:
+>
+>     https://hub.docker.com/r/rocker/r-apt/
+>     https://github.com/rocker-org/rocker/tree/master/r-apt
+>
+>     which exists for all relevant flavours.
+>
+> Cheers, Dirk
+>
+>
+
+

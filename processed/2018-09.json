@@ -1,0 +1,284 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2018-09",
+  "messages": [
+    {
+      "id": "msg-7af3dde8beb0",
+      "message_id": "<CAH--+mZX2QyK66tAGNo4WNXc1CXH_4x3MwN1ebTmDLbs5jgMZQ@mail.gmail.com>",
+      "from_name": "Kurt Wheeler",
+      "from_email_hash": "08cf7d51d118825a693745b8f9f6fb88ff7ea8d3812f13807d64f6bb83b5c159",
+      "date": "2018-09-06T17:00:14-04:00",
+      "subject": "[R-sig-Debian] cran-r debian readme used to include security flaw",
+      "subject_clean": "cran-r debian readme used to include security flaw",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "I had to bust the cache on one of my Docker images and when I rebuilt it I\nnoticed something rather concerning from the `apt-get install` step:\n\ngpg: requesting key E084DAB9 from hkp server ha.pool.sks-keyservers.net\ngpg: key E084DAB9: public key \"Totally Legit Signing Key <\nmallory at example.org>\" imported\ngpg: key E084DAB9: public key \"Michael Rutter <marutter at gmail.com>\" imported\ngpg: Total number processed: 2\ngpg:               imported: 2  (RSA: 2)\n\nThe \"Totally Legit Signing Key\" didn't look so totally legit to me. It\nturns out it's because I followed the installation instructions from cran-r\nfrom way back (\nhttps://web.archive.org/web/20170702124141/https://cran.r-project.org/bin/linux/ubuntu/README.html\n) and had this in my Dockerfile:\n\nsudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9\n\nWhich was only a 32 bit GPG key. Someone recently got around to exploiting\nthis:\nhttps://seclists.org/oss-sec/2018/q3/174\n\nYou can see in his description that  `Totally Legit Signing Key <mallory ()\nexample org>` is listed as proof of the exploit.\n\nNow if you go to:\nhttps://cran.r-project.org/bin/linux/ubuntu/README.html\n\nnow the line has since been changed to use a 64 bit GPG key:\nsudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys\n0x51716619e084dab9\n\nwhich actually makes this exploit much harder. This is great, except that\nif I hadn't been watching the output as closely I never would have known\nthat the code I copied from the official R installation instructions were\ninsecure.\n\nThe author of the exploit report actually commented on our pull request to\nchange this:\nhttps://github.com/AlexsLemonade/refinebio/pull/590#issuecomment-419234831\n\nand had this to say:\n\n> Duplicating 64-bit key IDs is not trivial, but it could be still within\nbudget of a large criminal organization.\n> Please consider using full fingerprint instead, i.e.:\nE298A3A825C0D65DFD57CBB651716619E084DAB9\n\n\n\nIn conclusion, this email is intended to be a warning to anyone who has\nthat line sitting in a script, dockerfile, or worse a blog post. I would\nalso like to raise the question about whether or not anything more can be\ndone to alert others. Finally I would recommend updating Cran's readme to\nsuggest using the full fingerprint instead of the 64-bit key like so:\n\nsudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys\nE298A3A825C0D65DFD57CBB651716619E084DAB9\n\nThank you,\n- Kurt\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "I had to bust the cache on one of my Docker images and when I rebuilt it I\nnoticed something rather concerning from the `apt-get install` step:\n\ngpg: requesting key E084DAB9 from hkp server ha.pool.sk",
+      "thread_id": "thread-7af3dde8beb0",
+      "thread_depth": 0,
+      "month": "2018-09"
+    },
+    {
+      "id": "msg-74f55f3db030",
+      "message_id": "<40766639-1397-c62d-a07f-0666f8c0ccfd@gmail.com>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "a0177c3e1a65bf20777dc9aec62831b6f5aa57a6cfca54b0666dc8a8edfdc284",
+      "date": "2018-09-06T21:02:34-04:00",
+      "subject": "[R-sig-Debian]  cran-r debian readme used to include security flaw",
+      "subject_clean": "cran-r debian readme used to include security flaw",
+      "in_reply_to": "<CAH--+mZX2QyK66tAGNo4WNXc1CXH_4x3MwN1ebTmDLbs5jgMZQ@mail.gmail.com>",
+      "references": [
+        "<CAH--+mZX2QyK66tAGNo4WNXc1CXH_4x3MwN1ebTmDLbs5jgMZQ@mail.gmail.com>"
+      ],
+      "body_plain": "Kurt,\n\nThank you for the email.  Quick summary/responses:\n\n- The thread title is misleading.  The issue is/was with Ubuntu, not Debian.\n\n- I recently addressed this on my blog \n(http://rubuntu.netlify.com/post/changes-to-cran-ubuntu-webpage-regarding-apt-secure-key/).\n\n- This will be a difficult issue to alert people to.  The blog post, \ntwitter, this post, and an update on the readme will be the best we can \ndo, I think.\n\n- Thank you the suggestion of using the longer id.  I am updating the \nreadme accordingly.\n\nThanks,\nMichael\n\nOn 09/06/2018 05:00 PM, Kurt Wheeler wrote:\n> I had to bust the cache on one of my Docker images and when I rebuilt it I\n> noticed something rather concerning from the `apt-get install` step:\n> \n> gpg: requesting key E084DAB9 from hkp server ha.pool.sks-keyservers.net\n> gpg: key E084DAB9: public key \"Totally Legit Signing Key <\n> mallory at example.org>\" imported\n> gpg: key E084DAB9: public key \"Michael Rutter <marutter at gmail.com>\" imported\n> gpg: Total number processed: 2\n> gpg:               imported: 2  (RSA: 2)\n> \n> The \"Totally Legit Signing Key\" didn't look so totally legit to me. It\n> turns out it's because I followed the installation instructions from cran-r\n> from way back (\n> https://web.archive.org/web/20170702124141/https://cran.r-project.org/bin/linux/ubuntu/README.html\n> ) and had this in my Dockerfile:\n> \n> sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9\n> \n> Which was only a 32 bit GPG key. Someone recently got around to exploiting\n> this:\n> https://seclists.org/oss-sec/2018/q3/174\n> \n> You can see in his description that  `Totally Legit Signing Key <mallory ()\n> example org>` is listed as proof of the exploit.\n> \n> Now if you go to:\n> https://cran.r-project.org/bin/linux/ubuntu/README.html\n> \n> now the line has since been changed to use a 64 bit GPG key:\n> sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys\n> 0x51716619e084dab9\n> \n> which actually makes this exploit much harder. This is great, except that\n> if I hadn't been watching the output as closely I never would have known\n> that the code I copied from the official R installation instructions were\n> insecure.\n> \n> The author of the exploit report actually commented on our pull request to\n> change this:\n> https://github.com/AlexsLemonade/refinebio/pull/590#issuecomment-419234831\n> \n> and had this to say:\n> \n>> Duplicating 64-bit key IDs is not trivial, but it could be still within\n> budget of a large criminal organization.\n>> Please consider using full fingerprint instead, i.e.:\n> E298A3A825C0D65DFD57CBB651716619E084DAB9\n> \n> \n> \n> In conclusion, this email is intended to be a warning to anyone who has\n> that line sitting in a script, dockerfile, or worse a blog post. I would\n> also like to raise the question about whether or not anything more can be\n> done to alert others. Finally I would recommend updating Cran's readme to\n> suggest using the full fingerprint instead of the 64-bit key like so:\n> \n> sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys\n> E298A3A825C0D65DFD57CBB651716619E084DAB9\n> \n> Thank you,\n> - Kurt\n> \n> \t[[alternative HTML version deleted]]\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n>",
+      "body_snippet": "Kurt,\n\nThank you for the email.  Quick summary/responses:\n\n- The thread title is misleading.  The issue is/was with Ubuntu, not Debian.\n\n- I recently addressed this on my blog \n(http://rubuntu.netlify",
+      "thread_id": "thread-7af3dde8beb0",
+      "thread_depth": 1,
+      "month": "2018-09"
+    },
+    {
+      "id": "msg-fe2f9d5f2a26",
+      "message_id": "<CAHz+bWa4wX4nFPQHCgPX5p3ap5QCoHFtKt3HqNNnoU9c20frqQ@mail.gmail.com>",
+      "from_name": "Mark Leeds",
+      "from_email_hash": "da48da08986eef030220ba467f719fc51106afa9a38eb80c21c8564ab813b8b7",
+      "date": "2018-09-21T20:06:19-04:00",
+      "subject": "[R-sig-Debian] installing tkrplot",
+      "subject_clean": "installing tkrplot",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi All: At the bottom of this email  is my sessionInfo and below that\nthere is a command\nthat shows that tcltk is installed and working. My problem is that,  when\ntrying to install tkrplot,\nI get the following  error:\n\nR CMD INSTALL -l . tkrplot_0.0-24.tar.gz\n\n* installing *source* package 'tkrplot' ...\n** package 'tkrplot' successfully unpacked and MD5 sums checked\nconfigure: creating ./config.status\nconfig.status: creating src/Makevars\n** libs\ngcc -std=gnu99 -I\"/usr/share/R/include\" -DNDEBUG -I/usr/include/tcl8.6\n-I/usr/include/tcl8.6     -fpic  -g -O2 -fstack-protector\n--param=ssp-buffer-size=4 -Wformat -Werror=format-security\n-D_FORTIFY_SOURCE=2 -g  -c tcltkimg.c -o tcltkimg.o\ntcltkimg.c:3:16: fatal error: tk.h: No such file or directory\n #include <tk.h>\n                ^\ncompilation terminated.\nmake: *** [tcltkimg.o] Error 1\nERROR: compilation failed for package 'tkrplot'\n* removing '/home/markleeds/research/R/Rlibs/library/tkrplot'\n* restoring previous '/home/markleeds/research/R/Rlibs/library/tkrplot'\n:~/research/R/Rlibs/library>\n\nClearly, I must be missing the tk.h file but I don't know where to get it\nnor where to put\nit. Thanks a lot.\n\n#=============================================================\nMY SESSION INFO IS BELOW AND THEN AT THE BOTTOM OF THAT, I SHOW THAT\nTHE tcltk PACKAGE IS WORKING.\n#=================================================================\n\n> sessionInfo()\nR version 3.5.1 (2018-07-02)\nPlatform: x86_64-pc-linux-gnu (64-bit)\nRunning under: Ubuntu 14.04.5 LTS\n\nMatrix products: default\nBLAS: /usr/lib/atlas-base/atlas/libblas.so.3.0\nLAPACK: /usr/lib/lapack/liblapack.so.3.0\n\nlocale:\n [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C\nLC_TIME=C                  LC_COLLATE=C\nLC_MONETARY=C              LC_MESSAGES=en_US.UTF-8\n [7] LC_PAPER=en_US.UTF-8       LC_NAME=C\nLC_ADDRESS=C               LC_TELEPHONE=C\nLC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C\n\nattached base packages:\n[1] tcltk     stats     graphics  utils     datasets  grDevices methods\nbase\n\nloaded via a namespace (and not attached):\n[1] compiler_3.5.1\n\nBELOW SHOWS THAT tcltk IS WORKING.\n\n> library(tcltk)\n> tcl(\"info\", \"tclversion\")\n<Tcl> 8.6\n>\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Hi All: At the bottom of this email  is my sessionInfo and below that\nthere is a command\nthat shows that tcltk is installed and working. My problem is that,  when\ntrying to install tkrplot,\nI get the ",
+      "thread_id": "thread-fe2f9d5f2a26",
+      "thread_depth": 0,
+      "month": "2018-09"
+    },
+    {
+      "id": "msg-316e28ecbd87",
+      "message_id": "<CAHz+bWaTCMykeR+HN_rTxxkVfqE4MKeufaJkuJfhr95sKqjBsQ@mail.gmail.com>",
+      "from_name": "Mark Leeds",
+      "from_email_hash": "da48da08986eef030220ba467f719fc51106afa9a38eb80c21c8564ab813b8b7",
+      "date": "2018-09-21T20:10:36-04:00",
+      "subject": "[R-sig-Debian] installing tkrplot",
+      "subject_clean": "installing tkrplot",
+      "in_reply_to": "<CAHz+bWa4wX4nFPQHCgPX5p3ap5QCoHFtKt3HqNNnoU9c20frqQ@mail.gmail.com>",
+      "references": [
+        "<CAHz+bWa4wX4nFPQHCgPX5p3ap5QCoHFtKt3HqNNnoU9c20frqQ@mail.gmail.com>"
+      ],
+      "body_plain": "All of a sudden, I had the brilliant idea to google and the command below\nsolved the problem. My apologies for noise.\n\nsudo apt-get install tk-dev\n\n\nOn Fri, Sep 21, 2018 at 8:06 PM Mark Leeds <markleeds2 at gmail.com> wrote:\n\n>  Hi All: At the bottom of this email  is my sessionInfo and below that\n> there is a command\n> that shows that tcltk is installed and working. My problem is that,  when\n> trying to install tkrplot,\n> I get the following  error:\n>\n> R CMD INSTALL -l . tkrplot_0.0-24.tar.gz\n>\n> * installing *source* package 'tkrplot' ...\n> ** package 'tkrplot' successfully unpacked and MD5 sums checked\n> configure: creating ./config.status\n> config.status: creating src/Makevars\n> ** libs\n> gcc -std=gnu99 -I\"/usr/share/R/include\" -DNDEBUG -I/usr/include/tcl8.6\n> -I/usr/include/tcl8.6     -fpic  -g -O2 -fstack-protector\n> --param=ssp-buffer-size=4 -Wformat -Werror=format-security\n> -D_FORTIFY_SOURCE=2 -g  -c tcltkimg.c -o tcltkimg.o\n> tcltkimg.c:3:16: fatal error: tk.h: No such file or directory\n>  #include <tk.h>\n>                 ^\n> compilation terminated.\n> make: *** [tcltkimg.o] Error 1\n> ERROR: compilation failed for package 'tkrplot'\n> * removing '/home/markleeds/research/R/Rlibs/library/tkrplot'\n> * restoring previous '/home/markleeds/research/R/Rlibs/library/tkrplot'\n> :~/research/R/Rlibs/library>\n>\n> Clearly, I must be missing the tk.h file but I don't know where to get it\n> nor where to put\n> it. Thanks a lot.\n>\n> #=============================================================\n> MY SESSION INFO IS BELOW AND THEN AT THE BOTTOM OF THAT, I SHOW THAT\n> THE tcltk PACKAGE IS WORKING.\n> #=================================================================\n>\n> > sessionInfo()\n> R version 3.5.1 (2018-07-02)\n> Platform: x86_64-pc-linux-gnu (64-bit)\n> Running under: Ubuntu 14.04.5 LTS\n>\n> Matrix products: default\n> BLAS: /usr/lib/atlas-base/atlas/libblas.so.3.0\n> LAPACK: /usr/lib/lapack/liblapack.so.3.0\n>\n> locale:\n>  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C\n> LC_TIME=C                  LC_COLLATE=C\n> LC_MONETARY=C              LC_MESSAGES=en_US.UTF-8\n>  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C\n> LC_ADDRESS=C               LC_TELEPHONE=C\n> LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C\n>\n> attached base packages:\n> [1] tcltk     stats     graphics  utils     datasets  grDevices methods\n> base\n>\n> loaded via a namespace (and not attached):\n> [1] compiler_3.5.1\n>\n> BELOW SHOWS THAT tcltk IS WORKING.\n>\n> > library(tcltk)\n> > tcl(\"info\", \"tclversion\")\n> <Tcl> 8.6\n> >\n>\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "All of a sudden, I had the brilliant idea to google and the command below\nsolved the problem. My apologies for noise.\n\nsudo apt-get install tk-dev\n\n\nOn Fri, Sep 21, 2018 at 8:06 PM Mark Leeds <marklee",
+      "thread_id": "thread-fe2f9d5f2a26",
+      "thread_depth": 1,
+      "month": "2018-09"
+    },
+    {
+      "id": "msg-e9420820f5de",
+      "message_id": "<23461.36543.613913.876889@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "41afaefcb8db6ed02b73dc17f00c860596be87f14445fbbc0a5f7ccb3093af22",
+      "date": "2018-09-21T19:37:19-05:00",
+      "subject": "[R-sig-Debian] installing tkrplot",
+      "subject_clean": "installing tkrplot",
+      "in_reply_to": "<CAHz+bWaTCMykeR+HN_rTxxkVfqE4MKeufaJkuJfhr95sKqjBsQ@mail.gmail.com>",
+      "references": [
+        "<CAHz+bWa4wX4nFPQHCgPX5p3ap5QCoHFtKt3HqNNnoU9c20frqQ@mail.gmail.com>",
+        "<CAHz+bWaTCMykeR+HN_rTxxkVfqE4MKeufaJkuJfhr95sKqjBsQ@mail.gmail.com>"
+      ],
+      "body_plain": "On 21 September 2018 at 20:10, Mark Leeds wrote:\n| All of a sudden, I had the brilliant idea to google and the command below\n| solved the problem. My apologies for noise.\n| \n| sudo apt-get install tk-dev\n\nStill too difficult / laborious. Next time remember to do\n\n   apt-cache searck tkrplot      # or any other search term\n\nwhich would have lead you to\n\n   r-cran-tkrplot\n\nwhich implies\n\n   sudo apt install r-cran-tkrplot\n\nis all you need. No need for the ballast of two -dev packages, no need to\nlocally compile.  There is a reason I packaged this maybe 15 years ago ...\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 21 September 2018 at 20:10, Mark Leeds wrote:\n| All of a sudden, I had the brilliant idea to google and the command below\n| solved the problem. My apologies for noise.\n| \n| sudo apt-get install tk-",
+      "thread_id": "thread-fe2f9d5f2a26",
+      "thread_depth": 2,
+      "month": "2018-09"
+    },
+    {
+      "id": "msg-7bc85e3914a1",
+      "message_id": "<d3985254-19e3-887a-e48e-cef1e8ce0fdc@gmail.com>",
+      "from_name": "Steve Gutreuter",
+      "from_email_hash": "fcef0e092499944f7e487140fded3025c147dd3f7ee20cb4f5039f80134ad484",
+      "date": "2018-09-22T16:08:32-04:00",
+      "subject": "[R-sig-Debian] libRblas.so: cannot open shared object file: No such file or directory",
+      "subject_clean": "libRblas.so: cannot open shared object file: No such file or directory",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "R 3.5.1 is installed under Linux Mint 19 from binaries r-base and \nr-base-dev from ubuntu bionic-cran35.? Mysteriously, packages using \nlibRblas cannot be compiled.? I get: libRblas.so: cannot open shared \nobject file: No such file or directory.? And indeed, I find no libRblas.so.\n\nAny ideas about how to fix this?\n\nThanks,\n\nSteve",
+      "body_snippet": "R 3.5.1 is installed under Linux Mint 19 from binaries r-base and \nr-base-dev from ubuntu bionic-cran35.? Mysteriously, packages using \nlibRblas cannot be compiled.? I get: libRblas.so: cannot open sh",
+      "thread_id": "thread-7bc85e3914a1",
+      "thread_depth": 0,
+      "month": "2018-09"
+    },
+    {
+      "id": "msg-d94ee182c3c9",
+      "message_id": "<23462.44113.659076.742951@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "41afaefcb8db6ed02b73dc17f00c860596be87f14445fbbc0a5f7ccb3093af22",
+      "date": "2018-09-22T15:55:45-05:00",
+      "subject": "[R-sig-Debian]  libRblas.so: cannot open shared object file: No such file or directory",
+      "subject_clean": "libRblas.so: cannot open shared object file: No such file or directory",
+      "in_reply_to": "<d3985254-19e3-887a-e48e-cef1e8ce0fdc@gmail.com>",
+      "references": [
+        "<d3985254-19e3-887a-e48e-cef1e8ce0fdc@gmail.com>"
+      ],
+      "body_plain": "On 22 September 2018 at 16:08, Steve Gutreuter wrote:\n| R 3.5.1 is installed under Linux Mint 19 from binaries r-base and \n| r-base-dev from ubuntu bionic-cran35.? Mysteriously, packages using \n| libRblas cannot be compiled.? I get: libRblas.so: cannot open shared \n| object file: No such file or directory.? And indeed, I find no libRblas.so.\n| \n| Any ideas about how to fix this?\n\nWhat does   sessionInfo()   show?  For me on this computer it is\n\n  R> sessionInfo()\n  R version 3.5.1 (2018-07-02)\n  Platform: x86_64-pc-linux-gnu (64-bit)\n  Running under: Ubuntu 18.04.1 LTS\n\n  Matrix products: default\n  BLAS: /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3\n  LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so\n  [...]\n\n\nIf Mint follows the setup I use for the Debian package, then you _never have\nlibRblas.so_ because we use the _external_ BLAS.  This allows you to switch\nto Atlas (tuned BLAS), OpenBLAS (multithreaded), Intel MKL (multithreaded and\npossibly a little faster than OpenBLAS but much bigger), ...\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 22 September 2018 at 16:08, Steve Gutreuter wrote:\n| R 3.5.1 is installed under Linux Mint 19 from binaries r-base and \n| r-base-dev from ubuntu bionic-cran35.? Mysteriously, packages using \n| libR",
+      "thread_id": "thread-7bc85e3914a1",
+      "thread_depth": 1,
+      "month": "2018-09"
+    },
+    {
+      "id": "msg-54a591a532be",
+      "message_id": "<12fa2a1d-a3cc-1cc4-7551-93faefdec30a@gmail.com>",
+      "from_name": "Steve Gutreuter",
+      "from_email_hash": "fcef0e092499944f7e487140fded3025c147dd3f7ee20cb4f5039f80134ad484",
+      "date": "2018-09-23T09:16:10-04:00",
+      "subject": "[R-sig-Debian]  libRblas.so: cannot open shared object file: No such file or directory",
+      "subject_clean": "libRblas.so: cannot open shared object file: No such file or directory",
+      "in_reply_to": "<23462.44113.659076.742951@rob.eddelbuettel.com>",
+      "references": [
+        "<d3985254-19e3-887a-e48e-cef1e8ce0fdc@gmail.com>",
+        "<23462.44113.659076.742951@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Thanks Dirk.? That is what I thought, and sessionInfo() returns:\n\nMatrix products: default\nBLAS: /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3.10.3\nLAPACK: /usr/lib/x86_64-linux-gnu/atlas/liblapack.so.3.10.3\n\nlocale:\n ?[1] LC_CTYPE=en_US.UTF-8?????? LC_NUMERIC=C\n ?[3] LC_TIME=en_US.UTF-8??????? LC_COLLATE=en_US.UTF-8\n ?[5] LC_MONETARY=en_US.UTF-8??? LC_MESSAGES=en_US.UTF-8\n ?[7] LC_PAPER=en_US.UTF-8?????? LC_NAME=C\n ?[9] LC_ADDRESS=C?????????????? LC_TELEPHONE=C\n[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C\n\nso R is indeed aware of a blas.? However, packages that require a blas \nfail to build and return\n\nlibRblas.so: cannot open shared object file: No such file or directory\n\nBaffled,\n\nSteve\n\n\n\nOn 09/22/2018 04:55 PM, Dirk Eddelbuettel wrote:\n> On 22 September 2018 at 16:08, Steve Gutreuter wrote:\n> | R 3.5.1 is installed under Linux Mint 19 from binaries r-base and\n> | r-base-dev from ubuntu bionic-cran35.? Mysteriously, packages using\n> | libRblas cannot be compiled.? I get: libRblas.so: cannot open shared\n> | object file: No such file or directory.? And indeed, I find no libRblas.so.\n> |\n> | Any ideas about how to fix this?\n>\n> What does   sessionInfo()   show?  For me on this computer it is\n>\n>    R> sessionInfo()\n>    R version 3.5.1 (2018-07-02)\n>    Platform: x86_64-pc-linux-gnu (64-bit)\n>    Running under: Ubuntu 18.04.1 LTS\n>\n>    Matrix products: default\n>    BLAS: /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3\n>    LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so\n>    [...]\n>\n>\n> If Mint follows the setup I use for the Debian package, then you _never have\n> libRblas.so_ because we use the _external_ BLAS.  This allows you to switch\n> to Atlas (tuned BLAS), OpenBLAS (multithreaded), Intel MKL (multithreaded and\n> possibly a little faster than OpenBLAS but much bigger), ...\n>\n> Dirk\n>",
+      "body_snippet": "Thanks Dirk.? That is what I thought, and sessionInfo() returns:\n\nMatrix products: default\nBLAS: /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3.10.3\nLAPACK: /usr/lib/x86_64-linux-gnu/atlas/liblapack.so.",
+      "thread_id": "thread-7bc85e3914a1",
+      "thread_depth": 2,
+      "month": "2018-09"
+    },
+    {
+      "id": "msg-2fb62599bf98",
+      "message_id": "<CA+vqiLF0jo0m=O=O4X5Ygsnk_5gLcOfoEv+Z0gGuYKMF=ZbRRQ@mail.gmail.com>",
+      "from_name": "Ista Zahn",
+      "from_email_hash": "2257e7bd7d610703a54601296235d983962cce0c595f0164cb0e1ae3d8e4b7cc",
+      "date": "2018-09-23T09:57:41-04:00",
+      "subject": "[R-sig-Debian]  libRblas.so: cannot open shared object file: No such file or directory",
+      "subject_clean": "libRblas.so: cannot open shared object file: No such file or directory",
+      "in_reply_to": "<d3985254-19e3-887a-e48e-cef1e8ce0fdc@gmail.com>",
+      "references": [
+        "<d3985254-19e3-887a-e48e-cef1e8ce0fdc@gmail.com>"
+      ],
+      "body_plain": "On Sat, Sep 22, 2018 at 4:08 PM Steve Gutreuter <sgutreuter at gmail.com> wrote:\n>\n> R 3.5.1 is installed under Linux Mint 19 from binaries r-base and\n> r-base-dev from ubuntu bionic-cran35.  Mysteriously, packages using\n> libRblas cannot be compiled.  I get: libRblas.so: cannot open shared\n> object file: No such file or directory.  And indeed, I find no libRblas.so.\n>\n> Any ideas about how to fix this?\n\nCan you show use an example? That is, what code did you run exactly,\nand what was the error, exactly?\n\n--Ista\n\n>\n> Thanks,\n>\n> Steve\n>\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "On Sat, Sep 22, 2018 at 4:08 PM Steve Gutreuter <sgutreuter at gmail.com> wrote:\n>\n> R 3.5.1 is installed under Linux Mint 19 from binaries r-base and\n> r-base-dev from ubuntu bionic-cran35.  Mysterio",
+      "thread_id": "thread-7bc85e3914a1",
+      "thread_depth": 1,
+      "month": "2018-09"
+    },
+    {
+      "id": "msg-aaec17b5ec4e",
+      "message_id": "<23463.40084.326319.933390@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "41afaefcb8db6ed02b73dc17f00c860596be87f14445fbbc0a5f7ccb3093af22",
+      "date": "2018-09-23T09:00:52-05:00",
+      "subject": "[R-sig-Debian]  libRblas.so: cannot open shared object file: No such file or directory",
+      "subject_clean": "libRblas.so: cannot open shared object file: No such file or directory",
+      "in_reply_to": "<12fa2a1d-a3cc-1cc4-7551-93faefdec30a@gmail.com>",
+      "references": [
+        "<d3985254-19e3-887a-e48e-cef1e8ce0fdc@gmail.com>",
+        "<23462.44113.659076.742951@rob.eddelbuettel.com>",
+        "<12fa2a1d-a3cc-1cc4-7551-93faefdec30a@gmail.com>"
+      ],
+      "body_plain": "On 23 September 2018 at 09:16, Steve Gutreuter wrote:\n| Thanks Dirk.? That is what I thought, and sessionInfo() returns:\n| \n| Matrix products: default\n| BLAS: /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3.10.3\n| LAPACK: /usr/lib/x86_64-linux-gnu/atlas/liblapack.so.3.10.3\n| \n| locale:\n|  ?[1] LC_CTYPE=en_US.UTF-8?????? LC_NUMERIC=C\n|  ?[3] LC_TIME=en_US.UTF-8??????? LC_COLLATE=en_US.UTF-8\n|  ?[5] LC_MONETARY=en_US.UTF-8??? LC_MESSAGES=en_US.UTF-8\n|  ?[7] LC_PAPER=en_US.UTF-8?????? LC_NAME=C\n|  ?[9] LC_ADDRESS=C?????????????? LC_TELEPHONE=C\n| [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C\n| \n| so R is indeed aware of a blas.? However, packages that require a blas \n| fail to build and return\n| \n| libRblas.so: cannot open shared object file: No such file or directory\n\nThat is an _error_ in the (unnamed by you) package as _wrongly assumes_ each\nR installation has a libRblas.so.\n\nOn Debian/Ubuntu/Mint/... none of the ones using the package do, yet people\ninstall a bazillion packages (eg Michael's PPA alone has a few thousand).\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 23 September 2018 at 09:16, Steve Gutreuter wrote:\n| Thanks Dirk.? That is what I thought, and sessionInfo() returns:\n| \n| Matrix products: default\n| BLAS: /usr/lib/x86_64-linux-gnu/atlas/libblas.s",
+      "thread_id": "thread-7bc85e3914a1",
+      "thread_depth": 3,
+      "month": "2018-09"
+    },
+    {
+      "id": "msg-36f78be76c90",
+      "message_id": "<12eee960-8872-a958-159c-39235aaf38f4@gmail.com>",
+      "from_name": "Steve Gutreuter",
+      "from_email_hash": "fcef0e092499944f7e487140fded3025c147dd3f7ee20cb4f5039f80134ad484",
+      "date": "2018-09-23T10:09:40-04:00",
+      "subject": "[R-sig-Debian]  libRblas.so: cannot open shared object file: No such file or directory",
+      "subject_clean": "libRblas.so: cannot open shared object file: No such file or directory",
+      "in_reply_to": "<CA+vqiLF0jo0m=O=O4X5Ygsnk_5gLcOfoEv+Z0gGuYKMF=ZbRRQ@mail.gmail.com>",
+      "references": [
+        "<d3985254-19e3-887a-e48e-cef1e8ce0fdc@gmail.com>",
+        "<CA+vqiLF0jo0m=O=O4X5Ygsnk_5gLcOfoEv+Z0gGuYKMF=ZbRRQ@mail.gmail.com>"
+      ],
+      "body_plain": "For example,\n\ninstall.packages(\"emplik\")\n\nis failing with: libRblas.so: cannot open shared object file: No such \nfile or directory\n\nAs Dirk pointed out, this is likely an error in the emplik package,\n\n\nSteve\n\n\n\nOn 09/23/2018 09:57 AM, Ista Zahn wrote:\n> On Sat, Sep 22, 2018 at 4:08 PM Steve Gutreuter <sgutreuter at gmail.com> wrote:\n>> R 3.5.1 is installed under Linux Mint 19 from binaries r-base and\n>> r-base-dev from ubuntu bionic-cran35.  Mysteriously, packages using\n>> libRblas cannot be compiled.  I get: libRblas.so: cannot open shared\n>> object file: No such file or directory.  And indeed, I find no libRblas.so.\n>>\n>> Any ideas about how to fix this?\n> Can you show use an example? That is, what code did you run exactly,\n> and what was the error, exactly?\n>\n> --Ista\n>\n>> Thanks,\n>>\n>> Steve\n>>\n>> _______________________________________________\n>> R-SIG-Debian mailing list\n>> R-SIG-Debian at r-project.org\n>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "For example,\n\ninstall.packages(\"emplik\")\n\nis failing with: libRblas.so: cannot open shared object file: No such \nfile or directory\n\nAs Dirk pointed out, this is likely an error in the emplik package,\n",
+      "thread_id": "thread-7bc85e3914a1",
+      "thread_depth": 2,
+      "month": "2018-09"
+    },
+    {
+      "id": "msg-0a0b5ab3b1df",
+      "message_id": "<23463.41924.810443.31821@rob.eddelbuettel.com>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "41afaefcb8db6ed02b73dc17f00c860596be87f14445fbbc0a5f7ccb3093af22",
+      "date": "2018-09-23T09:31:32-05:00",
+      "subject": "[R-sig-Debian]  libRblas.so: cannot open shared object file: No such file or directory",
+      "subject_clean": "libRblas.so: cannot open shared object file: No such file or directory",
+      "in_reply_to": "<12eee960-8872-a958-159c-39235aaf38f4@gmail.com>",
+      "references": [
+        "<d3985254-19e3-887a-e48e-cef1e8ce0fdc@gmail.com>",
+        "<CA+vqiLF0jo0m=O=O4X5Ygsnk_5gLcOfoEv+Z0gGuYKMF=ZbRRQ@mail.gmail.com>",
+        "<12eee960-8872-a958-159c-39235aaf38f4@gmail.com>"
+      ],
+      "body_plain": "On 23 September 2018 at 10:09, Steve Gutreuter wrote:\n| For example,\n| \n| install.packages(\"emplik\")\n| \n| is failing with: libRblas.so: cannot open shared object file: No such \n| file or directory\n| \n| As Dirk pointed out, this is likely an error in the emplik package,\n\nI made one educated guess. Now we have more information and can update:\n\n- this is a CRAN package so everybody can check its status:\n    https://cloud.r-project.org/web/checks/check_results_emplik.html\n  turns out it is picture perfect\n\n- this is a CRAN package so everybody can look at its file on the mirror:\n    https://github.com/cran/emplik/tree/master/src\n  it does not set a link instruction\n\nso we conclude that the error is local to your system.  _Something_ is going\nyou did not tell us, so I have to guess some more:\n\n- maybe you built another version of R and it sits in your $PATH before the\n  packaged version\n\n- maybe you set build environment versions\n\nBall back in your court.\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 23 September 2018 at 10:09, Steve Gutreuter wrote:\n| For example,\n| \n| install.packages(\"emplik\")\n| \n| is failing with: libRblas.so: cannot open shared object file: No such \n| file or directory\n| \n",
+      "thread_id": "thread-7bc85e3914a1",
+      "thread_depth": 3,
+      "month": "2018-09"
+    },
+    {
+      "id": "msg-a638267ff662",
+      "message_id": "<0069afc1-0a3e-934d-ada6-720dede181c5@gmail.com>",
+      "from_name": "Steve Gutreuter",
+      "from_email_hash": "fcef0e092499944f7e487140fded3025c147dd3f7ee20cb4f5039f80134ad484",
+      "date": "2018-09-23T12:47:58-04:00",
+      "subject": "[R-sig-Debian]  libRblas.so: cannot open shared object file: No such file or directory",
+      "subject_clean": "libRblas.so: cannot open shared object file: No such file or directory",
+      "in_reply_to": "<23463.41924.810443.31821@rob.eddelbuettel.com>",
+      "references": [
+        "<d3985254-19e3-887a-e48e-cef1e8ce0fdc@gmail.com>",
+        "<CA+vqiLF0jo0m=O=O4X5Ygsnk_5gLcOfoEv+Z0gGuYKMF=ZbRRQ@mail.gmail.com>",
+        "<12eee960-8872-a958-159c-39235aaf38f4@gmail.com>",
+        "<23463.41924.810443.31821@rob.eddelbuettel.com>"
+      ],
+      "body_plain": "Problem solved, but don't know how.? The only error or warning from \ninstall.packages(\"emplik\") was about libRblas.? However, some other \npackages failed to update for lack of other R packages. Once I fixed \nthose other R dependencies, all of the messages about the absence of \nlibRblas.so also vanished.\n\nMany thanks for your patience and help.\n\nSteve\n\n\n\nOn 09/23/2018 10:31 AM, Dirk Eddelbuettel wrote:\n> On 23 September 2018 at 10:09, Steve Gutreuter wrote:\n> | For example,\n> |\n> | install.packages(\"emplik\")\n> |\n> | is failing with: libRblas.so: cannot open shared object file: No such\n> | file or directory\n> |\n> | As Dirk pointed out, this is likely an error in the emplik package,\n>\n> I made one educated guess. Now we have more information and can update:\n>\n> - this is a CRAN package so everybody can check its status:\n>      https://cloud.r-project.org/web/checks/check_results_emplik.html\n>    turns out it is picture perfect\n>\n> - this is a CRAN package so everybody can look at its file on the mirror:\n>      https://github.com/cran/emplik/tree/master/src\n>    it does not set a link instruction\n>\n> so we conclude that the error is local to your system.  _Something_ is going\n> you did not tell us, so I have to guess some more:\n>\n> - maybe you built another version of R and it sits in your $PATH before the\n>    packaged version\n>\n> - maybe you set build environment versions\n>\n> Ball back in your court.\n>\n> Dirk\n>",
+      "body_snippet": "Problem solved, but don't know how.? The only error or warning from \ninstall.packages(\"emplik\") was about libRblas.? However, some other \npackages failed to update for lack of other R packages. Once I",
+      "thread_id": "thread-7bc85e3914a1",
+      "thread_depth": 4,
+      "month": "2018-09"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-7af3dde8beb0",
+      "subject": "cran-r debian readme used to include security flaw",
+      "message_count": 2,
+      "participants": [
+        "Kurt Wheeler",
+        "Michael Rutter"
+      ],
+      "started": "2018-09-06T17:00:14-04:00",
+      "last_reply": "2018-09-06T21:02:34-04:00",
+      "root_message_id": "msg-7af3dde8beb0"
+    },
+    {
+      "id": "thread-fe2f9d5f2a26",
+      "subject": "installing tkrplot",
+      "message_count": 3,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Mark Leeds"
+      ],
+      "started": "2018-09-21T20:06:19-04:00",
+      "last_reply": "2018-09-21T19:37:19-05:00",
+      "root_message_id": "msg-fe2f9d5f2a26"
+    },
+    {
+      "id": "thread-7bc85e3914a1",
+      "subject": "libRblas.so: cannot open shared object file: No such file or directory",
+      "message_count": 8,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Ista Zahn",
+        "Steve Gutreuter"
+      ],
+      "started": "2018-09-22T16:08:32-04:00",
+      "last_reply": "2018-09-23T12:47:58-04:00",
+      "root_message_id": "msg-7bc85e3914a1"
+    }
+  ]
+}

@@ -1,0 +1,506 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2015-04",
+  "messages": [
+    {
+      "id": "msg-de582d06d1bd",
+      "message_id": "<CAM3-KjZPhdpaCjE_qx-FKdZRGQbA4ENys1Kn5z9fjK52Tfk39Q@mail.gmail.com>",
+      "from_name": "Marius Hofert",
+      "from_email_hash": "c80b370cee022428551725b077f341bb965ec4dda95a6e3bdb3a8fd8076e992b",
+      "date": "2015-04-01T21:17:27-04:00",
+      "subject": "[R-sig-Debian] Debian Testing: ~/.Renviron seems to not being read (R_LIBS not set)",
+      "subject_clean": "Debian Testing: ~/.Renviron seems to not being read (R_LIBS not set)",
+      "in_reply_to": "<08f8b7969169458c81f4921a312eaa32@CONNHUB1.connect.uwaterloo.ca>",
+      "references": [
+        "<CAM3-KjZnp20BgLR5QVks8CUutNPsdhBW1FSYtzsuarRSm6d4-g@mail.gmail.com>",
+        "<7c4b80a7f9b24fa4af2b1aa15ee80e4e@CONNHUB3.connect.uwaterloo.ca>",
+        "<CAM3-KjapjRLWZfT3fafWS39zK8CUV53DAv6YpPYbiE5EhQReXQ@mail.gmail.com>",
+        "<08f8b7969169458c81f4921a312eaa32@CONNHUB1.connect.uwaterloo.ca>"
+      ],
+      "body_plain": "On Tue, Mar 31, 2015 at 2:05 AM, Johannes Ranke <jranke at uni-bremen.de> wrote:\n> Dear Marius,\n>\n> thanks for sharing your thoughts on this. I am not very happy that you provide\n> instructions to install R 3.1.3 from sources when binaries are already\n> provided on CRAN.\n\nDear Johannes,\n\n... no one in his/her clear mind would go that way unless necessary. I\nhave given reasons for when and why it is necessary.\n\n> The installation instructions you share bring more work and\n> a more non-standard setup, unless you want two different copies of R. But your\n> instructions do not cover that case!\n\n... because it is trivial from the procedure I described. Replace the\nversion number by 'devel' or 'rc' (for patched) and the rest remains\npretty much the same (obviously adapting the download link).\n\n\n>\n> From my point of view it could be interesting if it were modified for keeping\n> an up to date copy of R-devel in addition to the released version,\n\nyes, that's a use case. Or if you need >= 2 R versions to check back\nwith older versions or if a user with a different R version reports a\nbug and you can not reproduce it with the version you have etc...\n\n>  but in the\n> way you are giving it here I think it may lead people to be distracted from\n> the easy and clean way to do it. I say clean, because when you use the .deb\n> packages it is much easier to remove or revert what you have done.\n>\n\nI frequently install new R-devel versions... simply removing\n/usr/local/R/R-devel* first. There might be side-effects I don't know,\nbut that never gave me problems.\n\n> So maybe you could modify your instructions to the case where someone wants to\n> have R-devel in addition to the released R version, if that is what you are\n> aiming at? I could then add it to the README for Debian on CRAN.\n\nThat sounds good. I just modified the instructions to R-devel and used\na more \"Kurt-like\" naming convention:\n\n1) sudo nano /etc/apt/sources.list\n   deb http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/\n   deb-src http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/\n2) sudo apt-get update # => fails, but note the number of the missing\npublic key; then do:\n   sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key\n<NUMBER> # <NUMBER> = number after NO_PUBKEY\n3) Build dependencies (compilers etc.):\n   sudo apt-get build-dep r-base\n4) Install path:\n   sudo mkdir /usr/local/R\n   sudo chown <user>:<user> /usr/local/R\n5) Get and unpack R:\n   cd /usr/local/R\n   # if it exists, delete the old ./R-devel, ./R-devel-build,\n./R-devel.tar.gz etc. then do:\n   wget ftp://ftp.stat.math.ethz.ch/Software/R/R-devel.tar.gz # see\nCRAN -> R Sources for the link\n   tar -xzf R-devel.tar.gz\n   mv R-devel R-devel_source\n6) Set up build directory (don't use ./configure within source\ndirectory; sources would be lost)\n   mkdir R-devel_build\n7) Configure:\n   cd R-devel_build\n   ../R-devel_source/configure # ~2min\n8) Build:\n   make # 10min (desktop); much longer on Android (seems to hang but\njust let it run!)\n   make check # ~3min\n   make pdf # ~2min\n   make info # ~1min\n9) Create a (symbolic) link (don't use 'make install'):\n   cd ..\n   ln -s /usr/local/R/R-devel_build/bin/R /usr/local/R/R-devel\n10) mkdir /usr/local/R/library\n11) Add /usr/local/R to PATH:\n    sudo nano /etc/bash.bashrc # then put in:\n    PATH=/usr/local/R:$PATH # R installation\n12) Reboot\n\nClearly, some words (of warning) are in order ..., e.g., to use $USER\nin 4) instead of <user>, to adapt the right path in 5), to have tools\nlike tar available or also to maybe choose some other file than\n/etc/bash.bashrc for adjusting PATH (see\nhttp://forums.debian.net/viewtopic.php?f=5&t=121169 for why I chose\nthis file).\n\nI very much like Dirk's message here: \"That's your beef\" (good word of\nwarning), but someone who needs to go that way should be able to\nfollow along the above lines.\n\n>\n> And then, regarding your comment on the keyserver listed in the README, what's\n> wrong with keys.gnupg.net? I just tested it (again) and it worked fine.\n\n... there was a problem for me initially (some kind of\nhost-resolve-thingy -- can't remember anymore). After googling, I then\nfound the other key server and it was also suggested to use the actual\nkey the error message mentions (see step 2)) instead of the fixed\n381BA480. I understand too little about the involved risk of changing\nthat but the above worked for me.\n\nMany cheers (and sorry for the late reply -- it's end-of-term),\nMarius\n\n\n>\n> Kind regards,\n>\n> Johannes\n>\n> Am Montag, 30. M?rz 2015, 20:42:47 schrieb Marius Hofert:\n>> Dear Dirk, Dear Johannes,\n>>\n>> Thanks for helping, I could solve the problem.\n>>\n>> By reading your posts, I got a bit of the impression that questions\n>> beyond the 'standard installation' process are not really welcome on\n>> R-SIG-Debian. If this is the case, I'm sorry for my post. I wasn't\n>> aware of this, but Dirk makes it clear why on\n>> https://stat.ethz.ch/pipermail/r-sig-debian/2013-March/002062.html.\n>>\n>> As Dirk also mentioned on\n>> http://stackoverflow.com/questions/8343686/how-to-install-2-different-r-vers\n>> ions-on-debian installing from source is the only practical way in case one\n>> needs several R versions. I now went back to Chapter 2 of\n>> http://cran.r-project.org/doc/manuals/r-release/R-admin.html to read\n>> more about it and to see whether I have done something substantially\n>> wrong. This seemed not to be the case.\n>>\n>> Next, Dirk's wonderful little example helped... I could check that\n>> .Renviron is indeed found. Then it was easy: my local\n>> version-independent library was not found simply because .libPaths()\n>> only contains those folders which physically exist (also mentioned on\n>> ?.libPaths). And indeed, I had not checked that.\n>>\n>> Here is thus the final solution that worked (in case useful for others\n>> or being improved upon [slightly expanded in comparison to the\n>> original one, e.g., also addressing how to obtain a key -- the server\n>> is different than keys.gnupg.net mentioned on CRAN.]):\n>>\n>> 1) sudo emacs /etc/apt/sources.list # then add: deb\n>>    http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/ deb-src\n>>    http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/ # => then run\n>> sudo apt-get update. It fails due to a missing key => note the missing key\n>> number # and use sudo apt-key adv --keyserver keyserver.ubuntu.com\n>> --recv-key <NUMBER> where # <NUMBER> = number of the missing public key\n>>\n>> 2) sudo apt-get build-dep r-base\n>>\n>> 3) sudo mkdir /usr/local/R sudo chown mhofert:mhofert /usr/local/R\n>>\n>>    cd /usr/local/R # if old versions exist (./R-devel, ./R-devel-build,\n>>    ./R-devel.tar.gz etc.), # delete them first, then do: wget\n>>    http://cran.r-project.org/src/base/R-3/R-3.1.3.tar.gz tar -xzf\n>> R-3.1.3.tar.gz mv R-3.1.3 R-3.1.3-source\n>>\n>>    mkdir R-3.1.3-build cd R-3.1.3-build ../R-3.1.3-source/configure # we do\n>>    ./configure *outside* the source directory (=> keep sources)\n>>\n>>    make make check make pdf make info\n>>\n>>    cd ..  ln -s /usr/local/R/R-3.1.3-build/bin/R /usr/local/R/R\n>>\n>>    mkdir /usr/local/R/library # create version-independent library\n>>\n>>    sudo emacs ~/etc/bash.bashrc # then add: PATH=/usr/local/R:$PATH\n>>\n>> 4) ~/.Renviron should contain R_LIBS=/usr/local/R/library\n>>\n>>\n>> Thanks & cheers,\n>> Marius\n>>\n>> On Mon, Mar 30, 2015 at 1:09 PM, Dirk Eddelbuettel <edd at debian.org> wrote:\n>> > Marius,\n>> >\n>> > On 30 March 2015 at 12:30, Marius Hofert wrote:\n>> > | Here is how I installed R. This is basically how Martin Maechler\n>> > | showed me to install R under Ubuntu (in several versions so that they\n>> > | are also recognized by ESS). My goal is to adjust this to make it work\n>> >\n>> > | for Debian:\n>> > That's your beef.  We support reasonably feature complete packages built\n>> > in\n>> > reasonably well-engineered and by now mostly debugged processes.\n>> >\n>> > You can of course build your own, but if you do and things break you get\n>> > to\n>> > keep those pieces.\n>> >\n>> > And how to build R(-devel) locally has been discussed in the past.\n>> >\n>> > Dirk\n>> >\n>> > --\n>> > http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org\n>>\n>> _______________________________________________\n>> R-SIG-Debian mailing list\n>> R-SIG-Debian at r-project.org\n>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n> --\n> PD Dr. Johannes Ranke\n> Kronacher Str. 8\n> 79639 Grenzach-Wyhlen",
+      "body_snippet": "On Tue, Mar 31, 2015 at 2:05 AM, Johannes Ranke <jranke at uni-bremen.de> wrote:\n> Dear Marius,\n>\n> thanks for sharing your thoughts on this. I am not very happy that you provide\n> instructions to ins",
+      "thread_id": "thread-de582d06d1bd",
+      "thread_depth": 0,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-f35bec0e1c77",
+      "message_id": "<1561952.e0qHjKDT9X@tux>",
+      "from_name": "Johannes Ranke",
+      "from_email_hash": "8d7dc9cf8d248719dcd9a94c124dab5545d72861321d11f36ce7fddb3c609524",
+      "date": "2015-04-02T11:49:17+02:00",
+      "subject": "[R-sig-Debian] Debian Testing: ~/.Renviron seems to not being read (R_LIBS not set)",
+      "subject_clean": "Debian Testing: ~/.Renviron seems to not being read (R_LIBS not set)",
+      "in_reply_to": "<CAM3-KjZPhdpaCjE_qx-FKdZRGQbA4ENys1Kn5z9fjK52Tfk39Q@mail.gmail.com>",
+      "references": [
+        "<CAM3-KjZnp20BgLR5QVks8CUutNPsdhBW1FSYtzsuarRSm6d4-g@mail.gmail.com>",
+        "<08f8b7969169458c81f4921a312eaa32@CONNHUB1.connect.uwaterloo.ca>",
+        "<CAM3-KjZPhdpaCjE_qx-FKdZRGQbA4ENys1Kn5z9fjK52Tfk39Q@mail.gmail.com>"
+      ],
+      "body_plain": "Hi Marius,\n\nthanks for your reply.\n\n> > So maybe you could modify your instructions to the case where someone\n> > wants to have R-devel in addition to the released R version, if that is\n> > what you are aiming at? I could then add it to the README for Debian on\n> > CRAN.\n> \n> That sounds good. I just modified the instructions to R-devel and used\n> a more \"Kurt-like\" naming convention:\n\n> 1) sudo nano /etc/apt/sources.list\n>    deb http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/\n>    deb-src http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/\n\n...\n\n> 9) Create a (symbolic) link (don't use 'make install'):\n>    cd ..\n>    ln -s /usr/local/R/R-devel_build/bin/R /usr/local/R/R-devel\n\nWhy not put a link into /usr/local/bin which is already in the path?\n\n> 10) mkdir /usr/local/R/library\n> 11) Add /usr/local/R to PATH:\n>     sudo nano /etc/bash.bashrc # then put in:\n>     PATH=/usr/local/R:$PATH # R installation\n> 12) Reboot\n\nReboot??? It is sufficient to source your bash config file to get the new path.\n\nKind regards,\n\nJohannes\n\n> Clearly, some words (of warning) are in order ..., e.g., to use $USER\n> in 4) instead of <user>, to adapt the right path in 5), to have tools\n> like tar available or also to maybe choose some other file than\n> /etc/bash.bashrc for adjusting PATH (see\n> http://forums.debian.net/viewtopic.php?f=5&t=121169 for why I chose\n> this file).\n> \n> I very much like Dirk's message here: \"That's your beef\" (good word of\n> warning), but someone who needs to go that way should be able to\n> follow along the above lines.\n> \n> > And then, regarding your comment on the keyserver listed in the README,\n> > what's wrong with keys.gnupg.net? I just tested it (again) and it worked\n> > fine.\n> ... there was a problem for me initially (some kind of\n> host-resolve-thingy -- can't remember anymore). After googling, I then\n> found the other key server and it was also suggested to use the actual\n> key the error message mentions (see step 2)) instead of the fixed\n> 381BA480. I understand too little about the involved risk of changing\n> that but the above worked for me.\n> \n> Many cheers (and sorry for the late reply -- it's end-of-term),\n> Marius\n> \n> > Kind regards,\n> > \n> > Johannes\n> > \n> > Am Montag, 30. M?rz 2015, 20:42:47 schrieb Marius Hofert:\n> >> Dear Dirk, Dear Johannes,\n> >> \n> >> Thanks for helping, I could solve the problem.\n> >> \n> >> By reading your posts, I got a bit of the impression that questions\n> >> beyond the 'standard installation' process are not really welcome on\n> >> R-SIG-Debian. If this is the case, I'm sorry for my post. I wasn't\n> >> aware of this, but Dirk makes it clear why on\n> >> https://stat.ethz.ch/pipermail/r-sig-debian/2013-March/002062.html.\n> >> \n> >> As Dirk also mentioned on\n> >> http://stackoverflow.com/questions/8343686/how-to-install-2-different-r-v\n> >> ers ions-on-debian installing from source is the only practical way in\n> >> case one needs several R versions. I now went back to Chapter 2 of\n> >> http://cran.r-project.org/doc/manuals/r-release/R-admin.html to read\n> >> more about it and to see whether I have done something substantially\n> >> wrong. This seemed not to be the case.\n> >> \n> >> Next, Dirk's wonderful little example helped... I could check that\n> >> .Renviron is indeed found. Then it was easy: my local\n> >> version-independent library was not found simply because .libPaths()\n> >> only contains those folders which physically exist (also mentioned on\n> >> ?.libPaths). And indeed, I had not checked that.\n> >> \n> >> Here is thus the final solution that worked (in case useful for others\n> >> or being improved upon [slightly expanded in comparison to the\n> >> original one, e.g., also addressing how to obtain a key -- the server\n> >> is different than keys.gnupg.net mentioned on CRAN.]):\n> >> \n> >> 1) sudo emacs /etc/apt/sources.list # then add: deb\n> >> \n> >>    http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/ deb-src\n> >>    http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/ # => then run\n> >> \n> >> sudo apt-get update. It fails due to a missing key => note the missing\n> >> key\n> >> number # and use sudo apt-key adv --keyserver keyserver.ubuntu.com\n> >> --recv-key <NUMBER> where # <NUMBER> = number of the missing public key\n> >> \n> >> 2) sudo apt-get build-dep r-base\n> >> \n> >> 3) sudo mkdir /usr/local/R sudo chown mhofert:mhofert /usr/local/R\n> >> \n> >>    cd /usr/local/R # if old versions exist (./R-devel, ./R-devel-build,\n> >>    ./R-devel.tar.gz etc.), # delete them first, then do: wget\n> >>    http://cran.r-project.org/src/base/R-3/R-3.1.3.tar.gz tar -xzf\n> >> \n> >> R-3.1.3.tar.gz mv R-3.1.3 R-3.1.3-source\n> >> \n> >>    mkdir R-3.1.3-build cd R-3.1.3-build ../R-3.1.3-source/configure # we\n> >>    do\n> >>    ./configure *outside* the source directory (=> keep sources)\n> >>    \n> >>    make make check make pdf make info\n> >>    \n> >>    cd ..  ln -s /usr/local/R/R-3.1.3-build/bin/R /usr/local/R/R\n> >>    \n> >>    mkdir /usr/local/R/library # create version-independent library\n> >>    \n> >>    sudo emacs ~/etc/bash.bashrc # then add: PATH=/usr/local/R:$PATH\n> >> \n> >> 4) ~/.Renviron should contain R_LIBS=/usr/local/R/library\n> >> \n> >> \n> >> Thanks & cheers,\n> >> Marius\n> >> \n> >> On Mon, Mar 30, 2015 at 1:09 PM, Dirk Eddelbuettel <edd at debian.org> \nwrote:\n> >> > Marius,\n> >> > \n> >> > On 30 March 2015 at 12:30, Marius Hofert wrote:\n> >> > | Here is how I installed R. This is basically how Martin Maechler\n> >> > | showed me to install R under Ubuntu (in several versions so that they\n> >> > | are also recognized by ESS). My goal is to adjust this to make it\n> >> > | work\n> >> > \n> >> > | for Debian:\n> >> > That's your beef.  We support reasonably feature complete packages\n> >> > built\n> >> > in\n> >> > reasonably well-engineered and by now mostly debugged processes.\n> >> > \n> >> > You can of course build your own, but if you do and things break you\n> >> > get\n> >> > to\n> >> > keep those pieces.\n> >> > \n> >> > And how to build R(-devel) locally has been discussed in the past.\n> >> > \n> >> > Dirk\n> >> > \n> >> > --\n> >> > http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org\n> >> \n> >> _______________________________________________\n> >> R-SIG-Debian mailing list\n> >> R-SIG-Debian at r-project.org\n> >> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n> > \n> > --\n> > PD Dr. Johannes Ranke\n> > Kronacher Str. 8\n> > 79639 Grenzach-Wyhlen\n-- \nPD Dr. Johannes Ranke\nKronacher Str. 8\n79639 Grenzach-Wyhlen",
+      "body_snippet": "Hi Marius,\n\nthanks for your reply.\n\n> > So maybe you could modify your instructions to the case where someone\n> > wants to have R-devel in addition to the released R version, if that is\n> > what you a",
+      "thread_id": "thread-de582d06d1bd",
+      "thread_depth": 1,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-b3ce3f0a4065",
+      "message_id": "<CAM3-KjZeR77k89dP-Vrzw269u5a7DHYrxtaoM9135N3pnfNhCQ@mail.gmail.com>",
+      "from_name": "Marius Hofert",
+      "from_email_hash": "c80b370cee022428551725b077f341bb965ec4dda95a6e3bdb3a8fd8076e992b",
+      "date": "2015-04-02T14:34:37-04:00",
+      "subject": "[R-sig-Debian] Debian Testing: ~/.Renviron seems to not being read (R_LIBS not set)",
+      "subject_clean": "Debian Testing: ~/.Renviron seems to not being read (R_LIBS not set)",
+      "in_reply_to": "<780d77e6c5fc4e799aae8b8d8cb4901d@CONNHUB3.connect.uwaterloo.ca>",
+      "references": [
+        "<CAM3-KjZnp20BgLR5QVks8CUutNPsdhBW1FSYtzsuarRSm6d4-g@mail.gmail.com>",
+        "<08f8b7969169458c81f4921a312eaa32@CONNHUB1.connect.uwaterloo.ca>",
+        "<CAM3-KjZPhdpaCjE_qx-FKdZRGQbA4ENys1Kn5z9fjK52Tfk39Q@mail.gmail.com>",
+        "<780d77e6c5fc4e799aae8b8d8cb4901d@CONNHUB3.connect.uwaterloo.ca>"
+      ],
+      "body_plain": "On Thu, Apr 2, 2015 at 5:49 AM, Johannes Ranke <jranke at uni-bremen.de> wrote:\n> Hi Marius,\n>\n> thanks for your reply.\n>\n>> > So maybe you could modify your instructions to the case where someone\n>> > wants to have R-devel in addition to the released R version, if that is\n>> > what you are aiming at? I could then add it to the README for Debian on\n>> > CRAN.\n>>\n>> That sounds good. I just modified the instructions to R-devel and used\n>> a more \"Kurt-like\" naming convention:\n>\n>> 1) sudo nano /etc/apt/sources.list\n>>    deb http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/\n>>    deb-src http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/\n>\n> ...\n>\n>> 9) Create a (symbolic) link (don't use 'make install'):\n>>    cd ..\n>>    ln -s /usr/local/R/R-devel_build/bin/R /usr/local/R/R-devel\n>\n> Why not put a link into /usr/local/bin which is already in the path?\n\n... I think the reason was that ESS auto-recognizes everything in\n/usr/local/R if your main R version in use is installed there, see C-h\nk ess-rterm-version-paths...\n\n>\n>> 10) mkdir /usr/local/R/library\n>> 11) Add /usr/local/R to PATH:\n>>     sudo nano /etc/bash.bashrc # then put in:\n>>     PATH=/usr/local/R:$PATH # R installation\n>> 12) Reboot\n>\n> Reboot??? It is sufficient to source your bash config file to get the new path.\n\noh yes, sure.\n\nCheers,\nM\n\n>\n> Kind regards,\n>\n> Johannes\n>\n>> Clearly, some words (of warning) are in order ..., e.g., to use $USER\n>> in 4) instead of <user>, to adapt the right path in 5), to have tools\n>> like tar available or also to maybe choose some other file than\n>> /etc/bash.bashrc for adjusting PATH (see\n>> http://forums.debian.net/viewtopic.php?f=5&t=121169 for why I chose\n>> this file).\n>>\n>> I very much like Dirk's message here: \"That's your beef\" (good word of\n>> warning), but someone who needs to go that way should be able to\n>> follow along the above lines.\n>>\n>> > And then, regarding your comment on the keyserver listed in the README,\n>> > what's wrong with keys.gnupg.net? I just tested it (again) and it worked\n>> > fine.\n>> ... there was a problem for me initially (some kind of\n>> host-resolve-thingy -- can't remember anymore). After googling, I then\n>> found the other key server and it was also suggested to use the actual\n>> key the error message mentions (see step 2)) instead of the fixed\n>> 381BA480. I understand too little about the involved risk of changing\n>> that but the above worked for me.\n>>\n>> Many cheers (and sorry for the late reply -- it's end-of-term),\n>> Marius\n>>\n>> > Kind regards,\n>> >\n>> > Johannes\n>> >\n>> > Am Montag, 30. M?rz 2015, 20:42:47 schrieb Marius Hofert:\n>> >> Dear Dirk, Dear Johannes,\n>> >>\n>> >> Thanks for helping, I could solve the problem.\n>> >>\n>> >> By reading your posts, I got a bit of the impression that questions\n>> >> beyond the 'standard installation' process are not really welcome on\n>> >> R-SIG-Debian. If this is the case, I'm sorry for my post. I wasn't\n>> >> aware of this, but Dirk makes it clear why on\n>> >> https://stat.ethz.ch/pipermail/r-sig-debian/2013-March/002062.html.\n>> >>\n>> >> As Dirk also mentioned on\n>> >> http://stackoverflow.com/questions/8343686/how-to-install-2-different-r-v\n>> >> ers ions-on-debian installing from source is the only practical way in\n>> >> case one needs several R versions. I now went back to Chapter 2 of\n>> >> http://cran.r-project.org/doc/manuals/r-release/R-admin.html to read\n>> >> more about it and to see whether I have done something substantially\n>> >> wrong. This seemed not to be the case.\n>> >>\n>> >> Next, Dirk's wonderful little example helped... I could check that\n>> >> .Renviron is indeed found. Then it was easy: my local\n>> >> version-independent library was not found simply because .libPaths()\n>> >> only contains those folders which physically exist (also mentioned on\n>> >> ?.libPaths). And indeed, I had not checked that.\n>> >>\n>> >> Here is thus the final solution that worked (in case useful for others\n>> >> or being improved upon [slightly expanded in comparison to the\n>> >> original one, e.g., also addressing how to obtain a key -- the server\n>> >> is different than keys.gnupg.net mentioned on CRAN.]):\n>> >>\n>> >> 1) sudo emacs /etc/apt/sources.list # then add: deb\n>> >>\n>> >>    http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/ deb-src\n>> >>    http://stat.ethz.ch/CRAN/bin/linux/debian jessie-cran3/ # => then run\n>> >>\n>> >> sudo apt-get update. It fails due to a missing key => note the missing\n>> >> key\n>> >> number # and use sudo apt-key adv --keyserver keyserver.ubuntu.com\n>> >> --recv-key <NUMBER> where # <NUMBER> = number of the missing public key\n>> >>\n>> >> 2) sudo apt-get build-dep r-base\n>> >>\n>> >> 3) sudo mkdir /usr/local/R sudo chown mhofert:mhofert /usr/local/R\n>> >>\n>> >>    cd /usr/local/R # if old versions exist (./R-devel, ./R-devel-build,\n>> >>    ./R-devel.tar.gz etc.), # delete them first, then do: wget\n>> >>    http://cran.r-project.org/src/base/R-3/R-3.1.3.tar.gz tar -xzf\n>> >>\n>> >> R-3.1.3.tar.gz mv R-3.1.3 R-3.1.3-source\n>> >>\n>> >>    mkdir R-3.1.3-build cd R-3.1.3-build ../R-3.1.3-source/configure # we\n>> >>    do\n>> >>    ./configure *outside* the source directory (=> keep sources)\n>> >>\n>> >>    make make check make pdf make info\n>> >>\n>> >>    cd ..  ln -s /usr/local/R/R-3.1.3-build/bin/R /usr/local/R/R\n>> >>\n>> >>    mkdir /usr/local/R/library # create version-independent library\n>> >>\n>> >>    sudo emacs ~/etc/bash.bashrc # then add: PATH=/usr/local/R:$PATH\n>> >>\n>> >> 4) ~/.Renviron should contain R_LIBS=/usr/local/R/library\n>> >>\n>> >>\n>> >> Thanks & cheers,\n>> >> Marius\n>> >>\n>> >> On Mon, Mar 30, 2015 at 1:09 PM, Dirk Eddelbuettel <edd at debian.org>\n> wrote:\n>> >> > Marius,\n>> >> >\n>> >> > On 30 March 2015 at 12:30, Marius Hofert wrote:\n>> >> > | Here is how I installed R. This is basically how Martin Maechler\n>> >> > | showed me to install R under Ubuntu (in several versions so that they\n>> >> > | are also recognized by ESS). My goal is to adjust this to make it\n>> >> > | work\n>> >> >\n>> >> > | for Debian:\n>> >> > That's your beef.  We support reasonably feature complete packages\n>> >> > built\n>> >> > in\n>> >> > reasonably well-engineered and by now mostly debugged processes.\n>> >> >\n>> >> > You can of course build your own, but if you do and things break you\n>> >> > get\n>> >> > to\n>> >> > keep those pieces.\n>> >> >\n>> >> > And how to build R(-devel) locally has been discussed in the past.\n>> >> >\n>> >> > Dirk\n>> >> >\n>> >> > --\n>> >> > http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org\n>> >>\n>> >> _______________________________________________\n>> >> R-SIG-Debian mailing list\n>> >> R-SIG-Debian at r-project.org\n>> >> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n>> >\n>> > --\n>> > PD Dr. Johannes Ranke\n>> > Kronacher Str. 8\n>> > 79639 Grenzach-Wyhlen\n> --\n> PD Dr. Johannes Ranke\n> Kronacher Str. 8\n> 79639 Grenzach-Wyhlen",
+      "body_snippet": "On Thu, Apr 2, 2015 at 5:49 AM, Johannes Ranke <jranke at uni-bremen.de> wrote:\n> Hi Marius,\n>\n> thanks for your reply.\n>\n>> > So maybe you could modify your instructions to the case where someone\n>> ",
+      "thread_id": "thread-b3ce3f0a4065",
+      "thread_depth": 0,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-52a1e0618ecc",
+      "message_id": "<5524194D.6010800@skyeome.net>",
+      "from_name": "Skye Bender-deMoll",
+      "from_email_hash": "016c31bf83672a8e8fce6b664eb68ddff364b5df6912775ec31eeceebce90340",
+      "date": "2015-04-07T10:52:13-07:00",
+      "subject": "[R-sig-Debian] Rmpi install issues",
+      "subject_clean": "Rmpi install issues",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hi Folks,\n  I've recently transitioned to Debian 8.0 and was having a hard time \ngetting Rmpi to work.\n\nI believed I'd successfully installed dependencies via\n\n > sudo apt-get install r-cran-rmpi\n\n > apt-show-versions r-cran-rmpi\nr-cran-rmpi:amd64/jessie 0.6-5-1 uptodate\n\nbut when installing the package I was still getting\n\nchecking mpi.h presence... no\nchecking for mpi.h... no\nconfigure: error: \"Cannot find mpi.h header file\"\nERROR: configuration failed for package ?Rmpi?\n\nI discovered that /usr/lib/openmpi/include/ was missing\n\nIn hindsight, it is obvious that header files are only included when the \ndev version of openmpi is intalled:\n\n > sudo apt-get install libopenmpi-dev\n\nAfter which Rmpi package installed without error.\n\nI'm not very familiar with debian package management, but wouldn't most \ndebian R users be building package from source?  If so, maybe \nlibopenmpi-dev should be added as a dependency of r-cran-rmpi ?  If not, \nhopefully this post will help other users like me.\n\nbest,\n  -skye",
+      "body_snippet": "Hi Folks,\n  I've recently transitioned to Debian 8.0 and was having a hard time \ngetting Rmpi to work.\n\nI believed I'd successfully installed dependencies via\n\n > sudo apt-get install r-cran-rmpi\n\n > ",
+      "thread_id": "thread-52a1e0618ecc",
+      "thread_depth": 0,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-1d8f9d1730ea",
+      "message_id": "<21796.28403.108253.575849@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2015-04-07T18:57:39-05:00",
+      "subject": "[R-sig-Debian] Rmpi install issues",
+      "subject_clean": "Rmpi install issues",
+      "in_reply_to": "<5524194D.6010800@skyeome.net>",
+      "references": [
+        "<5524194D.6010800@skyeome.net>"
+      ],
+      "body_plain": "On 7 April 2015 at 10:52, Skye Bender-deMoll wrote:\n| Hi Folks,\n|   I've recently transitioned to Debian 8.0 and was having a hard time \n| getting Rmpi to work.\n| \n| I believed I'd successfully installed dependencies via\n| \n|  > sudo apt-get install r-cran-rmpi\n| \n|  > apt-show-versions r-cran-rmpi\n| r-cran-rmpi:amd64/jessie 0.6-5-1 uptodate\n\nRight. That is a binary package, built against the MPI headers and library.\n \n| but when installing the package I was still getting\n\nBut why are you installing it (again) when you just demonstrated that you\nalready have it installed?\n\nMoreover, for installation from source you need the so-called _Build-Depends_\npresents.  The error below very clearly tells you that you do not have\nmpi.h.  So install it.  (That still doesn't answer why you'd reinstall if you\nalready have the package...)\n\n| checking mpi.h presence... no\n| checking for mpi.h... no\n| configure: error: \"Cannot find mpi.h header file\"\n| ERROR: configuration failed for package ?Rmpi?\n| \n| I discovered that /usr/lib/openmpi/include/ was missing\n| \n| In hindsight, it is obvious that header files are only included when the \n| dev version of openmpi is intalled:\n\nYes.\n \n|  > sudo apt-get install libopenmpi-dev\n| \n| After which Rmpi package installed without error.\n\nYes. That package is in the Build-Depends for r-cran-rmpi, and is how we\nbuild r-cran-rmpi.\n \n| I'm not very familiar with debian package management, but wouldn't most \n| debian R users be building package from source?  If so, maybe \n\nNo always.  They only do if they don't install r-cran-*\n\nAnd if they do, they do it like every other Unix (or other) system user:\ninstall the required dependencies first.\n\n| libopenmpi-dev should be added as a dependency of r-cran-rmpi ?  If not, \n| hopefully this post will help other users like me.\n\nNot really as you managed to confuse yourself over two topics. Now, those are\na little tricky, but they also have been explained dozens of times here, on\nStackOverflow and other places.\n\nHth, Dirk\n \n| best,\n|   -skye\n| \n| _______________________________________________\n| R-SIG-Debian mailing list\n| R-SIG-Debian at r-project.org\n| https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 7 April 2015 at 10:52, Skye Bender-deMoll wrote:\n| Hi Folks,\n|   I've recently transitioned to Debian 8.0 and was having a hard time \n| getting Rmpi to work.\n| \n| I believed I'd successfully instal",
+      "thread_id": "thread-52a1e0618ecc",
+      "thread_depth": 1,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-737ceff7bb88",
+      "message_id": "<CABpbYadDwmVRm4VQcvT2xwJKh0OK514TN5rXnoL6aJmV0c1C9w@mail.gmail.com>",
+      "from_name": "kamaraju kusumanchi",
+      "from_email_hash": "35b4cea0a58f8658db957dc1694489ca7b6ec5a1c1c72185c70d05e4ba4f6a10",
+      "date": "2015-04-12T22:07:47-04:00",
+      "subject": "[R-sig-Debian] list of available R packages",
+      "subject_clean": "list of available R packages",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "This is a very minor point. But thought I would bring it to your\nattention anyway...\n\nAccording to http://cran.r-project.org/bin/linux/debian/ , the list of\navailable R packages can be found by\n\napt-cache search ^r-.*\n\nThis seems to work in bash but not in zsh. As a work around, I found out that\n\napt-cache search \"^r-.*\"\n\nworks in both zsh and bash.\n\n-- \nKamaraju S Kusumanchi | http://raju.shoutwiki.com/wiki/Blog",
+      "body_snippet": "This is a very minor point. But thought I would bring it to your\nattention anyway...\n\nAccording to http://cran.r-project.org/bin/linux/debian/ , the list of\navailable R packages can be found by\n\napt-c",
+      "thread_id": "thread-737ceff7bb88",
+      "thread_depth": 0,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-37dda7eb7124",
+      "message_id": "<1714301.qofsOO0DX5@tux>",
+      "from_name": "Johannes Ranke",
+      "from_email_hash": "8d7dc9cf8d248719dcd9a94c124dab5545d72861321d11f36ce7fddb3c609524",
+      "date": "2015-04-13T11:43:38+02:00",
+      "subject": "[R-sig-Debian] list of available R packages",
+      "subject_clean": "list of available R packages",
+      "in_reply_to": "<CABpbYadDwmVRm4VQcvT2xwJKh0OK514TN5rXnoL6aJmV0c1C9w@mail.gmail.com>",
+      "references": [
+        "<CABpbYadDwmVRm4VQcvT2xwJKh0OK514TN5rXnoL6aJmV0c1C9w@mail.gmail.com>"
+      ],
+      "body_plain": "Dear Kamaraju S Kusumanchi,\n\nthanks for the hint. I updated the Debian README - it will be synced to \nCRAN and its mirrors with the next rsync runs.\n\nKind regards,\n\nJohannes\n\nAm Sonntag, 12. April 2015, 22:07:47 schrieb kamaraju kusumanchi:\n> This is a very minor point. But thought I would bring it to your\n> attention anyway...\n> \n> According to http://cran.r-project.org/bin/linux/debian/ , the list of\n> available R packages can be found by\n> \n> apt-cache search ^r-.*\n> \n> This seems to work in bash but not in zsh. As a work around, I found out\n> that\n> \n> apt-cache search \"^r-.*\"\n> \n> works in both zsh and bash.\n\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Dear Kamaraju S Kusumanchi,\n\nthanks for the hint. I updated the Debian README - it will be synced to \nCRAN and its mirrors with the next rsync runs.\n\nKind regards,\n\nJohannes\n\nAm Sonntag, 12. April 201",
+      "thread_id": "thread-737ceff7bb88",
+      "thread_depth": 1,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-a3cc08d159d8",
+      "message_id": "<CABpbYaf14kkXpC6oNXuXTHD5=hh26gsM4feZKptXr6s1j+4Jjg@mail.gmail.com>",
+      "from_name": "kamaraju kusumanchi",
+      "from_email_hash": "35b4cea0a58f8658db957dc1694489ca7b6ec5a1c1c72185c70d05e4ba4f6a10",
+      "date": "2015-04-13T22:49:30-04:00",
+      "subject": "[R-sig-Debian] list of available R packages",
+      "subject_clean": "list of available R packages",
+      "in_reply_to": "<1714301.qofsOO0DX5@tux>",
+      "references": [
+        "<CABpbYadDwmVRm4VQcvT2xwJKh0OK514TN5rXnoL6aJmV0c1C9w@mail.gmail.com>",
+        "<1714301.qofsOO0DX5@tux>"
+      ],
+      "body_plain": "On Mon, Apr 13, 2015 at 5:43 AM, Johannes Ranke <jranke at uni-bremen.de> wrote:\n> Dear Kamaraju S Kusumanchi,\n>\n> thanks for the hint. I updated the Debian README - it will be synced to CRAN\n> and its mirrors with the next rsync runs.\n>\n> Kind regards,\n> Johannes\n>\n\nThank you very much.\n\nraju",
+      "body_snippet": "On Mon, Apr 13, 2015 at 5:43 AM, Johannes Ranke <jranke at uni-bremen.de> wrote:\n> Dear Kamaraju S Kusumanchi,\n>\n> thanks for the hint. I updated the Debian README - it will be synced to CRAN\n> and it",
+      "thread_id": "thread-737ceff7bb88",
+      "thread_depth": 2,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-183ca1c092ee",
+      "message_id": "<CAMjOFVpjOWd-Ur3k62+qtxWQUEX9Pk13d0Gw+9c9rRDRdMm4Vw@mail.gmail.com>",
+      "from_name": "Timothy Harding",
+      "from_email_hash": "63de9561f8f655fa548cefd54fb2ceea82fa2396ebe60255bc6d2ed2bd5cc9e9",
+      "date": "2015-04-15T20:53:33-07:00",
+      "subject": "[R-sig-Debian] Cannot Install R to Trusty 14.04",
+      "subject_clean": "Cannot Install R to Trusty 14.04",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hello,\n\nI've followed the instructions at several different how to sites:\nhttp://cran.r-project.org/\nhttp://r-interface.blogspot.com/2012/04/install-r-jgr-and-deducer-in-ubuntu.html\nhttp://stackoverflow.com/questions/28273441/receiving-unmet-dependency-while-installing-r-base-on-ubuntu-14-10\n\nI've installed R to various Ubuntu's before, including trusty, but recently\nit has stopped working:\n\ndhis at tmctpsql:~$ sudo apt-get install r-base-dev\nReading package lists... Done\nBuilding dependency tree\nReading state information... Done\nSome packages could not be installed. This may mean that you have\nrequested an impossible situation or if you are using the unstable\ndistribution that some required packages have not yet been created\nor been moved out of Incoming.\nThe following information may help to resolve the situation:\n\nThe following packages have unmet dependencies:\n r-base-dev : Depends: r-base-core (>= 3.1.3.20150410-1trusty) but it is\nnot going to be installed\nE: Unable to correct problems, you have held broken packages.\n\nAny ways around this? Does anyone else have issues with installing to a\nbrand new trusty install?\n\n\nTimothy Harding\nRPCV Vanuatu\nSkype: hardingt at gmail.com\n+1 (541) 632-6623\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Hello,\n\nI've followed the instructions at several different how to sites:\nhttp://cran.r-project.org/\nhttp://r-interface.blogspot.com/2012/04/install-r-jgr-and-deducer-in-ubuntu.html\nhttp://stackoverfl",
+      "thread_id": "thread-183ca1c092ee",
+      "thread_depth": 0,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-db5a6203c9ba",
+      "message_id": "<CAEtdG7tWL2A8Mzv_i_CXNZUwM9s-1c8riZe5kZx529vj5wKLxQ@mail.gmail.com>",
+      "from_name": "Luís de Sousa",
+      "from_email_hash": "31c29e2715738dc7d5b7a3fb59fa51622c95a7cd098dbea30357ec3d06c45bc3",
+      "date": "2015-04-16T08:23:35+02:00",
+      "subject": "[R-sig-Debian] Cannot Install R to Trusty 14.04",
+      "subject_clean": "Cannot Install R to Trusty 14.04",
+      "in_reply_to": "<CAMjOFVpjOWd-Ur3k62+qtxWQUEX9Pk13d0Gw+9c9rRDRdMm4Vw@mail.gmail.com>",
+      "references": [
+        "<CAMjOFVpjOWd-Ur3k62+qtxWQUEX9Pk13d0Gw+9c9rRDRdMm4Vw@mail.gmail.com>"
+      ],
+      "body_plain": "Hi Timothy,\n\nFirst you could try to an auto-fix with:\n\nsudo apt-get install -f\n\nIf it does not solve it can you please post the output of:\n\nsudo apt-get --simulate install r-base-core\n\nCheers,\n\nLu?s\n\nOn 16 April 2015 at 05:53, Timothy Harding <hardingt at gmail.com> wrote:\n> Hello,\n>\n> I've followed the instructions at several different how to sites:\n> http://cran.r-project.org/\n> http://r-interface.blogspot.com/2012/04/install-r-jgr-and-deducer-in-ubuntu.html\n> http://stackoverflow.com/questions/28273441/receiving-unmet-dependency-while-installing-r-base-on-ubuntu-14-10\n>\n> I've installed R to various Ubuntu's before, including trusty, but recently\n> it has stopped working:\n>\n> dhis at tmctpsql:~$ sudo apt-get install r-base-dev\n> Reading package lists... Done\n> Building dependency tree\n> Reading state information... Done\n> Some packages could not be installed. This may mean that you have\n> requested an impossible situation or if you are using the unstable\n> distribution that some required packages have not yet been created\n> or been moved out of Incoming.\n> The following information may help to resolve the situation:\n>\n> The following packages have unmet dependencies:\n>  r-base-dev : Depends: r-base-core (>= 3.1.3.20150410-1trusty) but it is\n> not going to be installed\n> E: Unable to correct problems, you have held broken packages.\n>\n> Any ways around this? Does anyone else have issues with installing to a\n> brand new trusty install?\n>\n>\n> Timothy Harding\n> RPCV Vanuatu\n> Skype: hardingt at gmail.com\n> +1 (541) 632-6623\n>\n>         [[alternative HTML version deleted]]\n>\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "Hi Timothy,\n\nFirst you could try to an auto-fix with:\n\nsudo apt-get install -f\n\nIf it does not solve it can you please post the output of:\n\nsudo apt-get --simulate install r-base-core\n\nCheers,\n\nLu?s\n\n",
+      "thread_id": "thread-183ca1c092ee",
+      "thread_depth": 1,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-4a0ac234b961",
+      "message_id": "<552FBF35.10100@psu.edu>",
+      "from_name": "Michael Rutter",
+      "from_email_hash": "bd1396b991d78727494403026cbf79f8837f468d360f36623deeff192b510eb4",
+      "date": "2015-04-16T09:55:01-04:00",
+      "subject": "[R-sig-Debian] Cannot Install R to Trusty 14.04",
+      "subject_clean": "Cannot Install R to Trusty 14.04",
+      "in_reply_to": "<CAEtdG7tWL2A8Mzv_i_CXNZUwM9s-1c8riZe5kZx529vj5wKLxQ@mail.gmail.com>",
+      "references": [
+        "<CAMjOFVpjOWd-Ur3k62+qtxWQUEX9Pk13d0Gw+9c9rRDRdMm4Vw@mail.gmail.com>",
+        "<CAEtdG7tWL2A8Mzv_i_CXNZUwM9s-1c8riZe5kZx529vj5wKLxQ@mail.gmail.com>"
+      ],
+      "body_plain": "Timothy,\n\nThe link from stackoverflow gave some bad advice, IMO.  You should be \nusing the RRutter PPA, not RDev.  RDev is the where I build \nnot-ready-for-prime-time versions of R, and sometimes they break other \nthings.   RRutter is what is used to seed CRAN.  Here is the link:\n\nhttps://launchpad.net/~marutter/+archive/ubuntu/rrutter\n\nI would remove the RDev PPA and install RRutter.  The newest version of \nR (3.2.0) should be appearing the next 24 hours or so on the PPA.\n\nMichael\n\nOn 04/16/2015 02:23 AM, Lu?s de Sousa wrote:\n> Hi Timothy,\n>\n> First you could try to an auto-fix with:\n>\n> sudo apt-get install -f\n>\n> If it does not solve it can you please post the output of:\n>\n> sudo apt-get --simulate install r-base-core\n>\n> Cheers,\n>\n> Lu?s\n>\n> On 16 April 2015 at 05:53, Timothy Harding <hardingt at gmail.com> wrote:\n>> Hello,\n>>\n>> I've followed the instructions at several different how to sites:\n>> http://cran.r-project.org/\n>> http://r-interface.blogspot.com/2012/04/install-r-jgr-and-deducer-in-ubuntu.html\n>> http://stackoverflow.com/questions/28273441/receiving-unmet-dependency-while-installing-r-base-on-ubuntu-14-10\n>>\n>> I've installed R to various Ubuntu's before, including trusty, but recently\n>> it has stopped working:\n>>\n>> dhis at tmctpsql:~$ sudo apt-get install r-base-dev\n>> Reading package lists... Done\n>> Building dependency tree\n>> Reading state information... Done\n>> Some packages could not be installed. This may mean that you have\n>> requested an impossible situation or if you are using the unstable\n>> distribution that some required packages have not yet been created\n>> or been moved out of Incoming.\n>> The following information may help to resolve the situation:\n>>\n>> The following packages have unmet dependencies:\n>>   r-base-dev : Depends: r-base-core (>= 3.1.3.20150410-1trusty) but it is\n>> not going to be installed\n>> E: Unable to correct problems, you have held broken packages.\n>>\n>> Any ways around this? Does anyone else have issues with installing to a\n>> brand new trusty install?\n>>\n>>\n>> Timothy Harding\n>> RPCV Vanuatu\n>> Skype: hardingt at gmail.com\n>> +1 (541) 632-6623\n>>\n>>          [[alternative HTML version deleted]]\n>>\n>> _______________________________________________\n>> R-SIG-Debian mailing list\n>> R-SIG-Debian at r-project.org\n>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n>\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n>\n\n-- \nDr. Michael A. Rutter\nAssociate Professor of Statistics\nAcademic and Program Coordinator, Mathematics\nPenn State Erie, The Behrend College\nStation Road\nErie, PA 16563\nhttp://math.bd.psu.edu/faculty/rutter",
+      "body_snippet": "Timothy,\n\nThe link from stackoverflow gave some bad advice, IMO.  You should be \nusing the RRutter PPA, not RDev.  RDev is the where I build \nnot-ready-for-prime-time versions of R, and sometimes they",
+      "thread_id": "thread-183ca1c092ee",
+      "thread_depth": 2,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-5aed165f084c",
+      "message_id": "<CAMjOFVqfDN0srE+VDuuHhJAPC6tfMhb316oWE4U4S-=xtPymMA@mail.gmail.com>",
+      "from_name": "Timothy Harding",
+      "from_email_hash": "63de9561f8f655fa548cefd54fb2ceea82fa2396ebe60255bc6d2ed2bd5cc9e9",
+      "date": "2015-04-16T13:23:16-07:00",
+      "subject": "[R-sig-Debian] Cannot Install R to Trusty 14.04",
+      "subject_clean": "Cannot Install R to Trusty 14.04",
+      "in_reply_to": "<CAEtdG7tWL2A8Mzv_i_CXNZUwM9s-1c8riZe5kZx529vj5wKLxQ@mail.gmail.com>",
+      "references": [
+        "<CAMjOFVpjOWd-Ur3k62+qtxWQUEX9Pk13d0Gw+9c9rRDRdMm4Vw@mail.gmail.com>",
+        "<CAEtdG7tWL2A8Mzv_i_CXNZUwM9s-1c8riZe5kZx529vj5wKLxQ@mail.gmail.com>"
+      ],
+      "body_plain": "Thanks for the suggestion Luis, no changes however:\n\ndhis at tmctpsql:~$ sudo apt-get install -f\n[sudo] password for dhis:\nReading package lists... Done\nBuilding dependency tree\nReading state information... Done\n0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.\n\nSo I rand the second command, here is the output:\n\ndhis at tmctpsql:~$ sudo apt-get --simulate install r-base-core\nReading package lists... Done\nBuilding dependency tree\nReading state information... Done\nSome packages could not be installed. This may mean that you have\nrequested an impossible situation or if you are using the unstable\ndistribution that some required packages have not yet been created\nor been moved out of Incoming.\nThe following information may help to resolve the situation:\n\nThe following packages have unmet dependencies:\n r-base-core : Depends: libgomp1 (>= 4.9) but 4.8.2-19ubuntu1 is to be\ninstalled\n               Recommends: r-recommended but it is not going to be installed\n               Recommends: r-base-dev but it is not going to be installed\n               Recommends: r-doc-html but it is not going to be installed\nE: Unable to correct problems, you have held broken packages.\n\nI did however try installing trusty again to another VM, and that one\nworked without issue. I used the following how-to this time:\nhttp://r-interface.blogspot.com/2012/04/install-r-jgr-and-deducer-in-ubuntu.html\n\nNot sure what is going on with this one however. Here is a list of commands\nthat I ran, I'm guessing I followed a bum tutorial the first time. The\nresults are always the same: Unable to correct problems, you have held\nbroken packages.\n\n#Attempt 1:\nsudo vi /etc/apt/sources.list\nsudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9\nsudo add-apt-repository ppa:marutter/rdev\nsudo apt-get update\nsudo apt-get upgrade\nsudo apt-get install r-base\n\n#Further Attempts:\nsudo vi /etc/apt/sources.list\nsudo apt-get update\nsudo apt-get upgrade\nsudo apt-get install r-base\nsudo apt-get install r-base-dev\nsudo apt-get remove --purge r-cran* r-base*\nsudo apt-get install r-base-dev\nsudo apt-get install r-base-core\nsudo vi /etc/apt/sources.list\nsudo apt-get update\nsudo apt-get upgrade\nsudo apt-get install r-base-dev\nsudo apt-get autoclean\nsudo apt-get -f install\nsudo dpkg --configure -a\nsudo apt-get -f install\nsudo vi /etc/apt/sources.list\ngpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9\ngpg -a --export E084DAB9 | sudo apt-key add -\nsudo apt-get update\nsudo apt-get install r-base-dev\nsudo apt-get clean; sudo apt-get autoclean\nsudo apt-get install r-base-dev=3.1.3-1trusty\nsudo apt-get install r-base-dev=3.1.2-1trusty0\n\nTimothy Harding\nRPCV Vanuatu\nSkype: hardingt at gmail.com\n+1 (541) 632-6623\n\nOn Wed, Apr 15, 2015 at 11:23 PM, Lu?s de Sousa <luis.a.de.sousa at gmail.com>\nwrote:\n\n> Hi Timothy,\n>\n> First you could try to an auto-fix with:\n>\n> sudo apt-get install -f\n>\n> If it does not solve it can you please post the output of:\n>\n> sudo apt-get --simulate install r-base-core\n>\n> Cheers,\n>\n> Lu?s\n>\n> On 16 April 2015 at 05:53, Timothy Harding <hardingt at gmail.com> wrote:\n> > Hello,\n> >\n> > I've followed the instructions at several different how to sites:\n> > http://cran.r-project.org/\n> >\n> http://r-interface.blogspot.com/2012/04/install-r-jgr-and-deducer-in-ubuntu.html\n> >\n> http://stackoverflow.com/questions/28273441/receiving-unmet-dependency-while-installing-r-base-on-ubuntu-14-10\n> >\n> > I've installed R to various Ubuntu's before, including trusty, but\n> recently\n> > it has stopped working:\n> >\n> > dhis at tmctpsql:~$ sudo apt-get install r-base-dev\n> > Reading package lists... Done\n> > Building dependency tree\n> > Reading state information... Done\n> > Some packages could not be installed. This may mean that you have\n> > requested an impossible situation or if you are using the unstable\n> > distribution that some required packages have not yet been created\n> > or been moved out of Incoming.\n> > The following information may help to resolve the situation:\n> >\n> > The following packages have unmet dependencies:\n> >  r-base-dev : Depends: r-base-core (>= 3.1.3.20150410-1trusty) but it is\n> > not going to be installed\n> > E: Unable to correct problems, you have held broken packages.\n> >\n> > Any ways around this? Does anyone else have issues with installing to a\n> > brand new trusty install?\n> >\n> >\n> > Timothy Harding\n> > RPCV Vanuatu\n> > Skype: hardingt at gmail.com\n> > +1 (541) 632-6623\n> >\n> >         [[alternative HTML version deleted]]\n> >\n> > _______________________________________________\n> > R-SIG-Debian mailing list\n> > R-SIG-Debian at r-project.org\n> > https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n>\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "Thanks for the suggestion Luis, no changes however:\n\ndhis at tmctpsql:~$ sudo apt-get install -f\n[sudo] password for dhis:\nReading package lists... Done\nBuilding dependency tree\nReading state informat",
+      "thread_id": "thread-183ca1c092ee",
+      "thread_depth": 2,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-a9c1e3df78e7",
+      "message_id": "<CAMjOFVrymUpPKCfykViR1ZyStNVVsC=ihE24jRzpfHpQKaiwMQ@mail.gmail.com>",
+      "from_name": "Timothy Harding",
+      "from_email_hash": "63de9561f8f655fa548cefd54fb2ceea82fa2396ebe60255bc6d2ed2bd5cc9e9",
+      "date": "2015-04-16T13:29:53-07:00",
+      "subject": "[R-sig-Debian] Cannot Install R to Trusty 14.04",
+      "subject_clean": "Cannot Install R to Trusty 14.04",
+      "in_reply_to": "<552FBF35.10100@psu.edu>",
+      "references": [
+        "<CAMjOFVpjOWd-Ur3k62+qtxWQUEX9Pk13d0Gw+9c9rRDRdMm4Vw@mail.gmail.com>",
+        "<CAEtdG7tWL2A8Mzv_i_CXNZUwM9s-1c8riZe5kZx529vj5wKLxQ@mail.gmail.com>",
+        "<552FBF35.10100@psu.edu>"
+      ],
+      "body_plain": "That fixed it! Thanks Michael!:\nsudo add-apt-repository --remove ppa:marutter/rdev\n\nThen I reran:\nsudo apt-get install r-base-dev\n\nAnd it went to town. Thanks again.\n\nTimothy Harding\nRPCV Vanuatu\nSkype: hardingt at gmail.com\n+1 (541) 632-6623\n\nOn Thu, Apr 16, 2015 at 6:55 AM, Michael Rutter <mar36 at psu.edu> wrote:\n\n> Timothy,\n>\n> The link from stackoverflow gave some bad advice, IMO.  You should be\n> using the RRutter PPA, not RDev.  RDev is the where I build\n> not-ready-for-prime-time versions of R, and sometimes they break other\n> things.   RRutter is what is used to seed CRAN.  Here is the link:\n>\n> https://launchpad.net/~marutter/+archive/ubuntu/rrutter\n>\n> I would remove the RDev PPA and install RRutter.  The newest version of R\n> (3.2.0) should be appearing the next 24 hours or so on the PPA.\n>\n> Michael\n>\n>\n> On 04/16/2015 02:23 AM, Lu?s de Sousa wrote:\n>\n>> Hi Timothy,\n>>\n>> First you could try to an auto-fix with:\n>>\n>> sudo apt-get install -f\n>>\n>> If it does not solve it can you please post the output of:\n>>\n>> sudo apt-get --simulate install r-base-core\n>>\n>> Cheers,\n>>\n>> Lu?s\n>>\n>> On 16 April 2015 at 05:53, Timothy Harding <hardingt at gmail.com> wrote:\n>>\n>>> Hello,\n>>>\n>>> I've followed the instructions at several different how to sites:\n>>> http://cran.r-project.org/\n>>> http://r-interface.blogspot.com/2012/04/install-r-jgr-and-\n>>> deducer-in-ubuntu.html\n>>> http://stackoverflow.com/questions/28273441/receiving-\n>>> unmet-dependency-while-installing-r-base-on-ubuntu-14-10\n>>>\n>>> I've installed R to various Ubuntu's before, including trusty, but\n>>> recently\n>>> it has stopped working:\n>>>\n>>> dhis at tmctpsql:~$ sudo apt-get install r-base-dev\n>>> Reading package lists... Done\n>>> Building dependency tree\n>>> Reading state information... Done\n>>> Some packages could not be installed. This may mean that you have\n>>> requested an impossible situation or if you are using the unstable\n>>> distribution that some required packages have not yet been created\n>>> or been moved out of Incoming.\n>>> The following information may help to resolve the situation:\n>>>\n>>> The following packages have unmet dependencies:\n>>>   r-base-dev : Depends: r-base-core (>= 3.1.3.20150410-1trusty) but it is\n>>> not going to be installed\n>>> E: Unable to correct problems, you have held broken packages.\n>>>\n>>> Any ways around this? Does anyone else have issues with installing to a\n>>> brand new trusty install?\n>>>\n>>>\n>>> Timothy Harding\n>>> RPCV Vanuatu\n>>> Skype: hardingt at gmail.com\n>>> +1 (541) 632-6623\n>>>\n>>>          [[alternative HTML version deleted]]\n>>>\n>>> _______________________________________________\n>>> R-SIG-Debian mailing list\n>>> R-SIG-Debian at r-project.org\n>>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n>>>\n>>\n>> _______________________________________________\n>> R-SIG-Debian mailing list\n>> R-SIG-Debian at r-project.org\n>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n>>\n>>\n> --\n> Dr. Michael A. Rutter\n> Associate Professor of Statistics\n> Academic and Program Coordinator, Mathematics\n> Penn State Erie, The Behrend College\n> Station Road\n> Erie, PA 16563\n> http://math.bd.psu.edu/faculty/rutter\n>\n\n\t[[alternative HTML version deleted]]",
+      "body_snippet": "That fixed it! Thanks Michael!:\nsudo add-apt-repository --remove ppa:marutter/rdev\n\nThen I reran:\nsudo apt-get install r-base-dev\n\nAnd it went to town. Thanks again.\n\nTimothy Harding\nRPCV Vanuatu\nSkyp",
+      "thread_id": "thread-183ca1c092ee",
+      "thread_depth": 3,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-1010c5ebc8e3",
+      "message_id": "<CABpbYad1Z6vqHWZPH+MRPUKsvFMFUS9+SCX_X6F90+rfWtO+DQ@mail.gmail.com>",
+      "from_name": "kamaraju kusumanchi",
+      "from_email_hash": "35b4cea0a58f8658db957dc1694489ca7b6ec5a1c1c72185c70d05e4ba4f6a10",
+      "date": "2015-04-19T17:58:53-04:00",
+      "subject": "[R-sig-Debian] running unit tests on the stringr package",
+      "subject_clean": "running unit tests on the stringr package",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "I am trying to learn how  to run the unit tests in the stringr package\nand have the following questions.\n\n1) The r-cran-stringr package does not suggest/depend on the\nr-cran-testthat package . Would it make sense to add such a thing\nsince after all the tests in /usr/lib/R/site-library/stringr/tests\nrely on testthat package?\n\n2) I am getting the following error when trying to run the unit tests\n\n% R\nR version 3.1.1 (2014-07-10) -- \"Sock it to Me\"\n...\n> library('testthat')\n> library('stringr')\n> test_dir('/usr/lib/R/site-library/stringr/tests')\nString and pattern checks : 123\nCounting matches : ....\nDetecting patterns : ..........\nDuplicating strings : ......\nExtract patterns : ..\nJoining strings : ......\nString length : .........\nLocations : ............\nMatching groups : ..............\nTest padding : ....\nSplitting strings : .........................\nExtracting substrings : ...................\nTrimming strings : ........\n\n\n1. Failure(@test-check.r#4): string is atomic ----------------------------------\ncheck_string(list()) does not match 'must be an atomic'. Actual value:\n\"Error in force(expr) : could not find function \"check_string\"\\n\"\n\n2. Failure(@test-check.r#9): pattern is a string -------------------------------\ncheck_pattern(1) does not match 'must be a character vector'. Actual\nvalue: \"Error in force(expr) : could not find function\n\"check_pattern\"\\n\"\n\n3. Error: error when string and pattern lengths incompatible -------------------\ncould not find function \"check_pattern\"\n1: withCallingHandlers(eval(code, new_test_environment), error = capture_calls)\n2: eval(code, new_test_environment)\n3: eval(expr, envir, enclos)\n4: expect_that(check_pattern(letters, \"a\"), equals(letters)) at test-check.r:14\n5: condition(object)\n6: compare(expected, actual, ...)\n7: compare.character(expected, actual, ...)\n8: identical(x, y)\n\nWhat am I doing wrong?\n\nI am using a Debian box with a combo of Wheezy + Jessie\n\n% dpkg -l r-cran-testthat r-cran-stringr r-base\nii  r-base                     3.1.1-1            all\nGNU R statistical computation and graphics system\nii  r-cran-stringr             0.6.2-2            all\nMake it easier to work with strings\nii  r-cran-testthat            0.9.1-1            amd64\nGNU R testsuite\n\nregards\nraju\n-- \nKamaraju S Kusumanchi | http://raju.shoutwiki.com/wiki/Blog",
+      "body_snippet": "I am trying to learn how  to run the unit tests in the stringr package\nand have the following questions.\n\n1) The r-cran-stringr package does not suggest/depend on the\nr-cran-testthat package . Would i",
+      "thread_id": "thread-1010c5ebc8e3",
+      "thread_depth": 0,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-d5708f4bd1b7",
+      "message_id": "<CABpbYae01hi-YdFqDYuE15SK0YjZrLFUCnTkHTSamaVAe2g4tQ@mail.gmail.com>",
+      "from_name": "kamaraju kusumanchi",
+      "from_email_hash": "35b4cea0a58f8658db957dc1694489ca7b6ec5a1c1c72185c70d05e4ba4f6a10",
+      "date": "2015-04-19T18:10:29-04:00",
+      "subject": "[R-sig-Debian] R-SIG-Debian Info Page is down",
+      "subject_clean": "R-SIG-Debian Info Page is down",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "I am getting a \"Error 503\" when I go to\nhttps://stat.ethz.ch/mailman/listinfo/r-sig-debian . Could you please\ntake a look?\n\nthanks\nraju\n-- \nKamaraju S Kusumanchi | http://raju.shoutwiki.com/wiki/Blog",
+      "body_snippet": "I am getting a \"Error 503\" when I go to\nhttps://stat.ethz.ch/mailman/listinfo/r-sig-debian . Could you please\ntake a look?\n\nthanks\nraju\n-- \nKamaraju S Kusumanchi | http://raju.shoutwiki.com/wiki/Blog",
+      "thread_id": "thread-d5708f4bd1b7",
+      "thread_depth": 0,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-76ce91fa64ef",
+      "message_id": "<21812.11725.167274.560631@max.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2015-04-19T17:35:57-05:00",
+      "subject": "[R-sig-Debian] running unit tests on the stringr package",
+      "subject_clean": "running unit tests on the stringr package",
+      "in_reply_to": "<CABpbYad1Z6vqHWZPH+MRPUKsvFMFUS9+SCX_X6F90+rfWtO+DQ@mail.gmail.com>",
+      "references": [
+        "<CABpbYad1Z6vqHWZPH+MRPUKsvFMFUS9+SCX_X6F90+rfWtO+DQ@mail.gmail.com>"
+      ],
+      "body_plain": "On 19 April 2015 at 17:58, kamaraju kusumanchi wrote:\n| I am trying to learn how  to run the unit tests in the stringr package\n| and have the following questions.\n\nWrong list. Please ask the maintainer of the package, or r-help. \n\nThis has next to nothing to do with using R on Debian/Ubuntu. Please do not\nabuse the genorisity of the readers of this list.\n\nDirk\n\n-- \nhttp://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org",
+      "body_snippet": "On 19 April 2015 at 17:58, kamaraju kusumanchi wrote:\n| I am trying to learn how  to run the unit tests in the stringr package\n| and have the following questions.\n\nWrong list. Please ask the maintaine",
+      "thread_id": "thread-1010c5ebc8e3",
+      "thread_depth": 1,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-8c8e77e1e3db",
+      "message_id": "<CABpbYacuJDPrMRzN6TvjLfDo-itZDO9fUKm-6zVNN87_BHOvTQ@mail.gmail.com>",
+      "from_name": "kamaraju kusumanchi",
+      "from_email_hash": "35b4cea0a58f8658db957dc1694489ca7b6ec5a1c1c72185c70d05e4ba4f6a10",
+      "date": "2015-04-19T18:57:19-04:00",
+      "subject": "[R-sig-Debian] running unit tests on the stringr package",
+      "subject_clean": "running unit tests on the stringr package",
+      "in_reply_to": "<21812.11725.167274.560631@max.nulle.part>",
+      "references": [
+        "<CABpbYad1Z6vqHWZPH+MRPUKsvFMFUS9+SCX_X6F90+rfWtO+DQ@mail.gmail.com>",
+        "<21812.11725.167274.560631@max.nulle.part>"
+      ],
+      "body_plain": "On Sun, Apr 19, 2015 at 6:35 PM, Dirk Eddelbuettel <edd at debian.org> wrote:\n>\n> On 19 April 2015 at 17:58, kamaraju kusumanchi wrote:\n> | I am trying to learn how  to run the unit tests in the stringr package\n> | and have the following questions.\n>\n> Wrong list. Please ask the maintainer of the package, or r-help.\n>\n> This has next to nothing to do with using R on Debian/Ubuntu. Please do not\n> abuse the genorisity of the readers of this list.\n>\n> Dirk\n\nHi Dirk,\n\nMy intention was not to abuse anyone's time. I am not sure why you\nthought otherwise.\n\nI think my first point of adding r-cran-testthat to depends/suggests\nfield is relevant to packaging, no?\n\nRegarding the second point, I asked the question here because I\ninstalled the package from debian repositories and not directly from\nthe upstream. In particular, I was not sure if the problem is debian\nspecific or upstream specific. So, I thought I would start here.\n\nraju\n-- \nKamaraju S Kusumanchi | http://raju.shoutwiki.com/wiki/Blog",
+      "body_snippet": "On Sun, Apr 19, 2015 at 6:35 PM, Dirk Eddelbuettel <edd at debian.org> wrote:\n>\n> On 19 April 2015 at 17:58, kamaraju kusumanchi wrote:\n> | I am trying to learn how  to run the unit tests in the strin",
+      "thread_id": "thread-1010c5ebc8e3",
+      "thread_depth": 2,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-7e0f10ccbd01",
+      "message_id": "<4013107.dipbGefZGU@tux>",
+      "from_name": "Johannes Ranke",
+      "from_email_hash": "8d7dc9cf8d248719dcd9a94c124dab5545d72861321d11f36ce7fddb3c609524",
+      "date": "2015-04-20T11:36:11+02:00",
+      "subject": "[R-sig-Debian] running unit tests on the stringr package",
+      "subject_clean": "running unit tests on the stringr package",
+      "in_reply_to": "<CABpbYad1Z6vqHWZPH+MRPUKsvFMFUS9+SCX_X6F90+rfWtO+DQ@mail.gmail.com>",
+      "references": [
+        "<CABpbYad1Z6vqHWZPH+MRPUKsvFMFUS9+SCX_X6F90+rfWtO+DQ@mail.gmail.com>"
+      ],
+      "body_plain": "Dear Raju\n\nI agree to Dirk that this is not really the best place for these matters, but \nas I got curious, I checked and found you should use test_package() and not \ntest_dir(), as the latter does not load unexported functions of the package \n(such as check_string()) that may occur in the tests.\n\nFor packaging of r-cran-stringr, it is probably most efficient to file a bug \nreport there because of the missing Suggests for r-cran-testthat.\n\nKind regards,\n\nJohannes\n\nAm Sonntag, 19. April 2015, 17:58:53 schrieb kamaraju kusumanchi:\n> I am trying to learn how  to run the unit tests in the stringr package\n> and have the following questions.\n> \n> 1) The r-cran-stringr package does not suggest/depend on the\n> r-cran-testthat package . Would it make sense to add such a thing\n> since after all the tests in /usr/lib/R/site-library/stringr/tests\n> rely on testthat package?\n> \n> 2) I am getting the following error when trying to run the unit tests\n> \n> % R\n> R version 3.1.1 (2014-07-10) -- \"Sock it to Me\"\n> ...\n> \n> > library('testthat')\n> > library('stringr')\n> > test_dir('/usr/lib/R/site-library/stringr/tests')\n> \n> String and pattern checks : 123\n> Counting matches : ....\n> Detecting patterns : ..........\n> Duplicating strings : ......\n> Extract patterns : ..\n> Joining strings : ......\n> String length : .........\n> Locations : ............\n> Matching groups : ..............\n> Test padding : ....\n> Splitting strings : .........................\n> Extracting substrings : ...................\n> Trimming strings : ........\n> \n> \n> 1. Failure(@test-check.r#4): string is atomic\n> ---------------------------------- check_string(list()) does not match\n> 'must be an atomic'. Actual value: \"Error in force(expr) : could not find\n> function \"check_string\"\\n\"\n> \n> 2. Failure(@test-check.r#9): pattern is a string\n> ------------------------------- check_pattern(1) does not match 'must be a\n> character vector'. Actual value: \"Error in force(expr) : could not find\n> function\n> \"check_pattern\"\\n\"\n> \n> 3. Error: error when string and pattern lengths incompatible\n> ------------------- could not find function \"check_pattern\"\n> 1: withCallingHandlers(eval(code, new_test_environment), error =\n> capture_calls) 2: eval(code, new_test_environment)\n> 3: eval(expr, envir, enclos)\n> 4: expect_that(check_pattern(letters, \"a\"), equals(letters)) at\n> test-check.r:14 5: condition(object)\n> 6: compare(expected, actual, ...)\n> 7: compare.character(expected, actual, ...)\n> 8: identical(x, y)\n> \n> What am I doing wrong?\n> \n> I am using a Debian box with a combo of Wheezy + Jessie\n> \n> % dpkg -l r-cran-testthat r-cran-stringr r-base\n> ii  r-base                     3.1.1-1            all\n> GNU R statistical computation and graphics system\n> ii  r-cran-stringr             0.6.2-2            all\n> Make it easier to work with strings\n> ii  r-cran-testthat            0.9.1-1            amd64\n> GNU R testsuite\n> \n> regards\n> raju\n-- \nPD Dr. Johannes Ranke\nKronacher Str. 8\n79639 Grenzach-Wyhlen",
+      "body_snippet": "Dear Raju\n\nI agree to Dirk that this is not really the best place for these matters, but \nas I got curious, I checked and found you should use test_package() and not \ntest_dir(), as the latter does no",
+      "thread_id": "thread-1010c5ebc8e3",
+      "thread_depth": 1,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-18b8e9d94a9a",
+      "message_id": "<2121730849.1531344.1429532794763.JavaMail.zimbra@teclib.com>",
+      "from_name": "Vincent Lemoine",
+      "from_email_hash": "c34395af3968c07f6aa58ab35fddbfa7a07fcbbe3e45a65ed59ff4038aefbe0d",
+      "date": "2015-04-20T14:26:34+02:00",
+      "subject": "[R-sig-Debian] Dependency problem with \"python-rpy2\" package",
+      "subject_clean": "Dependency problem with \"python-rpy2\" package",
+      "in_reply_to": "<504899896.1526103.1429525628139.JavaMail.zimbra@teclib.com>",
+      "references": [],
+      "body_plain": "Hello,\n\nI have a problem with package \"python-rpy2\" with Debian Wheezy repository.\n\nI use this repo :\ndeb http://cran.r-project.org/bin/linux/debian wheezy-cran3/\n\nThis package depends on \"python-singledispatch\" but it doesn't exist in official Debian repo...\n\nCould you help me to fix this issue ?\n\nThanks a lot,",
+      "body_snippet": "Hello,\n\nI have a problem with package \"python-rpy2\" with Debian Wheezy repository.\n\nI use this repo :\ndeb http://cran.r-project.org/bin/linux/debian wheezy-cran3/\n\nThis package depends on \"python-sing",
+      "thread_id": "thread-18b8e9d94a9a",
+      "thread_depth": 0,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-c7598e69d3dd",
+      "message_id": "<20150420125734.Horde.G5PA9s_0ET26iWyYHnlvsQ1@webmail.uni-bremen.de>",
+      "from_name": "jranke at uni-bremen.de",
+      "from_email_hash": "8d7dc9cf8d248719dcd9a94c124dab5545d72861321d11f36ce7fddb3c609524",
+      "date": "2015-04-20T12:57:34Z",
+      "subject": "[R-sig-Debian] Dependency problem with \"python-rpy2\" package",
+      "subject_clean": "Dependency problem with \"python-rpy2\" package",
+      "in_reply_to": "<2121730849.1531344.1429532794763.JavaMail.zimbra@teclib.com>",
+      "references": [
+        "<2121730849.1531344.1429532794763.JavaMail.zimbra@teclib.com>"
+      ],
+      "body_plain": "Hi,\n\nWithout looking into it I believe the solution will be for me to  \nprepare a backport of python-singledispatch. I can not do it right  \naway, but hopefully later in the week ...\n\nMeanwhile you could try to install the python-singledispatch version  \nfrom unstable via apt pinning.\n\nJohannes\n\nZitat von Vincent Lemoine <vlemoine at teclib.com>:\n\n> Hello,\n>\n> I have a problem with package \"python-rpy2\" with Debian Wheezy repository.\n>\n> I use this repo :\n> deb http://cran.r-project.org/bin/linux/debian wheezy-cran3/\n>\n> This package depends on \"python-singledispatch\" but it doesn't exist  \n> in official Debian repo...\n>\n> Could you help me to fix this issue ?\n>\n> Thanks a lot,\n>\n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "Hi,\n\nWithout looking into it I believe the solution will be for me to  \nprepare a backport of python-singledispatch. I can not do it right  \naway, but hopefully later in the week ...\n\nMeanwhile you co",
+      "thread_id": "thread-18b8e9d94a9a",
+      "thread_depth": 1,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-151001d5879a",
+      "message_id": "<2559332.OL2mLX0UFy@tux>",
+      "from_name": "Johannes Ranke",
+      "from_email_hash": "8d7dc9cf8d248719dcd9a94c124dab5545d72861321d11f36ce7fddb3c609524",
+      "date": "2015-04-21T17:02:53+02:00",
+      "subject": "[R-sig-Debian] Dependency problem with \"python-rpy2\" package",
+      "subject_clean": "Dependency problem with \"python-rpy2\" package",
+      "in_reply_to": "<20150420125734.Horde.G5PA9s_0ET26iWyYHnlvsQ1@webmail.uni-bremen.de>",
+      "references": [
+        "<2121730849.1531344.1429532794763.JavaMail.zimbra@teclib.com>",
+        "<20150420125734.Horde.G5PA9s_0ET26iWyYHnlvsQ1@webmail.uni-bremen.de>"
+      ],
+      "body_plain": "> Without looking into it I believe the solution will be for me to\n> prepare a backport of python-singledispatch. I can not do it right\n> away, but hopefully later in the week ...\n\nI had a go at it, but did not succeed to produce a working python-\nsingledispatch package. After installing python3-all and python3-setuptools \noutside the pbuilder chroot (!) I could build a .deb, but this mysteriously \ndepends on a virtual package python-ordereddict which is not in Debian and I \ndo not know what package should provide that. As I do not understand how these \npython dependencies work, I stopped there.\n\nI did successfully install rpy2 in the presence of 3.2.0 from CRAN in a wheezy \nchroot, using pip install. You need to install the development files for R, \npython and readline as well, compare the rpy2 installation instructions.\n\nIf someone can give me a hand here, OK, otherwise I will have to remove \npython-rpy2 from the wheezy-cran3 and squeeze-cran3 repositories (there it \ndoes not work either I found). I did not notice as I do not currently use \nrpy2.\n\nKind regards,\n\nJohannes\n\n> \n> Meanwhile you could try to install the python-singledispatch version\n> from unstable via apt pinning.\n> \n> Johannes\n> \n> Zitat von Vincent Lemoine <vlemoine at teclib.com>:\n> > Hello,\n> > \n> > I have a problem with package \"python-rpy2\" with Debian Wheezy repository.\n> > \n> > I use this repo :\n> > deb http://cran.r-project.org/bin/linux/debian wheezy-cran3/\n> > \n> > This package depends on \"python-singledispatch\" but it doesn't exist\n> > in official Debian repo...\n> > \n> > Could you help me to fix this issue ?\n> > \n> > Thanks a lot,\n> > \n> > _______________________________________________\n> > R-SIG-Debian mailing list\n> > R-SIG-Debian at r-project.org\n> > https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n-- \nPD Dr. Johannes Ranke\nKronacher Str. 8\n79639 Grenzach-Wyhlen",
+      "body_snippet": "> Without looking into it I believe the solution will be for me to\n> prepare a backport of python-singledispatch. I can not do it right\n> away, but hopefully later in the week ...\n\nI had a go at it, b",
+      "thread_id": "thread-18b8e9d94a9a",
+      "thread_depth": 2,
+      "month": "2015-04"
+    },
+    {
+      "id": "msg-749637a2cf55",
+      "message_id": "<CABpbYadU54ZgKDMikab2JF5=JvQKi=C9RhX4H9JEO2jPAH+URw@mail.gmail.com>",
+      "from_name": "kamaraju kusumanchi",
+      "from_email_hash": "35b4cea0a58f8658db957dc1694489ca7b6ec5a1c1c72185c70d05e4ba4f6a10",
+      "date": "2015-04-22T21:46:39-04:00",
+      "subject": "[R-sig-Debian] running unit tests on the stringr package",
+      "subject_clean": "running unit tests on the stringr package",
+      "in_reply_to": "<4013107.dipbGefZGU@tux>",
+      "references": [
+        "<CABpbYad1Z6vqHWZPH+MRPUKsvFMFUS9+SCX_X6F90+rfWtO+DQ@mail.gmail.com>",
+        "<4013107.dipbGefZGU@tux>"
+      ],
+      "body_plain": "On Mon, Apr 20, 2015 at 5:36 AM, Johannes Ranke <jranke at uni-bremen.de> wrote:\n> Dear Raju\n>\n> I agree to Dirk that this is not really the best place for these matters, but\n> as I got curious, I checked and found you should use test_package() and not\n> test_dir(), as the latter does not load unexported functions of the package\n> (such as check_string()) that may occur in the tests.\n>\n> For packaging of r-cran-stringr, it is probably most efficient to file a bug\n> report there because of the missing Suggests for r-cran-testthat.\n>\n> Kind regards,\n>\n> Johannes\n\nThanks Johannes. I will check out your suggestions.\n\nraju",
+      "body_snippet": "On Mon, Apr 20, 2015 at 5:36 AM, Johannes Ranke <jranke at uni-bremen.de> wrote:\n> Dear Raju\n>\n> I agree to Dirk that this is not really the best place for these matters, but\n> as I got curious, I che",
+      "thread_id": "thread-1010c5ebc8e3",
+      "thread_depth": 2,
+      "month": "2015-04"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-de582d06d1bd",
+      "subject": "Debian Testing: ~/.Renviron seems to not being read (R_LIBS not set)",
+      "message_count": 2,
+      "participants": [
+        "Johannes Ranke",
+        "Marius Hofert"
+      ],
+      "started": "2015-04-01T21:17:27-04:00",
+      "last_reply": "2015-04-02T11:49:17+02:00",
+      "root_message_id": "msg-de582d06d1bd"
+    },
+    {
+      "id": "thread-b3ce3f0a4065",
+      "subject": "Debian Testing: ~/.Renviron seems to not being read (R_LIBS not set)",
+      "message_count": 1,
+      "participants": [
+        "Marius Hofert"
+      ],
+      "started": "2015-04-02T14:34:37-04:00",
+      "last_reply": "2015-04-02T14:34:37-04:00",
+      "root_message_id": "msg-b3ce3f0a4065"
+    },
+    {
+      "id": "thread-52a1e0618ecc",
+      "subject": "Rmpi install issues",
+      "message_count": 2,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Skye Bender-deMoll"
+      ],
+      "started": "2015-04-07T10:52:13-07:00",
+      "last_reply": "2015-04-07T18:57:39-05:00",
+      "root_message_id": "msg-52a1e0618ecc"
+    },
+    {
+      "id": "thread-737ceff7bb88",
+      "subject": "list of available R packages",
+      "message_count": 3,
+      "participants": [
+        "Johannes Ranke",
+        "kamaraju kusumanchi"
+      ],
+      "started": "2015-04-12T22:07:47-04:00",
+      "last_reply": "2015-04-13T22:49:30-04:00",
+      "root_message_id": "msg-737ceff7bb88"
+    },
+    {
+      "id": "thread-183ca1c092ee",
+      "subject": "Cannot Install R to Trusty 14.04",
+      "message_count": 5,
+      "participants": [
+        "Luís de Sousa",
+        "Michael Rutter",
+        "Timothy Harding"
+      ],
+      "started": "2015-04-15T20:53:33-07:00",
+      "last_reply": "2015-04-16T13:29:53-07:00",
+      "root_message_id": "msg-183ca1c092ee"
+    },
+    {
+      "id": "thread-1010c5ebc8e3",
+      "subject": "running unit tests on the stringr package",
+      "message_count": 5,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Johannes Ranke",
+        "kamaraju kusumanchi"
+      ],
+      "started": "2015-04-19T17:58:53-04:00",
+      "last_reply": "2015-04-22T21:46:39-04:00",
+      "root_message_id": "msg-1010c5ebc8e3"
+    },
+    {
+      "id": "thread-d5708f4bd1b7",
+      "subject": "R-SIG-Debian Info Page is down",
+      "message_count": 1,
+      "participants": [
+        "kamaraju kusumanchi"
+      ],
+      "started": "2015-04-19T18:10:29-04:00",
+      "last_reply": "2015-04-19T18:10:29-04:00",
+      "root_message_id": "msg-d5708f4bd1b7"
+    },
+    {
+      "id": "thread-18b8e9d94a9a",
+      "subject": "Dependency problem with \"python-rpy2\" package",
+      "message_count": 3,
+      "participants": [
+        "Johannes Ranke",
+        "Vincent Lemoine",
+        "jranke at uni-bremen.de"
+      ],
+      "started": "2015-04-20T14:26:34+02:00",
+      "last_reply": "2015-04-21T17:02:53+02:00",
+      "root_message_id": "msg-18b8e9d94a9a"
+    }
+  ]
+}

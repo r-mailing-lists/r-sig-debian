@@ -1,0 +1,1390 @@
+From cyoung @end|ng |rom tw|n@tr@ndb|o@com  Mon May  2 22:52:01 2022
+From: cyoung @end|ng |rom tw|n@tr@ndb|o@com (Chad Young)
+Date: Mon, 2 May 2022 13:52:01 -0700
+Subject: [R-sig-Debian] Installing R 4.1.2 doesn't work as it did a week ago
+Message-ID: <CACOX2NxyHr_6HnJJFd79K203oGq9YJ509HSr3LvyJkucTonPVA@mail.gmail.com>
+
+I have a docker file for installing R on Ubuntu 18.04, and as of last week
+it is failing. I think it seems to be related to the recent release of R
+4.2.0. I want to install R 4.1.2, but when I use the below command and then
+check the R version, it comes out as 4.2.0. Do you know why this is
+happening?
+
+RUN apt-get update \
+    && apt-get install -y gnupg2 software-properties-common \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys
+E298A3A825C0D65DFD57CBB651716619E084DAB9 \
+    && add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu
+bionic-cran40/' \
+    && apt-get update \
+    && apt-get install -y \
+           r-base=4.1.2-* \
+           r-recommended=4.1.2-*
+
+If I just install r-base-core=4.1.2-* it seems to install the correct
+version of R.
+
+Chad Young
+Bioinformatics Scientist
+TwinStrand Biosciences <https://twinstrandbio.com/>
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon May  2 23:13:57 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 2 May 2022 16:13:57 -0500
+Subject: [R-sig-Debian] 
+ Installing R 4.1.2 doesn't work as it did a week ago
+In-Reply-To: <CACOX2NxyHr_6HnJJFd79K203oGq9YJ509HSr3LvyJkucTonPVA@mail.gmail.com>
+References: <CACOX2NxyHr_6HnJJFd79K203oGq9YJ509HSr3LvyJkucTonPVA@mail.gmail.com>
+Message-ID: <25200.18837.704137.363633@rob.eddelbuettel.com>
+
+
+On 2 May 2022 at 13:52, Chad Young wrote:
+| I have a docker file for installing R on Ubuntu 18.04, and as of last week
+| it is failing. I think it seems to be related to the recent release of R
+| 4.2.0. I want to install R 4.1.2, but when I use the below command and then
+| check the R version, it comes out as 4.2.0. Do you know why this is
+| happening?
+| 
+| RUN apt-get update \
+|     && apt-get install -y gnupg2 software-properties-common \
+|     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys
+| E298A3A825C0D65DFD57CBB651716619E084DAB9 \
+|     && add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu
+| bionic-cran40/' \
+|     && apt-get update \
+|     && apt-get install -y \
+|            r-base=4.1.2-* \
+|            r-recommended=4.1.2-*
+| 
+| If I just install r-base-core=4.1.2-* it seems to install the correct
+| version of R.
+
+You were close. You need three lines at the end:
+
+     && apt-get install -y \
+            r-base=4.1.2-* \
+            r-base-core=4.1.2-* \
+            r-recommended=4.1.2-*
+
+This has to do with a fact that such an imposed version does apparently _not_
+get pushed through to the versions pulled in the by the packages you
+constrained.  In other words, while 'r-base' gets fixed, the 'r-base-core' is
+still "free" meaning you get the newest as `apt` tries to be helpful.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From cyoung @end|ng |rom tw|n@tr@ndb|o@com  Mon May  2 23:36:23 2022
+From: cyoung @end|ng |rom tw|n@tr@ndb|o@com (Chad Young)
+Date: Mon, 2 May 2022 14:36:23 -0700
+Subject: [R-sig-Debian] 
+ Installing R 4.1.2 doesn't work as it did a week ago
+In-Reply-To: <25200.18837.704137.363633@rob.eddelbuettel.com>
+References: <CACOX2NxyHr_6HnJJFd79K203oGq9YJ509HSr3LvyJkucTonPVA@mail.gmail.com>
+ <25200.18837.704137.363633@rob.eddelbuettel.com>
+Message-ID: <CACOX2Nw5OH=aQCeqAQhfAvve4PwMMGdAn5ymSVXOTNWOrRcV9g@mail.gmail.com>
+
+Thanks for the quick response. When I try that, I get
+
+ The following packages have unmet dependencies:
+  r-recommended : Depends: r-cran-mass but it is not going to be installed
+                  Depends: r-cran-class but it is not going to be installed
+
+I added explicit installs for both of those (selecting what looked to be
+the most appropriate version) and it seems to be working now.
+
+Chad Young
+Bioinformatics Scientist
+TwinStrand Biosciences <https://twinstrandbio.com/>
+
+
+On Mon, May 2, 2022 at 2:13 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> On 2 May 2022 at 13:52, Chad Young wrote:
+> | I have a docker file for installing R on Ubuntu 18.04, and as of last
+> week
+> | it is failing. I think it seems to be related to the recent release of R
+> | 4.2.0. I want to install R 4.1.2, but when I use the below command and
+> then
+> | check the R version, it comes out as 4.2.0. Do you know why this is
+> | happening?
+> |
+> | RUN apt-get update \
+> |     && apt-get install -y gnupg2 software-properties-common \
+> |     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys
+> | E298A3A825C0D65DFD57CBB651716619E084DAB9 \
+> |     && add-apt-repository 'deb
+> https://cloud.r-project.org/bin/linux/ubuntu
+> | bionic-cran40/' \
+> |     && apt-get update \
+> |     && apt-get install -y \
+> |            r-base=4.1.2-* \
+> |            r-recommended=4.1.2-*
+> |
+> | If I just install r-base-core=4.1.2-* it seems to install the correct
+> | version of R.
+>
+> You were close. You need three lines at the end:
+>
+>      && apt-get install -y \
+>             r-base=4.1.2-* \
+>             r-base-core=4.1.2-* \
+>             r-recommended=4.1.2-*
+>
+> This has to do with a fact that such an imposed version does apparently
+> _not_
+> get pushed through to the versions pulled in the by the packages you
+> constrained.  In other words, while 'r-base' gets fixed, the 'r-base-core'
+> is
+> still "free" meaning you get the newest as `apt` tries to be helpful.
+>
+> Dirk
+>
+> --
+> dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+	[[alternative HTML version deleted]]
+
+
+From m@tth|eu@@t|g|er @end|ng |rom gm@||@com  Mon May  9 11:26:26 2022
+From: m@tth|eu@@t|g|er @end|ng |rom gm@||@com (Matthieu S)
+Date: Mon, 9 May 2022 11:26:26 +0200
+Subject: [R-sig-Debian] Using PPA c2d4u.team on Ubuntu 22.04?
+Message-ID: <CAEYvigL8fwUSqMrOu6xRgZyG=QRgKUOisLozRnRcrCWMqL5WMQ@mail.gmail.com>
+
+Hi
+
+We recently installed a server with Ubuntu 22.04, and tried to add the nice
+c2d4u ppa, with:
+sudo add-apt-repository ppa:c2d4u.team/c2d4u4.0+
+
+It leads to error:
+E: The repository '
+https://ppa.launchpadcontent.net/c2d4u.team/c2d4u4.0+/ubuntu jammy Release'
+does not have a Release file.
+N: Updating from such a repository can't be done securely, and is therefore
+disabled by default.
+
+Does it mean I am just impatient and the PPA has not been prepared for the
+new version, or should I adjust something in the command?
+
+Thanks!
+
+Matthieu
+
+	[[alternative HTML version deleted]]
+
+
+From m@rutter @end|ng |rom gm@||@com  Mon May  9 15:10:45 2022
+From: m@rutter @end|ng |rom gm@||@com (Michael Rutter)
+Date: Mon, 9 May 2022 09:10:45 -0400
+Subject: [R-sig-Debian] Using PPA c2d4u.team on Ubuntu 22.04?
+In-Reply-To: <CAEYvigL8fwUSqMrOu6xRgZyG=QRgKUOisLozRnRcrCWMqL5WMQ@mail.gmail.com>
+References: <CAEYvigL8fwUSqMrOu6xRgZyG=QRgKUOisLozRnRcrCWMqL5WMQ@mail.gmail.com>
+Message-ID: <18cb5ebd-ddfb-209d-6f3d-336a4e3cfe42@gmail.com>
+
+
+
+On 5/9/22 5:26 AM, Matthieu S wrote:
+> Hi
+> 
+> We recently installed a server with Ubuntu 22.04, and tried to add the nice
+> c2d4u ppa, with:
+> sudo add-apt-repository ppa:c2d4u.team/c2d4u4.0+
+> 
+> It leads to error:
+> E: The repository '
+> https://ppa.launchpadcontent.net/c2d4u.team/c2d4u4.0+/ubuntu jammy Release'
+> does not have a Release file.
+> N: Updating from such a repository can't be done securely, and is therefore
+> disabled by default.
+> 
+> Does it mean I am just impatient and the PPA has not been prepared for the
+> new version, or should I adjust something in the command?
+> 
+> Thanks!
+> 
+> Matthieu
+
+Matthieu,
+
+Builds for Jammy will begin this week.  New LTS releases always coincide 
+with the end of the semester of my day job, which makes it difficult to 
+carve out the time.  In addition, when a new LTS is released, the 
+Launchpad server farm is under heavy load, so waiting a bit makes the 
+building more efficient in terms of dependencies.  Hope to have a 
+majority of the packages in place by next week.
+
+Michael
+
+
+From cyoung @end|ng |rom tw|n@tr@ndb|o@com  Mon May  9 16:41:48 2022
+From: cyoung @end|ng |rom tw|n@tr@ndb|o@com (Chad Young)
+Date: Mon, 9 May 2022 07:41:48 -0700
+Subject: [R-sig-Debian] 
+ Installing R 4.1.2 doesn't work as it did a week ago
+In-Reply-To: <CACOX2Nw5OH=aQCeqAQhfAvve4PwMMGdAn5ymSVXOTNWOrRcV9g@mail.gmail.com>
+References: <CACOX2NxyHr_6HnJJFd79K203oGq9YJ509HSr3LvyJkucTonPVA@mail.gmail.com>
+ <25200.18837.704137.363633@rob.eddelbuettel.com>
+ <CACOX2Nw5OH=aQCeqAQhfAvve4PwMMGdAn5ymSVXOTNWOrRcV9g@mail.gmail.com>
+Message-ID: <CACOX2NwASufivqU6rBDmuHa-AsVf915BAqUs35C6zSBd_0R2vQ@mail.gmail.com>
+
+It looks like there are even more unmet dependencies on Ubuntu 20.04:
+
+#9 1.337 The following packages have unmet dependencies:
+#9 1.415  r-recommended : Depends: r-cran-cluster (>= 1.9.6-2) but it is
+not going to be installed
+#9 1.415                  Depends: r-cran-lattice (>= 0.10.11) but it is
+not going to be installed
+#9 1.415                  Depends: r-cran-mgcv (>= 1.1.5) but it is not
+going to be installed
+#9 1.415                  Depends: r-cran-nlme (>= 3.1.52) but it is not
+going to be installed
+#9 1.415                  Depends: r-cran-rpart (>= 3.1.20) but it is not
+going to be installed
+#9 1.415                  Depends: r-cran-survival (>= 2.13.2-1) but it is
+not going to be installed
+#9 1.415                  Depends: r-cran-mass but it is not going to be
+installed
+#9 1.415                  Depends: r-cran-class but it is not going to be
+installed
+#9 1.415                  Depends: r-cran-matrix but it is not going to be
+installed
+
+Using the commands
+
+RUN apt-get install --yes  \
+    r-base=4.1.2-* \
+    r-base-dev=4.1.2-* \
+    r-base-core=4.1.2-* \
+    r-recommended=4.1.2-*
+
+I can explicitly install each of the dependent packages, but it feels
+excessive. Any ideas why this is the case? Below is a Dockerfile that
+reproduces the dependencies messages.
+
+
+FROM ubuntu:20.04
+
+RUN apt-get update \
+  && apt-get install --yes \
+    bash \
+    sudo \
+    coreutils \
+    procps
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+  && apt-get install --yes software-properties-common apt-transport-https \
+  && gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys
+E298A3A825C0D65DFD57CBB651716619E084DAB9 \
+  && gpg -a --export E298A3A825C0D65DFD57CBB651716619E084DAB9 | sudo
+apt-key add - \
+  && add-apt-repository -y "deb [arch=amd64,i386]
+https://cran.rstudio.com/bin/linux/ubuntu $(lsb_release -cs)-cran40/" \
+  && apt-get update \
+  && apt-get install --yes \
+    libssl-dev \
+    r-base=4.1.2-* \
+    r-base-dev=4.1.2-* \
+    r-base-core=4.1.2-* \
+    r-recommended=4.1.2-*
+
+Chad Young
+Bioinformatics Scientist
+TwinStrand Biosciences <https://twinstrandbio.com/>
+
+
+On Mon, May 2, 2022 at 2:36 PM Chad Young <cyoung at twinstrandbio.com> wrote:
+
+> Thanks for the quick response. When I try that, I get
+>
+>  The following packages have unmet dependencies:
+>   r-recommended : Depends: r-cran-mass but it is not going to be installed
+>                   Depends: r-cran-class but it is not going to be installed
+>
+> I added explicit installs for both of those (selecting what looked to be
+> the most appropriate version) and it seems to be working now.
+>
+> Chad Young
+> Bioinformatics Scientist
+> TwinStrand Biosciences <https://twinstrandbio.com/>
+>
+>
+> On Mon, May 2, 2022 at 2:13 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+>>
+>> On 2 May 2022 at 13:52, Chad Young wrote:
+>> | I have a docker file for installing R on Ubuntu 18.04, and as of last
+>> week
+>> | it is failing. I think it seems to be related to the recent release of R
+>> | 4.2.0. I want to install R 4.1.2, but when I use the below command and
+>> then
+>> | check the R version, it comes out as 4.2.0. Do you know why this is
+>> | happening?
+>> |
+>> | RUN apt-get update \
+>> |     && apt-get install -y gnupg2 software-properties-common \
+>> |     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys
+>> | E298A3A825C0D65DFD57CBB651716619E084DAB9 \
+>> |     && add-apt-repository 'deb
+>> https://cloud.r-project.org/bin/linux/ubuntu
+>> | bionic-cran40/' \
+>> |     && apt-get update \
+>> |     && apt-get install -y \
+>> |            r-base=4.1.2-* \
+>> |            r-recommended=4.1.2-*
+>> |
+>> | If I just install r-base-core=4.1.2-* it seems to install the correct
+>> | version of R.
+>>
+>> You were close. You need three lines at the end:
+>>
+>>      && apt-get install -y \
+>>             r-base=4.1.2-* \
+>>             r-base-core=4.1.2-* \
+>>             r-recommended=4.1.2-*
+>>
+>> This has to do with a fact that such an imposed version does apparently
+>> _not_
+>> get pushed through to the versions pulled in the by the packages you
+>> constrained.  In other words, while 'r-base' gets fixed, the
+>> 'r-base-core' is
+>> still "free" meaning you get the newest as `apt` tries to be helpful.
+>>
+>> Dirk
+>>
+>> --
+>> dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>>
+>
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon May  9 17:02:27 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 9 May 2022 10:02:27 -0500
+Subject: [R-sig-Debian] 
+ Installing R 4.1.2 doesn't work as it did a week ago
+In-Reply-To: <CACOX2NwASufivqU6rBDmuHa-AsVf915BAqUs35C6zSBd_0R2vQ@mail.gmail.com>
+References: <CACOX2NxyHr_6HnJJFd79K203oGq9YJ509HSr3LvyJkucTonPVA@mail.gmail.com>
+ <25200.18837.704137.363633@rob.eddelbuettel.com>
+ <CACOX2Nw5OH=aQCeqAQhfAvve4PwMMGdAn5ymSVXOTNWOrRcV9g@mail.gmail.com>
+ <CACOX2NwASufivqU6rBDmuHa-AsVf915BAqUs35C6zSBd_0R2vQ@mail.gmail.com>
+Message-ID: <25209.11523.312920.928807@rob.eddelbuettel.com>
+
+
+Chad,
+
+I think you have a fundamental disconnect.  "In general" both at CRAN and in
+distros like Ubuntu and Debian you just get rolling releases that will
+feature the most current version of packages (with the exception of release
+snapshot time at which point a demarcation line is drawn).
+
+So you generally cannot assume you can just randomly impose version constraint.
+There are some expections (as the date-snapshots by first MRAN and now RSPM),
+but they are generally _not_ integrated with apt.
+
+In short, methinks you cannot assume you can just run a Dockerfile today as
+if were a random day you liked between R 4.1.2 and 4.1.3. The repos, and
+package management software, are designed for that use case.
+
+Hope this helps,  Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From cyoung @end|ng |rom tw|n@tr@ndb|o@com  Mon May  9 17:07:12 2022
+From: cyoung @end|ng |rom tw|n@tr@ndb|o@com (Chad Young)
+Date: Mon, 9 May 2022 08:07:12 -0700
+Subject: [R-sig-Debian] 
+ Installing R 4.1.2 doesn't work as it did a week ago
+In-Reply-To: <25209.11523.312920.928807@rob.eddelbuettel.com>
+References: <CACOX2NxyHr_6HnJJFd79K203oGq9YJ509HSr3LvyJkucTonPVA@mail.gmail.com>
+ <25200.18837.704137.363633@rob.eddelbuettel.com>
+ <CACOX2Nw5OH=aQCeqAQhfAvve4PwMMGdAn5ymSVXOTNWOrRcV9g@mail.gmail.com>
+ <CACOX2NwASufivqU6rBDmuHa-AsVf915BAqUs35C6zSBd_0R2vQ@mail.gmail.com>
+ <25209.11523.312920.928807@rob.eddelbuettel.com>
+Message-ID: <CACOX2Ny70Z4n3wAsJd6FRsJLgXJGoWXMO-ZCY7z1K3T6xS2UqQ@mail.gmail.com>
+
+Okay, thanks for all your help.
+
+Chad Young
+Bioinformatics Scientist
+TwinStrand Biosciences <https://twinstrandbio.com/>
+
+
+On Mon, May 9, 2022 at 8:02 AM Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> Chad,
+>
+> I think you have a fundamental disconnect.  "In general" both at CRAN and
+> in
+> distros like Ubuntu and Debian you just get rolling releases that will
+> feature the most current version of packages (with the exception of release
+> snapshot time at which point a demarcation line is drawn).
+>
+> So you generally cannot assume you can just randomly impose version
+> constraint.
+> There are some expections (as the date-snapshots by first MRAN and now
+> RSPM),
+> but they are generally _not_ integrated with apt.
+>
+> In short, methinks you cannot assume you can just run a Dockerfile today as
+> if were a random day you liked between R 4.1.2 and 4.1.3. The repos, and
+> package management software, are designed for that use case.
+>
+> Hope this helps,  Dirk
+>
+> --
+> dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon May  9 17:13:29 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 9 May 2022 10:13:29 -0500
+Subject: [R-sig-Debian] 
+ Installing R 4.1.2 doesn't work as it did a week ago
+In-Reply-To: <CACOX2Ny70Z4n3wAsJd6FRsJLgXJGoWXMO-ZCY7z1K3T6xS2UqQ@mail.gmail.com>
+References: <CACOX2NxyHr_6HnJJFd79K203oGq9YJ509HSr3LvyJkucTonPVA@mail.gmail.com>
+ <25200.18837.704137.363633@rob.eddelbuettel.com>
+ <CACOX2Nw5OH=aQCeqAQhfAvve4PwMMGdAn5ymSVXOTNWOrRcV9g@mail.gmail.com>
+ <CACOX2NwASufivqU6rBDmuHa-AsVf915BAqUs35C6zSBd_0R2vQ@mail.gmail.com>
+ <25209.11523.312920.928807@rob.eddelbuettel.com>
+ <CACOX2Ny70Z4n3wAsJd6FRsJLgXJGoWXMO-ZCY7z1K3T6xS2UqQ@mail.gmail.com>
+Message-ID: <25209.12185.501092.850154@rob.eddelbuettel.com>
+
+
+On 9 May 2022 at 08:07, Chad Young wrote:
+| Okay, thanks for all your help.
+
+The rocker-versioned stack may be of help to you.  There is generally a
+container for each R release so you could start at 4.1.2 -- and it then knows
+where to look for RSPM binaries.  But that is fundamentally different from
+"just using apt".
+
+| On Mon, May 9, 2022 at 8:02 AM Dirk Eddelbuettel <edd at debian.org> wrote:
+| > if were a random day you liked between R 4.1.2 and 4.1.3. The repos, and
+| > package management software, are designed for that use case.
+
+PS I actually omitted an important 'not' there:  "are not designed for that"
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@tth|eu@@t|g|er @end|ng |rom gm@||@com  Tue May 10 10:00:52 2022
+From: m@tth|eu@@t|g|er @end|ng |rom gm@||@com (Matthieu S)
+Date: Tue, 10 May 2022 10:00:52 +0200
+Subject: [R-sig-Debian] Using PPA c2d4u.team on Ubuntu 22.04?
+In-Reply-To: <18cb5ebd-ddfb-209d-6f3d-336a4e3cfe42@gmail.com>
+References: <CAEYvigL8fwUSqMrOu6xRgZyG=QRgKUOisLozRnRcrCWMqL5WMQ@mail.gmail.com>
+ <18cb5ebd-ddfb-209d-6f3d-336a4e3cfe42@gmail.com>
+Message-ID: <CAEYvig+y8pi2DfD0q3uMaUxMj3QegCe=6MGWvU6rhtwVzN+e7g@mail.gmail.com>
+
+Hi Michael
+
+Thanks for your prompt answer, and for the invaluable work you do with
+c2d4u! I fully it takes time, sorry for my impatience!
+
+Matthieu
+
+Le lun. 9 mai 2022 ? 15:11, Michael Rutter <marutter at gmail.com> a ?crit :
+
+>
+>
+> On 5/9/22 5:26 AM, Matthieu S wrote:
+> > Hi
+> >
+> > We recently installed a server with Ubuntu 22.04, and tried to add the
+> nice
+> > c2d4u ppa, with:
+> > sudo add-apt-repository ppa:c2d4u.team/c2d4u4.0+
+> >
+> > It leads to error:
+> > E: The repository '
+> > https://ppa.launchpadcontent.net/c2d4u.team/c2d4u4.0+/ubuntu jammy
+> Release'
+> > does not have a Release file.
+> > N: Updating from such a repository can't be done securely, and is
+> therefore
+> > disabled by default.
+> >
+> > Does it mean I am just impatient and the PPA has not been prepared for
+> the
+> > new version, or should I adjust something in the command?
+> >
+> > Thanks!
+> >
+> > Matthieu
+>
+> Matthieu,
+>
+> Builds for Jammy will begin this week.  New LTS releases always coincide
+> with the end of the semester of my day job, which makes it difficult to
+> carve out the time.  In addition, when a new LTS is released, the
+> Launchpad server farm is under heavy load, so waiting a bit makes the
+> building more efficient in terms of dependencies.  Hope to have a
+> majority of the packages in place by next week.
+>
+> Michael
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Tue May 10 13:34:02 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 10 May 2022 06:34:02 -0500
+Subject: [R-sig-Debian] New repo 'CRANapt' with 19k packages for Ubuntu
+ 20.04 + 22.04
+Message-ID: <25210.19882.258510.587468@rob.eddelbuettel.com>
+
+
+Two tweets last week [1] announced something I have worked on for the last
+few weeks: CRANapt.  Documentation is at https://eddelbuettel.github.io/r2u/
+
+It covers all of CRAN (minus three packages blacklisted for lack of build
+dependencies [2], and about three that do build for other reasons) so just
+under 19k packages each [3] along with about 180 packages from BioConductor.
+
+It all works quite well and fast. The tweets, and docs site, show two
+recorded gifs showing installation of ALL required r-cran-* packages for,
+respectively, tidyverse and brms in 18 and 13 seconds each (!!).  Better
+still, this uses bspm so we bridge from install.packages() to apt use and
+have FULL system integration.
+
+Everything has been built for R 4.2.0, and the BioConductor packages use 3.15
+so we are current.
+
+Give it a spin -- there are setup instructions, short setup scripts, Docker
+containers and a GitPod integration meaning that if you are on GitHub and are
+/ or can sign up to GitPod.io you get to run a session (off the Docker
+container) in your browser (!!) which is neat (up to 50h / months for free).
+Please ask questions here (on list) or as issues at the GitHub repo.
+
+This is not (yet at least) meant to replace cran2deb4ubuntu. Many of us rely
+on it (for our systems, and/or CI) as it is built on solid infrastructure we
+can rely on (the Launchpad system by Canonical) and uses the official formal
+build process which is good and time-tested. However, as two friends had
+built 'full' coverage for OpenSUSE and Fedora, respectively, I also wanted to
+give this another try [4] with a lighter-weight build approach to see if I
+could move coverage beyond its 5k package. Which worked so here we are. (On a
+system running it you can keep cran2deb4ubuntu entries, or replace them as
+CRANapt has a superset of packages. Please do add a pinning file as a handful
+of packages in the distro have an (accidentally) higher version number (from
+adding '+dfsg' and alike).
+ 
+Cheers, Dirk
+
+
+[1] https://twitter.com/eddelbuettel/status/1522731846831902721 and
+    https://twitter.com/eddelbuettel/status/1523376755548979201
+[2] ROracle and Rcplex need commercial software, BRugs needs a binary
+[3] CRAN has been pruning since hitting 19k in March and is now at 18.7. I
+    have yet to add a script to remove CRAN-removed packages from CRANapt.
+[4] I have been on and off on this since the 2000s building initally on
+    Albrecht Gebhardt's work, then another iniative, plus brilliant GSoC work
+    I mentored and extended for a bit (til a machine crash took it out); Don
+    Armstrong had a full system too (til a crash a fully-RAIDed system took
+    it out) and so on.
+    
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From dw|n@em|u@ @end|ng |rom comc@@t@net  Wed May 11 22:24:16 2022
+From: dw|n@em|u@ @end|ng |rom comc@@t@net (David Winsemius)
+Date: Wed, 11 May 2022 13:24:16 -0700
+Subject: [R-sig-Debian] Docs for CRAN: install R
+Message-ID: <899d0635-3f38-a3be-9508-bc046835d7f5@comcast.net>
+
+Dear CRAN webmaster;
+
+
+I think the code at the bottom of the first code block on the Ubuntu page:
+
+
+https://cran.r-project.org/bin/linux/ubuntu/
+
+
+should be changed to:
+
+
+add-apt-repository"deb https://cloud.r-project.org/bin/linux/ubuntu 
+$(lsb_release-cs)-cran42/"
+
+-- 
+
+David.
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Thu May 12 03:35:23 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 11 May 2022 20:35:23 -0500
+Subject: [R-sig-Debian] Docs for CRAN: install R
+In-Reply-To: <899d0635-3f38-a3be-9508-bc046835d7f5@comcast.net>
+References: <899d0635-3f38-a3be-9508-bc046835d7f5@comcast.net>
+Message-ID: <25212.25691.42623.130958@rob.eddelbuettel.com>
+
+
+On 11 May 2022 at 13:24, David Winsemius wrote:
+| Dear CRAN webmaster;
+
+It's just Michael and myself looking after that page. CRAN mirrors it.
+ 
+| I think the code at the bottom of the first code block on the Ubuntu page:
+| 
+| https://cran.r-project.org/bin/linux/ubuntu/
+| 
+| should be changed to:
+| 
+| add-apt-repository"deb https://cloud.r-project.org/bin/linux/ubuntu 
+| $(lsb_release-cs)-cran42/"
+
+That came out hard to read but is also likely wrong. The 'cran40' does not
+refer to a version but _to the API change_ just how we one with cran35.
+
+And for what it is worth the listed repo works just fine:
+
+edd at brad:~$ apt-cache policy r-base-core
+r-base-core:
+  Installed: 4.2.0-1.2204.0
+  Candidate: 4.2.0-1.2204.0
+  Version table:
+ *** 4.2.0-1.2204.0 500
+        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages
+        100 /var/lib/dpkg/status
+     4.1.2-1ubuntu2 500
+        500 http://us.archive.ubuntu.com/ubuntu jammy/universe amd64 Packages
+edd at brad:~$ 
+
+(I had two entries in there for interim/personal PPAs of mine.  What is shown
+now shows you that Ubuntu 22.04 has a) the R that was current when it was
+cut, in this case 4.1.2, in the distro itself, and b) because of volunteer
+effors also R 4.2.0 via the CRAN mirror at the listed address.
+
+Makes sense?
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From dw|n@em|u@ @end|ng |rom comc@@t@net  Thu May 12 04:22:47 2022
+From: dw|n@em|u@ @end|ng |rom comc@@t@net (David Winsemius)
+Date: Wed, 11 May 2022 19:22:47 -0700
+Subject: [R-sig-Debian] Docs for CRAN: install R
+In-Reply-To: <25212.25691.42623.130958@rob.eddelbuettel.com>
+References: <25212.25691.42623.130958@rob.eddelbuettel.com>
+Message-ID: <26671E27-E0C4-4401-88FA-7C6430494DB7@comcast.net>
+
+Thanks. Makes sense. 
+
+Sent from my iPhone
+
+> On May 11, 2022, at 6:35 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+> 
+> ?
+> On 11 May 2022 at 13:24, David Winsemius wrote:
+> | Dear CRAN webmaster;
+> 
+> It's just Michael and myself looking after that page. CRAN mirrors it.
+> 
+> | I think the code at the bottom of the first code block on the Ubuntu page:
+> | 
+> | https://cran.r-project.org/bin/linux/ubuntu/
+> | 
+> | should be changed to:
+> | 
+> | add-apt-repository"deb https://cloud.r-project.org/bin/linux/ubuntu 
+> | $(lsb_release-cs)-cran42/"
+> 
+> That came out hard to read but is also likely wrong. The 'cran40' does not
+> refer to a version but _to the API change_ just how we one with cran35.
+> 
+> And for what it is worth the listed repo works just fine:
+> 
+> edd at brad:~$ apt-cache policy r-base-core
+> r-base-core:
+>  Installed: 4.2.0-1.2204.0
+>  Candidate: 4.2.0-1.2204.0
+>  Version table:
+> *** 4.2.0-1.2204.0 500
+>        500 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ Packages
+>        100 /var/lib/dpkg/status
+>     4.1.2-1ubuntu2 500
+>        500 http://us.archive.ubuntu.com/ubuntu jammy/universe amd64 Packages
+> edd at brad:~$ 
+> 
+> (I had two entries in there for interim/personal PPAs of mine.  What is shown
+> now shows you that Ubuntu 22.04 has a) the R that was current when it was
+> cut, in this case 4.1.2, in the distro itself, and b) because of volunteer
+> effors also R 4.2.0 via the CRAN mirror at the listed address.
+> 
+> Makes sense?
+> 
+> Dirk
+> 
+> -- 
+> dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From gr|er@ @end|ng |rom y@ndex@com  Fri May 13 11:13:40 2022
+From: gr|er@ @end|ng |rom y@ndex@com (Griera)
+Date: Fri, 13 May 2022 11:13:40 +0200
+Subject: [R-sig-Debian] Problem with gdal-config when installing the
+ "chronosphere" package
+Message-ID: <20220513111311.47e25c98@debian-dde-tosh>
+
+Hi,
+
+I am trying to install "chronosphere" or "rgdal" package, and I get the
+error:
+
+configure: CC: gcc 
+configure: CXX: g++ -std=gnu++11 
+checking for gdal-config... no no
+configure: error: gdal-config not found or not executable.
+
+After a search on the Internet, it is suggested to install:
+
+$ sudo apt-get install libgdal-dev gdal-bin libproj-dev proj-data proj-bin libgeos-dev
+
+but I get:
+
+gdal-bin it's in the most recent version (3.2.2+dfsg-2+deb11u1). 
+proj-bin it's in the most recent version (7.2.1-1).
+
+But I get an error with libcharls-dev : Depends on:
+
+libcharls2 (= 2.2.0+dfsg-2)
+
+but it installs:
+
+2.2.1+dfsg-1~bpo11+1
+
+The problem is : "Problems cannot be corrected, you have retained packages that are broken."
+
+But I do:
+
+$ sudo apt --fix-missing update
+$ sudo apt update 
+$ sudo apt install -f
+
+No problem appears and no error appears.
+
+I use Debian 11 Bulleseye and R version 4.2.0 (2022-04-22) from https://cran.r-project.org/bin/linux/debian.
+
+Any suggestions on how I can avoid the error?
+
+I want to thank you very much.
+
+
+From kry|ov@r00t @end|ng |rom gm@||@com  Fri May 13 11:23:15 2022
+From: kry|ov@r00t @end|ng |rom gm@||@com (Ivan Krylov)
+Date: Fri, 13 May 2022 12:23:15 +0300
+Subject: [R-sig-Debian] Problem with gdal-config when installing the
+ "chronosphere" package
+In-Reply-To: <20220513111311.47e25c98@debian-dde-tosh>
+References: <20220513111311.47e25c98@debian-dde-tosh>
+Message-ID: <20220513122315.1d31f35d@Tarkus>
+
+Hi,
+
+On Fri, 13 May 2022 11:13:40 +0200
+Griera <griera at yandex.com> wrote:
+
+> Hi,
+> 
+> I am trying to install "chronosphere" or "rgdal" package, and I get
+> the error:
+> 
+> configure: CC: gcc 
+> configure: CXX: g++ -std=gnu++11 
+> checking for gdal-config... no no
+> configure: error: gdal-config not found or not executable.
+
+That would be in the libgdal-dev package:
+https://packages.debian.org/search?suite=bullseye&section=all&arch=any&searchon=contents&keywords=%2Fusr%2Fbin%2Fgdal-config
+
+> But I get an error with libcharls-dev : Depends on:
+> 
+> libcharls2 (= 2.2.0+dfsg-2)
+> 
+> but it installs:
+> 
+> 2.2.1+dfsg-1~bpo11+1
+
+You seem to have installed libcharls2 from the backports repository. It
+should be possible to install the corresponding libcharls2-dev from
+backports too by passing -t bullseye-backports to APT.
+
+-- 
+Best regards,
+Ivan
+
+
+From gr|er@ @end|ng |rom y@ndex@com  Fri May 13 16:32:06 2022
+From: gr|er@ @end|ng |rom y@ndex@com (Griera-yandex)
+Date: Fri, 13 May 2022 16:32:06 +0200
+Subject: [R-sig-Debian] Problem with gdal-config when installing the
+ "chronosphere" package
+In-Reply-To: <20220513122315.1d31f35d@Tarkus>
+References: <20220513111311.47e25c98@debian-dde-tosh>
+ <20220513122315.1d31f35d@Tarkus>
+Message-ID: <20220513163206.6dc04155@debian-dde-tosh>
+
+Thanks a lot, Ivan,
+
+
+On Fri, 13 May 2022 12:23:15 +0300
+Ivan Krylov <krylov.r00t at gmail.com> wrote:
+
+> Hi,
+> 
+> On Fri, 13 May 2022 11:13:40 +0200
+> Griera <griera at yandex.com> wrote:
+> 
+> > Hi,
+> > 
+> > I am trying to install "chronosphere" or "rgdal" package, and I get
+> > the error:
+> > 
+> > configure: CC: gcc 
+> > configure: CXX: g++ -std=gnu++11 
+> > checking for gdal-config... no no
+> > configure: error: gdal-config not found or not executable.
+> 
+> That would be in the libgdal-dev package:
+> https://packages.debian.org/search?suite=bullseye&section=all&arch=any&searchon=contents&keywords=%2Fusr%2Fbin%2Fgdal-config
+> 
+> > But I get an error with libcharls-dev : Depends on:
+> > 
+> > libcharls2 (= 2.2.0+dfsg-2)
+> > 
+> > but it installs:
+> > 
+> > 2.2.1+dfsg-1~bpo11+1
+> 
+> You seem to have installed libcharls2 from the backports repository. It
+> should be possible to install the corresponding libcharls2-dev from
+> backports too by passing -t bullseye-backports to APT.
+
+The problem is that there is no such package in bullseye-backports.
+
+The installation of the package libcharls2-dev was done by another
+package (I don't know which) and I don't want to go back to the non
+backports edition in case I break some dependency that I don't
+know how to solve later.
+
+So is it likely that there is no solution?
+
+Thank you very much and Best regards. 
+
+> 
+> -- 
+> Best regards,
+> Ivan
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From kry|ov@r00t @end|ng |rom gm@||@com  Fri May 13 16:41:27 2022
+From: kry|ov@r00t @end|ng |rom gm@||@com (Ivan Krylov)
+Date: Fri, 13 May 2022 17:41:27 +0300
+Subject: [R-sig-Debian] Problem with gdal-config when installing the
+ "chronosphere" package
+In-Reply-To: <20220513163206.6dc04155@debian-dde-tosh>
+References: <20220513111311.47e25c98@debian-dde-tosh>
+ <20220513122315.1d31f35d@Tarkus>
+ <20220513163206.6dc04155@debian-dde-tosh>
+Message-ID: <20220513174127.2e58d6e2@trisector>
+
+On Fri, 13 May 2022 16:32:06 +0200
+Griera-yandex <griera at yandex.com> wrote:
+
+> The problem is that there is no such package in bullseye-backports.
+
+Am I missing something? The website does seem to mention libcharls-dev
+2.2.1+dfsg-1~bpo11+1 being present in bullseye-backports:
+https://packages.debian.org/bullseye-backports/libcharls-dev
+
+-- 
+Best regards,
+Ivan
+
+
+From gr|er@ @end|ng |rom y@ndex@com  Fri May 13 17:05:54 2022
+From: gr|er@ @end|ng |rom y@ndex@com (Griera-yandex)
+Date: Fri, 13 May 2022 17:05:54 +0200
+Subject: [R-sig-Debian] Problem with gdal-config when installing the
+ "chronosphere" package
+In-Reply-To: <20220513174127.2e58d6e2@trisector>
+References: <20220513111311.47e25c98@debian-dde-tosh>
+ <20220513122315.1d31f35d@Tarkus>
+ <20220513163206.6dc04155@debian-dde-tosh>
+ <20220513174127.2e58d6e2@trisector>
+Message-ID: <20220513170554.67bcd45e@debian-dde-tosh>
+
+On Fri, 13 May 2022 17:41:27 +0300
+Ivan Krylov <krylov.r00t at gmail.com> wrote:
+
+> On Fri, 13 May 2022 16:32:06 +0200
+> Griera-yandex <griera at yandex.com> wrote:
+> 
+> > The problem is that there is no such package in bullseye-backports.
+> 
+> Am I missing something? The website does seem to mention libcharls-dev
+> 2.2.1+dfsg-1~bpo11+1 being present in bullseye-backports:
+> https://packages.debian.org/bullseye-backports/libcharls-dev
+
+I'm sorry! I have searched in :
+
+https://backports.debian.org/Packages/
+
+And by default it searches in buster-backport.
+
+I do:
+
+$ sudo aptitude -t bullseye-backports install libcharls-dev
+$ sudo aptitude install libgdal-dev gdal-bin
+libproj-dev proj-data proj-bin libgeos-dev
+
+I after:
+
+> install.packages ("chronosphere")
+
+I now everything correct.
+
+Thank you very much for this help tant useful. Best regards
+
+> 
+> -- 
+> Best regards,
+> Ivan
+
+
+From |enn@rt @end|ng |rom k@r@@en@org  Mon May 16 16:51:46 2022
+From: |enn@rt @end|ng |rom k@r@@en@org (Lennart C. Karssen)
+Date: Mon, 16 May 2022 16:51:46 +0200
+Subject: [R-sig-Debian] Test e-mail
+Message-ID: <3f4eba4f-9297-81c2-0561-4c0feabeefbd@karssen.org>
+
+Dear list,
+
+As it seems that earlier e-mails I sent to this list get blocked by
+content filtering rules, I am trying again with this simple message,
+without signature and without using GPG to sign it.
+
+
+Apologies for the noise,
+
+Lennart Karssen.
+
+
+From |enn@rt @end|ng |rom k@r@@en@org  Mon May 16 16:54:57 2022
+From: |enn@rt @end|ng |rom k@r@@en@org (Lennart C. Karssen)
+Date: Mon, 16 May 2022 16:54:57 +0200
+Subject: [R-sig-Debian] Ubuntu Impish (21.10) repository complains about
+ weak security information
+Message-ID: <ec14bc8e-8552-41e5-c8a9-9f7a2a946d15@karssen.org>
+
+Dear list,
+
+When running `apt update` on my two Ubuntu 21.10 machines today, I
+noticed that apt complains with the following message:
+
+E: The repository 'https://cloud.r-project.org/bin/linux/ubuntu
+impish-cran40/ InRelease' provides only weak security information.
+
+N: Updating from such a repository can't be done securely, and is
+therefore disabled by default.
+
+N: See apt-secure(8) manpage for repository creation and user
+configuration details.
+
+
+As a result, I can't upgrade the packages any more (I was about to
+upgrade from R 4.1.3 to 4.2.0).
+
+If I replace `impish-cran40` with either `focal-cran40` or
+`jammy-cran40` in `/etc/apt/sources.list.d/cran.list` the warning goes
+away (although unsurprisingly upgrading packages fails because of
+dependency issues).
+This gives me the idea that something is wrong with the way the packages
+for Ubuntu 21.10 are signed, whereas this is done correctly for 20.04
+and 22.04.
+
+There is also a StackOverflow question about this [1], so this doesn't
+seem to be related to only my setup.
+
+
+Best regards,
+
+Lennart Karssen.
+
+
+[1]
+https://stackoverflow.com/questions/72098905/problem-with-r-impish-repo-in-ubuntu-22-04-impish-cran40
+
+-- 
+*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+L.C. Karssen
+Den Bosch
+The Netherlands
+
+lennart at karssen.org
+http://blog.karssen.org
+
+
+From edd @end|ng |rom deb|@n@org  Mon May 16 17:27:27 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 16 May 2022 10:27:27 -0500
+Subject: [R-sig-Debian] Ubuntu Impish (21.10) repository complains about
+ weak security information
+In-Reply-To: <ec14bc8e-8552-41e5-c8a9-9f7a2a946d15@karssen.org>
+References: <ec14bc8e-8552-41e5-c8a9-9f7a2a946d15@karssen.org>
+Message-ID: <25218.27999.459567.927909@rob.eddelbuettel.com>
+
+
+On 16 May 2022 at 16:54, Lennart C. Karssen wrote:
+| As a result, I can't upgrade the packages any more (I was about to
+| upgrade from R 4.1.3 to 4.2.0).
+
+A brute-force (and 'insecure') fix is to add
+
+  [trusted=yes]
+
+between deb and the url.  Obviously, using properly signed repos with keys is
+better but that is not something you have control over.
+
+For what it is worth I too have that in my impish-cran40 line on this 21.10
+machine that I reply from.
+
+Dirk
+
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From |enn@rt @end|ng |rom k@r@@en@org  Mon May 16 22:24:10 2022
+From: |enn@rt @end|ng |rom k@r@@en@org (Lennart C. Karssen)
+Date: Mon, 16 May 2022 22:24:10 +0200
+Subject: [R-sig-Debian] Ubuntu Impish (21.10) repository complains about
+ weak security information
+In-Reply-To: <25218.27999.459567.927909@rob.eddelbuettel.com>
+References: <ec14bc8e-8552-41e5-c8a9-9f7a2a946d15@karssen.org>
+ <25218.27999.459567.927909@rob.eddelbuettel.com>
+Message-ID: <c0876f48-ff21-021f-aa37-6d11ba628c66@karssen.org>
+
+On 16-05-2022 17:27, Dirk Eddelbuettel wrote:
+> 
+> On 16 May 2022 at 16:54, Lennart C. Karssen wrote:
+> | As a result, I can't upgrade the packages any more (I was about to
+> | upgrade from R 4.1.3 to 4.2.0).
+> 
+> A brute-force (and 'insecure') fix is to add
+> 
+>   [trusted=yes]
+> 
+> between deb and the url.  Obviously, using properly signed repos with keys is
+> better but that is not something you have control over.
+
+Thanks Dirk, that gets me one step further. However, there is still a
+hurdle. It seems that (at least at the time of writing) the
+impish-cran40/ repo is broken. Apt complains that cannot find the
+Packages file:
+
+Ign:13 https://cloud.r-project.org/bin/linux/ubuntu impish-cran40/
+Translation-en_US
+
+Fetched 538 B in 14s (38 B/s)
+
+
+Reading package lists... Done
+
+W: Conflicting distribution:
+https://cloud.r-project.org/bin/linux/ubuntu impish-cran40/ InRelease
+(expected impish-cran40/ but got )
+
+E: Failed to fetch
+https://cloud.r-project.org/bin/linux/ubuntu/impish-cran40/Packages  404
+ Not Found [IP: 2600:9000:238d:3600:6:c2d3:f940:93a1 443]
+
+
+I also tried forcing IPv4, just to be sure, but with the same result. In
+fact, browsing to
+https://cloud.r-project.org/bin/linux/ubuntu/impish-cran40/Packages
+shows that the file doesn't exist. For e.g. focal-cran40 it does exist.
+
+
+> 
+> For what it is worth I too have that in my impish-cran40 line on this 21.10
+> machine that I reply from.
+
+Could you please try and see if you get the same error?
+
+
+Best,
+
+Lennart.
+
+
+> 
+> Dirk
+> 
+> 
+
+-- 
+*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+L.C. Karssen
+'s-Hertogenbosch
+The Netherlands
+
+lennart at karssen.org
+http://blog.karssen.org
+GPG key ID: A88F554A
+
+
+From edd @end|ng |rom deb|@n@org  Mon May 16 23:15:55 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 16 May 2022 16:15:55 -0500
+Subject: [R-sig-Debian] Ubuntu Impish (21.10) repository complains about
+ weak security information
+In-Reply-To: <c0876f48-ff21-021f-aa37-6d11ba628c66@karssen.org>
+References: <ec14bc8e-8552-41e5-c8a9-9f7a2a946d15@karssen.org>
+ <25218.27999.459567.927909@rob.eddelbuettel.com>
+ <c0876f48-ff21-021f-aa37-6d11ba628c66@karssen.org>
+Message-ID: <25218.48907.648635.234609@rob.eddelbuettel.com>
+
+
+On 16 May 2022 at 22:24, Lennart C. Karssen wrote:
+| Thanks Dirk, that gets me one step further. However, there is still a
+| hurdle. It seems that (at least at the time of writing) the
+| impish-cran40/ repo is broken.
+
+You are correct, sorry. I rushed earlier to help you on the key issue, and
+missed that this is indeed commented out here in my list file for apt.
+
+Now, you can get R 4.2.0 from the usual location but selecting 20.04 aka
+focal (which will run on 21.10), or, as I tweeted the day R 4.2.0 was
+released, from my PPA at launchpad which also has an impish build.
+
+https://launchpad.net/~edd/+archive/ubuntu/misc?field.series_filter=impish
+
+Hth, Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From m@rutter @end|ng |rom gm@||@com  Tue May 17 15:33:13 2022
+From: m@rutter @end|ng |rom gm@||@com (Michael Rutter)
+Date: Tue, 17 May 2022 09:33:13 -0400
+Subject: [R-sig-Debian] Ubuntu Impish (21.10) repository complains about
+ weak security information
+In-Reply-To: <25218.48907.648635.234609@rob.eddelbuettel.com>
+References: <ec14bc8e-8552-41e5-c8a9-9f7a2a946d15@karssen.org>
+ <25218.27999.459567.927909@rob.eddelbuettel.com>
+ <c0876f48-ff21-021f-aa37-6d11ba628c66@karssen.org>
+ <25218.48907.648635.234609@rob.eddelbuettel.com>
+Message-ID: <08790b93-93d8-9a0e-18cd-61addcea62bc@gmail.com>
+
+Lennart,
+
+This issue has been fixed, I hope.  It will take 24 hours to sync to 
+CRAN and the mirrors.  A configuration file was accidentally deleted and 
+has been replaced.  If there are still issues, please let me know.
+
+Michael
+
+On 5/16/22 5:15 PM, Dirk Eddelbuettel wrote:
+> 
+> On 16 May 2022 at 22:24, Lennart C. Karssen wrote:
+> | Thanks Dirk, that gets me one step further. However, there is still a
+> | hurdle. It seems that (at least at the time of writing) the
+> | impish-cran40/ repo is broken.
+> 
+> You are correct, sorry. I rushed earlier to help you on the key issue, and
+> missed that this is indeed commented out here in my list file for apt.
+> 
+> Now, you can get R 4.2.0 from the usual location but selecting 20.04 aka
+> focal (which will run on 21.10), or, as I tweeted the day R 4.2.0 was
+> released, from my PPA at launchpad which also has an impish build.
+> 
+> https://launchpad.net/~edd/+archive/ubuntu/misc?field.series_filter=impish
+> 
+> Hth, Dirk
+>
+
+
+From |enn@rt @end|ng |rom k@r@@en@org  Tue May 17 15:58:13 2022
+From: |enn@rt @end|ng |rom k@r@@en@org (L.C. Karssen)
+Date: Tue, 17 May 2022 15:58:13 +0200
+Subject: [R-sig-Debian] Ubuntu Impish (21.10) repository complains about
+ weak security information
+In-Reply-To: <08790b93-93d8-9a0e-18cd-61addcea62bc@gmail.com>
+References: <ec14bc8e-8552-41e5-c8a9-9f7a2a946d15@karssen.org>
+ <25218.27999.459567.927909@rob.eddelbuettel.com>
+ <c0876f48-ff21-021f-aa37-6d11ba628c66@karssen.org>
+ <25218.48907.648635.234609@rob.eddelbuettel.com>
+ <08790b93-93d8-9a0e-18cd-61addcea62bc@gmail.com>
+Message-ID: <f468fa5a-66f6-a54a-51ef-168f57bbe3c8@karssen.org>
+
+Dear Michael,
+
+Thanks for looking into this. I'm currently travelling, but will test
+when I get back on Thursday.
+
+
+Best regards,
+
+Lennart.
+
+On 17-05-2022 15:33, Michael Rutter wrote:
+> Lennart,
+> 
+> This issue has been fixed, I hope.? It will take 24 hours to sync to
+> CRAN and the mirrors.? A configuration file was accidentally deleted and
+> has been replaced.? If there are still issues, please let me know.
+> 
+> Michael
+> 
+> On 5/16/22 5:15 PM, Dirk Eddelbuettel wrote:
+>>
+>> On 16 May 2022 at 22:24, Lennart C. Karssen wrote:
+>> | Thanks Dirk, that gets me one step further. However, there is still a
+>> | hurdle. It seems that (at least at the time of writing) the
+>> | impish-cran40/ repo is broken.
+>>
+>> You are correct, sorry. I rushed earlier to help you on the key issue,
+>> and
+>> missed that this is indeed commented out here in my list file for apt.
+>>
+>> Now, you can get R 4.2.0 from the usual location but selecting 20.04 aka
+>> focal (which will run on 21.10), or, as I tweeted the day R 4.2.0 was
+>> released, from my PPA at launchpad which also has an impish build.
+>>
+>> https://launchpad.net/~edd/+archive/ubuntu/misc?field.series_filter=impish
+>>
+>>
+>> Hth, Dirk
+>>
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+L.C. Karssen
+'s-Hertogenbosch
+The Netherlands
+
+lennart at karssen.org
+http://blog.karssen.org
+GPG key ID: A88F554A
+
+
+From |enn@rt @end|ng |rom k@r@@en@org  Thu May 19 21:43:26 2022
+From: |enn@rt @end|ng |rom k@r@@en@org (Lennart C. Karssen)
+Date: Thu, 19 May 2022 21:43:26 +0200
+Subject: [R-sig-Debian] Ubuntu Impish (21.10) repository complains about
+ weak security information
+In-Reply-To: <08790b93-93d8-9a0e-18cd-61addcea62bc@gmail.com>
+References: <ec14bc8e-8552-41e5-c8a9-9f7a2a946d15@karssen.org>
+ <25218.27999.459567.927909@rob.eddelbuettel.com>
+ <c0876f48-ff21-021f-aa37-6d11ba628c66@karssen.org>
+ <25218.48907.648635.234609@rob.eddelbuettel.com>
+ <08790b93-93d8-9a0e-18cd-61addcea62bc@gmail.com>
+Message-ID: <9f452ee3-53f7-70b2-9969-cb6e7bb3934e@karssen.org>
+
+Dear Michael,
+
+I hereby confirm that the problem has been resolved. Apt now
+successfully reads the repository data and my system has successfully
+been upgraded to R 4.2.0.
+
+
+Thanks a lot.
+Best regards,
+
+Lennart.
+
+On 17-05-2022 15:33, Michael Rutter wrote:
+> Lennart,
+> 
+> This issue has been fixed, I hope.? It will take 24 hours to sync to
+> CRAN and the mirrors.? A configuration file was accidentally deleted and
+> has been replaced.? If there are still issues, please let me know.
+> 
+> Michael
+> 
+> On 5/16/22 5:15 PM, Dirk Eddelbuettel wrote:
+>>
+>> On 16 May 2022 at 22:24, Lennart C. Karssen wrote:
+>> | Thanks Dirk, that gets me one step further. However, there is still a
+>> | hurdle. It seems that (at least at the time of writing) the
+>> | impish-cran40/ repo is broken.
+>>
+>> You are correct, sorry. I rushed earlier to help you on the key issue,
+>> and
+>> missed that this is indeed commented out here in my list file for apt.
+>>
+>> Now, you can get R 4.2.0 from the usual location but selecting 20.04 aka
+>> focal (which will run on 21.10), or, as I tweeted the day R 4.2.0 was
+>> released, from my PPA at launchpad which also has an impish build.
+>>
+>> https://launchpad.net/~edd/+archive/ubuntu/misc?field.series_filter=impish
+>>
+>>
+>> Hth, Dirk
+>>
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+L.C. Karssen
+'s-Hertogenbosch
+The Netherlands
+
+lennart at karssen.org
+http://blog.karssen.org
+GPG key ID: A88F554A
+
+

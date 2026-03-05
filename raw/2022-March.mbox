@@ -1,0 +1,129 @@
+From joh@nne@@r@nke @end|ng |rom jrwb@de  Tue Mar 29 14:37:33 2022
+From: joh@nne@@r@nke @end|ng |rom jrwb@de (Johannes Ranke)
+Date: Tue, 29 Mar 2022 14:37:33 +0200
+Subject: [R-sig-Debian] R Graphics engine again - Was: Accepted r-base
+ 4.1.3.20220324-1 (source) into unstable
+Message-ID: <3238941.HGc6qh4jjC@ryz>
+
+Dear all,
+
+For the upcoming R 4.2.0, there is a NEWS entry:
+
+- The graphics engine version, R_GE_version, has been bumped to 15 and so 
+packages that provide graphics devices should be reinstalled
+
+"Should" in this context really means "must be reinstalled if you want to be 
+able to use the devices provided by these packages". I just tested my local 
+backport of Dirks recent upload to unstable, and confirm that such devices only 
+work after reinstalling the package that provides them. So I believe at least 
+the following packages should be rebuilt in unstable:
+
+r-cran-rgl, r-cran-svglite, r-cran-vdiffr which embeds svglite, ggplot2
+
+This list is just what I came up with in May last year when R_GE_version was 
+bumped to 14, I assume that the list is longer than that.
+
+Another option (also discussed last year) would be to introduce something like 
+Provides: r-gev-15 to the next prerelease upload of r-base, and add versioned 
+depends to the affected R graphics packages.
+
+As I do not provide backports of Graphics packages, I do not have a strong 
+opinion on this. For Michael and the users of his nice PPAs of R packages for 
+Ubuntu, the second option may have the potential to avoid some headaches.
+
+Cheers,
+
+Johannes
+
+
+----------  Weitergeleitete Nachricht  ----------
+
+Betreff: Accepted r-base 4.1.3.20220324-1 (source) into unstable
+Datum: Freitag, 25. M?rz 2022, 02:20:11 CEST
+Von: Debian FTP Masters <ftpmaster at ftp-master.debian.org>
+An: debian-devel-changes at lists.debian.org
+
+Format: 1.8
+Date: Thu, 24 Mar 2022 19:25:31 -0500
+Source: r-base
+Architecture: source
+Version: 4.1.3.20220324-1
+Distribution: unstable
+Urgency: medium
+Maintainer: Dirk Eddelbuettel <edd at debian.org>
+Changed-By: Dirk Eddelbuettel <edd at debian.org>
+Changes:
+ r-base (4.1.3.20220324-1) unstable; urgency=medium
+ .
+   * Initial alpha release (svn r81978) of R 4.2.0 to be released April 22
+ .
+   * debian/source.lintian-overrides: Override for katex.js sources which are
+     at https://github.com/KaTeX/KaTeX
+ .
+   * debian/patches/series: No longer need 'use-fPIC-on-alpha'
+Checksums-Sha1:
+ e8a92c85322eafe16bd80afe1f0d3db314478c28 3077 r-base_4.1.3.20220324-1.dsc
+ 0968db74d3f83837648f4cbe1fa243b4d940079c 37564066 r-
+base_4.1.3.20220324.orig.tar.gz
+ baf9b2481af999e551ca0a3a3c3afb9c22534b94 97896 r-
+base_4.1.3.20220324-1.debian.tar.xz
+ 6371ab923ea4f0416cd79c74450a3b1553b5875e 16715 r-
+base_4.1.3.20220324-1_amd64.buildinfo
+Checksums-Sha256:
+ 9bcd2fe7f655a3005edf4b28233fef285c5a6aef94c361fffe486413a5856a71 3077 r-
+base_4.1.3.20220324-1.dsc
+ a33a7b4031b8c92eb2eb28a514a5bad5c71620e8ff61421314e9f74a6698c6f0 37564066 r-
+base_4.1.3.20220324.orig.tar.gz
+ 9e7ef4a09ef807d7ba314855a49ad437baecd6a59f510e8b553e3562e9f7d08b 97896 r-
+base_4.1.3.20220324-1.debian.tar.xz
+ 22b8af5fc8a699ed955a37ea6dbc4a0447da5a774573e49fd9dca13c2c47ad1b 16715 r-
+base_4.1.3.20220324-1_amd64.buildinfo
+Files:
+ d6c94ea0237307a87ba17369ff3a6c6e 3077 gnu-r optional r-
+base_4.1.3.20220324-1.dsc
+ c4d8c3a9832f7c8b6d9a352f9acf10b6 37564066 gnu-r optional r-
+base_4.1.3.20220324.orig.tar.gz
+ 3eaa8ff662c0311280a086146a9d4593 97896 gnu-r optional r-
+base_4.1.3.20220324-1.debian.tar.xz
+ 47a90075880240ea3deb707da2e9cb40 16715 gnu-r optional r-
+base_4.1.3.20220324-1_amd64.buildinfo
+
+
+-------------------------------------------------------------
+-- 
+Johannes Ranke
+Wissenschaftlicher Berater
+07624 8099027
+https://jrwb.de
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Tue Mar 29 14:51:28 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 29 Mar 2022 07:51:28 -0500
+Subject: [R-sig-Debian] R Graphics engine again - Was: Accepted r-base
+ 4.1.3.20220324-1 (source) into unstable
+In-Reply-To: <3238941.HGc6qh4jjC@ryz>
+References: <3238941.HGc6qh4jjC@ryz>
+Message-ID: <25155.208.112257.434313@rob.eddelbuettel.com>
+
+
+On 29 March 2022 at 14:37, Johannes Ranke wrote:
+| - The graphics engine version, R_GE_version, has been bumped to 15 and so 
+| packages that provide graphics devices should be reinstalled
+
+Correct. It's been in r-devel for months as Paul did some nice extensions
+work there (and described it in posts on the R Core blog at [1]).
+
+I am generally in favour of keeping it simple and just suggest reinstallation
+/ rebuilds of graphics packages.
+
+I'll aim to update r-base in unstable every four or so days to keep it out of
+testing. Please test R 4.2.0 now before the actual release in ~ four weeks.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+

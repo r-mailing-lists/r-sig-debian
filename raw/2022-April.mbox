@@ -1,0 +1,520 @@
+From @@m@hhh1 @end|ng |rom gm@||@com  Mon Apr 25 21:12:48 2022
+From: @@m@hhh1 @end|ng |rom gm@||@com (Sam H)
+Date: Mon, 25 Apr 2022 21:12:48 +0200
+Subject: [R-sig-Debian] Where/how to set R_LIBS_SITE in R 4.2.0 for running
+ R as R --vanilla to pick up "/usr/local/lib/R/site-library/"
+Message-ID: <CAEtT+h019dmD08XTLrp61x7av_dO-_xaUPV3LKEohef1DEkvgQ@mail.gmail.com>
+
+Hello,
+
+I have upgraded to R 4.2.0 on Ubuntu Ubuntu 20.04.4 LTS.
+
+Something changed since now when invoking R as "R --vanilla" does not pick
+up "/usr/local/lib/R/site-library" library anymore.
+
+I tried to look at "6.2 Managing libraries" in
+https://cran.r-project.org/doc/manuals/r-patched/R-admin.html and
+set R_LIBS_SITE in Renviron.site but with no success.
+
+What am I missing? Thanks.
+
+If I run R as "R --vanilla" this is what I get:
+$ R --vanilla
+
+R version 4.2.0 (2022-04-22) -- "Vigorous Calisthenics"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> .libPaths()
+[1] "/usr/lib/R/site-library" "/usr/lib/R/library"
+> Sys.getenv("R_LIBS_USER")
+[1] "/home/username/R/x86_64-pc-linux-gnu-library/4.2"
+> Sys.getenv("R_LIBS_SITE")
+[1] "/usr/lib/R/site-library"
+>
+
+If I run R as "R" correct libraries are picked up:
+$ R
+
+R version 4.2.0 (2022-04-22) -- "Vigorous Calisthenics"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> .libPaths()
+[1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"
+[3] "/usr/lib/R/library"
+> Sys.getenv("R_LIBS_USER")
+[1] "/home/username/R/x86_64-pc-linux-gnu-library/4.2"
+> Sys.getenv("R_LIBS_SITE")
+[1]
+"/usr/local/lib/R/site-library/:/usr/lib/R/site-library:/usr/lib/R/library"
+>
+
+-- 
+Best regards,
+Sam
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon Apr 25 21:44:55 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 25 Apr 2022 14:44:55 -0500
+Subject: [R-sig-Debian] 
+ Where/how to set R_LIBS_SITE in R 4.2.0 for running
+ R as R --vanilla to pick up "/usr/local/lib/R/site-library/"
+In-Reply-To: <CAEtT+h019dmD08XTLrp61x7av_dO-_xaUPV3LKEohef1DEkvgQ@mail.gmail.com>
+References: <CAEtT+h019dmD08XTLrp61x7av_dO-_xaUPV3LKEohef1DEkvgQ@mail.gmail.com>
+Message-ID: <25190.64055.266799.21417@rob.eddelbuettel.com>
+
+
+On 25 April 2022 at 21:12, Sam H wrote:
+| I have upgraded to R 4.2.0 on Ubuntu Ubuntu 20.04.4 LTS.
+| 
+| Something changed since now when invoking R as "R --vanilla" does not pick
+| up "/usr/local/lib/R/site-library" library anymore.
+
+I noticed that too when beta testing the earlier builds. It has to do with us
+(previously) setting value to unset variables ... which are now set.
+
+For the Debian package I managed the change by moving the setting to
+Renviron.site:
+
+  ## edd Apr 2003  Allow local install in /usr/local, also add a directory for
+  ##               Debian packaged CRAN packages, and finally the default dir
+  ## edd Jul 2007  Now use R_LIBS_SITE, not R_LIBS
+  ## edd Mar 2022  Now in Renviron.site reflecting R_LIBS_SITE
+  R_LIBS_SITE="/usr/local/lib/R/site-library/:${R_LIBS_SITE}:/usr/lib/R/library'"
+
+If you have those three lines you should be fine. I am (also on Uubuntu 20.04
+which a binary from my PPA):
+
+  # lsb_release -a 
+  No LSB modules are available.
+  Distributor ID: Ubuntu
+  Description:    Ubuntu 20.04.4 LTS
+  Release:        20.04
+  Codename:       focal
+  # Rscript --version
+  Rscript (R) version 4.2.0 (2022-04-22)
+  # Rscript -e '.libPaths()'
+  [1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"      
+  [3] "/usr/lib/R/library"           
+  # 
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From @@m@hhh1 @end|ng |rom gm@||@com  Mon Apr 25 22:06:43 2022
+From: @@m@hhh1 @end|ng |rom gm@||@com (Sam H)
+Date: Mon, 25 Apr 2022 22:06:43 +0200
+Subject: [R-sig-Debian] 
+ Where/how to set R_LIBS_SITE in R 4.2.0 for running
+ R as R --vanilla to pick up "/usr/local/lib/R/site-library/"
+In-Reply-To: <25190.64055.266799.21417@rob.eddelbuettel.com>
+References: <CAEtT+h019dmD08XTLrp61x7av_dO-_xaUPV3LKEohef1DEkvgQ@mail.gmail.com>
+ <25190.64055.266799.21417@rob.eddelbuettel.com>
+Message-ID: <CAEtT+h1Fk0syfRxQs8wLkQQSQybwCOQpWirTxMqwqbBMu5zw8g@mail.gmail.com>
+
+Dirk, thank you.
+
+I do have the following lines in /usr/lib/R/etc/Renviron.site (see below):
+  ## edd Apr 2003  Allow local install in /usr/local, also add a directory
+for
+  ##               Debian packaged CRAN packages, and finally the default
+dir
+  ## edd Jul 2007  Now use R_LIBS_SITE, not R_LIBS
+  ## edd Mar 2022  Now in Renviron.site reflecting R_LIBS_SITE
+
+R_LIBS_SITE="/usr/local/lib/R/site-library/:${R_LIBS_SITE}:/usr/lib/R/library'"
+
+Unfortunately, somehow it doesn't work for me and I don't have a clue why:
+username at usernameVB:~$ lsb_release -a
+No LSB modules are available.
+Distributor ID: Ubuntu
+Description: Ubuntu 20.04.4 LTS
+Release: 20.04
+Codename: focal
+username at usernameVB:~$ Rscript --version
+Rscript (R) version 4.2.0 (2022-04-22)
+username at usernameVB:~$ Rscript -e '.libPaths()'
+[1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"
+[3] "/usr/lib/R/library"
+username at usernameVB:~$ Rscript --vanilla -e '.libPaths()'
+[1] "/usr/lib/R/site-library" "/usr/lib/R/library"
+username at usernameVB:~$ cat /usr/lib/R/etc/Renviron.site
+## Emacs please make this -*- R -*-
+## empty Renviron.site for R on Debian
+##
+## Copyright (C) 2008 - 2022  Dirk Eddelbuettel and GPL'ed
+##
+## see help(Startup) for documentation on ~/.Renviron and Renviron.site
+
+# ## Example ~/.Renviron on Unix
+# R_LIBS=~/R/library
+# PAGER=/usr/local/bin/less
+
+# ## Example .Renviron on Windows
+# R_LIBS=C:/R/library
+# MY_TCLTK="c:/Program Files/Tcl/bin"
+
+# ## Example of setting R_DEFAULT_PACKAGES (from R CMD check)
+# R_DEFAULT_PACKAGES='utils,grDevices,graphics,stats'
+# # this loads the packages in the order given, so they appear on
+# # the search path in reverse order.
+
+## # We comment out this line in the default Renviron, you can re-enable it
+here
+## # @R_PLATFORM@ can be eg x86_64-pc-linux-gnu, see /etc/R/Renviron for
+R_PLATFORM
+## # @MAJ_MIN_VERSION@ is likely something like '3.4', see /etc/R/Renviron
+too
+## #
+## # Also note that you set this per-user via '%p' and '%v' for platform
+and version
+#R_LIBS_USER=${R_LIBS_USER-'~/R/@R_PLATFORM at -library/@MAJ_MIN_VERSION@'}
+
+## edd May 2019
+##
+## Debian (and its derivatives) impose a set of compiler flags to prevent
+some known
+## security issues with compiled code.  These flags then become defaults
+for R as well
+## (see eg /etc/R/Makeconf) but nevertheless confuse R as warnings get
+triggers.  Users,
+## on the other hand, are often stumped about these.  So with this variable
+we declare
+## these options as known for the local checks on the machine this file is
+on.
+##
+## See Section 8 of the R Internals manual for many more options to
+customize tests.
+_R_CHECK_COMPILATION_FLAGS_KNOWN_='-Wformat -Werror=format-security
+-Wdate-time'
+
+## edd Apr 2003  Allow local install in /usr/local, also add a directory for
+##               Debian packaged CRAN packages, and finally the default dir
+## edd Jul 2007  Now use R_LIBS_SITE, not R_LIBS
+## edd Mar 2022  Now in Renviron.site reflecting R_LIBS_SITE
+R_LIBS_SITE="/usr/local/lib/R/site-library/:${R_LIBS_SITE}:/usr/lib/R/library"
+username at usernameVB:~$
+
+Best,
+Sam
+
+On Mon, Apr 25, 2022 at 9:44 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> On 25 April 2022 at 21:12, Sam H wrote:
+> | I have upgraded to R 4.2.0 on Ubuntu Ubuntu 20.04.4 LTS.
+> |
+> | Something changed since now when invoking R as "R --vanilla" does not
+> pick
+> | up "/usr/local/lib/R/site-library" library anymore.
+>
+> I noticed that too when beta testing the earlier builds. It has to do with
+> us
+> (previously) setting value to unset variables ... which are now set.
+>
+> For the Debian package I managed the change by moving the setting to
+> Renviron.site:
+>
+>   ## edd Apr 2003  Allow local install in /usr/local, also add a directory
+> for
+>   ##               Debian packaged CRAN packages, and finally the default
+> dir
+>   ## edd Jul 2007  Now use R_LIBS_SITE, not R_LIBS
+>   ## edd Mar 2022  Now in Renviron.site reflecting R_LIBS_SITE
+>
+> R_LIBS_SITE="/usr/local/lib/R/site-library/:${R_LIBS_SITE}:/usr/lib/R/library'"
+>
+> If you have those three lines you should be fine. I am (also on Uubuntu
+> 20.04
+> which a binary from my PPA):
+>
+>   # lsb_release -a
+>   No LSB modules are available.
+>   Distributor ID: Ubuntu
+>   Description:    Ubuntu 20.04.4 LTS
+>   Release:        20.04
+>   Codename:       focal
+>   # Rscript --version
+>   Rscript (R) version 4.2.0 (2022-04-22)
+>   # Rscript -e '.libPaths()'
+>   [1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"
+>   [3] "/usr/lib/R/library"
+>   #
+>
+> Dirk
+>
+> --
+> dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+
+-- 
+Best regards,
+Sam
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon Apr 25 22:21:11 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 25 Apr 2022 15:21:11 -0500
+Subject: [R-sig-Debian] 
+ Where/how to set R_LIBS_SITE in R 4.2.0 for running
+ R as R --vanilla to pick up "/usr/local/lib/R/site-library/"
+In-Reply-To: <CAEtT+h1Fk0syfRxQs8wLkQQSQybwCOQpWirTxMqwqbBMu5zw8g@mail.gmail.com>
+References: <CAEtT+h019dmD08XTLrp61x7av_dO-_xaUPV3LKEohef1DEkvgQ@mail.gmail.com>
+ <25190.64055.266799.21417@rob.eddelbuettel.com>
+ <CAEtT+h1Fk0syfRxQs8wLkQQSQybwCOQpWirTxMqwqbBMu5zw8g@mail.gmail.com>
+Message-ID: <25191.695.224346.766310@rob.eddelbuettel.com>
+
+
+Sam,
+
+Please try to debug locally. There are command-line switches to R that allow
+you to turn sourcing of initializations files off, you can also try to see if
+it is different for 'root' as opposed to you account.
+
+When I chase something like that his I typically
+
+ a) add lines like message("running from file foo") in Rprofile,
+    Rprofile.site, ~/.Rprofile etc
+ b) set env vars in each Renviron / Renviron.site / ~/.Renviron  file to see
+    which are being hit.
+
+Something somewhere turns some values off for you. I can't tell from here
+what caused it.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From @@m@hhh1 @end|ng |rom gm@||@com  Mon Apr 25 22:29:44 2022
+From: @@m@hhh1 @end|ng |rom gm@||@com (Sam H)
+Date: Mon, 25 Apr 2022 22:29:44 +0200
+Subject: [R-sig-Debian] 
+ Where/how to set R_LIBS_SITE in R 4.2.0 for running
+ R as R --vanilla to pick up "/usr/local/lib/R/site-library/"
+In-Reply-To: <25191.695.224346.766310@rob.eddelbuettel.com>
+References: <CAEtT+h019dmD08XTLrp61x7av_dO-_xaUPV3LKEohef1DEkvgQ@mail.gmail.com>
+ <25190.64055.266799.21417@rob.eddelbuettel.com>
+ <CAEtT+h1Fk0syfRxQs8wLkQQSQybwCOQpWirTxMqwqbBMu5zw8g@mail.gmail.com>
+ <25191.695.224346.766310@rob.eddelbuettel.com>
+Message-ID: <CAEtT+h37kZxh6hML5BZ98ed+TBY9hEWnAayi_rQrirFtghfYvA@mail.gmail.com>
+
+Dirk, thanks.
+
+I will try to debug locally. Thanks for the instructions.
+
+Just to make sure it is only me: when you run the following commands ($
+Rscript -e '.libPaths()') without and with --vanilla on your system you get
+the same output (as you see below I don't):
+username at usernameVB:~$ Rscript -e '.libPaths()'
+[1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"
+[3] "/usr/lib/R/library"
+username at usernameVB:~$ Rscript --vanilla -e '.libPaths()'
+[1] "/usr/lib/R/site-library" "/usr/lib/R/library"
+
+Thanks.
+
+Best regards,
+Sam
+
+
+On Mon, Apr 25, 2022 at 10:21 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> Sam,
+>
+> Please try to debug locally. There are command-line switches to R that
+> allow
+> you to turn sourcing of initializations files off, you can also try to see
+> if
+> it is different for 'root' as opposed to you account.
+>
+> When I chase something like that his I typically
+>
+>  a) add lines like message("running from file foo") in Rprofile,
+>     Rprofile.site, ~/.Rprofile etc
+>  b) set env vars in each Renviron / Renviron.site / ~/.Renviron  file to
+> see
+>     which are being hit.
+>
+> Something somewhere turns some values off for you. I can't tell from here
+> what caused it.
+>
+> Dirk
+>
+> --
+> dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+
+-- 
+Best regards,
+Sam
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon Apr 25 22:50:41 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 25 Apr 2022 15:50:41 -0500
+Subject: [R-sig-Debian] 
+ Where/how to set R_LIBS_SITE in R 4.2.0 for running
+ R as R --vanilla to pick up "/usr/local/lib/R/site-library/"
+In-Reply-To: <CAEtT+h37kZxh6hML5BZ98ed+TBY9hEWnAayi_rQrirFtghfYvA@mail.gmail.com>
+References: <CAEtT+h019dmD08XTLrp61x7av_dO-_xaUPV3LKEohef1DEkvgQ@mail.gmail.com>
+ <25190.64055.266799.21417@rob.eddelbuettel.com>
+ <CAEtT+h1Fk0syfRxQs8wLkQQSQybwCOQpWirTxMqwqbBMu5zw8g@mail.gmail.com>
+ <25191.695.224346.766310@rob.eddelbuettel.com>
+ <CAEtT+h37kZxh6hML5BZ98ed+TBY9hEWnAayi_rQrirFtghfYvA@mail.gmail.com>
+Message-ID: <25191.2465.54819.455628@rob.eddelbuettel.com>
+
+
+On 25 April 2022 at 22:29, Sam H wrote:
+| Just to make sure it is only me: when you run the following commands ($
+| Rscript -e '.libPaths()') without and with --vanilla on your system you get
+| the same output (as you see below I don't):
+| username at usernameVB:~$ Rscript -e '.libPaths()'
+| [1] "/usr/local/lib/R/site-library" "/usr/lib/R/site-library"
+| [3] "/usr/lib/R/library"
+| username at usernameVB:~$ Rscript --vanilla -e '.libPaths()'
+| [1] "/usr/lib/R/site-library" "/usr/lib/R/library"
+
+I see the same on Ubuntu with R 4.2.0.
+
+This is likely due to me having to move the setting for
+     /usr/local/lib/R/site-library
+from R's own Renviron to Renviron.site and --vanilla skip reading that.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd @end|ng |rom deb|@n@org  Mon Apr 25 23:00:18 2022
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 25 Apr 2022 16:00:18 -0500
+Subject: [R-sig-Debian] 
+ Where/how to set R_LIBS_SITE in R 4.2.0 for running
+ R as R --vanilla to pick up "/usr/local/lib/R/site-library/"
+In-Reply-To: <CAEtT+h37kZxh6hML5BZ98ed+TBY9hEWnAayi_rQrirFtghfYvA@mail.gmail.com>
+References: <CAEtT+h019dmD08XTLrp61x7av_dO-_xaUPV3LKEohef1DEkvgQ@mail.gmail.com>
+ <25190.64055.266799.21417@rob.eddelbuettel.com>
+ <CAEtT+h1Fk0syfRxQs8wLkQQSQybwCOQpWirTxMqwqbBMu5zw8g@mail.gmail.com>
+ <25191.695.224346.766310@rob.eddelbuettel.com>
+ <CAEtT+h37kZxh6hML5BZ98ed+TBY9hEWnAayi_rQrirFtghfYvA@mail.gmail.com>
+Message-ID: <25191.3042.887662.570093@rob.eddelbuettel.com>
+
+
+So in short:  If you want to run R with --vanilla you have to change the
+local set up file. Because R now ships with this
+
+  R_LIBS_USER=${R_LIBS_USER:-'%U'}
+  R_LIBS_SITE=${R_LIBS_SITE:-'%S'}
+
+you could set R_LIBS_USER and/or R_LIBS_SITE in a file read by the OS before
+R starts -- a short text snippet in /etc/profile.d/ may work -- to ensure
+R_LIBS_USER and R_LIBS_SITE are set to your liking.
+
+Sorry for missing the hint about --vanilla from your first email.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From @@m@hhh1 @end|ng |rom gm@||@com  Tue Apr 26 09:43:00 2022
+From: @@m@hhh1 @end|ng |rom gm@||@com (Sam H)
+Date: Tue, 26 Apr 2022 09:43:00 +0200
+Subject: [R-sig-Debian] 
+ Where/how to set R_LIBS_SITE in R 4.2.0 for running
+ R as R --vanilla to pick up "/usr/local/lib/R/site-library/"
+In-Reply-To: <25191.3042.887662.570093@rob.eddelbuettel.com>
+References: <CAEtT+h019dmD08XTLrp61x7av_dO-_xaUPV3LKEohef1DEkvgQ@mail.gmail.com>
+ <25190.64055.266799.21417@rob.eddelbuettel.com>
+ <CAEtT+h1Fk0syfRxQs8wLkQQSQybwCOQpWirTxMqwqbBMu5zw8g@mail.gmail.com>
+ <25191.695.224346.766310@rob.eddelbuettel.com>
+ <CAEtT+h37kZxh6hML5BZ98ed+TBY9hEWnAayi_rQrirFtghfYvA@mail.gmail.com>
+ <25191.3042.887662.570093@rob.eddelbuettel.com>
+Message-ID: <CAEtT+h3-gYNh6bFMaNgfebhW9=M2QhpC3KspZ1RU+sTW=qpTFA@mail.gmail.com>
+
+Dirk, thanks.
+
+Changing /etc/R/Renviron by adding
+*R_LIBS_SITE="/usr/local/lib/R/site-library/:${R_LIBS_SITE}:/usr/lib/R/library"*
+after *R_LIBS_SITE=${R_LIBS_SITE:-'%S'}* seems to solve my problem. So my
+/etc/R/Renviron in specified place now looks like this
+R_LIBS_USER=${R_LIBS_USER:-'%U'}
+R_LIBS_SITE=${R_LIBS_SITE:-'%S'}
+R_LIBS_SITE="/usr/local/lib/R/site-library/:${R_LIBS_SITE}:/usr/lib/R/library"
+
+On Mon, Apr 25, 2022 at 11:00 PM Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> So in short:  If you want to run R with --vanilla you have to change the
+> local set up file. Because R now ships with this
+>
+>   R_LIBS_USER=${R_LIBS_USER:-'%U'}
+>   R_LIBS_SITE=${R_LIBS_SITE:-'%S'}
+>
+> you could set R_LIBS_USER and/or R_LIBS_SITE in a file read by the OS
+> before
+> R starts -- a short text snippet in /etc/profile.d/ may work -- to ensure
+> R_LIBS_USER and R_LIBS_SITE are set to your liking.
+>
+> Sorry for missing the hint about --vanilla from your first email.
+>
+> Dirk
+>
+> --
+> dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+
+-- 
+Best regards,
+Sam
+
+	[[alternative HTML version deleted]]
+
+

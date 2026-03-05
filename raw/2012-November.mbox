@@ -1,0 +1,733 @@
+From sims at princeton.edu  Thu Nov 15 17:36:57 2012
+From: sims at princeton.edu (Chris Sims)
+Date: Thu, 15 Nov 2012 11:36:57 -0500
+Subject: [R-sig-Debian] cran ubuntu repository and ubuntu 12.10
+Message-ID: <50A51A29.9080604@princeton.edu>
+
+Since upgrading to quantal, I find that synaptic and apt-get cannot read 
+the sources.list file if it includes the previously standard line
+
+deb http://lib.stat.cmu.edu/R/CRAN/bin/linux/ubuntu/ quantal
+
+This line makes apt-get or synaptic give an error message identifying 
+this line as having a syntax error.
+
+If "multiverse" is added at the end of the line, the line is parsed, but 
+then apt-get or synaptic looks for non-existent directories on the server.
+
+
+From bates at stat.wisc.edu  Thu Nov 15 19:02:11 2012
+From: bates at stat.wisc.edu (Douglas Bates)
+Date: Thu, 15 Nov 2012 12:02:11 -0600
+Subject: [R-sig-Debian] cran ubuntu repository and ubuntu 12.10
+In-Reply-To: <50A51A29.9080604@princeton.edu>
+References: <50A51A29.9080604@princeton.edu>
+Message-ID: <CAO7JsnT3O5Fofa2K3Dp8WC0Kfxqi+OkortdV_1Ad8T-Zs9GuUw@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20121115/5c665f7d/attachment.pl>
+
+From edd at debian.org  Thu Nov 15 19:20:26 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 15 Nov 2012 12:20:26 -0600
+Subject: [R-sig-Debian] cran ubuntu repository and ubuntu 12.10
+In-Reply-To: <50A51A29.9080604@princeton.edu>
+References: <50A51A29.9080604@princeton.edu>
+Message-ID: <20645.12906.185127.708001@max.nulle.part>
+
+
+Hi Chris,
+
+On 15 November 2012 at 11:36, Chris Sims wrote:
+| Since upgrading to quantal, I find that synaptic and apt-get cannot read 
+| the sources.list file if it includes the previously standard line
+| 
+| deb http://lib.stat.cmu.edu/R/CRAN/bin/linux/ubuntu/ quantal
+| 
+| This line makes apt-get or synaptic give an error message identifying 
+| this line as having a syntax error.
+| 
+| If "multiverse" is added at the end of the line, the line is parsed, but 
+| then apt-get or synaptic looks for non-existent directories on the server.
+
+It may be the dreaded missing slash -- I have this 
+
+deb http://cran.us.r-project.org/bin/linux/ubuntu quantal/
+
+on a recently set-up machine, and 'wajig update' (with wajig being a nice
+cmdline wrapper by fellow R hacker Graham Williams) reveals, inter alia,
+
+deddelbuettel at ubuntu-m600-1:~/R$ wajig update
+[...]
+Ign http://cran.us.r-project.org quantal/ InRelease
+Hit http://cran.us.r-project.org quantal/ Release.gpg
+Hit http://cran.us.r-project.org quantal/ Release
+Hit http://cran.us.r-project.org quantal/ Packages
+Ign http://cran.us.r-project.org quantal/ Translation-en
+[...]
+
+
+Hope this helps,  Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From sims at princeton.edu  Thu Nov 15 19:28:39 2012
+From: sims at princeton.edu (Chris Sims)
+Date: Thu, 15 Nov 2012 13:28:39 -0500
+Subject: [R-sig-Debian] cran ubuntu repository and ubuntu 12.10
+In-Reply-To: <CAO7JsnT3O5Fofa2K3Dp8WC0Kfxqi+OkortdV_1Ad8T-Zs9GuUw@mail.gmail.com>
+References: <50A51A29.9080604@princeton.edu>
+	<CAO7JsnT3O5Fofa2K3Dp8WC0Kfxqi+OkortdV_1Ad8T-Zs9GuUw@mail.gmail.com>
+Message-ID: <50A53457.5020907@princeton.edu>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20121115/cda72cba/attachment.pl>
+
+From mar36 at psu.edu  Thu Nov 15 20:59:31 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Thu, 15 Nov 2012 14:59:31 -0500
+Subject: [R-sig-Debian] cran ubuntu repository and ubuntu 12.10
+In-Reply-To: <50A53457.5020907@princeton.edu>
+References: <50A51A29.9080604@princeton.edu>
+	<CAO7JsnT3O5Fofa2K3Dp8WC0Kfxqi+OkortdV_1Ad8T-Zs9GuUw@mail.gmail.com>
+	<50A53457.5020907@princeton.edu>
+Message-ID: <50A549A3.3040501@psu.edu>
+
+
+
+On 11/15/2012 01:28 PM, Chris Sims wrote:
+> The problem is that the sources.list line is seen as having a syntax
+> error when there is no entry after "quantal" (e.g. main, or universe,
+> etc.) on the line. So it doesn't matter which repository name I put in
+> it.  I have tried several (including the one you suggest) already.
+>
+> Here is the offending line from my /etc/apt/sources.list file
+>
+> deb http://cran.us.r-project.org/bin/linux/ubuntu/ quantal
+
+Chris,
+
+This (your) version has incorrect syntax:
+
+deb http://cran.us.r-project.org/bin/linux/ubuntu/ quantal
+
+This works:
+
+deb http://cran.us.r-project.org/bin/linux/ubuntu/ quantal/
+							  ^
+
+You need a trailing "/", as per the instructions on CRAN.
+
+Michael
+
+
+
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+4205 College Drive
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+mar36 at psu.edu
+
+
+From sims at princeton.edu  Fri Nov 16 04:30:06 2012
+From: sims at princeton.edu (Chris Sims)
+Date: Thu, 15 Nov 2012 22:30:06 -0500
+Subject: [R-sig-Debian] cran ubuntu repository and ubuntu 12.10
+In-Reply-To: <50A549A3.3040501@psu.edu>
+References: <50A51A29.9080604@princeton.edu>
+	<CAO7JsnT3O5Fofa2K3Dp8WC0Kfxqi+OkortdV_1Ad8T-Zs9GuUw@mail.gmail.com>
+	<50A53457.5020907@princeton.edu> <50A549A3.3040501@psu.edu>
+Message-ID: <50A5B33E.2090608@princeton.edu>
+
+Thanks, I had just discovered this myself by accident.
+
+On 11/15/2012 02:59 PM, Michael Rutter wrote:
+>
+>
+> On 11/15/2012 01:28 PM, Chris Sims wrote:
+>> The problem is that the sources.list line is seen as having a syntax
+>> error when there is no entry after "quantal" (e.g. main, or universe,
+>> etc.) on the line. So it doesn't matter which repository name I put in
+>> it.  I have tried several (including the one you suggest) already.
+>>
+>> Here is the offending line from my /etc/apt/sources.list file
+>>
+>> deb http://cran.us.r-project.org/bin/linux/ubuntu/ quantal
+>
+> Chris,
+>
+> This (your) version has incorrect syntax:
+>
+> deb http://cran.us.r-project.org/bin/linux/ubuntu/ quantal
+>
+> This works:
+>
+> deb http://cran.us.r-project.org/bin/linux/ubuntu/ quantal/
+>                               ^
+>
+> You need a trailing "/", as per the instructions on CRAN.
+>
+> Michael
+>
+>
+>
+>
+
+
+From andrew at thinkingbone.org  Sat Nov 24 20:00:33 2012
+From: andrew at thinkingbone.org (Andrew Roberts)
+Date: Sat, 24 Nov 2012 19:00:33 +0000
+Subject: [R-sig-Debian] Failure to compile tiff package
+Message-ID: <50B11951.60900@thinkingbone.org>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20121124/b0503a80/attachment.pl>
+
+From mar36 at psu.edu  Sat Nov 24 20:10:11 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Sat, 24 Nov 2012 14:10:11 -0500
+Subject: [R-sig-Debian] Failure to compile tiff package
+In-Reply-To: <50B11951.60900@thinkingbone.org>
+References: <50B11951.60900@thinkingbone.org>
+Message-ID: <50B11B93.3010603@psu.edu>
+
+
+
+On 11/24/2012 02:00 PM, Andrew Roberts wrote:
+> I would be grateful for a bit of help.
+>
+> I am on a 32bit build of Ubuntu LTS 12.04 running R version 2.15.2
+> (2012-10-26) -- "Trick or Treat" Platform: i686-pc-linux-gnu (32-bit)
+>
+> from within RStudio and from within a terminal (sudo R |
+> install.packages("tiff") ) I have the following compile error:
+>
+>   > install.packages("tiff")
+> Installing package(s) into '/home/andrew/R/i686-pc-linux-gnu-library/2.15'
+> (as 'lib' is unspecified)
+> trying URL 'http://www.stats.bris.ac.uk/R/src/contrib/tiff_0.1-3.tar.gz'
+> Content type 'application/x-gzip' length 28014 bytes (27 Kb)
+> opened URL
+> ==================================================
+> downloaded 27 Kb
+>
+> * installing *source* package 'tiff' ...
+> ** package 'tiff' successfully unpacked and MD5 sums checked
+> ** libs
+> gcc -std=gnu99 -I/usr/share/R/include -DNDEBUG      -fpic  -O3 -pipe
+> -g  -c common.c -o common.o
+> In file included from common.c:1:0:
+> common.h:5:18: fatal error: tiff.h: No such file or directory
+> compilation terminated.
+> make: *** [common.o] Error 1
+> ERROR: compilation failed for package 'tiff'
+> * removing '/home/andrew/R/i686-pc-linux-gnu-library/2.15/tiff'
+> Warning in install.packages :
+>     installation of package 'tiff' had non-zero exit status
+>
+> Sure enough when you download the source files manually and hunt inside
+> there is no tiff.h
+>
+> I suspect the problem is me not tiff!
+>
+> Andrew Roberts
+
+Andrew:
+
+Ubuntu Packages (http://packages.ubuntu.com/) is a great resource.  Half 
+way down the page you can search the contents of packages for the file 
+that is missing.  The package you are missing is "libtiff4-dev". 
+Install that via apt or synaptic and then try to install the package in 
+R again.
+
+Hope this helps,
+Michael
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+4205 College Drive
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+mar36 at psu.edu
+
+
+From andrew at thinkingbone.org  Sat Nov 24 20:52:32 2012
+From: andrew at thinkingbone.org (Andrew Roberts)
+Date: Sat, 24 Nov 2012 19:52:32 +0000
+Subject: [R-sig-Debian] Failure to compile tiff package
+In-Reply-To: <50B11B93.3010603@psu.edu>
+References: <50B11951.60900@thinkingbone.org> <50B11B93.3010603@psu.edu>
+Message-ID: <50B12580.8000603@thinkingbone.org>
+
+Many thanks Michael,
+
+libtiff4-dev installed via Synaptic and compilation completed 
+successfully. Without bit of help I could have wasted weeks on this!
+
+Andrew
+
+On 24/11/12 19:10, Michael Rutter wrote:
+>
+>
+> On 11/24/2012 02:00 PM, Andrew Roberts wrote:
+>> I would be grateful for a bit of help.
+>>
+>> I am on a 32bit build of Ubuntu LTS 12.04 running R version 2.15.2
+>> (2012-10-26) -- "Trick or Treat" Platform: i686-pc-linux-gnu (32-bit)
+>>
+>> from within RStudio and from within a terminal (sudo R |
+>> install.packages("tiff") ) I have the following compile error:
+>>
+>>   > install.packages("tiff")
+>> Installing package(s) into 
+>> '/home/andrew/R/i686-pc-linux-gnu-library/2.15'
+>> (as 'lib' is unspecified)
+>> trying URL 'http://www.stats.bris.ac.uk/R/src/contrib/tiff_0.1-3.tar.gz'
+>> Content type 'application/x-gzip' length 28014 bytes (27 Kb)
+>> opened URL
+>> ==================================================
+>> downloaded 27 Kb
+>>
+>> * installing *source* package 'tiff' ...
+>> ** package 'tiff' successfully unpacked and MD5 sums checked
+>> ** libs
+>> gcc -std=gnu99 -I/usr/share/R/include -DNDEBUG      -fpic  -O3 -pipe
+>> -g  -c common.c -o common.o
+>> In file included from common.c:1:0:
+>> common.h:5:18: fatal error: tiff.h: No such file or directory
+>> compilation terminated.
+>> make: *** [common.o] Error 1
+>> ERROR: compilation failed for package 'tiff'
+>> * removing '/home/andrew/R/i686-pc-linux-gnu-library/2.15/tiff'
+>> Warning in install.packages :
+>>     installation of package 'tiff' had non-zero exit status
+>>
+>> Sure enough when you download the source files manually and hunt inside
+>> there is no tiff.h
+>>
+>> I suspect the problem is me not tiff!
+>>
+>> Andrew Roberts
+>
+> Andrew:
+>
+> Ubuntu Packages (http://packages.ubuntu.com/) is a great resource.  
+> Half way down the page you can search the contents of packages for the 
+> file that is missing.  The package you are missing is "libtiff4-dev". 
+> Install that via apt or synaptic and then try to install the package 
+> in R again.
+>
+> Hope this helps,
+> Michael
+>
+
+
+From jlcanadas at iesa.csic.es  Fri Nov 30 00:26:56 2012
+From: jlcanadas at iesa.csic.es (=?ISO-8859-1?Q?Jos=E9_Luis_Ca=F1adas_Reche?=)
+Date: Fri, 30 Nov 2012 00:26:56 +0100
+Subject: [R-sig-Debian] rstudio doesn't work in LMDE without internet
+	conexion.
+Message-ID: <50B7EF40.3000202@iesa.csic.es>
+
+Hello everybody.
+
+I'm using Rstudio in LMDE (64 bits) with xfce desktop. When I'm 
+connecting , I don't have any problem to start Rstudio , but when I am 
+not connecting Rstudio don't start.
+
+
+Any idea?
+
+In rsession-user.log I get
+29 Nov 2012 23:07:50 [rsession-jose] ERROR asio.netdb error 1 (Host not 
+found (authoritative)); OCCURRED AT: core::Error 
+core::http::initTcpIpAcceptor(core::http::SocketAcceptorService<boost::asio::ip::tcp>&, 
+const std::string&, const std::string&) 
+/home/ubuntu/rstudio/src/cpp/core/include/core/http/TcpIpSocketUtils.hpp:82; 
+LOGGED FROM: int main(int, char* const*) 
+/home/ubuntu/rstudio/src/cpp/session/SessionMain.cpp:2600
+
+
+From edd at debian.org  Fri Nov 30 02:34:58 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 29 Nov 2012 19:34:58 -0600
+Subject: [R-sig-Debian] rstudio doesn't work in LMDE without
+	internet	conexion.
+In-Reply-To: <50B7EF40.3000202@iesa.csic.es>
+References: <50B7EF40.3000202@iesa.csic.es>
+Message-ID: <20664.3394.691019.850126@max.nulle.part>
+
+
+On 30 November 2012 at 00:26, Jos? Luis Ca?adas Reche wrote:
+| Hello everybody.
+| 
+| I'm using Rstudio in LMDE (64 bits) with xfce desktop. When I'm 
+| connecting , I don't have any problem to start Rstudio , but when I am 
+| not connecting Rstudio don't start.
+| 
+| 
+| Any idea?
+
+Your networking configuration could be non-standard. Even offline, you should
+_always_ have a fallback 'localhost':
+
+edd at max:~$ ping localhost
+PING localhost (127.0.0.1) 56(84) bytes of data.
+64 bytes from localhost (127.0.0.1): icmp_req=1 ttl=64 time=0.034 ms
+64 bytes from localhost (127.0.0.1): icmp_req=2 ttl=64 time=0.029 ms
+64 bytes from localhost (127.0.0.1): icmp_req=3 ttl=64 time=0.034 ms
+^C
+--- localhost ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.029/0.032/0.034/0.005 ms
+edd at max:~$ 
+
+Do you?
+
+Dirk
+
+| 
+| In rsession-user.log I get
+| 29 Nov 2012 23:07:50 [rsession-jose] ERROR asio.netdb error 1 (Host not 
+| found (authoritative)); OCCURRED AT: core::Error 
+| core::http::initTcpIpAcceptor(core::http::SocketAcceptorService<boost::asio::ip::tcp>&, 
+| const std::string&, const std::string&) 
+| /home/ubuntu/rstudio/src/cpp/core/include/core/http/TcpIpSocketUtils.hpp:82; 
+| LOGGED FROM: int main(int, char* const*) 
+| /home/ubuntu/rstudio/src/cpp/session/SessionMain.cpp:2600
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com  
+
+
+From pgilbert902 at gmail.com  Fri Nov 30 02:45:26 2012
+From: pgilbert902 at gmail.com (Paul Gilbert)
+Date: Thu, 29 Nov 2012 20:45:26 -0500
+Subject: [R-sig-Debian] rstudio doesn't work in LMDE without internet
+ conexion.
+In-Reply-To: <20664.3394.691019.850126@max.nulle.part>
+References: <50B7EF40.3000202@iesa.csic.es>
+	<20664.3394.691019.850126@max.nulle.part>
+Message-ID: <50B80FB6.6020401@gmail.com>
+
+Possibly you are needing to load something from a network drive?  Are 
+you sure you have a local copy of RStudio, and R. and all their pieces, 
+and any packages you may load automatically, and your own directories 
+that they may use?  Does R by itself start when you are not connected?
+
+Paul
+
+On 12-11-29 08:34 PM, Dirk Eddelbuettel wrote:
+>
+> On 30 November 2012 at 00:26, Jos? Luis Ca?adas Reche wrote:
+> | Hello everybody.
+> |
+> | I'm using Rstudio in LMDE (64 bits) with xfce desktop. When I'm
+> | connecting , I don't have any problem to start Rstudio , but when I am
+> | not connecting Rstudio don't start.
+> |
+> |
+> | Any idea?
+>
+> Your networking configuration could be non-standard. Even offline, you should
+> _always_ have a fallback 'localhost':
+>
+> edd at max:~$ ping localhost
+> PING localhost (127.0.0.1) 56(84) bytes of data.
+> 64 bytes from localhost (127.0.0.1): icmp_req=1 ttl=64 time=0.034 ms
+> 64 bytes from localhost (127.0.0.1): icmp_req=2 ttl=64 time=0.029 ms
+> 64 bytes from localhost (127.0.0.1): icmp_req=3 ttl=64 time=0.034 ms
+> ^C
+> --- localhost ping statistics ---
+> 3 packets transmitted, 3 received, 0% packet loss, time 1998ms
+> rtt min/avg/max/mdev = 0.029/0.032/0.034/0.005 ms
+> edd at max:~$
+>
+> Do you?
+>
+> Dirk
+>
+> |
+> | In rsession-user.log I get
+> | 29 Nov 2012 23:07:50 [rsession-jose] ERROR asio.netdb error 1 (Host not
+> | found (authoritative)); OCCURRED AT: core::Error
+> | core::http::initTcpIpAcceptor(core::http::SocketAcceptorService<boost::asio::ip::tcp>&,
+> | const std::string&, const std::string&)
+> | /home/ubuntu/rstudio/src/cpp/core/include/core/http/TcpIpSocketUtils.hpp:82;
+> | LOGGED FROM: int main(int, char* const*)
+> | /home/ubuntu/rstudio/src/cpp/session/SessionMain.cpp:2600
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From edd at debian.org  Fri Nov 30 04:37:50 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 29 Nov 2012 21:37:50 -0600
+Subject: [R-sig-Debian] rstudio doesn't work in LMDE without internet
+ conexion.
+In-Reply-To: <50B80FB6.6020401@gmail.com>
+References: <50B7EF40.3000202@iesa.csic.es>
+	<20664.3394.691019.850126@max.nulle.part>
+	<50B80FB6.6020401@gmail.com>
+Message-ID: <20664.10766.637917.860827@max.nulle.part>
+
+
+On 29 November 2012 at 20:45, Paul Gilbert wrote:
+| Possibly you are needing to load something from a network drive?  Are 
+| you sure you have a local copy of RStudio, and R. and all their pieces, 
+| and any packages you may load automatically, and your own directories 
+| that they may use?  Does R by itself start when you are not connected?
+
+I fear that's not it. Even the 'desktop' version of RStudio uses a webapp
+approach with the Qt-based code hitting the Boost asio-provided internal
+server -- hence the error codes below on http.
+
+So your machine is to be normally configured.
+
+Dirk
+
+| 
+| Paul
+| 
+| On 12-11-29 08:34 PM, Dirk Eddelbuettel wrote:
+| >
+| > On 30 November 2012 at 00:26, Jos? Luis Ca?adas Reche wrote:
+| > | Hello everybody.
+| > |
+| > | I'm using Rstudio in LMDE (64 bits) with xfce desktop. When I'm
+| > | connecting , I don't have any problem to start Rstudio , but when I am
+| > | not connecting Rstudio don't start.
+| > |
+| > |
+| > | Any idea?
+| >
+| > Your networking configuration could be non-standard. Even offline, you should
+| > _always_ have a fallback 'localhost':
+| >
+| > edd at max:~$ ping localhost
+| > PING localhost (127.0.0.1) 56(84) bytes of data.
+| > 64 bytes from localhost (127.0.0.1): icmp_req=1 ttl=64 time=0.034 ms
+| > 64 bytes from localhost (127.0.0.1): icmp_req=2 ttl=64 time=0.029 ms
+| > 64 bytes from localhost (127.0.0.1): icmp_req=3 ttl=64 time=0.034 ms
+| > ^C
+| > --- localhost ping statistics ---
+| > 3 packets transmitted, 3 received, 0% packet loss, time 1998ms
+| > rtt min/avg/max/mdev = 0.029/0.032/0.034/0.005 ms
+| > edd at max:~$
+| >
+| > Do you?
+| >
+| > Dirk
+| >
+| > |
+| > | In rsession-user.log I get
+| > | 29 Nov 2012 23:07:50 [rsession-jose] ERROR asio.netdb error 1 (Host not
+| > | found (authoritative)); OCCURRED AT: core::Error
+| > | core::http::initTcpIpAcceptor(core::http::SocketAcceptorService<boost::asio::ip::tcp>&,
+| > | const std::string&, const std::string&)
+| > | /home/ubuntu/rstudio/src/cpp/core/include/core/http/TcpIpSocketUtils.hpp:82;
+| > | LOGGED FROM: int main(int, char* const*)
+| > | /home/ubuntu/rstudio/src/cpp/session/SessionMain.cpp:2600
+| > |
+| > | _______________________________________________
+| > | R-SIG-Debian mailing list
+| > | R-SIG-Debian at r-project.org
+| > | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| >
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com  
+
+
+From canadasreche at gmail.com  Fri Nov 30 08:40:36 2012
+From: canadasreche at gmail.com (=?ISO-8859-1?Q?Jos=E9_Luis_Ca=F1adas?=)
+Date: Fri, 30 Nov 2012 08:40:36 +0100
+Subject: [R-sig-Debian] rstudio doesn't work in LMDE without internet
+ conexion.
+In-Reply-To: <20664.3394.691019.850126@max.nulle.part>
+References: <50B7EF40.3000202@iesa.csic.es>
+	<20664.3394.691019.850126@max.nulle.part>
+Message-ID: <50B862F4.20606@gmail.com>
+
+Ok. Thanks..
+I'll try later, now I'm in work. Where I use LMDE 32 bits and Rstudio 
+works fine even without conexion.
+
+I'm newbie in linux and I don't know how to see the differences between 
+my two machines.
+
+
+El 30/11/12 02:34, Dirk Eddelbuettel escribi?:
+> On 30 November 2012 at 00:26, Jos? Luis Ca?adas Reche wrote:
+> | Hello everybody.
+> |
+> | I'm using Rstudio in LMDE (64 bits) with xfce desktop. When I'm
+> | connecting , I don't have any problem to start Rstudio , but when I am
+> | not connecting Rstudio don't start.
+> |
+> |
+> | Any idea?
+>
+> Your networking configuration could be non-standard. Even offline, you should
+> _always_ have a fallback 'localhost':
+>
+> edd at max:~$ ping localhost
+> PING localhost (127.0.0.1) 56(84) bytes of data.
+> 64 bytes from localhost (127.0.0.1): icmp_req=1 ttl=64 time=0.034 ms
+> 64 bytes from localhost (127.0.0.1): icmp_req=2 ttl=64 time=0.029 ms
+> 64 bytes from localhost (127.0.0.1): icmp_req=3 ttl=64 time=0.034 ms
+> ^C
+> --- localhost ping statistics ---
+> 3 packets transmitted, 3 received, 0% packet loss, time 1998ms
+> rtt min/avg/max/mdev = 0.029/0.032/0.034/0.005 ms
+> edd at max:~$
+>
+> Do you?
+>
+> Dirk
+>
+> |
+> | In rsession-user.log I get
+> | 29 Nov 2012 23:07:50 [rsession-jose] ERROR asio.netdb error 1 (Host not
+> | found (authoritative)); OCCURRED AT: core::Error
+> | core::http::initTcpIpAcceptor(core::http::SocketAcceptorService<boost::asio::ip::tcp>&,
+> | const std::string&, const std::string&)
+> | /home/ubuntu/rstudio/src/cpp/core/include/core/http/TcpIpSocketUtils.hpp:82;
+> | LOGGED FROM: int main(int, char* const*)
+> | /home/ubuntu/rstudio/src/cpp/session/SessionMain.cpp:2600
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+From tech_dev at wildintellect.com  Fri Nov 30 09:06:06 2012
+From: tech_dev at wildintellect.com (Alex Mandel)
+Date: Fri, 30 Nov 2012 00:06:06 -0800
+Subject: [R-sig-Debian] rstudio doesn't work in LMDE without internet
+ conexion.
+In-Reply-To: <50B862F4.20606@gmail.com>
+References: <50B7EF40.3000202@iesa.csic.es>
+	<20664.3394.691019.850126@max.nulle.part>
+	<50B862F4.20606@gmail.com>
+Message-ID: <50B868ED.40502@wildintellect.com>
+
+In a terminal:
+ifconifg
+
+in the results there should be an entry for lo (aka loopback device/your
+local machine)
+
+if it's missing edit /etc/network/interfaces
+make sure it has a section like:
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+
+if that seems fine look in
+
+/etc/hosts
+
+make sure you have a line like:
+127.0.0.1       localhost
+
+
+All of the above is the defaults for most Linux distros, but maybe
+something is missing.
+
+Thanks,
+Alex
+
+On 11/29/2012 11:40 PM, Jos? Luis Ca?adas wrote:
+> Ok. Thanks..
+> I'll try later, now I'm in work. Where I use LMDE 32 bits and Rstudio
+> works fine even without conexion.
+> 
+> I'm newbie in linux and I don't know how to see the differences between
+> my two machines.
+> 
+> 
+> El 30/11/12 02:34, Dirk Eddelbuettel escribi?:
+>> On 30 November 2012 at 00:26, Jos? Luis Ca?adas Reche wrote:
+>> | Hello everybody.
+>> |
+>> | I'm using Rstudio in LMDE (64 bits) with xfce desktop. When I'm
+>> | connecting , I don't have any problem to start Rstudio , but when I am
+>> | not connecting Rstudio don't start.
+>> |
+>> |
+>> | Any idea?
+>>
+>> Your networking configuration could be non-standard. Even offline, you
+>> should
+>> _always_ have a fallback 'localhost':
+>>
+>> edd at max:~$ ping localhost
+>> PING localhost (127.0.0.1) 56(84) bytes of data.
+>> 64 bytes from localhost (127.0.0.1): icmp_req=1 ttl=64 time=0.034 ms
+>> 64 bytes from localhost (127.0.0.1): icmp_req=2 ttl=64 time=0.029 ms
+>> 64 bytes from localhost (127.0.0.1): icmp_req=3 ttl=64 time=0.034 ms
+>> ^C
+>> --- localhost ping statistics ---
+>> 3 packets transmitted, 3 received, 0% packet loss, time 1998ms
+>> rtt min/avg/max/mdev = 0.029/0.032/0.034/0.005 ms
+>> edd at max:~$
+>>
+>> Do you?
+>>
+>> Dirk
+>>
+>> |
+>> | In rsession-user.log I get
+>> | 29 Nov 2012 23:07:50 [rsession-jose] ERROR asio.netdb error 1 (Host not
+>> | found (authoritative)); OCCURRED AT: core::Error
+>> |
+>> core::http::initTcpIpAcceptor(core::http::SocketAcceptorService<boost::asio::ip::tcp>&,
+>>
+>> | const std::string&, const std::string&)
+>> |
+>> /home/ubuntu/rstudio/src/cpp/core/include/core/http/TcpIpSocketUtils.hpp:82;
+>>
+>> | LOGGED FROM: int main(int, char* const*)
+>> | /home/ubuntu/rstudio/src/cpp/session/SessionMain.cpp:2600
+>> |
+>> | _______________________________________________
+>> | R-SIG-Debian mailing list
+>> | R-SIG-Debian at r-project.org
+>> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>>
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+

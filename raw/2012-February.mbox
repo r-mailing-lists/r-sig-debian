@@ -1,0 +1,1319 @@
+From Juan.DuenasSerrano at lincolnuni.ac.nz  Wed Feb  8 21:33:59 2012
+From: Juan.DuenasSerrano at lincolnuni.ac.nz (Duenas Serrano, Juan)
+Date: Wed, 8 Feb 2012 20:33:59 +0000
+Subject: [R-sig-Debian] FW: R double shot?
+In-Reply-To: <3B686B58E760B443903469ECDEC0C6EE14EA7669@SN2PRD0102MB164.prod.exchangelabs.com>
+References: <3B686B58E760B443903469ECDEC0C6EE14EA7669@SN2PRD0102MB164.prod.exchangelabs.com>
+Message-ID: <3B686B58E760B443903469ECDEC0C6EE14EA76B0@SN2PRD0102MB164.prod.exchangelabs.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120208/39f1cea5/attachment.pl>
+
+From scott.raynaud at yahoo.com  Tue Feb 14 22:56:44 2012
+From: scott.raynaud at yahoo.com (Scott Raynaud)
+Date: Tue, 14 Feb 2012 13:56:44 -0800 (PST)
+Subject: [R-sig-Debian] Accessto OpenBLAS
+Message-ID: <1329256604.15529.YahooMailNeo@web120601.mail.ne1.yahoo.com>
+
+My IT people have set up R on a a Kubuntu box with an RWkard 
+front end.? I have OpenBLAS set up as a shared BLAS but I'm not
+sure how to get R to see it.? A.3.1 of the installation docs talks
+about it but I'm not clear if I need a option on my startup line or
+if I need to find a config file.? The BLAS is is in:
+?
+/usr/lib/openblas-base
+?
+on my machine. I'm not sure how to confirm that R is seeing 
+the BLAS.
+?
+Recommendations?
+
+
+
+From mar36 at psu.edu  Wed Feb 15 00:15:17 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Tue, 14 Feb 2012 18:15:17 -0500
+Subject: [R-sig-Debian] Accessto OpenBLAS
+In-Reply-To: <1329256604.15529.YahooMailNeo@web120601.mail.ne1.yahoo.com>
+References: <1329256604.15529.YahooMailNeo@web120601.mail.ne1.yahoo.com>
+Message-ID: <4F3AEB05.3090601@psu.edu>
+
+
+
+On 02/14/2012 04:56 PM, Scott Raynaud wrote:
+> My IT people have set up R on a a Kubuntu box with an RWkard
+> front end.  I have OpenBLAS set up as a shared BLAS but I'm not
+> sure how to get R to see it.  A.3.1 of the installation docs talks
+> about it but I'm not clear if I need a option on my startup line or
+> if I need to find a config file.  The BLAS is is in:
+>
+> /usr/lib/openblas-base
+>
+> on my machine. I'm not sure how to confirm that R is seeing
+> the BLAS.
+>
+> Recommendations?
+>
+
+Scott,
+
+There used to be a good post about this on a blog, but the blog has gone 
+under.  Luckily, I was able to salvage the post from Google cache.  Here 
+is the relevant part:
+
+     Copy the resulting .so shared object library file 
+(libgoto2_penrynp-r1.12.so on my machine) to /usr/lib
+     The original BLAS library located there is called libblas.so.3gf.0. 
+  Back this file up:  cp libblas.so.3gf.0  libblas.so.3gf.0.keep
+     Make a symbolic link to the new BLAS library:
+     ln -s libgoto2_penrynp-r1.12.so libblas.so.3gf.0
+
+Basically, you need to make sure that the file "libblas.so.3gf.0" links 
+to the location of your lib.  I would find a benchmark file 
+(http://r.research.att.com/benchmarks/) to test R before and after 
+creating the link, just to make sure it is working.
+
+Hope this helps,
+Michael
+
+
+  _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From edd at debian.org  Wed Feb 15 00:40:30 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 14 Feb 2012 17:40:30 -0600
+Subject: [R-sig-Debian] Accessto OpenBLAS
+In-Reply-To: <4F3AEB05.3090601@psu.edu>
+References: <1329256604.15529.YahooMailNeo@web120601.mail.ne1.yahoo.com>
+	<4F3AEB05.3090601@psu.edu>
+Message-ID: <20282.61678.272114.820259@max.nulle.part>
+
+
+On 14 February 2012 at 18:15, Michael Rutter wrote:
+| 
+| 
+| On 02/14/2012 04:56 PM, Scott Raynaud wrote:
+| > My IT people have set up R on a a Kubuntu box with an RWkard
+| > front end.  I have OpenBLAS set up as a shared BLAS but I'm not
+| > sure how to get R to see it.  A.3.1 of the installation docs talks
+| > about it but I'm not clear if I need a option on my startup line or
+| > if I need to find a config file.  The BLAS is is in:
+| >
+| > /usr/lib/openblas-base
+| >
+| > on my machine. I'm not sure how to confirm that R is seeing
+| > the BLAS.
+| >
+| > Recommendations?
+| >
+| 
+| Scott,
+| 
+| There used to be a good post about this on a blog, but the blog has gone 
+| under.  Luckily, I was able to salvage the post from Google cache.  Here 
+| is the relevant part:
+| 
+|      Copy the resulting .so shared object library file 
+| (libgoto2_penrynp-r1.12.so on my machine) to /usr/lib
+|      The original BLAS library located there is called libblas.so.3gf.0. 
+|   Back this file up:  cp libblas.so.3gf.0  libblas.so.3gf.0.keep
+|      Make a symbolic link to the new BLAS library:
+|      ln -s libgoto2_penrynp-r1.12.so libblas.so.3gf.0
+| 
+| Basically, you need to make sure that the file "libblas.so.3gf.0" links 
+| to the location of your lib.  I would find a benchmark file 
+| (http://r.research.att.com/benchmarks/) to test R before and after 
+| creating the link, just to make sure it is working.
+
+Is that really needed?
+
+a)  We never had Goto in the distro for its licensing issues. But there
+    always was the goto2helper package from Japan which I and other have
+    used with great success.
+
+    With it, goto BLAS became a drop-in just like Atlas or MKL.
+
+b)  I haven't had time play with Openblas but I recall Doug Bates telling me
+    it worked for him (possibly after one or two manual steps I cannot
+    recall).
+
+c)  I hope to get to OpenBlas myself 'soon' and may follow-up then.
+
+Lastly, and as always, faster BLAS are nice, but BLAS are rarely your
+bottleneck with R.
+
+Hope this helps, Dirk
+
+| 
+| Hope this helps,
+| Michael
+| 
+| 
+|   _______________________________________________
+| > R-SIG-Debian mailing list
+| > R-SIG-Debian at r-project.org
+| > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| 
+| -- 
+| Dr. Michael A. Rutter
+| School of Science
+| Penn State Erie, The Behrend College
+| Station Road
+| Erie, PA 16563
+| http://math.bd.psu.edu/faculty/rutter
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From mar36 at psu.edu  Wed Feb 15 01:47:00 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Tue, 14 Feb 2012 19:47:00 -0500
+Subject: [R-sig-Debian] Accessto OpenBLAS
+In-Reply-To: <20282.61678.272114.820259@max.nulle.part>
+References: <1329256604.15529.YahooMailNeo@web120601.mail.ne1.yahoo.com>
+	<4F3AEB05.3090601@psu.edu>
+	<20282.61678.272114.820259@max.nulle.part>
+Message-ID: <4F3B0084.7060906@psu.edu>
+
+
+
+On 02/14/2012 06:40 PM, Dirk Eddelbuettel wrote:
+>
+> On 14 February 2012 at 18:15, Michael Rutter wrote:
+> |
+> |
+> | On 02/14/2012 04:56 PM, Scott Raynaud wrote:
+> |>  My IT people have set up R on a a Kubuntu box with an RWkard
+> |>  front end.  I have OpenBLAS set up as a shared BLAS but I'm not
+> |>  sure how to get R to see it.  A.3.1 of the installation docs talks
+> |>  about it but I'm not clear if I need a option on my startup line or
+> |>  if I need to find a config file.  The BLAS is is in:
+> |>
+> |>  /usr/lib/openblas-base
+> |>
+> |>  on my machine. I'm not sure how to confirm that R is seeing
+> |>  the BLAS.
+> |>
+> |>  Recommendations?
+> |>
+> |
+> | Scott,
+> |
+> | There used to be a good post about this on a blog, but the blog has gone
+> | under.  Luckily, I was able to salvage the post from Google cache.  Here
+> | is the relevant part:
+> |
+> |      Copy the resulting .so shared object library file
+> | (libgoto2_penrynp-r1.12.so on my machine) to /usr/lib
+> |      The original BLAS library located there is called libblas.so.3gf.0.
+> |   Back this file up:  cp libblas.so.3gf.0  libblas.so.3gf.0.keep
+> |      Make a symbolic link to the new BLAS library:
+> |      ln -s libgoto2_penrynp-r1.12.so libblas.so.3gf.0
+> |
+> | Basically, you need to make sure that the file "libblas.so.3gf.0" links
+> | to the location of your lib.  I would find a benchmark file
+> | (http://r.research.att.com/benchmarks/) to test R before and after
+> | creating the link, just to make sure it is working.
+>
+> Is that really needed?
+>
+> a)  We never had Goto in the distro for its licensing issues. But there
+>      always was the goto2helper package from Japan which I and other have
+>      used with great success.
+>
+>      With it, goto BLAS became a drop-in just like Atlas or MKL.
+
+That package is hard to find without Dirk's gcdb vignette.  Here is the 
+link:
+
+http://prs.ism.ac.jp/~nakama/debian/lenny-ism/
+
+That would work to install GotoBLAS. Reworking the helper package for 
+OpenBLAS would make a nice little project.  There is an OpenBLAS package 
+for Ubuntu 11.10, but the binary version only uses two cores, at least 
+that what it used the last time I tried it.
+
+
+> b)  I haven't had time play with Openblas but I recall Doug Bates telling me
+>      it worked for him (possibly after one or two manual steps I cannot
+>      recall).
+
+My guess is that the manual steps are the ones I described above.
+
+Michael
+
+> c)  I hope to get to OpenBlas myself 'soon' and may follow-up then.
+>
+> Lastly, and as always, faster BLAS are nice, but BLAS are rarely your
+> bottleneck with R.
+>
+> Hope this helps, Dirk
+>
+> |
+> | Hope this helps,
+> | Michael
+> |
+> |
+> |   _______________________________________________
+> |>  R-SIG-Debian mailing list
+> |>  R-SIG-Debian at r-project.org
+> |>  https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> |
+> | --
+> | Dr. Michael A. Rutter
+> | School of Science
+> | Penn State Erie, The Behrend College
+> | Station Road
+> | Erie, PA 16563
+> | http://math.bd.psu.edu/faculty/rutter
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From ugulumbe at udusok.edu.ng  Mon Feb 20 17:52:09 2012
+From: ugulumbe at udusok.edu.ng (Prof.S.U.Gulumbe)
+Date: Mon, 20 Feb 2012 17:52:09 +0100 (WAT)
+Subject: [R-sig-Debian] help.start() not working
+In-Reply-To: <986f8d4c-23fe-42c4-828f-055f9d71a57d@mail.udusok.edu.ng>
+Message-ID: <4aad1ce8-b01d-47dc-9796-954dd2fc79e1@mail.udusok.edu.ng>
+
+I have notice today that my "help.start()" in the R- enviroment does not work. It give me the following message:
+Error in readRDS(file) : error reading from connection
+I would appreciate any help on that. Im using Ubuntu oreinic 11.10
+
+
+usman
+
+
+From eric.momsen at gmail.com  Mon Feb 20 18:28:00 2012
+From: eric.momsen at gmail.com (Eric Momsen)
+Date: Mon, 20 Feb 2012 11:28:00 -0600
+Subject: [R-sig-Debian] readVECT6 and readRAST6 fails with R and GRASS 7 ???
+Message-ID: <CAO7hk-+h1M0_=3oymUTSeXX0oUj8A-eDudpTgiT7uJf2Bqw3vQ@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120220/aa66dc56/attachment.pl>
+
+From tomgottfried at web.de  Mon Feb 20 18:59:54 2012
+From: tomgottfried at web.de (Tom Gottfried)
+Date: Mon, 20 Feb 2012 18:59:54 +0100
+Subject: [R-sig-Debian] readVECT6 and readRAST6 fails with R and GRASS 7
+ ???
+In-Reply-To: <CAO7hk-+h1M0_=3oymUTSeXX0oUj8A-eDudpTgiT7uJf2Bqw3vQ@mail.gmail.com>
+References: <CAO7hk-+h1M0_=3oymUTSeXX0oUj8A-eDudpTgiT7uJf2Bqw3vQ@mail.gmail.com>
+Message-ID: <4F428A1A.20703@web.de>
+
+Hi,
+
+spgrass6, readRAST6 and readVECT6 have a "6" in their name that refers 
+to GRASS 6. GRASS 7 seems to be quite different from GRASS 6. That, I 
+suppose, is the cause of what you see.
+
+HTH,
+Tom
+
+Am 20.02.2012 18:28, schrieb Eric Momsen:
+> Hello all,
+>
+> I'm having troubles getting R to load data from GRASS 7.  I suspect I have
+> installed something wrong, but can't figure out what.  Any suggestions for
+> what I could look for or how to trouble shoot this?  Thanks in advance for
+> any help!
+>
+> After having other issues last week, we have upgraded Debian to the testing
+> version.  The other problems are solved, but now I can't get readVECT6 and
+> readRAST6 to work.
+>
+> I have followed the instructions at http://grass.osgeo.org/wiki/R_statistics -
+> first under the Debian instructions to use apt-get to install some of the
+> packages and  others via R.  After that didn't work, I tried the ctv
+> package to install the Spatial view (Core only).  The results are the same.
+>   I can execute GRASS commands, but the readVECT6 crashes R, and readRAST6
+> gives an error.  (I believe there are probably two separate causes.)
+>
+> -Eric
+>
+> (I've left the version numbers here but deleted much of the output
+> data...spearfish70 is simply spearfish60 after running v.build.all)
+>
+> Welcome to GRASS 7.0.svn
+> GRASS 7.0.svn (spearfish70):~>  R
+> R version 2.14.1 (2011-12-22)
+> Platform: x86_64-pc-linux-gnu (64-bit)
+>> library(spgrass6)
+> Loading required package: sp
+> Loading required package: XML
+> GRASS GIS interface loaded with GRASS version: GRASS 7.0.svn50847M (2012)
+> and location: spearfish70
+>> gmeta6()
+> gisdbase    /home/shared/research/GRASSDATA
+> location    spearfish70
+> ...etc...
+>> system("g.list vect")
+> ----------------------------------------------
+>
+> vector files available in mapset<PERMANENT>:
+> archsites       roads           t_9961_200      t_9961_500
+>   t_roads_prime
+> bugsites        roads_net       t_9961_200_all  t_9961_500_all
+>   t_roads_second
+> ...etc...
+>
+>> system("g.list rast")
+>
+>> streams<- readVECT6("streams", type = "line,boundary", remove.duplicates
+> = FALSE)
+> Loading required package: rgdal
+> Geospatial Data Abstraction Library extensions to R successfully loaded
+> Loaded GDAL runtime: GDAL 1.7.3, released 2010/11/10
+> Path to GDAL shared files: /usr/share/gdal/1.7
+> Loaded PROJ.4 runtime: Rel. 4.7.1, 23 September 2009, [PJ_VERSION: 470]
+> Path to PROJ.4 shared files: (autodetected)
+> GRASS 7.0.svn (spearfish70):~>
+>
+>
+> Started up R again...and tried readRAST6
+>
+>> spear<- readRAST6(c("elevation.dem", "geology"), cat = c(FALSE, TRUE))
+> Loading required package: rgdal
+> Geospatial Data Abstraction Library extensions to R successfully loaded
+> Loaded GDAL runtime: GDAL 1.7.3, released 2010/11/10
+> Path to GDAL shared files: /usr/share/gdal/1.7
+> Loaded PROJ.4 runtime: Rel. 4.7.1, 23 September 2009, [PJ_VERSION: 470]
+> Path to PROJ.4 shared files: (autodetected)
+> Command: r.info
+> Description: Outputs basic information about a raster map.
+> Keywords: raster, metadata, history
+> Parameters:
+>    name: map, type: string, required: yes, multiple: no
+>    keydesc: name, keydesc_count: 1
+> [Name of raster map]
+> Flags:
+>    name: g [Print raster array information only] {FALSE}
+>    name: r [Print range only] {FALSE}
+>    name: e [Print extended metadata information only] {FALSE}
+>    name: h [Print raster history instead of info] {FALSE}
+>    name: verbose [Verbose module output] {FALSE}
+>    name: quiet [Quiet module output] {FALSE}
+> Error in doGRASS(cmd, flags = flags, ..., parameters = parameters, echoCmd
+> = echoCmd) :
+>    Invalid flag value: t
+>
+> ....so I tried running r.info which runs fine....
+>
+>> system("r.info map=elevation.dem at PERMANENT")
+>   +----------------------------------------------------------------------------+
+>   | Layer:    elevation.dem at PERMANENT        Date: Tue Mar 14 07:15:44 1989
+>     |
+>   | Mapset:   PERMANENT                      Login of Creator: grass
+>    |
+>   | Location: spearfish70
+>     |
+>   | DataBase: /home/shared/research/GRASSDATA
+>     |
+>   | Title:    DEM (7.5 minute) ( elevation )
+>    |
+> ....etc....
+>
+> 	[[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From mar36 at psu.edu  Mon Feb 20 20:38:47 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Mon, 20 Feb 2012 14:38:47 -0500
+Subject: [R-sig-Debian] help.start() not working
+In-Reply-To: <4aad1ce8-b01d-47dc-9796-954dd2fc79e1@mail.udusok.edu.ng>
+References: <4aad1ce8-b01d-47dc-9796-954dd2fc79e1@mail.udusok.edu.ng>
+Message-ID: <4F42A147.8000302@psu.edu>
+
+On 02/20/2012 11:52 AM, Prof.S.U.Gulumbe wrote:
+> I have notice today that my "help.start()" in the R- enviroment does not work. It give me the following message:
+> Error in readRDS(file) : error reading from connection
+> I would appreciate any help on that. Im using Ubuntu oreinic 11.10
+>
+>
+> usman
+
+It could be an issue with your default browser.  What happens when you type
+
+xdg-open http://www.google.com
+
+In the command line.  On my machine, a new tab opens up in Firefox with 
+google.  Do you get something similar?
+
+Michael
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+From eric.momsen at gmail.com  Tue Feb 21 15:36:36 2012
+From: eric.momsen at gmail.com (Eric Momsen)
+Date: Tue, 21 Feb 2012 08:36:36 -0600
+Subject: [R-sig-Debian] R-SIG-Debian Digest, Vol 78, Issue 3
+In-Reply-To: <mailman.23.1329822008.25188.r-sig-debian@r-project.org>
+References: <mailman.23.1329822008.25188.r-sig-debian@r-project.org>
+Message-ID: <CAO7hk-KZpUneyUpQLZL9twHUQkXPVeCh=sQ3Bwmx7KeH_-a7vQ@mail.gmail.com>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120221/c277266c/attachment.pl>
+
+From scott.raynaud at yahoo.com  Thu Feb 23 18:08:28 2012
+From: scott.raynaud at yahoo.com (Scott Raynaud)
+Date: Thu, 23 Feb 2012 09:08:28 -0800 (PST)
+Subject: [R-sig-Debian] Accessto OpenBLAS
+In-Reply-To: <4F3B0084.7060906@psu.edu>
+References: <1329256604.15529.YahooMailNeo@web120601.mail.ne1.yahoo.com>
+	<4F3AEB05.3090601@psu.edu>
+	<20282.61678.272114.820259@max.nulle.part>
+	<4F3B0084.7060906@psu.edu>
+Message-ID: <1330016908.67438.YahooMailNeo@web120601.mail.ne1.yahoo.com>
+
+So my experiments have confirmed that the binary version of
+OpenBLAS uses onlt two cores.? Should the compiled version
+use more?
+
+I want figure out which package to utilize mulitiple cores in
+a UNIX environment.? Did some research on this a while back 
+but it's a bit fuzzy right now.? My main concern is there's a 
+warning about BLAS and multiple cores in the install docs.
+Will I run into problems?
+
+?
+----- Original Message -----
+From: Michael Rutter <mar36 at psu.edu>
+To: Dirk Eddelbuettel <edd at debian.org>
+Cc: Scott Raynaud <scott.raynaud at yahoo.com>; "r-sig-debian at r-project.org" <r-sig-debian at r-project.org>
+Sent: Tuesday, February 14, 2012 6:47 PM
+Subject: Re: [R-sig-Debian] Accessto OpenBLAS
+
+
+
+On 02/14/2012 06:40 PM, Dirk Eddelbuettel wrote:
+>
+> On 14 February 2012 at 18:15, Michael Rutter wrote:
+> |
+> |
+> | On 02/14/2012 04:56 PM, Scott Raynaud wrote:
+> |>? My IT people have set up R on a a Kubuntu box with an RWkard
+> |>? front end.? I have OpenBLAS set up as a shared BLAS but I'm not
+> |>? sure how to get R to see it.? A.3.1 of the installation docs talks
+> |>? about it but I'm not clear if I need a option on my startup line or
+> |>? if I need to find a config file.? The BLAS is is in:
+> |>
+> |>? /usr/lib/openblas-base
+> |>
+> |>? on my machine. I'm not sure how to confirm that R is seeing
+> |>? the BLAS.
+> |>
+> |>? Recommendations?
+> |>
+> |
+> | Scott,
+> |
+> | There used to be a good post about this on a blog, but the blog has gone
+> | under.? Luckily, I was able to salvage the post from Google cache.? Here
+> | is the relevant part:
+> |
+> |? ? ? Copy the resulting .so shared object library file
+> | (libgoto2_penrynp-r1.12.so on my machine) to /usr/lib
+> |? ? ? The original BLAS library located there is called libblas.so.3gf.0.
+> |? Back this file up:? cp libblas.so.3gf.0? libblas.so.3gf.0.keep
+> |? ? ? Make a symbolic link to the new BLAS library:
+> |? ? ? ln -s libgoto2_penrynp-r1.12.so libblas.so.3gf.0
+> |
+> | Basically, you need to make sure that the file "libblas.so.3gf.0" links
+> | to the location of your lib.? I would find a benchmark file
+> | (http://r.research.att.com/benchmarks/) to test R before and after
+> | creating the link, just to make sure it is working.
+>
+> Is that really needed?
+>
+> a)? We never had Goto in the distro for its licensing issues. But there
+>? ? ? always was the goto2helper package from Japan which I and other have
+>? ? ? used with great success.
+>
+>? ? ? With it, goto BLAS became a drop-in just like Atlas or MKL.
+
+That package is hard to find without Dirk's gcdb vignette.? Here is the 
+link:
+
+http://prs.ism.ac.jp/~nakama/debian/lenny-ism/
+
+That would work to install GotoBLAS. Reworking the helper package for 
+OpenBLAS would make a nice little project.? There is an OpenBLAS package 
+for Ubuntu 11.10, but the binary version only uses two cores, at least 
+that what it used the last time I tried it.
+
+
+> b)? I haven't had time play with Openblas but I recall Doug Bates telling me
+>? ? ? it worked for him (possibly after one or two manual steps I cannot
+>? ? ? recall).
+
+My guess is that the manual steps are the ones I described above.
+
+Michael
+
+> c)? I hope to get to OpenBlas myself 'soon' and may follow-up then.
+>
+> Lastly, and as always, faster BLAS are nice, but BLAS are rarely your
+> bottleneck with R.
+>
+> Hope this helps, Dirk
+>
+> |
+> | Hope this helps,
+> | Michael
+> |
+> |
+> |? _______________________________________________
+> |>? R-SIG-Debian mailing list
+> |>? R-SIG-Debian at r-project.org
+> |>? https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+> |
+> | --
+> | Dr. Michael A. Rutter
+> | School of Science
+> | Penn State Erie, The Behrend College
+> | Station Road
+> | Erie, PA 16563
+> | http://math.bd.psu.edu/faculty/rutter
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+Station Road
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+
+
+
+From edd at debian.org  Thu Feb 23 18:31:14 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 23 Feb 2012 11:31:14 -0600
+Subject: [R-sig-Debian] Accessto OpenBLAS
+In-Reply-To: <1330016908.67438.YahooMailNeo@web120601.mail.ne1.yahoo.com>
+References: <1329256604.15529.YahooMailNeo@web120601.mail.ne1.yahoo.com>
+	<4F3AEB05.3090601@psu.edu>
+	<20282.61678.272114.820259@max.nulle.part>
+	<4F3B0084.7060906@psu.edu>
+	<1330016908.67438.YahooMailNeo@web120601.mail.ne1.yahoo.com>
+Message-ID: <20294.30690.852050.817960@max.nulle.part>
+
+
+On 23 February 2012 at 09:08, Scott Raynaud wrote:
+| So my experiments have confirmed that the binary version of
+| OpenBLAS uses onlt two cores.? Should the compiled version
+| use more?
+| 
+| I want figure out which package to utilize mulitiple cores in
+| a UNIX environment.? Did some research on this a while back 
+| but it's a bit fuzzy right now.? My main concern is there's a 
+| warning about BLAS and multiple cores in the install docs.
+| Will I run into problems?
+
+Did you see the README?  
+
+   4.Usages
+   Link with libopenblas.a or -lopenblas for shared library.
+
+   4.1 Set the number of threads with environment variables. for example,
+   export OPENBLAS_NUM_THREADS=4
+    or
+   export GOTO_NUM_THREADS=4
+    or 
+   export OMP_NUM_THREADS=4
+   
+   The priorities are OPENBLAS_NUM_THREADS > GOTO_NUM_THREADS > OMP_NUM_THREADS.
+   
+   If you compile this lib with USE_OPENMP=1, you should only set OMP_NUM_THREADS environment variable.
+
+Some BLAS libraries can respond to environment variables at run-time: MKL,
+GotoBlas and hence OpenBlas.  For others such as Atlas this is fixed at
+compile time.
+
+Dirk
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From ebs15242 at gmail.com  Wed Feb 29 19:33:25 2012
+From: ebs15242 at gmail.com (Ed Siefker)
+Date: Wed, 29 Feb 2012 12:33:25 -0600
+Subject: [R-sig-Debian] Broken R
+Message-ID: <CALRb-odPAYAOOZ2BxD-61f0A-hNFpSNLry742B=NCCFVA8hptw@mail.gmail.com>
+
+Hi, I am running Debian Sid. I am having
+trouble with the R packages.
+
+Executing 'help()' or 'demo()' launches 'most' with no text.
+'help.start()' works properly.
+
+When I try to install a package, I get the following problem:
+
+*********************************************************************
+> install.packages("ctv")
+Installing package(s) into ?/usr/local/lib/R/site-library?
+(as ?lib? is unspecified)
+--- Please select a CRAN mirror for use in this session ---
+Loading Tcl/Tk interface ... done
+Warning: unable to access index for repository
+http://cran.cnr.Berkeley.edu/src/contrib
+Warning message:
+In getDependencies(pkgs, dependencies, available, lib) :
+  package ?ctv? is not available (for R version 2.14.2)
+>
+*********************************************************************
+
+The system in question has a direct connection to the internet.
+I can browse to the repository and find the ctv package.
+The user has read and write permissions on '/usr/local/lib/R/site-library'
+
+I don't know what to do here.  Can someone advise?
+
+
+From ebs15242 at gmail.com  Wed Feb 29 19:36:07 2012
+From: ebs15242 at gmail.com (Ed Siefker)
+Date: Wed, 29 Feb 2012 12:36:07 -0600
+Subject: [R-sig-Debian] Broken R
+In-Reply-To: <CALRb-odPAYAOOZ2BxD-61f0A-hNFpSNLry742B=NCCFVA8hptw@mail.gmail.com>
+References: <CALRb-odPAYAOOZ2BxD-61f0A-hNFpSNLry742B=NCCFVA8hptw@mail.gmail.com>
+Message-ID: <CALRb-ofJEL2QH_SahcnzYTO9bSraqADAYqXg47+7wSPWBw035g@mail.gmail.com>
+
+Also, I have the following R packages installed:
+
+ebs15242 at biox:~$ dpkg --get-selections | grep ^r-
+r-base						install
+r-base-core					install
+r-base-dev					install
+r-cran-boot					install
+r-cran-class					install
+r-cran-cluster					install
+r-cran-codetools				install
+r-cran-foreign					install
+r-cran-kernsmooth				install
+r-cran-lattice					install
+r-cran-mass					install
+r-cran-matrix					install
+r-cran-mgcv					install
+r-cran-nlme					install
+r-cran-nnet					install
+r-cran-rpart					install
+r-cran-spatial					install
+r-cran-survival					install
+r-doc-html					install
+r-doc-info					install
+r-doc-pdf					install
+r-recommended					install
+
+
+
+On 2/29/12, Ed Siefker <ebs15242 at gmail.com> wrote:
+> Hi, I am running Debian Sid. I am having
+> trouble with the R packages.
+>
+> Executing 'help()' or 'demo()' launches 'most' with no text.
+> 'help.start()' works properly.
+>
+> When I try to install a package, I get the following problem:
+>
+> *********************************************************************
+>> install.packages("ctv")
+> Installing package(s) into ?/usr/local/lib/R/site-library?
+> (as ?lib? is unspecified)
+> --- Please select a CRAN mirror for use in this session ---
+> Loading Tcl/Tk interface ... done
+> Warning: unable to access index for repository
+> http://cran.cnr.Berkeley.edu/src/contrib
+> Warning message:
+> In getDependencies(pkgs, dependencies, available, lib) :
+>   package ?ctv? is not available (for R version 2.14.2)
+>>
+> *********************************************************************
+>
+> The system in question has a direct connection to the internet.
+> I can browse to the repository and find the ctv package.
+> The user has read and write permissions on '/usr/local/lib/R/site-library'
+>
+> I don't know what to do here.  Can someone advise?
+>
+
+
+From jimrc at math.montana.edu  Wed Feb 29 19:45:22 2012
+From: jimrc at math.montana.edu (Jim Robison-Cox)
+Date: Wed, 29 Feb 2012 11:45:22 -0700
+Subject: [R-sig-Debian] Broken R
+In-Reply-To: <CALRb-odPAYAOOZ2BxD-61f0A-hNFpSNLry742B=NCCFVA8hptw@mail.gmail.com>
+References: <CALRb-odPAYAOOZ2BxD-61f0A-hNFpSNLry742B=NCCFVA8hptw@mail.gmail.com>
+Message-ID: <4F4E7242.5010608@math.montana.edu>
+
+Hi Ed,
+
+   R 2.14.2 just came out, So I'm guessing that most packages are not 
+yet rebuilt for it.
+
+You should still be able to load them as in (from terminal prompt)
+
+wget http://cran.fhcrc.org/src/contrib/ctv_0.7-4.tar.gz
+R CMD INSTALL ctv_0.7-4.tar.gz
+
+Jim Robison-Cox
+
+On 02/29/2012 11:33 AM, Ed Siefker wrote:
+> Hi, I am running Debian Sid. I am having
+> trouble with the R packages.
+>
+> Executing 'help()' or 'demo()' launches 'most' with no text.
+> 'help.start()' works properly.
+>
+> When I try to install a package, I get the following problem:
+>
+> *********************************************************************
+>> install.packages("ctv")
+> Installing package(s) into ?/usr/local/lib/R/site-library?
+> (as ?lib? is unspecified)
+> --- Please select a CRAN mirror for use in this session ---
+> Loading Tcl/Tk interface ... done
+> Warning: unable to access index for repository
+> http://cran.cnr.Berkeley.edu/src/contrib
+> Warning message:
+> In getDependencies(pkgs, dependencies, available, lib) :
+>    package ?ctv? is not available (for R version 2.14.2)
+> *********************************************************************
+>
+> The system in question has a direct connection to the internet.
+> I can browse to the repository and find the ctv package.
+> The user has read and write permissions on '/usr/local/lib/R/site-library'
+>
+> I don't know what to do here.  Can someone advise?
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+-- 
+---
+Jim Robison-Cox
+Department of Math Sciences
+2-214 Wilson Hall
+Montana State University
+Bozeman, MT 59717-2400
+  e-mail: jimrc at math.montana.edu
+  phone: (406)994-5340
+
+
+From edd at debian.org  Wed Feb 29 20:42:03 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 29 Feb 2012 13:42:03 -0600
+Subject: [R-sig-Debian] Broken R
+In-Reply-To: <CALRb-ofJEL2QH_SahcnzYTO9bSraqADAYqXg47+7wSPWBw035g@mail.gmail.com>
+References: <CALRb-odPAYAOOZ2BxD-61f0A-hNFpSNLry742B=NCCFVA8hptw@mail.gmail.com>
+	<CALRb-ofJEL2QH_SahcnzYTO9bSraqADAYqXg47+7wSPWBw035g@mail.gmail.com>
+Message-ID: <20302.32651.9864.770104@max.nulle.part>
+
+
+On 29 February 2012 at 12:36, Ed Siefker wrote:
+| Also, I have the following R packages installed:
+| 
+| ebs15242 at biox:~$ dpkg --get-selections | grep ^r-
+| r-base						install
+| r-base-core					install
+| r-base-dev					install
+| r-cran-boot					install
+| r-cran-class					install
+| r-cran-cluster					install
+| r-cran-codetools				install
+| r-cran-foreign					install
+| r-cran-kernsmooth				install
+| r-cran-lattice					install
+| r-cran-mass					install
+| r-cran-matrix					install
+| r-cran-mgcv					install
+| r-cran-nlme					install
+| r-cran-nnet					install
+| r-cran-rpart					install
+| r-cran-spatial					install
+| r-cran-survival					install
+| r-doc-html					install
+| r-doc-info					install
+| r-doc-pdf					install
+| r-recommended					install
+| 
+| 
+| 
+| On 2/29/12, Ed Siefker <ebs15242 at gmail.com> wrote:
+| > Hi, I am running Debian Sid. I am having
+| > trouble with the R packages.
+| >
+| > Executing 'help()' or 'demo()' launches 'most' with no text.
+
+You need to set / change the default browser -- from /etc/R/Renviron:
+
+   ## Default browser
+   R_BROWSER=${R_BROWSER-'xdg-open'}
+
+so the xdg-open command picks most, and most does not know what to do with
+the arguments. Works with less.
+
+| > 'help.start()' works properly.
+| >
+| > When I try to install a package, I get the following problem:
+| >
+| > *********************************************************************
+| >> install.packages("ctv")
+| > Installing package(s) into ?/usr/local/lib/R/site-library?
+| > (as ?lib? is unspecified)
+| > --- Please select a CRAN mirror for use in this session ---
+
+No error. You provided no default.
+
+| > Loading Tcl/Tk interface ... done
+| > Warning: unable to access index for repository
+| > http://cran.cnr.Berkeley.edu/src/contrib
+
+No idea. Network?  Try a different site.
+
+| > Warning message:
+| > In getDependencies(pkgs, dependencies, available, lib) :
+| >   package ?ctv? is not available (for R version 2.14.2)
+
+So install ctv.
+
+Dirk
+
+| > *********************************************************************
+| >
+| > The system in question has a direct connection to the internet.
+| > I can browse to the repository and find the ctv package.
+| > The user has read and write permissions on '/usr/local/lib/R/site-library'
+| >
+| > I don't know what to do here.  Can someone advise?
+| >
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From pgilbert902 at gmail.com  Wed Feb 29 20:46:09 2012
+From: pgilbert902 at gmail.com (Paul Gilbert)
+Date: Wed, 29 Feb 2012 14:46:09 -0500
+Subject: [R-sig-Debian] Broken R
+In-Reply-To: <CALRb-odPAYAOOZ2BxD-61f0A-hNFpSNLry742B=NCCFVA8hptw@mail.gmail.com>
+References: <CALRb-odPAYAOOZ2BxD-61f0A-hNFpSNLry742B=NCCFVA8hptw@mail.gmail.com>
+Message-ID: <4F4E8081.6020300@gmail.com>
+
+
+Could be packages for new R have not yet migrated to the mirrors. You 
+might try Austria rather than Berkley.
+
+Paul
+
+On 12-02-29 01:33 PM, Ed Siefker wrote:
+> Hi, I am running Debian Sid. I am having
+> trouble with the R packages.
+>
+> Executing 'help()' or 'demo()' launches 'most' with no text.
+> 'help.start()' works properly.
+>
+> When I try to install a package, I get the following problem:
+>
+> *********************************************************************
+>> install.packages("ctv")
+> Installing package(s) into ?/usr/local/lib/R/site-library?
+> (as ?lib? is unspecified)
+> --- Please select a CRAN mirror for use in this session ---
+> Loading Tcl/Tk interface ... done
+> Warning: unable to access index for repository
+> http://cran.cnr.Berkeley.edu/src/contrib
+> Warning message:
+> In getDependencies(pkgs, dependencies, available, lib) :
+>    package ?ctv? is not available (for R version 2.14.2)
+>>
+> *********************************************************************
+>
+> The system in question has a direct connection to the internet.
+> I can browse to the repository and find the ctv package.
+> The user has read and write permissions on '/usr/local/lib/R/site-library'
+>
+> I don't know what to do here.  Can someone advise?
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From edd at debian.org  Wed Feb 29 21:39:58 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 29 Feb 2012 14:39:58 -0600
+Subject: [R-sig-Debian] Broken R
+In-Reply-To: <4F4E7242.5010608@math.montana.edu>
+References: <CALRb-odPAYAOOZ2BxD-61f0A-hNFpSNLry742B=NCCFVA8hptw@mail.gmail.com>
+	<4F4E7242.5010608@math.montana.edu>
+Message-ID: <20302.36126.721244.189163@max.nulle.part>
+
+
+On 29 February 2012 at 11:45, Jim Robison-Cox wrote:
+| Hi Ed,
+| 
+|    R 2.14.2 just came out, So I'm guessing that most packages are not 
+| yet rebuilt for it.
+
+This is not Windows, so binary packages are not being rebuilt anyway --
+install.packages() only looks at src/contrib/.
+
+As R 2.14.2 itself, that actually was uploaded to Debian 'unstable' this
+morning as I usually find the time to do so on release day.  
+
+Dirk
+ 
+| You should still be able to load them as in (from terminal prompt)
+| 
+| wget http://cran.fhcrc.org/src/contrib/ctv_0.7-4.tar.gz
+| R CMD INSTALL ctv_0.7-4.tar.gz
+| 
+| Jim Robison-Cox
+| 
+| On 02/29/2012 11:33 AM, Ed Siefker wrote:
+| > Hi, I am running Debian Sid. I am having
+| > trouble with the R packages.
+| >
+| > Executing 'help()' or 'demo()' launches 'most' with no text.
+| > 'help.start()' works properly.
+| >
+| > When I try to install a package, I get the following problem:
+| >
+| > *********************************************************************
+| >> install.packages("ctv")
+| > Installing package(s) into ?/usr/local/lib/R/site-library?
+| > (as ?lib? is unspecified)
+| > --- Please select a CRAN mirror for use in this session ---
+| > Loading Tcl/Tk interface ... done
+| > Warning: unable to access index for repository
+| > http://cran.cnr.Berkeley.edu/src/contrib
+| > Warning message:
+| > In getDependencies(pkgs, dependencies, available, lib) :
+| >    package ?ctv? is not available (for R version 2.14.2)
+| > *********************************************************************
+| >
+| > The system in question has a direct connection to the internet.
+| > I can browse to the repository and find the ctv package.
+| > The user has read and write permissions on '/usr/local/lib/R/site-library'
+| >
+| > I don't know what to do here.  Can someone advise?
+| >
+| > _______________________________________________
+| > R-SIG-Debian mailing list
+| > R-SIG-Debian at r-project.org
+| > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+| >
+| 
+| 
+| -- 
+| ---
+| Jim Robison-Cox
+| Department of Math Sciences
+| 2-214 Wilson Hall
+| Montana State University
+| Bozeman, MT 59717-2400
+|   e-mail: jimrc at math.montana.edu
+|   phone: (406)994-5340
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+From scott.raynaud at yahoo.com  Wed Feb 29 22:42:46 2012
+From: scott.raynaud at yahoo.com (Scott Raynaud)
+Date: Wed, 29 Feb 2012 13:42:46 -0800 (PST)
+Subject: [R-sig-Debian] Accessto OpenBLAS
+In-Reply-To: <20294.30690.852050.817960@max.nulle.part>
+References: <1329256604.15529.YahooMailNeo@web120601.mail.ne1.yahoo.com>
+	<4F3AEB05.3090601@psu.edu>
+	<20282.61678.272114.820259@max.nulle.part>
+	<4F3B0084.7060906@psu.edu>
+	<1330016908.67438.YahooMailNeo@web120601.mail.ne1.yahoo.com>
+	<20294.30690.852050.817960@max.nulle.part>
+Message-ID: <1330551766.95777.YahooMailNeo@web120602.mail.ne1.yahoo.com>
+
+So I was passing this to my IT department but they have now
+abandoned me and I'm left to fend for myself.? I guess I have to 
+learn how to do everything on my own now.
+
+I looked at the read.me.? It's pretty cryptic.? How does one link
+with -lopenblas to a shared library?? At the bash command line?
+Somewhere else?? Where?
+
+My machine has 4 Intel? Xeon? Processor X5650 CPUs.? On
+Intel's site they say each CPU has 6 cores and 12 threads.? Of 
+course I want to take advatage of that horsepower. It looks like 
+the environment variables can be setup when I launch R, correct?
+The questions is how?? There are three environment variables.? 
+Which one should I use?? And how do I get R to pick up
+those environment variables.? (I'm usinf Rkward as a front end).
+
+There's some ambiguity in the read.me under known issues.? 
+It says:
+
+The number of CPUs/Cores should less than or equal to 
+8*sizeof(unsigned long). On 64 bits, the limit is 64.
+?
+I'm not sure what that implies in terms of my machine.
+To what values?do I set my environment variables?
+?
+----- Original Message -----
+From: Dirk Eddelbuettel <edd at debian.org>
+To: Scott Raynaud <scott.raynaud at yahoo.com>
+Cc: "r-sig-debian at r-project.org" <r-sig-debian at r-project.org>
+Sent: Thursday, February 23, 2012 11:31 AM
+Subject: Re: [R-sig-Debian] Accessto OpenBLAS
+
+
+On 23 February 2012 at 09:08, Scott Raynaud wrote:
+| So my experiments have confirmed that the binary version of
+| OpenBLAS uses onlt two cores.? Should the compiled version
+| use more?
+| 
+| I want figure out which package to utilize mulitiple cores in
+| a UNIX environment.? Did some research on this a while back 
+| but it's a bit fuzzy right now.? My main concern is there's a 
+| warning about BLAS and multiple cores in the install docs.
+| Will I run into problems?
+
+Did you see the README?? 
+
+? 4.Usages
+? Link with libopenblas.a or -lopenblas for shared library.
+
+? 4.1 Set the number of threads with environment variables. for example,
+? export OPENBLAS_NUM_THREADS=4
+? ? or
+? export GOTO_NUM_THREADS=4
+? ? or 
+? export OMP_NUM_THREADS=4
+? 
+? The priorities are OPENBLAS_NUM_THREADS > GOTO_NUM_THREADS > OMP_NUM_THREADS.
+? 
+? If you compile this lib with USE_OPENMP=1, you should only set OMP_NUM_THREADS environment variable.
+
+Some BLAS libraries can respond to environment variables at run-time: MKL,
+GotoBlas and hence OpenBlas.? For others such as Atlas this is fixed at
+compile time.
+
+Dirk
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+
+
+From edd at debian.org  Wed Feb 29 22:57:15 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 29 Feb 2012 15:57:15 -0600
+Subject: [R-sig-Debian] Accessto OpenBLAS
+In-Reply-To: <1330551766.95777.YahooMailNeo@web120602.mail.ne1.yahoo.com>
+References: <1329256604.15529.YahooMailNeo@web120601.mail.ne1.yahoo.com>
+	<4F3AEB05.3090601@psu.edu>
+	<20282.61678.272114.820259@max.nulle.part>
+	<4F3B0084.7060906@psu.edu>
+	<1330016908.67438.YahooMailNeo@web120601.mail.ne1.yahoo.com>
+	<20294.30690.852050.817960@max.nulle.part>
+	<1330551766.95777.YahooMailNeo@web120602.mail.ne1.yahoo.com>
+Message-ID: <20302.40763.459153.575723@max.nulle.part>
+
+
+On 29 February 2012 at 13:42, Scott Raynaud wrote:
+| So I was passing this to my IT department but they have now
+| abandoned me and I'm left to fend for myself.? I guess I have to 
+| learn how to do everything on my own now.
+| 
+| I looked at the read.me.? It's pretty cryptic.? How does one link
+| with -lopenblas to a shared library?? At the bash command line?
+| Somewhere else?? Where?
+
+Based on my so-far-still-casual investigation, on Ubuntu (and Debian, at the
+same OpenBLAS package version), you do nothing and just make sure that
+OpenBLAS is your installed BLAS (eg if you have Atlas, it ranks higher as a
+default and will be picked):
+
+(The following is a little edited to fit the columns)
+
+edd at max:~$ dpkg -l|grep atlas                   # no atlas
+edd at max:~$ dpkg -l|grep openblas
+ii  libopenblas-base    0.1alpha2.2-3  Optimized BLAS (linear algebra) ...
+ii  libopenblas-dev     0.1alpha2.2-3  Optimized BLAS (linear algebra) ...
+edd at max:~$ ldd /usr/lib/R/lib
+lib/     library/ 
+edd at max:~$ ldd /usr/lib/R/lib/libR.so 
+        linux-vdso.so.1 =>  (0x00007fff83fff000)
+        libblas.so.3gf => /usr/lib/libblas.so.3gf (0x00007f9cfe120000)
+        libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f9cfde9c000)
+        libreadline.so.6 => /lib/libreadline.so.6 (0x00007f9cfdc59000)
+        libpcre.so.3 => /lib/x86_64-linux-gnu/libpcre.so.3 (0x00007f9cfda1d000)
+        liblzma.so.2 => /usr/lib/liblzma.so.2 (0x00007f9cfd7fb000)
+        libbz2.so.1.0 => /lib/libbz2.so.1.0 (0x00007f9cfd5ea000)
+        libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f9cfd3d2000)
+        librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f9cfd1ca000)
+        libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f9cfcfc5000)
+        libgomp.so.1 => /usr/lib/x86_64-linux-gnu/libgomp.so.1 (0x00007f9cfcdb7000)
+        libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f9cfcb9a000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f9cfc7fa000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007f9cffb48000)
+        libtinfo.so.5 => /lib/libtinfo.so.5 (0x00007f9cfc5d3000)
+edd at max:~$ ls -l /usr/lib/libblas.so.3gf
+lrwxrwxrwx 1 root root 32 2012-02-23 11:23 /usr/lib/libblas.so.3gf -> /etc/alternatives/libblas.so.3gf
+edd at max:~$ ls -l /usr/lib/libblas.so.3gf /etc/alternatives/libblas.so.3gf
+lrwxrwxrwx 1 root root 39 2012-02-23 11:23 /etc/alternatives/libblas.so.3gf -> /usr/lib/openblas-base/libopenblas.so.0
+lrwxrwxrwx 1 root root 32 2012-02-23 11:23 /usr/lib/libblas.so.3gf -> /etc/alternatives/libblas.so.3gf
+edd at max:~$ 
+
+So R is dynamically linked the _system's_ libblas.so.3gf which is, when we
+follow the symlinks, is provided by OpenBLAS.
+
+Ok?
+
+| My machine has 4 Intel? Xeon? Processor X5650 CPUs.? On
+| Intel's site they say each CPU has 6 cores and 12 threads.? Of 
+| course I want to take advatage of that horsepower. It looks like 
+| the environment variables can be setup when I launch R, correct?
+
+Yes as per the text I included last time.
+
+| The questions is how?? There are three environment variables.? 
+| Which one should I use?? And how do I get R to pick up
+| those environment variables.? (I'm usinf Rkward as a front end).
+
+Read any standard Unix text.  ~/.bashrc is one possibility. If it is for R
+only, ~/.R/Renviron is another.
+
+Dirk
+
+| 
+| There's some ambiguity in the read.me under known issues.? 
+| It says:
+| 
+| The number of CPUs/Cores should less than or equal to 
+| 8*sizeof(unsigned long). On 64 bits, the limit is 64.
+| ?
+| I'm not sure what that implies in terms of my machine.
+| To what values?do I set my environment variables?
+| ?
+| ----- Original Message -----
+| From: Dirk Eddelbuettel <edd at debian.org>
+| To: Scott Raynaud <scott.raynaud at yahoo.com>
+| Cc: "r-sig-debian at r-project.org" <r-sig-debian at r-project.org>
+| Sent: Thursday, February 23, 2012 11:31 AM
+| Subject: Re: [R-sig-Debian] Accessto OpenBLAS
+| 
+| 
+| On 23 February 2012 at 09:08, Scott Raynaud wrote:
+| | So my experiments have confirmed that the binary version of
+| | OpenBLAS uses onlt two cores.? Should the compiled version
+| | use more?
+| | 
+| | I want figure out which package to utilize mulitiple cores in
+| | a UNIX environment.? Did some research on this a while back 
+| | but it's a bit fuzzy right now.? My main concern is there's a 
+| | warning about BLAS and multiple cores in the install docs.
+| | Will I run into problems?
+| 
+| Did you see the README?? 
+| 
+| ? 4.Usages
+| ? Link with libopenblas.a or -lopenblas for shared library.
+| 
+| ? 4.1 Set the number of threads with environment variables. for example,
+| ? export OPENBLAS_NUM_THREADS=4
+| ? ? or
+| ? export GOTO_NUM_THREADS=4
+| ? ? or 
+| ? export OMP_NUM_THREADS=4
+| ? 
+| ? The priorities are OPENBLAS_NUM_THREADS > GOTO_NUM_THREADS > OMP_NUM_THREADS.
+| ? 
+| ? If you compile this lib with USE_OPENMP=1, you should only set OMP_NUM_THREADS environment variable.
+| 
+| Some BLAS libraries can respond to environment variables at run-time: MKL,
+| GotoBlas and hence OpenBlas.? For others such as Atlas this is fixed at
+| compile time.
+| 
+| Dirk
+| 
+| -- 
+| "Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+| dark to read." -- Groucho Marx
+| 
+
+-- 
+"Outside of a dog, a book is a man's best friend. Inside of a dog, it is too
+dark to read." -- Groucho Marx
+
+

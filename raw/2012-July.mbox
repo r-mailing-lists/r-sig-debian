@@ -1,0 +1,1738 @@
+From jkoval at biostats.uwo.ca  Fri Jul  6 23:07:47 2012
+From: jkoval at biostats.uwo.ca (John Koval)
+Date: Fri, 06 Jul 2012 17:07:47 -0400
+Subject: [R-sig-Debian] compile library
+Message-ID: <4FF753A3.40200@biostats.uwo.ca>
+
+1. Are there explicit directions for compiling an R library, say epiR,
+under ubuntu
+2. Given I do compile this library, can I make it available to other 
+ubuntu users so they do not have to re-do my work
+John
+
+-- 
+John J. Koval PhD PStat		Professor
+Department of Epidemiology and Biostatistics
+Kresge Building Room 201
+University of Western Ontario	London Ontario Canada N6A 5C1
+Telephone: 519-661-2111		FAX: 519-661-3766
+	   Ext. 86271      	email:	jkoval at biostats.uwo.ca
+
+
+From jranke at uni-bremen.de  Mon Jul  9 20:43:14 2012
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Mon, 9 Jul 2012 20:43:14 +0200
+Subject: [R-sig-Debian] compile library
+In-Reply-To: <4FF753A3.40200@biostats.uwo.ca>
+References: <4FF753A3.40200@biostats.uwo.ca>
+Message-ID: <201207092043.15527.jranke@uni-bremen.de>
+
+Hi,
+
+did you have a look at the ubuntu README on CRAN?
+
+First see if there are precompiled packages
+
+aptitude search r-cran-epi
+
+if not install r-base-dev to be able to compile source packages, and then, 
+from within R, run
+
+install.packages("epiR")
+
+For details and some background, please refer to the README on CRAN. In some 
+rare cases you need to install headers of libraries that are used in the 
+package.
+
+Johannes
+
+On Friday 06 July 2012 23:07:47 John Koval wrote:
+> 1. Are there explicit directions for compiling an R library, say epiR,
+> under ubuntu
+> 2. Given I do compile this library, can I make it available to other
+> ubuntu users so they do not have to re-do my work
+> John
+
+
+From tbooth at ceh.ac.uk  Tue Jul 17 13:37:15 2012
+From: tbooth at ceh.ac.uk (Tim Booth)
+Date: Tue, 17 Jul 2012 12:37:15 +0100
+Subject: [R-sig-Debian] python-rpy DEB broken - but hopefully easy to fix
+Message-ID: <1342525035.3973.94.camel@balisaur>
+
+Hi CRAN people,
+
+There is an issue with python-rpy on Ubuntu, when installed from the
+CRAN repository. (I read the info on
+http://cran.r-project.org/bin/linux/ubuntu/ and saw the note that this
+package is experimental but you are happy to receive feedback on it.)
+After adding the appropriate CRAN repo:
+
+% sudo apt-get install python-rpy
+[ ... installs various dependencies ... ]
+% echo import rpy | python
+RuntimeError: No module named _rpy2151
+
+      RPy module can not be imported. Please check if your rpy
+      installation supports R 2.15.1. If you have multiple R versions
+      installed, you may need to set RHOME before importing rpy. For
+      example:
+  
+      >>> from rpy_options import set_options
+      >>> set_options(RHOME='c:/progra~1/r/rw2011/')
+      >>> from rpy import *
+      
+
+This is simply because the module needs recompiling with each new R release:
+
+% apt-get -b source python-rpy
+% sudo dpkg -i *.deb
+
+And it all works fine.
+
+Would it be possible to get this module rebuilt automatically in line
+with new releases of r-base-core?  Right now I have to hold back updates
+of R on my server until I can do the rebuild manually, but it would be
+nice not to have this job as it's yet one more bit of server admin for me.
+
+I'm aware that python-rpy is superseded, but as the software I'm needing
+to run is the Galaxy server (galaxy.psu.edu) it's not trivial to get it
+using the new python-rpy2.  (I'm working on it!)
+
+Cheers,
+
+TIM
+
+-- 
+Tim Booth <tbooth at ceh.ac.uk>
+NERC Environmental Bioinformatics Centre 
+
+Centre for Ecology and Hydrology
+Maclean Bldg, Benson Lane
+Crowmarsh Gifford
+Wallingford, England
+OX10 8BB 
+
+http://nebc.nerc.ac.uk
++44 1491 69 2705
+
+-- 
+This message (and any attachments) is for the recipient ...{{dropped:23}}
+
+
+From edd at debian.org  Tue Jul 17 15:16:41 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 17 Jul 2012 08:16:41 -0500
+Subject: [R-sig-Debian] python-rpy DEB broken - but hopefully easy to fix
+In-Reply-To: <1342525035.3973.94.camel@balisaur>
+References: <1342525035.3973.94.camel@balisaur>
+Message-ID: <20485.26041.803146.152710@max.nulle.part>
+
+
+On 17 July 2012 at 12:37, Tim Booth wrote:
+| Hi CRAN people,
+| 
+| There is an issue with python-rpy on Ubuntu, when installed from the
+| CRAN repository. (I read the info on
+| http://cran.r-project.org/bin/linux/ubuntu/ and saw the note that this
+| package is experimental but you are happy to receive feedback on it.)
+| After adding the appropriate CRAN repo:
+| 
+| % sudo apt-get install python-rpy
+| [ ... installs various dependencies ... ]
+| % echo import rpy | python
+| RuntimeError: No module named _rpy2151
+| 
+|       RPy module can not be imported. Please check if your rpy
+|       installation supports R 2.15.1. If you have multiple R versions
+|       installed, you may need to set RHOME before importing rpy. For
+|       example:
+|   
+|       >>> from rpy_options import set_options
+|       >>> set_options(RHOME='c:/progra~1/r/rw2011/')
+|       >>> from rpy import *
+|       
+| 
+| This is simply because the module needs recompiling with each new R release:
+| 
+| % apt-get -b source python-rpy
+| % sudo dpkg -i *.deb
+
+Yes, there is code in the package which hardcodes the then-current
+version. It is a pretty brain-dead scheme as it forces a rebuild on
+major.minor changes.
+
+| And it all works fine.
+| 
+| Would it be possible to get this module rebuilt automatically in line
+| with new releases of r-base-core?  Right now I have to hold back updates
+
+Your maintainer is guilty as charged. This time I simply forgot to rebuild rpy.
+
+Dirk
+
+| of R on my server until I can do the rebuild manually, but it would be
+| nice not to have this job as it's yet one more bit of server admin for me.
+| 
+| I'm aware that python-rpy is superseded, but as the software I'm needing
+| to run is the Galaxy server (galaxy.psu.edu) it's not trivial to get it
+| using the new python-rpy2.  (I'm working on it!)
+| 
+| Cheers,
+| 
+| TIM
+| 
+| -- 
+| Tim Booth <tbooth at ceh.ac.uk>
+| NERC Environmental Bioinformatics Centre 
+| 
+| Centre for Ecology and Hydrology
+| Maclean Bldg, Benson Lane
+| Crowmarsh Gifford
+| Wallingford, England
+| OX10 8BB 
+| 
+| http://nebc.nerc.ac.uk
+| +44 1491 69 2705
+| 
+| -- 
+| This message (and any attachments) is for the recipient ...{{dropped:23}}
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From mar36 at psu.edu  Tue Jul 17 15:31:57 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Tue, 17 Jul 2012 09:31:57 -0400
+Subject: [R-sig-Debian] python-rpy DEB broken - but hopefully easy to fix
+In-Reply-To: <20485.26041.803146.152710@max.nulle.part>
+References: <1342525035.3973.94.camel@balisaur>
+	<20485.26041.803146.152710@max.nulle.part>
+Message-ID: <5005694D.6010206@psu.edu>
+
+
+
+On 07/17/2012 09:16 AM, Dirk Eddelbuettel wrote:
+>
+> On 17 July 2012 at 12:37, Tim Booth wrote:
+> | Hi CRAN people,
+> |
+> | There is an issue with python-rpy on Ubuntu, when installed from the
+> | CRAN repository. (I read the info on
+> | http://cran.r-project.org/bin/linux/ubuntu/ and saw the note that this
+> | package is experimental but you are happy to receive feedback on it.)
+> | After adding the appropriate CRAN repo:
+> |
+> | % sudo apt-get install python-rpy
+> | [ ... installs various dependencies ... ]
+> | % echo import rpy | python
+> | RuntimeError: No module named _rpy2151
+> |
+> |       RPy module can not be imported. Please check if your rpy
+> |       installation supports R 2.15.1. If you have multiple R versions
+> |       installed, you may need to set RHOME before importing rpy. For
+> |       example:
+> |
+> |       >>> from rpy_options import set_options
+> |       >>> set_options(RHOME='c:/progra~1/r/rw2011/')
+> |       >>> from rpy import *
+> |
+> |
+> | This is simply because the module needs recompiling with each new R release:
+> |
+> | % apt-get -b source python-rpy
+> | % sudo dpkg -i *.deb
+>
+> Yes, there is code in the package which hardcodes the then-current
+> version. It is a pretty brain-dead scheme as it forces a rebuild on
+> major.minor changes.
+>
+> | And it all works fine.
+> |
+> | Would it be possible to get this module rebuilt automatically in line
+> | with new releases of r-base-core?  Right now I have to hold back updates
+>
+> Your maintainer is guilty as charged. This time I simply forgot to rebuild rpy.
+>
+> Dirk
+>
+
+I went ahead an rebuilt the rpy packages on my PPA 
+(https://launchpad.net/~marutter/+archive/rrutter), so updates for 
+Ubuntu should soon be appearing on CRAN as well.  Confirmed that the new 
+builds work fine, at least on 12.04.
+
+Michael
+
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+4205 College Drive
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+mar36 at psu.edu
+
+
+From tbooth at ceh.ac.uk  Tue Jul 17 19:17:57 2012
+From: tbooth at ceh.ac.uk (Tim Booth)
+Date: Tue, 17 Jul 2012 18:17:57 +0100
+Subject: [R-sig-Debian] python-rpy DEB broken - but hopefully easy to fix
+In-Reply-To: <5005694D.6010206@psu.edu>
+References: <1342525035.3973.94.camel@balisaur>
+	<20485.26041.803146.152710@max.nulle.part> <5005694D.6010206@psu.edu>
+Message-ID: <1342545477.3973.152.camel@balisaur>
+
+Hi Michael and Dirk,
+
+Many thanks for the quick response.  This definitely makes my life
+easier.
+
+Cheers,
+
+TIM
+
+On Tue, 2012-07-17 at 14:31 +0100, Michael Rutter wrote:
+> 
+> On 07/17/2012 09:16 AM, Dirk Eddelbuettel wrote:
+> >
+
+> > Your maintainer is guilty as charged. This time I simply forgot to rebuild rpy.
+> >
+> > Dirk
+> >
+> 
+> I went ahead an rebuilt the rpy packages on my PPA 
+> (https://launchpad.net/~marutter/+archive/rrutter), so updates for 
+> Ubuntu should soon be appearing on CRAN as well.  Confirmed that the new 
+> builds work fine, at least on 12.04.
+> 
+> Michael
+> 
+> 
+
+-- 
+Tim Booth <tbooth at ceh.ac.uk>
+NERC Environmental Bioinformatics Centre 
+
+Centre for Ecology and Hydrology
+Maclean Bldg, Benson Lane
+Crowmarsh Gifford
+Wallingford, England
+OX10 8BB 
+
+http://nebc.nerc.ac.uk
++44 1491 69 2705
+
+-- 
+This message (and any attachments) is for the recipient ...{{dropped:6}}
+
+
+From nashjc at uottawa.ca  Thu Jul 19 17:33:44 2012
+From: nashjc at uottawa.ca (John C Nash)
+Date: Thu, 19 Jul 2012 11:33:44 -0400
+Subject: [R-sig-Debian] Flame fuss with chuckles the clown over R2.13.1
+Message-ID: <500828D8.4020604@uottawa.ca>
+
+I have a bunch of VirtualBox VMs, including an Ubuntu 11.10 (Oneiric).
+
+After putting in the apt line from the CRAN page on linux downloads (I also added the
+secure key), an update/upgrade got me R 2.15.1 OK. I felt it sensible to check that things
+did indeed work. VMs are a good way to do this without messing up production.
+
+I suspect chuckles still has some typo in his apt sources, or else has some permission set
+that stops the upgrade. While these things happen (and I've one unrelated to R right now
+on a server that refuses to run phpmyadmin), I've found the only way to get help is to be
+patient, polite, and very, very diligent in checking things.
+
+JN
+
+
+From jrkrideau at inbox.com  Sat Jul 21 16:42:17 2012
+From: jrkrideau at inbox.com (John Kane)
+Date: Sat, 21 Jul 2012 06:42:17 -0800
+Subject: [R-sig-Debian] package XML does not load in R 2.15.1
+Message-ID: <5231AF1C7AA.00000220jrkrideau@inbox.com>
+
+I am getting what appears to be an Unbuntu level error in trying to install the 
+XML package.
+
+Both commands:
+install.packages("XML:)
+install.packages("XML", dependencies = TRUE)
+ give an error .
+
+The full installation script is below but the problem to my very inexperenced eye seems to be here:
+
+checking for pkg-config... /usr/bin/pkg-config
+checking for xml2-config... no
+Cannot find xml2-config
+ERROR: configuration failed for package ?XML?
+
+I seem to have libxml1 version 2.7.8defg.1ubuntu installed if this is relevent.
+
+Any suggestions would be gratefully received.  
+
+ Ubuntu 12.04
+sessionInfo()
+R version 2.15.1 (2012-06-22)
+Platform: i686-pc-linux-gnu (32-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_CA.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_CA.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=C                 LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_CA.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+[1] tcltk_2.15.1 tools_2.15.1
+
+
+
+
+Full installation script.
+================================================================
+==================================================
+downloaded 901 Kb
+
+* installing *source* package ?XML? ...
+** package ?XML? successfully unpacked and MD5 sums checked
+checking for gcc... gcc
+checking for C compiler default output file name... a.out
+checking whether the C compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables... 
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ISO C89... none needed
+checking how to run the C preprocessor... gcc -E
+No ability to remove finalizers on externalptr objects in this verison of R
+checking for sed... /bin/sed
+checking for pkg-config... /usr/bin/pkg-config
+checking for xml2-config... no
+Cannot find xml2-config
+ERROR: configuration failed for package ?XML?
+* removing ?/home/john/R/i686-pc-linux-gnu-library/2.15/XML?
+
+The downloaded source packages are in
+	?/tmp/RtmpC85FTD/downloaded_packages?
+Warning message:
+In install.packages("XML") :
+  installation of package ?XML? had non-zero exit status
+===========================================================
+John Kane
+Kingston ON Canada
+
+____________________________________________________________
+GET FREE SMILEYS FOR YOUR IM & EMAIL - Learn more at http://www.inbox.com/smileys
+Works with AIM?, MSN? Messenger, Yahoo!? Messenger, ICQ?, Google Talk? and most webmails
+
+
+From mar36 at psu.edu  Sat Jul 21 17:00:42 2012
+From: mar36 at psu.edu (Michael Rutter)
+Date: Sat, 21 Jul 2012 11:00:42 -0400
+Subject: [R-sig-Debian] package XML does not load in R 2.15.1
+In-Reply-To: <5231AF1C7AA.00000220jrkrideau@inbox.com>
+References: <5231AF1C7AA.00000220jrkrideau@inbox.com>
+Message-ID: <500AC41A.4050203@psu.edu>
+
+
+
+On 07/21/2012 10:42 AM, John Kane wrote:
+> I am getting what appears to be an Unbuntu level error in trying to install the
+> XML package.
+>
+> Both commands:
+> install.packages("XML:)
+> install.packages("XML", dependencies = TRUE)
+>   give an error .
+>
+> The full installation script is below but the problem to my very inexperenced eye seems to be here:
+>
+> checking for pkg-config... /usr/bin/pkg-config
+> checking for xml2-config... no
+> Cannot find xml2-config
+> ERROR: configuration failed for package ?XML?
+>
+> I seem to have libxml1 version 2.7.8defg.1ubuntu installed if this is relevent.
+>
+> Any suggestions would be gratefully received.
+>
+>   Ubuntu 12.04
+> sessionInfo()
+> R version 2.15.1 (2012-06-22)
+> Platform: i686-pc-linux-gnu (32-bit)
+
+John,
+
+The Ubuntu package you need to install is "libxml2-dev".  Or you could 
+install "r-cran-xml" from the cran2deb4ubuntu PPA and it will resolve 
+all the dependencies for you.  Details here:
+
+https://launchpad.net/~marutter/+archive/c2d4u
+
+Hope this helps,
+Michael
+
+
+
+-- 
+Dr. Michael A. Rutter
+School of Science
+Penn State Erie, The Behrend College
+4205 College Drive
+Erie, PA 16563
+http://math.bd.psu.edu/faculty/rutter
+mar36 at psu.edu
+
+
+From jrkrideau at inbox.com  Sat Jul 21 17:28:38 2012
+From: jrkrideau at inbox.com (John Kane)
+Date: Sat, 21 Jul 2012 07:28:38 -0800
+Subject: [R-sig-Debian] package XML does not load in R 2.15.1
+In-Reply-To: <500AC41A.4050203@psu.edu>
+References: <5231af1c7aa.00000220jrkrideau@inbox.com>
+Message-ID: <52994D0758E.00000266jrkrideau@inbox.com>
+
+Thank you Michael.
+
+It took all of two minutes to install "libxml2-dev" and XML and it seems to be running
+
+
+
+
+John Kane
+Kingston ON Canada
+
+
+> -----Original Message-----
+> From: mar36 at psu.edu
+> Sent: Sat, 21 Jul 2012 11:00:42 -0400
+> To: jrkrideau at inbox.com
+> Subject: Re: [R-sig-Debian] package XML does not load in R 2.15.1
+> 
+> 
+> 
+> On 07/21/2012 10:42 AM, John Kane wrote:
+>> I am getting what appears to be an Unbuntu level error in trying to
+>> install the
+>> XML package.
+>> 
+>> Both commands:
+>> install.packages("XML:)
+>> install.packages("XML", dependencies = TRUE)
+>>   give an error .
+>> 
+>> The full installation script is below but the problem to my very
+>> inexperenced eye seems to be here:
+>> 
+>> checking for pkg-config... /usr/bin/pkg-config
+>> checking for xml2-config... no
+>> Cannot find xml2-config
+>> ERROR: configuration failed for package ?XML?
+>> 
+>> I seem to have libxml1 version 2.7.8defg.1ubuntu installed if this is
+>> relevent.
+>> 
+>> Any suggestions would be gratefully received.
+>> 
+>>   Ubuntu 12.04
+>> sessionInfo()
+>> R version 2.15.1 (2012-06-22)
+>> Platform: i686-pc-linux-gnu (32-bit)
+> 
+> John,
+> 
+> The Ubuntu package you need to install is "libxml2-dev".  Or you could
+> install "r-cran-xml" from the cran2deb4ubuntu PPA and it will resolve
+> all the dependencies for you.  Details here:
+> 
+> https://launchpad.net/~marutter/+archive/c2d4u
+> 
+> Hope this helps,
+> Michael
+> 
+> 
+> 
+> --
+> Dr. Michael A. Rutter
+> School of Science
+> Penn State Erie, The Behrend College
+> 4205 College Drive
+> Erie, PA 16563
+> http://math.bd.psu.edu/faculty/rutter
+> mar36 at psu.edu
+
+____________________________________________________________
+Publish your photos in seconds for FREE
+TRY IM TOOLPACK at http://www.imtoolpack.com/default.aspx?rc=if4
+
+
+From edd at debian.org  Sat Jul 21 18:48:56 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 21 Jul 2012 11:48:56 -0500
+Subject: [R-sig-Debian] package XML does not load in R 2.15.1
+In-Reply-To: <5231AF1C7AA.00000220jrkrideau@inbox.com>
+References: <5231AF1C7AA.00000220jrkrideau@inbox.com>
+Message-ID: <20490.56696.112806.594706@max.nulle.part>
+
+
+On 21 July 2012 at 06:42, John Kane wrote:
+| I am getting what appears to be an Unbuntu level error in trying to install the 
+| XML package.
+
+You are making your life too complicated as there is a prepackaged version:
+
+edd at max:~$ dpkg -s r-cran-xml
+Package: r-cran-xml
+Status: install ok installed
+Priority: optional
+Section: gnu-r
+Installed-Size: 2363
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss at lists.ubuntu.com>
+Architecture: amd64
+Version: 3.6-2-1
+Replaces: r-xml
+Depends: r-base-core (>= 2.14.0), libc6 (>= 2.4), libxml2 (>= 2.7.4)
+Conflicts: r-xml
+Description: GNU R package for XML parsing and generation
+ This package provides facilities for the R language to
+ .
+  * parse XML files, URLs and strings, using either the DOM (Document
+    Object Model)/tree-based approach, or the event-driven SAX (Simple
+    API for XML) mechanism;
+  * generate XML content to buffers, files, URLs, and internal XML trees;
+  * read DTDs as R objects.
+Original-Maintainer: Dirk Eddelbuettel <edd at debian.org>
+Homepage: http://www.omegahat.org/RSXML
+
+
+which works just fine:
+
+
+edd at max:~$ r -e 'library(XML); print("All good")'
+Loading required package: methods
+Loading required package: utils
+[1] "All good"
+edd at max:~$ 
+
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From jrkrideau at inbox.com  Sat Jul 21 19:00:09 2012
+From: jrkrideau at inbox.com (John Kane)
+Date: Sat, 21 Jul 2012 09:00:09 -0800
+Subject: [R-sig-Debian] package XML does not load in R 2.15.1
+In-Reply-To: <20490.56696.112806.594706@max.nulle.part>
+References: <5231af1c7aa.00000220jrkrideau@inbox.com>
+Message-ID: <5365D8C288F.000002F6jrkrideau@inbox.com>
+
+I am makingmy life too complicated?
+
+I must be misunderstanding something
+
+john at john-K53U:~$ dpkg -s r-cran-xml
+Package `r-cran-xml' is not installed and no info is available.
+Use dpkg --info (= dpkg-deb --info) to examine archive files,
+and dpkg --contents (= dpkg-deb --contents) to list their contents.
+
+Should I be installing this rather than the XML package (which seems to be installed.
+
+John Kane
+Kingston ON Canada
+
+
+> -----Original Message-----
+> From: edd at debian.org
+> Sent: Sat, 21 Jul 2012 11:48:56 -0500
+> To: jrkrideau at inbox.com
+> Subject: Re: [R-sig-Debian] package XML does not load in R 2.15.1
+> 
+> 
+> On 21 July 2012 at 06:42, John Kane wrote:
+> | I am getting what appears to be an Unbuntu level error in trying to
+> install the
+> | XML package.
+> 
+> You are making your life too complicated as there is a prepackaged
+> version:
+> 
+> edd at max:~$ dpkg -s r-cran-xml
+> Package: r-cran-xml
+> Status: install ok installed
+> Priority: optional
+> Section: gnu-r
+> Installed-Size: 2363
+> Maintainer: Ubuntu Developers <ubuntu-devel-discuss at lists.ubuntu.com>
+> Architecture: amd64
+> Version: 3.6-2-1
+> Replaces: r-xml
+> Depends: r-base-core (>= 2.14.0), libc6 (>= 2.4), libxml2 (>= 2.7.4)
+> Conflicts: r-xml
+> Description: GNU R package for XML parsing and generation
+>  This package provides facilities for the R language to
+>  .
+>   * parse XML files, URLs and strings, using either the DOM (Document
+>     Object Model)/tree-based approach, or the event-driven SAX (Simple
+>     API for XML) mechanism;
+>   * generate XML content to buffers, files, URLs, and internal XML trees;
+>   * read DTDs as R objects.
+> Original-Maintainer: Dirk Eddelbuettel <edd at debian.org>
+> Homepage: http://www.omegahat.org/RSXML
+> 
+> 
+> which works just fine:
+> 
+> 
+> edd at max:~$ r -e 'library(XML); print("All good")'
+> Loading required package: methods
+> Loading required package: utils
+> [1] "All good"
+> edd at max:~$
+> 
+> 
+> Dirk
+> 
+> --
+> Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+____________________________________________________________
+FREE ONLINE PHOTOSHARING - Share your photos online with your friends and family!
+Visit http://www.inbox.com/photosharing to find out more!
+
+
+From edd at debian.org  Sat Jul 21 19:14:48 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 21 Jul 2012 12:14:48 -0500
+Subject: [R-sig-Debian] package XML does not load in R 2.15.1
+In-Reply-To: <5365D8C288F.000002F6jrkrideau@inbox.com>
+References: <5231af1c7aa.00000220jrkrideau@inbox.com>
+	<5365D8C288F.000002F6jrkrideau@inbox.com>
+Message-ID: <20490.58248.180862.928546@max.nulle.part>
+
+
+On 21 July 2012 at 09:00, John Kane wrote:
+| I am makingmy life too complicated?
+| 
+| I must be misunderstanding something
+| 
+| john at john-K53U:~$ dpkg -s r-cran-xml
+| Package `r-cran-xml' is not installed and no info is available.
+| Use dpkg --info (= dpkg-deb --info) to examine archive files,
+| and dpkg --contents (= dpkg-deb --contents) to list their contents.
+
+"dpkg -s" reports the status of __installed packages__ so you are little
+circular here.  It only reports that you don't have it installed.
+
+Try to search for packages via e.g.  "apt-cache search r-cran-"
+ 
+| Should I be installing this rather than the XML package (which seems to be installed.
+
+Well as you failed to install from source on your own, installing a
+ready-made binary would seem easier to me, but it is your call.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From jrkrideau at inbox.com  Sat Jul 21 19:44:06 2012
+From: jrkrideau at inbox.com (John Kane)
+Date: Sat, 21 Jul 2012 09:44:06 -0800
+Subject: [R-sig-Debian] package XML does not load in R 2.15.1
+In-Reply-To: <20490.58248.180862.928546@max.nulle.part>
+References: <5365d8c288f.000002f6jrkrideau@inbox.com>
+	<5231af1c7aa.00000220jrkrideau@inbox.com>
+Message-ID: <53C8117C42F.0000032Djrkrideau@inbox.com>
+
+Okay l see what you mean. I had already installed XML after adding libxsm12-dev when I responded to you.  Yes it probably would have been easier kyour way.
+
+Thanks
+
+John Kane
+Kingston ON Canada
+
+
+> -----Original Message-----
+> From: edd at debian.org
+> Sent: Sat, 21 Jul 2012 12:14:48 -0500
+> To: jrkrideau at inbox.com
+> Subject: Re: [R-sig-Debian] package XML does not load in R 2.15.1
+> 
+> 
+> On 21 July 2012 at 09:00, John Kane wrote:
+> | I am makingmy life too complicated?
+> |
+> | I must be misunderstanding something
+> |
+> | john at john-K53U:~$ dpkg -s r-cran-xml
+> | Package `r-cran-xml' is not installed and no info is available.
+> | Use dpkg --info (= dpkg-deb --info) to examine archive files,
+> | and dpkg --contents (= dpkg-deb --contents) to list their contents.
+> 
+> "dpkg -s" reports the status of __installed packages__ so you are little
+> circular here.  It only reports that you don't have it installed.
+> 
+> Try to search for packages via e.g.  "apt-cache search r-cran-"
+> 
+> | Should I be installing this rather than the XML package (which seems to
+> be installed.
+> 
+> Well as you failed to install from source on your own, installing a
+> ready-made binary would seem easier to me, but it is your call.
+> 
+> Dirk
+> 
+> --
+> Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+____________________________________________________________
+FREE 3D MARINE AQUARIUM SCREENSAVER - Watch dolphins, sharks & orcas on your desktop!
+
+
+From clivenicholas at hotmail.com  Tue Jul 24 05:26:03 2012
+From: clivenicholas at hotmail.com (CLIVE NICHOLAS)
+Date: Tue, 24 Jul 2012 03:26:03 +0000
+Subject: [R-sig-Debian] Patchy 'front-end' package installation problems
+	using -R- 2.15.1
+Message-ID: <DUB115-W984ECAB76EE79EED396802A7DC0@phx.gbl>
+
+An embedded and charset-unspecified text was scrubbed...
+Name: not available
+URL: <https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20120724/cca1064a/attachment.pl>
+
+From pauljohn32 at gmail.com  Tue Jul 24 07:32:33 2012
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Tue, 24 Jul 2012 00:32:33 -0500
+Subject: [R-sig-Debian] Patchy 'front-end' package installation problems
+ using -R- 2.15.1
+In-Reply-To: <DUB115-W984ECAB76EE79EED396802A7DC0@phx.gbl>
+References: <DUB115-W984ECAB76EE79EED396802A7DC0@phx.gbl>
+Message-ID: <CAErODj_C7t_hUCy=G3fcXXg-_WwfxhhXLqSpHc9UFEzkAvyGoQ@mail.gmail.com>
+
+Greetings, Clive:
+
+Next time, just post about one problem.
+
+I'm answering some specifics down in the middle of your message, but
+here's the basic idea. Once you get a "grip" on a fundamental
+misconception that is driving your message, the details I give will
+seem superfluous to you. It seems to me you are missing the
+fundamental big idea.
+
+On Linux, the "install.packages" command inside R does not "load"
+packages. Instead, it downloads them and COMPILES them. That requires
+software for COMPILING programs.  If your system DOES NOT HAVE the
+assumed packages, then the R package installs fail. Read each
+individual error message. You need to install more Debian packages on
+your system in order for those COMPILES to succeed.  Some uses of
+install.packages inside R may succeed if they do not call for fortran
+or C compilers, or linkage to other libraries.  But most won't.
+
+That is COMPLETELY different from MS Windows, on which all packages
+are "pre-compiled" for you and when you run "install.packages" inside
+R, it just downloads and installs the pre-compiled files.
+
+I think this is a character building Linux experience for you. You
+learn how to install the requisite Debian software packages and learn
+something about compiling software and reading error messages.  If you
+were my student, I'd say "keep trying, it is the only way you will
+become a well qualified Linux user." In errors below, you will see
+your first step is to install fortran and C++ compilers.
+
+Not everybody agrees with me on that. So they do that work for you and
+package them as Debian packages.  Dirk Eddelbuettel has worked very
+hard to automate R package builds that go into debian packages.  Some
+are in the base of Ubuntu.  But there are 1000s more that are
+automatically built.  In your output below, I see you get success from
+apt-get with the package
+
+r-cran-hmisc
+
+Those are Debian packages that have essentially the same compiled
+files in them that you would get if you could compile the packages for
+ourself inside R in your system.
+
+I'm unsure of how many Debian packages you will find for your Kubuntu
+setup. The shared library versions must match, and if your system
+differs from Debian, there will be trouble.  On my Debian system, It
+appears I'm drawing R packages from 2 sources.  I have the "ordinary"
+distribution channel, plus I have configured a repo file for CRAN
+updates.  I think the CRAN updates are vital mainly for R-base itself.
+ That's setup like so
+
+$ cat /etc/apt/sources.list.d/cran.list
+ deb http://cran.wustl.edu/bin/linux/debian squeeze-cran/
+
+Go read this folder:
+
+http://cran.wustl.edu/bin/linux/debian/squeeze-cran
+
+You see the Debian packages that I get from the R CRAN mirrors.  I
+note hmisc is not one of them.  But hmisc is listed among the 100s I
+see when I run:
+
+$ apt-cache search cran
+
+So, well, my point is that "R packages" and "Debian packages" may
+exist for the same thing, and you can install both, or one, or the
+other, but please don't forget that they are not identical because you
+have to compile the R packages but the Debian packages are
+pre-compiled.  Good luck. see details below.
+
+pj
+
+On Mon, Jul 23, 2012 at 10:26 PM, CLIVE NICHOLAS
+<clivenicholas at hotmail.com> wrote:
+>
+> I think this is the fourth attempt to send this blessed message, so let's hope this gets through without any 'unprocessed' or 'ignored' in-lines on auto-reply.
+> I wish to report to you some strange problems I'm experiencing with installing packages directly into my -R- 2.15.1 (there is an indirect solution, which I note below). First, here's some essential information:
+>> sessionInfo()R version 2.15.1 (2012-06-22)
+> Platform: i686-pc-linux-gnu (32-bit)
+>
+> locale:
+>  [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C               LC_TIME=en_GB.UTF-8
+>  [4] LC_COLLATE=en_GB.UTF-8     LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_GB.UTF-8
+>  [7] LC_PAPER=C                 LC_NAME=C                  LC_ADDRESS=C
+> [10] LC_TELEPHONE=C             LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C
+>
+> attached base packages:
+> [1] stats     graphics  grDevices utils     datasets  methods   base
+>
+> loaded via a namespace (and not attached):
+> [1] tools_2.15.1
+> Essentially, some packages are installing 'at the front end' and some are not, but this has only been happening since I re-enabled the 'other software sources' inside the Muon Software Centre settings on my Kubuntu 12.04 OS (I only discovered earlier this month that they are always disabled when Kubuntu upgrades to the next full version). Fixing this automatically triggered the updates for the latest version of -R- (successfully installed), but when I then attempted to install the -lme4- package shortly afterwards
+>> install.packages("lme4")Installing package(s) into ?/home/clive/R/i686-pc-linux-gnu-library/2.15?(as ?lib? is unspecified)trying URL 'http://cran.ma.imperial.ac.uk/src/contrib/lme4_0.999999-0.tar.gz'Content type 'application/x-gzip' length 1074142 bytes (1.0 Mb)opened URL==================================================downloaded 1.0 Mb
+> * installing *source* package ?lme4? ...** package ?lme4? successfully unpacked and MD5 sums checked** libs/usr/share/R/share/make/shlib.mk:6: warning: overriding commands for target `lme4.so'Makevars:7: warning: ignoring old commands for target `lme4.so'gcc -std=gnu99 -I/usr/share/R/include -DNDEBUG   -I"/usr/lib/R/library/Matrix/include" -I"/usr/lib/R/library/stats/include"   -fpic  -O3 -pipe  -g  -c init.c -o init.ogcc -std=gnu99 -I/usr/share/R/include -DNDEBUG   -I"/usr/lib/R/library/Matrix/include" -I"/usr/lib/R/library/stats/include"   -fpic  -O3 -pipe  -g  -c lmer.c -o lmer.ogcc -std=gnu99 -I/usr/share/R/include -DNDEBUG   -I"/usr/lib/R/library/Matrix/include" -I"/usr/lib/R/library/stats/include"   -fpic  -O3 -pipe  -g  -c local_stubs.c -o local_stubs.ogcc -std=gnu99 -shared -o lme4.so init.o lmer.o local_stubs.o -llapack -lblas -lgfortran -lm -L/usr/lib/R/lib -lR/usr/bin/ld: cannot find -llapack/usr/bin/ld: cannot find -lblas/usr/bin/ld: cannot find -lgfortrancollect2: ld returned 1 exit statusmake: *** [lme4.so] Error 1ERROR: compilation failed for package ?lme4?* removing ?/home/clive/R/i686-pc-linux-gnu-library/2.15/lme4?Warning in install.packages :  installation of package ?lme4? had non-zero exit status
+
+Read the errors please. The compile cannot find the lapack and blas
+development packages.  And fortran (gfortran).  On my Debian system,
+for those I have
+
+gfortran
+libatlas-dev
+libatlas3gf-base
+libblas-dev
+
+Your Ubuntu may vary
+
+> The downloaded source packages are in   ?/tmp/RtmpUFK3Hz/downloaded_packages?
+> it failed. It also failed for -rms-
+>> install.packages("rms")Installing package(s) into ?/home/clive/R/i686-pc-linux-gnu-library/2.15?(as ?lib? is unspecified)also installing the dependency ?Hmisc?
+> trying URL 'http://cran.ma.imperial.ac.uk/src/contrib/Hmisc_3.9-3.tar.gz'Content type 'application/x-gzip' length 573945 bytes (560 Kb)opened URL==================================================downloaded 560 Kb
+> trying URL 'http://cran.ma.imperial.ac.uk/src/contrib/rms_3.5-0.tar.gz'Content type 'application/x-gzip' length 368054 bytes (359 Kb)opened URL==================================================downloaded 359 Kb
+> * installing *source* package ?Hmisc? ...** package ?Hmisc? successfully unpacked and MD5 sums checked** libsgcc -std=gnu99 -I/usr/share/R/include -DNDEBUG      -fpic  -O3 -pipe  -g  -c Hmisc.c -o Hmisc.ogfortran   -fpic  -O3 -pipe  -g  -c cidxcn.f -o cidxcn.o/bin/bash: gfortran: command not foundmake: *** [cidxcn.o] Error 127ERROR: compilation failed for package ?Hmisc?* removing ?/home/clive/R/i686-pc-linux-gnu-library/2.15/Hmisc?Warning in install.packages :  installation of package ?Hmisc? had non-zero exit statusERROR: dependency ?Hmisc? is not available for package ?rms?* removing ?/home/clive/R/i686-pc-linux-gnu-library/2.15/rms?Warning in install.packages :  installation of package ?rms? had non-zero exit status
+
+Read y our error message. "gfortran not found".
+
+
+> The downloaded source packages are in   ?/tmp/RtmpUFK3Hz/downloaded_packages?
+> and for -lmtest-
+>> install.packages("lmtest")Installing package(s) into ?/home/clive/R/i686-pc-linux-gnu-library/2.15?(as ?lib? is unspecified)trying URL 'http://cran.ma.imperial.ac.uk/src/contrib/lmtest_0.9-30.tar.gz'Content type 'application/x-gzip' length 176106 bytes (171 Kb)opened URL==================================================downloaded 171 Kb
+> * installing *source* package ?lmtest? ...** package ?lmtest? successfully unpacked and MD5 sums checked** libsgfortran   -fpic  -O3 -pipe  -g  -c pan.f -o pan.o/bin/bash: gfortran: command not foundmake: *** [pan.o] Error 127ERROR: compilation failed for package ?lmtest?* removing ?/home/clive/R/i686-pc-linux-gnu-library/2.15/lmtest?Warning in install.packages :  installation of package ?lmtest? had non-zero exit status
+
+Same
+
+> The downloaded source packages are in   ?/tmp/RtmpUFK3Hz/downloaded_packages?
+> It did, however, work for -car-> install.packages("car")Installing package(s) into ?/home/clive/R/i686-pc-linux-gnu-library/2.15?(as ?lib? is unspecified)trying URL 'http://cran.ma.imperial.ac.uk/src/contrib/car_2.0-12.tar.gz'Content type 'application/x-gzip' length 319291 bytes (311 Kb)opened URL==================================================downloaded 311 Kb* installing *source* package ?car? ...** package ?car? successfully unpacked and MD5 sums checked** R** data**  moving datasets to lazyload DB** inst** byte-compile and prepare package for lazy loading** help*** installing help indices** building package indices** testing if installed package can be loaded* DONE (car)The downloaded source packages are in        ?/tmp/RtmpHQHTwB/downloaded_packages?
+> and for -ggplot2- (output much too long to include here!). This has never happened to me in all the years I have casually used -R-, either on Windows or Linux. This problem is now occurring regardless of whether I use RStudio, as I am currently (v0.96.304), or when running -R- from the Konsole terminal; although this would be perhaps unsurprising to you. All of the above attempts had the option to install dependencies selected.
+
+
+This is COMPLETELY IRRELEVANT.  Your OS is missing most of the
+required development Debian packages.  Install gfortran and atlas and
+blas support and try again. I'm sure you'll also need a C++ compiler
+as well.
+
+On the debian pages for R updates,
+
+http://cran.r-project.org/bin/linux/debian
+
+Create a debian apt repostiory file in your system, then run
+
+ apt-get update
+ apt-get install r-base r-base-dev
+
+
+
+
+> Now, after rifling the list archives, I found that the following post
+> https://stat.ethz.ch/pipermail/r-sig-debian/2011-November/001711.html
+> pointed to a solution from the terminal, which worked:
+> clive at clivubu:~$ sudo apt-get install r-cran-lme4[sudo] password for clive: Reading package lists... DoneBuilding dependency tree       Reading state information... DoneThe following NEW packages will be installed  r-cran-lme40 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.Need to get 1,231 kB of archives.After this operation, 1,634 kB of additional disk space will be used.Get:1 http://gb.archive.ubuntu.com/ubuntu/ precise/universe r-cran-lme4 i386 0.999375-42-1 [1,231 kB]Fetched 1,231 kB in 3s (335 kB/s)        Selecting previously unselected package r-cran-lme4.(Reading database ... 199646 files and directories currently installed.)Unpacking r-cran-lme4 (from .../r-cran-lme4_0.999375-42-1_i386.deb) ...Setting up r-cran-lme4 (0.999375-42-1) ...
+> clive at clivubu:~$ sudo apt-get install r-cran-lmtestReading package lists... DoneBuilding dependency tree       Reading state information... DoneThe following extra packages will be installed:  r-cran-zooThe following NEW packages will be installed  r-cran-lmtest r-cran-zoo0 upgraded, 2 newly installed, 0 to remove and 0 not upgraded.Need to get 1,761 kB of archives.After this operation, 2,207 kB of additional disk space will be used.Do you want to continue [Y/n]? yGet:1 http://gb.archive.ubuntu.com/ubuntu/ precise/universe r-cran-zoo i386 1.7-6-1 [1,389 kB]Get:2 http://gb.archive.ubuntu.com/ubuntu/ precise/universe r-cran-lmtest i386 0.9.29-1 [372 kB]Fetched 1,761 kB in 3s (471 kB/s)      Selecting previously unselected package r-cran-zoo.(Reading database ... 199695 files and directories currently installed.)Unpacking r-cran-zoo (from .../r-cran-zoo_1.7-6-1_i386.deb) ...Selecting previously unselected package r-cran-lmtest.Unpacking r-cran-lmtest (from .../r-cran-lmtest_0.9.29-1_i386.deb) ...Setting up r-cran-zoo (1.7-6-1) ...Setting up r-cran-lmtest (0.9.29-1) ...
+> clive at clivubu:~$ sudo apt-get install r-cran-rmsReading package lists... DoneBuilding dependency tree                                                                                                                                                            Reading state information... Done                                                                                                                                                   The following extra packages will be installed:                                                                                                                                       r-cran-chron r-cran-hmisc                                                                                                                                                         The following NEW packages will be installed                                                                                                                                          r-cran-chron r-cran-hmisc r-cran-rms                                                                                                                                              0 upgraded, 3 newly installed, 0 to remove and 0 not upgraded.Need to get 2,394 kB of archives.After this operation, 2,768 kB of additional disk space will be used.Do you want to continue [Y/n]? yGet:1 http://gb.archive.ubuntu.com/ubuntu/ precise/universe r-cran-chron i386 2.3-42-1 [87.4 kB]Get:2 http://gb.archive.ubuntu.com/ubuntu/ precise/universe r-cran-hmisc i386 3.9-0-1 [1,395 kB]Get:3 http://gb.archive.ubuntu.com/ubuntu/ precise/universe r-cran-rms i386 3.3-3-1 [911 kB]Fetched 2,394 kB in 6s (385 kB/s)                                                                                                                                                  Selecting previously unselected package r-cran-chron.(Reading database ... 199800 files and directories currently installed.)Unpacking r-cran-chron (from .../r-cran-chron_2.3-42-1_i386.deb) ...Selecting previously unselected package r-cran-hmisc.Unpacking r-cran-hmisc (from .../r-cran-hmisc_3.9-0-1_i386.deb) ...Selecting previously unselected package r-cran-rms.Unpacking r-cran-rms (from .../r-cran-rms_3.3-3-1_i386.deb) ...Setting up r-cran-chron (2.3-42-1) ...Setting up r-cran-hmisc (3.9-0-1) ...Setting up r-cran-rms (3.3-3-1) ...
+> That's good, but the question which now remains is simply this: why are some packages not loading via -install.packages()- when others do? Has anyone else experienced this difficulty?
+> I can only hope and trust that any list members reading this have spotted some crucial nugget(s) of information in the output I have provided to suggest an answer.
+> Many thanks.
+> Yours, Clive Nicholas
+>         [[alternative HTML version deleted]]
+>
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+
+-- 
+Paul E. Johnson
+Professor, Political Science    Assoc. Director
+1541 Lilac Lane, Room 504     Center for Research Methods
+University of Kansas               University of Kansas
+http://pj.freefaculty.org            http://quant.ku.edu
+
+
+From jkusznir at gmail.com  Tue Jul 24 20:58:38 2012
+From: jkusznir at gmail.com (Jim Kusznir)
+Date: Tue, 24 Jul 2012 11:58:38 -0700
+Subject: [R-sig-Debian] igraph build problems
+Message-ID: <CAA3eeYB5nkviSb7XEU-rhPPP3zkNQxGNq+=aR8bLN6FLfenHMg@mail.gmail.com>
+
+Hello:
+
+I've been trying for days now to get igraph working on a debian sarge
+install.  There does not appear to be any pre-built packages, and when
+I try and install within R, it blows up on the final linking, claiming
+its unable to find libgfortran (which IS installed, and IS working for
+all other users of the compiler).
+
+I started up R and ran: install.packages("igraph").  It compiled for a
+good long while (including many gfortran compile calls), and
+eventually ended with:
+
+++ -shared -o igraph.so DensityGrid.o DensityGrid_3d.o NetDataTypes.o
+NetRoutines.o adjlist.o amd_1.o amd_2.o amd_aat.o amd_control.o
+amd_defaults.o amd_dump.o amd_info.o amd_order.o amd_post_tree.o
+amd_postorder.o amd_preprocess.o amd_valid.o arpack.o array.o atlas.o
+attributes.o basic_query.o bfgs.o bigint.o bignum.o bipartite.o blas.o
+bliss.o bliss_eqrefhash.o bliss_graph.o bliss_heap.o bliss_orbit.o
+bliss_partition.o bliss_timer.o bliss_utils.o cattributes.o
+centrality.o cliques.o clustertool.o cocitation.o cohesive_blocks.o
+colamd.o community.o complex.o components.o conversion.o cores.o
+cs_add.o cs_amd.o cs_chol.o cs_cholsol.o cs_compress.o cs_counts.o
+cs_cumsum.o cs_dfs.o cs_dmperm.o cs_droptol.o cs_dropzeros.o cs_dupl.o
+cs_entry.o cs_ereach.o cs_etree.o cs_fkeep.o cs_gaxpy.o cs_happly.o
+cs_house.o cs_ipvec.o cs_leaf.o cs_load.o cs_lsolve.o cs_ltsolve.o
+cs_lu.o cs_lusol.o cs_malloc.o cs_maxtrans.o cs_multiply.o cs_norm.o
+cs_permute.o cs_pinv.o cs_post.o cs_print.o cs_pvec.o cs_qr.o
+cs_qrsol.o cs_randperm.o cs_reach.o cs_scatter.o cs_scc.o cs_schol.o
+cs_spsolve.o cs_sqr.o cs_symperm.o cs_tdfs.o cs_transpose.o
+cs_updown.o cs_usolve.o cs_util.o cs_utsolve.o decomposition.o
+dgetv0.o distances.o dlaqrb.o dmout.o dnaitr.o dnapps.o dnaup2.o
+dnaupd.o dnconv.o dneigh.o dneupd.o dngets.o dqueue.o drl_graph.o
+drl_graph_3d.o drl_layout.o drl_layout_3d.o drl_parse.o dsaitr.o
+dsapps.o dsaup2.o dsaupd.o dsconv.o dseigt.o dsesrt.o dseupd.o
+dsgets.o dsortc.o dsortr.o dstatn.o dstats.o dstqrb.o dvout.o eigen.o
+error.o evolver_cit.o f2c_dummy.o fast_community.o feedback_arc_set.o
+flow.o foreign-dl-lexer.o foreign-dl-parser.o foreign-gml-lexer.o
+foreign-gml-parser.o foreign-graphml.o foreign-lgl-lexer.o
+foreign-lgl-parser.o foreign-ncol-lexer.o foreign-ncol-parser.o
+foreign-pajek-lexer.o foreign-pajek-parser.o foreign.o forestfire.o
+fortran_intrinsics.o games.o gengraph_box_list.o
+gengraph_degree_sequence.o gengraph_graph_molloy_hash.o
+gengraph_graph_molloy_optimized.o gengraph_mr-connected.o
+gengraph_powerlaw.o gengraph_random.o glpapi01.o glpapi02.o glpapi03.o
+glpapi04.o glpapi05.o glpapi06.o glpapi07.o glpapi08.o glpapi09.o
+glpapi10.o glpapi11.o glpapi12.o glpapi13.o glpapi14.o glpapi15.o
+glpapi16.o glpapi17.o glpapi18.o glpapi19.o glpavl.o glpbfd.o glpbfx.o
+glpcpx.o glpdmp.o glpdmx.o glpenv01.o glpenv02.o glpenv03.o glpenv04.o
+glpenv05.o glpenv06.o glpenv07.o glpenv08.o glpfhv.o glpgmp.o glphbm.o
+glpini01.o glpini02.o glpios01.o glpios02.o glpios03.o glpios04.o
+glpios05.o glpios06.o glpios07.o glpios08.o glpios09.o glpios10.o
+glpios11.o glpios12.o glpipm.o glpk_support.o glplib01.o glplib02.o
+glplib03.o glplpf.o glplpx01.o glplpx02.o glplpx03.o glpluf.o glplux.o
+glpmat.o glpmpl01.o glpmpl02.o glpmpl03.o glpmpl04.o glpmpl05.o
+glpmpl06.o glpmps.o glpnet01.o glpnet02.o glpnet03.o glpnet04.o
+glpnet05.o glpnet06.o glpnet07.o glpnet08.o glpnet09.o glpnpp01.o
+glpnpp02.o glpnpp03.o glpnpp04.o glpnpp05.o glpqmd.o glprgr.o
+glprng01.o glprng02.o glpscf.o glpscl.o glpsdf.o glpspm.o glpspx01.o
+glpspx02.o glpsql.o glpssx01.o glpssx02.o glptsp.o gml_tree.o heap.o
+igraph_buckets.o igraph_estack.o igraph_fixed_vectorlist.o
+igraph_grid.o igraph_hashtable.o igraph_heap.o igraph_hrg.o
+igraph_hrg_types.o igraph_marked_queue.o igraph_psumtree.o
+igraph_set.o igraph_stack.o igraph_strvector.o igraph_trie.o infomap.o
+infomap_FlowGraph.o infomap_Greedy.o infomap_Node.o interrupt.o
+iterators.o ivout.o lapack.o layout.o matching.o math.o matrix.o
+memory.o microscopic_update.o mixing.o motifs.o operators.o
+optimal_modularity.o other.o pottsmodel_2.o progress.o qsort.o
+qsort_r.o random.o revolver_cit.o revolver_grow.o revolver_ml_cit.o
+rinterface.o scg.o scg_approximate_methods.o scg_exact_scg.o
+scg_kmeans.o scg_optimal_method.o scg_utils.o second.o separators.o
+spanning_trees.o sparsemat.o spectral_properties.o spmatrix.o
+st-cuts.o statusbar.o structural_properties.o structure_generators.o
+sugiyama.o topology.o type_indexededgelist.o types.o vector.o
+vector_ptr.o version.o visitors.o walktrap.o walktrap_communities.o
+walktrap_graph.o walktrap_heap.o zeroin.o -lxml2 -lgmp -lgfortran -lm
+-llapack -lblas -lgfortran -lm -L/usr/lib64/R/lib -lR
+/usr/bin/ld: /usr/lib/gcc/x86_64-linux-gnu/4.4.5/libstdc++.a(functexcept.o):
+relocation R_X86_64_32 against `std::bad_typeid::~bad_typeid()' can
+not be used when making a shared object; recompile with -fPIC
+/usr/lib/gcc/x86_64-linux-gnu/4.4.5/libstdc++.a: could not read
+symbols: Bad value
+collect2: ld returned 1 exit status
+make: *** [igraph.so] Error 1
+
+
+Previously, I kept getting errors about -lgfortran not found.  In the
+process of writing this e-mail and trying things, I attempted to build
+a deb from source I found on the ppa for igraph. After doing that, the
+error changed to the above, which I don't know if its better or worse
+than my original error...
+
+--Jim
+
+
+From info at aghmed.fsnet.co.uk  Tue Jul 24 21:18:28 2012
+From: info at aghmed.fsnet.co.uk (Michael Dewey)
+Date: Tue, 24 Jul 2012 20:18:28 +0100
+Subject: [R-sig-Debian] igraph build problems
+In-Reply-To: <CAA3eeYB5nkviSb7XEU-rhPPP3zkNQxGNq+=aR8bLN6FLfenHMg@mail.g
+	mail.com>
+References: <CAA3eeYB5nkviSb7XEU-rhPPP3zkNQxGNq+=aR8bLN6FLfenHMg@mail.gmail.com>
+Message-ID: <Zen-1StkcA-0004mk-9X@smarthost04.mail.zen.net.uk>
+
+At 19:58 24/07/2012, Jim Kusznir wrote:
+>Hello:
+>
+>I've been trying for days now to get igraph working on a debian sarge
+>install.  There does not appear to be any pre-built packages, and when
+>I try and install within R, it blows up on the final linking, claiming
+>its unable to find libgfortran (which IS installed, and IS working for
+>all other users of the compiler).
+
+You do seem to have rather an old version of Debian. I suspect you 
+are going to have increasing difficulty installing packages in it. 
+You may have to bite the bullet and persuade your IT support to update.
+
+
+>I started up R and ran: install.packages("igraph").  It compiled for a
+>good long while (including many gfortran compile calls), and
+>eventually ended with:
+>
+>++ -shared -o igraph.so DensityGrid.o DensityGrid_3d.o NetDataTypes.o
+>NetRoutines.o adjlist.o amd_1.o amd_2.o amd_aat.o amd_control.o
+>amd_defaults.o amd_dump.o amd_info.o amd_order.o amd_post_tree.o
+>amd_postorder.o amd_preprocess.o amd_valid.o arpack.o array.o atlas.o
+>attributes.o basic_query.o bfgs.o bigint.o bignum.o bipartite.o blas.o
+>bliss.o bliss_eqrefhash.o bliss_graph.o bliss_heap.o bliss_orbit.o
+>bliss_partition.o bliss_timer.o bliss_utils.o cattributes.o
+>centrality.o cliques.o clustertool.o cocitation.o cohesive_blocks.o
+>colamd.o community.o complex.o components.o conversion.o cores.o
+>cs_add.o cs_amd.o cs_chol.o cs_cholsol.o cs_compress.o cs_counts.o
+>cs_cumsum.o cs_dfs.o cs_dmperm.o cs_droptol.o cs_dropzeros.o cs_dupl.o
+>cs_entry.o cs_ereach.o cs_etree.o cs_fkeep.o cs_gaxpy.o cs_happly.o
+>cs_house.o cs_ipvec.o cs_leaf.o cs_load.o cs_lsolve.o cs_ltsolve.o
+>cs_lu.o cs_lusol.o cs_malloc.o cs_maxtrans.o cs_multiply.o cs_norm.o
+>cs_permute.o cs_pinv.o cs_post.o cs_print.o cs_pvec.o cs_qr.o
+>cs_qrsol.o cs_randperm.o cs_reach.o cs_scatter.o cs_scc.o cs_schol.o
+>cs_spsolve.o cs_sqr.o cs_symperm.o cs_tdfs.o cs_transpose.o
+>cs_updown.o cs_usolve.o cs_util.o cs_utsolve.o decomposition.o
+>dgetv0.o distances.o dlaqrb.o dmout.o dnaitr.o dnapps.o dnaup2.o
+>dnaupd.o dnconv.o dneigh.o dneupd.o dngets.o dqueue.o drl_graph.o
+>drl_graph_3d.o drl_layout.o drl_layout_3d.o drl_parse.o dsaitr.o
+>dsapps.o dsaup2.o dsaupd.o dsconv.o dseigt.o dsesrt.o dseupd.o
+>dsgets.o dsortc.o dsortr.o dstatn.o dstats.o dstqrb.o dvout.o eigen.o
+>error.o evolver_cit.o f2c_dummy.o fast_community.o feedback_arc_set.o
+>flow.o foreign-dl-lexer.o foreign-dl-parser.o foreign-gml-lexer.o
+>foreign-gml-parser.o foreign-graphml.o foreign-lgl-lexer.o
+>foreign-lgl-parser.o foreign-ncol-lexer.o foreign-ncol-parser.o
+>foreign-pajek-lexer.o foreign-pajek-parser.o foreign.o forestfire.o
+>fortran_intrinsics.o games.o gengraph_box_list.o
+>gengraph_degree_sequence.o gengraph_graph_molloy_hash.o
+>gengraph_graph_molloy_optimized.o gengraph_mr-connected.o
+>gengraph_powerlaw.o gengraph_random.o glpapi01.o glpapi02.o glpapi03.o
+>glpapi04.o glpapi05.o glpapi06.o glpapi07.o glpapi08.o glpapi09.o
+>glpapi10.o glpapi11.o glpapi12.o glpapi13.o glpapi14.o glpapi15.o
+>glpapi16.o glpapi17.o glpapi18.o glpapi19.o glpavl.o glpbfd.o glpbfx.o
+>glpcpx.o glpdmp.o glpdmx.o glpenv01.o glpenv02.o glpenv03.o glpenv04.o
+>glpenv05.o glpenv06.o glpenv07.o glpenv08.o glpfhv.o glpgmp.o glphbm.o
+>glpini01.o glpini02.o glpios01.o glpios02.o glpios03.o glpios04.o
+>glpios05.o glpios06.o glpios07.o glpios08.o glpios09.o glpios10.o
+>glpios11.o glpios12.o glpipm.o glpk_support.o glplib01.o glplib02.o
+>glplib03.o glplpf.o glplpx01.o glplpx02.o glplpx03.o glpluf.o glplux.o
+>glpmat.o glpmpl01.o glpmpl02.o glpmpl03.o glpmpl04.o glpmpl05.o
+>glpmpl06.o glpmps.o glpnet01.o glpnet02.o glpnet03.o glpnet04.o
+>glpnet05.o glpnet06.o glpnet07.o glpnet08.o glpnet09.o glpnpp01.o
+>glpnpp02.o glpnpp03.o glpnpp04.o glpnpp05.o glpqmd.o glprgr.o
+>glprng01.o glprng02.o glpscf.o glpscl.o glpsdf.o glpspm.o glpspx01.o
+>glpspx02.o glpsql.o glpssx01.o glpssx02.o glptsp.o gml_tree.o heap.o
+>igraph_buckets.o igraph_estack.o igraph_fixed_vectorlist.o
+>igraph_grid.o igraph_hashtable.o igraph_heap.o igraph_hrg.o
+>igraph_hrg_types.o igraph_marked_queue.o igraph_psumtree.o
+>igraph_set.o igraph_stack.o igraph_strvector.o igraph_trie.o infomap.o
+>infomap_FlowGraph.o infomap_Greedy.o infomap_Node.o interrupt.o
+>iterators.o ivout.o lapack.o layout.o matching.o math.o matrix.o
+>memory.o microscopic_update.o mixing.o motifs.o operators.o
+>optimal_modularity.o other.o pottsmodel_2.o progress.o qsort.o
+>qsort_r.o random.o revolver_cit.o revolver_grow.o revolver_ml_cit.o
+>rinterface.o scg.o scg_approximate_methods.o scg_exact_scg.o
+>scg_kmeans.o scg_optimal_method.o scg_utils.o second.o separators.o
+>spanning_trees.o sparsemat.o spectral_properties.o spmatrix.o
+>st-cuts.o statusbar.o structural_properties.o structure_generators.o
+>sugiyama.o topology.o type_indexededgelist.o types.o vector.o
+>vector_ptr.o version.o visitors.o walktrap.o walktrap_communities.o
+>walktrap_graph.o walktrap_heap.o zeroin.o -lxml2 -lgmp -lgfortran -lm
+>-llapack -lblas -lgfortran -lm -L/usr/lib64/R/lib -lR
+>/usr/bin/ld: /usr/lib/gcc/x86_64-linux-gnu/4.4.5/libstdc++.a(functexcept.o):
+>relocation R_X86_64_32 against `std::bad_typeid::~bad_typeid()' can
+>not be used when making a shared object; recompile with -fPIC
+>/usr/lib/gcc/x86_64-linux-gnu/4.4.5/libstdc++.a: could not read
+>symbols: Bad value
+>collect2: ld returned 1 exit status
+>make: *** [igraph.so] Error 1
+>
+>
+>Previously, I kept getting errors about -lgfortran not found.  In the
+>process of writing this e-mail and trying things, I attempted to build
+>a deb from source I found on the ppa for igraph. After doing that, the
+>error changed to the above, which I don't know if its better or worse
+>than my original error...
+>
+>--Jim
+>
+>_______________________________________________
+>R-SIG-Debian mailing list
+>R-SIG-Debian at r-project.org
+>https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+Michael Dewey
+info at aghmed.fsnet.co.uk
+http://www.aghmed.fsnet.co.uk/home.html
+
+
+From jkusznir at gmail.com  Tue Jul 24 23:12:45 2012
+From: jkusznir at gmail.com (Jim Kusznir)
+Date: Tue, 24 Jul 2012 14:12:45 -0700
+Subject: [R-sig-Debian] igraph build problems
+In-Reply-To: <Zen-1StkcA-0004mk-9X@smarthost04.mail.zen.net.uk>
+References: <CAA3eeYB5nkviSb7XEU-rhPPP3zkNQxGNq+=aR8bLN6FLfenHMg@mail.gmail.com>
+	<Zen-1StkcA-0004mk-9X@smarthost04.mail.zen.net.uk>
+Message-ID: <CAA3eeYCG9kxnTzZET8RZ5yFA1pJ3th3NjWDY0fkPN68bOZBOAw@mail.gmail.com>
+
+Sorry, I mis-typed.  I have squeeze, not sarge.  Debian 6.0, which as
+far as I know, is latest stable.
+
+--Jim
+
+On Tue, Jul 24, 2012 at 12:18 PM, Michael Dewey <info at aghmed.fsnet.co.uk> wrote:
+> At 19:58 24/07/2012, Jim Kusznir wrote:
+>>
+>> Hello:
+>>
+>> I've been trying for days now to get igraph working on a debian sarge
+>> install.  There does not appear to be any pre-built packages, and when
+>> I try and install within R, it blows up on the final linking, claiming
+>> its unable to find libgfortran (which IS installed, and IS working for
+>> all other users of the compiler).
+>
+>
+> You do seem to have rather an old version of Debian. I suspect you are going
+> to have increasing difficulty installing packages in it. You may have to
+> bite the bullet and persuade your IT support to update.
+>
+>
+>> I started up R and ran: install.packages("igraph").  It compiled for a
+>> good long while (including many gfortran compile calls), and
+>> eventually ended with:
+>>
+>> ++ -shared -o igraph.so DensityGrid.o DensityGrid_3d.o NetDataTypes.o
+>> NetRoutines.o adjlist.o amd_1.o amd_2.o amd_aat.o amd_control.o
+>> amd_defaults.o amd_dump.o amd_info.o amd_order.o amd_post_tree.o
+>> amd_postorder.o amd_preprocess.o amd_valid.o arpack.o array.o atlas.o
+>> attributes.o basic_query.o bfgs.o bigint.o bignum.o bipartite.o blas.o
+>> bliss.o bliss_eqrefhash.o bliss_graph.o bliss_heap.o bliss_orbit.o
+>> bliss_partition.o bliss_timer.o bliss_utils.o cattributes.o
+>> centrality.o cliques.o clustertool.o cocitation.o cohesive_blocks.o
+>> colamd.o community.o complex.o components.o conversion.o cores.o
+>> cs_add.o cs_amd.o cs_chol.o cs_cholsol.o cs_compress.o cs_counts.o
+>> cs_cumsum.o cs_dfs.o cs_dmperm.o cs_droptol.o cs_dropzeros.o cs_dupl.o
+>> cs_entry.o cs_ereach.o cs_etree.o cs_fkeep.o cs_gaxpy.o cs_happly.o
+>> cs_house.o cs_ipvec.o cs_leaf.o cs_load.o cs_lsolve.o cs_ltsolve.o
+>> cs_lu.o cs_lusol.o cs_malloc.o cs_maxtrans.o cs_multiply.o cs_norm.o
+>> cs_permute.o cs_pinv.o cs_post.o cs_print.o cs_pvec.o cs_qr.o
+>> cs_qrsol.o cs_randperm.o cs_reach.o cs_scatter.o cs_scc.o cs_schol.o
+>> cs_spsolve.o cs_sqr.o cs_symperm.o cs_tdfs.o cs_transpose.o
+>> cs_updown.o cs_usolve.o cs_util.o cs_utsolve.o decomposition.o
+>> dgetv0.o distances.o dlaqrb.o dmout.o dnaitr.o dnapps.o dnaup2.o
+>> dnaupd.o dnconv.o dneigh.o dneupd.o dngets.o dqueue.o drl_graph.o
+>> drl_graph_3d.o drl_layout.o drl_layout_3d.o drl_parse.o dsaitr.o
+>> dsapps.o dsaup2.o dsaupd.o dsconv.o dseigt.o dsesrt.o dseupd.o
+>> dsgets.o dsortc.o dsortr.o dstatn.o dstats.o dstqrb.o dvout.o eigen.o
+>> error.o evolver_cit.o f2c_dummy.o fast_community.o feedback_arc_set.o
+>> flow.o foreign-dl-lexer.o foreign-dl-parser.o foreign-gml-lexer.o
+>> foreign-gml-parser.o foreign-graphml.o foreign-lgl-lexer.o
+>> foreign-lgl-parser.o foreign-ncol-lexer.o foreign-ncol-parser.o
+>> foreign-pajek-lexer.o foreign-pajek-parser.o foreign.o forestfire.o
+>> fortran_intrinsics.o games.o gengraph_box_list.o
+>> gengraph_degree_sequence.o gengraph_graph_molloy_hash.o
+>> gengraph_graph_molloy_optimized.o gengraph_mr-connected.o
+>> gengraph_powerlaw.o gengraph_random.o glpapi01.o glpapi02.o glpapi03.o
+>> glpapi04.o glpapi05.o glpapi06.o glpapi07.o glpapi08.o glpapi09.o
+>> glpapi10.o glpapi11.o glpapi12.o glpapi13.o glpapi14.o glpapi15.o
+>> glpapi16.o glpapi17.o glpapi18.o glpapi19.o glpavl.o glpbfd.o glpbfx.o
+>> glpcpx.o glpdmp.o glpdmx.o glpenv01.o glpenv02.o glpenv03.o glpenv04.o
+>> glpenv05.o glpenv06.o glpenv07.o glpenv08.o glpfhv.o glpgmp.o glphbm.o
+>> glpini01.o glpini02.o glpios01.o glpios02.o glpios03.o glpios04.o
+>> glpios05.o glpios06.o glpios07.o glpios08.o glpios09.o glpios10.o
+>> glpios11.o glpios12.o glpipm.o glpk_support.o glplib01.o glplib02.o
+>> glplib03.o glplpf.o glplpx01.o glplpx02.o glplpx03.o glpluf.o glplux.o
+>> glpmat.o glpmpl01.o glpmpl02.o glpmpl03.o glpmpl04.o glpmpl05.o
+>> glpmpl06.o glpmps.o glpnet01.o glpnet02.o glpnet03.o glpnet04.o
+>> glpnet05.o glpnet06.o glpnet07.o glpnet08.o glpnet09.o glpnpp01.o
+>> glpnpp02.o glpnpp03.o glpnpp04.o glpnpp05.o glpqmd.o glprgr.o
+>> glprng01.o glprng02.o glpscf.o glpscl.o glpsdf.o glpspm.o glpspx01.o
+>> glpspx02.o glpsql.o glpssx01.o glpssx02.o glptsp.o gml_tree.o heap.o
+>> igraph_buckets.o igraph_estack.o igraph_fixed_vectorlist.o
+>> igraph_grid.o igraph_hashtable.o igraph_heap.o igraph_hrg.o
+>> igraph_hrg_types.o igraph_marked_queue.o igraph_psumtree.o
+>> igraph_set.o igraph_stack.o igraph_strvector.o igraph_trie.o infomap.o
+>> infomap_FlowGraph.o infomap_Greedy.o infomap_Node.o interrupt.o
+>> iterators.o ivout.o lapack.o layout.o matching.o math.o matrix.o
+>> memory.o microscopic_update.o mixing.o motifs.o operators.o
+>> optimal_modularity.o other.o pottsmodel_2.o progress.o qsort.o
+>> qsort_r.o random.o revolver_cit.o revolver_grow.o revolver_ml_cit.o
+>> rinterface.o scg.o scg_approximate_methods.o scg_exact_scg.o
+>> scg_kmeans.o scg_optimal_method.o scg_utils.o second.o separators.o
+>> spanning_trees.o sparsemat.o spectral_properties.o spmatrix.o
+>> st-cuts.o statusbar.o structural_properties.o structure_generators.o
+>> sugiyama.o topology.o type_indexededgelist.o types.o vector.o
+>> vector_ptr.o version.o visitors.o walktrap.o walktrap_communities.o
+>> walktrap_graph.o walktrap_heap.o zeroin.o -lxml2 -lgmp -lgfortran -lm
+>> -llapack -lblas -lgfortran -lm -L/usr/lib64/R/lib -lR
+>> /usr/bin/ld:
+>> /usr/lib/gcc/x86_64-linux-gnu/4.4.5/libstdc++.a(functexcept.o):
+>> relocation R_X86_64_32 against `std::bad_typeid::~bad_typeid()' can
+>> not be used when making a shared object; recompile with -fPIC
+>> /usr/lib/gcc/x86_64-linux-gnu/4.4.5/libstdc++.a: could not read
+>> symbols: Bad value
+>> collect2: ld returned 1 exit status
+>> make: *** [igraph.so] Error 1
+>>
+>>
+>> Previously, I kept getting errors about -lgfortran not found.  In the
+>> process of writing this e-mail and trying things, I attempted to build
+>> a deb from source I found on the ppa for igraph. After doing that, the
+>> error changed to the above, which I don't know if its better or worse
+>> than my original error...
+>>
+>> --Jim
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+>
+> Michael Dewey
+> info at aghmed.fsnet.co.uk
+> http://www.aghmed.fsnet.co.uk/home.html
+>
+
+
+From edd at debian.org  Wed Jul 25 00:12:11 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 24 Jul 2012 17:12:11 -0500
+Subject: [R-sig-Debian] igraph build problems
+In-Reply-To: <CAA3eeYCG9kxnTzZET8RZ5yFA1pJ3th3NjWDY0fkPN68bOZBOAw@mail.gmail.com>
+References: <CAA3eeYB5nkviSb7XEU-rhPPP3zkNQxGNq+=aR8bLN6FLfenHMg@mail.gmail.com>
+	<Zen-1StkcA-0004mk-9X@smarthost04.mail.zen.net.uk>
+	<CAA3eeYCG9kxnTzZET8RZ5yFA1pJ3th3NjWDY0fkPN68bOZBOAw@mail.gmail.com>
+Message-ID: <20495.7611.715113.771865@max.nulle.part>
+
+
+On 24 July 2012 at 14:12, Jim Kusznir wrote:
+| Sorry, I mis-typed.  I have squeeze, not sarge.  Debian 6.0, which as
+| far as I know, is latest stable.
+
+Do you have the 'r-base-dev' metapackage installed? It should bring in the
+compilers (incl Fortran) as well as the matching -dev packages for the
+libraries you may need.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From jkusznir at gmail.com  Wed Jul 25 23:30:58 2012
+From: jkusznir at gmail.com (Jim Kusznir)
+Date: Wed, 25 Jul 2012 14:30:58 -0700
+Subject: [R-sig-Debian] igraph build problems
+In-Reply-To: <20495.7611.715113.771865@max.nulle.part>
+References: <CAA3eeYB5nkviSb7XEU-rhPPP3zkNQxGNq+=aR8bLN6FLfenHMg@mail.gmail.com>
+	<Zen-1StkcA-0004mk-9X@smarthost04.mail.zen.net.uk>
+	<CAA3eeYCG9kxnTzZET8RZ5yFA1pJ3th3NjWDY0fkPN68bOZBOAw@mail.gmail.com>
+	<20495.7611.715113.771865@max.nulle.part>
+Message-ID: <CAA3eeYCGqXog=UZxNiHhSi_Rax=ATobGkdorM5MCSvLuXjgjfw@mail.gmail.com>
+
+Yep, r-base-dev is installed
+
+On Tue, Jul 24, 2012 at 3:12 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> On 24 July 2012 at 14:12, Jim Kusznir wrote:
+> | Sorry, I mis-typed.  I have squeeze, not sarge.  Debian 6.0, which as
+> | far as I know, is latest stable.
+>
+> Do you have the 'r-base-dev' metapackage installed? It should bring in the
+> compilers (incl Fortran) as well as the matching -dev packages for the
+> libraries you may need.
+>
+> Dirk
+>
+> --
+> Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From edd at debian.org  Thu Jul 26 00:08:05 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 25 Jul 2012 17:08:05 -0500
+Subject: [R-sig-Debian] igraph build problems
+In-Reply-To: <CAA3eeYCGqXog=UZxNiHhSi_Rax=ATobGkdorM5MCSvLuXjgjfw@mail.gmail.com>
+References: <CAA3eeYB5nkviSb7XEU-rhPPP3zkNQxGNq+=aR8bLN6FLfenHMg@mail.gmail.com>
+	<Zen-1StkcA-0004mk-9X@smarthost04.mail.zen.net.uk>
+	<CAA3eeYCG9kxnTzZET8RZ5yFA1pJ3th3NjWDY0fkPN68bOZBOAw@mail.gmail.com>
+	<20495.7611.715113.771865@max.nulle.part>
+	<CAA3eeYCGqXog=UZxNiHhSi_Rax=ATobGkdorM5MCSvLuXjgjfw@mail.gmail.com>
+Message-ID: <20496.28229.302267.527717@max.nulle.part>
+
+
+On 25 July 2012 at 14:30, Jim Kusznir wrote:
+| Yep, r-base-dev is installed
+
+Then I can't help.
+
+To check, I installed igraph on my box without a hitch.  Takes a moment to
+build, many sublibraries, but builds fine.  
+
+So you may be missing something else.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From jranke at uni-bremen.de  Thu Jul 26 09:47:17 2012
+From: jranke at uni-bremen.de (Johannes Ranke)
+Date: Thu, 26 Jul 2012 09:47:17 +0200
+Subject: [R-sig-Debian] igraph build problems
+In-Reply-To: <CAA3eeYCGqXog=UZxNiHhSi_Rax=ATobGkdorM5MCSvLuXjgjfw@mail.gmail.com>
+References: <CAA3eeYB5nkviSb7XEU-rhPPP3zkNQxGNq+=aR8bLN6FLfenHMg@mail.gmail.com>
+	<20495.7611.715113.771865@max.nulle.part>
+	<CAA3eeYCGqXog=UZxNiHhSi_Rax=ATobGkdorM5MCSvLuXjgjfw@mail.gmail.com>
+Message-ID: <201207260947.18494.jranke@uni-bremen.de>
+
+On Wednesday 25 July 2012 23:30:58 Jim Kusznir wrote:
+> Yep, r-base-dev is installed
+
+Jim, for what it's worth, I just ran install.packages("igraph") on my squeeze 
+laptop and it compiled, linked and installed just fine. Do you have the R 
+2.15.1 packages for squeeze from CRAN installed? If not, have a look at the 
+Debian README on CRAN:
+
+http://cran.r-project.org/bin/linux/debian/
+
+Regards,
+
+Johannes
+
+> 
+> On Tue, Jul 24, 2012 at 3:12 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+> > On 24 July 2012 at 14:12, Jim Kusznir wrote:
+> > | Sorry, I mis-typed.  I have squeeze, not sarge.  Debian 6.0, which as
+> > | far as I know, is latest stable.
+> > 
+> > Do you have the 'r-base-dev' metapackage installed? It should bring in
+> > the compilers (incl Fortran) as well as the matching -dev packages for
+> > the libraries you may need.
+> > 
+> > Dirk
+> > 
+> > --
+> > Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From pauljohn32 at gmail.com  Thu Jul 26 17:29:42 2012
+From: pauljohn32 at gmail.com (Paul Johnson)
+Date: Thu, 26 Jul 2012 10:29:42 -0500
+Subject: [R-sig-Debian] igraph build problems
+In-Reply-To: <201207260947.18494.jranke@uni-bremen.de>
+References: <CAA3eeYB5nkviSb7XEU-rhPPP3zkNQxGNq+=aR8bLN6FLfenHMg@mail.gmail.com>
+	<20495.7611.715113.771865@max.nulle.part>
+	<CAA3eeYCGqXog=UZxNiHhSi_Rax=ATobGkdorM5MCSvLuXjgjfw@mail.gmail.com>
+	<201207260947.18494.jranke@uni-bremen.de>
+Message-ID: <CAErODj8yB2h09sn0KDjdZ3RHwU6qp2FBL1gHW5sJc1nki7QSNg@mail.gmail.com>
+
+Dear Jim:
+
+I hope this does not seem like we are piling on. It worked for me too.
+ I uploaded the build output for your comparison.  This is from my
+Debian Squeeze laptop:
+
+http://pj.freefaculty.org/misc/igraph-build-20120706.Rt
+
+If igraph is still causing trouble for you, I suggest you compare my
+output with yours and figure where the trouble is.
+
+pj
+
+
+
+On Thu, Jul 26, 2012 at 2:47 AM, Johannes Ranke <jranke at uni-bremen.de> wrote:
+> On Wednesday 25 July 2012 23:30:58 Jim Kusznir wrote:
+>> Yep, r-base-dev is installed
+>
+> Jim, for what it's worth, I just ran install.packages("igraph") on my squeeze
+> laptop and it compiled, linked and installed just fine. Do you have the R
+> 2.15.1 packages for squeeze from CRAN installed? If not, have a look at the
+> Debian README on CRAN:
+>
+> http://cran.r-project.org/bin/linux/debian/
+>
+> Regards,
+>
+> Johannes
+>
+>>
+>> On Tue, Jul 24, 2012 at 3:12 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>> > On 24 July 2012 at 14:12, Jim Kusznir wrote:
+>> > | Sorry, I mis-typed.  I have squeeze, not sarge.  Debian 6.0, which as
+>> > | far as I know, is latest stable.
+>> >
+>> > Do you have the 'r-base-dev' metapackage installed? It should bring in
+>> > the compilers (incl Fortran) as well as the matching -dev packages for
+>> > the libraries you may need.
+>> >
+>> > Dirk
+>> >
+>> > --
+>> > Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+>>
+>> _______________________________________________
+>> R-SIG-Debian mailing list
+>> R-SIG-Debian at r-project.org
+>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+
+-- 
+Paul E. Johnson
+Professor, Political Science    Assoc. Director
+1541 Lilac Lane, Room 504     Center for Research Methods
+University of Kansas               University of Kansas
+http://pj.freefaculty.org            http://quant.ku.edu
+
+
+From domibel at debian.org  Mon Jul 30 21:51:33 2012
+From: domibel at debian.org (Dominique Belhachemi)
+Date: Mon, 30 Jul 2012 15:51:33 -0400
+Subject: [R-sig-Debian] A guide to R packages for Ubuntu
+Message-ID: <CAAvaLCyF--RLsX7i6nBoUJbmSNL=mW2NQK8X3BDSHPpr_fd-cQ@mail.gmail.com>
+
+Hi everyone,
+
+I am using the backports from
+http://cran.r-project.org/bin/linux/ubuntu/lucid/ on Lucid and would
+like to create a bunch of additional r-cran packages on my workstation.
+
+Where can I find the latest scripts to automatically create those
+packages? Is https://r-forge.r-project.org/projects/cran2deb/ still
+up-to-date?
+
+Best
+-Dominique
+
+
+From edd at debian.org  Mon Jul 30 23:13:21 2012
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 30 Jul 2012 16:13:21 -0500
+Subject: [R-sig-Debian] A guide to R packages for Ubuntu
+In-Reply-To: <CAAvaLCyF--RLsX7i6nBoUJbmSNL=mW2NQK8X3BDSHPpr_fd-cQ@mail.gmail.com>
+References: <CAAvaLCyF--RLsX7i6nBoUJbmSNL=mW2NQK8X3BDSHPpr_fd-cQ@mail.gmail.com>
+Message-ID: <20502.63729.430283.228674@max.nulle.part>
+
+
+On 30 July 2012 at 15:51, Dominique Belhachemi wrote:
+| Hi everyone,
+| 
+| I am using the backports from
+| http://cran.r-project.org/bin/linux/ubuntu/lucid/ on Lucid and would
+| like to create a bunch of additional r-cran packages on my workstation.
+| 
+| Where can I find the latest scripts to automatically create those
+| packages? Is https://r-forge.r-project.org/projects/cran2deb/ still
+| up-to-date?
+
+For Ubuntu, your best bet is Michael's PPA.  AFAIK it covers "a large number"
+of package but does not quite have complete CRAN coverage.  See
+
+    https://launchpad.net/~marutter/+archive/c2d4u
+
+
+For Debian, the less-well-known but equally impressive effort is by Don. See 
+
+    http://debian-r.debian.net/
+
+
+Our old cran2deb codebase is still there and at the core of both of these,
+but they essentially branches or "v3.0" implementations.
+
+Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+
+From domibel at debian.org  Mon Jul 30 23:20:30 2012
+From: domibel at debian.org (Dominique Belhachemi)
+Date: Mon, 30 Jul 2012 17:20:30 -0400
+Subject: [R-sig-Debian] A guide to R packages for Ubuntu
+In-Reply-To: <20502.63729.430283.228674@max.nulle.part>
+References: <CAAvaLCyF--RLsX7i6nBoUJbmSNL=mW2NQK8X3BDSHPpr_fd-cQ@mail.gmail.com>
+	<20502.63729.430283.228674@max.nulle.part>
+Message-ID: <CAAvaLCyx0k4BuRgmwU9u5EQ1zsK4yVyiN_MrP9V+iTi_77mu8A@mail.gmail.com>
+
+On Mon, Jul 30, 2012 at 5:13 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>
+> On 30 July 2012 at 15:51, Dominique Belhachemi wrote:
+> | Hi everyone,
+> |
+> | I am using the backports from
+> | http://cran.r-project.org/bin/linux/ubuntu/lucid/ on Lucid and would
+> | like to create a bunch of additional r-cran packages on my workstation.
+> |
+> | Where can I find the latest scripts to automatically create those
+> | packages? Is https://r-forge.r-project.org/projects/cran2deb/ still
+> | up-to-date?
+>
+> For Ubuntu, your best bet is Michael's PPA.  AFAIK it covers "a large number"
+> of package but does not quite have complete CRAN coverage.  See
+>
+>     https://launchpad.net/~marutter/+archive/c2d4u
+>
+>
+> For Debian, the less-well-known but equally impressive effort is by Don. See
+>
+>     http://debian-r.debian.net/
+>
+>
+> Our old cran2deb codebase is still there and at the core of both of these,
+> but they essentially branches or "v3.0" implementations.
+>
+
+Thanks Dirk,
+
+http://debian-r.debian.net/ is what I need for Debian.
+
+For Ubuntu, Michael's PPA is huge, but contains only 1 package for
+Lucid. So I will be using Don's github script's to re-build the
+packages I need.
+
+Thanks
+-Dominique
+
+
+From domibel at debian.org  Tue Jul 31 14:40:00 2012
+From: domibel at debian.org (Dominique Belhachemi)
+Date: Tue, 31 Jul 2012 08:40:00 -0400
+Subject: [R-sig-Debian] A guide to R packages for Ubuntu
+In-Reply-To: <E52665F6-C486-4F19-A9B0-034C0440D86E@gmail.com>
+References: <CAAvaLCyF--RLsX7i6nBoUJbmSNL=mW2NQK8X3BDSHPpr_fd-cQ@mail.gmail.com>
+	<20502.63729.430283.228674@max.nulle.part>
+	<CAAvaLCyx0k4BuRgmwU9u5EQ1zsK4yVyiN_MrP9V+iTi_77mu8A@mail.gmail.com>
+	<E52665F6-C486-4F19-A9B0-034C0440D86E@gmail.com>
+Message-ID: <CAAvaLCw1rUOj4zbbN+fd2TtYB-S1NXwp4SewVDh9w1GT0+1uqw@mail.gmail.com>
+
+On Mon, Jul 30, 2012 at 6:19 PM, Michael Rutter <marutter.psu at gmail.com> wrote:
+>
+> On Jul 30, 2012, at 2:20 PM, Dominique Belhachemi <domibel at debian.org> wrote:
+>
+>> On Mon, Jul 30, 2012 at 5:13 PM, Dirk Eddelbuettel <edd at debian.org> wrote:
+>>>
+>>> On 30 July 2012 at 15:51, Dominique Belhachemi wrote:
+>>> | Hi everyone,
+>>> |
+>>> | I am using the backports from
+>>> | http://cran.r-project.org/bin/linux/ubuntu/lucid/ on Lucid and would
+>>> | like to create a bunch of additional r-cran packages on my workstation.
+>>> |
+>>> | Where can I find the latest scripts to automatically create those
+>>> | packages? Is https://r-forge.r-project.org/projects/cran2deb/ still
+>>> | up-to-date?
+>>>
+>>> For Ubuntu, your best bet is Michael's PPA.  AFAIK it covers "a large number"
+>>> of package but does not quite have complete CRAN coverage.  See
+>>>
+>>>    https://launchpad.net/~marutter/+archive/c2d4u
+>>>
+>>>
+>>> For Debian, the less-well-known but equally impressive effort is by Don. See
+>>>
+>>>    http://debian-r.debian.net/
+>>>
+>>>
+>>> Our old cran2deb codebase is still there and at the core of both of these,
+>>> but they essentially branches or "v3.0" implementations.
+>>>
+>>
+>> Thanks Dirk,
+>>
+>> http://debian-r.debian.net/ is what I need for Debian.
+>>
+>> For Ubuntu, Michael's PPA is huge, but contains only 1 package for
+>> Lucid. So I will be using Don's github script's to re-build the
+>> packages I need.
+>>
+>> Thanks
+>> -Dominique
+>
+> I started working on c2d4u after lucid and decided it was going to be a lot of work to start backporting, so I have been concentrating on the latest releases.
+>
+> However, it should be possible to use "apt-get source" with the c2d4u installed in lucid as only "deb-src", ignore the "deb" part when adding the ppa to the /etc/apt/sources.list.  You would want to use the natty series of source packages, as they will be as close to lucid as possible.  That way you can download and build from the source packages, at least allowing you to install the necessary dependencies via "apt-get build-dep foo".
+>
+> Two words of caution with this approach.
+>
+> 1.  Do not add the "deb" line to sources.list.  It will cause havoc looking for natty packages that do not exist.
+>
+> 2.  Even if you use the natty source packages, lucid will not have the required versions for some of the dependencies.  This issue will still exist if you use Don's github scripts, as there are differences between lucid version numbers and what CRAN packages want.  Many of the packages will work fine, but there will be some that will not build due to newer versions of packages not available under lucid.
+>
+
+Thank you Michael,
+
+I will try both, rebuilding your natty source packages, and using
+cran2deb for building new R packages from scratch (those which are not
+available in the repos).
+
+-Dominique
+
+

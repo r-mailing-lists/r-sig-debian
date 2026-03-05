@@ -1,0 +1,2863 @@
+From lucio.marcello.ic at uhi.ac.uk  Tue Apr  4 17:33:20 2017
+From: lucio.marcello.ic at uhi.ac.uk (Lucio Marcello)
+Date: Tue, 4 Apr 2017 16:33:20 +0100
+Subject: [R-sig-Debian] libcurl issue when manually installing R-3.3.3 on
+	Debian 3.16.0-4-amd64
+Message-ID: <CAF+-VALHTpupcVhi=P0B1JYhNqGA4zPhzkFzCDG4vqvLu3YLjA@mail.gmail.com>
+
+Dear all,
+
+I am trying to upgrade R on Debian 3.16.0-4-amd64, as the default R version is 3.1.1 (2014). When I try to run ./configure on R-3.3.3, I get an error message saying
+
+...
+checking for curl-config... /usr/local/bin/curl-config
+checking libcurl version ... 7.53.1
+checking curl/curl.h usability... yes
+checking curl/curl.h presence... yes
+checking for curl/curl.h... yes
+checking if libcurl is version 7 and >= 7.28.0... yes
+checking if libcurl supports https... no
+configure: error: libcurl >= 7.28.0 library and headers are required with support for https
+
+I received the following advice from a senior Debian user:
+
+"Encryption has gone through some growing pains lately, with older versions of the standard encryption protocol being effectively black listed. (TLS v1.0 had holes, now it must be TLS v1.1 or above).
+
+So, whilst it says you have SSL, libcurl will be critical of the version and say you don't (because the SSL version is black listed).
+
+It is possible that updating libssl-dev, openssl-dev (or whatever they are called) will make curl happy, because Debian might have updated their packages to keep up with the times. You might need to uncomment the security updates in /etc/apt/sources. OTOH, they might not... in which case you need to download and build openssl yourself, and then build libcurl, making very sure it uses your openssl and not the standard openssl. I do recall it is a pain to stop it seeking out the standard openssl."
+
+Following the above suggestions and some information I found online I installed
+libcurl4-openssl-dev, but this hasn't solved the problem. I now am getting further problems installing other packages (hyphy)
+
+/etc/hyphy$ cmake .
+cmake: /usr/local/lib/libcurl.so.4: no version information available (required by cmake)
+Segmentation fault
+
+I am not sure whether the latter is related to some other installation fault that occurred when I was trying to fix R, but I would rather get some advice before proceeding any further, as I don't have enough experience to identify and solve the problem directly.
+
+Many thanks for any help!
+
+All the best,
+
+Lucio
+Inverness College UHI, a partner in the University of the Highlands and Islands www.inverness.uhi.ac.uk Board of Management of Inverness College (known as Inverness College UHI), Scottish Charity No SC021197.
+
+	[[alternative HTML version deleted]]
+
+
+From edd at debian.org  Tue Apr  4 18:17:48 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 4 Apr 2017 11:17:48 -0500
+Subject: [R-sig-Debian] libcurl issue when manually installing R-3.3.3
+	on	Debian 3.16.0-4-amd64
+In-Reply-To: <CAF+-VALHTpupcVhi=P0B1JYhNqGA4zPhzkFzCDG4vqvLu3YLjA@mail.gmail.com>
+References: <CAF+-VALHTpupcVhi=P0B1JYhNqGA4zPhzkFzCDG4vqvLu3YLjA@mail.gmail.com>
+Message-ID: <22755.50988.397917.608931@max.eddelbuettel.com>
+
+
+On 4 April 2017 at 16:33, Lucio Marcello wrote:
+| I am trying to upgrade R on Debian 3.16.0-4-amd64, as the default R version is 3.1.1 (2014). When I try to run ./configure on R-3.3.3, I get an error message saying
+| 
+| ...
+| checking for curl-config... /usr/local/bin/curl-config
+| checking libcurl version ... 7.53.1
+| checking curl/curl.h usability... yes
+| checking curl/curl.h presence... yes
+| checking for curl/curl.h... yes
+| checking if libcurl is version 7 and >= 7.28.0... yes
+| checking if libcurl supports https... no
+| configure: error: libcurl >= 7.28.0 library and headers are required with support for https
+
+I would install the binary from https://cran.r-project.org/bin/linux/debian/
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From lucio.marcello.ic at uhi.ac.uk  Tue Apr  4 18:45:29 2017
+From: lucio.marcello.ic at uhi.ac.uk (Lucio Marcello)
+Date: Tue, 4 Apr 2017 17:45:29 +0100
+Subject: [R-sig-Debian] libcurl issue when manually installing R-3.3.3
+ on Debian 3.16.0-4-amd64
+In-Reply-To: <22755.50988.397917.608931@max.eddelbuettel.com>
+References: <CAF+-VALHTpupcVhi=P0B1JYhNqGA4zPhzkFzCDG4vqvLu3YLjA@mail.gmail.com>
+ <22755.50988.397917.608931@max.eddelbuettel.com>
+Message-ID: <CAF+-VA+c9PSYwPWDWu53_RPMa2=7Q68-46TbE0vUsCh8Po9y4Q@mail.gmail.com>
+
+Dear Dirk,
+
+Do you mean binaries for R-3.3.3?
+
+I could not find any link on the page you mention
+I downloaded R-3.3.3.tar.gz from https://cran.r-project.org/src/base/R-3/
+
+then ran
+./configure
+
+I also tried
+./configure --enable-R-shlib
+based on a suggestion found in
+http://jenzopr.github.io/bioinformatics/2016/05/03/r-wheezy-build.html
+
+Many thanks,
+
+Lucio
+
+On 4 April 2017 at 17:17, Dirk Eddelbuettel <edd at debian.org<mailto:edd at debian.org>> wrote:
+
+On 4 April 2017 at 16:33, Lucio Marcello wrote:
+| I am trying to upgrade R on Debian 3.16.0-4-amd64, as the default R version is 3.1.1 (2014). When I try to run ./configure on R-3.3.3, I get an error message saying
+|
+| ...
+| checking for curl-config... /usr/local/bin/curl-config
+| checking libcurl version ... 7.53.1
+| checking curl/curl.h usability... yes
+| checking curl/curl.h presence... yes
+| checking for curl/curl.h... yes
+| checking if libcurl is version 7 and >= 7.28.0... yes
+| checking if libcurl supports https... no
+| configure: error: libcurl >= 7.28.0 library and headers are required with support for https
+
+I would install the binary from https://cran.r-project.org/bin/linux/debian/
+
+Dirk
+
+--
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org<mailto:edd at debian.org>
+
+Inverness College UHI, a partner in the University of the Highlands and Islands www.inverness.uhi.ac.uk Board of Management of Inverness College (known as Inverness College UHI), Scottish Charity No SC021197.
+
+	[[alternative HTML version deleted]]
+
+
+From edd at debian.org  Tue Apr  4 19:36:23 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 4 Apr 2017 12:36:23 -0500
+Subject: [R-sig-Debian] libcurl issue when manually installing R-3.3.3
+ on Debian 3.16.0-4-amd64
+In-Reply-To: <CAF+-VA+c9PSYwPWDWu53_RPMa2=7Q68-46TbE0vUsCh8Po9y4Q@mail.gmail.com>
+References: <CAF+-VALHTpupcVhi=P0B1JYhNqGA4zPhzkFzCDG4vqvLu3YLjA@mail.gmail.com>
+ <22755.50988.397917.608931@max.eddelbuettel.com>
+ <CAF+-VA+c9PSYwPWDWu53_RPMa2=7Q68-46TbE0vUsCh8Po9y4Q@mail.gmail.com>
+Message-ID: <22755.55703.732006.745714@max.eddelbuettel.com>
+
+
+On 4 April 2017 at 17:45, Lucio Marcello wrote:
+| Dear Dirk,
+| 
+| Do you mean binaries for R-3.3.3?
+| 
+| I could not find any link on the page you mention
+| I downloaded R-3.3.3.tar.gz from https://cran.r-project.org/src/base/R-3/
+
+The link I gave you is https://cran.r-project.org/bin/linux/debian
+
+Please read what is on that page.
+ 
+| then ran
+| ./configure
+
+We understand.
+
+It is still "wrong" as we have a working prebuilt binary for you.
+
+You to get it is described on that page.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From lucio.marcello.ic at uhi.ac.uk  Wed Apr  5 20:19:51 2017
+From: lucio.marcello.ic at uhi.ac.uk (Lucio Marcello)
+Date: Wed, 5 Apr 2017 19:19:51 +0100
+Subject: [R-sig-Debian] libcurl issue when manually installing R-3.3.3
+ on Debian 3.16.0-4-amd64
+In-Reply-To: <22755.55703.732006.745714@max.eddelbuettel.com>
+References: <CAF+-VALHTpupcVhi=P0B1JYhNqGA4zPhzkFzCDG4vqvLu3YLjA@mail.gmail.com>
+ <22755.50988.397917.608931@max.eddelbuettel.com>
+ <CAF+-VA+c9PSYwPWDWu53_RPMa2=7Q68-46TbE0vUsCh8Po9y4Q@mail.gmail.com>
+ <22755.55703.732006.745714@max.eddelbuettel.com>
+Message-ID: <CAF+-VAJxgQBgcPDRkpMBv_iN-uhdxD0+N_yKho7oU1ZgwesQsA@mail.gmail.com>
+
+Dirk,
+
+I appreciate that you were trying to help, but I would suggest you don't answer a question if you find it irritating or think it is posed by someone who hasn't taken the time to figure things out on his own... others might be able to spare a bit more time and be more patient, however basic the question is. There is a lot of material covered in the page and I found your "read the page" + "we understand" comments dismissive.
+
+With help from Johannes Ranke, I ran the following commands
+
+sudo sh -c 'echo "deb http://star-www.st-andrews.ac.uk/cran/bin/linux/debian jessie-cran3/" >> /etc/apt/sources.list'
+apt-key adv --keyserver keys.gnupg.net<http://keys.gnupg.net> --recv-key 6212B7B7931C4BB16280BA1306F90DE5381BA480
+
+This did not work, possibly due to a firewall blocking port 1137 on my computer
+
+I resorted to doing a custom installation of openssl and curl and R-3.3.3 was installed successfully, the R ./configure message went from
+checking if libcurl supports https... no
+to
+checking if libcurl supports https... yes
+
+Here are the details
+
+#remove curl
+sudo apt-get purge --auto-remove curl
+
+#remove openssl
+sudo apt-get purge openssl
+
+#install openssl from     http://www.openssl.org/source/openssl-1.1.0e.tar.gz
+./config --prefix=/usr/local/openssl --openssldir=/usr/local/openssl -Wl,-rpath=/usr/local/openssl/lib
+make
+make test
+sudo make install
+/usr/local/openssl/bin$ openssl version
+    OpenSSL 1.1.0e  16 Feb 2017
+    [OpenSSL commands were put together / modified from
+    https://geeksww.com/tutorials/libraries/openssl/installation/installing_openssl_on_ubuntu_linux.php
+    https://wiki.openssl.org/index.php/Compilation_and_Installation
+    https://github.com/openssl/openssl/issues/1740
+    as curl's installation failed without -Wl,-rpath=/usr/local/openssl/lib ]
+
+
+#install curl (curl-7.53.1 from https://curl.haxx.se/download.html)
+./configure --with-ssl=/usr/local/openssl
+make
+sudo make install
+
+#install R
+R-3.3.3 from https://cran.r-project.org/src/base/R-3/
+./configure
+make
+make check
+make install
+
+
+All the best,
+
+Lucio
+
+
+On 4 April 2017 at 18:36, Dirk Eddelbuettel <edd at debian.org<mailto:edd at debian.org>> wrote:
+
+On 4 April 2017 at 17:45, Lucio Marcello wrote:
+| Dear Dirk,
+|
+| Do you mean binaries for R-3.3.3?
+|
+| I could not find any link on the page you mention
+| I downloaded R-3.3.3.tar.gz from https://cran.r-project.org/src/base/R-3/
+
+The link I gave you is https://cran.r-project.org/bin/linux/debian
+
+Please read what is on that page.
+
+| then ran
+| ./configure
+
+We understand.
+
+It is still "wrong" as we have a working prebuilt binary for you.
+
+You to get it is described on that page.
+
+Dirk
+
+--
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org<mailto:edd at debian.org>
+
+Inverness College UHI, a partner in the University of the Highlands and Islands www.inverness.uhi.ac.uk Board of Management of Inverness College (known as Inverness College UHI), Scottish Charity No SC021197.
+
+	[[alternative HTML version deleted]]
+
+
+From johannes.ranke at jrwb.de  Wed Apr  5 22:15:07 2017
+From: johannes.ranke at jrwb.de (Johannes Ranke)
+Date: Wed, 05 Apr 2017 22:15:07 +0200
+Subject: [R-sig-Debian] libcurl issue when manually installing R-3.3.3
+ on Debian 3.16.0-4-amd64
+In-Reply-To: <CAF+-VAJxgQBgcPDRkpMBv_iN-uhdxD0+N_yKho7oU1ZgwesQsA@mail.gmail.com>
+References: <CAF+-VALHTpupcVhi=P0B1JYhNqGA4zPhzkFzCDG4vqvLu3YLjA@mail.gmail.com>
+ <22755.55703.732006.745714@max.eddelbuettel.com>
+ <CAF+-VAJxgQBgcPDRkpMBv_iN-uhdxD0+N_yKho7oU1ZgwesQsA@mail.gmail.com>
+Message-ID: <4893640.BZolSKiOPB@tux>
+
+> With help from Johannes Ranke, I ran the following commands
+
+I happend to respond off-list because my other email I was answering from was 
+not subscribed....
+
+> sudo sh -c 'echo "deb http://star-www.st-andrews.ac.uk/cran/bin/linux/debian
+> jessie-cran3/" >> /etc/apt/sources.list' 
+
+This one is not from me, just for the record... but seems to have done what it 
+should.
+
+> apt-key adv --keyserver
+> keys.gnupg.net<http://keys.gnupg.net> --recv-key
+> 6212B7B7931C4BB16280BA1306F90DE5381BA480
+
+What was the error message from this command?
+
+> This did not work, possibly due to a firewall blocking port 1137 on my
+> computer
+
+In earlier times, there was a service at http://keys.gnupg.net/ where one 
+could retrieve plain text keys via http. In a renewed attempt to resolve this 
+situation, I now found http://keyserver.ubuntu.com/ where you can search for 
+key 0x381BA480, put it into a text file and add it to the keys known to apt 
+using apt-key add xxx.txt. I am just updating the README on CRAN.
+
+> I resorted to doing a custom installation of openssl and curl 
+
+Just for the record - I did not recommend that ...
+
+Johannes
+
+
+From jennifer.s.lyon at gmail.com  Wed Apr 19 17:38:40 2017
+From: jennifer.s.lyon at gmail.com (Jennifer Lyon)
+Date: Wed, 19 Apr 2017 09:38:40 -0600
+Subject: [R-sig-Debian] difficulty in Ubuntu 14.04 apt-getting R 3.3.2
+Message-ID: <CAKstpn6Mesy9yy6Ew47Jj_Tg+DmOwHTMuma-nrHRLovYX16ZOA@mail.gmail.com>
+
+Hi:
+
+I have a Dockerfile, which builds an image which installed R 3.3.2 in
+Ubuntu 14.04, but building using that Dockerfile seems to have stopped
+working and I am unclear why.
+
+I believe the relevant error is:
+
+Some packages could not be installed. This may mean that you have
+requested an impossible situation or if you are using the unstable
+distribution that some required packages have not yet been created
+or been moved out of Incoming.
+The following information may help to resolve the situation:
+
+The following packages have unmet dependencies:
+ r-recommended : Depends: r-cran-cluster (>= 1.9.6-2) but it is not going
+to be installed
+                 Depends: r-cran-rpart (>= 3.1.20) but it is not going to
+be installed
+                 Depends: r-cran-survival (>= 2.13.2-1) but it is not going
+to be installed
+
+Any help in resolving this would be appreciated.
+
+Additional information: while I need R 3.3.2 for historical purposes, when
+I substitute 3.3.2 with 3.3.3 in the Dockerfile, the image builds
+successfully.
+
+Thanks!
+
+Jen
+
+Dockerfile:
+
+FROM ubuntu:14.04
+
+RUN apt-get update && \
+   DEBIAN_FRONTEND="noninteractive" apt-get install -y
+--no-install-recommends software-properties-common && \
+    apt-add-repository "deb http://cran.r-project.org/bin/linux/ubuntu
+trusty/" && \
+    apt-get update && \
+    DEBIAN_FRONTEND="noninteractive" apt-get install -y --force-yes
+--no-install-recommends libcurl3-gnutls libcurl4-gnutls-dev libssl-dev
+libssh2-1-dev r-base=3.3.2-1trusty0 r-base-dev=3.3.2-1trusty0
+r-recommended=3.3.2-1trusty0 r-base-core=3.3.2-1trusty0
+
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+WORKDIR /plugin/
+
+	[[alternative HTML version deleted]]
+
+
+From sean.m.southard at gmail.com  Wed Apr 19 17:51:49 2017
+From: sean.m.southard at gmail.com (Sean Southard)
+Date: Wed, 19 Apr 2017 09:51:49 -0600
+Subject: [R-sig-Debian] difficulty in Ubuntu 14.04 apt-getting R 3.3.2
+In-Reply-To: <CAKstpn6Mesy9yy6Ew47Jj_Tg+DmOwHTMuma-nrHRLovYX16ZOA@mail.gmail.com>
+References: <CAKstpn6Mesy9yy6Ew47Jj_Tg+DmOwHTMuma-nrHRLovYX16ZOA@mail.gmail.com>
+Message-ID: <CAH1Hw-h8P6Kep+grLYhHfpKE2xXABESqWZ+AQXh1J+-88W4Eig@mail.gmail.com>
+
+Try including the files it is telling you are needed, specifically
+r-cran-rpart=3.1.20 r-cran-survival=2.13.2-1 r-cran-cluster=1.9.6-2
+
+
+Thanks,
+
+Sean Southard
+
+On Wed, Apr 19, 2017 at 9:38 AM, Jennifer Lyon <jennifer.s.lyon at gmail.com>
+wrote:
+
+> Hi:
+>
+> I have a Dockerfile, which builds an image which installed R 3.3.2 in
+> Ubuntu 14.04, but building using that Dockerfile seems to have stopped
+> working and I am unclear why.
+>
+> I believe the relevant error is:
+>
+> Some packages could not be installed. This may mean that you have
+> requested an impossible situation or if you are using the unstable
+> distribution that some required packages have not yet been created
+> or been moved out of Incoming.
+> The following information may help to resolve the situation:
+>
+> The following packages have unmet dependencies:
+>  r-recommended : Depends: r-cran-cluster (>= 1.9.6-2) but it is not going
+> to be installed
+>                  Depends: r-cran-rpart (>= 3.1.20) but it is not going to
+> be installed
+>                  Depends: r-cran-survival (>= 2.13.2-1) but it is not going
+> to be installed
+>
+> Any help in resolving this would be appreciated.
+>
+> Additional information: while I need R 3.3.2 for historical purposes, when
+> I substitute 3.3.2 with 3.3.3 in the Dockerfile, the image builds
+> successfully.
+>
+> Thanks!
+>
+> Jen
+>
+> Dockerfile:
+>
+> FROM ubuntu:14.04
+>
+> RUN apt-get update && \
+>    DEBIAN_FRONTEND="noninteractive" apt-get install -y
+> --no-install-recommends software-properties-common && \
+>     apt-add-repository "deb http://cran.r-project.org/bin/linux/ubuntu
+> trusty/" && \
+>     apt-get update && \
+>     DEBIAN_FRONTEND="noninteractive" apt-get install -y --force-yes
+> --no-install-recommends libcurl3-gnutls libcurl4-gnutls-dev libssl-dev
+> libssh2-1-dev r-base=3.3.2-1trusty0 r-base-dev=3.3.2-1trusty0
+> r-recommended=3.3.2-1trusty0 r-base-core=3.3.2-1trusty0
+>
+> RUN locale-gen en_US.UTF-8
+> ENV LANG en_US.UTF-8
+> ENV LANGUAGE en_US:en
+> ENV LC_ALL en_US.UTF-8
+>
+> WORKDIR /plugin/
+>
+>         [[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+	[[alternative HTML version deleted]]
+
+
+From edd at debian.org  Wed Apr 19 17:57:00 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 19 Apr 2017 10:57:00 -0500
+Subject: [R-sig-Debian] difficulty in Ubuntu 14.04 apt-getting R 3.3.2
+In-Reply-To: <CAKstpn6Mesy9yy6Ew47Jj_Tg+DmOwHTMuma-nrHRLovYX16ZOA@mail.gmail.com>
+References: <CAKstpn6Mesy9yy6Ew47Jj_Tg+DmOwHTMuma-nrHRLovYX16ZOA@mail.gmail.com>
+Message-ID: <22775.35020.491386.617408@max.eddelbuettel.com>
+
+
+On 19 April 2017 at 09:38, Jennifer Lyon wrote:
+| Hi:
+| 
+| I have a Dockerfile, which builds an image which installed R 3.3.2 in
+| Ubuntu 14.04, but building using that Dockerfile seems to have stopped
+| working and I am unclear why.
+| 
+| I believe the relevant error is:
+| 
+| Some packages could not be installed. This may mean that you have
+| requested an impossible situation or if you are using the unstable
+| distribution that some required packages have not yet been created
+| or been moved out of Incoming.
+| The following information may help to resolve the situation:
+| 
+| The following packages have unmet dependencies:
+|  r-recommended : Depends: r-cran-cluster (>= 1.9.6-2) but it is not going
+| to be installed
+|                  Depends: r-cran-rpart (>= 3.1.20) but it is not going to
+| be installed
+|                  Depends: r-cran-survival (>= 2.13.2-1) but it is not going
+| to be installed
+| 
+| Any help in resolving this would be appreciated.
+| 
+| Additional information: while I need R 3.3.2 for historical purposes, when
+| I substitute 3.3.2 with 3.3.3 in the Dockerfile, the image builds
+| successfully.
+| 
+| Thanks!
+| 
+| Jen
+| 
+| Dockerfile:
+| 
+| FROM ubuntu:14.04
+| 
+| RUN apt-get update && \
+|    DEBIAN_FRONTEND="noninteractive" apt-get install -y
+| --no-install-recommends software-properties-common && \
+|     apt-add-repository "deb http://cran.r-project.org/bin/linux/ubuntu
+| trusty/" && \
+|     apt-get update && \
+|     DEBIAN_FRONTEND="noninteractive" apt-get install -y --force-yes
+| --no-install-recommends libcurl3-gnutls libcurl4-gnutls-dev libssl-dev
+| libssh2-1-dev r-base=3.3.2-1trusty0 r-base-dev=3.3.2-1trusty0
+| r-recommended=3.3.2-1trusty0 r-base-core=3.3.2-1trusty0
+
+You are pointing to the normal repo.  AFAIK it only keeps _current_ versions
+and one cannot, as you do here, request arbitrary older versions.
+
+But take a look at Carl's 'versioned' Rocker containers which may offer you
+want you're after.
+
+  GitHub:  https://github.com/rocker-org/rocker-versioned
+  Docker:  https://hub.docker.com/r/rocker/r-ver/
+
+Dirk
+
+| 
+| RUN locale-gen en_US.UTF-8
+| ENV LANG en_US.UTF-8
+| ENV LANGUAGE en_US:en
+| ENV LC_ALL en_US.UTF-8
+| 
+| WORKDIR /plugin/
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From jennifer.s.lyon at gmail.com  Wed Apr 19 21:48:24 2017
+From: jennifer.s.lyon at gmail.com (Jennifer Lyon)
+Date: Wed, 19 Apr 2017 13:48:24 -0600
+Subject: [R-sig-Debian] difficulty in Ubuntu 14.04 apt-getting R 3.3.2
+In-Reply-To: <22775.35020.491386.617408@max.eddelbuettel.com>
+References: <CAKstpn6Mesy9yy6Ew47Jj_Tg+DmOwHTMuma-nrHRLovYX16ZOA@mail.gmail.com>
+ <22775.35020.491386.617408@max.eddelbuettel.com>
+Message-ID: <CAKstpn5rRiBLFqXkN7XmumtTGB5HaHFb6v6ESXEC2+-AsgLWzg@mail.gmail.com>
+
+Thank you, the Rocker containers, or at least what is done in the Rocker
+containers is exactly what I need.
+
+Jen
+
+On Wed, Apr 19, 2017 at 9:57 AM, Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> On 19 April 2017 at 09:38, Jennifer Lyon wrote:
+> | Hi:
+> |
+> | I have a Dockerfile, which builds an image which installed R 3.3.2 in
+> | Ubuntu 14.04, but building using that Dockerfile seems to have stopped
+> | working and I am unclear why.
+> |
+> | I believe the relevant error is:
+> |
+> | Some packages could not be installed. This may mean that you have
+> | requested an impossible situation or if you are using the unstable
+> | distribution that some required packages have not yet been created
+> | or been moved out of Incoming.
+> | The following information may help to resolve the situation:
+> |
+> | The following packages have unmet dependencies:
+> |  r-recommended : Depends: r-cran-cluster (>= 1.9.6-2) but it is not going
+> | to be installed
+> |                  Depends: r-cran-rpart (>= 3.1.20) but it is not going to
+> | be installed
+> |                  Depends: r-cran-survival (>= 2.13.2-1) but it is not
+> going
+> | to be installed
+> |
+> | Any help in resolving this would be appreciated.
+> |
+> | Additional information: while I need R 3.3.2 for historical purposes,
+> when
+> | I substitute 3.3.2 with 3.3.3 in the Dockerfile, the image builds
+> | successfully.
+> |
+> | Thanks!
+> |
+> | Jen
+> |
+> | Dockerfile:
+> |
+> | FROM ubuntu:14.04
+> |
+> | RUN apt-get update && \
+> |    DEBIAN_FRONTEND="noninteractive" apt-get install -y
+> | --no-install-recommends software-properties-common && \
+> |     apt-add-repository "deb http://cran.r-project.org/bin/linux/ubuntu
+> | trusty/" && \
+> |     apt-get update && \
+> |     DEBIAN_FRONTEND="noninteractive" apt-get install -y --force-yes
+> | --no-install-recommends libcurl3-gnutls libcurl4-gnutls-dev libssl-dev
+> | libssh2-1-dev r-base=3.3.2-1trusty0 r-base-dev=3.3.2-1trusty0
+> | r-recommended=3.3.2-1trusty0 r-base-core=3.3.2-1trusty0
+>
+> You are pointing to the normal repo.  AFAIK it only keeps _current_
+> versions
+> and one cannot, as you do here, request arbitrary older versions.
+>
+> But take a look at Carl's 'versioned' Rocker containers which may offer you
+> want you're after.
+>
+>   GitHub:  https://github.com/rocker-org/rocker-versioned
+>   Docker:  https://hub.docker.com/r/rocker/r-ver/
+>
+> Dirk
+>
+> |
+> | RUN locale-gen en_US.UTF-8
+> | ENV LANG en_US.UTF-8
+> | ENV LANGUAGE en_US:en
+> | ENV LC_ALL en_US.UTF-8
+> |
+> | WORKDIR /plugin/
+> |
+> |       [[alternative HTML version deleted]]
+> |
+> | _______________________________________________
+> | R-SIG-Debian mailing list
+> | R-SIG-Debian at r-project.org
+> | https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+> --
+> http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+>
+
+	[[alternative HTML version deleted]]
+
+
+From clivenicholas at hotmail.com  Fri Apr 21 21:37:27 2017
+From: clivenicholas at hotmail.com (CLIVE NICHOLAS)
+Date: Fri, 21 Apr 2017 19:37:27 +0000
+Subject: [R-sig-Debian] difficulty in Ubuntu 14.04 apt-getting R 3.3.2
+In-Reply-To: <22775.35020.491386.617408@max.eddelbuettel.com>
+References: <CAKstpn6Mesy9yy6Ew47Jj_Tg+DmOwHTMuma-nrHRLovYX16ZOA@mail.gmail.com>,
+ <22775.35020.491386.617408@max.eddelbuettel.com>
+Message-ID: <DB6PR10MB0501423DFA055943EA16AC1CA71A0@DB6PR10MB0501.EURPRD10.PROD.OUTLOOK.COM>
+
+Thank you Dirk for inadvertently fixing my R installation issue in Linux Mint 18.1 that I've been having all week.
+
+
+I followed the R-CRAN page<https://cran.r-project.org/> on installing from the Debian repositry and I've always used this link<https://cran.ma.imperial.ac.uk/>, which has served me well. Until this week after upgrading my Mint machine. Running from the terminal, I was getting all this shit (not exact output, but similar):
+
+
+The repository 'http://cran.ma.imperial.ac.uk/bin/linux/debian stable main Release' does not have a Release file.
+
+
+W: GPG error: https://cran.ma.imperial.ac.uk/ Release: The following signatures couldn't be verified because
+
+the public key is not available: NO_PUBKEY 51716619E084DAB9
+
+W: http://dl.google.com/linux/chrome/deb/dists/stable/Release.gpg: Signature by
+
+key 4CCA1EAF950CEE4AB83976DCA040830F7FAC5991 uses weak digest algorithm (SHA1)
+
+This had never happened to me before in six years of downloading and installing R onto several Linux distros on various of my machines. It was spitting these same errors with other UK mirrors such as this one<https://www.stats.bris.ac.uk/R/>. Implementing all the keys made no damned difference.
+
+Now, I know that Mint and Ubuntu both come from Debian parentage, so - again from the R-CRAN page but for Ubuntu - I spun the wheel using your repositry<http://deb-src%20http://cran.r-project.org/bin/linux/ubuntu%20trusty/>:
+
+clive at climate ~ $ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+[sudo] password for clive:
+Executing: /tmp/tmp.31XeOMQKnK/gpg.1.sh --keyserver
+keyserver.ubuntu.com
+--recv-keys
+E084DAB9
+gpg: requesting key E084DAB9 from hkp server keyserver.ubuntu.com
+gpg: key E084DAB9: public key "Michael Rutter <marutter at gmail.com>" imported
+gpg: Total number processed: 1
+gpg:               imported: 1  (RSA: 1)
+clive at climate ~ $ sudo apt-get update
+Ign:1 http://www.mirrorservice.org/sites/packages.linuxmint.com/packages serena InRelease
+Hit:2 http://ubuntu.mirrors.uk2.net/ubuntu xenial InRelease
+Hit:3 http://www.mirrorservice.org/sites/packages.linuxmint.com/packages serena Release
+Hit:4 http://ubuntu.mirrors.uk2.net/ubuntu xenial-updates InRelease
+Hit:5 http://ubuntu.mirrors.uk2.net/ubuntu xenial-backports InRelease
+Hit:6 http://security.ubuntu.com/ubuntu xenial-security InRelease
+Hit:7 http://archive.canonical.com/ubuntu xenial InRelease
+Ign:8 http://cran.r-project.org/bin/linux/ubuntu trusty/ InRelease
+Hit:9 http://cran.r-project.org/bin/linux/ubuntu trusty/ Release
+Get:10 http://cran.r-project.org/bin/linux/ubuntu trusty/ Release.gpg [473 B]
+Hit:12 https://repo.skype.com/deb stable InRelease
+Ign:13 http://dl.google.com/linux/chrome/deb stable InRelease
+Hit:14 http://dl.google.com/linux/chrome/deb stable Release
+Fetched 473 B in 5s (88 B/s)
+Reading package lists... Done
+clive at climate ~ $ sudo apt-get upgrade
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+Calculating upgrade... Done
+The following packages will be upgraded:
+  distro-info-data firefox firefox-locale-en libfreetype6 libfreetype6:i386
+  libfreetype6-dev r-base-core r-base-dev
+8 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Need to get 70.0 MB of archives.
+After this operation, 815 kB disk space will be freed.
+Do you want to continue? [Y/n] y
+WARNING: The following packages cannot be authenticated!
+  r-base-core r-base-dev
+Install these packages without verification? [y/N] y
+Get:1 http://ubuntu.mirrors.uk2.net/ubuntu xenial-updates/main amd64 distro-info-data all 0.28ubuntu0.3 [4048 B]
+Get:2 http://www.mirrorservice.org/sites/packages.linuxmint.com/packages serena/upstream amd64 firefox amd64 53.0+linuxmint1+serena [46.5 MB]
+Get:3 http://ubuntu.mirrors.uk2.net/ubuntu xenial-updates/main amd64 libfreetype6-dev amd64 2.6.1-0.1ubuntu2.2 [955 kB]
+Get:4 http://cran.r-project.org/bin/linux/ubuntu trusty/ r-base-core 3.3.3-1trusty0 [21.1 MB]
+Get:5 http://ubuntu.mirrors.uk2.net/ubuntu xenial-updates/main i386 libfreetype6 i386 2.6.1-0.1ubuntu2.2 [330 kB]
+Get:6 http://ubuntu.mirrors.uk2.net/ubuntu xenial-updates/main amd64 libfreetype6 amd64 2.6.1-0.1ubuntu2.2 [315 kB]
+Get:7 http://www.mirrorservice.org/sites/packages.linuxmint.com/packages serena/upstream amd64 firefox-locale-en amd64 53.0+linuxmint1+serena [769 kB]
+Get:8 http://cran.r-project.org/bin/linux/ubuntu trusty/ r-base-dev 3.3.3-1trusty0 [4408 B]
+Fetched 70.0 MB in 37s (1879 kB/s)
+perl: warning: Setting locale failed.
+perl: warning: Please check that your locale settings:
+LANGUAGE = "en_GB:en",
+LC_ALL = (unset),
+LANG = "mate.desktop"
+    are supported and installed on your system.
+perl: warning: Falling back to the standard locale ("C").
+locale: Cannot set LC_CTYPE to default locale: No such file or directory
+locale: Cannot set LC_MESSAGES to default locale: No such file or directory
+locale: Cannot set LC_ALL to default locale: No such file or directory
+(Reading database ... 359338 files and directories currently installed.)
+Preparing to unpack .../distro-info-data_0.28ubuntu0.3_all.deb ...
+Unpacking distro-info-data (0.28ubuntu0.3) over (0.28ubuntu0.2) ...
+Setting up distro-info-data (0.28ubuntu0.3) ...
+(Reading database ... 359338 files and directories currently installed.)
+Preparing to unpack .../libfreetype6-dev_2.6.1-0.1ubuntu2.2_amd64.deb ...
+Unpacking libfreetype6-dev:amd64 (2.6.1-0.1ubuntu2.2) over (2.6.1-0.1ubuntu2.1) ...
+Preparing to unpack .../libfreetype6_2.6.1-0.1ubuntu2.2_amd64.deb ...
+De-configuring libfreetype6:i386 (2.6.1-0.1ubuntu2.1) ...
+Unpacking libfreetype6:amd64 (2.6.1-0.1ubuntu2.2) over (2.6.1-0.1ubuntu2.1) ...
+Preparing to unpack .../libfreetype6_2.6.1-0.1ubuntu2.2_i386.deb ...
+Unpacking libfreetype6:i386 (2.6.1-0.1ubuntu2.2) over (2.6.1-0.1ubuntu2.1) ...
+Preparing to unpack .../firefox_53.0+linuxmint1+serena_amd64.deb ...
+Unpacking firefox (53.0+linuxmint1+serena) over (52.0.2+linuxmint1+serena) ...
+Preparing to unpack .../firefox-locale-en_53.0+linuxmint1+serena_amd64.deb ...
+Unpacking firefox-locale-en (53.0+linuxmint1+serena) over (52.0.2+linuxmint1+serena) ...
+Preparing to unpack .../r-base-core_3.3.3-1trusty0_amd64.deb ...
+Unpacking r-base-core (3.3.3-1trusty0) over (3.2.3-4) ...
+Preparing to unpack .../r-base-dev_3.3.3-1trusty0_all.deb ...
+Unpacking r-base-dev (3.3.3-1trusty0) over (3.2.3-4) ...
+Processing triggers for doc-base (0.10.7) ...
+Processing 1 changed doc-base file...
+Registering documents with scrollkeeper...
+Processing triggers for man-db (2.7.5-1) ...
+Processing triggers for libc-bin (2.23-0ubuntu7) ...
+Processing triggers for desktop-file-utils (0.22-1ubuntu5.1) ...
+Processing triggers for mime-support (3.59ubuntu1) ...
+Processing triggers for mintsystem (8.3.0) ...
+Processing triggers for hicolor-icon-theme (0.15-0ubuntu1) ...
+Processing triggers for tex-common (6.04) ...
+locale: Cannot set LC_CTYPE to default locale: No such file or directory
+locale: Cannot set LC_MESSAGES to default locale: No such file or directory
+locale: Cannot set LC_ALL to default locale: No such file or directory
+Running mktexlsr. This may take some time... done.
+Processing triggers for install-info (6.1.0.dfsg.1-5) ...
+Setting up libfreetype6:amd64 (2.6.1-0.1ubuntu2.2) ...
+Setting up libfreetype6:i386 (2.6.1-0.1ubuntu2.2) ...
+Setting up libfreetype6-dev:amd64 (2.6.1-0.1ubuntu2.2) ...
+Setting up firefox (53.0+linuxmint1+serena) ...
+Please restart all running instances of firefox, or you will experience problems.
+Setting up firefox-locale-en (53.0+linuxmint1+serena) ...
+Setting up r-base-core (3.3.3-1trusty0) ...
+Installing new version of config file /etc/R/repositories ...
+Installing new version of config file /etc/R/Makeconf ...
+Installing new version of config file /etc/R/ldpaths ...
+Preserving user changes to /usr/share/bash-completion/completions/R (renamed from /etc/bash_completion.d/R)...
+locale: Cannot set LC_CTYPE to default locale: No such file or directory
+locale: Cannot set LC_MESSAGES to default locale: No such file or directory
+locale: Cannot set LC_ALL to default locale: No such file or directory
+Replacing config file /etc/R/Renviron with new version
+Setting up r-base-dev (3.3.3-1trusty0) ...
+Processing triggers for libc-bin (2.23-0ubuntu7) ...
+
+I've subsequently installed r-base as well.
+
+Well, I'll certainly know next time, you can be damned sure of that. Thanks for your inadvertent help: you're an absolute lifesaver. But, seriously, what an absolute nonsense.
+
+Yours with thanks,
+Clive Nicholas
+<https://cran.r-project.org/>
+________________________________
+From: R-SIG-Debian <r-sig-debian-bounces at r-project.org> on behalf of Dirk Eddelbuettel <edd at debian.org>
+Sent: 19 April 2017 15:57
+To: Jennifer Lyon
+Cc: r-sig-debian at r-project.org
+Subject: Re: [R-sig-Debian] difficulty in Ubuntu 14.04 apt-getting R 3.3.2
+
+
+On 19 April 2017 at 09:38, Jennifer Lyon wrote:
+| Hi:
+|
+| I have a Dockerfile, which builds an image which installed R 3.3.2 in
+| Ubuntu 14.04, but building using that Dockerfile seems to have stopped
+| working and I am unclear why.
+|
+| I believe the relevant error is:
+|
+| Some packages could not be installed. This may mean that you have
+| requested an impossible situation or if you are using the unstable
+| distribution that some required packages have not yet been created
+| or been moved out of Incoming.
+| The following information may help to resolve the situation:
+|
+| The following packages have unmet dependencies:
+|  r-recommended : Depends: r-cran-cluster (>= 1.9.6-2) but it is not going
+| to be installed
+|                  Depends: r-cran-rpart (>= 3.1.20) but it is not going to
+| be installed
+|                  Depends: r-cran-survival (>= 2.13.2-1) but it is not going
+| to be installed
+|
+| Any help in resolving this would be appreciated.
+|
+| Additional information: while I need R 3.3.2 for historical purposes, when
+| I substitute 3.3.2 with 3.3.3 in the Dockerfile, the image builds
+| successfully.
+|
+| Thanks!
+|
+| Jen
+|
+| Dockerfile:
+|
+| FROM ubuntu:14.04
+|
+| RUN apt-get update && \
+|    DEBIAN_FRONTEND="noninteractive" apt-get install -y
+| --no-install-recommends software-properties-common && \
+|     apt-add-repository "deb http://cran.r-project.org/bin/linux/ubuntu
+| trusty/" && \
+|     apt-get update && \
+|     DEBIAN_FRONTEND="noninteractive" apt-get install -y --force-yes
+| --no-install-recommends libcurl3-gnutls libcurl4-gnutls-dev libssl-dev
+| libssh2-1-dev r-base=3.3.2-1trusty0 r-base-dev=3.3.2-1trusty0
+| r-recommended=3.3.2-1trusty0 r-base-core=3.3.2-1trusty0
+
+You are pointing to the normal repo.  AFAIK it only keeps _current_ versions
+and one cannot, as you do here, request arbitrary older versions.
+
+But take a look at Carl's 'versioned' Rocker containers which may offer you
+want you're after.
+
+  GitHub:  https://github.com/rocker-org/rocker-versioned
+[https://avatars2.githubusercontent.com/u/9100160?v=3&s=400]<https://github.com/rocker-org/rocker-versioned>
+
+GitHub - rocker-org/rocker-versioned: Run earlier versions ...<https://github.com/rocker-org/rocker-versioned>
+github.com
+This repository provides alternate stack to r-base, rocker/rstudio, rocker/hadleyverse series, with an emphasis on reproducibility. Compared to those images, this stack:
+
+
+
+  Docker:  https://hub.docker.com/r/rocker/r-ver/
+r-ver - hub.docker.com<https://hub.docker.com/r/rocker/r-ver/>
+hub.docker.com
+This repository provides alternate stack to r-base, rocker/rstudio, rocker/hadleyverse series, with an emphasis on reproducibility. Compared to those images, this stack:
+
+
+
+
+Dirk
+
+|
+| RUN locale-gen en_US.UTF-8
+| ENV LANG en_US.UTF-8
+| ENV LANGUAGE en_US:en
+| ENV LC_ALL en_US.UTF-8
+|
+| WORKDIR /plugin/
+|
+|        [[alternative HTML version deleted]]
+|
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+--
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+Dirk Eddelbuettel<http://dirk.eddelbuettel.com/>
+dirk.eddelbuettel.com
+Welcome. I contribute to several open source efforts, mostly Debian and R. Besides looking after a number of Debian packages, I ...
+
+
+
+
+_______________________________________________
+R-SIG-Debian mailing list
+R-SIG-Debian at r-project.org
+https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+	[[alternative HTML version deleted]]
+
+
+From goran.brostrom at umu.se  Tue Apr 25 14:58:33 2017
+From: goran.brostrom at umu.se (=?UTF-8?Q?G=c3=b6ran_Brostr=c3=b6m?=)
+Date: Tue, 25 Apr 2017 14:58:33 +0200
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+Message-ID: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+
+hello,
+
+I just installed R-3.4.0 from scratch:
+
+$ sudo apt install r-base
+
+but when I try
+
+ > library(survival, lib.loc = "/usr/lib/R/library")
+ > fit <- coxph(Surv(exit, event) ~ x, data = mort)
+
+I get
+
+Error in fitter(X, Y, strats, offset, init, control, weights = weights,  :
+   object 'Ccoxmart' not found
+
+I was told on R-help that I need to
+
+ > update.packages(checkBuilt = TRUE)
+
+(and it works), but
+
+1. I get two versions of recommended packages, one in
+/usr/lib/R/library, and one in
+~/R/x86_64-pc-linux-gnu-library/3.4
+I could fix a write permission in /usr/lib/R or run R as root.
+
+2. Installing from scratch should have this fixed automatically, right?
+
+Thanks, G?ran
+
+
+From edd at debian.org  Tue Apr 25 15:50:34 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 25 Apr 2017 08:50:34 -0500
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+Message-ID: <22783.21546.93260.527777@max.eddelbuettel.com>
+
+
+On 25 April 2017 at 14:58, G?ran Brostr?m wrote:
+| hello,
+| 
+| I just installed R-3.4.0 from scratch:
+| 
+| $ sudo apt install r-base
+| 
+| but when I try
+| 
+|  > library(survival, lib.loc = "/usr/lib/R/library")
+|  > fit <- coxph(Surv(exit, event) ~ x, data = mort)
+| 
+| I get
+| 
+| Error in fitter(X, Y, strats, offset, init, control, weights = weights,  :
+|    object 'Ccoxmart' not found
+| 
+| I was told on R-help that I need to
+| 
+|  > update.packages(checkBuilt = TRUE)
+| 
+| (and it works), but
+| 
+| 1. I get two versions of recommended packages, one in
+| /usr/lib/R/library, and one in
+
+That is from apt / dpkg -- ie pre-packaged.
+
+| ~/R/x86_64-pc-linux-gnu-library/3.4
+| I could fix a write permission in /usr/lib/R or run R as root.
+
+That is from you.
+
+The two have ALWAYS been independent.
+ 
+| 2. Installing from scratch should have this fixed automatically, right?
+
+False.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From goran.brostrom at umu.se  Tue Apr 25 16:11:07 2017
+From: goran.brostrom at umu.se (=?UTF-8?Q?G=c3=b6ran_Brostr=c3=b6m?=)
+Date: Tue, 25 Apr 2017 16:11:07 +0200
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <22783.21546.93260.527777@max.eddelbuettel.com>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <22783.21546.93260.527777@max.eddelbuettel.com>
+Message-ID: <f837b1e2-2595-90f5-e015-76cda329d844@umu.se>
+
+On 2017-04-25 15:50, Dirk Eddelbuettel wrote:
+>
+> On 25 April 2017 at 14:58, G?ran Brostr?m wrote:
+> | hello,
+> |
+> | I just installed R-3.4.0 from scratch:
+> |
+> | $ sudo apt install r-base
+> |
+> | but when I try
+> |
+> |  > library(survival, lib.loc = "/usr/lib/R/library")
+> |  > fit <- coxph(Surv(exit, event) ~ x, data = mort)
+> |
+> | I get
+> |
+> | Error in fitter(X, Y, strats, offset, init, control, weights = weights,  :
+> |    object 'Ccoxmart' not found
+> |
+> | I was told on R-help that I need to
+> |
+> |  > update.packages(checkBuilt = TRUE)
+> |
+> | (and it works), but
+> |
+> | 1. I get two versions of recommended packages, one in
+> | /usr/lib/R/library, and one in
+>
+> That is from apt / dpkg -- ie pre-packaged.
+>
+> | ~/R/x86_64-pc-linux-gnu-library/3.4
+> | I could fix a write permission in /usr/lib/R or run R as root.
+>
+> That is from you.
+>
+> The two have ALWAYS been independent.
+
+I understand that, but what is then the best practice to avoid having 
+duplicates of the recommended packages? I tried running R as root and
+
+ > update.packages(checkBuilt=TRUE)
+--- Please select a CRAN mirror for use in this session ---
+Warning: package 'class' in library '/usr/lib/R/library' will not be updated
+Warning: package 'cluster' in library '/usr/lib/R/library' will not be 
+updated
+Warning: package 'codetools' in library '/usr/lib/R/library' will not be 
+updated
+Warning: package 'foreign' in library '/usr/lib/R/library' will not be 
+updated
+Warning: package 'KernSmooth' in library '/usr/lib/R/library' will not 
+be updated
+Warning: package 'lattice' in library '/usr/lib/R/library' will not be 
+updated
+Warning: package 'Matrix' in library '/usr/lib/R/library' will not be 
+updated
+Warning: package 'nlme' in library '/usr/lib/R/library' will not be updated
+Warning: package 'nnet' in library '/usr/lib/R/library' will not be updated
+Warning: package 'spatial' in library '/usr/lib/R/library' will not be 
+updated
+Warning: package 'survival' in library '/usr/lib/R/library' will not be 
+updated
+ >
+
+Not possible?
+
+I also tried
+
+$ sudo apt install --reinstall r-cran-survival
+
+to no avail.
+>
+> | 2. Installing from scratch should have this fixed automatically, right?
+>
+> False.
+
+Thanks. Maybe better to install R from source then.
+
+G?ran
+
+
+From johannes.ranke at jrwb.de  Tue Apr 25 16:11:18 2017
+From: johannes.ranke at jrwb.de (Johannes Ranke)
+Date: Tue, 25 Apr 2017 16:11:18 +0200
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <22783.21546.93260.527777@max.eddelbuettel.com>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <22783.21546.93260.527777@max.eddelbuettel.com>
+Message-ID: <1574735.3lEiBJkT2n@tux>
+
+Am Dienstag, 25. April 2017, 08:50:34 schrieb Dirk Eddelbuettel:
+> On 25 April 2017 at 14:58, G?ran Brostr?m wrote:
+> | hello,
+> | 
+> | I just installed R-3.4.0 from scratch:
+> | 
+> | $ sudo apt install r-base
+> | 
+> | but when I try
+> | 
+> |  > library(survival, lib.loc = "/usr/lib/R/library")
+> |  > fit <- coxph(Surv(exit, event) ~ x, data = mort)
+> | 
+> | I get
+> | 
+> | Error in fitter(X, Y, strats, offset, init, control, weights = weights,  :
+> |    object 'Ccoxmart' not found
+
+This looks similar to what I got this morning when I tested my (unreleased) 
+backport of R 3.4.0 to Debian jessie. My test was
+
+library(MASS)
+example(rlm)
+
+and there was an object that was not found. I am on a train on the way to a 
+meeting right now, so I can not look into it at the moment. Maybe a side effect 
+of the new registration requirements for compiled objects?
+
+
+Cheers,
+
+Johannes
+
+
+From goran.brostrom at umu.se  Tue Apr 25 17:51:53 2017
+From: goran.brostrom at umu.se (=?UTF-8?Q?G=c3=b6ran_Brostr=c3=b6m?=)
+Date: Tue, 25 Apr 2017 17:51:53 +0200
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <1574735.3lEiBJkT2n@tux>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <22783.21546.93260.527777@max.eddelbuettel.com> <1574735.3lEiBJkT2n@tux>
+Message-ID: <922c9df2-5c31-4c94-7d25-249925782250@umu.se>
+
+On 2017-04-25 16:11, Johannes Ranke wrote:
+> Am Dienstag, 25. April 2017, 08:50:34 schrieb Dirk Eddelbuettel:
+>> On 25 April 2017 at 14:58, G?ran Brostr?m wrote:
+>> | hello,
+>> |
+>> | I just installed R-3.4.0 from scratch:
+>> |
+>> | $ sudo apt install r-base
+>> |
+>> | but when I try
+>> |
+>> |  > library(survival, lib.loc = "/usr/lib/R/library")
+>> |  > fit <- coxph(Surv(exit, event) ~ x, data = mort)
+>> |
+>> | I get
+>> |
+>> | Error in fitter(X, Y, strats, offset, init, control, weights = weights,  :
+>> |    object 'Ccoxmart' not found
+>
+> This looks similar to what I got this morning when I tested my (unreleased)
+> backport of R 3.4.0 to Debian jessie. My test was
+>
+> library(MASS)
+> example(rlm)
+>
+> and there was an object that was not found. I am on a train on the way to a
+> meeting right now, so I can not look into it at the moment. Maybe a side effect
+> of the new registration requirements for compiled objects?
+
+Right, you need to run
+
+ > update.packages(checkBuilt=TRUE)
+
+to fix it.
+
+Best, G?ran
+
+>
+>
+> Cheers,
+>
+> Johannes
+>
+
+
+From edd at debian.org  Tue Apr 25 18:20:01 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 25 Apr 2017 11:20:01 -0500
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <f837b1e2-2595-90f5-e015-76cda329d844@umu.se>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <22783.21546.93260.527777@max.eddelbuettel.com>
+ <f837b1e2-2595-90f5-e015-76cda329d844@umu.se>
+Message-ID: <22783.30513.13995.35937@max.eddelbuettel.com>
+
+
+On 25 April 2017 at 16:11, G?ran Brostr?m wrote:
+| I understand that, but what is then the best practice to avoid having 
+| duplicates of the recommended packages? I tried running R as root and
+| 
+|  > update.packages(checkBuilt=TRUE)
+| --- Please select a CRAN mirror for use in this session ---
+| Warning: package 'class' in library '/usr/lib/R/library' will not be updated
+| Warning: package 'cluster' in library '/usr/lib/R/library' will not be 
+| updated
+| Warning: package 'codetools' in library '/usr/lib/R/library' will not be 
+| updated
+| Warning: package 'foreign' in library '/usr/lib/R/library' will not be 
+| updated
+| Warning: package 'KernSmooth' in library '/usr/lib/R/library' will not 
+| be updated
+| Warning: package 'lattice' in library '/usr/lib/R/library' will not be 
+| updated
+| Warning: package 'Matrix' in library '/usr/lib/R/library' will not be 
+| updated
+| Warning: package 'nlme' in library '/usr/lib/R/library' will not be updated
+| Warning: package 'nnet' in library '/usr/lib/R/library' will not be updated
+| Warning: package 'spatial' in library '/usr/lib/R/library' will not be 
+| updated
+| Warning: package 'survival' in library '/usr/lib/R/library' will not be 
+| updated
+|  >
+| 
+| Not possible?
+
+update.packages() has several arguments.  As my previous email said, the
+library paths seen by R can have __different sources__ on Debian system so
+you have to __treat them differently__.
+
+So
+
+    update.packages(lib.loc="/usr/local/lib/R/site-library", checkBuilt=TRUE)
+
+may be what you wanted here.
+ 
+| I also tried
+| 
+| $ sudo apt install --reinstall r-cran-survival
+| 
+| to no avail.
+
+It just reinstalls __the same binary__ over and over if you repeat.
+
+| > | 2. Installing from scratch should have this fixed automatically, right?
+| >
+| > False.
+| 
+| Thanks. Maybe better to install R from source then.
+
+Absolutely not!
+
+I think you are confused about installing
+
+  - R (ie the interpreter, or engine)
+  - R packages from the distribution
+  - R packages directly from CRAN
+
+I have worked with that very mix for what must now be over fifteen years
+(from when we starting to package r-cran-*) and it just works. I tend to do
+mostly 1) and 3) to update R packages more quickly then the distribution
+might but that is mostly a personal preference.
+
+This list is good for sortiing these questions out so please continue to post
+til you feel you got it working.
+
+Dirk
+| 
+| G?ran
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd at debian.org  Tue Apr 25 18:21:31 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Tue, 25 Apr 2017 11:21:31 -0500
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <1574735.3lEiBJkT2n@tux>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <22783.21546.93260.527777@max.eddelbuettel.com>
+ <1574735.3lEiBJkT2n@tux>
+Message-ID: <22783.30603.788408.603463@max.eddelbuettel.com>
+
+
+On 25 April 2017 at 16:11, Johannes Ranke wrote:
+| This looks similar to what I got this morning when I tested my (unreleased) 
+| backport of R 3.4.0 to Debian jessie. My test was
+| 
+| library(MASS)
+| example(rlm)
+| 
+| and there was an object that was not found. I am on a train on the way to a 
+| meeting right now, so I can not look into it at the moment. Maybe a side effect 
+| of the new registration requirements for compiled objects?
+
+I doubt that as it works for me under R 3.4.0 on a current-ish Ubuntu 16.10 box.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From johannes.ranke at jrwb.de  Thu Apr 27 11:23:03 2017
+From: johannes.ranke at jrwb.de (Johannes Ranke)
+Date: Thu, 27 Apr 2017 11:23:03 +0200
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <922c9df2-5c31-4c94-7d25-249925782250@umu.se>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <1574735.3lEiBJkT2n@tux> <922c9df2-5c31-4c94-7d25-249925782250@umu.se>
+Message-ID: <1732895.ZbcRkHdLBm@tux>
+
+> >> |  > library(survival, lib.loc = "/usr/lib/R/library")
+> >> |  > fit <- coxph(Surv(exit, event) ~ x, data = mort)
+> >> | 
+> >> | I get
+> >> | 
+> >> | Error in fitter(X, Y, strats, offset, init, control, weights = weights,  
+:
+> >> |    object 'Ccoxmart' not found
+> > 
+> > This looks similar to what I got this morning when I tested my
+> > (unreleased)
+> > backport of R 3.4.0 to Debian jessie. My test was
+> > 
+> > library(MASS)
+> > example(rlm)
+> > 
+> > and there was an object that was not found. I am on a train on the way to
+> > a
+> > meeting right now, so I can not look into it at the moment. Maybe a side
+> > effect of the new registration requirements for compiled objects?
+> 
+> Right, you need to run
+> 
+>  > update.packages(checkBuilt=TRUE)
+> 
+> to fix it.
+> 
+> Best, G?ran
+> 
+> > Cheers,
+> > 
+> > Johannes
+
+-- 
+PD Dr. Johannes Ranke
+Wissenschaftlicher Berater
+Kronacher Str. 12
+79639 Grenzach-Wyhlen
+http://jrwb.de/contact
+
+
+From johannes.ranke at jrwb.de  Thu Apr 27 11:55:14 2017
+From: johannes.ranke at jrwb.de (Johannes Ranke)
+Date: Thu, 27 Apr 2017 11:55:14 +0200
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <22783.30603.788408.603463@max.eddelbuettel.com>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <1574735.3lEiBJkT2n@tux> <22783.30603.788408.603463@max.eddelbuettel.com>
+Message-ID: <2717750.R3p5Bfln3V@tux>
+
+Am Dienstag, 25. April 2017, 11:21:31 schrieb Dirk Eddelbuettel:
+> On 25 April 2017 at 16:11, Johannes Ranke wrote:
+> | This looks similar to what I got this morning when I tested my
+> | (unreleased)
+> | backport of R 3.4.0 to Debian jessie. My test was
+> | 
+> | library(MASS)
+> | example(rlm)
+> | 
+> | and there was an object that was not found. I am on a train on the way to
+> | a
+> | meeting right now, so I can not look into it at the moment. Maybe a side
+> | effect of the new registration requirements for compiled objects?
+> 
+> I doubt that as it works for me under R 3.4.0 on a current-ish Ubuntu 16.10
+> box.
+
+This is because the version of MASS in sid (r-cran-mass) was released on 21 
+April
+
+https://packages.qa.debian.org/r/r-cran-mass.html
+
+which is the same day when r-base was released for R 3.4.0, so MASS was 
+obviously built against the current version.
+
+I just tried r-cran-spatial on a **fresh Debian sid chroot**, and get
+
+> library(spatial)
+> example(surf.gls)
+
+srf.gl> library(MASS)  # for eqscplot
+
+srf.gl> data(topo, package="MASS")
+
+srf.gl> topo.kr <- surf.gls(2, expcov, topo, d=0.7)
+Error in surf.gls(2, expcov, topo, d = 0.7) : object 'VR_frset' not found
+
+so it seems to me this must affect all packages in Debian sid that were built 
+before the release of R 3.4.0!
+
+And in fact, nlme, is affected as well:
+
+> library(nlme)
+> example(nlme)
+
+nlme> fm1 <- nlme(height ~ SSasymp(age, Asym, R0, lrc),
+nlme+             data = Loblolly,
+nlme+             fixed = Asym + R0 + lrc ~ 1,
+nlme+             random = Asym ~ 1,
+nlme+             start = c(Asym = 103, R0 = -8.5, lrc = -3.3))
+Error in pdFactor.pdLogChol(X[[i]], ...) : object 'logChol_pd' not found
+
+So before I start spamming the Debian BTS, what would be the right way to deal 
+with this? Do we need r-api-x here?
+
+Cheers,
+
+Johannes
+
+P.S.: Sorry of the other post, I pressed send before typing and even before 
+thinking ...
+
+
+From johannes.ranke at jrwb.de  Thu Apr 27 12:01:37 2017
+From: johannes.ranke at jrwb.de (Johannes Ranke)
+Date: Thu, 27 Apr 2017 12:01:37 +0200
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <2717750.R3p5Bfln3V@tux>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <22783.30603.788408.603463@max.eddelbuettel.com> <2717750.R3p5Bfln3V@tux>
+Message-ID: <6619986.rJjOoJrugT@tux>
+
+
+> so it seems to me this must affect all packages in Debian sid that were
+> built before the release of R 3.4.0!
+
+or rather before 14 April 2017, which is when R from revision r72510 was 
+uploaded to sid as pre-release candidate.
+
+Johannes
+
+
+From edd at debian.org  Thu Apr 27 13:32:13 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 27 Apr 2017 06:32:13 -0500
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <6619986.rJjOoJrugT@tux>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <22783.30603.788408.603463@max.eddelbuettel.com>
+ <2717750.R3p5Bfln3V@tux> <6619986.rJjOoJrugT@tux>
+Message-ID: <22785.54973.338124.323262@max.eddelbuettel.com>
+
+
+On 27 April 2017 at 12:01, Johannes Ranke wrote:
+| 
+| > so it seems to me this must affect all packages in Debian sid that were
+| > built before the release of R 3.4.0!
+| 
+| or rather before 14 April 2017, which is when R from revision r72510 was 
+| uploaded to sid as pre-release candidate.
+
+Another example with KernSmooth:
+
+   > library(KernSmooth)
+   KernSmooth 2.23 loaded
+   Copyright M. P. Wand 1997-2009
+   >
+   > example(bkde)
+   
+   bkde> data(geyser, package="MASS")
+   
+   bkde> x <- geyser$duration
+   
+   bkde> est <- bkde(x, bandwidth=0.25)
+   Error in linbin(x, gpoints, truncate) : object 'F_linbin' not found
+   > 
+
+Maybe this part of NEWS is what matters:
+
+    * Packages which register native routines for .C or .Fortran need
+      to be re-installed for this version (unless installed with
+      R-devel SVN revision r72375 or later).
+
+KernSmooth surely has .Fortran. Your spatial example had VR_frset failing,
+and that too is called by the old .C.
+
+A counter-example is eg my RcppEigen package -- I can load it and run
+example(fastLm) just fine as that uses .Call rather than .C or .Fortran.
+
+I think you are
+
+ -- correct in that we need rebuilds
+ -- but only for packages using .C and .Fortran calls to compiled
+
+This may be a use case for r-api-4. Or not as it doesn't break _all_ packages
+so I am not sure we should force _all_ packages to be rebuilt.
+
+Can we not find the ones that use .C and .Fortran ?
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From johannes.ranke at jrwb.de  Thu Apr 27 13:58:16 2017
+From: johannes.ranke at jrwb.de (Johannes Ranke)
+Date: Thu, 27 Apr 2017 13:58:16 +0200
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <22785.54973.338124.323262@max.eddelbuettel.com>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <6619986.rJjOoJrugT@tux> <22785.54973.338124.323262@max.eddelbuettel.com>
+Message-ID: <5326735.i50gd49oCX@tux>
+
+Am Donnerstag, 27. April 2017, 06:32:13 schrieb Dirk Eddelbuettel:
+> On 27 April 2017 at 12:01, Johannes Ranke wrote:
+> | > so it seems to me this must affect all packages in Debian sid that were
+> | > built before the release of R 3.4.0!
+> | 
+> | or rather before 14 April 2017, which is when R from revision r72510 was
+> | uploaded to sid as pre-release candidate.
+> 
+> Another example with KernSmooth:
+>    > library(KernSmooth)
+> 
+>    KernSmooth 2.23 loaded
+>    Copyright M. P. Wand 1997-2009
+> 
+>    > example(bkde)
+> 
+>    bkde> data(geyser, package="MASS")
+> 
+>    bkde> x <- geyser$duration
+> 
+>    bkde> est <- bkde(x, bandwidth=0.25)
+>    Error in linbin(x, gpoints, truncate) : object 'F_linbin' not found
+> 
+> 
+> Maybe this part of NEWS is what matters:
+> 
+>     * Packages which register native routines for .C or .Fortran need
+>       to be re-installed for this version (unless installed with
+>       R-devel SVN revision r72375 or later).
+
+Yes, that is what Martin M?chler referred to in the answer to Bj?ran's call 
+for help on r-help.
+
+> KernSmooth surely has .Fortran. Your spatial example had VR_frset failing,
+> and that too is called by the old .C.
+> 
+> A counter-example is eg my RcppEigen package -- I can load it and run
+> example(fastLm) just fine as that uses .Call rather than .C or .Fortran.
+> 
+> I think you are
+> 
+>  -- correct in that we need rebuilds
+>  -- but only for packages using .C and .Fortran calls to compiled
+
+Yes.
+
+> This may be a use case for r-api-4. Or not as it doesn't break _all_
+> packages so I am not sure we should force _all_ packages to be rebuilt.
+> 
+> Can we not find the ones that use .C and .Fortran ?
+
+I do not understand how the use of r-api-x works, but my feeling is that it 
+will not allow to differentiate between packages using .C and .Fortan and the 
+rest.
+
+I am surprised that I did not see a related bug report in the Debian BTS yet, 
+did I overlook something? I only looked for r-base.
+
+
+From edd at debian.org  Thu Apr 27 14:24:18 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 27 Apr 2017 07:24:18 -0500
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <5326735.i50gd49oCX@tux>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <6619986.rJjOoJrugT@tux>
+ <22785.54973.338124.323262@max.eddelbuettel.com>
+ <5326735.i50gd49oCX@tux>
+Message-ID: <22785.58098.840453.507306@max.eddelbuettel.com>
+
+
+On 27 April 2017 at 13:58, Johannes Ranke wrote:
+| Am Donnerstag, 27. April 2017, 06:32:13 schrieb Dirk Eddelbuettel:
+| > On 27 April 2017 at 12:01, Johannes Ranke wrote:
+| > | > so it seems to me this must affect all packages in Debian sid that were
+| > | > built before the release of R 3.4.0!
+| > | 
+| > | or rather before 14 April 2017, which is when R from revision r72510 was
+| > | uploaded to sid as pre-release candidate.
+| > 
+| > Another example with KernSmooth:
+| >    > library(KernSmooth)
+| > 
+| >    KernSmooth 2.23 loaded
+| >    Copyright M. P. Wand 1997-2009
+| > 
+| >    > example(bkde)
+| > 
+| >    bkde> data(geyser, package="MASS")
+| > 
+| >    bkde> x <- geyser$duration
+| > 
+| >    bkde> est <- bkde(x, bandwidth=0.25)
+| >    Error in linbin(x, gpoints, truncate) : object 'F_linbin' not found
+| > 
+| > 
+| > Maybe this part of NEWS is what matters:
+| > 
+| >     * Packages which register native routines for .C or .Fortran need
+| >       to be re-installed for this version (unless installed with
+| >       R-devel SVN revision r72375 or later).
+| 
+| Yes, that is what Martin M?chler referred to in the answer to Bj?ran's call 
+| for help on r-help.
+| 
+| > KernSmooth surely has .Fortran. Your spatial example had VR_frset failing,
+| > and that too is called by the old .C.
+| > 
+| > A counter-example is eg my RcppEigen package -- I can load it and run
+| > example(fastLm) just fine as that uses .Call rather than .C or .Fortran.
+| > 
+| > I think you are
+| > 
+| >  -- correct in that we need rebuilds
+| >  -- but only for packages using .C and .Fortran calls to compiled
+| 
+| Yes.
+
+Here is a quick script snippet. Looks like about 1/3 of my r-cran-* packages
+use .C() or .Fortran() and need a rebuild for R 3.4.0 (which some may already
+have gotten as some upstream packages got updates):
+
+-----------------------------------------------------------------------------
+#!/bin/bash
+
+## source directories are all named foo-1.2.3
+dirs=$(find . -maxdepth 1 -type d -name \*-\* | sort)
+
+for d in ${dirs}; do
+    if test -d ${d}/src; then
+        if grep -q -r \\.Fortran\( ${d}/R; then
+            echo ".Fortran in ${d}"
+        fi
+        if grep -q -r \\.C\( ${d}/R; then
+            echo ".C       in ${d}"
+        fi
+    fi
+done
+-----------------------------------------------------------------------------
+         
+
+| 
+| > This may be a use case for r-api-4. Or not as it doesn't break _all_
+| > packages so I am not sure we should force _all_ packages to be rebuilt.
+| > 
+| > Can we not find the ones that use .C and .Fortran ?
+| 
+| I do not understand how the use of r-api-x works, but my feeling is that it 
+| will not allow to differentiate between packages using .C and .Fortan and the 
+| rest.
+
+Right. And therefore cast too wide a net. 
+
+| I am surprised that I did not see a related bug report in the Debian BTS yet, 
+| did I overlook something? I only looked for r-base.
+
+They may not know yet. I should write to debian-devel.
+
+Any debian-med or debian-science readers here?
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From johannes.ranke at jrwb.de  Thu Apr 27 16:19:33 2017
+From: johannes.ranke at jrwb.de (Johannes Ranke)
+Date: Thu, 27 Apr 2017 16:19:33 +0200
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <22785.58098.840453.507306@max.eddelbuettel.com>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <5326735.i50gd49oCX@tux> <22785.58098.840453.507306@max.eddelbuettel.com>
+Message-ID: <11325420.64fd5JDVzh@tux>
+
+
+> | I am surprised that I did not see a related bug report in the Debian BTS
+> | yet, did I overlook something? I only looked for r-base.
+> 
+> They may not know yet. I should write to debian-devel.
+
+I have just submitted a bug report so the further discussion gets archived in 
+the right place:
+
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=861333
+
+
+From charles-r-nospam at plessy.org  Thu Apr 27 16:41:44 2017
+From: charles-r-nospam at plessy.org (Charles Plessy)
+Date: Thu, 27 Apr 2017 23:41:44 +0900
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <22785.58098.840453.507306@max.eddelbuettel.com>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <6619986.rJjOoJrugT@tux>
+ <22785.54973.338124.323262@max.eddelbuettel.com>
+ <5326735.i50gd49oCX@tux>
+ <22785.58098.840453.507306@max.eddelbuettel.com>
+Message-ID: <20170427144144.GA21543@falafel.plessy.net>
+
+Le Thu, Apr 27, 2017 at 07:24:18AM -0500, Dirk Eddelbuettel a ?crit :
+> 
+> On 27 April 2017 at 13:58, Johannes Ranke wrote:
+> | Am Donnerstag, 27. April 2017, 06:32:13 schrieb Dirk Eddelbuettel:
+> | > On 27 April 2017 at 12:01, Johannes Ranke wrote:
+> | 
+> | > This may be a use case for r-api-4. Or not as it doesn't break _all_
+> | > packages so I am not sure we should force _all_ packages to be rebuilt.
+> | > 
+> | > Can we not find the ones that use .C and .Fortran ?
+> | 
+> | I do not understand how the use of r-api-x works, but my feeling is that it 
+> | will not allow to differentiate between packages using .C and .Fortan and the 
+> | rest.
+> 
+> Right. And therefore cast too wide a net. 
+> 
+> | I am surprised that I did not see a related bug report in the Debian BTS yet, 
+> | did I overlook something? I only looked for r-base.
+> 
+> They may not know yet. I should write to debian-devel.
+> 
+> Any debian-med or debian-science readers here?
+
+Yes I am here :)
+
+I spotted the breakage caused by R 3.4.0 when seeing regression tests
+failing on ci.debian.net.  But I did not report them yet as I am still
+busy with the breakage caused by R 3.3.3 (mostly on Bioconductor packages).
+In the case of R 3.3.3 it was a bit tedious to identify which packages were
+to rebuild because some test failures were only indirect consequences, and
+a pacakge responsible for the failures had its own tests passing because
+their coverage was shallow... Hence for 3.4.0 I would say that in doubt,
+let's rebuild everything.
+
+If r-base starts to provide r-api-4 instead of r-api-3 then it will not be
+co-installable with the r-cran/bioc/other-* packages until they have been
+rebuilt.
+
+ - The benefit is that it will prevent people doing partial upgrades
+   from Stable, that would break their packages.
+
+ - The drawback is the extra work of rebuilding the packages that do not
+   use .C and .Fortran.
+
+Within the Debian infrastructure, the architecture-dependant packages can be
+easily rebuilt by binNMUs.  The architecture-independant packages are easier to
+rebuild than before, because it is now possible to do source-only uploads.
+Also, it may be worth asking on debian-devel if binNMUs of arch-independant
+packages will become possible (since we now have autobuilders that can handle
+them).  For the Debian packages provided on CRAN, I am not familiar on build is
+trigger, so I can not comment on the ease of rebuilding.
+
+Have a nice day,
+
+-- 
+Charles Plessy
+Debian Med packaging team,
+http://www.debian.org/devel/debian-med
+Tsurumi, Kanagawa, Japan
+
+
+From edd at debian.org  Thu Apr 27 20:16:11 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 27 Apr 2017 13:16:11 -0500
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <20170427144144.GA21543@falafel.plessy.net>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <6619986.rJjOoJrugT@tux>
+ <22785.54973.338124.323262@max.eddelbuettel.com>
+ <5326735.i50gd49oCX@tux>
+ <22785.58098.840453.507306@max.eddelbuettel.com>
+ <20170427144144.GA21543@falafel.plessy.net>
+Message-ID: <22786.13675.570380.767404@max.eddelbuettel.com>
+
+
+On 27 April 2017 at 23:41, Charles Plessy wrote:
+| Le Thu, Apr 27, 2017 at 07:24:18AM -0500, Dirk Eddelbuettel a ?crit :
+| > 
+| > On 27 April 2017 at 13:58, Johannes Ranke wrote:
+| > | Am Donnerstag, 27. April 2017, 06:32:13 schrieb Dirk Eddelbuettel:
+| > | > On 27 April 2017 at 12:01, Johannes Ranke wrote:
+| > | 
+| > | > This may be a use case for r-api-4. Or not as it doesn't break _all_
+| > | > packages so I am not sure we should force _all_ packages to be rebuilt.
+| > | > 
+| > | > Can we not find the ones that use .C and .Fortran ?
+| > | 
+| > | I do not understand how the use of r-api-x works, but my feeling is that it 
+| > | will not allow to differentiate between packages using .C and .Fortan and the 
+| > | rest.
+| > 
+| > Right. And therefore cast too wide a net. 
+| > 
+| > | I am surprised that I did not see a related bug report in the Debian BTS yet, 
+| > | did I overlook something? I only looked for r-base.
+| > 
+| > They may not know yet. I should write to debian-devel.
+| > 
+| > Any debian-med or debian-science readers here?
+| 
+| Yes I am here :)
+
+:)
+
+| I spotted the breakage caused by R 3.4.0 when seeing regression tests
+| failing on ci.debian.net.  But I did not report them yet as I am still
+| busy with the breakage caused by R 3.3.3 (mostly on Bioconductor packages).
+| In the case of R 3.3.3 it was a bit tedious to identify which packages were
+| to rebuild because some test failures were only indirect consequences, and
+| a pacakge responsible for the failures had its own tests passing because
+| their coverage was shallow... Hence for 3.4.0 I would say that in doubt,
+| let's rebuild everything.
+
+Could you fill me in about what broke with BioC and what caused it?
+
+I am not (yet?) on board with recommending a point-blank rebuild of all.
+ 
+| If r-base starts to provide r-api-4 instead of r-api-3 then it will not be
+| co-installable with the r-cran/bioc/other-* packages until they have been
+| rebuilt.
+| 
+|  - The benefit is that it will prevent people doing partial upgrades
+|    from Stable, that would break their packages.
+
+I am not sure I understand why people would want to do partial upgrades.
+Debian stable is support. Debian testing is supported.  Hybrid mixes of the
+two are risque.
+
+|  - The drawback is the extra work of rebuilding the packages that do not
+|    use .C and .Fortran.
+| 
+| Within the Debian infrastructure, the architecture-dependant packages can be
+| easily rebuilt by binNMUs.  The architecture-independant packages are easier to
+| rebuild than before, because it is now possible to do source-only uploads.
+| Also, it may be worth asking on debian-devel if binNMUs of arch-independant
+| packages will become possible (since we now have autobuilders that can handle
+| them).
+
+It sure would help.
+
+| For the Debian packages provided on CRAN, I am not familiar on build is
+| trigger, so I can not comment on the ease of rebuilding.
+
+I think that is a different topic for which we may want a different
+discussion.
+
+Dirk
+
+| Have a nice day,
+| 
+| -- 
+| Charles Plessy
+| Debian Med packaging team,
+| http://www.debian.org/devel/debian-med
+| Tsurumi, Kanagawa, Japan
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From clivelists at googlemail.com  Thu Apr 27 20:57:23 2017
+From: clivelists at googlemail.com (Clive Nicholas)
+Date: Thu, 27 Apr 2017 19:57:23 +0100
+Subject: [R-sig-Debian] R installation problems on Linux Mint 18.1 via
+	jessie-cran3
+Message-ID: <CAHs5aTguJqwmdPhVG=XP2tDpO9Ye4u115voS2T03yUKzUgsecA@mail.gmail.com>
+
+Okay folks, I give up and - frankly - I'm fed up! I thought I'd sorted all
+this last week, but clearly not. I've tried using mirrors from here in the
+UK, Ireland, France and the USA and whichever mirror I use, all I get is
+this:
+
+clive at climate ~ $ sudo apt-get update
+Hit:1 http://ubuntu.mirrors.uk2.net/ubuntu xenial InRelease
+Ign:2 http://dl.google.com/linux/chrome/deb stable InRelease
+
+Ign:3 http://www.mirrorservice.org/sites/packages.linuxmint.com/packages
+serena InRelease
+Ign:4 http://cran.ma.imperial.ac.uk/bin/linux/debian jessie-cran3/
+InRelease
+Hit:5 http://ubuntu.mirrors.uk2.net/ubuntu xenial-updates InRelease
+
+Hit:6 http://archive.canonical.com/ubuntu xenial InRelease
+
+Hit:7 http://dl.google.com/linux/chrome/deb stable Release
+
+Hit:8 http://www.mirrorservice.org/sites/packages.linuxmint.com/packages
+serena Release
+Hit:9 http://ubuntu.mirrors.uk2.net/ubuntu xenial-backports InRelease
+
+Hit:10 http://cran.ma.imperial.ac.uk/bin/linux/debian jessie-cran3/ Release
+
+Get:11 http://security.ubuntu.com/ubuntu xenial-security InRelease [102 kB]
+Hit:14 https://repo.skype.com/deb stable InRelease
+Fetched 102 kB in 2s (37.7 kB/s)
+Reading package lists... Done
+W: http://cran.ma.imperial.ac.uk/bin/linux/debian/jessie-cran3/Release.gpg:
+Signature by key 6212B7B7931C4BB16280BA1306F90DE5381BA480 uses weak digest
+algorithm (SHA1)
+
+To fix this SHA1 problem, I followed this page
+<https://keyring.debian.org/creating-key.html> *to the letter* and
+implemented this in a file on my Linux machine called ~/.gnupg/gpg.conf
+(apologies for the length, but included for completeness; the key detail is
+contained right at the bottom):
+
+*# Options for GnuPG*
+*# Copyright 1998, 1999, 2000, 2001, 2002, 2003,*
+*#           2010 Free Software Foundation, Inc.*
+*# *
+*# This file is free software; as a special exception the author gives*
+*# unlimited permission to copy and/or distribute it, with or without*
+*# modifications, as long as this notice is preserved.*
+*# *
+*# This file is distributed in the hope that it will be useful, but*
+*# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the*
+*# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.*
+*#*
+*# Unless you specify which option file to use (with the command line*
+*# option "--options filename"), GnuPG uses the file ~/.gnupg/gpg.conf*
+*# by default.*
+*#*
+*# An options file can contain any long options which are available in*
+*# GnuPG. If the first non white space character of a line is a '#',*
+*# this line is ignored.  Empty lines are also ignored.*
+*#*
+*# See the man page for a list of options.*
+
+*# Uncomment the following option to get rid of the copyright notice*
+
+*#no-greeting*
+
+*# If you have more than 1 secret key in your keyring, you may want to*
+*# uncomment the following option and set your preferred keyid.*
+
+*#default-key 621CC013*
+
+*# If you do not pass a recipient to gpg, it will ask for one.  Using*
+*# this option you can encrypt to a default key.  Key validation will*
+*# not be done in this case.  The second form uses the default key as*
+*# default recipient.*
+
+*#default-recipient some-user-id*
+*#default-recipient-self*
+
+*# Use --encrypt-to to add the specified key as a recipient to all*
+*# messages.  This is useful, for example, when sending mail through a*
+*# mail client that does not automatically encrypt mail to your key.*
+*# In the example, this option allows you to read your local copy of*
+*# encrypted mail that you've sent to others.*
+
+*#encrypt-to some-key-id*
+
+*# By default GnuPG creates version 4 signatures for data files as*
+*# specified by OpenPGP.  Some earlier (PGP 6, PGP 7) versions of PGP*
+*# require the older version 3 signatures.  Setting this option forces*
+*# GnuPG to create version 3 signatures.*
+
+*#force-v3-sigs*
+
+*# Because some mailers change lines starting with "From " to ">From "*
+*# it is good to handle such lines in a special way when creating*
+*# cleartext signatures; all other PGP versions do it this way too.*
+
+*#no-escape-from-lines*
+
+*# If you do not use the Latin-1 (ISO-8859-1) charset, you should tell*
+*# GnuPG which is the native character set.  Please check the man page*
+*# for supported character sets.  This character set is only used for*
+*# metadata and not for the actual message which does not undergo any*
+*# translation.  Note that future version of GnuPG will change to UTF-8*
+*# as default character set.  In most cases this option is not required*
+*# as GnuPG is able to figure out the correct charset at runtime.*
+
+*#charset utf-8*
+
+*# Group names may be defined like this:*
+*#   group mynames = paige 0x12345678 joe patti*
+*#*
+*# Any time "mynames" is a recipient (-r or --recipient), it will be*
+*# expanded to the names "paige", "joe", and "patti", and the key ID*
+*# "0x12345678".  Note there is only one level of expansion - you*
+*# cannot make an group that points to another group.  Note also that*
+*# if there are spaces in the recipient name, this will appear as two*
+*# recipients.  In these cases it is better to use the key ID.*
+
+*#group mynames = paige 0x12345678 joe patti*
+
+*# Lock the file only once for the lifetime of a process.  If you do*
+*# not define this, the lock will be obtained and released every time*
+*# it is needed, which is usually preferable.*
+
+*#lock-once*
+
+*# GnuPG can send and receive keys to and from a keyserver.  These*
+*# servers can be HKP, email, or LDAP (if GnuPG is built with LDAP*
+*# support).*
+*#*
+*# Example HKP keyserver:*
+*#      hkp://keys.gnupg.net <http://keys.gnupg.net>*
+*#      hkp://subkeys.pgp.net <http://subkeys.pgp.net>*
+*#*
+*# Example email keyserver:*
+*#      mailto:pgp-public-keys at keys.pgp.net <pgp-public-keys at keys.pgp.net>*
+*#*
+*# Example LDAP keyservers:*
+*#      ldap://keyserver.pgp.com <http://keyserver.pgp.com>*
+*#*
+*# Regular URL syntax applies, and you can set an alternate port*
+*# through the usual method:*
+*#      hkp://keyserver.example.net:22742
+<http://keyserver.example.net:22742>*
+*#*
+*# Most users just set the name and type of their preferred keyserver.*
+*# Note that most servers (with the notable exception of*
+*# ldap://keyserver.pgp.com <http://keyserver.pgp.com>) synchronize changes
+with each other.  Note*
+*# also that a single server name may actually point to multiple*
+*# servers via DNS round-robin.  hkp://keys.gnupg.net
+<http://keys.gnupg.net> is an example of*
+*# such a "server", which spreads the load over a number of physical*
+*# servers.  To see the IP address of the server actually used, you may use*
+*# the "--keyserver-options debug".*
+
+*keyserver hkp://keys.gnupg.net <http://keys.gnupg.net>*
+*#keyserver mailto:pgp-public-keys at keys.nl.pgp.net
+<pgp-public-keys at keys.nl.pgp.net>*
+*#keyserver ldap://keyserver.pgp.com <http://keyserver.pgp.com>*
+
+*# Common options for keyserver functions:*
+*#*
+*# include-disabled : when searching, include keys marked as "disabled"*
+*#                    on the keyserver (not all keyservers support this).*
+*#*
+*# no-include-revoked : when searching, do not include keys marked as*
+*#                      "revoked" on the keyserver.*
+*#*
+*# verbose : show more information as the keys are fetched.*
+*#           Can be used more than once to increase the amount*
+*#           of information shown.*
+*#*
+*# use-temp-files : use temporary files instead of a pipe to talk to the*
+*#                  keyserver.  Some platforms (Win32 for one) always*
+*#                  have this on.*
+*#*
+*# keep-temp-files : do not delete temporary files after using them*
+*#                   (really only useful for debugging)*
+*#*
+*# http-proxy="proxy" : set the proxy to use for HTTP and HKP keyservers.*
+*#                      This overrides the "http_proxy" environment
+variable,*
+*#                      if any.*
+*#*
+*# auto-key-retrieve : automatically fetch keys as needed from the
+keyserver*
+*#                     when verifying signatures or when importing keys
+that*
+*#                     have been revoked by a revocation key that is not*
+*#                     present on the keyring.*
+*#*
+*# no-include-attributes : do not include attribute IDs (aka "photo IDs")*
+*#                         when sending keys to the keyserver.*
+
+*#keyserver-options auto-key-retrieve*
+
+*# Display photo user IDs in key listings*
+
+*# list-options show-photos*
+
+*# Display photo user IDs when a signature from a key with a photo is*
+*# verified*
+
+*# verify-options show-photos*
+
+*# Use this program to display photo user IDs*
+*#*
+*# %i is expanded to a temporary file that contains the photo.*
+*# %I is the same as %i, but the file isn't deleted afterwards by GnuPG.*
+*# %k is expanded to the key ID of the key.*
+*# %K is expanded to the long OpenPGP key ID of the key.*
+*# %t is expanded to the extension of the image (e.g. "jpg").*
+*# %T is expanded to the MIME type of the image (e.g. "image/jpeg").*
+*# %f is expanded to the fingerprint of the key.*
+*# %% is %, of course.*
+*#*
+*# If %i or %I are not present, then the photo is supplied to the*
+*# viewer on standard input.  If your platform supports it, standard*
+*# input is the best way to do this as it avoids the time and effort in*
+*# generating and then cleaning up a secure temp file.*
+*#*
+*# If no photo-viewer is provided, GnuPG will look for xloadimage, eog,*
+*# or display (ImageMagick).  On Mac OS X and Windows, the default is*
+*# to use your regular JPEG image viewer.*
+*#*
+*# Some other viewers:*
+*# photo-viewer "qiv %i"*
+*# photo-viewer "ee %i"*
+*#*
+*# This one saves a copy of the photo ID in your home directory:*
+*# photo-viewer "cat > ~/photoid-for-key-%k.%t"*
+*#*
+*# Use your MIME handler to view photos:*
+*# photo-viewer "metamail -q -d -b -c %T -s 'KeyID 0x%k' -f GnuPG"*
+
+*# Passphrase agent*
+*#*
+*# We support the old experimental passphrase agent protocol as well as*
+*# the new Assuan based one (currently available in the "newpg" package*
+*# at ftp.gnupg.org/gcrypt/alpha/aegypten/
+<http://ftp.gnupg.org/gcrypt/alpha/aegypten/>).  To make use of the agent,*
+*# you have to run an agent as daemon and use the option*
+*#*
+*# For Ubuntu we now use-agent by default to support more automatic*
+*# use of GPG and S/MIME encryption by GUI programs.  Depending on the*
+*# program, users may still have to manually decide to install gnupg-agent.*
+
+*use-agent*
+
+*# which tries to use the agent but will fallback to the regular mode*
+*# if there is a problem connecting to the agent.  The normal way to*
+*# locate the agent is by looking at the environment variable*
+*# GPG_AGENT_INFO which should have been set during gpg-agent startup.*
+*# In certain situations the use of this variable is not possible, thus*
+*# the option*
+*# *
+*# --gpg-agent-info=<path>:<pid>:1*
+*#*
+*# may be used to override it.*
+
+*# Automatic key location*
+*#*
+*# GnuPG can automatically locate and retrieve keys as needed using the*
+*# auto-key-locate option.  This happens when encrypting to an email*
+*# address (in the "user at example.com <user at example.com>" form), and there
+are no*
+*# user at example.com <user at example.com> keys on the local keyring.  This
+option takes the*
+*# following arguments, in the order they are to be tried:*
+*# *
+*# cert = locate a key using DNS CERT, as specified in RFC-4398.*
+*#        GnuPG can handle both the PGP (key) and IPGP (URL + fingerprint)*
+*#        CERT methods.*
+*#*
+*# pka = locate a key using DNS PKA.*
+*#*
+*# ldap = locate a key using the PGP Universal method of checking*
+*#        "ldap://keys.(thedomain)".  For example, encrypting to*
+*#        user at example.com <user at example.com> will check
+ldap://keys.example.com <http://keys.example.com>.*
+*#*
+*# keyserver = locate a key using whatever keyserver is defined using*
+*#             the keyserver option.*
+*#*
+*# You may also list arbitrary keyservers here by URL.*
+*#*
+*# Try CERT, then PKA, then LDAP, then hkp://subkeys.net
+<http://subkeys.net>:*
+*#auto-key-locate cert pka ldap hkp://subkeys.pgp.net
+<http://subkeys.pgp.net>*
+*personal-digest-preferences SHA256*
+*cert-digest-algo SHA256*
+*default-preference-list SHA512 SHA384 SHA256 SHA224 AES256 AES192 AES
+CAST5 ZLIB BZIP2 ZIP Uncompressed*
+
+It didn't work and I simply get the same SHA1 weak algorithm error when
+running -sudo apt-get update- or -sudo apt update-. (Why is this issue not
+mentioned at all here <https://cran.r-project.org/> and why have users like
+me had to go ferreting for it, amongst other things?)
+
+I've been a Linux user for six years and pride myself on researching as
+many possible forums when trying to fix stuff before asking for any help,
+have never had to confront this nonsense and I'm really fed up with this
+now; I very strongly object to what have been hitherto (reasonably)
+straightforward R download and installation procedures making a total idiot
+of me when I try my damnednest to follow all the steps to do it all
+correctly in much the same way as I have done before without too many
+issues.
+
+Please advise at your very earliest convenience and help me sort this out.
+Thank you.
+
+-- 
+Yours with thanks,
+Clive Nicholas
+
+"My colleagues in the social sciences talk a great deal about methodology.
+I prefer to call it style." -- Freeman J. Dyson
+
+	[[alternative HTML version deleted]]
+
+
+From profjcnash at gmail.com  Thu Apr 27 21:05:32 2017
+From: profjcnash at gmail.com (J C Nash)
+Date: Thu, 27 Apr 2017 15:05:32 -0400
+Subject: [R-sig-Debian] R installation problems on Linux Mint 18.1 via
+ jessie-cran3
+In-Reply-To: <CAHs5aTguJqwmdPhVG=XP2tDpO9Ye4u115voS2T03yUKzUgsecA@mail.gmail.com>
+References: <CAHs5aTguJqwmdPhVG=XP2tDpO9Ye4u115voS2T03yUKzUgsecA@mail.gmail.com>
+Message-ID: <1328bae8-3cd8-02e4-facc-a9a954bb2de7@gmail.com>
+
+Is there a reason for jessie-cran3 rather than xenial? For Linux Mint 18 (admittedly
+not 18.1) I have
+
+deb https://cloud.r-project.org/bin/linux/ubuntu xenial/
+
+as one of the apt entries.
+
+JN
+
+On 2017-04-27 02:57 PM, Clive Nicholas wrote:
+> Okay folks, I give up and - frankly - I'm fed up! I thought I'd sorted all
+> this last week, but clearly not. I've tried using mirrors from here in the
+> UK, Ireland, France and the USA and whichever mirror I use, all I get is
+> this:
+>
+> clive at climate ~ $ sudo apt-get update
+> Hit:1 http://ubuntu.mirrors.uk2.net/ubuntu xenial InRelease
+> Ign:2 http://dl.google.com/linux/chrome/deb stable InRelease
+>
+> Ign:3 http://www.mirrorservice.org/sites/packages.linuxmint.com/packages
+> serena InRelease
+> Ign:4 http://cran.ma.imperial.ac.uk/bin/linux/debian jessie-cran3/
+> InRelease
+> Hit:5 http://ubuntu.mirrors.uk2.net/ubuntu xenial-updates InRelease
+>
+> Hit:6 http://archive.canonical.com/ubuntu xenial InRelease
+>
+> Hit:7 http://dl.google.com/linux/chrome/deb stable Release
+>
+> Hit:8 http://www.mirrorservice.org/sites/packages.linuxmint.com/packages
+> serena Release
+> Hit:9 http://ubuntu.mirrors.uk2.net/ubuntu xenial-backports InRelease
+>
+> Hit:10 http://cran.ma.imperial.ac.uk/bin/linux/debian jessie-cran3/ Release
+>
+> Get:11 http://security.ubuntu.com/ubuntu xenial-security InRelease [102 kB]
+> Hit:14 https://repo.skype.com/deb stable InRelease
+> Fetched 102 kB in 2s (37.7 kB/s)
+> Reading package lists... Done
+> W: http://cran.ma.imperial.ac.uk/bin/linux/debian/jessie-cran3/Release.gpg:
+> Signature by key 6212B7B7931C4BB16280BA1306F90DE5381BA480 uses weak digest
+> algorithm (SHA1)
+>
+> To fix this SHA1 problem, I followed this page
+> <https://keyring.debian.org/creating-key.html> *to the letter* and
+> implemented this in a file on my Linux machine called ~/.gnupg/gpg.conf
+> (apologies for the length, but included for completeness; the key detail is
+> contained right at the bottom):
+>
+> *# Options for GnuPG*
+> *# Copyright 1998, 1999, 2000, 2001, 2002, 2003,*
+> *#           2010 Free Software Foundation, Inc.*
+> *# *
+> *# This file is free software; as a special exception the author gives*
+> *# unlimited permission to copy and/or distribute it, with or without*
+> *# modifications, as long as this notice is preserved.*
+> *# *
+> *# This file is distributed in the hope that it will be useful, but*
+> *# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the*
+> *# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.*
+> *#*
+> *# Unless you specify which option file to use (with the command line*
+> *# option "--options filename"), GnuPG uses the file ~/.gnupg/gpg.conf*
+> *# by default.*
+> *#*
+> *# An options file can contain any long options which are available in*
+> *# GnuPG. If the first non white space character of a line is a '#',*
+> *# this line is ignored.  Empty lines are also ignored.*
+> *#*
+> *# See the man page for a list of options.*
+>
+> *# Uncomment the following option to get rid of the copyright notice*
+>
+> *#no-greeting*
+>
+> *# If you have more than 1 secret key in your keyring, you may want to*
+> *# uncomment the following option and set your preferred keyid.*
+>
+> *#default-key 621CC013*
+>
+> *# If you do not pass a recipient to gpg, it will ask for one.  Using*
+> *# this option you can encrypt to a default key.  Key validation will*
+> *# not be done in this case.  The second form uses the default key as*
+> *# default recipient.*
+>
+> *#default-recipient some-user-id*
+> *#default-recipient-self*
+>
+> *# Use --encrypt-to to add the specified key as a recipient to all*
+> *# messages.  This is useful, for example, when sending mail through a*
+> *# mail client that does not automatically encrypt mail to your key.*
+> *# In the example, this option allows you to read your local copy of*
+> *# encrypted mail that you've sent to others.*
+>
+> *#encrypt-to some-key-id*
+>
+> *# By default GnuPG creates version 4 signatures for data files as*
+> *# specified by OpenPGP.  Some earlier (PGP 6, PGP 7) versions of PGP*
+> *# require the older version 3 signatures.  Setting this option forces*
+> *# GnuPG to create version 3 signatures.*
+>
+> *#force-v3-sigs*
+>
+> *# Because some mailers change lines starting with "From " to ">From "*
+> *# it is good to handle such lines in a special way when creating*
+> *# cleartext signatures; all other PGP versions do it this way too.*
+>
+> *#no-escape-from-lines*
+>
+> *# If you do not use the Latin-1 (ISO-8859-1) charset, you should tell*
+> *# GnuPG which is the native character set.  Please check the man page*
+> *# for supported character sets.  This character set is only used for*
+> *# metadata and not for the actual message which does not undergo any*
+> *# translation.  Note that future version of GnuPG will change to UTF-8*
+> *# as default character set.  In most cases this option is not required*
+> *# as GnuPG is able to figure out the correct charset at runtime.*
+>
+> *#charset utf-8*
+>
+> *# Group names may be defined like this:*
+> *#   group mynames = paige 0x12345678 joe patti*
+> *#*
+> *# Any time "mynames" is a recipient (-r or --recipient), it will be*
+> *# expanded to the names "paige", "joe", and "patti", and the key ID*
+> *# "0x12345678".  Note there is only one level of expansion - you*
+> *# cannot make an group that points to another group.  Note also that*
+> *# if there are spaces in the recipient name, this will appear as two*
+> *# recipients.  In these cases it is better to use the key ID.*
+>
+> *#group mynames = paige 0x12345678 joe patti*
+>
+> *# Lock the file only once for the lifetime of a process.  If you do*
+> *# not define this, the lock will be obtained and released every time*
+> *# it is needed, which is usually preferable.*
+>
+> *#lock-once*
+>
+> *# GnuPG can send and receive keys to and from a keyserver.  These*
+> *# servers can be HKP, email, or LDAP (if GnuPG is built with LDAP*
+> *# support).*
+> *#*
+> *# Example HKP keyserver:*
+> *#      hkp://keys.gnupg.net <http://keys.gnupg.net>*
+> *#      hkp://subkeys.pgp.net <http://subkeys.pgp.net>*
+> *#*
+> *# Example email keyserver:*
+> *#      mailto:pgp-public-keys at keys.pgp.net <pgp-public-keys at keys.pgp.net>*
+> *#*
+> *# Example LDAP keyservers:*
+> *#      ldap://keyserver.pgp.com <http://keyserver.pgp.com>*
+> *#*
+> *# Regular URL syntax applies, and you can set an alternate port*
+> *# through the usual method:*
+> *#      hkp://keyserver.example.net:22742
+> <http://keyserver.example.net:22742>*
+> *#*
+> *# Most users just set the name and type of their preferred keyserver.*
+> *# Note that most servers (with the notable exception of*
+> *# ldap://keyserver.pgp.com <http://keyserver.pgp.com>) synchronize changes
+> with each other.  Note*
+> *# also that a single server name may actually point to multiple*
+> *# servers via DNS round-robin.  hkp://keys.gnupg.net
+> <http://keys.gnupg.net> is an example of*
+> *# such a "server", which spreads the load over a number of physical*
+> *# servers.  To see the IP address of the server actually used, you may use*
+> *# the "--keyserver-options debug".*
+>
+> *keyserver hkp://keys.gnupg.net <http://keys.gnupg.net>*
+> *#keyserver mailto:pgp-public-keys at keys.nl.pgp.net
+> <pgp-public-keys at keys.nl.pgp.net>*
+> *#keyserver ldap://keyserver.pgp.com <http://keyserver.pgp.com>*
+>
+> *# Common options for keyserver functions:*
+> *#*
+> *# include-disabled : when searching, include keys marked as "disabled"*
+> *#                    on the keyserver (not all keyservers support this).*
+> *#*
+> *# no-include-revoked : when searching, do not include keys marked as*
+> *#                      "revoked" on the keyserver.*
+> *#*
+> *# verbose : show more information as the keys are fetched.*
+> *#           Can be used more than once to increase the amount*
+> *#           of information shown.*
+> *#*
+> *# use-temp-files : use temporary files instead of a pipe to talk to the*
+> *#                  keyserver.  Some platforms (Win32 for one) always*
+> *#                  have this on.*
+> *#*
+> *# keep-temp-files : do not delete temporary files after using them*
+> *#                   (really only useful for debugging)*
+> *#*
+> *# http-proxy="proxy" : set the proxy to use for HTTP and HKP keyservers.*
+> *#                      This overrides the "http_proxy" environment
+> variable,*
+> *#                      if any.*
+> *#*
+> *# auto-key-retrieve : automatically fetch keys as needed from the
+> keyserver*
+> *#                     when verifying signatures or when importing keys
+> that*
+> *#                     have been revoked by a revocation key that is not*
+> *#                     present on the keyring.*
+> *#*
+> *# no-include-attributes : do not include attribute IDs (aka "photo IDs")*
+> *#                         when sending keys to the keyserver.*
+>
+> *#keyserver-options auto-key-retrieve*
+>
+> *# Display photo user IDs in key listings*
+>
+> *# list-options show-photos*
+>
+> *# Display photo user IDs when a signature from a key with a photo is*
+> *# verified*
+>
+> *# verify-options show-photos*
+>
+> *# Use this program to display photo user IDs*
+> *#*
+> *# %i is expanded to a temporary file that contains the photo.*
+> *# %I is the same as %i, but the file isn't deleted afterwards by GnuPG.*
+> *# %k is expanded to the key ID of the key.*
+> *# %K is expanded to the long OpenPGP key ID of the key.*
+> *# %t is expanded to the extension of the image (e.g. "jpg").*
+> *# %T is expanded to the MIME type of the image (e.g. "image/jpeg").*
+> *# %f is expanded to the fingerprint of the key.*
+> *# %% is %, of course.*
+> *#*
+> *# If %i or %I are not present, then the photo is supplied to the*
+> *# viewer on standard input.  If your platform supports it, standard*
+> *# input is the best way to do this as it avoids the time and effort in*
+> *# generating and then cleaning up a secure temp file.*
+> *#*
+> *# If no photo-viewer is provided, GnuPG will look for xloadimage, eog,*
+> *# or display (ImageMagick).  On Mac OS X and Windows, the default is*
+> *# to use your regular JPEG image viewer.*
+> *#*
+> *# Some other viewers:*
+> *# photo-viewer "qiv %i"*
+> *# photo-viewer "ee %i"*
+> *#*
+> *# This one saves a copy of the photo ID in your home directory:*
+> *# photo-viewer "cat > ~/photoid-for-key-%k.%t"*
+> *#*
+> *# Use your MIME handler to view photos:*
+> *# photo-viewer "metamail -q -d -b -c %T -s 'KeyID 0x%k' -f GnuPG"*
+>
+> *# Passphrase agent*
+> *#*
+> *# We support the old experimental passphrase agent protocol as well as*
+> *# the new Assuan based one (currently available in the "newpg" package*
+> *# at ftp.gnupg.org/gcrypt/alpha/aegypten/
+> <http://ftp.gnupg.org/gcrypt/alpha/aegypten/>).  To make use of the agent,*
+> *# you have to run an agent as daemon and use the option*
+> *#*
+> *# For Ubuntu we now use-agent by default to support more automatic*
+> *# use of GPG and S/MIME encryption by GUI programs.  Depending on the*
+> *# program, users may still have to manually decide to install gnupg-agent.*
+>
+> *use-agent*
+>
+> *# which tries to use the agent but will fallback to the regular mode*
+> *# if there is a problem connecting to the agent.  The normal way to*
+> *# locate the agent is by looking at the environment variable*
+> *# GPG_AGENT_INFO which should have been set during gpg-agent startup.*
+> *# In certain situations the use of this variable is not possible, thus*
+> *# the option*
+> *# *
+> *# --gpg-agent-info=<path>:<pid>:1*
+> *#*
+> *# may be used to override it.*
+>
+> *# Automatic key location*
+> *#*
+> *# GnuPG can automatically locate and retrieve keys as needed using the*
+> *# auto-key-locate option.  This happens when encrypting to an email*
+> *# address (in the "user at example.com <user at example.com>" form), and there
+> are no*
+> *# user at example.com <user at example.com> keys on the local keyring.  This
+> option takes the*
+> *# following arguments, in the order they are to be tried:*
+> *# *
+> *# cert = locate a key using DNS CERT, as specified in RFC-4398.*
+> *#        GnuPG can handle both the PGP (key) and IPGP (URL + fingerprint)*
+> *#        CERT methods.*
+> *#*
+> *# pka = locate a key using DNS PKA.*
+> *#*
+> *# ldap = locate a key using the PGP Universal method of checking*
+> *#        "ldap://keys.(thedomain)".  For example, encrypting to*
+> *#        user at example.com <user at example.com> will check
+> ldap://keys.example.com <http://keys.example.com>.*
+> *#*
+> *# keyserver = locate a key using whatever keyserver is defined using*
+> *#             the keyserver option.*
+> *#*
+> *# You may also list arbitrary keyservers here by URL.*
+> *#*
+> *# Try CERT, then PKA, then LDAP, then hkp://subkeys.net
+> <http://subkeys.net>:*
+> *#auto-key-locate cert pka ldap hkp://subkeys.pgp.net
+> <http://subkeys.pgp.net>*
+> *personal-digest-preferences SHA256*
+> *cert-digest-algo SHA256*
+> *default-preference-list SHA512 SHA384 SHA256 SHA224 AES256 AES192 AES
+> CAST5 ZLIB BZIP2 ZIP Uncompressed*
+>
+> It didn't work and I simply get the same SHA1 weak algorithm error when
+> running -sudo apt-get update- or -sudo apt update-. (Why is this issue not
+> mentioned at all here <https://cran.r-project.org/> and why have users like
+> me had to go ferreting for it, amongst other things?)
+>
+> I've been a Linux user for six years and pride myself on researching as
+> many possible forums when trying to fix stuff before asking for any help,
+> have never had to confront this nonsense and I'm really fed up with this
+> now; I very strongly object to what have been hitherto (reasonably)
+> straightforward R download and installation procedures making a total idiot
+> of me when I try my damnednest to follow all the steps to do it all
+> correctly in much the same way as I have done before without too many
+> issues.
+>
+> Please advise at your very earliest convenience and help me sort this out.
+> Thank you.
+>
+
+
+From johannes.ranke at jrwb.de  Fri Apr 28 00:20:59 2017
+From: johannes.ranke at jrwb.de (Johannes Ranke)
+Date: Fri, 28 Apr 2017 00:20:59 +0200
+Subject: [R-sig-Debian] R installation problems on Linux Mint 18.1 via
+ jessie-cran3
+In-Reply-To: <1328bae8-3cd8-02e4-facc-a9a954bb2de7@gmail.com>
+References: <CAHs5aTguJqwmdPhVG=XP2tDpO9Ye4u115voS2T03yUKzUgsecA@mail.gmail.com>
+ <1328bae8-3cd8-02e4-facc-a9a954bb2de7@gmail.com>
+Message-ID: <5707687.XCx43xL7FO@tux>
+
+Am Donnerstag, 27. April 2017, 15:05:32 schrieb J C Nash:
+> Is there a reason for jessie-cran3 rather than xenial? For Linux Mint 18
+> (admittedly not 18.1) I have
+> 
+> deb https://cloud.r-project.org/bin/linux/ubuntu xenial/
+> 
+> as one of the apt entries.
+> 
+> JN
+
+Seconded. You should not expect that mixing apt entries for Ubuntu and Debian 
+will work.
+
+> > It didn't work and I simply get the same SHA1 weak algorithm error when
+> > running -sudo apt-get update- or -sudo apt update-. 
+
+jessie-cran3 is made for Debian jessie which uses a somewhat dated version of 
+apt, which does not complain about weak SHA1 checksums.
+
+> > (Why is this issue not
+> > mentioned at all here <https://cran.r-project.org/> and why have users
+> > like
+> > me had to go ferreting for it, amongst other things?)
+
+Because Michael Rutter (for the Ubuntu backports) and myself (for the Debian 
+backports) try our best to make things just work for the distributions for 
+which these backports are advertised. The user should generally not have to 
+worry about the checksum algorithms used by his distribution.
+
+Mint 18.1 is based on Ubuntu 16.04 AKA Xenial Xerus. So it seems to me you 
+should use an apt entry (and only *one* for the CRAN R packages) for xenial as 
+John recommended.
+
+Kind regards, I sort of feel with you, as I sometimes also get frustrated. But 
+usually the satisfaction to work with free software prevails!
+
+Cheers,
+
+Johannes
+
+> > 
+> > I've been a Linux user for six years and pride myself on researching as
+> > many possible forums when trying to fix stuff before asking for any help,
+> > have never had to confront this nonsense and I'm really fed up with this
+> > now; I very strongly object to what have been hitherto (reasonably)
+> > straightforward R download and installation procedures making a total
+> > idiot
+> > of me when I try my damnednest to follow all the steps to do it all
+> > correctly in much the same way as I have done before without too many
+> > issues.
+> > 
+> > Please advise at your very earliest convenience and help me sort this out.
+> > Thank you.
+> 
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From charles-r-nospam at plessy.org  Fri Apr 28 02:47:57 2017
+From: charles-r-nospam at plessy.org (Charles Plessy)
+Date: Fri, 28 Apr 2017 09:47:57 +0900
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <22786.13675.570380.767404@max.eddelbuettel.com>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <6619986.rJjOoJrugT@tux>
+ <22785.54973.338124.323262@max.eddelbuettel.com>
+ <5326735.i50gd49oCX@tux>
+ <22785.58098.840453.507306@max.eddelbuettel.com>
+ <20170427144144.GA21543@falafel.plessy.net>
+ <22786.13675.570380.767404@max.eddelbuettel.com>
+Message-ID: <20170428004757.GE17130@falafel.plessy.net>
+
+Le Thu, Apr 27, 2017 at 01:16:11PM -0500, Dirk Eddelbuettel a ?crit :
+ 
+> Could you fill me in about what broke with BioC and what caused it?
+
+As far as I understand, something changed with the c() generic, which broke
+packages providing a S4 method for it.  The breakage and the solution were
+reported on <https://stat.ethz.ch/pipermail/bioc-devel/2017-March/010559.html>.
+
+There was somewhere a better explanation on why it happens, but I could not
+find it anymore.  In brief, it has to do with the fact that upon installation,
+some S4 functions capture part of their environment, and the c() declarations
+in R 3.3.2 are not compatible with the c() function (or method, etc., sorry for
+the imprecise vocabulary) in R 3.3.3, and therefore packages need to be
+reinstalled.  And since our Debian packages (and R Win/Mac pacakges) are
+essentially a copy of installed packages, we need to rebuild the affected ones.
+
+Thus, while BioC was more affected since it heavily uses S4, I would expect
+that some CRAN packages were broken as well.  Continuous integration of Debian's
+packages did not pinpoint problems in the r-cran-* namespace, but as exemplified
+by r-bioc-xvector, some regression tests have only partial coverage.
+
+> I am not sure I understand why people would want to do partial upgrades.
+> Debian stable is support. Debian testing is supported.  Hybrid mixes of the
+> two are risque.
+
+I do agree and would not recommend mixes, especially since the CRAN and Debian
+backports are available.  But Debian officially supports partial upgrades, in
+the sense that if the dependency graph allows for it, then it should work.  In
+that sense, preventing partial upgrades through the use of r-api-4 would be
+an acceptable solution.
+
+Have a nice day,
+
+Charles
+
+-- 
+Charles Plessy
+Debian Med packaging team,
+http://www.debian.org/devel/debian-med
+Tsurumi, Kanagawa, Japan
+
+
+From clivelists at googlemail.com  Fri Apr 28 03:42:55 2017
+From: clivelists at googlemail.com (Clive Nicholas)
+Date: Fri, 28 Apr 2017 02:42:55 +0100
+Subject: [R-sig-Debian] R installation problems on Linux Mint 18.1 via
+	jessie-cran3
+In-Reply-To: <5707687.XCx43xL7FO@tux>
+References: <CAHs5aTguJqwmdPhVG=XP2tDpO9Ye4u115voS2T03yUKzUgsecA@mail.gmail.com>
+ <1328bae8-3cd8-02e4-facc-a9a954bb2de7@gmail.com> <5707687.XCx43xL7FO@tux>
+Message-ID: <CAHs5aTgE4tN7OhOZE9pG=eNG=dqd6YJiVQeF1W0Kuc9WPBMk2A@mail.gmail.com>
+
+Thank you so much Johannes.
+
+Problem now sorted:
+
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+sudo add-apt-repository deb https://cran.ma.imperial.ac.uk/bin/linux/ubuntu
+xenial/ # replaced the old repository link
+sudo apt-get update
+sudo apt-get install r-base r-base-core r-base-dev
+
+With my .Renviron file already fixed from previously with the correct paths
+inserted, my R 3.4.0 is now up and running with LaTeX run successfully.
+I've also taken care to delete your Debian R key from my machine, retaining
+the Ubuntu one.
+
+I rather think it would be a good idea to publicise this solution for Linux
+Mint 18.1 users *as widely as possible* so that they don't run into the
+same unnecessary difficulties I just did: it would not be immediately
+obvious to all such users (it wasn't to me) that they should instead be
+downloading and installing from the Ubuntu and not the Debian repository.
+(Indeed, I had used the Debian repository successfully on my previous
+install of Linux Mint.) *It certainly shouldn't be buried in a thread on a
+mailing list!*
+
+May I also extend my grateful thanks to Professor J C Nash for his help.
+
+Yours with thanks,
+Clive Nicholas
+
+On 27 April 2017 at 23:20, Johannes Ranke <johannes.ranke at jrwb.de> wrote:
+
+> Am Donnerstag, 27. April 2017, 15:05:32 schrieb J C Nash:
+> > Is there a reason for jessie-cran3 rather than xenial? For Linux Mint 18
+> > (admittedly not 18.1) I have
+> >
+> > deb https://cloud.r-project.org/bin/linux/ubuntu xenial/
+> >
+> > as one of the apt entries.
+> >
+> > JN
+>
+> Seconded. You should not expect that mixing apt entries for Ubuntu and
+> Debian
+> will work.
+>
+> > > It didn't work and I simply get the same SHA1 weak algorithm error when
+> > > running -sudo apt-get update- or -sudo apt update-.
+>
+> jessie-cran3 is made for Debian jessie which uses a somewhat dated version
+> of
+> apt, which does not complain about weak SHA1 checksums.
+>
+> > > (Why is this issue not
+> > > mentioned at all here <https://cran.r-project.org/> and why have users
+> > > like
+> > > me had to go ferreting for it, amongst other things?)
+>
+> Because Michael Rutter (for the Ubuntu backports) and myself (for the
+> Debian
+> backports) try our best to make things just work for the distributions for
+> which these backports are advertised. The user should generally not have to
+> worry about the checksum algorithms used by his distribution.
+>
+> Mint 18.1 is based on Ubuntu 16.04 AKA Xenial Xerus. So it seems to me you
+> should use an apt entry (and only *one* for the CRAN R packages) for
+> xenial as
+> John recommended.
+>
+> Kind regards, I sort of feel with you, as I sometimes also get frustrated.
+> But
+> usually the satisfaction to work with free software prevails!
+>
+> Cheers,
+>
+> Johannes
+>
+> > >
+> > > I've been a Linux user for six years and pride myself on researching as
+> > > many possible forums when trying to fix stuff before asking for any
+> help,
+> > > have never had to confront this nonsense and I'm really fed up with
+> this
+> > > now; I very strongly object to what have been hitherto (reasonably)
+> > > straightforward R download and installation procedures making a total
+> > > idiot
+> > > of me when I try my damnednest to follow all the steps to do it all
+> > > correctly in much the same way as I have done before without too many
+> > > issues.
+> > >
+> > > Please advise at your very earliest convenience and help me sort this
+> out.
+> > > Thank you.
+> >
+> > _______________________________________________
+> > R-SIG-Debian mailing list
+> > R-SIG-Debian at r-project.org
+> > https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+>
+
+
+
+-- 
+Clive Nicholas
+
+"My colleagues in the social sciences talk a great deal about methodology.
+I prefer to call it style." -- Freeman J. Dyson
+
+	[[alternative HTML version deleted]]
+
+
+From edd at debian.org  Fri Apr 28 04:32:53 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 27 Apr 2017 21:32:53 -0500
+Subject: [R-sig-Debian] R installation problems on Linux Mint 18.1
+	via	jessie-cran3
+In-Reply-To: <CAHs5aTgE4tN7OhOZE9pG=eNG=dqd6YJiVQeF1W0Kuc9WPBMk2A@mail.gmail.com>
+References: <CAHs5aTguJqwmdPhVG=XP2tDpO9Ye4u115voS2T03yUKzUgsecA@mail.gmail.com>
+ <1328bae8-3cd8-02e4-facc-a9a954bb2de7@gmail.com>
+ <5707687.XCx43xL7FO@tux>
+ <CAHs5aTgE4tN7OhOZE9pG=eNG=dqd6YJiVQeF1W0Kuc9WPBMk2A@mail.gmail.com>
+Message-ID: <22786.43477.83034.661339@max.eddelbuettel.com>
+
+
+On 28 April 2017 at 02:42, Clive Nicholas wrote:
+| I rather think it would be a good idea to publicise this solution for Linux
+| Mint 18.1 users *as widely as possible* so that they don't run into the
+
+I somewhat strongly disgree.
+
+We have two volunteers taking care of two clearly-labeled Linux distributions
+via the repos at CRAN: Ubuntu, and Debian.
+
+If you mix with another (entirely untested by us) distribution and it breaks,
+you get to keep the pieces.  Advertisement for such use is nonsense at best,
+and plain dangerous at worst as it may give other people the idea that such
+mixing is recommended.  Let me be as plain: It. Is. Not. At least not by me.
+
+If anything, advertise (within the Arch space) for the need for a volunteer
+to complement what Michael and Johannes do so well.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From edd at debian.org  Sat Apr 29 15:38:14 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sat, 29 Apr 2017 08:38:14 -0500
+Subject: [R-sig-Debian] R-3.4.0 and recommended packages
+In-Reply-To: <22786.13675.570380.767404@max.eddelbuettel.com>
+References: <f78aa1f2-70c0-9f70-c25c-3670f77d4dc0@umu.se>
+ <6619986.rJjOoJrugT@tux>
+ <22785.54973.338124.323262@max.eddelbuettel.com>
+ <5326735.i50gd49oCX@tux>
+ <22785.58098.840453.507306@max.eddelbuettel.com>
+ <20170427144144.GA21543@falafel.plessy.net>
+ <22786.13675.570380.767404@max.eddelbuettel.com>
+Message-ID: <22788.38726.307592.841060@max.eddelbuettel.com>
+
+
+On 27 April 2017 at 13:16, Dirk Eddelbuettel wrote:
+| On 27 April 2017 at 23:41, Charles Plessy wrote:
+| | Within the Debian infrastructure, the architecture-dependant packages can be
+| | easily rebuilt by binNMUs.  The architecture-independant packages are easier to
+
+Actually one saving grace is that binary:all packages don't need the rebuild
+as they (being R only) won't have .C() or .Fortran().
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+

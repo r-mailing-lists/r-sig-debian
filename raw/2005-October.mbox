@@ -1,0 +1,169 @@
+From davison at uchicago.edu  Sat Oct 15 20:34:16 2005
+From: davison at uchicago.edu (Dan Davison)
+Date: Sat, 15 Oct 2005 13:34:16 -0500 (CDT)
+Subject: [R-sig-Debian] typo in R FAQ: sources.list entry for debian
+	'stable' backports
+Message-ID: <Pine.GSO.4.62.0510151256170.11006@harper.uchicago.edu>
+
+The R FAQ at 
+http://cran.r-project.org/doc/FAQ/R-FAQ.html#Are-there-Unix-binaries-for-R_003f
+advises the use of the following /etc/apt/sources.list entry
+
+deb http://cran.R-project.org/bin/linux/debian stable
+.
+I think that this is missing a forward slash after the word 'stable'.
+
+>From man sources.list:
+
+[...] distribution can specify an exact path, in which case the components 
+must be omitted and distribution must end with a slash (/) [...]
+
+And empirically:
+
+dd:/home/dan# cat /etc/apt/sources.list
+deb http://cran.R-project.org/bin/linux/debian stable
+dd:/home/dan# apt-get update
+E: Malformed line 1 in source list /etc/apt/sources.list (dist parse)
+
+versus
+
+dd:/home/dan# cat /etc/apt/sources.list
+deb http://cran.R-project.org/bin/linux/debian stable/
+
+dd:/home/dan# apt-get update
+Get:1 http://cran.R-project.org stable/ Packages [3155B]
+Get:2 http://cran.R-project.org stable/ Release [71B]
+Fetched 3226B in 0s (5206B/s)
+Reading Package Lists... Done
+
+Dan
+
+p.s. Thanks for the help I received this week as a result of not reading 
+the FAQ...
+
+
+From Kurt.Hornik at wu-wien.ac.at  Mon Oct 24 13:24:46 2005
+From: Kurt.Hornik at wu-wien.ac.at (Kurt Hornik)
+Date: Mon, 24 Oct 2005 13:24:46 +0200
+Subject: [R-sig-Debian] [Rd] typo in R FAQ: sources.list entry for
+	debian 'stable' backports
+In-Reply-To: <Pine.GSO.4.62.0510151256170.11006@harper.uchicago.edu>
+References: <Pine.GSO.4.62.0510151256170.11006@harper.uchicago.edu>
+Message-ID: <17244.50302.26574.933721@mithrandir.hornik.net>
+
+>>>>> Dan Davison writes:
+
+> The R FAQ at 
+> http://cran.r-project.org/doc/FAQ/R-FAQ.html#Are-there-Unix-binaries-for-R_003f
+> advises the use of the following /etc/apt/sources.list entry
+
+> deb http://cran.R-project.org/bin/linux/debian stable
+> .
+> I think that this is missing a forward slash after the word 'stable'.
+
+>> From man sources.list:
+
+> [...] distribution can specify an exact path, in which case the components 
+> must be omitted and distribution must end with a slash (/) [...]
+
+> And empirically:
+
+> dd:/home/dan# cat /etc/apt/sources.list
+> deb http://cran.R-project.org/bin/linux/debian stable
+> dd:/home/dan# apt-get update
+> E: Malformed line 1 in source list /etc/apt/sources.list (dist parse)
+
+> versus
+
+> dd:/home/dan# cat /etc/apt/sources.list
+> deb http://cran.R-project.org/bin/linux/debian stable/
+
+> dd:/home/dan# apt-get update
+> Get:1 http://cran.R-project.org stable/ Packages [3155B]
+> Get:2 http://cran.R-project.org stable/ Release [71B]
+> Fetched 3226B in 0s (5206B/s)
+> Reading Package Lists... Done
+
+Dan,
+
+Thanks, fixed.
+
+[Hmm, I thought I had tried this when I added the entry ...]
+
+Best
+-k
+
+
+From f.calboli at imperial.ac.uk  Fri Oct 28 16:27:07 2005
+From: f.calboli at imperial.ac.uk (Federico Calboli)
+Date: Fri, 28 Oct 2005 15:27:07 +0100
+Subject: [R-sig-Debian] R 2.2.0 on Etch
+Message-ID: <1130509627.15713.158.camel@localhost.localdomain>
+
+Hi All,
+
+is there a ETA for R 2.2.0 on Etch (Debian testing) or do I need pinning
+pinning (a solution I'd rather not use)?
+
+Cheers,
+
+Federico
+-- 
+Federico C. F. Calboli
+Department of Epidemiology and Public Health
+Imperial College, St Mary's Campus
+Norfolk Place, London W2 1PG
+
+Tel  +44 (0)20 7594 1602     Fax (+44) 020 7594 3193
+
+f.calboli [.a.t] imperial.ac.uk
+f.calboli [.a.t] gmail.com
+
+
+From edd at debian.org  Fri Oct 28 17:09:29 2005
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 28 Oct 2005 10:09:29 -0500
+Subject: [R-sig-Debian] R 2.2.0 on Etch
+In-Reply-To: <1130509627.15713.158.camel@localhost.localdomain>
+References: <1130509627.15713.158.camel@localhost.localdomain>
+Message-ID: <17250.16169.100437.974765@basebud.nulle.part>
+
+
+[ Gentle reminder: Posting here is open only for subscribers. I had to
+  manually approve this post. --edd ]
+
+On 28 October 2005 at 15:27, Federico Calboli wrote:
+| Hi All,
+| 
+| is there a ETA for R 2.2.0 on Etch (Debian testing) or do I need pinning
+
+The best answers to questions like this for any given package are provided by
+the (source) packages QA page, here
+	http://packages.qa.debian.org/r/r-base.html
+which both summarizes, and links to, the 'excuses' pages
+	http://qa.debian.org/developer.php?excuse=r-base
+which indicate that the recent rebuild of r-base (due to a bug on hppa
+machines) reset the 10-day counter.  
+
+There is also the more specialised page 'Why is ppackage X not in testing
+yet' at 
+	http://bjorn.haxx.se/debian/testing.pl?package=r-base
+
+| pinning (a solution I'd rather not use)?
+
+That fear is unfounded. Pinning works well as _you_ get to select what you
+included.  The 2.2.0.final-4 build requires a upgrade of gcc/g++ et al to one
+minor number, but the otherwise identical 2.2.0.final-2 installed and runs 
+just fine on testing.
+
+Lastly, if you're really afraid of pinning, you could still point to sources
+from unstable and the use 'apt-get source r-base' to rebuild the new sources
+on your current system.  But I'd go with pinning.
+
+Hth, Dirk
+
+-- 
+Statistics: The (futile) attempt to offer certainty about uncertainty.
+         -- Roger Koenker, 'Dictionary of Received Ideas of Statistics'
+
+

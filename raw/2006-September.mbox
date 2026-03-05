@@ -1,0 +1,111 @@
+From edd at debian.org  Wed Sep 20 21:53:30 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 20 Sep 2006 14:53:30 -0500
+Subject: [R-sig-Debian] R 2.4.0 pre-release in unstable may break some
+	packages
+Message-ID: <17681.39994.635813.314622@basebud.nulle.part>
+
+
+Hi all,
+
+Today's apt-get update should bring the first R 2.4.0 snapshot packages. As
+with previous releases, I intend to renew the packages every week until the
+release of 2.4.0 by R Core that is scheduled for October 3.  That way, R
+2.3.1-3 will remain the version in testing.
+
+As you may have seen on the r-devel list, 2.4.0 will require that packages
+using S4 classes and the methods package will need to be rebuilt. In other
+words, your current unstable installation may break.  If that is a concern
+please put r-base-core on hold using e.g.  $ echo "r-cran-base hold" | dpkg
+--set-selections
+
+We will try to establish which r-cran-* et al packages need an update and hope
+to get updated Debian packages of those CRAN package -- with a Depends on
+"r-base-core (>> 2.3.1)" into the archive.
+
+Cheers, Dirk
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+
+From edd at debian.org  Thu Sep 21 06:44:04 2006
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Wed, 20 Sep 2006 23:44:04 -0500
+Subject: [R-sig-Debian] R 2.4.0 pre-release in unstable may break
+	some	packages
+In-Reply-To: <17681.39994.635813.314622@basebud.nulle.part>
+References: <17681.39994.635813.314622@basebud.nulle.part>
+Message-ID: <17682.6292.906846.534865@basebud.nulle.part>
+
+
+On 20 September 2006 at 14:53, Dirk Eddelbuettel wrote:
+| 
+| Hi all,
+| 
+| Today's apt-get update should bring the first R 2.4.0 snapshot packages. As
+| with previous releases, I intend to renew the packages every week until the
+| release of 2.4.0 by R Core that is scheduled for October 3.  That way, R
+| 2.3.1-3 will remain the version in testing.
+| 
+| As you may have seen on the r-devel list, 2.4.0 will require that packages
+| using S4 classes and the methods package will need to be rebuilt. In other
+| words, your current unstable installation may break.  If that is a concern
+| please put r-base-core on hold using e.g.  $ echo "r-cran-base hold" | dpkg
+| --set-selections
+| 
+| We will try to establish which r-cran-* et al packages need an update and hope
+| to get updated Debian packages of those CRAN package -- with a Depends on
+| "r-base-core (>> 2.3.1)" into the archive.
+
+I may have overlooked something deeper, but as a first pass, the following
+approach (encoded in the script below) worked:
+i)   make sure all available packages are installed
+ii)  loop over a library() directory and try to install each package therein
+iii) rinse and repeat ii)
+
+I uploaded new versions of Matrix, its, latticeExtra, foreign and lme4 and
+asked Chris to update eco  --  the rest seems to work. For now, I am ignoring
+(as the last line indicates) a few of the older packages in my /usr/local/
+tree. 
+
+Cheers, Dirk
+
+
+#!/bin/sh -e
+
+function installAllAvailable() {
+  ## install all available packages (and let apt skip current ones)
+  pkgs=`apt-cache search ^r-.* | grep ^r- | grep -v "r-base\|r-doc\|r-gnome\|r-math\|r-recom" | grep -vi dummy | sort | cut -f1 -d" "`
+  sudo apt-get -t unstable install $pkgs
+}
+
+function iterateOver() {
+  dirs=`find $1 -maxdepth 1 -mindepth 1 -type d | sort | grep -v $2`
+  for f in $dirs
+  do
+    p=`basename $f`
+    echo ""
+    echo "Looking at $p"
+    echo "stopifnot(require($p, quiet=TRUE)); cat('--- works: $p\n')"| R --slave
+  done
+}
+
+## uncomment whatever needs to be run ...
+
+#installAllAvailable
+#iterateOver /usr/lib/R/site-library "eco"
+#iterateOver /usr/lib/R/library "nothingToIgnore"
+
+## for comparison, my /usr/local tree also tripped up a few
+#iterateOver /usr/local/lib/R/site-library "JGR\|JavaGD\|Ruuid\|Rgraphviz\|VGAM\|VLMC\|graph\|iWidgets\|iplots\|portfolio\|rJava"
+
+echo "Done!"
+
+
+-- 
+Hell, there are no rules here - we're trying to accomplish something. 
+                                                  -- Thomas A. Edison
+
+

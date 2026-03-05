@@ -1,0 +1,439 @@
+From bge @end|ng |rom uw@edu  Thu Feb 15 19:14:19 2024
+From: bge @end|ng |rom uw@edu (Brent G Ewing)
+Date: Thu, 15 Feb 2024 10:14:19 -0800
+Subject: [R-sig-Debian] Error building and installing with GCC ASAN in a
+ Docker container
+Message-ID: <CAP=AWAA3XwqOi0RT6iZSB-MzHGRmxYjb9x+SNjjOnxXzNMu5YQ@mail.gmail.com>
+
+Hi,
+
+I want to build a Docker container with R and various R packages built and
+installed with the gcc address sanitizer enabled. I am working on a Debian
+Bookworm system running on an x86_64 architecture.
+
+I start with the Docker file at
+
+https://github.com/rocker-org/r-devel-san/blob/master/Dockerfile
+
+I added -fsanitize=address to compiler and linker variables in the
+Dockerfile. I also import into the image a Makevars file with the contents
+
+CC=gcc -std=gnu99 -fsanitize=address -fno-omit-frame-pointer
+CXX=g++ -fsanitize=address -fno-omit-frame-pointer
+FC=gfortran -fsanitize=address
+LDFLAGS=-fsanitize=address
+
+Finally, the Docker file installs additional Debian object libraries and R
+packages that I want to test.
+
+When the package build gets to testing whether the package can be
+installed, an error message appears saying
+
+==ASan runtime does not come first in initial library list; you should
+either link runtime to your application or manually preload it with
+LD_PRELOAD.
+
+For example,
+
+ESC[0mESC[91m** building package indices
+ESC[0mESC[91m** installing vignettes
+ESC[0mESC[91m** testing if installed package can be loaded from temporary
+location
+ESC[0m==684==ASan runtime does not come first in initial library list; you
+should either link runtime to your application or manually preload it with
+LD_PRELOAD.
+ESC[91mERROR: loading failed
+ESC[0mESC[91m* removing ?/usr/local/lib/R/site-library/utf8?
+ESC[0mESC[91m* installing *source* package ?isoband? ...
+ESC[0mESC[91m** package ?isoband? successfully unpacked and MD5 sums checked
+ESC[0mESC[91m** using staged installation
+ESC[0mESC[91m** libs
+
+I've tried preloading various libasan.so files that I find on the system
+but the loader says that it cannot load them.
+
+My questions are
+
+1. is it possible to build and install R and packages (in a container) with
+the gcc address sanitizer enabled?
+2. if it is, how do I do it?
+3. is this ld_preload message relevant? If so, to which file does it refer?
+Is there an ASAN runtime library file that I need to specify, and if so,
+what is the path to it?
+
+I appreciate your consideration and assistance.
+
+Thank you.
+Brent
+
+P.S. The build-related commands in the Docker file (including my address
+sanitizer additions) are
+
+RUN cd /tmp/R-devel \
+        && R_PAPERSIZE=letter \
+           R_BATCHSAVE="--no-save --no-restore" \
+           R_BROWSER=xdg-open \
+           PAGER=/usr/bin/pager \
+           PERL=/usr/bin/perl \
+           R_UNZIPCMD=/usr/bin/unzip \
+           R_ZIPCMD=/usr/bin/zip \
+           R_PRINTCMD=/usr/bin/lpr \
+           LIBnn=lib \
+           AWK=/usr/bin/awk \
+           CC="gcc -std=gnu99 -fsanitize=address -fsanitize=undefined
+-fno-omit-frame-pointer" \
+       CFLAGS="-fno-omit-frame-pointer -g -O2 -Wall -pedantic
+-mtune=native" \
+           FFLAGS="-g -O2 -mtune=native" \
+           FCFLAGS="-g -O2 -mtune=native" \
+           CXX="g++ -fsanitize=address -fsanitize=undefined,bounds-strict
+-fno-omit-frame-pointer" \
+           CXXFLAGS="-fsanitize=address -g -O2 -Wall -pedantic
+-mtune=native" \
+           CXX11FLAGS="-fsanitize=address -g -O2 -Wall -pedantic
+-mtune=native" \
+           CXX14FLAGS="-fsanitize=address -g -O2 -Wall -pedantic
+-mtune=native" \
+           CXX17FLAGS="-fsanitize=address -g -O2 -Wall -pedantic
+-mtune=native" \
+       LDFLAGS="-fsanitize=address" \
+           MAIN_LDFLAGS="-fsanitize=address -fsanitize=undefined -pthread" \
+           F77="gfortran -fsanitize=undefined" \
+           FC="gfortran -fsanitize=undefined" \
+           FCFLAGS="-g -O2 -mtune=native" \
+           FFLAGS="-g -O2 -mtune=native" \
+           ./configure --enable-R-shlib \
+               --without-blas \
+               --without-lapack \
+               --with-readline \
+               --without-recommended-packages \
+               --program-suffix=dev \
+               --disable-openmp \
+        && make \
+        && make install \
+        && make clean
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Thu Feb 15 19:42:34 2024
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Thu, 15 Feb 2024 12:42:34 -0600
+Subject: [R-sig-Debian] Error building and installing with GCC ASAN in a
+ Docker container
+In-Reply-To: <CAP=AWAA3XwqOi0RT6iZSB-MzHGRmxYjb9x+SNjjOnxXzNMu5YQ@mail.gmail.com>
+References: <CAP=AWAA3XwqOi0RT6iZSB-MzHGRmxYjb9x+SNjjOnxXzNMu5YQ@mail.gmail.com>
+Message-ID: <26062.23322.340681.635955@rob.eddelbuettel.com>
+
+
+Hi Brent,
+
+On 15 February 2024 at 10:14, Brent G Ewing wrote:
+| Hi,
+| 
+| I want to build a Docker container with R and various R packages built and
+| installed with the gcc address sanitizer enabled. I am working on a Debian
+| Bookworm system running on an x86_64 architecture.
+| 
+| I start with the Docker file at
+| 
+| https://github.com/rocker-org/r-devel-san/blob/master/Dockerfile
+
+That container has been building weekly quite reliably for a few years now.
+The variant at  https://github.com/rocker-org/r-devel-san-clang  was dormant
+for a while (first an error during R package build, later a missing package)
+and was just resurrected and builds again.
+
+And then there is of course Winston's 'sumo' container with several builds
+layerd into one. I use that too:  https://github.com/wch/r-debug
+ 
+| I added -fsanitize=address to compiler and linker variables in the
+| Dockerfile. I also import into the image a Makevars file with the contents
+| 
+| CC=gcc -std=gnu99 -fsanitize=address -fno-omit-frame-pointer
+| CXX=g++ -fsanitize=address -fno-omit-frame-pointer
+| FC=gfortran -fsanitize=address
+| LDFLAGS=-fsanitize=address
+
+Sure -- but I found this finicky in the past: certain combinations lead to
+cases that did not build or errored. So I recommend following the set that
+Brian Ripley has at https://www.stats.ox.ac.uk/pub/bdr/memtests/README.txt
+ 
+| Finally, the Docker file installs additional Debian object libraries and R
+| packages that I want to test.
+| 
+| When the package build gets to testing whether the package can be
+| installed, an error message appears saying
+| 
+| ==ASan runtime does not come first in initial library list; you should
+| either link runtime to your application or manually preload it with
+| LD_PRELOAD.
+| 
+| For example,
+| 
+| ESC[0mESC[91m** building package indices
+| ESC[0mESC[91m** installing vignettes
+| ESC[0mESC[91m** testing if installed package can be loaded from temporary
+| location
+| ESC[0m==684==ASan runtime does not come first in initial library list; you
+| should either link runtime to your application or manually preload it with
+| LD_PRELOAD.
+| ESC[91mERROR: loading failed
+| ESC[0mESC[91m* removing ?/usr/local/lib/R/site-library/utf8?
+| ESC[0mESC[91m* installing *source* package ?isoband? ...
+| ESC[0mESC[91m** package ?isoband? successfully unpacked and MD5 sums checked
+| ESC[0mESC[91m** using staged installation
+| ESC[0mESC[91m** libs
+| 
+| I've tried preloading various libasan.so files that I find on the system
+| but the loader says that it cannot load them.
+
+Maybe try removing 'address' and see what happens?
+ 
+| My questions are
+| 
+| 1. is it possible to build and install R and packages (in a container) with
+| the gcc address sanitizer enabled?
+
+Yes. The two Docker contains show how to.
+
+| 2. if it is, how do I do it?
+
+Follow the container recipe?  Use the container?  Eg I just pulled up the
+rocker/r-devel-san, giving 'bash' as the command / entry point, and (having
+mounted my local directory too) said 'RD CMD INSTALL digest_0.6.34.tar.gz'.
+
+That install the package under the instrumented R(-devel) version. Tests
+should now use SAN.  I have fixed bugs that way.
+
+| 3. is this ld_preload message relevant? If so, to which file does it refer?
+| Is there an ASAN runtime library file that I need to specify, and if so,
+| what is the path to it?
+
+I think it is relevant but you must have ended up with a non-working
+combination.
+
+I no longer recall why I removed 'address'. It may have been something like
+this, or something else. `git blame` tells me I did so in 2018. It's been a
+while.
+
+As I said, these things _are_ finicky. So I recommend
+
+ - starting from a known working container (see above)
+ 
+ - establish a baseline by testing a package which has a _known_ true positive
+
+ - for which I wrote a package:   https://cran.r-project.org/package=sanitizers
+
+ - given the baseline make the mods you want to make and re-test you still
+   get the true positive
+
+Hope this helps,  Dirk
+
+| I appreciate your consideration and assistance.
+| 
+| Thank you.
+| Brent
+| 
+| P.S. The build-related commands in the Docker file (including my address
+| sanitizer additions) are
+| 
+| RUN cd /tmp/R-devel \
+|         && R_PAPERSIZE=letter \
+|            R_BATCHSAVE="--no-save --no-restore" \
+|            R_BROWSER=xdg-open \
+|            PAGER=/usr/bin/pager \
+|            PERL=/usr/bin/perl \
+|            R_UNZIPCMD=/usr/bin/unzip \
+|            R_ZIPCMD=/usr/bin/zip \
+|            R_PRINTCMD=/usr/bin/lpr \
+|            LIBnn=lib \
+|            AWK=/usr/bin/awk \
+|            CC="gcc -std=gnu99 -fsanitize=address -fsanitize=undefined
+| -fno-omit-frame-pointer" \
+|        CFLAGS="-fno-omit-frame-pointer -g -O2 -Wall -pedantic
+| -mtune=native" \
+|            FFLAGS="-g -O2 -mtune=native" \
+|            FCFLAGS="-g -O2 -mtune=native" \
+|            CXX="g++ -fsanitize=address -fsanitize=undefined,bounds-strict
+| -fno-omit-frame-pointer" \
+|            CXXFLAGS="-fsanitize=address -g -O2 -Wall -pedantic
+| -mtune=native" \
+|            CXX11FLAGS="-fsanitize=address -g -O2 -Wall -pedantic
+| -mtune=native" \
+|            CXX14FLAGS="-fsanitize=address -g -O2 -Wall -pedantic
+| -mtune=native" \
+|            CXX17FLAGS="-fsanitize=address -g -O2 -Wall -pedantic
+| -mtune=native" \
+|        LDFLAGS="-fsanitize=address" \
+|            MAIN_LDFLAGS="-fsanitize=address -fsanitize=undefined -pthread" \
+|            F77="gfortran -fsanitize=undefined" \
+|            FC="gfortran -fsanitize=undefined" \
+|            FCFLAGS="-g -O2 -mtune=native" \
+|            FFLAGS="-g -O2 -mtune=native" \
+|            ./configure --enable-R-shlib \
+|                --without-blas \
+|                --without-lapack \
+|                --with-readline \
+|                --without-recommended-packages \
+|                --program-suffix=dev \
+|                --disable-openmp \
+|         && make \
+|         && make install \
+|         && make clean
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From jo@h@m@u|r|ch @end|ng |rom gm@||@com  Thu Feb 15 19:44:46 2024
+From: jo@h@m@u|r|ch @end|ng |rom gm@||@com (Joshua Ulrich)
+Date: Thu, 15 Feb 2024 12:44:46 -0600
+Subject: [R-sig-Debian] Error building and installing with GCC ASAN in a
+ Docker container
+In-Reply-To: <CAP=AWAA3XwqOi0RT6iZSB-MzHGRmxYjb9x+SNjjOnxXzNMu5YQ@mail.gmail.com>
+References: <CAP=AWAA3XwqOi0RT6iZSB-MzHGRmxYjb9x+SNjjOnxXzNMu5YQ@mail.gmail.com>
+Message-ID: <CAPPM_gQuXjsP2D8sfuH==VuDSbCXQu0+Lvm2_f=kb-MoMmkOeg@mail.gmail.com>
+
+Hi Brent,
+
+In case you aren't aware, Winston Chang has some Docker images that
+build R with ASAN and UBSAN, using gcc and clang:
+https://github.com/wch/r-debug
+
+This doesn't directly address your question, but I hope it might be helpful.
+
+Best,
+Josh
+
+On Thu, Feb 15, 2024 at 12:15?PM Brent G Ewing <bge at uw.edu> wrote:
+>
+> Hi,
+>
+> I want to build a Docker container with R and various R packages built and
+> installed with the gcc address sanitizer enabled. I am working on a Debian
+> Bookworm system running on an x86_64 architecture.
+>
+> I start with the Docker file at
+>
+> https://github.com/rocker-org/r-devel-san/blob/master/Dockerfile
+>
+> I added -fsanitize=address to compiler and linker variables in the
+> Dockerfile. I also import into the image a Makevars file with the contents
+>
+> CC=gcc -std=gnu99 -fsanitize=address -fno-omit-frame-pointer
+> CXX=g++ -fsanitize=address -fno-omit-frame-pointer
+> FC=gfortran -fsanitize=address
+> LDFLAGS=-fsanitize=address
+>
+> Finally, the Docker file installs additional Debian object libraries and R
+> packages that I want to test.
+>
+> When the package build gets to testing whether the package can be
+> installed, an error message appears saying
+>
+> ==ASan runtime does not come first in initial library list; you should
+> either link runtime to your application or manually preload it with
+> LD_PRELOAD.
+>
+> For example,
+>
+> ESC[0mESC[91m** building package indices
+> ESC[0mESC[91m** installing vignettes
+> ESC[0mESC[91m** testing if installed package can be loaded from temporary
+> location
+> ESC[0m==684==ASan runtime does not come first in initial library list; you
+> should either link runtime to your application or manually preload it with
+> LD_PRELOAD.
+> ESC[91mERROR: loading failed
+> ESC[0mESC[91m* removing ?/usr/local/lib/R/site-library/utf8?
+> ESC[0mESC[91m* installing *source* package ?isoband? ...
+> ESC[0mESC[91m** package ?isoband? successfully unpacked and MD5 sums checked
+> ESC[0mESC[91m** using staged installation
+> ESC[0mESC[91m** libs
+>
+> I've tried preloading various libasan.so files that I find on the system
+> but the loader says that it cannot load them.
+>
+> My questions are
+>
+> 1. is it possible to build and install R and packages (in a container) with
+> the gcc address sanitizer enabled?
+> 2. if it is, how do I do it?
+> 3. is this ld_preload message relevant? If so, to which file does it refer?
+> Is there an ASAN runtime library file that I need to specify, and if so,
+> what is the path to it?
+>
+> I appreciate your consideration and assistance.
+>
+> Thank you.
+> Brent
+>
+> P.S. The build-related commands in the Docker file (including my address
+> sanitizer additions) are
+>
+> RUN cd /tmp/R-devel \
+>         && R_PAPERSIZE=letter \
+>            R_BATCHSAVE="--no-save --no-restore" \
+>            R_BROWSER=xdg-open \
+>            PAGER=/usr/bin/pager \
+>            PERL=/usr/bin/perl \
+>            R_UNZIPCMD=/usr/bin/unzip \
+>            R_ZIPCMD=/usr/bin/zip \
+>            R_PRINTCMD=/usr/bin/lpr \
+>            LIBnn=lib \
+>            AWK=/usr/bin/awk \
+>            CC="gcc -std=gnu99 -fsanitize=address -fsanitize=undefined
+> -fno-omit-frame-pointer" \
+>        CFLAGS="-fno-omit-frame-pointer -g -O2 -Wall -pedantic
+> -mtune=native" \
+>            FFLAGS="-g -O2 -mtune=native" \
+>            FCFLAGS="-g -O2 -mtune=native" \
+>            CXX="g++ -fsanitize=address -fsanitize=undefined,bounds-strict
+> -fno-omit-frame-pointer" \
+>            CXXFLAGS="-fsanitize=address -g -O2 -Wall -pedantic
+> -mtune=native" \
+>            CXX11FLAGS="-fsanitize=address -g -O2 -Wall -pedantic
+> -mtune=native" \
+>            CXX14FLAGS="-fsanitize=address -g -O2 -Wall -pedantic
+> -mtune=native" \
+>            CXX17FLAGS="-fsanitize=address -g -O2 -Wall -pedantic
+> -mtune=native" \
+>        LDFLAGS="-fsanitize=address" \
+>            MAIN_LDFLAGS="-fsanitize=address -fsanitize=undefined -pthread" \
+>            F77="gfortran -fsanitize=undefined" \
+>            FC="gfortran -fsanitize=undefined" \
+>            FCFLAGS="-g -O2 -mtune=native" \
+>            FFLAGS="-g -O2 -mtune=native" \
+>            ./configure --enable-R-shlib \
+>                --without-blas \
+>                --without-lapack \
+>                --with-readline \
+>                --without-recommended-packages \
+>                --program-suffix=dev \
+>                --disable-openmp \
+>         && make \
+>         && make install \
+>         && make clean
+>
+>         [[alternative HTML version deleted]]
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+
+-- 
+Joshua Ulrich  |  about.me/joshuaulrich
+FOSS Trading  |  www.fosstrading.com
+
+

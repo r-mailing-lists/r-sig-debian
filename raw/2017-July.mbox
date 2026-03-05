@@ -1,0 +1,1669 @@
+From kirill.mueller at ivt.baug.ethz.ch  Sun Jul  2 21:39:02 2017
+From: kirill.mueller at ivt.baug.ethz.ch (=?UTF-8?Q?Kirill_M=c3=bcller?=)
+Date: Sun, 2 Jul 2017 21:39:02 +0200
+Subject: [R-sig-Debian] /etc/R/Renviron doesn't set R_LIBS_USER anymore
+Message-ID: <3c66a7bd-b4e6-fd6f-e26e-2d8f3a165121@ivt.baug.ethz.ch>
+
+Hi
+
+
+An upgrade to R 3.4.1 on Ubuntu removed the default setting of 
+R_LIBS_USER in /etc/R/Renviron. What's the rationale behind this? Thanks.
+
+
+Best regards
+
+Kirill
+
+
+From edd at debian.org  Sun Jul  2 22:01:48 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 2 Jul 2017 15:01:48 -0500
+Subject: [R-sig-Debian] /etc/R/Renviron doesn't set R_LIBS_USER anymore
+In-Reply-To: <3c66a7bd-b4e6-fd6f-e26e-2d8f3a165121@ivt.baug.ethz.ch>
+References: <3c66a7bd-b4e6-fd6f-e26e-2d8f3a165121@ivt.baug.ethz.ch>
+Message-ID: <22873.20780.537755.629264@bud.eddelbuettel.com>
+
+
+On 2 July 2017 at 21:39, Kirill M?ller wrote:
+| Hi
+| 
+| An upgrade to R 3.4.1 on Ubuntu removed the default setting of 
+| R_LIBS_USER in /etc/R/Renviron. What's the rationale behind this? Thanks.
+
+Pretty much exactly what I told you in person last week :)
+
+- idea is to prefer /usr/local/lib/R/site-library/
+- multi-user more important than per-user
+
+Also see https://bugs.debian.org/866768
+
+The transition may be too harsh though. I did not consider the possibility of
+/usr/local/lib/R/site-library/ *not* being writeable.  So what I could do is
+to re-add the per-user directory as a fall-back after the preferred
+/usr/local/lib/R/site-library.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From kirill.mueller at ivt.baug.ethz.ch  Sun Jul  2 23:24:37 2017
+From: kirill.mueller at ivt.baug.ethz.ch (=?UTF-8?Q?Kirill_M=c3=bcller?=)
+Date: Sun, 2 Jul 2017 23:24:37 +0200
+Subject: [R-sig-Debian] /etc/R/Renviron doesn't set R_LIBS_USER anymore
+In-Reply-To: <22873.20780.537755.629264@bud.eddelbuettel.com>
+References: <3c66a7bd-b4e6-fd6f-e26e-2d8f3a165121@ivt.baug.ethz.ch>
+ <22873.20780.537755.629264@bud.eddelbuettel.com>
+Message-ID: <84afc5ff-2baa-5d3a-1485-a6be9dfb9851@ivt.baug.ethz.ch>
+
+On 02.07.2017 22:01, Dirk Eddelbuettel wrote:
+> On 2 July 2017 at 21:39, Kirill M?ller wrote:
+> | Hi
+> |
+> | An upgrade to R 3.4.1 on Ubuntu removed the default setting of
+> | R_LIBS_USER in /etc/R/Renviron. What's the rationale behind this? Thanks.
+>
+> Pretty much exactly what I told you in person last week :)
+>
+> - idea is to prefer /usr/local/lib/R/site-library/
+> - multi-user more important than per-user
+>
+> Also see https://bugs.debian.org/866768
+>
+> The transition may be too harsh though. I did not consider the possibility of
+> /usr/local/lib/R/site-library/ *not* being writeable.  So what I could do is
+> to re-add the per-user directory as a fall-back after the preferred
+> /usr/local/lib/R/site-library.
+Thanks. The site-library is owned by root/staff on my system, and my 
+user isn't member of the staff group (Ubuntu 17.04). I'm not sure how 
+this looks on a factory-fresh install, but IMO users should be able to 
+just use install.packages().
+
+
+-Kirill
+
+> Dirk
+>
+
+
+From edd at debian.org  Mon Jul  3 09:58:41 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 3 Jul 2017 02:58:41 -0500
+Subject: [R-sig-Debian] /etc/R/Renviron doesn't set R_LIBS_USER anymore
+In-Reply-To: <84afc5ff-2baa-5d3a-1485-a6be9dfb9851@ivt.baug.ethz.ch>
+References: <3c66a7bd-b4e6-fd6f-e26e-2d8f3a165121@ivt.baug.ethz.ch>
+ <22873.20780.537755.629264@bud.eddelbuettel.com>
+ <84afc5ff-2baa-5d3a-1485-a6be9dfb9851@ivt.baug.ethz.ch>
+Message-ID: <22873.63793.422364.351200@bud.eddelbuettel.com>
+
+
+On 2 July 2017 at 23:24, Kirill M?ller wrote:
+| On 02.07.2017 22:01, Dirk Eddelbuettel wrote:
+| > On 2 July 2017 at 21:39, Kirill M?ller wrote:
+| > | Hi
+| > |
+| > | An upgrade to R 3.4.1 on Ubuntu removed the default setting of
+| > | R_LIBS_USER in /etc/R/Renviron. What's the rationale behind this? Thanks.
+| >
+| > Pretty much exactly what I told you in person last week :)
+| >
+| > - idea is to prefer /usr/local/lib/R/site-library/
+| > - multi-user more important than per-user
+| >
+| > Also see https://bugs.debian.org/866768
+| >
+| > The transition may be too harsh though. I did not consider the possibility of
+| > /usr/local/lib/R/site-library/ *not* being writeable.  So what I could do is
+| > to re-add the per-user directory as a fall-back after the preferred
+| > /usr/local/lib/R/site-library.
+| Thanks. The site-library is owned by root/staff on my system, and my 
+| user isn't member of the staff group (Ubuntu 17.04). I'm not sure how 
+| this looks on a factory-fresh install, but IMO users should be able to 
+| just use install.packages().
+
+You should (as the local admin) set up appropriate groups and policies.
+
+In the simplest case, one addgroup would do.
+
+Worst case you can also
+
+  i)   wrap sudo around the installation step,
+  ii)  make the directory world-writeable or
+  iii) set R_LIBS_USER in the *.site files.
+
+I still feel (quite strongly) that this policy is the best, I do also see
+that the implementation may not be ideal -- not running install.packages()
+well is a bit of a, err, "setback".  Maybe I need to add it again at the end
+of .libPath() ?
+
+Dirk
+
+| 
+| 
+| -Kirill
+| 
+| > Dirk
+| >
+| 
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From johannes.ranke at jrwb.de  Mon Jul  3 10:16:20 2017
+From: johannes.ranke at jrwb.de (Ranke, Johannes)
+Date: Mon, 03 Jul 2017 10:16:20 +0200
+Subject: [R-sig-Debian] /etc/R/Renviron doesn't set R_LIBS_USER anymore
+In-Reply-To: <22873.63793.422364.351200@bud.eddelbuettel.com>
+References: <3c66a7bd-b4e6-fd6f-e26e-2d8f3a165121@ivt.baug.ethz.ch>
+ <22873.20780.537755.629264@bud.eddelbuettel.com>
+ <84afc5ff-2baa-5d3a-1485-a6be9dfb9851@ivt.baug.ethz.ch>
+ <22873.63793.422364.351200@bud.eddelbuettel.com>
+Message-ID: <5b0c451d3af1691f41831fbc44d09fdd@jrwb.de>
+
+On 2017-07-03 09:58, Dirk Eddelbuettel wrote:
+> On 2 July 2017 at 23:24, Kirill M?ller wrote:
+> | On 02.07.2017 22:01, Dirk Eddelbuettel wrote:
+> | > On 2 July 2017 at 21:39, Kirill M?ller wrote:
+> | > | Hi
+> | > |
+> | > | An upgrade to R 3.4.1 on Ubuntu removed the default setting of
+> | > | R_LIBS_USER in /etc/R/Renviron. What's the rationale behind this? 
+> Thanks.
+> | >
+> | > Pretty much exactly what I told you in person last week :)
+> | >
+> | > - idea is to prefer /usr/local/lib/R/site-library/
+> | > - multi-user more important than per-user
+> | >
+> | > Also see https://bugs.debian.org/866768
+> | >
+> | > The transition may be too harsh though. I did not consider the
+> possibility of
+> | > /usr/local/lib/R/site-library/ *not* being writeable.  So what I 
+> could do is
+> | > to re-add the per-user directory as a fall-back after the preferred
+> | > /usr/local/lib/R/site-library.
+> | Thanks. The site-library is owned by root/staff on my system, and my
+> | user isn't member of the staff group (Ubuntu 17.04). I'm not sure how
+> | this looks on a factory-fresh install, but IMO users should be able 
+> to
+> | just use install.packages().
+> 
+> You should (as the local admin) set up appropriate groups and policies.
+> 
+> In the simplest case, one addgroup would do.
+
+While we are in this discussion, I would like to add that admins should 
+be aware of the fact that adding a user to the "staff" group gives a lot 
+of power and responsibility to that user, such a user can add 
+executables to /usr/local/bin which is per default in the PATH of every 
+user on the system. These binaries may override those in /usr/bin [1]. 
+This is not necessary for R users that just want to install packages 
+system-wide.
+
+Shouldn't we recommend a dedicated group for installing R packages in 
+order to avoid these security implications?
+
+[1] https://wiki.debian.org/SystemGroups
+
+Cheers,
+
+Johannes
+
+
+From edd at debian.org  Mon Jul  3 11:31:43 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 3 Jul 2017 04:31:43 -0500
+Subject: [R-sig-Debian] /etc/R/Renviron doesn't set R_LIBS_USER anymore
+In-Reply-To: <5b0c451d3af1691f41831fbc44d09fdd@jrwb.de>
+References: <3c66a7bd-b4e6-fd6f-e26e-2d8f3a165121@ivt.baug.ethz.ch>
+ <22873.20780.537755.629264@bud.eddelbuettel.com>
+ <84afc5ff-2baa-5d3a-1485-a6be9dfb9851@ivt.baug.ethz.ch>
+ <22873.63793.422364.351200@bud.eddelbuettel.com>
+ <5b0c451d3af1691f41831fbc44d09fdd@jrwb.de>
+Message-ID: <22874.3839.128025.175985@bud.eddelbuettel.com>
+
+
+On 3 July 2017 at 10:16, Ranke, Johannes wrote:
+| On 2017-07-03 09:58, Dirk Eddelbuettel wrote:
+| > On 2 July 2017 at 23:24, Kirill M?ller wrote:
+| > | On 02.07.2017 22:01, Dirk Eddelbuettel wrote:
+| > | > On 2 July 2017 at 21:39, Kirill M?ller wrote:
+| > | > | Hi
+| > | > |
+| > | > | An upgrade to R 3.4.1 on Ubuntu removed the default setting of
+| > | > | R_LIBS_USER in /etc/R/Renviron. What's the rationale behind this? 
+| > Thanks.
+| > | >
+| > | > Pretty much exactly what I told you in person last week :)
+| > | >
+| > | > - idea is to prefer /usr/local/lib/R/site-library/
+| > | > - multi-user more important than per-user
+| > | >
+| > | > Also see https://bugs.debian.org/866768
+| > | >
+| > | > The transition may be too harsh though. I did not consider the
+| > possibility of
+| > | > /usr/local/lib/R/site-library/ *not* being writeable.  So what I 
+| > could do is
+| > | > to re-add the per-user directory as a fall-back after the preferred
+| > | > /usr/local/lib/R/site-library.
+| > | Thanks. The site-library is owned by root/staff on my system, and my
+| > | user isn't member of the staff group (Ubuntu 17.04). I'm not sure how
+| > | this looks on a factory-fresh install, but IMO users should be able 
+| > to
+| > | just use install.packages().
+| > 
+| > You should (as the local admin) set up appropriate groups and policies.
+| > 
+| > In the simplest case, one addgroup would do.
+| 
+| While we are in this discussion, I would like to add that admins should 
+| be aware of the fact that adding a user to the "staff" group gives a lot 
+| of power and responsibility to that user, such a user can add 
+| executables to /usr/local/bin which is per default in the PATH of every 
+
+Isn't /usr/local/ having all root:root directories?
+
+| user on the system. These binaries may override those in /usr/bin [1]. 
+| This is not necessary for R users that just want to install packages 
+| system-wide.
+| 
+| Shouldn't we recommend a dedicated group for installing R packages in 
+| order to avoid these security implications?
+| 
+| [1] https://wiki.debian.org/SystemGroups
+
+You are free to use staff, or adm, or create one, or ...
+
+Creating one new group by default might be overkill. Locally, however, this
+could be a good idea.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From rdiaz02 at gmail.com  Mon Jul  3 13:05:34 2017
+From: rdiaz02 at gmail.com (Ramon Diaz-Uriarte)
+Date: Mon, 03 Jul 2017 13:05:34 +0200
+Subject: [R-sig-Debian] /etc/R/Renviron doesn't set R_LIBS_USER anymore
+In-Reply-To: <22873.63793.422364.351200@bud.eddelbuettel.com>
+References: <3c66a7bd-b4e6-fd6f-e26e-2d8f3a165121@ivt.baug.ethz.ch>
+ <22873.20780.537755.629264@bud.eddelbuettel.com>
+ <84afc5ff-2baa-5d3a-1485-a6be9dfb9851@ivt.baug.ethz.ch>
+ <22873.63793.422364.351200@bud.eddelbuettel.com>
+Message-ID: <87o9t1dblt.fsf@gmail.com>
+
+
+On Mon, 03-07-2017, at 07:58:41, Dirk Eddelbuettel <edd at debian.org> wrote:
+> On 2 July 2017 at 23:24, Kirill M?ller wrote:
+> | On 02.07.2017 22:01, Dirk Eddelbuettel wrote:
+> | > On 2 July 2017 at 21:39, Kirill M?ller wrote:
+> | > | Hi
+> | > |
+> | > | An upgrade to R 3.4.1 on Ubuntu removed the default setting of
+> | > | R_LIBS_USER in /etc/R/Renviron. What's the rationale behind this? Thanks.
+> | >
+> | > Pretty much exactly what I told you in person last week :)
+> | >
+> | > - idea is to prefer /usr/local/lib/R/site-library/
+> | > - multi-user more important than per-user
+> | >
+> | > Also see https://bugs.debian.org/866768
+> | >
+> | > The transition may be too harsh though. I did not consider the possibility of
+> | > /usr/local/lib/R/site-library/ *not* being writeable.  So what I could do is
+> | > to re-add the per-user directory as a fall-back after the preferred
+> | > /usr/local/lib/R/site-library.
+> | Thanks. The site-library is owned by root/staff on my system, and my
+> | user isn't member of the staff group (Ubuntu 17.04). I'm not sure how
+> | this looks on a factory-fresh install, but IMO users should be able to
+> | just use install.packages().
+>
+> You should (as the local admin) set up appropriate groups and policies.
+>
+> In the simplest case, one addgroup would do.
+>
+> Worst case you can also
+>
+>   i)   wrap sudo around the installation step,
+>   ii)  make the directory world-writeable or
+>   iii) set R_LIBS_USER in the *.site files.
+>
+> I still feel (quite strongly) that this policy is the best, I do also see
+> that the implementation may not be ideal -- not running install.packages()
+> well is a bit of a, err, "setback".  Maybe I need to add it again at the end
+> of .libPath() ?
+
+
+If I might chime in, I'd like to add my vote to the "users should be able
+to use install.packages and should be able to install bioconductor
+packages with biocLite".
+
+
+Longer story
+============
+
+
+Two cases (I've just faced this morning), where
+/usr/local/lib/R/site-library/ was not user-writeable:
+
+
+1. Students using Debian or Ubuntu on their laptops, where these students
+are not particularly knowledgeable about Linux.
+
+
+2. Sys admins that install and configure software for computer labs, where
+beyond some bare minima (e.g., R, gcc, etc) users are expected and allowed
+to install (some) software on their homes. These sys admins might be
+specially reluctant to add users to privileged groups and/or make
+/usr/local/lib/R/site-library user-writeable.
+
+
+
+The problem is that both groups, after issuing the
+
+sudo apt-get install r-base
+sudo apt-get install r-base-dev
+
+(as per https://cran.r-project.org/bin/linux/ubuntu/README.html)
+
+
+are later surprised when users cannot immediately install packages in the
+"usual R way (install.packages)".  And this gets more complicated when we
+add a bunch of bioconductor packages, where BioConductor pages often say to
+install as
+
+
+source("https://bioconductor.org/biocLite.R")
+biocLite(some_packages)
+
+
+
+
+I've ended up doing
+
+.libPaths(c(the_user_home, .libPaths()))
+
+
+but this does not look very friendly for new users.
+
+
+
+
+
+Best,
+
+
+
+R.
+
+
+
+>
+> Dirk
+>
+> |
+> |
+> | -Kirill
+> |
+> | > Dirk
+> | >
+> |
+
+
+--
+Ramon Diaz-Uriarte
+Department of Biochemistry, Lab B-25
+Facultad de Medicina
+Universidad Aut?noma de Madrid
+Arzobispo Morcillo, 4
+28029 Madrid
+Spain
+
+Phone: +34-91-497-2412
+
+Email: rdiaz02 at gmail.com
+       ramon.diaz at iib.uam.es
+
+http://ligarto.org/rdiaz
+
+
+From edd at debian.org  Mon Jul  3 14:18:36 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 3 Jul 2017 07:18:36 -0500
+Subject: [R-sig-Debian] /etc/R/Renviron doesn't set R_LIBS_USER anymore
+In-Reply-To: <87o9t1dblt.fsf@gmail.com>
+References: <3c66a7bd-b4e6-fd6f-e26e-2d8f3a165121@ivt.baug.ethz.ch>
+ <22873.20780.537755.629264@bud.eddelbuettel.com>
+ <84afc5ff-2baa-5d3a-1485-a6be9dfb9851@ivt.baug.ethz.ch>
+ <22873.63793.422364.351200@bud.eddelbuettel.com>
+ <87o9t1dblt.fsf@gmail.com>
+Message-ID: <22874.13852.846964.971548@bud.eddelbuettel.com>
+
+
+On 3 July 2017 at 13:05, Ramon Diaz-Uriarte wrote:
+| If I might chime in, I'd like to add my vote to the "users should be able
+| to use install.packages and should be able to install bioconductor
+| packages with biocLite".
+| 
+| Longer story
+| ============
+| 
+| Two cases (I've just faced this morning), where
+| /usr/local/lib/R/site-library/ was not user-writeable:
+| 
+| 1. Students using Debian or Ubuntu on their laptops, where these students
+| are not particularly knowledgeable about Linux.
+| 
+| 2. Sys admins that install and configure software for computer labs, where
+| beyond some bare minima (e.g., R, gcc, etc) users are expected and allowed
+| to install (some) software on their homes. These sys admins might be
+| specially reluctant to add users to privileged groups and/or make
+| /usr/local/lib/R/site-library user-writeable.
+| 
+| The problem is that both groups, after issuing the
+| 
+| sudo apt-get install r-base
+| sudo apt-get install r-base-dev
+| 
+| (as per https://cran.r-project.org/bin/linux/ubuntu/README.html)
+| 
+| are later surprised when users cannot immediately install packages in the
+| "usual R way (install.packages)".  And this gets more complicated when we
+| add a bunch of bioconductor packages, where BioConductor pages often say to
+| install as
+| 
+| source("https://bioconductor.org/biocLite.R")
+| biocLite(some_packages)
+| 
+| I've ended up doing
+| 
+| .libPaths(c(the_user_home, .libPaths()))
+| 
+| but this does not look very friendly for new users.
+
+Easier: Remove one # comment character in /etc/R/Renviron which does the same.
+
+As does setting in file /etc/R/Renviron.site (which the package never
+touches).
+
+And local policy can (and should!) still be to set a local group.
+ 
+Dirk 
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From rdiaz02 at gmail.com  Mon Jul  3 14:54:39 2017
+From: rdiaz02 at gmail.com (Ramon Diaz-Uriarte)
+Date: Mon, 03 Jul 2017 14:54:39 +0200
+Subject: [R-sig-Debian] /etc/R/Renviron doesn't set R_LIBS_USER anymore
+In-Reply-To: <22874.13852.846964.971548@bud.eddelbuettel.com>
+References: <3c66a7bd-b4e6-fd6f-e26e-2d8f3a165121@ivt.baug.ethz.ch>
+ <22873.20780.537755.629264@bud.eddelbuettel.com>
+ <84afc5ff-2baa-5d3a-1485-a6be9dfb9851@ivt.baug.ethz.ch>
+ <22873.63793.422364.351200@bud.eddelbuettel.com> <87o9t1dblt.fsf@gmail.com>
+ <22874.13852.846964.971548@bud.eddelbuettel.com>
+Message-ID: <874lutd6k0.fsf@gmail.com>
+
+
+
+
+On Mon, 03-07-2017, at 12:18:36, Dirk Eddelbuettel <edd at debian.org> wrote:
+> On 3 July 2017 at 13:05, Ramon Diaz-Uriarte wrote:
+> | If I might chime in, I'd like to add my vote to the "users should be able
+> | to use install.packages and should be able to install bioconductor
+> | packages with biocLite".
+> |
+> | Longer story
+> | ============
+> |
+> | Two cases (I've just faced this morning), where
+> | /usr/local/lib/R/site-library/ was not user-writeable:
+> |
+> | 1. Students using Debian or Ubuntu on their laptops, where these students
+> | are not particularly knowledgeable about Linux.
+> |
+> | 2. Sys admins that install and configure software for computer labs, where
+> | beyond some bare minima (e.g., R, gcc, etc) users are expected and allowed
+> | to install (some) software on their homes. These sys admins might be
+> | specially reluctant to add users to privileged groups and/or make
+> | /usr/local/lib/R/site-library user-writeable.
+> |
+> | The problem is that both groups, after issuing the
+> |
+> | sudo apt-get install r-base
+> | sudo apt-get install r-base-dev
+> |
+> | (as per https://cran.r-project.org/bin/linux/ubuntu/README.html)
+> |
+> | are later surprised when users cannot immediately install packages in the
+> | "usual R way (install.packages)".  And this gets more complicated when we
+> | add a bunch of bioconductor packages, where BioConductor pages often say to
+> | install as
+> |
+> | source("https://bioconductor.org/biocLite.R")
+> | biocLite(some_packages)
+> |
+> | I've ended up doing
+> |
+> | .libPaths(c(the_user_home, .libPaths()))
+> |
+> | but this does not look very friendly for new users.
+>
+> Easier: Remove one # comment character in /etc/R/Renviron which does the same.
+>
+> As does setting in file /etc/R/Renviron.site (which the package never
+> touches).
+
+Thanks for reminding me of that. I am now adding it to my class notes so
+I won't forget it again. :-)
+
+I understand that this is for the time being, because if you add the user
+directory as a fall-back after the preferred /usr/local/lib/R/site-library,
+then modifying /etc/R/Renviron[.site] would not be needed.
+
+
+>
+> And local policy can (and should!) still be to set a local group.
+>
+
+Point taken too.
+
+
+Best,
+
+
+R.
+
+> Dirk
+
+
+--
+Ramon Diaz-Uriarte
+Department of Biochemistry, Lab B-25
+Facultad de Medicina
+Universidad Aut?noma de Madrid
+Arzobispo Morcillo, 4
+28029 Madrid
+Spain
+
+Phone: +34-91-497-2412
+
+Email: rdiaz02 at gmail.com
+       ramon.diaz at iib.uam.es
+
+http://ligarto.org/rdiaz
+
+
+From kaji331 at hotmail.com  Wed Jul  5 07:07:41 2017
+From: kaji331 at hotmail.com (=?gb2312?B?0e4gwes=?=)
+Date: Wed, 5 Jul 2017 05:07:41 +0000
+Subject: [R-sig-Debian] Path problem of R 3.4.1 in Ubuntu 16.04 LTS 64bit
+In-Reply-To: <SG2PR04MB070919F3202893ECE160BC7BF7D40@SG2PR04MB0709.apcprd04.prod.outlook.com>
+References: <SG2PR04MB070919F3202893ECE160BC7BF7D40@SG2PR04MB0709.apcprd04.prod.outlook.com>
+Message-ID: <SG2PR04MB07098CB270C2DE90C1B8B76BF7D40@SG2PR04MB0709.apcprd04.prod.outlook.com>
+
+Hello,
+
+
+In the past, R was always OK. Today, I updated R from 3.4.0 to 3.4.1 from cran mirrors. Updating was OK, but when I started R 3.4.1, It told me it couldn't find libraries. I installed libraries in /home/<users>/R/x86_64-pc-linux-gnu-library/3.4/. Now, if I wanna install packages in 3.4.1, the suggested default path is 'NA' !?!?
+
+
+I reinstalled R 3.4.0. All is OK. Please help!
+
+
+Ling
+
+	[[alternative HTML version deleted]]
+
+
+From sergioller at gmail.com  Wed Jul  5 12:34:46 2017
+From: sergioller at gmail.com (Sergio Oller)
+Date: Wed, 5 Jul 2017 12:34:46 +0200
+Subject: [R-sig-Debian] Path problem of R 3.4.1 in Ubuntu 16.04 LTS 64bit
+In-Reply-To: <SG2PR04MB07098CB270C2DE90C1B8B76BF7D40@SG2PR04MB0709.apcprd04.prod.outlook.com>
+References: <SG2PR04MB070919F3202893ECE160BC7BF7D40@SG2PR04MB0709.apcprd04.prod.outlook.com>
+ <SG2PR04MB07098CB270C2DE90C1B8B76BF7D40@SG2PR04MB0709.apcprd04.prod.outlook.com>
+Message-ID: <CAGBo=GmCYg+Jtz9muwJvDNzEGoGNP0GvyD=8Fer=Y8MPXCjshw@mail.gmail.com>
+
+Hi,
+
+2017-07-05 7:07 GMT+02:00 ? ? <kaji331 at hotmail.com>:
+>
+> Hello,
+>
+>
+> In the past, R was always OK. Today, I updated R from 3.4.0 to 3.4.1 from
+cran mirrors. Updating was OK, but when I started R 3.4.1, It told me it
+couldn't find libraries. I installed libraries in
+/home/<users>/R/x86_64-pc-linux-gnu-library/3.4/. Now, if I wanna install
+packages in 3.4.1, the suggested default path is 'NA' !?!?
+
+A quick solution is to add:
+
+R_LIBS_USER=~/R/%p-library/%v
+
+to your ~/.Renviron file (usually /home/your_user/.Renviron), as suggested
+by https://mobile.twitter.com/henrikbengtsson/status/882386074839924736
+
+More info is given at [1].
+
+[1] https://stat.ethz.ch/pipermail/r-sig-debian/2017-July/002727.html
+
+>From what I can understand in [1] Dirk Eddelbuettel, the Debian Maintainer,
+defends that the default should be to have a shared library of packages
+among all users rather than letting each user have its own packages in
+their home directory. This seems to be the default approach in other Debian
+packages (e.g. `pip install` uses /usr/local/). He believes it should be
+the default approach for R as well. However it seems he did not consider
+the possibility that the shared library may not be writeable. In [1] he
+proposed to add as a fall-back the local home directory, and I hope he
+chooses to go that path in the next package version.
+
+I don't think that leaving current users in a situation where they can't
+continue installing packages (without additional actions they may not know
+about) and in a situation where all their packages have "disappeared" was
+intended.
+
+Personally, I prefer to have the packages in my home directory, to prevent
+other users inadvertently updating the packages I want to use, but I
+understand that my use case may not be the default one. I believe that the
+current situation is the result of a bug that hopefully will be fixed in
+future package versions.
+
+Best,
+
+Sergio
+
+
+>
+>
+> I reinstalled R 3.4.0. All is OK. Please help!
+>
+>
+> Ling
+>
+
+	[[alternative HTML version deleted]]
+
+
+From pavel at uow.edu.au  Thu Jul  6 07:03:44 2017
+From: pavel at uow.edu.au (Pavel Krivitsky)
+Date: Thu, 6 Jul 2017 05:03:44 +0000
+Subject: [R-sig-Debian] Regarding R_LIBS_USER
+Message-ID: <1499317422.19485.86.camel@uow.edu.au>
+
+Hello,
+
+I just subscribed to the list to join the discussion after being
+blindsided by the change and reading Dirk Eddelbuettel's reply to my
+bug report at https://bugs.debian.org/866768 . 
+
+As far as I can tell the advantages of site library are:
+
+   1. Saves disk space and a little bit of user time spent installing and
+      upgrading.
+   2. Other Debian package manages, like pip, default?to trying to install
+      to a site library.
+
+However, it seems to me that the case for status quo ante is stronger,
+even if the jarring behaviour (asking user whether to create a personal
+directory, then failing to do so) is fixed:
+
+   1. Correct me if I am wrong, but wouldn't the change make the default
+      behaviour of R on Debian different from its default behaviour on
+      other distributions?
+   2. Site library has no benefit over user library on a single-user
+      system.
+   3. Making the site library writeable by default is a severe security
+      vulnerability, since it enables users to rewrite library code that
+      will be blindly executed by other users on the system.
+   4. Making the site library not-writeable by default means that users
+      relying on site library need to contact an administrator to get a
+      package installed or upgraded. This seems to me to largely defeat
+      the benefit of a site library for most systems, since most users
+      aren't so patient and would just figure out how to use a user
+      library.
+   5. The use case where defaulting to installing to site library is most
+      beneficial---a system shared by few trusted users---is rare compared
+      to the single-user and the many-untrusted-user systems.
+   6. There are workarounds, and, indeed, users can always use user
+      libraries, but the new setup puts the burden of tweaking the system
+      on the *least skilled* users, whereas the old setup Just Worked for
+      them (since R 2.5.0).
+   7. Even in Python and others, the user library takes precedence over
+      the site library (which, in turn, takes precedence over the dpkg-
+      installed library). This means that .libPaths() should have the user
+      library (if it exists) in first position, not as a fallback.
+
+So, overall, I think the change does more harm than good. Am I missing anything?
+
+				Best Regards,
+				Pavel
+
+-- 
+Pavel Krivitsky
+Lecturer in Statistics
+National Institute of Applied Statistics Research Australia (NIASRA)
+School of Mathematics and Applied Statistics | Building 39C Room 154
+University of Wollongong NSW 2522 Australia
+T +61 2 4221 3713
+Web (NIASRA): http://niasra.uow.edu.au/index.html
+Web (Personal): http://www.krivitsky.net/research
+ORCID: 0000-0002-9101-3362
+
+NOTICE: This email is intended for the addressee named and may contain
+confidential information. If you are not the intended recipient, please
+delete it and notify the sender. Please consider the environment before
+printing this email.
+
+From acecard17 at gmail.com  Thu Jul  6 08:23:43 2017
+From: acecard17 at gmail.com (amine acecard)
+Date: Thu, 6 Jul 2017 07:23:43 +0100
+Subject: [R-sig-Debian] Using Openblas with R in Reproducible R container
+In-Reply-To: <CAB8craYoJCzLarh_Q1fv-d=ds+Lkjcy-sc9zz=C+6p5L5FPn3A@mail.gmail.com>
+References: <CAB8crabBtgUW572_nsu6E1_KKXDeHroBxzqZ14oDY5i2h76OMA@mail.gmail.com>
+ <CAB8craYc5Q6e3U7zLNQm6Pg3MYPvbFQbMSmTnH1zB+qXkHv-QQ@mail.gmail.com>
+ <CAB8crabDgdB60333tWrXE5HkoKc8jHHPRX4ryapX+potqui=+w@mail.gmail.com>
+ <CAB8craaaHR01pgFUgGVGnmGuG8AHdbozt2MVTOfHckdw3J5G7g@mail.gmail.com>
+ <CAB8craaVB2KidqGwt4biqf6v2YWdU0Z_HwsvNmvd9ocUzY2ugg@mail.gmail.com>
+ <CAB8craaQWrjKUo581oE_y0Eb+s5sZ64nhfcqDZbJv+dyPZC_LQ@mail.gmail.com>
+ <CAB8craZ2PKhrdHJ9kDbz9a8jdjJ5=ovO3UnsEJMNLTWVDV-XMg@mail.gmail.com>
+ <CAB8craaVTf32xPrRLK0ZNwQB4GHaosJGXo04tTb0yDWg8m=pqA@mail.gmail.com>
+ <CAB8craZEczFpw8b9oyd2KPayso26J-VadSzsvB3Fs2hCiN9Q2A@mail.gmail.com>
+ <CAB8craahPcFCLN0LacKiNLqNdRipXrMtH6-31fawkeMh=kr+cw@mail.gmail.com>
+ <CAB8craZdX=QvgrgyA8JkR3mXXgPTnbGXz5fYnMKJzoOLyFh+ZA@mail.gmail.com>
+ <CAB8craY+Xr_XO1d0ORyQFd86wMfiMR75P4rNR1g0QMwdqSCCew@mail.gmail.com>
+ <CAB8craY6ci=tpWDfx78FxUO+Ye2tzpK-ps1FPPT1OONc6yyr9Q@mail.gmail.com>
+ <CAB8crabHQG9q9O=sR9PDjxVQ2RMbWFnE8UFZ1difGzCF99XiEA@mail.gmail.com>
+ <CAB8craa9uDObGTeSgObqijWVzbpULW6670dyUPzezS-dwkoPng@mail.gmail.com>
+ <CAB8craa-wc90wJpY9afcz3ZUCJdQL_WHL6PmTX4Hqa3S5wGocQ@mail.gmail.com>
+ <CAB8craax-Wf1akQKNO+JO9T9OeEvNyYKxODDizr0Ln4U3vCQag@mail.gmail.com>
+ <CAB8craaGiJXk_njinrc+AUbi_TM1et3iVDsnFqxd9qjUUyVqGw@mail.gmail.com>
+ <CAB8craYquV1CSJ0bp22oYYmp4XYR9=UaWmA5uygL=QwFOpCfrg@mail.gmail.com>
+ <CAB8craY0GuZ5ibiS98U=aOJa4J7Ldyrn+eKZHqSJH3ydgcD9XA@mail.gmail.com>
+ <CAB8craaxgthZKgWn8RFHzzsrYyTWdEHhdcgLuysx=3hF39fZTw@mail.gmail.com>
+ <CAB8craaKarJiPTpnPsHf+tD0SDv9fv0NZDZGScsu6yx0AX8Waw@mail.gmail.com>
+ <CAB8crabVewPEMnq4UQjiykckFfGoJcasiwtxGj=2S_9Jm5AFUQ@mail.gmail.com>
+ <CAB8craahKM53dOsBdc4JN8NrmhrqSNQazhM5rNx-juHLPjAyOA@mail.gmail.com>
+ <CAB8craZxJjzs7mg7mbknkD4BjhJsMP=MXWWzS7WnL41kN61STg@mail.gmail.com>
+ <CAB8craauT0LSXQgcCUSByyRAHydgDbpS5P1fzhg9A+NhV1hjiQ@mail.gmail.com>
+ <CAB8craYa1KN9XOQkWBeokCO58iYn3Vafq7rA4iGS9d2SEW8kDg@mail.gmail.com>
+ <CAB8craYt3UHvRS9UxAw57O=Ozt+jUL9pN5TQQLV+-7_DfOm5HA@mail.gmail.com>
+ <CAB8craZmF3xMirAREhNxD3f1rMhJqZke3_DmkU3Yb77J7LAN5A@mail.gmail.com>
+ <CAB8craaPPMU7gT2iX932WOs2ok+ZSGtRcncSjYWRsmE_Gpo=9w@mail.gmail.com>
+ <CAB8craYXcgKq5UUz_ubN6c6YTV6rNFZJwVsBT_S2wNQnJrduPA@mail.gmail.com>
+ <CAB8craanSRdctsuhHAPU3K0=jc_GuumDEHCw-k6HYMLZ+Hrpfw@mail.gmail.com>
+ <CAB8craY8vodTmDKUCBueK0pqvkxRiqwdcb=nFtE=v=oFFw2hNw@mail.gmail.com>
+ <CAB8craZmx0aQ6pyZ=Z-pepgyE5Ob9iF8OiwSnsBfbBxUOTdEbg@mail.gmail.com>
+ <CAB8craYoJCzLarh_Q1fv-d=ds+Lkjcy-sc9zz=C+6p5L5FPn3A@mail.gmail.com>
+Message-ID: <CAB8craYzQ+P7HasdDqH00zyQWK66U==knxDKBZ1Vrc1xW+heYA@mail.gmail.com>
+
+Good morning
+Since im using R for a reproducible scientific machine learing &
+hyperparamter optimizations i stumble upon the fact that other
+implementations of blas such openblas/atlas/klm can speedup this costly
+ optimizarion but results  are slightly different using each each blas even
+if optimization is forced on single thread results deviate from default R.
+So since im using docker to contain the experiment is good to:
+1.compile from source instead of binaries.
+2.if i compile from source using default will lead to same configuration as
+debian binaries.
+3.since results are different for each blas which blas i have to
+use..theres a something called reproblas from Berkley  is it good idea to
+use it with R.
+4.when you compile R using "--with-blas=-lopenblas" in this case openblas
+is single threaded or multithreaded?
+
+	[[alternative HTML version deleted]]
+
+
+From edd at debian.org  Thu Jul  6 10:42:56 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Thu, 6 Jul 2017 08:42:56 +0000
+Subject: [R-sig-Debian] Regarding R_LIBS_USER
+In-Reply-To: <1499317422.19485.86.camel@uow.edu.au>
+References: <1499317422.19485.86.camel@uow.edu.au>
+Message-ID: <20170706084256.GA23691@master.debian.org>
+
+
+Pavel,
+
+Your tone does not exactly help in this discussion.
+
+Briefly, I (like many other people) consider Linux and Unix to be
+multi-user systems.  You can argue as passionately for a default
+installation in /usr/loca/lib/R/site-library as you did against. And
+some of your arguments are just silly ("dangerous group": dude, it is
+one 'sudo addgroup r-adm' [or anotther name...]) away).
+
+I have used such settings (such as un-setting R_LIBS_USER or its
+predecessors) for over a decade, it just works (if you give write
+permissions). It clearly helps us at work because everybody sees by
+the default the same packages. I have also spoken with different R
+Core members and several find the default installation below $HOME and
+in a versioned directory less than ideal as well.  But it ensures
+writeability. Which I cannot do easily from the package.
+
+So maybe the change was too abrupt, and I think I may revert it. I
+generally prefer for packagers like myself to not divert from upstream
+unless they have good reasom or are unintrusive (and eg the added
+tab-completion we have here is both).  But leaving newbies without
+installable directories is bad, as is possibly hiding existing
+installations.
+
+I am a little pressed for time (at useR!) and system (main server is
+ill, as is backup machine) but I should get a 3.4.1-2 out.
+
+I'd welcome other comments, for or against.
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From johannes.ranke at jrwb.de  Thu Jul  6 11:43:22 2017
+From: johannes.ranke at jrwb.de (Johannes Ranke)
+Date: Thu, 06 Jul 2017 11:43:22 +0200
+Subject: [R-sig-Debian] Regarding R_LIBS_USER
+In-Reply-To: <20170706084256.GA23691@master.debian.org>
+References: <1499317422.19485.86.camel@uow.edu.au>
+ <20170706084256.GA23691@master.debian.org>
+Message-ID: <3259683.0UXy6U1ZEW@tux>
+
+Hi,
+
+> I have used such settings (such as un-setting R_LIBS_USER or its
+> predecessors) for over a decade, it just works (if you give write
+> permissions). It clearly helps us at work because everybody sees by
+> the default the same packages. I have also spoken with different R
+> Core members and several find the default installation below $HOME and
+> in a versioned directory less than ideal as well.  But it ensures
+> writeability. Which I cannot do easily from the package.
+
+Could the package make /usr/local/lib/R/site-library owned by a dedicated 
+group, e.g. rlibs, so people could just adduser $USER rlibs? I do not see why 
+R users should read logs, which is what the adm group was apparently made for.
+
+And then, this tip could be given when install.packages() fails, in addition 
+to the option to create a user (but not version) specific library. Usually R 
+libraries are not version specific, even though in the case of R 3.0.0 and 
+3.4.0 compatibility was interrupted.
+
+> So maybe the change was too abrupt, and I think I may revert it. I
+> generally prefer for packagers like myself to not divert from upstream
+> unless they have good reasom or are unintrusive (and eg the added
+> tab-completion we have here is both).  But leaving newbies without
+> installable directories is bad, as is possibly hiding existing
+> installations.
+
+I also like the idea of multiuser libraries, and in general the idea is that 
+the most current package versions play well together, and are better then 
+earlier versions. If this should not be the case, this should be an 
+exceptional situation, which may warrant a user specific library.
+
+So an alternative to reverting the change would be to keep your change, but to 
+give better support for people that 
+
+a) have user (and version) specific libraries that were created from within R 
+in the past ("do you want to create a personal library instead")
+
+b) want to use personal libraries for some good reason
+
+via this list and maybe also via improved messages from R for the case that 
+install.package() fails.
+ 
+Johannes
+
+
+From sergioller at gmail.com  Thu Jul  6 14:02:52 2017
+From: sergioller at gmail.com (Sergio Oller)
+Date: Thu, 6 Jul 2017 14:02:52 +0200
+Subject: [R-sig-Debian] Regarding R_LIBS_USER
+In-Reply-To: <20170706084256.GA23691@master.debian.org>
+References: <1499317422.19485.86.camel@uow.edu.au>
+ <20170706084256.GA23691@master.debian.org>
+Message-ID: <CAGBo=Gn9DHFeyMm=4ei8hwyck8kUXJkjsakZ4=+Kzt5GVZVN5w@mail.gmail.com>
+
+Hi,
+
+As comments are welcome I will give my two cents and a patch suggestion :-)
+
+2017-07-06 10:42 GMT+02:00 Dirk Eddelbuettel <edd at debian.org>:
+>
+>
+> I have used such settings (such as un-setting R_LIBS_USER or its
+> predecessors) for over a decade, it just works (if you give write
+> permissions). It clearly helps us at work because everybody sees by
+> the default the same packages. I have also spoken with different R
+> Core members and several find the default installation below $HOME and
+> in a versioned directory less than ideal as well.  But it ensures
+> writeability. Which I cannot do easily from the package.
+>
+>
+> So maybe the change was too abrupt, and I think I may revert it. I
+> generally prefer for packagers like myself to not divert from upstream
+> unless they have good reasom or are unintrusive (and eg the added
+> tab-completion we have here is both).  But leaving newbies without
+> installable directories is bad, as is possibly hiding existing
+> installations.
+
+There are several entangled issues:
+1. What should be the default places where packages are installed?
+2. What should be the default places where packages are loaded from?
+3. Ensuring that with the default R installation any user can install
+packages
+
+For 1., I believe packages should be installed at:
+- /usr/lib/R/library, if they are given by a .deb package (core R packages)
+- /usr/lib/R/site-library/, if they are given by a .deb package (other
+packages)
+- /usr/local/lib/R/site-library/, if the user has permissions
+- ~/R/x86_64-pc-linux-gnu-library/3.4, (or somewhere else under $HOME,
+otherwise)
+
+For 2., I believe packages should be loaded from:
+- ~/R/x86_64-pc-linux-gnu-library/3.4
+- /usr/local/lib/R/site-library/
+- /usr/lib/R/site-library/
+- /usr/lib/R/library
+
+I believe with 3.4.1-1 Dirk tried to move towards that configuration, and
+for some reasons we ended in a situation where the R library in the HOME
+directory was not considered to write into and was not considered to load
+packages from.
+
+This is how R works:
+
+- When we use `library("package_name")`, the package_name is searched in
+the directories given by .libPaths().
+
+- When we use `install.packages("package_name")`, by default the package is
+installed in the first element of .libPaths().
+
+These two things make it very tricky to find a solution to 1, because:
+
+- We can't change .libPaths() as we would break with how packages are
+searched
+- We may try to change install.packages() so instead of trying to install
+to .libPaths()[1] by default it tries /usr/local/lib/R/site-library first.
+We don't know how many things may break because they rely on that
+assumption, we would need to test CRAN packages like checkpoint and packrat
+and worse we don't know if we break some custom setups from users.
+- We can't remove the home directory from .libPaths() because some users
+won't be able to install packages there anymore nor find their packages,
+unless they choose to do that in their Renviron file.
+
+Considering this, the safest approach is to remove the home directory
+approach from .libPaths() as Dirk tried to do. The main problem is that
+there the personal directory approach failed and there was not enough
+documentation in install.packages() to fix that.
+
+Maybe a help message in install.packages would have helped. I attach a
+DEP-3 compliant patch as a proposal. It works on my computer. I'm no expert
+so your review is very welcome. The patch does a small change in how
+install.packages works:
+
+If the package can't be installed into .libPaths()[1]
+(/usr/local/lib/R/site-library/), and if the user directory is NA (because
+it is not set anymore in /etc/Renviron) then:
+  * the default user directory is used instead: ~/R/%p-library/%v
+  * and "Would you like to use \\n~/R/%p-library/%v \nto in the future to
+install packages into?" is asked. if the answer is "yes", then it is
+appended to the ~/.Renviron file.
+
+
+>
+> I am a little pressed for time (at useR!) and system (main server is
+> ill, as is backup machine) but I should get a 3.4.1-2 out.
+>
+
+I hope this helps, I am missing the useR conference, I hope I can assist
+next year :-)
+
+Best,
+
+Sergio
+
+From pavel at uow.edu.au  Thu Jul  6 17:29:20 2017
+From: pavel at uow.edu.au (Pavel Krivitsky)
+Date: Thu, 6 Jul 2017 15:29:20 +0000
+Subject: [R-sig-Debian] Regarding R_LIBS_USER
+In-Reply-To: <20170706084256.GA23691@master.debian.org>
+References: <1499317422.19485.86.camel@uow.edu.au>
+ <20170706084256.GA23691@master.debian.org>
+Message-ID: <1499354958.19485.90.camel@uow.edu.au>
+
+Dirk,
+
+> Your tone does not exactly help in this discussion.
+
+My apologies. In my original bug report, I honestly thought that the
+change was unintentional.
+
+> Briefly, I (like many other people) consider Linux and Unix to be
+> multi-user systems.?
+
+I agree, but I think that an important part of the multi-user paradigm
+is to limit the ability of users to affect each other in non-explicit
+ways.
+
+> ?You can argue as passionately for a default
+> installation in /usr/loca/lib/R/site-library as you did against. And
+> some of your arguments are just silly ("dangerous group": dude, it is
+> one 'sudo addgroup r-adm' [or anotther name...]) away).
+
+The security issue would arise if R's default configuration allowed any
+user (or any user with a shell) to write to /usr/loca/lib/R/site-
+library. My understanding is that that's what would need to happen in
+order to make R package installation work out of the box with
+R_LIBS_USER unset by default.
+
+I guess it could be an installation-time configuration option in
+Debian.
+
+> I have used such settings (such as un-setting R_LIBS_USER or its
+> predecessors) for over a decade, it just works (if you give write
+> permissions). It clearly helps us at work because everybody sees by
+> the default the same packages. 
+
+I understand, and I've used a variety of settings as well. In
+particular, even a decade later, I remember 2.5.0 coming out with
+R_LIBS_USER and a sensible default, and things Just Working on all of a
+sudden. (This was on a cluster, and during the 32- to 64-bit transition
+as well, so automatically loading libraries with the right architecture
+was a godsend, replacing a cumbersome workaround of my own.) Perhaps
+that's why I'm so passionate.
+
+> I have also spoken with different R
+> Core members and several find the default installation below $HOME
+> and
+> in a versioned directory less than ideal as well.??But it ensures
+> writeability. Which I cannot do easily from the package.
+
+I appreciate that it's less than ideal, but it also seems to me that
+status quo ante already fulfils the goal of encouraging the use of the
+site-library: it checks if the site-library is writeable, and only if
+it's not, offers to create a personal library as a fallback.
+
+As far as I can tell, knocking out that last step doesn't help those
+users who want to use the site library (since they already already know
+to make it readable, so they won't even see the offer to create a
+personal library), but it does hurt those users who want to use the
+personal library, by requiring them to take extra steps. Is the goal
+here to "nudge" users towards the site-library by making it harder to
+use the personal library?
+
+> So maybe the change was too abrupt, and I think I may revert it. I
+> generally prefer for packagers like myself to not divert from
+> upstream
+> unless they have good reasom or are unintrusive (and eg the added
+> tab-completion we have here is both).??But leaving newbies without
+> installable directories is bad, as is possibly hiding existing
+> installations.
+
+Part of my concern is that this change might propagate to Debian-
+derivatives like Ubuntu, hitting more naive users. 
+
+				Best Regards,
+				Pavel
+
+P.S. Something else just occurred to me, but I don't have time to test
+it at the moment: R --vanilla ignores a lot of environment settings;
+which of the workarounds described still work?
+
+ 
+-- 
+Pavel Krivitsky
+Lecturer in Statistics
+National Institute of Applied Statistics Research Australia (NIASRA)
+School of Mathematics and Applied Statistics | Building 39C Room 154
+University of Wollongong NSW 2522 Australia
+T +61 2 4221 3713
+Web (NIASRA): http://niasra.uow.edu.au/index.html
+Web (Personal): http://www.krivitsky.net/research
+ORCID: 0000-0002-9101-3362
+
+NOTICE: This email is intended for the addressee named and may contain
+confidential information. If you are not the intended recipient, please
+delete it and notify the sender. Please consider the environment before
+printing this email.
+
+From johannes.ranke at jrwb.de  Fri Jul  7 08:15:46 2017
+From: johannes.ranke at jrwb.de (Johannes Ranke)
+Date: Fri, 07 Jul 2017 08:15:46 +0200
+Subject: [R-sig-Debian] /etc/R/Renviron doesn't set R_LIBS_USER anymore
+In-Reply-To: <874lutd6k0.fsf@gmail.com>
+References: <3c66a7bd-b4e6-fd6f-e26e-2d8f3a165121@ivt.baug.ethz.ch>
+ <22874.13852.846964.971548@bud.eddelbuettel.com> <874lutd6k0.fsf@gmail.com>
+Message-ID: <6077810.BxR1ZakpxR@tux>
+
+I wonder if we could take this discussion as an an incentive to start team 
+maintenance of the R packaging in a git repository (e.g. on alioth), with a 
+higher probability that such a discussion would take place before the upload 
+to sid. There are people around that could contribute, like Charles Plessy or 
+Don Armstrong, and I think they both could have an interest, and maybe others, 
+too.
+
+Cheers,
+
+Johannes
+
+
+From edd at debian.org  Fri Jul  7 09:18:05 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 7 Jul 2017 07:18:05 +0000
+Subject: [R-sig-Debian] Regarding R_LIBS_USER
+In-Reply-To: <3259683.0UXy6U1ZEW@tux>
+References: <1499317422.19485.86.camel@uow.edu.au>
+ <20170706084256.GA23691@master.debian.org> <3259683.0UXy6U1ZEW@tux>
+Message-ID: <20170707071805.GA5310@master.debian.org>
+
+On Thu, Jul 06, 2017 at 11:43:22AM +0200, Johannes Ranke wrote:
+> Hi,
+> 
+> > I have used such settings (such as un-setting R_LIBS_USER or its
+> > predecessors) for over a decade, it just works (if you give write
+> > permissions). It clearly helps us at work because everybody sees by
+> > the default the same packages. I have also spoken with different R
+> > Core members and several find the default installation below $HOME and
+> > in a versioned directory less than ideal as well.  But it ensures
+> > writeability. Which I cannot do easily from the package.
+> 
+> Could the package make /usr/local/lib/R/site-library owned by a dedicated 
+> group, e.g. rlibs, so people could just adduser $USER rlibs? I do not see why 
+> R users should read logs, which is what the adm group was apparently made for.
+
+It could. I need to re-read the Debian Policy on this. In the past I
+hesitated to create a new group _globally_ just for our one
+application language. I don't think Python, Ruby, ... do either. Maybe
+still better as a local policy?
+
+> And then, this tip could be given when install.packages() fails, in addition 
+> to the option to create a user (but not version) specific library. Usually R 
+> libraries are not version specific, even though in the case of R 3.0.0 and 
+> 3.4.0 compatibility was interrupted.
+> 
+> > So maybe the change was too abrupt, and I think I may revert it. I
+> > generally prefer for packagers like myself to not divert from upstream
+> > unless they have good reasom or are unintrusive (and eg the added
+> > tab-completion we have here is both).  But leaving newbies without
+> > installable directories is bad, as is possibly hiding existing
+> > installations.
+> 
+> I also like the idea of multiuser libraries, and in general the idea is that 
+> the most current package versions play well together, and are better then 
+> earlier versions. If this should not be the case, this should be an 
+> exceptional situation, which may warrant a user specific library.
+
+And users can currently get this behaviour by setting the env.var (or
+altering .libPaths() from their .Rprofile or or or)
+
+> So an alternative to reverting the change would be to keep your change, but to 
+> give better support for people that 
+> 
+> a) have user (and version) specific libraries that were created from within R 
+> in the past ("do you want to create a personal library instead")
+
+Questions on install are tough. And discouraged.  Also, installing
+user is root, we really want to ask each iser...
+
+> b) want to use personal libraries for some good reason
+> 
+> via this list and maybe also via improved messages from R for the case that 
+> install.package() fails.
+
+I like a lot of the things you suggest, but I am not sure I know a
+good way to get there just yet.
+
+Easiest short-term (non-)fix is the reenable the R default even if
+many of us do not like it.  We may need it as fallback.
+
+Dirk
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From edd at debian.org  Fri Jul  7 10:06:12 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Fri, 7 Jul 2017 08:06:12 +0000
+Subject: [R-sig-Debian] Regarding R_LIBS_USER
+In-Reply-To: <CAGBo=Gn9DHFeyMm=4ei8hwyck8kUXJkjsakZ4=+Kzt5GVZVN5w@mail.gmail.com>
+References: <1499317422.19485.86.camel@uow.edu.au>
+ <20170706084256.GA23691@master.debian.org>
+ <CAGBo=Gn9DHFeyMm=4ei8hwyck8kUXJkjsakZ4=+Kzt5GVZVN5w@mail.gmail.com>
+Message-ID: <20170707080612.GA18072@master.debian.org>
+
+On Thu, Jul 06, 2017 at 02:02:52PM +0200, Sergio Oller wrote:
+> Hi,
+> 
+> As comments are welcome I will give my two cents and a patch suggestion :-)
+> 
+> 2017-07-06 10:42 GMT+02:00 Dirk Eddelbuettel <edd at debian.org>:
+> >
+> >
+> > I have used such settings (such as un-setting R_LIBS_USER or its
+> > predecessors) for over a decade, it just works (if you give write
+> > permissions). It clearly helps us at work because everybody sees by
+> > the default the same packages. I have also spoken with different R
+> > Core members and several find the default installation below $HOME and
+> > in a versioned directory less than ideal as well.  But it ensures
+> > writeability. Which I cannot do easily from the package.
+> >
+> >
+> > So maybe the change was too abrupt, and I think I may revert it. I
+> > generally prefer for packagers like myself to not divert from upstream
+> > unless they have good reasom or are unintrusive (and eg the added
+> > tab-completion we have here is both).  But leaving newbies without
+> > installable directories is bad, as is possibly hiding existing
+> > installations.
+> 
+> There are several entangled issues:
+> 1. What should be the default places where packages are installed?
+> 2. What should be the default places where packages are loaded from?
+
+That's both the same -- what .libPaths() shows, and which can be set
+in several ways.
+
+> 3. Ensuring that with the default R installation any user can install
+> packages
+
+Yes, and that went wrong this time.
+ 
+> For 1., I believe packages should be installed at:
+> - /usr/lib/R/library, if they are given by a .deb package (core R packages)
+> - /usr/lib/R/site-library/, if they are given by a .deb package (other
+> packages)
+> - /usr/local/lib/R/site-library/, if the user has permissions
+> - ~/R/x86_64-pc-linux-gnu-library/3.4, (or somewhere else under $HOME,
+> otherwise)
+
+The first three (in reverse order) have been our default for 15 or years.
+
+The fourth is what R adds (even if a few people have reservations) and
+it provides a fallback.
+ 
+> For 2., I believe packages should be loaded from:
+> - ~/R/x86_64-pc-linux-gnu-library/3.4
+> - /usr/local/lib/R/site-library/
+> - /usr/lib/R/site-library/
+> - /usr/lib/R/library
+
+See above. We have that.
+ 
+> I believe with 3.4.1-1 Dirk tried to move towards that configuration, and
+> for some reasons we ended in a situation where the R library in the HOME
+> directory was not considered to write into and was not considered to load
+> packages from.
+> 
+> This is how R works:
+> 
+> - When we use `library("package_name")`, the package_name is searched in
+> the directories given by .libPaths().
+> 
+> - When we use `install.packages("package_name")`, by default the package is
+> installed in the first element of .libPaths().
+> 
+> These two things make it very tricky to find a solution to 1, because:
+> 
+> - We can't change .libPaths() as we would break with how packages are
+> searched
+
+We can. See help(Startup) and other places. But setting good default are hard.
+
+> - We may try to change install.packages() so instead of trying to install
+> to .libPaths()[1] by default it tries /usr/local/lib/R/site-library first.
+> We don't know how many things may break because they rely on that
+> assumption, we would need to test CRAN packages like checkpoint and packrat
+> and worse we don't know if we break some custom setups from users.
+> - We can't remove the home directory from .libPaths() because some users
+> won't be able to install packages there anymore nor find their packages,
+> unless they choose to do that in their Renviron file.
+> 
+> Considering this, the safest approach is to remove the home directory
+> approach from .libPaths() as Dirk tried to do. The main problem is that
+> there the personal directory approach failed and there was not enough
+> documentation in install.packages() to fix that.
+> 
+> Maybe a help message in install.packages would have helped. I attach a
+> DEP-3 compliant patch as a proposal. It works on my computer. I'm no expert
+> so your review is very welcome. The patch does a small change in how
+> install.packages works:
+> 
+> If the package can't be installed into .libPaths()[1]
+> (/usr/local/lib/R/site-library/), and if the user directory is NA (because
+> it is not set anymore in /etc/Renviron) then:
+>   * the default user directory is used instead: ~/R/%p-library/%v
+>   * and "Would you like to use \\n~/R/%p-library/%v \nto in the future to
+> install packages into?" is asked. if the answer is "yes", then it is
+> appended to the ~/.Renviron file.
+
+Some of this way work, but we need some testing first.
+
+In the near term, reverting the patch may be easiest.
+
+Dirk
+ 
+> 
+> >
+> > I am a little pressed for time (at useR!) and system (main server is
+> > ill, as is backup machine) but I should get a 3.4.1-2 out.
+> >
+> 
+> I hope this helps, I am missing the useR conference, I hope I can assist
+> next year :-)
+> 
+> Best,
+> 
+> Sergio
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Three out of two people have difficulties with fractions.
+
+
+From gnwiii at gmail.com  Fri Jul  7 18:04:09 2017
+From: gnwiii at gmail.com (George N. White III)
+Date: Fri, 7 Jul 2017 13:04:09 -0300
+Subject: [R-sig-Debian] Regarding R_LIBS_USER
+In-Reply-To: <20170707080612.GA18072@master.debian.org>
+References: <1499317422.19485.86.camel@uow.edu.au>
+ <20170706084256.GA23691@master.debian.org>
+ <CAGBo=Gn9DHFeyMm=4ei8hwyck8kUXJkjsakZ4=+Kzt5GVZVN5w@mail.gmail.com>
+ <20170707080612.GA18072@master.debian.org>
+Message-ID: <CAKTOP45V=+qCpRZmWF0H3aHXH7xR0fRqg4kxnZkQ7jDaX9v86Q@mail.gmail.com>
+
+On 7 July 2017 at 05:06, Dirk Eddelbuettel <edd at debian.org> wrote:
+
+> On Thu, Jul 06, 2017 at 02:02:52PM +0200, Sergio Oller wrote:
+> > Hi,
+> >
+> > As comments are welcome I will give my two cents and a patch suggestion
+> :-)
+> >
+> > 2017-07-06 10:42 GMT+02:00 Dirk Eddelbuettel <edd at debian.org>:
+> > >
+> > >
+> > > I have used such settings (such as un-setting R_LIBS_USER or its
+> > > predecessors) for over a decade, it just works (if you give write
+> > > permissions). It clearly helps us at work because everybody sees by
+> > > the default the same packages. I have also spoken with different R
+> > > Core members and several find the default installation below $HOME and
+> > > in a versioned directory less than ideal as well.  But it ensures
+> > > writeability. Which I cannot do easily from the package.
+> > >
+> > >
+> > > So maybe the change was too abrupt, and I think I may revert it. I
+> > > generally prefer for packagers like myself to not divert from upstream
+> > > unless they have good reasom or are unintrusive (and eg the added
+> > > tab-completion we have here is both).  But leaving newbies without
+> > > installable directories is bad, as is possibly hiding existing
+> > > installations.
+> >
+> > There are several entangled issues:
+> > 1. What should be the default places where packages are installed?
+> > 2. What should be the default places where packages are loaded from?
+>
+> That's both the same -- what .libPaths() shows, and which can be set
+> in several ways.
+>
+> > 3. Ensuring that with the default R installation any user can install
+> > packages
+>
+> Yes, and that went wrong this time.
+>
+> > For 1., I believe packages should be installed at:
+> > - /usr/lib/R/library, if they are given by a .deb package (core R
+> packages)
+> > - /usr/lib/R/site-library/, if they are given by a .deb package (other
+> > packages)
+> > - /usr/local/lib/R/site-library/, if the user has permissions
+> > - ~/R/x86_64-pc-linux-gnu-library/3.4, (or somewhere else under $HOME,
+> > otherwise)
+>
+> The first three (in reverse order) have been our default for 15 or years.
+>
+> The fourth is what R adds (even if a few people have reservations) and
+> it provides a fallback.
+>
+> > For 2., I believe packages should be loaded from:
+> > - ~/R/x86_64-pc-linux-gnu-library/3.4
+> > - /usr/local/lib/R/site-library/
+> > - /usr/lib/R/site-library/
+> > - /usr/lib/R/library
+>
+> See above. We have that.
+>
+> > I believe with 3.4.1-1 Dirk tried to move towards that configuration, and
+> > for some reasons we ended in a situation where the R library in the HOME
+> > directory was not considered to write into and was not considered to load
+> > packages from.
+> >
+> > This is how R works:
+> >
+> > - When we use `library("package_name")`, the package_name is searched in
+> > the directories given by .libPaths().
+> >
+> > - When we use `install.packages("package_name")`, by default the
+> package is
+> > installed in the first element of .libPaths().
+>
+
+If the first element isn't writable, does `install.packages(.)` move to the
+next?
+
+
+> >
+> > These two things make it very tricky to find a solution to 1, because:
+> >
+> > - We can't change .libPaths() as we would break with how packages are
+> > searched
+>
+> We can. See help(Startup) and other places. But setting good default are
+> hard.
+>
+
+The problem of "finding a good default" affects any package that supports
+optional add-ons (TeX Live, Octave, Netbeans Java apps that use modules,
+etc).   In some cases, add-ons require versions of dll's that conflict with
+standard
+packages.  For TeX Live, we have distro packages that follow the distro
+policies and also the CTAN version that puts everything in one place.
+Red Hat has "software collections" which go in `/opt/rh` and `scl enable
+<collection> ...`
+that runs `...` with an environment tailored to support the  chosen
+collection.
+
+I suspect there are use cases for R that would encounter fewer problems
+by creating a new directory tree to contain the complete R system and
+libraries. Maybe those are already being handled with virtualization.
+
+
+> > - We may try to change install.packages() so instead of trying to install
+> > to .libPaths()[1] by default it tries /usr/local/lib/R/site-library
+> first.
+> > We don't know how many things may break because they rely on that
+> > assumption, we would need to test CRAN packages like checkpoint and
+> packrat
+> > and worse we don't know if we break some custom setups from users.
+> > - We can't remove the home directory from .libPaths() because some users
+> > won't be able to install packages there anymore nor find their packages,
+> > unless they choose to do that in their Renviron file.
+> >
+> > Considering this, the safest approach is to remove the home directory
+> > approach from .libPaths() as Dirk tried to do. The main problem is that
+> > there the personal directory approach failed and there was not enough
+> > documentation in install.packages() to fix that.
+> >
+> > Maybe a help message in install.packages would have helped. I attach a
+> > DEP-3 compliant patch as a proposal. It works on my computer. I'm no
+> expert
+> > so your review is very welcome. The patch does a small change in how
+> > install.packages works:
+> >
+> > If the package can't be installed into .libPaths()[1]
+> > (/usr/local/lib/R/site-library/), and if the user directory is NA
+> (because
+> > it is not set anymore in /etc/Renviron) then:
+> >   * the default user directory is used instead: ~/R/%p-library/%v
+> >   * and "Would you like to use \\n~/R/%p-library/%v \nto in the future to
+> > install packages into?" is asked. if the answer is "yes", then it is
+> > appended to the ~/.Renviron file.
+>
+> Some of this way work, but we need some testing first.
+>
+
+Without clear policies in place, the future is different and testing
+may not solve the future problems.
+
+1. make things as simple as possible for new or casual users.
+
+A big part of the value of R is in the number of users, so never
+do anything that might discourage new users.
+
+2. diligence is needed to avoid barriers to installing complete R systems
+in a private location.  This gets around things the R developers and
+packagers don't control, such as site policies that prevent users from
+creating new groups or installing libraries to `/usr/local/lib/R`.
+
+If lots of people to this an "R Live" package system might be
+useful.
+
+
+> In the near term, reverting the patch may be easiest.
+>
+> Dirk
+
+
+Take the easy route -- I'm sure you have other ways to use
+your time and there doesn't seem to be a quick fix that works for everyone.
+
+
+-- 
+George N. White III <aa056 at chebucto.ns.ca>
+Head of St. Margarets Bay, Nova Scotia
+
+	[[alternative HTML version deleted]]
+
+
+From edd at debian.org  Mon Jul 10 12:57:46 2017
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Mon, 10 Jul 2017 05:57:46 -0500
+Subject: [R-sig-Debian] R_LIBS_USER
+In-Reply-To: <CAKTOP45V=+qCpRZmWF0H3aHXH7xR0fRqg4kxnZkQ7jDaX9v86Q@mail.gmail.com>
+References: <1499317422.19485.86.camel@uow.edu.au>
+ <20170706084256.GA23691@master.debian.org>
+ <CAGBo=Gn9DHFeyMm=4ei8hwyck8kUXJkjsakZ4=+Kzt5GVZVN5w@mail.gmail.com>
+ <20170707080612.GA18072@master.debian.org>
+ <CAKTOP45V=+qCpRZmWF0H3aHXH7xR0fRqg4kxnZkQ7jDaX9v86Q@mail.gmail.com>
+Message-ID: <22883.23978.704348.295492@bud.eddelbuettel.com>
+
+
+Version 3.4.1-2 of the r-base-core package reverts to the old behaviour.
+
+Strictly personally speaking, I find that somewhat distateful -- but it is
+the upstream default. I now set this in ~/.Renviron :
+
+    ## Override possible ~/R/@p/@v directory
+    R_LIBS_USER=""
+
+and on the machines at work I may just do what I did before edit
+/etc/R/Renviron or try the above via /etc/R/Renviron.site.
+
+Thanks to everybody who chimed in, especially those who managed to stay calm.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From johannes.ranke at jrwb.de  Tue Jul 18 12:02:07 2017
+From: johannes.ranke at jrwb.de (Johannes Ranke)
+Date: Tue, 18 Jul 2017 12:02:07 +0200
+Subject: [R-sig-Debian] Backports of R 3.4.1 to Debian delayed
+Message-ID: <5624868.gZhzGS0Ck0@tux>
+
+Dear all,
+
+I have bad RAM on the machine that I am using to create the backports, so I 
+need to replace it. It took me a while to figure it out... While I was able to 
+create the backport after several iterations with spurious segfaults, I will 
+not upload it as I am not sure if it could be corrupted in some way.
+
+I hope to be able to upload a clean backport of R 3.4.1 during the rest of the 
+week or at the weekend.
+
+Kind regards,
+
+Johannes
+
+-- 
+Johannes Ranke
+Wissenschaftlicher Berater
+https://jrwb.de/contact
+
+
+From basille.web at ase-research.org  Tue Jul 18 23:03:18 2017
+From: basille.web at ase-research.org (Mathieu Basille)
+Date: Tue, 18 Jul 2017 17:03:18 -0400
+Subject: [R-sig-Debian] Backports of R 3.4.1 to Debian delayed
+In-Reply-To: <5624868.gZhzGS0Ck0@tux>
+References: <5624868.gZhzGS0Ck0@tux>
+Message-ID: <115c8a5a-ecda-2d81-50c6-9fd5dabed8fe@ase-research.org>
+
+Thanks Johannes for letting us know, and most importantly, for your work on
+Debian backports!
+
+Mathieu.
+
+
+On 07/18/2017 06:02 AM, Johannes Ranke wrote:
+> Dear all,
+> 
+> I have bad RAM on the machine that I am using to create the backports, so I 
+> need to replace it. It took me a while to figure it out... While I was able to 
+> create the backport after several iterations with spurious segfaults, I will 
+> not upload it as I am not sure if it could be corrupted in some way.
+> 
+> I hope to be able to upload a clean backport of R 3.4.1 during the rest of the 
+> week or at the weekend.
+> 
+> Kind regards,
+> 
+> Johannes
+> 
+
+-- 
+
+Mathieu Basille
+
+basille at ufl.edu | http://ase-research.org/basille
++1 954-577-6314 | University of Florida FLREC
+
+  ? Le tout est de tout dire, et je manque de mots
+  Et je manque de temps, et je manque d'audace. ?
+  ? Paul ?luard
+
+This message is signed to guarantee its authenticity.
+For a true private correspondence, use my public key
+to encrypt your messages:
+
+  http://mathieu.basille.net/pub.asc
+
+Learn more: http://mzl.la/1BsOGiZ
+
+

@@ -1,0 +1,284 @@
+From ro||turner @end|ng |rom po@teo@net  Fri May 10 05:16:01 2024
+From: ro||turner @end|ng |rom po@teo@net (Rolf Turner)
+Date: Fri, 10 May 2024 03:16:01 +0000
+Subject: [R-sig-Debian] Heads-up: r2u installs (only) to
+ /usr/lib/R/site-library.
+Message-ID: <20240510151601.36e4c457@rolf-Latitude-E7470>
+
+
+I started using r2u (see https://eddelbuettel.github.io/r2u) recently
+and thought I was having a problem in that I was getting
+out-of-date versions of packages.  I made enquiries of Dirk
+Eddelbuettel about this, and he enlightened me as to what the problem
+really was.  I was seeing old versions of packages that were stored in
+a library, different from /usr/lib/R/site-library. I have a personal
+library /home/rolf/Rlib into which I had previously always installed
+contributed packages. I had R_LIBS set equal to /home/rolf/Rlib, and
+.libPaths() returned
+
+    [1] "/home/rolf/Rlib"               "/usr/local/lib/R/site-library"
+    [3] "/usr/lib/R/site-library"       "/usr/lib/R/library
+
+and I just assumed that r2u would install to the first entry of
+.libPaths().  It doesn't (as the subject line of this email says), but
+when I invoke library() I get the package that is stored in this
+first entry.
+
+Dirk thought that there would be merit in drawing this phenomenon to
+the general attention of users.  There are probably others who, like
+me, have a personal library of R packages.  Such users may need to make
+adjustments to their R_LIBS environment variable and to how .libPaths()
+is set up.
+
+I hope that this message is of some interest.
+
+cheers,
+
+Rolf Turner
+
+-- 
+Honorary Research Fellow
+Department of Statistics
+University of Auckland
+Stats. Dep't. (secretaries) phone:
+         +64-9-373-7599 ext. 89622
+Home phone: +64-9-480-4619
+
+
+From jeroenoom@ @end|ng |rom gm@||@com  Tue May 21 13:01:42 2024
+From: jeroenoom@ @end|ng |rom gm@||@com (Jeroen Ooms)
+Date: Tue, 21 May 2024 13:01:42 +0200
+Subject: [R-sig-Debian] Default CXXFLAGS
+Message-ID: <CABFfbXtniDcjj=vTxyfSuwALbQkJESaVkoS5PswpLX10APDR0w@mail.gmail.com>
+
+Compiling packages with C++ code using the default r-base-dev
+configuration on debian:sid shows a lot of:
+
+   cc1plus: warning: '-Werror=' argument
+'-Werror=implicit-function-declaration' is not valid for C++
+
+Can this flag be removed from R CMD config CXXFLAGS?
+
+
+From edd @end|ng |rom deb|@n@org  Tue May 21 14:08:02 2024
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 21 May 2024 07:08:02 -0500
+Subject: [R-sig-Debian] Default CXXFLAGS
+In-Reply-To: <CABFfbXtniDcjj=vTxyfSuwALbQkJESaVkoS5PswpLX10APDR0w@mail.gmail.com>
+References: <CABFfbXtniDcjj=vTxyfSuwALbQkJESaVkoS5PswpLX10APDR0w@mail.gmail.com>
+Message-ID: <26188.36514.862877.44801@rob.eddelbuettel.com>
+
+
+On 21 May 2024 at 13:01, Jeroen Ooms wrote:
+| Compiling packages with C++ code using the default r-base-dev
+| configuration on debian:sid shows a lot of:
+| 
+|    cc1plus: warning: '-Werror=' argument
+| '-Werror=implicit-function-declaration' is not valid for C++
+| 
+| Can this flag be removed from R CMD config CXXFLAGS?
+
+"No."
+
+That was quoting Simon Urbanek from a few years ago. You cannot undo what it
+is in R's own /etc/R/Makeconf via a programmatic way via some sort of option
+or alike. It is fixed. You and I know that you can add to the right-hand side
+via ~/.R/Makeconf and that is about it AFAIK.
+
+Of course you can also call `sed` and alike to modify it (in a container,
+say). Maybe that is what you really want to do.
+
+Actually, it is also a 'conffile' as far as `apt` and friends are concerned.
+So you can always do `sudo vi ...` it and call it a day. The changes should
+persist in the way changes you the admin made to your config files persist.
+
+I am afraid that is all we have here.
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From |kry|ov @end|ng |rom d|@root@org  Tue May 21 14:42:24 2024
+From: |kry|ov @end|ng |rom d|@root@org (Ivan Krylov)
+Date: Tue, 21 May 2024 15:42:24 +0300
+Subject: [R-sig-Debian] Default CXXFLAGS
+In-Reply-To: <26188.36514.862877.44801@rob.eddelbuettel.com>
+References: <CABFfbXtniDcjj=vTxyfSuwALbQkJESaVkoS5PswpLX10APDR0w@mail.gmail.com>
+ <26188.36514.862877.44801@rob.eddelbuettel.com>
+Message-ID: <20240521154224.7dab9fba@arachnoid>
+
+On Tue, 21 May 2024 07:08:02 -0500
+Dirk Eddelbuettel <edd at debian.org> wrote:
+
+> You cannot undo what it is in R's own /etc/R/Makeconf via a
+> programmatic way via some sort of option or alike.
+
+I think this is about the following line in debian/rules:
+
+optimflags      = `DEB_BUILD_MAINT_OPTIONS=optimize=-lto dpkg-buildflags --get CFLAGS`
+
+https://sources.debian.org/src/r-base/4.4.0-2/debian/rules/#L101
+
+...which later propagares to cxxflags	= $(optimflags) and
+eventually CXXFLAGS="$(cxxflags)" ... ./configure.
+
+On Sid, dpkg-buildflags --get CFLAGS includes
+-Werror=implicit-function-declaration, which g++ doesn't like:
+
+root at 020af1fe3ba2:/# g++ -Werror=implicit-function-declaration -c ex.cpp
+cc1plus: warning: '-Werror=' argument
+'-Werror=implicit-function-declaration' is not valid for C++
+
+-- 
+Best regards,
+Ivan
+
+
+From Kurt@Horn|k @end|ng |rom wu@@c@@t  Tue May 21 14:48:48 2024
+From: Kurt@Horn|k @end|ng |rom wu@@c@@t (Kurt Hornik)
+Date: Tue, 21 May 2024 14:48:48 +0200
+Subject: [R-sig-Debian] Default CXXFLAGS
+In-Reply-To: <20240521154224.7dab9fba@arachnoid>
+References: <CABFfbXtniDcjj=vTxyfSuwALbQkJESaVkoS5PswpLX10APDR0w@mail.gmail.com>
+ <26188.36514.862877.44801@rob.eddelbuettel.com>
+ <20240521154224.7dab9fba@arachnoid>
+Message-ID: <26188.38960.952507.369546@hornik.net>
+
+>>>>> Ivan Krylov writes:
+
+> On Tue, 21 May 2024 07:08:02 -0500
+> Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>> You cannot undo what it is in R's own /etc/R/Makeconf via a
+>> programmatic way via some sort of option or alike.
+
+> I think this is about the following line in debian/rules:
+
+Without having looked in much detail, I guess foer the CXXFLAGS we want
+dpkg-buildflags --get CXXFLAGS?
+
+Best
+-k
+
+> optimflags      = `DEB_BUILD_MAINT_OPTIONS=optimize=-lto dpkg-buildflags --get CFLAGS`
+
+> https://sources.debian.org/src/r-base/4.4.0-2/debian/rules/#L101
+
+> ...which later propagares to cxxflags	= $(optimflags) and
+> eventually CXXFLAGS="$(cxxflags)" ... ./configure.
+
+> On Sid, dpkg-buildflags --get CFLAGS includes
+> -Werror=implicit-function-declaration, which g++ doesn't like:
+
+> root at 020af1fe3ba2:/# g++ -Werror=implicit-function-declaration -c ex.cpp
+> cc1plus: warning: '-Werror=' argument
+> '-Werror=implicit-function-declaration' is not valid for C++
+
+> -- 
+> Best regards,
+> Ivan
+
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From |kry|ov @end|ng |rom d|@root@org  Tue May 21 14:59:26 2024
+From: |kry|ov @end|ng |rom d|@root@org (Ivan Krylov)
+Date: Tue, 21 May 2024 15:59:26 +0300
+Subject: [R-sig-Debian] Default CXXFLAGS
+In-Reply-To: <26188.38960.952507.369546@hornik.net>
+References: <CABFfbXtniDcjj=vTxyfSuwALbQkJESaVkoS5PswpLX10APDR0w@mail.gmail.com>
+ <26188.36514.862877.44801@rob.eddelbuettel.com>
+ <20240521154224.7dab9fba@arachnoid>
+ <26188.38960.952507.369546@hornik.net>
+Message-ID: <20240521155926.1e23e8d9@arachnoid>
+
+On Tue, 21 May 2024 14:48:48 +0200
+Kurt Hornik <Kurt.Hornik at wu.ac.at> wrote:
+
+> I guess foer the CXXFLAGS we want dpkg-buildflags --get CXXFLAGS?
+
+It must be the case. It's both the documented option [1] and it
+currently differs from CFLAGS in the offending flag:
+
+root at 93e09ba5b6fb:/# diff -u <(dpkg-buildflags --get CFLAGS | sed 's/ /\n/g') <(dpkg-buildflags --get CXXFLAGS | sed 's/ /\n/g')
+--- /dev/fd/63  2024-05-21 12:54:12.275778573 +0000
++++ /dev/fd/62  2024-05-21 12:54:12.275778573 +0000
+@@ -1,6 +1,5 @@
+ -g
+ -O2
+--Werror=implicit-function-declaration
+ -ffile-prefix-map=/=.
+ -fstack-protector-strong
+ -fstack-clash-protection
+
+
+-- 
+Best regards,
+Ivan
+
+[1]
+https://manpages.debian.org/bookworm/dpkg-dev/dpkg-buildflags.1.en.html#CXXFLAGS
+
+
+From edd @end|ng |rom deb|@n@org  Tue May 21 15:35:48 2024
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Tue, 21 May 2024 08:35:48 -0500
+Subject: [R-sig-Debian] Default CXXFLAGS
+In-Reply-To: <20240521155926.1e23e8d9@arachnoid>
+References: <CABFfbXtniDcjj=vTxyfSuwALbQkJESaVkoS5PswpLX10APDR0w@mail.gmail.com>
+ <26188.36514.862877.44801@rob.eddelbuettel.com>
+ <20240521154224.7dab9fba@arachnoid>
+ <26188.38960.952507.369546@hornik.net>
+ <20240521155926.1e23e8d9@arachnoid>
+Message-ID: <26188.41780.850311.775069@rob.eddelbuettel.com>
+
+
+On 21 May 2024 at 15:59, Ivan Krylov wrote:
+| On Tue, 21 May 2024 14:48:48 +0200
+| Kurt Hornik <Kurt.Hornik at wu.ac.at> wrote:
+| 
+| > I guess foer the CXXFLAGS we want dpkg-buildflags --get CXXFLAGS?
+
+Good catch, and expansion, by both of you.
+
+| It must be the case. It's both the documented option [1] and it
+| currently differs from CFLAGS in the offending flag:
+| 
+| root at 93e09ba5b6fb:/# diff -u <(dpkg-buildflags --get CFLAGS | sed 's/ /\n/g') <(dpkg-buildflags --get CXXFLAGS | sed 's/ /\n/g')
+| --- /dev/fd/63  2024-05-21 12:54:12.275778573 +0000
+| +++ /dev/fd/62  2024-05-21 12:54:12.275778573 +0000
+| @@ -1,6 +1,5 @@
+|  -g
+|  -O2
+| --Werror=implicit-function-declaration
+|  -ffile-prefix-map=/=.
+|  -fstack-protector-strong
+|  -fstack-clash-protection
+
+Differently put using a Docker invocation away from my Ubuntu host to a
+Debian setting:
+
+$ docker run --rm -ti rocker/r-base dpkg-buildflags | egrep '^(CXXFLAGS|CFLAGS)'
+CFLAGS=-g -O2 -Werror=implicit-function-declaration -ffile-prefix-map=/=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection
+CFLAGS_FOR_BUILD=-g -O2
+CXXFLAGS=-g -O2 -ffile-prefix-map=/=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection
+CXXFLAGS_FOR_BUILD=-g -O2
+$ 
+
+So it looks like picking the CXXFLAGS will remove the unwanted -Werror=...
+
+Thanks all -- I will make that change.
+
+Dirk
+
+PS Kurt, it would still be nice if you could let us 'sed-filter' or alike the defaults...
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+

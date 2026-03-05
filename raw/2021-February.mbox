@@ -1,0 +1,535 @@
+From @em|hoz|em@em|hoz|em @end|ng |rom gm@||@com  Mon Feb  1 16:20:45 2021
+From: @em|hoz|em@em|hoz|em @end|ng |rom gm@||@com (semih ozlem)
+Date: Mon, 1 Feb 2021 10:20:45 -0500
+Subject: [R-sig-Debian] 32 bit 64 bit question, ELFCLASS32 error
+Message-ID: <CALkUsGsKiG-EVs8T1kRa_Yh95LDdDj7W5=Zx3hr4tENaE5CrDw@mail.gmail.com>
+
+Hi everyone,
+
+On a usb with knoppix live uname -a gives the response
+
+Linux Microknoppix 5.3.5-64 #16 SMP PREEMPT Wed Oct 23 02:08:38 CEST 2019
+x86_64 GNU/Linux
+
+uname -i
+
+unknown
+
+I am trying to run a python script that uses R, and I am getting an error:
+OSError: cannot load library '/usr/lib/R/lib/libR.so':
+/usr/lib/R/lib/libR.so: wrong ELF class: ELFCLASS32
+
+When look at the directory /usr/lib/R/lib/, the file libR.so is listed
+there.
+
+When I look up on the internet what might be the cause of this, there is
+some indication about R being of 32 bit or 4 bit architecture. But I am not
+able to resolve the issue on my own completely.
+
+when R starts it states that the Platform is i686-pc-linux-gnu (32-bit)
+
+Does anyone have any idea why R is installed as 32-bit, and if and how can
+it be changed to 64-bit, and if this indeed is the cause of the problem I
+am facing.
+
+Thank you for your time and patience?
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Mon Feb  1 15:32:05 2021
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 1 Feb 2021 08:32:05 -0600
+Subject: [R-sig-Debian] 32 bit 64 bit question, ELFCLASS32 error
+In-Reply-To: <CALkUsGsKiG-EVs8T1kRa_Yh95LDdDj7W5=Zx3hr4tENaE5CrDw@mail.gmail.com>
+References: <CALkUsGsKiG-EVs8T1kRa_Yh95LDdDj7W5=Zx3hr4tENaE5CrDw@mail.gmail.com>
+Message-ID: <24600.4325.745352.241345@rob.eddelbuettel.com>
+
+
+On 1 February 2021 at 10:20, semih ozlem wrote:
+| Hi everyone,
+| 
+| On a usb with knoppix live uname -a gives the response
+
+Wow. Blast from the past.
+
+| Linux Microknoppix 5.3.5-64 #16 SMP PREEMPT Wed Oct 23 02:08:38 CEST 2019
+| x86_64 GNU/Linux
+| 
+| uname -i
+| 
+| unknown
+| 
+| I am trying to run a python script that uses R, and I am getting an error:
+| OSError: cannot load library '/usr/lib/R/lib/libR.so':
+| /usr/lib/R/lib/libR.so: wrong ELF class: ELFCLASS32
+| 
+| When look at the directory /usr/lib/R/lib/, the file libR.so is listed
+| there.
+| 
+| When I look up on the internet what might be the cause of this, there is
+| some indication about R being of 32 bit or 4 bit architecture. But I am not
+| able to resolve the issue on my own completely.
+| 
+| when R starts it states that the Platform is i686-pc-linux-gnu (32-bit)
+
+So that would be 32 bit indeed.
+
+| Does anyone have any idea why R is installed as 32-bit, and if and how can
+| it be changed to 64-bit, and if this indeed is the cause of the problem I
+| am facing.
+
+You may need to get in touch with the person who made the bootable image you
+use. I used to do these things and provide a Knoppix variant myself: it was
+called Quantian with its site at http://quantian.org (and the site is still
+up -- but also states no new content since 2006 (!!)).
+
+If you just put the current Ubuntu installer on a bootable usb, it will also
+allow you to install from it and have R and all that. 32 bit is on the way
+out, newer Ubuntu distros no longer build it and I forget what we do over in
+Debian.
+
+As what may be your real question: where do I in 2021 get a current bootable
+usb with R: no idea, sorry.
+
+Another related answer is that 32 and 64 bit _can_ coexist (as they do on
+other OSs) but that never really took off in common use. So there may still
+be way to use what you have but you may need to consult the specific
+documentation.
+
+Dirk
+
+-- 
+https://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From gnw||| @end|ng |rom gm@||@com  Mon Feb  1 15:51:52 2021
+From: gnw||| @end|ng |rom gm@||@com (George N. White III)
+Date: Mon, 1 Feb 2021 10:51:52 -0400
+Subject: [R-sig-Debian] 32 bit 64 bit question, ELFCLASS32 error
+In-Reply-To: <24600.4325.745352.241345@rob.eddelbuettel.com>
+References: <CALkUsGsKiG-EVs8T1kRa_Yh95LDdDj7W5=Zx3hr4tENaE5CrDw@mail.gmail.com>
+ <24600.4325.745352.241345@rob.eddelbuettel.com>
+Message-ID: <CAKTOP44J4wfTd7k7mMBVDcuPB5xF8oP-cTY39xJ8OTAqm=nTPA@mail.gmail.com>
+
+On Mon, 1 Feb 2021 at 10:32, Dirk Eddelbuettel <edd at debian.org> wrote:
+
+>
+> On 1 February 2021 at 10:20, semih ozlem wrote:
+> | Hi everyone,
+> |
+> | On a usb with knoppix live uname -a gives the response
+>
+> Wow. Blast from the past.
+>
+> | Linux Microknoppix 5.3.5-64 #16 SMP PREEMPT Wed Oct 23 02:08:38 CEST 2019
+> | x86_64 GNU/Linux
+> |
+> | uname -i
+> |
+> | unknown
+> |
+> | I am trying to run a python script that uses R, and I am getting an
+> error:
+> | OSError: cannot load library '/usr/lib/R/lib/libR.so':
+> | /usr/lib/R/lib/libR.so: wrong ELF class: ELFCLASS32
+> |
+> | When look at the directory /usr/lib/R/lib/, the file libR.so is listed
+> | there.
+> |
+> | When I look up on the internet what might be the cause of this, there is
+> | some indication about R being of 32 bit or 4 bit architecture. But I am
+> not
+> | able to resolve the issue on my own completely.
+> |
+> | when R starts it states that the Platform is i686-pc-linux-gnu (32-bit)
+>
+> So that would be 32 bit indeed.
+>
+> | Does anyone have any idea why R is installed as 32-bit, and if and how
+> can
+> | it be changed to 64-bit, and if this indeed is the cause of the problem I
+> | am facing.
+>
+
+AFAIK, Microknoppix has the option to boot in 32-bit mode.    Given that
+they want
+both 32-bit and 64-bit on a DVD it is not surprising that they would only
+provide the
+32-bit R installation.
+
+
+>
+> You may need to get in touch with the person who made the bootable image
+> you
+> use. I used to do these things and provide a Knoppix variant myself: it was
+> called Quantian with its site at http://quantian.org (and the site is
+> still
+> up -- but also states no new content since 2006 (!!)).
+>
+> If you just put the current Ubuntu installer on a bootable usb, it will
+> also
+> allow you to install from it and have R and all that. 32 bit is on the way
+> out, newer Ubuntu distros no longer build it and I forget what we do over
+> in
+> Debian.
+>
+> As what may be your real question: where do I in 2021 get a current
+> bootable
+> usb with R: no idea, sorry.
+>
+
+You  should be able to use any of the popular "live Linux" images to do a
+normal
+install on USB device 32GB or larger, then use the package manager to
+install
+a current R (deian is a good choice).   There are USB "flash memory sticks"
+with
+adequate capacity but they won't last long running a linux distro.   For
+longer term
+reliability you can use USB SSD drives.
+
+
+>
+> Another related answer is that 32 and 64 bit _can_ coexist (as they do on
+> other OSs) but that never really took off in common use. So there may still
+> be way to use what you have but you may need to consult the specific
+> documentation.
+>
+
+
+
+-- 
+George N. White III
+
+	[[alternative HTML version deleted]]
+
+
+From pro|jcn@@h @end|ng |rom gm@||@com  Mon Feb  1 15:53:39 2021
+From: pro|jcn@@h @end|ng |rom gm@||@com (profjohn)
+Date: Mon, 1 Feb 2021 09:53:39 -0500
+Subject: [R-sig-Debian] Bootable USB for R / was 32 bit 64 bit question,
+ ELFCLASS32 error
+In-Reply-To: <24600.4325.745352.241345@rob.eddelbuettel.com>
+References: <CALkUsGsKiG-EVs8T1kRa_Yh95LDdDj7W5=Zx3hr4tENaE5CrDw@mail.gmail.com>
+ <24600.4325.745352.241345@rob.eddelbuettel.com>
+Message-ID: <4cb37331-a4cb-103e-8ad8-623beb4e1493@gmail.com>
+
+On 2021-02-01 9:32 a.m., Dirk Eddelbuettel wrote:
+> 
+> 
+> Wow. Blast from the past.
+>
+> As what may be your real question: where do I in 2021 get a current bootable
+> usb with R: no idea, sorry.
+
+I've remastered a few bootable usb iso's over the past 15 years. Not
+trivial, but if there is interest in a "bootable R" I'd be willing to
+collaborate, but don't want to work alone, so get in touch off-list.
+
+Partly off topic: 32 bit also still of curiosity interest as I've still
+got a working Asus EEE 901 netbook (2008). Has 2GB RAM (I couldn't
+resist upgrading) and about 20 GB of flash disk. Currently run it in
+Bunsenlabs linux (I think I've got the Helium distro on it).
+
+JN
+
+
+> 
+> Another related answer is that 32 and 64 bit _can_ coexist (as they do on
+> other OSs) but that never really took off in common use. So there may still
+> be way to use what you have but you may need to consult the specific
+> documentation.
+> 
+> Dirk
+>
+
+
+From pro|jcn@@h @end|ng |rom gm@||@com  Wed Feb  3 17:35:51 2021
+From: pro|jcn@@h @end|ng |rom gm@||@com (J C Nash)
+Date: Wed, 3 Feb 2021 11:35:51 -0500
+Subject: [R-sig-Debian] Bootable USB for R / was 32 bit 64 bit question,
+ ELFCLASS32 error
+In-Reply-To: <4cb37331-a4cb-103e-8ad8-623beb4e1493@gmail.com>
+References: <CALkUsGsKiG-EVs8T1kRa_Yh95LDdDj7W5=Zx3hr4tENaE5CrDw@mail.gmail.com>
+ <24600.4325.745352.241345@rob.eddelbuettel.com>
+ <4cb37331-a4cb-103e-8ad8-623beb4e1493@gmail.com>
+Message-ID: <ea2f8bc6-5c33-7bfc-7904-d97f8e4929fa@gmail.com>
+
+A message from Harvey Friedman put an idea in my mind.
+
+Linux-Ottawa has had a rather back-burner project to build a "club" distro.
+Based on Antix (I think 17.??) we built a small test iso, since Antix has
+a neat tool to convert running distro to an iso either for backup or
+distribution.
+
+In Virtualbox I added R to this using the debian repo for that version of
+Antix -- unfortunately R 3.3.3, so mightily out of date. Then built the
+iso. And then set it as the "cd" and booted it on Virtualbox and checked
+R would run.
+
+This took a half hour or so, though only about 5 minutes of my time. So there's
+a pathway to build an R live-USB fairly painlessly. I suspect the largest part
+of the effort will be to get current R (i.e., do the Secure Apt etc. to get
+appropriate repository links) if that is needed. I'm sure fancier stuff can
+be done, like adding RStudio and lots of packages, etc.
+
+Best, John Nash
+
+
+On 2021-02-01 9:53 a.m., profjohn wrote:
+> On 2021-02-01 9:32 a.m., Dirk Eddelbuettel wrote:
+>>
+>>
+>> Wow. Blast from the past.
+>>
+>> As what may be your real question: where do I in 2021 get a current bootable
+>> usb with R: no idea, sorry.
+> 
+> I've remastered a few bootable usb iso's over the past 15 years. Not
+> trivial, but if there is interest in a "bootable R" I'd be willing to
+> collaborate, but don't want to work alone, so get in touch off-list.
+> 
+> Partly off topic: 32 bit also still of curiosity interest as I've still
+> got a working Asus EEE 901 netbook (2008). Has 2GB RAM (I couldn't
+> resist upgrading) and about 20 GB of flash disk. Currently run it in
+> Bunsenlabs linux (I think I've got the Helium distro on it).
+> 
+> JN
+> 
+> 
+>>
+>> Another related answer is that 32 and 64 bit _can_ coexist (as they do on
+>> other OSs) but that never really took off in common use. So there may still
+>> be way to use what you have but you may need to consult the specific
+>> documentation.
+>>
+>> Dirk
+>>
+
+
+From chr|@ho|d @end|ng |rom p@yctc@org  Sun Feb  7 09:59:39 2021
+From: chr|@ho|d @end|ng |rom p@yctc@org (Chris Evans)
+Date: Sun, 7 Feb 2021 08:59:39 +0000 (GMT)
+Subject: [R-sig-Debian] Problem installing tkrplot package on Ubuntu 20.04
+Message-ID: <1912560163.6949008.1612688379521.JavaMail.zimbra@psyctc.org>
+
+I hope this is the correct list, I _think_ you stretch to Ubuntu as well as Debian (recent posts seem to say so!)
+
+I tried to update packages on my fallback Windows machine and got a message saying "tk.h" was missing.  I reinstalled Rtools: same.  
+
+That's for another message somewhere but, perhaps pride before a fall, I thought "Ha, I bet it works fine in Linux" ... and it doesn't,
+well, not for me!  I tried this:
+
+> install.packages("tkrplot")
+Installing package into ?/home/chris/R/x86_64-pc-linux-gnu-library/4.0?
+(as ?lib? is unspecified)
+trying URL 'https://cloud.r-project.org/src/contrib/tkrplot_0.0-25.tar.gz'
+Content type 'application/x-gzip' length 39274 bytes (38 KB)
+==================================================
+downloaded 38 KB
+
+* installing *source* package ?tkrplot? ...
+** package ?tkrplot? successfully unpacked and MD5 sums checked
+** using staged installation
+configure: creating ./config.status
+config.status: creating src/Makevars
+** libs
+gcc -std=gnu99 -I"/usr/share/R/include" -DNDEBUG -I/usr/include/tcl8.6 -I/usr/include/tcl8.6     -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-8T8CYO/r-base-4.0.3=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c tcltkimg.c -o tcltkimg.o
+tcltkimg.c:3:10: fatal error: tk.h: No such file or directory
+    3 | #include <tk.h>
+      |          ^~~~~~
+compilation terminated.
+make: *** [/usr/lib/R/etc/Makeconf:172: tcltkimg.o] Error 1
+ERROR: compilation failed for package ?tkrplot?
+* removing ?/home/chris/R/x86_64-pc-linux-gnu-library/4.0/tkrplot?
+
+The downloaded source packages are in
+	?/tmp/RtmpOWOdyG/downloaded_packages?
+Warning message:
+In install.packages("tkrplot") :
+  installation of package ?tkrplot? had non-zero exit status
+
+OK. So I searched and found this (https://stat.ethz.ch/pipermail/r-sig-debian/2018-September/002956.html):
+
+On 21 September 2018 at 20:10, Mark Leeds wrote:
+| All of a sudden, I had the brilliant idea to google and the command below
+| solved the problem. My apologies for noise.
+| 
+| sudo apt-get install tk-dev
+
+Still too difficult / laborious. Next time remember to do
+
+   apt-cache searck tkrplot      # or any other search term
+
+which would have lead you to
+
+   r-cran-tkrplot
+
+which implies
+
+   sudo apt install r-cran-tkrplot
+
+is all you need. No need for the ballast of two -dev packages, no need to
+locally compile.  There is a reason I packaged this maybe 15 years ago ...
+
+Dirk
+
+Fair point!  So ...
+
+chris at chris-Aether2:~/Rupdate$ sudo apt-get install r-cran-tkrplot
+[sudo] password for chris: 
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+Some packages could not be installed. This may mean that you have
+requested an impossible situation or if you are using the unstable
+distribution that some required packages have not yet been created
+or been moved out of Incoming.
+The following information may help to resolve the situation:
+
+The following packages have unmet dependencies.
+ r-cran-tkrplot : Depends: r-api-3.5
+E: Unable to correct problems, you have held broken packages.
+
+Aha, but apt-check and other things all say I don't have held or broken packages and I think r-api-3.5 is for R 3.5 whereas I'm on 4.0.3 (courtesy
+of the amazing work that people here do to package R for Debian and Ubuntu: eternal thanks!)
+
+So I've hit the outer edge of my IT competences and thought I should post here before doing anything more.  As I say, R is 4.0.3 and Ubuntu is 
+updated this more 20.04.
+
+TIA,
+
+Chris
+
+
+
+
+-- 
+Small contribution in our coronavirus rigours: 
+https://www.coresystemtrust.org.uk/home/free-options-to-replace-paper-core-forms-during-the-coronavirus-pandemic/
+
+Chris Evans <chris at psyctc.org> Visiting Professor, University of Sheffield <chris.evans at sheffield.ac.uk>
+I do some consultation work for the University of Roehampton <chris.evans at roehampton.ac.uk> and other places
+but <chris at psyctc.org> remains my main Email address.  I have a work web site at:
+   https://www.psyctc.org/psyctc/
+and a site I manage for CORE and CORE system trust at:
+   http://www.coresystemtrust.org.uk/
+I have "semigrated" to France, see: 
+   https://www.psyctc.org/pelerinage2016/semigrating-to-france/ 
+   https://www.psyctc.org/pelerinage2016/register-to-get-updates-from-pelerinage2016/
+
+If you want an Emeeting, I am trying to keep them to Thursdays and my diary is at:
+   https://www.psyctc.org/pelerinage2016/ceworkdiary/
+Beware: French time, generally an hour ahead of UK.
+
+
+From m@rutter @end|ng |rom gm@||@com  Sun Feb  7 16:05:56 2021
+From: m@rutter @end|ng |rom gm@||@com (Michael Rutter)
+Date: Sun, 7 Feb 2021 10:05:56 -0500
+Subject: [R-sig-Debian] 
+ Problem installing tkrplot package on Ubuntu 20.04
+In-Reply-To: <1912560163.6949008.1612688379521.JavaMail.zimbra@psyctc.org>
+References: <1912560163.6949008.1612688379521.JavaMail.zimbra@psyctc.org>
+Message-ID: <21f00e96-8726-70fc-5129-9c24076b890b@gmail.com>
+
+Chris,
+
+The following should solve your issues.  Run from the command line in 
+Ubuntu, not in R.
+
+sudo add-apt-repository ppa:marutter/rrutter4.0
+sudo add-apt-repository ppa:c2d4u.team/c2d4u4.0+
+sudo apt update
+sudo apt install r-cran-tkrplot
+
+There is a good chance the package you are interested in is on my PPA 
+c2d4u4.0+.
+
+Michael
+
+On 2/7/21 3:59 AM, Chris Evans wrote:
+> I hope this is the correct list, I _think_ you stretch to Ubuntu as well as Debian (recent posts seem to say so!)
+> 
+> I tried to update packages on my fallback Windows machine and got a message saying "tk.h" was missing.  I reinstalled Rtools: same.
+> 
+> That's for another message somewhere but, perhaps pride before a fall, I thought "Ha, I bet it works fine in Linux" ... and it doesn't,
+> well, not for me!  I tried this:
+> 
+>> install.packages("tkrplot")
+
+
+From chr|@ho|d @end|ng |rom p@yctc@org  Mon Feb  8 08:51:08 2021
+From: chr|@ho|d @end|ng |rom p@yctc@org (Chris Evans)
+Date: Mon, 8 Feb 2021 07:51:08 +0000 (GMT)
+Subject: [R-sig-Debian] 
+ Problem installing tkrplot package on Ubuntu 20.04
+Message-ID: <1907629623.7857600.1612770668641.JavaMail.zimbra@psyctc.org>
+
+Perfect. I can confirm that's fixed it. Clearly I missed on those repository changes somehow. 
+
+As, ever, in awe at all the help here and the incredible work that you and others do for us Michael. 
+
+Chris 
+
+----- Original Message ----- 
+> From: "Michael Rutter" <marutter at gmail.com> 
+> To: "r-sig-debian" <r-sig-debian at r-project.org> 
+> Sent: Sunday, 7 February, 2021 15:05:56 
+> Subject: Re: [R-sig-Debian] Problem installing tkrplot package on Ubuntu 20.04 
+
+> Chris, 
+> 
+> The following should solve your issues. Run from the command line in 
+> Ubuntu, not in R. 
+> 
+> sudo add-apt-repository ppa:marutter/rrutter4.0 
+> sudo add-apt-repository ppa:c2d4u.team/c2d4u4.0+ 
+> sudo apt update 
+> sudo apt install r-cran-tkrplot 
+> 
+> There is a good chance the package you are interested in is on my PPA 
+> c2d4u4.0+. 
+> 
+> Michael 
+> 
+> On 2/7/21 3:59 AM, Chris Evans wrote: 
+>> I hope this is the correct list, I _think_ you stretch to Ubuntu as well as 
+>> Debian (recent posts seem to say so!) 
+>> 
+>> I tried to update packages on my fallback Windows machine and got a message 
+>> saying "tk.h" was missing. I reinstalled Rtools: same. 
+>> 
+>> That's for another message somewhere but, perhaps pride before a fall, I thought 
+>> "Ha, I bet it works fine in Linux" ... and it doesn't, 
+>> well, not for me! I tried this: 
+>> 
+>>> install.packages("tkrplot") 
+> 
+> _______________________________________________ 
+> R-SIG-Debian mailing list 
+> R-SIG-Debian at r-project.org 
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian 
+
+-- 
+Small contribution in our coronavirus rigours: 
+https://www.coresystemtrust.org.uk/home/free-options-to-replace-paper-core-forms-during-the-coronavirus-pandemic/ 
+
+Chris Evans <chris at psyctc.org> Visiting Professor, University of Sheffield <chris.evans at sheffield.ac.uk> 
+I do some consultation work for the University of Roehampton <chris.evans at roehampton.ac.uk> and other places 
+but <chris at psyctc.org> remains my main Email address. I have a work web site at: 
+https://www.psyctc.org/psyctc/ 
+and a site I manage for CORE and CORE system trust at: 
+http://www.coresystemtrust.org.uk/ 
+I have "semigrated" to France, see: 
+https://www.psyctc.org/pelerinage2016/semigrating-to-france/ 
+https://www.psyctc.org/pelerinage2016/register-to-get-updates-from-pelerinage2016/ 
+
+If you want an Emeeting, I am trying to keep them to Thursdays and my diary is at: 
+https://www.psyctc.org/pelerinage2016/ceworkdiary/ 
+Beware: French time, generally an hour ahead of UK. 
+
+
+	[[alternative HTML version deleted]]
+
+

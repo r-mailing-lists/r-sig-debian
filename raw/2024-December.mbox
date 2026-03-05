@@ -1,0 +1,146 @@
+From jmq2108 @end|ng |rom cumc@co|umb|@@edu  Thu Dec 12 16:50:45 2024
+From: jmq2108 @end|ng |rom cumc@co|umb|@@edu (Quinones, Jose M.)
+Date: Thu, 12 Dec 2024 15:50:45 +0000
+Subject: [R-sig-Debian] R3.4 on Debian12
+Message-ID: <BY5PR02MB667563B27F7F1B4581584DAFF93F2@BY5PR02MB6675.namprd02.prod.outlook.com>
+
+Hello,
+
+Looking for guidance on compiling R version 3.4 on Debian 12. I?m encountering the following error on compiling:
+
+/usr/bin/ld: ../unix/system.o:(.bss+0x0): multiple definition of `R_OutputCon'; CommandLineArgs.o:(.bss+0x0): first defined here
+/usr/bin/ld: ../unix/sys-unix.o:(.bss+0x0): multiple definition of `R_OutputCon'; CommandLineArgs.o:(.bss+0x0): first defined here
+/usr/bin/ld: ../unix/sys-unix.o:(.bss+0x8): multiple definition of `ptr_R_ProcessEvents'; ../unix/system.o:(.bss+0xa8): first defined here
+/usr/bin/ld: ../unix/X11.o:(.bss+0x0): multiple definition of `R_OutputCon'; CommandLineArgs.o:(.bss+0x0): first defined here
+/usr/bin/ld: connections.o: warning: relocation against `R_OutputCon' in read-only section `.text'
+/usr/bin/ld: connections.o: relocation R_X86_64_PC32 against symbol `R_OutputCon' can not be used when making a shared object; recompile with -fPIC
+/usr/bin/ld: final link failed: bad value
+collect2: error: ld returned 1 exit status
+make[3]: *** [Makefile:177: libR.so] Error 1
+make[3]: Leaving directory '/mnt/vast/hpc/homes/branch/Software_BUILD/R-3.4.2/src/main'
+make[2]: *** [Makefile:135: R] Error 2
+make[2]: Leaving directory '/mnt/vast/hpc/homes/branch/Software_BUILD/R-3.4.2/src/main'
+make[1]: *** [Makefile:28: R] Error 1
+make[1]: Leaving directory '/mnt/vast/hpc/homes/branch/Software_BUILD/R-3.4.2/src'
+make: *** [Makefile:61: R] Error 1
+
+Thanks,
+Jose
+
+	[[alternative HTML version deleted]]
+
+
+From tom@@@k@||ber@ @end|ng |rom gm@||@com  Thu Dec 12 17:10:51 2024
+From: tom@@@k@||ber@ @end|ng |rom gm@||@com (Tomas Kalibera)
+Date: Thu, 12 Dec 2024 17:10:51 +0100
+Subject: [R-sig-Debian] R3.4 on Debian12
+In-Reply-To: <BY5PR02MB667563B27F7F1B4581584DAFF93F2@BY5PR02MB6675.namprd02.prod.outlook.com>
+References: <BY5PR02MB667563B27F7F1B4581584DAFF93F2@BY5PR02MB6675.namprd02.prod.outlook.com>
+Message-ID: <c4e25a41-02ba-4094-8973-7644c0494935@gmail.com>
+
+On 12/12/24 16:50, Quinones, Jose M. wrote:
+> Hello,
+>
+> Looking for guidance on compiling R version 3.4 on Debian 12. I?m encountering the following error on compiling:
+>
+> /usr/bin/ld: ../unix/system.o:(.bss+0x0): multiple definition of `R_OutputCon'; CommandLineArgs.o:(.bss+0x0): first defined here
+> /usr/bin/ld: ../unix/sys-unix.o:(.bss+0x0): multiple definition of `R_OutputCon'; CommandLineArgs.o:(.bss+0x0): first defined here
+> /usr/bin/ld: ../unix/sys-unix.o:(.bss+0x8): multiple definition of `ptr_R_ProcessEvents'; ../unix/system.o:(.bss+0xa8): first defined here
+> /usr/bin/ld: ../unix/X11.o:(.bss+0x0): multiple definition of `R_OutputCon'; CommandLineArgs.o:(.bss+0x0): first defined here
+
+Perhaps you can try building with -fcommon.
+
+Tomas
+> /usr/bin/ld: connections.o: warning: relocation against `R_OutputCon' in read-only section `.text'
+> /usr/bin/ld: connections.o: relocation R_X86_64_PC32 against symbol `R_OutputCon' can not be used when making a shared object; recompile with -fPIC
+> /usr/bin/ld: final link failed: bad value
+> collect2: error: ld returned 1 exit status
+> make[3]: *** [Makefile:177: libR.so] Error 1
+> make[3]: Leaving directory '/mnt/vast/hpc/homes/branch/Software_BUILD/R-3.4.2/src/main'
+> make[2]: *** [Makefile:135: R] Error 2
+> make[2]: Leaving directory '/mnt/vast/hpc/homes/branch/Software_BUILD/R-3.4.2/src/main'
+> make[1]: *** [Makefile:28: R] Error 1
+> make[1]: Leaving directory '/mnt/vast/hpc/homes/branch/Software_BUILD/R-3.4.2/src'
+> make: *** [Makefile:61: R] Error 1
+>
+> Thanks,
+> Jose
+>
+> 	[[alternative HTML version deleted]]
+>
+>
+> _______________________________________________
+> R-SIG-Debian mailing list
+> R-SIG-Debian at r-project.org
+> https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+
+From |kry|ov @end|ng |rom d|@root@org  Thu Dec 12 17:28:26 2024
+From: |kry|ov @end|ng |rom d|@root@org (Ivan Krylov)
+Date: Thu, 12 Dec 2024 19:28:26 +0300
+Subject: [R-sig-Debian] R3.4 on Debian12
+In-Reply-To: <BY5PR02MB667563B27F7F1B4581584DAFF93F2@BY5PR02MB6675.namprd02.prod.outlook.com>
+References: <BY5PR02MB667563B27F7F1B4581584DAFF93F2@BY5PR02MB6675.namprd02.prod.outlook.com>
+Message-ID: <20241212192826.0f5610f5@arachnoid>
+
+You may also need gfortran -fallow-argument-mismatch argument to avoid
+the problem in src/library/stats/src/lminfl.f, where the same variable,
+double precision dummy, is used for an array argument and a scalar
+argument for dqrsl(). Declaring 'dummy' as a length-1 array should also
+work.
+
+-- 
+Best regards,
+Ivan
+
+
+From edd @end|ng |rom deb|@n@org  Thu Dec 12 18:46:10 2024
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Thu, 12 Dec 2024 11:46:10 -0600
+Subject: [R-sig-Debian] R3.4 on Debian12
+In-Reply-To: <20241212192826.0f5610f5@arachnoid>
+References: <BY5PR02MB667563B27F7F1B4581584DAFF93F2@BY5PR02MB6675.namprd02.prod.outlook.com>
+ <20241212192826.0f5610f5@arachnoid>
+Message-ID: <26459.8546.100850.723969@rob.eddelbuettel.com>
+
+
+Also, which compiler is this now?  Maybe it is more stringent than the one we
+used when R 3.4.* was current?  For Debian, you always have its own version
+of the wayback machine, namely
+
+   https://snapshot.debian.org/
+
+(which can be slow to respond because the breadth and depth whatever page you
+refresh may pull something from fairly cold storage).  I am not saying it
+will be _easy_ to recreate R 3.4.0 under Debian 12 but it is always _possible_.
+
+But my money would be on using pre-made (at the time !!) containers:
+
+   $ docker run --rm -ti r-base:3.4.4 R --version
+   R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
+   Copyright (C) 2018 The R Foundation for Statistical Computing
+   Platform: x86_64-pc-linux-gnu (64-bit)
+   
+   R is free software and comes with ABSOLUTELY NO WARRANTY.
+   You are welcome to redistribute it under the terms of the
+   GNU General Public License versions 2 or 3.
+   For more information about these matters see
+   http://www.gnu.org/licenses/.
+   
+   $ 
+
+That is running on Ubuntu 24.04 but taking advantage of the official (for
+Docker) r-base image 3.4.4 (which the volunteers of the docker-library
+maintain re-using the Dockerfile from our rocker/r-base I look after).
+
+Heck, you could even use this container (it's Debian based) and try to peel
+of the /usr/{lib,share}/R directories and add whatever shared libraries you.
+That is of course a gross hack and not something I would ever publically
+recommend ;-)
+
+Dirk
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+

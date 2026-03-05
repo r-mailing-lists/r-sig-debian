@@ -1,0 +1,182 @@
+From miroslava.kavgic at gmail.com  Wed Jul 22 04:11:34 2015
+From: miroslava.kavgic at gmail.com (Miroslava Kavgic)
+Date: Tue, 21 Jul 2015 23:11:34 -0300
+Subject: [R-sig-Debian] Installing randomForest under Red Hat Linux 6
+Message-ID: <CA+kB_YxZ6mqEO1i0ZCH4Ubo_eH_edY7LqFWraVdNkE5FezJqvw@mail.gmail.com>
+
+Hello,
+
+I'm trying to install randomForest package under Red Hat (Acenet
+environment).
+
+I've typed the command: install.packages("randomForest") but this command
+is not recognized.
+
+Any suggestions?
+
+Many thanks,
+Regards,
+Miroslava
+
+-- 
+Miroslava Kavgic, PhD
+Postdoctoral Fellow
+Renewable Energy Storage Laboratory
+Dalhousie University, Mechanical Engineering
+
+	[[alternative HTML version deleted]]
+
+
+From dstr7320 at uni.sydney.edu.au  Wed Jul 22 06:00:11 2015
+From: dstr7320 at uni.sydney.edu.au (Dario Strbenac)
+Date: Wed, 22 Jul 2015 04:00:11 +0000
+Subject: [R-sig-Debian] Installing randomForest under Red Hat Linux 6
+In-Reply-To: <CA+kB_YxZ6mqEO1i0ZCH4Ubo_eH_edY7LqFWraVdNkE5FezJqvw@mail.gmail.com>
+References: <CA+kB_YxZ6mqEO1i0ZCH4Ubo_eH_edY7LqFWraVdNkE5FezJqvw@mail.gmail.com>
+Message-ID: <SN1PR0101MB14392520F52A81921296D512CD830@SN1PR0101MB1439.prod.exchangelabs.com>
+
+Good day,
+
+You need to enter the command at the R command prompt, rather than the operating system command prompt.
+
+--------------------------------------
+Dario Strbenac
+PhD Student
+University of Sydney
+Camperdown NSW 2050
+Australia
+
+From nospam at altfeld-im.de  Sun Jul 26 18:49:49 2015
+From: nospam at altfeld-im.de (nospam at altfeld-im.de)
+Date: Sun, 26 Jul 2015 18:49:49 +0200
+Subject: [R-sig-Debian] R3.2.1: tools::testInstalledBasic("both") fails
+ since no tests are installed by default. Confirmed?
+Message-ID: <1437929389.2516.13.camel@i3770>
+
+Dear R-SIG-Debian team,
+
+I have installed R3.2.1 as described at cran.r-project.org
+on my Ubuntu 14.04 using the Ubuntu packages for R (r-base and
+r-base-dev) from the package URL
+
+deb http://<my.favorite.cran.mirror>/bin/linux/ubuntu trusty/
+
+I wanted to test the installation using the R commands:
+
+    Sys.setenv(LC_COLLATE = "C", LANGUAGE = "en")
+    library("tools")
+    testInstalledBasic("both")
+
+"testInstalledBasic()" failed with the error message:
+
+    Error in setwd(file.path(R.home(), "tests")) : 
+      cannot change working directory
+
+"R.home()" results in
+
+    [1] "/usr/lib/R"
+
+I looked into this folder and could not find test sub folder "tests"
+where the base tests are supposed to be stored.
+
+My questions:
+
+1. Can you please confirm that the "tests" sub folder is no part of the
+   packages? Otherwise I have to diagnose an installation problem on
+   my computer...
+
+2. What is the reason for not installing the tests (I am just curious)?
+
+3. If the tests are useful: How can I install them manually?
+   Since I install the binary package and do not build from the source
+   I cannot call "make install-tests" as proposed in the
+   "R Installation and Administration" in
+
+https://cran.r-project.org/doc/manuals/R-admin.html#Testing-a-Unix_002dalike-Installation
+
+Thx #J
+
+
+From edd at debian.org  Sun Jul 26 20:11:05 2015
+From: edd at debian.org (Dirk Eddelbuettel)
+Date: Sun, 26 Jul 2015 13:11:05 -0500
+Subject: [R-sig-Debian] R3.2.1: tools::testInstalledBasic("both") fails
+ since no tests are installed by default. Confirmed?
+In-Reply-To: <1437929389.2516.13.camel@i3770>
+References: <1437929389.2516.13.camel@i3770>
+Message-ID: <21941.8889.110866.181781@max.nulle.part>
+
+
+On 26 July 2015 at 18:49, nospam at altfeld-im.de wrote:
+| Dear R-SIG-Debian team,
+| 
+| I have installed R3.2.1 as described at cran.r-project.org
+| on my Ubuntu 14.04 using the Ubuntu packages for R (r-base and
+| r-base-dev) from the package URL
+| 
+| deb http://<my.favorite.cran.mirror>/bin/linux/ubuntu trusty/
+| 
+| I wanted to test the installation using the R commands:
+| 
+|     Sys.setenv(LC_COLLATE = "C", LANGUAGE = "en")
+|     library("tools")
+|     testInstalledBasic("both")
+| 
+| "testInstalledBasic()" failed with the error message:
+| 
+|     Error in setwd(file.path(R.home(), "tests")) : 
+|       cannot change working directory
+| 
+| "R.home()" results in
+| 
+|     [1] "/usr/lib/R"
+| 
+| I looked into this folder and could not find test sub folder "tests"
+| where the base tests are supposed to be stored.
+| 
+| My questions:
+| 
+| 1. Can you please confirm that the "tests" sub folder is no part of the
+|    packages? Otherwise I have to diagnose an installation problem on
+|    my computer...
+| 
+| 2. What is the reason for not installing the tests (I am just curious)?
+| 
+| 3. If the tests are useful: How can I install them manually?
+|    Since I install the binary package and do not build from the source
+|    I cannot call "make install-tests" as proposed in the
+|    "R Installation and Administration" in
+| 
+| https://cran.r-project.org/doc/manuals/R-admin.html#Testing-a-Unix_002dalike-Installation
+
+You may need to work from sources for this.  I can look into this, time
+permitting, when I next overhault / extend the Debian packaging.
+
+Dirk
+
+-- 
+http://dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
+From nospam at altfeld-im.de  Sun Jul 26 20:53:51 2015
+From: nospam at altfeld-im.de (nospam at altfeld-im.de)
+Date: Sun, 26 Jul 2015 20:53:51 +0200
+Subject: [R-sig-Debian] R3.2.1: tools::testInstalledBasic("both") fails
+ since no tests are installed by default. Confirmed?
+Message-ID: <1437936831.2516.19.camel@i3770>
+
+On Sun, 2015-07-26 at 13:11 -0500, Dirk Eddelbuettel wrote:
+> You may need to work from sources for this.  I can look into this,
+> time
+> permitting, when I next overhault / extend the Debian packaging.
+
+Would be great, Dirk!
+
+I see no time pressure - I am just using this feature as smoke test
+after the installation.
+
+I guess building from source performs a lot more tests (doesn't it ;-)?
+
+#J
+
+
