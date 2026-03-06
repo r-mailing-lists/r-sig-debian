@@ -1,0 +1,385 @@
+{
+  "list": "r-sig-debian",
+  "description": "",
+  "month": "2005-04",
+  "messages": [
+    {
+      "id": "msg-29051bd23f72",
+      "message_id": "<7FFEE688B57D7346BC6241C55900E730B7009A@pollux.bfro.uni-lj.si>",
+      "from_name": "Gorjanc Gregor",
+      "from_email_hash": "fa1948da1d5a19d793d64821dc48b628a0b7b353a62033b85cac76bd747bdc03",
+      "date": "2005-04-24T14:45:26Z",
+      "subject": "[R-sig-Debian] Upgrading R",
+      "subject_clean": "Upgrading R",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hello!\n\nNew version of R has came out and I would like to thank to all developers\non this matter. So I should probably upgrade. Fine and no problem. For \nwindows I just grab the latest precompiled binnaries and install them. Then\nI see a report on a bug, which is or will be fixed in pacthed version. So\nI need to get binnaries from patched build and install them, right?\n\nHow often do you people upgrade R on windows? For every patch? I know that\nit depends on the bug, but I would just like to hear what are your habits.\n\nI suppose Debian packages of \"base R\" are updated accordingly to R patches,\naren't they?\n\nThanks in advance!\n\n--\nLep pozdrav / With regards,\n    Gregor Gorjanc\n\n------------------------------------------------------------------------\nUniversity of Ljubljana\nBiotechnical Faculty       URI: http://www.bfro.uni-lj.si/MR/ggorjan\nZootechnical Department    email: gregor.gorjanc <at> bfro.uni-lj.si\nGroblje 3                  tel: +386 (0)1 72 17 861\nSI-1230 Domzale            fax: +386 (0)1 72 17 888\nSlovenia",
+      "body_snippet": "Hello!\n\nNew version of R has came out and I would like to thank to all developers\non this matter. So I should probably upgrade. Fine and no problem. For \nwindows I just grab the latest precompiled bin",
+      "thread_id": "thread-29051bd23f72",
+      "thread_depth": 0,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-b6ef88321d15",
+      "message_id": "<7FFEE688B57D7346BC6241C55900E730B7009C@pollux.bfro.uni-lj.si>",
+      "from_name": "Gorjanc Gregor",
+      "from_email_hash": "fa1948da1d5a19d793d64821dc48b628a0b7b353a62033b85cac76bd747bdc03",
+      "date": "2005-04-24T16:04:58Z",
+      "subject": "[R-sig-Debian] \"Debain\" way of installing packages",
+      "subject_clean": "\"Debain\" way of installing packages",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hello!\n\nI use Debian GNU/Linux at work and I really like apt-get tool. As far as\nI understand the whole picture, there are now some Debian packages of R\npackages. Build of Debian packages is done automagically by Perl script.\n\nBy the way, what is the status of Debianizing R packages? Is it stopped, \njust holded, ... I don't know so I am asking\nThere is also Bioconductor and I am aware that the list of packages is \ngrowing quite fast and afterall I understand that there is probably to \nfew people to work on Debianization.\n\nThe main point of this mail is however installation. I usually first\ntry to use apt-get install and if there is no Debian package I use\nR tools. However some packages that I have already installed with R tools\nmight  eventually appear as Debian packages, ... or I might use \nupdate.packages() for Debian packages. By the way is field\n'Package-Manager: Debian' already implemented. I would check, but I \nunfortunately don't have Debain at home.\n\nI was thinking on some functions or eventually an R package r-debian,\nwhich would ease this installation dilemma. Actually I wrote something\nalready in december but put it off. It is given bellow. It is probably\nfar from optimal but it was just a proof of concept. Many more functions\nwould be needed to fuzz everything up. Any comments?\n\ndebian.install.packages <- function(package, ...) {\n\n    # Description:\n    # Installs package on Debian GNU/Linux system. For given R package it\n    # tries to get Debian package and install/upgrade it with apt-get if it\n    # exists.  Otherwise install.packages() is used.\n    # Gregor GORJANC 2004-12-30\n\n    # Arguments:\n    # package: R package name as character, only one\n    # ...: other parameters for install.packages() or update.packages()\n\n    # Examples:\n    # debian.install.packages(\"Design\")\n\n    # Code:\n    # apt-get update i.e. refresh list of Debian packages\n    system(apt-get update)\n\n    # Transform R package name to Debian package name policy i.e change R\n    # package name to lowercase and test if this Debian package exists\n    # (test1). This could be done without grep, but then it is not possible\n    # to test on exit status, since apt-cache search always returns 0.\n    packagelow <- tolower(package)\n    tmp1 <- c(\"system(\\\"apt-cache search ^r- | grep\")\n    tmp2 <- c(\"| awk '{print $1}'\\\", intern = TRUE\\)\")\n    tmp3 <- as.expression(paste(tmp1, packagelow, tmp2, \"\\n\"))\n    deb <- eval(parse(file = \"\", text = tmp3))\n\n    cat(\"\\nR package:\", package, \"\\n\")\n    cat(\"Corresponding Debian package name:\", deb, \"\\n\")\n\n    # Package install/update or upgrade in apt meaning\n    if (length(deb) != 0) { # Debian package does exist\n        cat(\"Debian package\", deb, \"exists: yes\\n\")\n        cat(\"Proceeding with apt-get.\\n\")\n\n        # apt-get install, which can also be used for package upgrade\n        tmp1 <- c(\"system(\\\"apt-get install\")\n        tmp2 <- as.expression(paste(tmp1, deb, \"\\\")\", \"\\n\"))\n        eval(parse(file = \"\", text = tmp2))\n    }\n    else { # Debian package doesn't exist or something went wrong in test1\n        cat(\"Debian package\", deb, \"exists: no\\n\")\n#        cat(\"Proceeding with install/update.packages().\\n\")\n#        install.update.packages(package, ...)\n        cat(\"Proceeding with install.packages().\\n\")\n        install.packages(package, ...)\n    }\n}\n\nOne more thing. Why is r-noncran-lindsey and not r-other-lindsey?\n\n--\nLep pozdrav / With regards,\n    Gregor Gorjanc\n\n------------------------------------------------------------------------\nUniversity of Ljubljana\nBiotechnical Faculty       URI: http://www.bfro.uni-lj.si/MR/ggorjan\nZootechnical Department    email: gregor.gorjanc <at> bfro.uni-lj.si\nGroblje 3                  tel: +386 (0)1 72 17 861\nSI-1230 Domzale            fax: +386 (0)1 72 17 888\nSlovenia",
+      "body_snippet": "Hello!\n\nI use Debian GNU/Linux at work and I really like apt-get tool. As far as\nI understand the whole picture, there are now some Debian packages of R\npackages. Build of Debian packages is done auto",
+      "thread_id": "thread-b6ef88321d15",
+      "thread_depth": 0,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-573a8342c22b",
+      "message_id": "<1abe3fa90504240812189145cf@mail.gmail.com>",
+      "from_name": "A.J. Rossini",
+      "from_email_hash": "035aa365217fa4ca7185e15d86df9cfadfe895a8833f74f31844a380f3e3aaa4",
+      "date": "2005-04-24T17:12:22Z",
+      "subject": "[R-sig-Debian] \"Debain\" way of installing packages",
+      "subject_clean": "\"Debain\" way of installing packages",
+      "in_reply_to": "<7FFEE688B57D7346BC6241C55900E730B7009C@pollux.bfro.uni-lj.si>",
+      "references": [
+        "<7FFEE688B57D7346BC6241C55900E730B7009C@pollux.bfro.uni-lj.si>"
+      ],
+      "body_plain": "YMMV, but what I do is to install duplicates (i.e. R CMD INSTALL\nplaces things in /usr/local/, and apt-get in /usr/), and resolve the\nlibrary I want at load time.\n\nThis has a few advantages, and the obvious disadvantage that you can\nshoot yourself in the foot REALLY EASILY if you don't pay attention to\nwhat you've got configured.\n\nbest,\n-tony\n\n\n\nOn 4/24/05, Gorjanc Gregor <Gregor.Gorjanc@bfro.uni-lj.si> wrote:\n> Hello!\n> \n> I use Debian GNU/Linux at work and I really like apt-get tool. As far as\n> I understand the whole picture, there are now some Debian packages of R\n> packages. Build of Debian packages is done automagically by Perl script.\n> \n> By the way, what is the status of Debianizing R packages? Is it stopped,\n> just holded, ... I don't know so I am asking\n> There is also Bioconductor and I am aware that the list of packages is\n> growing quite fast and afterall I understand that there is probably to\n> few people to work on Debianization.\n> \n> The main point of this mail is however installation. I usually first\n> try to use apt-get install and if there is no Debian package I use\n> R tools. However some packages that I have already installed with R tools\n> might  eventually appear as Debian packages, ... or I might use\n> update.packages() for Debian packages. By the way is field\n> 'Package-Manager: Debian' already implemented. I would check, but I\n> unfortunately don't have Debain at home.\n> \n> I was thinking on some functions or eventually an R package r-debian,\n> which would ease this installation dilemma. Actually I wrote something\n> already in december but put it off. It is given bellow. It is probably\n> far from optimal but it was just a proof of concept. Many more functions\n> would be needed to fuzz everything up. Any comments?\n> \n> debian.install.packages <- function(package, ...) {\n> \n>     # Description:\n>     # Installs package on Debian GNU/Linux system. For given R package it\n>     # tries to get Debian package and install/upgrade it with apt-get if it\n>     # exists.  Otherwise install.packages() is used.\n>     # Gregor GORJANC 2004-12-30\n> \n>     # Arguments:\n>     # package: R package name as character, only one\n>     # ...: other parameters for install.packages() or update.packages()\n> \n>     # Examples:\n>     # debian.install.packages(\"Design\")\n> \n>     # Code:\n>     # apt-get update i.e. refresh list of Debian packages\n>     system(apt-get update)\n> \n>     # Transform R package name to Debian package name policy i.e change R\n>     # package name to lowercase and test if this Debian package exists\n>     # (test1). This could be done without grep, but then it is not possible\n>     # to test on exit status, since apt-cache search always returns 0.\n>     packagelow <- tolower(package)\n>     tmp1 <- c(\"system(\\\"apt-cache search ^r- | grep\")\n>     tmp2 <- c(\"| awk '{print $1}'\\\", intern = TRUE\\)\")\n>     tmp3 <- as.expression(paste(tmp1, packagelow, tmp2, \"\\n\"))\n>     deb <- eval(parse(file = \"\", text = tmp3))\n> \n>     cat(\"\\nR package:\", package, \"\\n\")\n>     cat(\"Corresponding Debian package name:\", deb, \"\\n\")\n> \n>     # Package install/update or upgrade in apt meaning\n>     if (length(deb) != 0) { # Debian package does exist\n>         cat(\"Debian package\", deb, \"exists: yes\\n\")\n>         cat(\"Proceeding with apt-get.\\n\")\n> \n>         # apt-get install, which can also be used for package upgrade\n>         tmp1 <- c(\"system(\\\"apt-get install\")\n>         tmp2 <- as.expression(paste(tmp1, deb, \"\\\")\", \"\\n\"))\n>         eval(parse(file = \"\", text = tmp2))\n>     }\n>     else { # Debian package doesn't exist or something went wrong in test1\n>         cat(\"Debian package\", deb, \"exists: no\\n\")\n> #        cat(\"Proceeding with install/update.packages().\\n\")\n> #        install.update.packages(package, ...)\n>         cat(\"Proceeding with install.packages().\\n\")\n>         install.packages(package, ...)\n>     }\n> }\n> \n> One more thing. Why is r-noncran-lindsey and not r-other-lindsey?\n> \n> --\n> Lep pozdrav / With regards,\n>     Gregor Gorjanc\n> \n> ------------------------------------------------------------------------\n> University of Ljubljana\n> Biotechnical Faculty       URI: http://www.bfro.uni-lj.si/MR/ggorjan\n> Zootechnical Department    email: gregor.gorjanc <at> bfro.uni-lj.si\n> Groblje 3                  tel: +386 (0)1 72 17 861\n> SI-1230 Domzale            fax: +386 (0)1 72 17 888\n> Slovenia\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian@r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n> \n\n\n-- \nbest,\n-tony\n\n\"Commit early,commit often, and commit in a repository from which we can easily\nroll-back your mistakes\" (AJR, 4Jan05).\n\nA.J. Rossini\nblindglobe@gmail.com",
+      "body_snippet": "YMMV, but what I do is to install duplicates (i.e. R CMD INSTALL\nplaces things in /usr/local/, and apt-get in /usr/), and resolve the\nlibrary I want at load time.\n\nThis has a few advantages, and the o",
+      "thread_id": "thread-b6ef88321d15",
+      "thread_depth": 1,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-2d4c02ea2d31",
+      "message_id": "<17003.56140.969884.7540@basebud.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2005-04-24T19:46:03Z",
+      "subject": "[R-sig-Debian] \"Debain\" way of installing packages",
+      "subject_clean": "\"Debain\" way of installing packages",
+      "in_reply_to": "<7FFEE688B57D7346BC6241C55900E730B7009C@pollux.bfro.uni-lj.si>",
+      "references": [
+        "<7FFEE688B57D7346BC6241C55900E730B7009C@pollux.bfro.uni-lj.si>"
+      ],
+      "body_plain": "Hi Gregor,\n\nYour enthusiasm in this matter is greatly appreciated. I am CC'ing this to\nthe existing list on the alioth.debian.org hosting system: pkg-bioc-devel.\nThis was initially set up my Matt Hope to foster debianising BioC, I then\nthrew my exisiting Perl infrastructure (used previously for Quantian) at it\nand Egon Willighagen carried it from there with further improvements,\nincl. large scale builds of amd64 packages.\n\nWith a little push from all of us (Hi Tony, Hi Matt, Hi Egon, Hi\nanybody-else-willing-to-chip-in :) we can make this even better and hopefully\nhave something proper by the summer, maybe for DSC 20003.\n\nOn 24 April 2005 at 16:04, Gorjanc Gregor wrote:\n| Hello!\n| \n| I use Debian GNU/Linux at work and I really like apt-get tool. As far as\n| I understand the whole picture, there are now some Debian packages of R\n| packages. Build of Debian packages is done automagically by Perl script.\n| \n| By the way, what is the status of Debianizing R packages? Is it stopped, \n| just holded, ... I don't know so I am asking\n| There is also Bioconductor and I am aware that the list of packages is \n| growing quite fast and afterall I understand that there is probably to \n| few people to work on Debianization.\n| \n| The main point of this mail is however installation. I usually first\n| try to use apt-get install and if there is no Debian package I use\n| R tools. However some packages that I have already installed with R tools\n| might  eventually appear as Debian packages, ... or I might use \n| update.packages() for Debian packages. By the way is field\n| 'Package-Manager: Debian' already implemented. I would check, but I \n| unfortunately don't have Debain at home.\n| \n| I was thinking on some functions or eventually an R package r-debian,\n| which would ease this installation dilemma. Actually I wrote something\n| already in december but put it off. It is given bellow. It is probably\n| far from optimal but it was just a proof of concept. Many more functions\n| would be needed to fuzz everything up. Any comments?\n| \n| debian.install.packages <- function(package, ...) {\n| \n|     # Description:\n|     # Installs package on Debian GNU/Linux system. For given R package it\n|     # tries to get Debian package and install/upgrade it with apt-get if it\n|     # exists.  Otherwise install.packages() is used.\n|     # Gregor GORJANC 2004-12-30\n| \n|     # Arguments:\n|     # package: R package name as character, only one\n|     # ...: other parameters for install.packages() or update.packages()\n| \n|     # Examples:\n|     # debian.install.packages(\"Design\")\n| \n|     # Code:\n|     # apt-get update i.e. refresh list of Debian packages\n|     system(apt-get update)\n| \n|     # Transform R package name to Debian package name policy i.e change R\n|     # package name to lowercase and test if this Debian package exists\n|     # (test1). This could be done without grep, but then it is not possible\n|     # to test on exit status, since apt-cache search always returns 0.\n|     packagelow <- tolower(package)\n|     tmp1 <- c(\"system(\\\"apt-cache search ^r- | grep\")\n|     tmp2 <- c(\"| awk '{print $1}'\\\", intern = TRUE\\)\")\n|     tmp3 <- as.expression(paste(tmp1, packagelow, tmp2, \"\\n\"))\n|     deb <- eval(parse(file = \"\", text = tmp3))\n| \n|     cat(\"\\nR package:\", package, \"\\n\")\n|     cat(\"Corresponding Debian package name:\", deb, \"\\n\")\n| \n|     # Package install/update or upgrade in apt meaning\n|     if (length(deb) != 0) { # Debian package does exist\n|         cat(\"Debian package\", deb, \"exists: yes\\n\")\n|         cat(\"Proceeding with apt-get.\\n\")\n| \n|         # apt-get install, which can also be used for package upgrade\n|         tmp1 <- c(\"system(\\\"apt-get install\")\n|         tmp2 <- as.expression(paste(tmp1, deb, \"\\\")\", \"\\n\"))\n|         eval(parse(file = \"\", text = tmp2))\n|     }\n|     else { # Debian package doesn't exist or something went wrong in test1\n|         cat(\"Debian package\", deb, \"exists: no\\n\")\n| #        cat(\"Proceeding with install/update.packages().\\n\")\n| #        install.update.packages(package, ...)\n|         cat(\"Proceeding with install.packages().\\n\")\n|         install.packages(package, ...)\n|     }\n| }\n\nAs Tony said in his follow-up, the mixing and matching is hard to do\nproperly, which is why I think the high-end solution is to provide a robust\nscript, maybe with a db backend, that debianises what is on CRAN -- similar\nto what exists on Windows. We'd simply use apt-get instead of\ninstall.packages() wherever possible.\n \n| One more thing. Why is r-noncran-lindsey and not r-other-lindsey?\n\nBecause nobody pressed Chris hard enough to implement the change. I am sure\nhe would take a patch from you (hint, hint).\n\nCheers, Dirk\n\nPS Adorable type in you Subject line. I have done gazillion times as well :)\n\n| \n| --\n| Lep pozdrav / With regards,\n|     Gregor Gorjanc\n| \n| ------------------------------------------------------------------------\n| University of Ljubljana\n| Biotechnical Faculty       URI: http://www.bfro.uni-lj.si/MR/ggorjan\n| Zootechnical Department    email: gregor.gorjanc <at> bfro.uni-lj.si\n| Groblje 3                  tel: +386 (0)1 72 17 861\n| SI-1230 Domzale            fax: +386 (0)1 72 17 888\n| Slovenia\n| \n| _______________________________________________\n| R-SIG-Debian mailing list\n| R-SIG-Debian@r-project.org\n| https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \nBetter to have an approximate answer to the right question than a precise \nanswer to the wrong question.  --  John Tukey as quoted by John Chambers",
+      "body_snippet": "Hi Gregor,\n\nYour enthusiasm in this matter is greatly appreciated. I am CC'ing this to\nthe existing list on the alioth.debian.org hosting system: pkg-bioc-devel.\nThis was initially set up my Matt Hope",
+      "thread_id": "thread-b6ef88321d15",
+      "thread_depth": 1,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-edcf408f1fe7",
+      "message_id": "<200504241958.54731.egonw@sci.kun.nl>",
+      "from_name": "Egon Willighagen",
+      "from_email_hash": "96a5c1576446f895c8a7b4a7b6637e6e9b01f6803437090a34974d9061ab7b36",
+      "date": "2005-04-24T21:07:25Z",
+      "subject": "[pkg-bioc] Re: [R-sig-Debian] \"Debain\" way of installing packages",
+      "subject_clean": "[pkg-bioc] Re: [R-sig-Debian] \"Debain\" way of installing packages",
+      "in_reply_to": "<17003.56140.969884.7540@basebud.nulle.part>",
+      "references": [
+        "<7FFEE688B57D7346BC6241C55900E730B7009C@pollux.bfro.uni-lj.si>",
+        "<17003.56140.969884.7540@basebud.nulle.part>"
+      ],
+      "body_plain": "On Sunday 24 April 2005 19:45, Dirk Eddelbuettel wrote:\n> Your enthusiasm in this matter is greatly appreciated. I am CC'ing this to\n> the existing list on the alioth.debian.org hosting system: pkg-bioc-devel.\n> This was initially set up my Matt Hope to foster debianising BioC, I then\n> threw my exisiting Perl infrastructure (used previously for Quantian) at it\n> and Egon Willighagen carried it from there with further improvements,\n> incl. large scale builds of amd64 packages.\n>\n> With a little push from all of us (Hi Tony, Hi Matt, Hi Egon, Hi\n> anybody-else-willing-to-chip-in :) we can make this even better and\n> hopefully have something proper by the summer, maybe for DSC 20003.\n\nWhat remains to be done? I think we can compile most of the CRAN packages \nautomatically with the Perl script on Alioth... there are some packages that \nwon't work at this moment, for various reasons, but I think 80+ percent gets \ndebianized. The resulting packages are quite Lintian ok, and I think the \npackages are actually tested if they work during the process...\n\nDirk, you mentioned a few times some remaining bugs. What are the things you \nfeel that need to be fixed before we can try an setup a repository?\n\nEgon\n\n-- \ne.willighagen@science.ru.nl\nPhD student on Molecular Representation in Chemometrics\nRadboud University Nijmegen\nhttp://www.cac.science.ru.nl/people/egonw/\nGPG: 1024D/D6336BA6",
+      "body_snippet": "On Sunday 24 April 2005 19:45, Dirk Eddelbuettel wrote:\n> Your enthusiasm in this matter is greatly appreciated. I am CC'ing this to\n> the existing list on the alioth.debian.org hosting system: pkg-bi",
+      "thread_id": "thread-b6ef88321d15",
+      "thread_depth": 2,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-c9ebe2fc1d6b",
+      "message_id": "<17003.61346.348459.795908@basebud.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2005-04-24T21:12:44Z",
+      "subject": "[pkg-bioc] Re: [R-sig-Debian] \"Debain\" way of installing packages",
+      "subject_clean": "[pkg-bioc] Re: [R-sig-Debian] \"Debain\" way of installing packages",
+      "in_reply_to": "<200504241958.54731.egonw@sci.kun.nl>",
+      "references": [
+        "<7FFEE688B57D7346BC6241C55900E730B7009C@pollux.bfro.uni-lj.si>",
+        "<17003.56140.969884.7540@basebud.nulle.part>",
+        "<200504241958.54731.egonw@sci.kun.nl>"
+      ],
+      "body_plain": "On 24 April 2005 at 19:58, Egon Willighagen wrote:\n| On Sunday 24 April 2005 19:45, Dirk Eddelbuettel wrote:\n| > Your enthusiasm in this matter is greatly appreciated. I am CC'ing this to\n| > the existing list on the alioth.debian.org hosting system: pkg-bioc-devel.\n| > This was initially set up my Matt Hope to foster debianising BioC, I then\n| > threw my exisiting Perl infrastructure (used previously for Quantian) at it\n| > and Egon Willighagen carried it from there with further improvements,\n| > incl. large scale builds of amd64 packages.\n| >\n| > With a little push from all of us (Hi Tony, Hi Matt, Hi Egon, Hi\n| > anybody-else-willing-to-chip-in :) we can make this even better and\n| > hopefully have something proper by the summer, maybe for DSC 20003.\n| \n| What remains to be done? I think we can compile most of the CRAN packages \n| automatically with the Perl script on Alioth... there are some packages that \n| won't work at this moment, for various reasons, but I think 80+ percent gets \n| debianized. The resulting packages are quite Lintian ok, and I think the \n| packages are actually tested if they work during the process...\n| \n| Dirk, you mentioned a few times some remaining bugs. What are the things you \n| feel that need to be fixed before we can try an setup a repository?\n\nNot sure. We probably just need to \"keep on rolling\" to experience the bugs\nand squish.\n\nI am somewhat behind the eight ball in terms of other committments, so I am\nnot sure I can get to it.  Does anybody feel like like starting this for\ni386?  Would be nice to complement R 2.1.0 with a few hundred apt-get'able\npackages, and even nice if you can add the same for amd64. Any powerpc users\nhere who could run a chroot?\n\nIn terms of space and bandwidth, I could put them into people.debian.org as\nalioth appears to be permanently full.  Anybody else have space?  \n\nTony: Could we / should we put them onto opus?\n\nCheers, Dirk\n\n-- \nBetter to have an approximate answer to the right question than a precise \nanswer to the wrong question.  --  John Tukey as quoted by John Chambers",
+      "body_snippet": "On 24 April 2005 at 19:58, Egon Willighagen wrote:\n| On Sunday 24 April 2005 19:45, Dirk Eddelbuettel wrote:\n| > Your enthusiasm in this matter is greatly appreciated. I am CC'ing this to\n| > the exis",
+      "thread_id": "thread-b6ef88321d15",
+      "thread_depth": 3,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-da9886c50923",
+      "message_id": "<1abe3fa905042414155db94ae0@mail.gmail.com>",
+      "from_name": "A.J. Rossini",
+      "from_email_hash": "035aa365217fa4ca7185e15d86df9cfadfe895a8833f74f31844a380f3e3aaa4",
+      "date": "2005-04-24T23:15:48Z",
+      "subject": "[pkg-bioc] Re: [R-sig-Debian] \"Debain\" way of installing packages",
+      "subject_clean": "[pkg-bioc] Re: [R-sig-Debian] \"Debain\" way of installing packages",
+      "in_reply_to": "<17003.61346.348459.795908@basebud.nulle.part>",
+      "references": [
+        "<7FFEE688B57D7346BC6241C55900E730B7009C@pollux.bfro.uni-lj.si>",
+        "<17003.56140.969884.7540@basebud.nulle.part>",
+        "<200504241958.54731.egonw@sci.kun.nl>",
+        "<17003.61346.348459.795908@basebud.nulle.part>"
+      ],
+      "body_plain": "On 4/24/05, Dirk Eddelbuettel <edd@debian.org> wrote:\n> \n> In terms of space and bandwidth, I could put them into people.debian.org as\n> alioth appears to be permanently full.  Anybody else have space?\n> \n> Tony: Could we / should we put them onto opus?\n\nDepends on how the process would work.  Opus will be shutdown at the\nend of August, as I'll not be able to pay a systems admin at that\npoint until October, which is when I would head back (if that is our\ndecision).\n\nSo, for a temporary move, it's fine.  For permanent work, it would be silly.\n\nWe might be able to see if Greg W's site would carry it (the Quantian\n\"mirror\" at Yale).\n\nbest,\n-tony\n\n\"Commit early,commit often, and commit in a repository from which we can easily\nroll-back your mistakes\" (AJR, 4Jan05).\n\nA.J. Rossini\nblindglobe@gmail.com",
+      "body_snippet": "On 4/24/05, Dirk Eddelbuettel <edd@debian.org> wrote:\n> \n> In terms of space and bandwidth, I could put them into people.debian.org as\n> alioth appears to be permanently full.  Anybody else have space",
+      "thread_id": "thread-b6ef88321d15",
+      "thread_depth": 4,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-6cc34b222e54",
+      "message_id": "<17004.10958.742806.659424@basebud.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2005-04-25T01:25:38Z",
+      "subject": "[R-sig-Debian] Upgrading R",
+      "subject_clean": "Upgrading R",
+      "in_reply_to": "<7FFEE688B57D7346BC6241C55900E730B7009A@pollux.bfro.uni-lj.si>",
+      "references": [
+        "<7FFEE688B57D7346BC6241C55900E730B7009A@pollux.bfro.uni-lj.si>"
+      ],
+      "body_plain": "On 24 April 2005 at 14:45, Gorjanc Gregor wrote:\n| I suppose Debian packages of \"base R\" are updated accordingly to R patches,\n| aren't they?\n\nNo, I tend to follow R Core and make release when actual minor release are\nmade. On the other hand, I try to help with alpha and beta releases during\nthe build-up to a release.\n\nFull details are of course in the changelog, on your Debian box in\n/usr/share/doc/r-base-core/changelog.Debian.gz and on the web at\nhttp://changelog.debian.net/r-base\n\nRegards, Dirk\n\n-- \nBetter to have an approximate answer to the right question than a precise \nanswer to the wrong question.  --  John Tukey as quoted by John Chambers",
+      "body_snippet": "On 24 April 2005 at 14:45, Gorjanc Gregor wrote:\n| I suppose Debian packages of \"base R\" are updated accordingly to R patches,\n| aren't they?\n\nNo, I tend to follow R Core and make release when actual ",
+      "thread_id": "thread-29051bd23f72",
+      "thread_depth": 1,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-284dee96537c",
+      "message_id": "<426CA831.8030403@statistik.uni-dortmund.de>",
+      "from_name": "Uwe Ligges",
+      "from_email_hash": "2d61b878ddbd8cb498eaad13e213f45e20da358dea7c063799b1b3934f86a26c",
+      "date": "2005-04-25T13:01:25Z",
+      "subject": "[R-sig-Debian] Re: [R] Upgrading R",
+      "subject_clean": "Upgrading R",
+      "in_reply_to": "<7FFEE688B57D7346BC6241C55900E730B7009A@pollux.bfro.uni-lj.si>",
+      "references": [
+        "<7FFEE688B57D7346BC6241C55900E730B7009A@pollux.bfro.uni-lj.si>"
+      ],
+      "body_plain": "Gorjanc Gregor wrote:\n\n> Hello!\n> \n> New version of R has came out and I would like to thank to all developers\n> on this matter. So I should probably upgrade. Fine and no problem. For \n> windows I just grab the latest precompiled binnaries and install them. Then\n> I see a report on a bug, which is or will be fixed in pacthed version. So\n> I need to get binnaries from patched build and install them, right?\n> \n> How often do you people upgrade R on windows? For every patch? I know that\n> it depends on the bug, but I would just like to hear what are your habits.\n\nThe binaries on CRAN are updated by Duncan Murdoch frequently. Of \ncourse, you can get the sources at arbitrary time and compile yourself \nhourly, if you prefer. ;-)\n\nYou have to distinguish official releases and patched versions.\n\nFor official releases:\nForm the developer page: \"The general schedule is to have major releases \n(x.y.0) biannually\".\nDuring the last few years, each major release was followed by one minor \n(bug-fix) release after roughly one month.\n\nUwe Ligges\n\n\n> \n> I suppose Debian packages of \"base R\" are updated accordingly to R patches,\n> aren't they?\n> \n> Thanks in advance!\n> \n> --\n> Lep pozdrav / With regards,\n>     Gregor Gorjanc\n> \n> ------------------------------------------------------------------------\n> University of Ljubljana\n> Biotechnical Faculty       URI: http://www.bfro.uni-lj.si/MR/ggorjan\n> Zootechnical Department    email: gregor.gorjanc <at> bfro.uni-lj.si\n> Groblje 3                  tel: +386 (0)1 72 17 861\n> SI-1230 Domzale            fax: +386 (0)1 72 17 888\n> Slovenia\n> \n> ______________________________________________\n> R-help@stat.math.ethz.ch mailing list\n> https://stat.ethz.ch/mailman/listinfo/r-help\n> PLEASE do read the posting guide! http://www.R-project.org/posting-guide.html",
+      "body_snippet": "Gorjanc Gregor wrote:\n\n> Hello!\n> \n> New version of R has came out and I would like to thank to all developers\n> on this matter. So I should probably upgrade. Fine and no problem. For \n> windows I jus",
+      "thread_id": "thread-29051bd23f72",
+      "thread_depth": 1,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-b34669a7b184",
+      "message_id": "<e2e0e3d305042420572f4396c3@mail.gmail.com>",
+      "from_name": "Chris Lawrence",
+      "from_email_hash": "b1b8d2c8ad649de781474267b079ecb858018c801fd1413906dee04e3b653353",
+      "date": "2005-04-25T13:07:22Z",
+      "subject": "[R-sig-Debian] \"Debain\" way of installing packages",
+      "subject_clean": "\"Debain\" way of installing packages",
+      "in_reply_to": "<17003.56140.969884.7540@basebud.nulle.part>",
+      "references": [
+        "<7FFEE688B57D7346BC6241C55900E730B7009C@pollux.bfro.uni-lj.si>",
+        "<17003.56140.969884.7540@basebud.nulle.part>"
+      ],
+      "body_plain": "On 4/24/05, Dirk Eddelbuettel <edd@debian.org> wrote:\n> Because nobody pressed Chris hard enough to implement the change. I am sure\n> he would take a patch from you (hint, hint).\n\n-lindsey is sufficiently annoying for this and other reasons that I\nplan to either orphan it or ask for its removal.\n\n\nChris\n-- \nChris Lawrence - http://blog.lordsutch.com/",
+      "body_snippet": "On 4/24/05, Dirk Eddelbuettel <edd@debian.org> wrote:\n> Because nobody pressed Chris hard enough to implement the change. I am sure\n> he would take a patch from you (hint, hint).\n\n-lindsey is sufficie",
+      "thread_id": "thread-b6ef88321d15",
+      "thread_depth": 2,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-e701c88308c0",
+      "message_id": "<7FFEE688B57D7346BC6241C55900E730B700A2@pollux.bfro.uni-lj.si>",
+      "from_name": "Gorjanc Gregor",
+      "from_email_hash": "fa1948da1d5a19d793d64821dc48b628a0b7b353a62033b85cac76bd747bdc03",
+      "date": "2005-04-26T00:48:40Z",
+      "subject": "[R-sig-Debian] Re: [R] Upgrading R",
+      "subject_clean": "Upgrading R",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Thanks to all for their explanations. Things are much clearer to me now.\n\n--\nLep pozdrav / With regards,\n    Gregor Gorjanc\n\n------------------------------------------------------------------------\nUniversity of Ljubljana\nBiotechnical Faculty       URI: http://www.bfro.uni-lj.si/MR/ggorjan\nZootechnical Department    email: gregor.gorjanc <at> bfro.uni-lj.si\nGroblje 3                  tel: +386 (0)1 72 17 861\nSI-1230 Domzale            fax: +386 (0)1 72 17 888\nSlovenia",
+      "body_snippet": "Thanks to all for their explanations. Things are much clearer to me now.\n\n--\nLep pozdrav / With regards,\n    Gregor Gorjanc\n\n------------------------------------------------------------------------\nUn",
+      "thread_id": "thread-e701c88308c0",
+      "thread_depth": 0,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-20cbcb412edb",
+      "message_id": "<426CE95A.6010707@med.uni-rostock.de>",
+      "from_name": "Steffen Moeller",
+      "from_email_hash": "524937820c7418fcbd48a6edaaaee06ef490aa744de722f83b76d9c41fb17ed1",
+      "date": "2005-04-26T03:13:30Z",
+      "subject": "[pkg-bioc] Re: [R-sig-Debian] \"Debain\" way of installing packages",
+      "subject_clean": "[pkg-bioc] Re: [R-sig-Debian] \"Debain\" way of installing packages",
+      "in_reply_to": "<e2e0e3d305042420572f4396c3@mail.gmail.com>",
+      "references": [
+        "<7FFEE688B57D7346BC6241C55900E730B7009C@pollux.bfro.uni-lj.si>",
+        "<17003.56140.969884.7540@basebud.nulle.part>",
+        "<e2e0e3d305042420572f4396c3@mail.gmail.com>"
+      ],
+      "body_plain": "Dear all,\n\nwe move our institute somewhen later in the summer and might have a\nlittle downtime then, but besides, I could offer both accounts (ssh\naccess to maintainers) and (non-backuped) disk space. Since we mirror\neverything, this should not be too much of an issue, is it? I might have\nto pay for a disk myself, but this is fine. We could do both i386 and\nsparc. Also MIPS, but this is a bit pointless for now, isn't it?\n\nI am likely to leave my current institute in October.  It might be that\nI do not find somebody else taking over responsibility and that we then\nhave to change the URL.  But maybe there would be  some\nr-project.debian.net alias for  us  anyway.\n\nMany greetings and thanks for all your good work!\n\nSteffen\n\n\nChris Lawrence wrote:\n\n>On 4/24/05, Dirk Eddelbuettel <edd@debian.org> wrote:\n>  \n>\n>>Because nobody pressed Chris hard enough to implement the change. I am sure\n>>he would take a patch from you (hint, hint).\n>>    \n>>\n>\n>-lindsey is sufficiently annoying for this and other reasons that I\n>plan to either orphan it or ask for its removal.\n>\n>\n>Chris\n>  \n>",
+      "body_snippet": "Dear all,\n\nwe move our institute somewhen later in the summer and might have a\nlittle downtime then, but besides, I could offer both accounts (ssh\naccess to maintainers) and (non-backuped) disk space.",
+      "thread_id": "thread-b6ef88321d15",
+      "thread_depth": 3,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-40251c7243db",
+      "message_id": "<Pine.LNX.4.62.0504250805090.31535@illuminati.stderr.org>",
+      "from_name": "elijah wright",
+      "from_email_hash": "3ec681c84ce60aeb6a06d8ce3e75ce6ee8f8227317045dc71a424ccac0c66620",
+      "date": "2005-04-26T03:13:30Z",
+      "subject": "[pkg-bioc] Re: [R-sig-Debian] \"Debain\" way of installing packages",
+      "subject_clean": "[pkg-bioc] Re: [R-sig-Debian] \"Debain\" way of installing packages",
+      "in_reply_to": "<426CE95A.6010707@med.uni-rostock.de>",
+      "references": [
+        "<7FFEE688B57D7346BC6241C55900E730B7009C@pollux.bfro.uni-lj.si>",
+        "<17003.56140.969884.7540@basebud.nulle.part>",
+        "<e2e0e3d305042420572f4396c3@mail.gmail.com>",
+        "<426CE95A.6010707@med.uni-rostock.de>"
+      ],
+      "body_plain": "> access to maintainers) and (non-backuped) disk space. Since we mirror \n> everything, this should not be too much of an issue, is it? I might have \n> to pay for a disk myself, but this is fine. We could do both i386 and \n> sparc. Also MIPS, but this is a bit pointless for now, isn't it?\n\nhow much disk space would such a project need?  ballpark estimate?  tens \nor low hundreds of gigabytes?\n\n--elijah",
+      "body_snippet": "> access to maintainers) and (non-backuped) disk space. Since we mirror \n> everything, this should not be too much of an issue, is it? I might have \n> to pay for a disk myself, but this is fine. We co",
+      "thread_id": "thread-b6ef88321d15",
+      "thread_depth": 4,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-52ce22eab4ca",
+      "message_id": "<17005.39262.67147.791568@basebud.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2005-04-26T03:29:12Z",
+      "subject": "[pkg-bioc] Re: [R-sig-Debian] \"Debain\" way of installing packages",
+      "subject_clean": "[pkg-bioc] Re: [R-sig-Debian] \"Debain\" way of installing packages",
+      "in_reply_to": "<Pine.LNX.4.62.0504250805090.31535@illuminati.stderr.org>",
+      "references": [
+        "<7FFEE688B57D7346BC6241C55900E730B7009C@pollux.bfro.uni-lj.si>",
+        "<17003.56140.969884.7540@basebud.nulle.part>",
+        "<e2e0e3d305042420572f4396c3@mail.gmail.com>",
+        "<426CE95A.6010707@med.uni-rostock.de>",
+        "<Pine.LNX.4.62.0504250805090.31535@illuminati.stderr.org>"
+      ],
+      "body_plain": "On 25 April 2005 at 08:07, elijah wright wrote:\n| \n| > access to maintainers) and (non-backuped) disk space. Since we mirror \n| > everything, this should not be too much of an issue, is it? I might have \n| > to pay for a disk myself, but this is fine. We could do both i386 and \n| > sparc. Also MIPS, but this is a bit pointless for now, isn't it?\n| \n| how much disk space would such a project need?  ballpark estimate?  tens \n| or low hundreds of gigabytes?\n\nOne ballpark is from the build I did last summer / fall for Quantian and for\nwhich the resulting .deb files are still lingering here on my machine -- just\nthe .deb files for most of (then) CRAN and BioC is about 430 mb, incl. a few\ndouble entries.\n\nDirk\n\n-- \nBetter to have an approximate answer to the right question than a precise \nanswer to the wrong question.  --  John Tukey as quoted by John Chambers",
+      "body_snippet": "On 25 April 2005 at 08:07, elijah wright wrote:\n| \n| > access to maintainers) and (non-backuped) disk space. Since we mirror \n| > everything, this should not be too much of an issue, is it? I might ha",
+      "thread_id": "thread-b6ef88321d15",
+      "thread_depth": 5,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-4efe99123a5c",
+      "message_id": "<7FFEE688B57D7346BC6241C55900E730B700A6@pollux.bfro.uni-lj.si>",
+      "from_name": "Gorjanc Gregor",
+      "from_email_hash": "fa1948da1d5a19d793d64821dc48b628a0b7b353a62033b85cac76bd747bdc03",
+      "date": "2005-04-26T12:11:33Z",
+      "subject": "[R-sig-Debian] \"Debain\" way of installing packages",
+      "subject_clean": "\"Debain\" way of installing packages",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hello!\n\nSorry for late response. I just had to check all this allioth stuf etc. \n\n> -----Original Message-----\n> From: Dirk Eddelbuettel [mailto:edd@debian.org]\n> Sent: ned 2005-04-24 19:45\n> To: Gorjanc Gregor\n> Cc: r-sig-debian@r-project.org; pkg-bioc-devel@lists.alioth.debian.org; lawrencc@debian.org\n> Subject: Re: [R-sig-Debian] \"Debain\" way of installing packages\n>  \n> Hi Gregor,\n> \n> Your enthusiasm in this matter is greatly appreciated. I am CC'ing this to\n> the existing list on the alioth.debian.org hosting system: pkg-bioc-devel.\n> This was initially set up my Matt Hope to foster debianising BioC, I then\n> threw my exisiting Perl infrastructure (used previously for Quantian) at it\n> and Egon Willighagen carried it from there with further improvements,\n> incl. large scale builds of amd64 packages.\n> \n> With a little push from all of us (Hi Tony, Hi Matt, Hi Egon, Hi\n> anybody-else-willing-to-chip-in :) we can make this even better and hopefully\n> have something proper by the summer, maybe for DSC 20003.\n\n[... snip ...]\n\n> As Tony said in his follow-up, the mixing and matching is hard to do\nYes, mixing is hard and confusing.\n\n> properly, which is why I think the high-end solution is to provide a robust\n> script, maybe with a db backend, that debianises what is on CRAN -- similar\nWhat do you mean by a db (I suppose databse) backend, that debianises ...?\n\nIf I understand you propose to debianize all R packages and then simply use\napt-get. This would probably be the easisest way, however only if this is really\nachivable. My help on debianization can be very small since I have never tried\nto do that, but I am willing to learn and help.\n\nIf previous is true, you think that some sort script I proposed is not OK for\nmixing?\n\n> to what exists on Windows. We'd simply use apt-get instead of\nWhat is the case with Windows? Do you mean build of binary packages for Windows\nor what?\n\n> | One more thing. Why is r-noncran-lindsey and not r-other-lindsey?\n\n> Because nobody pressed Chris hard enough to implement the change. I am sure\n> he would take a patch from you (hint, hint).\n>From words of Chris this doesn't seems to be needed, however I don't know what is\nthe problem with that package from Lindsey.\n\nGregor",
+      "body_snippet": "Hello!\n\nSorry for late response. I just had to check all this allioth stuf etc. \n\n> -----Original Message-----\n> From: Dirk Eddelbuettel [mailto:edd@debian.org]\n> Sent: ned 2005-04-24 19:45\n> To: Gorj",
+      "thread_id": "thread-4efe99123a5c",
+      "thread_depth": 0,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-1e8a61bbfaef",
+      "message_id": "<17006.56931.135778.58404@basebud.nulle.part>",
+      "from_name": "Dirk Eddelbuettel",
+      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
+      "date": "2005-04-27T02:36:13Z",
+      "subject": "[R-sig-Debian] \"Debain\" way of installing packages",
+      "subject_clean": "\"Debain\" way of installing packages",
+      "in_reply_to": "<7FFEE688B57D7346BC6241C55900E730B700A6@pollux.bfro.uni-lj.si>",
+      "references": [
+        "<7FFEE688B57D7346BC6241C55900E730B700A6@pollux.bfro.uni-lj.si>"
+      ],
+      "body_plain": "Howdy,\n\nOn 26 April 2005 at 12:11, Gorjanc Gregor wrote:\n| > properly, which is why I think the high-end solution is to provide a robust\n| > script, maybe with a db backend, that debianises what is on CRAN -- similar\n| What do you mean by a db (I suppose databse) backend, that debianises ...?\n\nYes, to keep track of versions, of what has been packaged, of meta data as\ne.g. mapping of package names between Debian and CRAN, of exceptions (CRAN is\nsomwhat more lenient with licenses) etc pp.  \"Debianising\" is stateful, so we\nneed memory. Flat files may well do for the time being before we switch to an\nactual db (which may just be sqlite, ie a binary file as backend).\n\n| If I understand you propose to debianize all R packages and then simply use\n| apt-get. This would probably be the easisest way, however only if this is really\n| achivable. My help on debianization can be very small since I have never tried\n| to do that, but I am willing to learn and help.\n| \n| If previous is true, you think that some sort script I proposed is not OK for\n| mixing?\n\nWe actually have scripts that \"work\", they simply need testing, extending and\npolishing. If you register yourself on alioth.d.o, you can check it out of\nthe archive and play with it.\n\n| What is the case with Windows? Do you mean build of binary packages for Windows\n| or what?\n\nThat was just an example as CRAN provides binaries for Windows. My medium to\nlonger-term vision is binaries for Debian and its derivative distros.\n\n| > | One more thing. Why is r-noncran-lindsey and not r-other-lindsey?\n| \n| > Because nobody pressed Chris hard enough to implement the change. I am sure\n| > he would take a patch from you (hint, hint).\n| >From words of Chris this doesn't seems to be needed, however I don't know what is\n| the problem with that package from Lindsey.\n\nI cannot speak for Chris, so if you want to help there, maybe you should talk\nto him offline?\n\nCheers, Dirk\n\n-- \nBetter to have an approximate answer to the right question than a precise \nanswer to the wrong question.  --  John Tukey as quoted by John Chambers",
+      "body_snippet": "Howdy,\n\nOn 26 April 2005 at 12:11, Gorjanc Gregor wrote:\n| > properly, which is why I think the high-end solution is to provide a robust\n| > script, maybe with a db backend, that debianises what is on",
+      "thread_id": "thread-4efe99123a5c",
+      "thread_depth": 1,
+      "month": "2005-04"
+    },
+    {
+      "id": "msg-24c15681d982",
+      "message_id": "<7FFEE688B57D7346BC6241C55900E730B700AC@pollux.bfro.uni-lj.si>",
+      "from_name": "Gorjanc Gregor",
+      "from_email_hash": "fa1948da1d5a19d793d64821dc48b628a0b7b353a62033b85cac76bd747bdc03",
+      "date": "2005-04-27T11:51:19Z",
+      "subject": "[R-sig-Debian] \"Debain\" way of installing packages",
+      "subject_clean": "\"Debain\" way of installing packages",
+      "in_reply_to": null,
+      "references": [],
+      "body_plain": "Hello!\n\n> ----Original Message-----\n> From: Dirk Eddelbuettel [mailto:edd@debian.org]\n> Sent: sre 2005-04-27 02:35\n> To: Gorjanc Gregor\n> Cc: r-sig-debian@r-project.org; pkg-bioc-devel@lists.alioth.debian.org; Chris Lawrence\n> Subject: RE: [R-sig-Debian] \"Debain\" way of installing packages\n>  \n> On 26 April 2005 at 12:11, Gorjanc Gregor wrote:\n> | > properly, which is why I think the high-end solution is to provide a robust\n> | > script, maybe with a db backend, that debianises what is on CRAN -- similar\n> | What do you mean by a db (I suppose databse) backend, that debianises ...?\n> \n> Yes, to keep track of versions, of what has been packaged, of meta data as\n> e.g. mapping of package names between Debian and CRAN, of exceptions (CRAN is\n> somwhat more lenient with licenses) etc pp.  \"Debianising\" is stateful, so we\n> need memory. Flat files may well do for the time being before we switch to an\n> actual db (which may just be sqlite, ie a binary file as backend).\nOK, I see. It's clearer to me now. Thanks!\n\n> | If I understand you propose to debianize all R packages and then simply use\n> | apt-get. This would probably be the easisest way, however only if this is really\n> | achivable. My help on debianization can be very small since I have never tried\n> | to do that, but I am willing to learn and help.\n> | \n> | If previous is true, you think that some sort script I proposed is not OK for\n> | mixing?\n> \n> We actually have scripts that \"work\", they simply need testing, extending and\n> polishing. If you register yourself on alioth.d.o, you can check it out of\n> the archive and play with it.\nI will try that and play with scripts. However my idea was to provide apt-get \nwithin R i.e. through \"debian.install.packages\" or something like that. What\ndo you think about that feature? It would be nice to have since we can have\nall packages debianized, but if someone uses install.packages then ... However,\nit is truth that Debian packages will be loaded first, since its lib is by\ndefault before R packages installed by install.packages. Am I right?\n\n> | What is the case with Windows? Do you mean build of binary packages for Windows\n> | or what?\n> \n> That was just an example as CRAN provides binaries for Windows. My medium to\n> longer-term vision is binaries for Debian and its derivative distros.\nHow does Uwe Ligges perform all those binary builds for Windows?\n\nRegards, Gregor",
+      "body_snippet": "Hello!\n\n> ----Original Message-----\n> From: Dirk Eddelbuettel [mailto:edd@debian.org]\n> Sent: sre 2005-04-27 02:35\n> To: Gorjanc Gregor\n> Cc: r-sig-debian@r-project.org; pkg-bioc-devel@lists.alioth.de",
+      "thread_id": "thread-24c15681d982",
+      "thread_depth": 0,
+      "month": "2005-04"
+    }
+  ],
+  "threads": [
+    {
+      "id": "thread-29051bd23f72",
+      "subject": "Upgrading R",
+      "message_count": 3,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Gorjanc Gregor",
+        "Uwe Ligges"
+      ],
+      "started": "2005-04-24T14:45:26+00:00",
+      "last_reply": "2005-04-25T13:01:25+00:00",
+      "root_message_id": "msg-29051bd23f72"
+    },
+    {
+      "id": "thread-b6ef88321d15",
+      "subject": "\"Debain\" way of installing packages",
+      "message_count": 10,
+      "participants": [
+        "A.J. Rossini",
+        "Chris Lawrence",
+        "Dirk Eddelbuettel",
+        "Egon Willighagen",
+        "Gorjanc Gregor",
+        "Steffen Moeller",
+        "elijah wright"
+      ],
+      "started": "2005-04-24T16:04:58+00:00",
+      "last_reply": "2005-04-26T03:29:12+00:00",
+      "root_message_id": "msg-b6ef88321d15"
+    },
+    {
+      "id": "thread-e701c88308c0",
+      "subject": "Upgrading R",
+      "message_count": 1,
+      "participants": [
+        "Gorjanc Gregor"
+      ],
+      "started": "2005-04-26T00:48:40+00:00",
+      "last_reply": "2005-04-26T00:48:40+00:00",
+      "root_message_id": "msg-e701c88308c0"
+    },
+    {
+      "id": "thread-4efe99123a5c",
+      "subject": "\"Debain\" way of installing packages",
+      "message_count": 2,
+      "participants": [
+        "Dirk Eddelbuettel",
+        "Gorjanc Gregor"
+      ],
+      "started": "2005-04-26T12:11:33+00:00",
+      "last_reply": "2005-04-27T02:36:13+00:00",
+      "root_message_id": "msg-4efe99123a5c"
+    },
+    {
+      "id": "thread-24c15681d982",
+      "subject": "\"Debain\" way of installing packages",
+      "message_count": 1,
+      "participants": [
+        "Gorjanc Gregor"
+      ],
+      "started": "2005-04-27T11:51:19+00:00",
+      "last_reply": "2005-04-27T11:51:19+00:00",
+      "root_message_id": "msg-24c15681d982"
+    }
+  ]
+}
