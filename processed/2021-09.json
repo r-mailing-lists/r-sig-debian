@@ -4,27 +4,6 @@
   "month": "2021-09",
   "messages": [
     {
-      "id": "msg-5d74bf4f48db",
-      "message_id": "<20210901091406.4e9cf865@rolf-Latitude-E7470>",
-      "from_name": "Rolf Turner",
-      "from_email_hash": "85365426fbf4496cfac2415de7f8b411ee0133e9a8b2316f8939adcd30c2a157",
-      "date": "2021-09-01T09:14:06+12:00",
-      "subject": "[R-sig-Debian] Configure error: checking if libcurl supports https... no --- SOLVED",
-      "subject_clean": "Configure error: checking if libcurl supports https... no --- SOLVED",
-      "in_reply_to": "<20210831121016.4444fd16@trisector>",
-      "references": [
-        "<20210829203050.4c2c306e@rolf-Latitude-E7470>",
-        "<20210829233706.0f2bf476@parabola>",
-        "<20210831121014.0b086191@rolf-Latitude-E7470>",
-        "<20210831121016.4444fd16@trisector>"
-      ],
-      "body_plain": "On Tue, 31 Aug 2021 12:10:16 +0200\nIvan Krylov <krylov.r00t at gmail.com> wrote:\n\n> Hello Rolf,\n> \n> Thanks for the config.log! I think we do have a path forward, but\n> there might be some more problems on the way.\n> \n> Here's the relevant part of config.log:\n> http://paste.debian.net/hidden/a0821b3c\n> \n> This system is in a tricky state. There's libcurl and maybe some other\n> software in /usr/local. The libcurl installation in particular is\n> broken and prevents R's ./configure from linking to system libcurl.\n> (I think that the linker ends up trying to link to the static library\n> but isn't passed the flags to link curl's dependencies too.)\n> \n> Here are some options, maybe one of them would work:\n> \n> 1. Run:\n> \n>    ./configure \\\n>     CPPFLAGS=\"-isystem /usr/include\" \\\n>     LDFLAGS=\"-L/usr/lib -L/usr/lib/$(uname -m)-linux-gnu\"\n> \n>    instead of ./configure.\n> \n>    Since both the ./configure script and the compiler default to\n>    searching /usr/local for headers and libraries to link to, pass\n> them flags to make sure that /usr and not /usr/local is searched\n> first. \n> \n> 2. Move anything that seems related to libcurl away from /usr/local.\n>    This may break some other manually installed software that was\n> built with libcurl that had been installed into /usr/local, but\n> should not break the system.\n\nThank you Ivan!!!  You have gone above and beyond the call of duty on\nmy behalf.  I am extremely grateful.\n\nAnd thanks to everone else who contributed.\n\nI implemented the number 2 strategy that you (Ivan) suggested and it\nworked. Explicitly I did:\n\nsudo apt-get purge curl\ncd /usr/local\nsudo mkdir Junk\nsudo mkdir Junk/include\nsudo mkdir Junk/lib\nsudo mkdir Junk/bin\nsudo mkdir Junk/lib/pkgconfig\nsudo mv include/curl Junk/include\nsudo mv lib/*curl* Junk/lib\nsudo mv bin/*curl* Junk/bin\nsudo mv lib/pkgconfig/libcurl.pc Junk/lib/pkgconfig/\nsudo apt-get install curl\n\nI then tried the configure step again, and THIS TIME awaaaaaayyyy\nit went.  The make step went fine too.\n\nThanks again.\n\ncheers,\n\nRolf\n\nP.S. Apropos of nothing, really, but it mystifies me how the system got\ninto the \"tricky state\" that it was in.  I'm pretty sure that I *never*\ninstalled/tried to install curl \"manually\".  I am a fervent devotee of\nthe \"sudo apt-get install\" paradigm, as long as it works, and it works\nwith curl. There is no trace of a manual install of curl on my system.\n\nOne other thing:  I was exhorted to do an uninstall of the\nmanually installed version.  Since no trace of any manual install\nexisted, I could not do this.  Then I thought (just now, after the\nproblem was solved anyway!) why not create such a \"trace\"?  So (after a\nbrief web search) I did:\n\nmkdir curlStuff\ncd curlStuff\nwget https://curl.haxx.se/download/curl-7.52.1.tar.gz\ntar xvf curl-7.52.1.tar.gz\n./configure\ngrep uninstall Makefile\n\nGot lots of output, with which I will not bore you.  So it kind of\nlooks like \"make uninstall\" *might* have worked.  No way to tell for\nsure now, but.  Don't want to mess things up again!\n\nR.\n\n-- \nHonorary Research Fellow\nDepartment of Statistics\nUniversity of Auckland\nPhone: +64-9-373-7599 ext. 88276",
-      "body_snippet": "On Tue, 31 Aug 2021 12:10:16 +0200\nIvan Krylov <krylov.r00t at gmail.com> wrote:\n\n> Hello Rolf,\n> \n> Thanks for the config.log! I think we do have a path forward, but\n> there might be some more proble",
-      "thread_id": "thread-5d74bf4f48db",
-      "thread_depth": 0,
-      "month": "2021-09"
-    },
-    {
       "id": "msg-c1f7de17aca1",
       "message_id": "<513e320df4a45be322e222e40959d4f2a091eb71.camel@math.aau.dk>",
       "from_name": "Ege Rubak",
@@ -120,17 +99,6 @@
     }
   ],
   "threads": [
-    {
-      "id": "thread-5d74bf4f48db",
-      "subject": "Configure error: checking if libcurl supports https... no --- SOLVED",
-      "message_count": 1,
-      "participants": [
-        "Rolf Turner"
-      ],
-      "started": "2021-09-01T09:14:06+12:00",
-      "last_reply": "2021-09-01T09:14:06+12:00",
-      "root_message_id": "msg-5d74bf4f48db"
-    },
     {
       "id": "thread-c1f7de17aca1",
       "subject": "Unable to update r-cran-sf",

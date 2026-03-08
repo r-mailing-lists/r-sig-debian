@@ -1867,24 +1867,6 @@
       "thread_id": "thread-63998b683236",
       "thread_depth": 0,
       "month": "2010-05"
-    },
-    {
-      "id": "msg-7e6033b51bf5",
-      "message_id": "<19460.18977.746637.230616@ron.nulle.part>",
-      "from_name": "Dirk Eddelbuettel",
-      "from_email_hash": "447d8de83a7b9c5d61116890bacb6dc0c76aee31b3011a41fb7d3c62dac9042f",
-      "date": "2010-05-31T18:45:37-05:00",
-      "subject": "[R-sig-Debian] building rpy against lenny-cran",
-      "subject_clean": "building rpy against lenny-cran",
-      "in_reply_to": "<Pine.LNX.4.64.1005292259440.25958@login1.oit.duke.edu>",
-      "references": [
-        "<Pine.LNX.4.64.1005292259440.25958@login1.oit.duke.edu>"
-      ],
-      "body_plain": "On 31 May 2010 at 02:26, owzar001 wrote:\n| Hi.\n| \n| On all of my machines, except for a netbook cursed with the GMA500\n| chipset, the R packages are synced to lenny-cran.\n| \n| I have been using rpy in a chroot using the official lenny\n| R packages (2.7.1) given that i have not been able to find\n| compatible rpy deb packages to work with lenny-cran.\n| \n| I am able to build the rpy deb package from source in\n| a 32-bit lenny chroot (with the stock R packages) using\n| the following sequence\n| \n| kolmogorov:/tmp$ sudo apt-get source python-rpy\n| kolmogorov:/tmp/rpy-1.0.3$ sudo apt-get build-dep python-rpy\n| kolmogorov:/tmp/rpy-1.0.3$ sudo dch -l local 'localrpy'\n| kolmogorov:/tmp/rpy-1.0.3$ sudo debuild -us -uc\n| \n| I am running into problems when I am trying to build\n| the deb packages from source against the AMD64 lenny-cran\n| packages. Specifically the last step fails. It complains\n| about (among other things) not finding the R version.\n\nThat may be a clue as there is an oooooold bug in rpy -- each R triggers a\nneed for new build as the R version gets hardcoded into the library name.\nWorse, the regexp assume single digits for each of a.b.c which started to\nbreak with R 2.10.0 (as 10 has two digits). The patch I once committed is\nsimple, so try rpy from svn, or from a more recent Debian package. IIRC the\nfix was \n\n    # edd 05 Apr 2006  version = re.search(\"R +([0-9]\\.[0-9]\\.[0-9])\", output)\n    # edd 16 Oct 2009  version = re.search(\"R +([0-9]\\.[0-9]+\\.[0-9])\", output)\n    version = re.search(\" +([0-9]\\.[0-9]+\\.[0-9])\", output)\n\nthis in rpy_tools.py.  See if that helps.\n\nDirk\n\n\n| This command seems to work \n| $ R --version\n| R version 2.11.0 (2010-04-22)\n| Copyright (C) 2010 The R Foundation for Statistical Computing\n| ISBN 3-900051-07-0\n| \n| \n| I hope that this is an appropriate forum for seeking\n| help for building rpy against the lenny-cran R packages.\n| \n| Sincerely,\n| \n| Kouros\n| \n| \n| Kouros Owzar\n| Biostatistics and Bioinformatics\n| Duke University\n| \n| kolmogorov:/tmp/rpy-1.0.3# debuild -us -uc\n|   dpkg-buildpackage -rfakeroot -D -us -uc\n| dpkg-buildpackage: warning: using a gain-root-command while being root\n| dpkg-buildpackage: set CFLAGS to default value: -g -O2\n| dpkg-buildpackage: set CPPFLAGS to default value:\n| dpkg-buildpackage: set LDFLAGS to default value:\n| dpkg-buildpackage: set FFLAGS to default value: -g -O2\n| dpkg-buildpackage: set CXXFLAGS to default value: -g -O2\n| dpkg-buildpackage: source package rpy\n| dpkg-buildpackage: source version 1.0.3-2local1\n| dpkg-buildpackage: source changed by root <root at kolmogorov>\n| dpkg-buildpackage: host architecture amd64\n|   fakeroot debian/rules clean\n| dh_testdir\n| dh_testroot\n| rm -f build-stamp configure-stamp\n| [ ! -f Makefile ] || /usr/bin/make distclean\n| (cd doc/ && make clean && rm -vf manual.pdf manual.info manual.dvi \\\n|  \t\t&& rm -vfr manual_html manual_html.tgz)\n| make[1]: Entering directory `/tmp/rpy-1.0.3/doc'\n| rm -f rpy.cp rpy.cps rpy.fn rpy.fns rpy.ky\n| rm -f rpy.kys rpy.log rpy.pg rpy.pgs rpy.tmp\n| rm -f rpy.toc rpy.tp rpy.tps rpy.vr rpy.vrs\n| rm -f rpy.aux\n| make[1]: Leaving directory `/tmp/rpy-1.0.3/doc'\n| for python in python2.4 python2.5; \\\n|  \t\tdo $python setup.py clean; \\\n|  \tdone\n| RHOMES= []\n| DEBUG= True\n| Setting RHOMES to  ['/usr/lib64/R']\n| Traceback (most recent call last):\n|    File \"setup.py\", line 109, in ?\n|      RVERSION = rpy_tools.get_R_VERSION(RHOME, force_exec=True)\n|    File \"/tmp/rpy-1.0.3/rpy_tools.py\", line 103, in get_R_VERSION\n|      raise RuntimeError(\"Couldn't obtain version number from output\\n\"\n| RuntimeError: Couldn't obtain version number from output\n| of `R --version'.\n| \n| RHOMES= []\n| DEBUG= True\n| Setting RHOMES to  ['/usr/lib64/R']\n| Traceback (most recent call last):\n|    File \"setup.py\", line 109, in <module>\n|      RVERSION = rpy_tools.get_R_VERSION(RHOME, force_exec=True)\n|    File \"/tmp/rpy-1.0.3/rpy_tools.py\", line 103, in get_R_VERSION\n|      raise RuntimeError(\"Couldn't obtain version number from output\\n\"\n| RuntimeError: Couldn't obtain version number from output\n| of `R --version'.\n| \n| make: *** [clean] Error 1\n| dpkg-buildpackage: failure: fakeroot debian/rules clean gave error exit \n| status 2\n| debuild: fatal error at line 1319:\n| dpkg-buildpackage -rfakeroot -D -us -uc failed\n| \n| _______________________________________________\n| R-SIG-Debian mailing list\n| R-SIG-Debian at r-project.org\n| https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n\n-- \n  Regards, Dirk",
-      "body_snippet": "On 31 May 2010 at 02:26, owzar001 wrote:\n| Hi.\n| \n| On all of my machines, except for a netbook cursed with the GMA500\n| chipset, the R packages are synced to lenny-cran.\n| \n| I have been using rpy in",
-      "thread_id": "thread-63998b683236",
-      "thread_depth": 1,
-      "month": "2010-05"
     }
   ],
   "threads": [
@@ -2219,13 +2201,12 @@
     {
       "id": "thread-63998b683236",
       "subject": "building rpy against lenny-cran",
-      "message_count": 2,
+      "message_count": 1,
       "participants": [
-        "Dirk Eddelbuettel",
         "owzar001"
       ],
       "started": "2010-05-31T02:26:02-04:00",
-      "last_reply": "2010-05-31T18:45:37-05:00",
+      "last_reply": "2010-05-31T02:26:02-04:00",
       "root_message_id": "msg-63998b683236"
     }
   ]
