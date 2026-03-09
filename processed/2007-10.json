@@ -214,6 +214,25 @@
       "thread_id": "thread-03d6cea5060e",
       "thread_depth": 1,
       "month": "2007-10"
+    },
+    {
+      "id": "msg-ffa8b21d033e",
+      "message_id": "<472940D6.1020403@iupui.edu>",
+      "from_name": "Mark W Kimpel",
+      "from_email_hash": "65173e3ce5ef1df0c4ea86f7a1d58fca4361b63a6d56b019a5e2b66e7388efaa",
+      "date": "2007-10-31T22:58:30-04:00",
+      "subject": "[R-sig-Debian] trouble installing building packages from\tsource using R 2.6.0 on Ubuntu Gutsy AMD64",
+      "subject_clean": "trouble installing building packages from\tsource using R 2.6.0 on Ubuntu Gutsy AMD64",
+      "in_reply_to": "<0305F06765A6B740A354B08983798B4E4FA72509@iu-mssg-mbx04.ads.iu.edu>",
+      "references": [
+        "<47274D29.1050808@iupui.edu>",
+        "<0305F06765A6B740A354B08983798B4E4FA72509@iu-mssg-mbx04.ads.iu.edu>"
+      ],
+      "body_plain": "Hugh,\n\nThanks for the advice. I decided to go the route of using source debian \npackages this time around. Below is the basic script I used, adapted \nfrom the other replies I received. This was successful in getting the \nbase R installed as well as an addition ~275 packages from CRAN, \nOmegahat, and BioConductor.\n\nUnfortunately, I have not yet had luck with the following packages:\n  [1] \"affycoretools\" \"AnnBuilder\"    \"biocViews\"     \"biomaRt\"\n  [5] \"GSEABase\"      \"odfWeave\"      \"RCurl\"         \"Resourcerer\"\n  [9] \"Rgraphviz\"     \"RSPerl\"        \"RSPython\"      \"SBMLR\"\n[13] \"TMat\"          \"XML\"\nSome of which may depend on one another. In particular, I get errors \nfrom both curl and graphviz, I suspect a version problem as they are \nboth on my PATH. I am going to work on them some more tomorrow and may \nbe posting more specific error messages if I cannot get the problems \nfixed myself.\n\nThe script below is what I believe I did, but this was not done on a \nvirgin Ubuntu install as I have been futzing with this for a day or so. \nI am also not absolutely sure I have included every necessary step nor \nperhaps included some un-necessary ones. I am brand new to Debian/Ubuntu \nand just learning about the apt/synaptic system.\n\nIf Johannes, Vincent, or Dirk could comment on what I did below, it \nwould be helpful to me and perhaps other Debian newbies.\n\nThanks again to all,\nMark\n\n#########################################################\n#Making R and BioC on Ubuntu Gutsy with AMD64-bit OS\n\n#Add this to /etc/apt/sources.list and update apt\ndeb-src http://cran.r-project.org/bin/linux/debian etch/\napt-get update\n\n#make a directory for deb source files\nmkdir /home/USER/r-2.6.0-deb\ncd /home/USER/r-2.6.0-deb\n\n#get the source files and unpack them\nsudo apt-get source r-base\nsudo dpkg-source -x r-base_2.6.0-1~etchcran.1.dsc\n\n#cd into r-base-VERSION\ncd r-base-2.6.0\n\n#compile the package, this may be un-necessary, but I did it\nsudo dpkg-buildpackage -rfakeroot -b\n\n#get some libraries need for building R\napt-get install build-essential # fail and will produce a suggestion to \ndo the following command, DO IT\napt-get -f install\n\n#install the package from .deb\nsudo dpkg -i ../r-base-core_2.6.0-1~etchcran.1_amd64.deb\n\n## to get rgl to install into R with Ubuntu Gutsy AMD64\napt-get install freeglut3 freeglut3-dev libgl1-mesa-dev libglu1-mesa-dev \nlibice-dev libsm-dev libx11-dev libxau-dev libxdmcp-dev libxext-dev \nlibxt-dev mesa-common-dev x11proto-core-dev x11proto-input-dev \nx11proto-kb-dev x11proto-xext-dev xlibmesa-gl-dev xtrans-dev\n\n#Now replace i686 site-library with an empty one for new packages\ncd R_HOME #if not made, make it\nmv site-library site-library-i686 #if you have an old site-library you \nwant to save\nmkdir site-library\n\n#if have packages in old library that you want installed in new one\ncd site-library-i686\nls > ../my.packages.txt\n\n#to .Rprofile add at beginning:\n.libPaths(new= \"~/R_HOME/site-library\") #tell R where site-library is\n\nexport PATH:$PATH:/usr\n\n#Start R\n#install.packages from appropriate repositories, may read in old package \n# names from old library using:\npackages.to.install <- read.delim(\"~/R_HOME/my.packages.txt\", as.is = \nTRUE)[,1]\nsource(\"http://bioconductor.org/biocLite.R\")\nbiocLite(packages.to.install)\nmy.new.packages <- c( dir(\"~/R_HOME/site-library\"), \ndir(\"/usr/lib/R/library\"))\nyet.to.install <- setdiff(packages,my.new.packages)\nbiocLite(yet.to.install, dependencies = TRUE)\n\n\n\n\n\n\nMark W. Kimpel MD  ** Neuroinformatics ** Dept. of Psychiatry\nIndiana University School of Medicine\n\n15032 Hunter Court, Westfield, IN  46074\n\n(317) 490-5129 Work, & Mobile & VoiceMail\n(317) 204-4202 Home (no voice mail please)\n\nmwkimpel<at>gmail<dot>com\n\n******************************************************************\n\n\nhugh wrote:\n> Mark,\n> \n> I am also a relatively new user of Linux, so am not an expert and thus\n> am not responding to the whole R-sig-Debian group.  I am running the\n> 64-bit version (intel Q6700 CPU) of Gutsy and was able to compile from\n> source file on CRAN.  I am able to use 'install.packages(FOO)' within my\n> compiled R to successfully add packages.  If building a shared library\n> is important to you, I was NOT successful in doing that (a shared\n> library appears to be important if you want to use GUI's like JGR).\n> \n> The only change/flag I used was LDFLAGS=\"-L/usr/local/lib64\n> -L/usr/local/lib\".  You can edit your config.site file (e.g., sudo gedit\n> config.site) and search for LDFLAGS....uncomment it and use the line I\n> used.  Alternately, you can just type sudo ./configure\n> LDFLAGS=\"-L/usr/local/lib64 -L/usr/local/lib\"  (that is how you can set\n> flags).\n> \n> My experience was that the \"standard\" Gutsy install was missing a number\n> of programs/librarys to compile R, so I had to add a lot of them.  If\n> you are having compile problems, my guess is that you are missing some\n> of these libraries which you can install using the Synaptic Package\n> Manager.  If you are still having problems, I can try to figure out how\n> to send a list of the packages/libraries I have installed if that is\n> helpful.\n> \n> I also found this site helpful:\n>  http://idecide.mskcc.org/yl_home/linux.html\n> \n> \n> Best,\n> Hugh Whelan\n> \n> \n> \n> \n> \n> On Tue, 2007-10-30 at 11:26 -0400, Mark W Kimpel wrote:\n>> I have recently upgraded to Ubuntu Gutsy and, for the first time, am\n>> using a 64-bit installation. After failing miserably to install R from\n>> source, not a problem for me in the past with a 32-bit install, I went\n>> the route of using the Debian Etch build. This went smoothly, but I am\n>> unable to update my numerous R and BioConductor packages, getting\n>> non-zero exit status errors on each package. Is there a repository of\n>> pre-built packages for Debian Etch 64 besides the r-base and\n>> r-recommended? If not, could someone suggest how I might get things\n>> working installing from source?\n>>\n>> I have installed the ia32 library, which did help me build VMWare, but\n>> did not help with R. Reading the R-admin manual, there are some\n>> suggested compiler flags, but I don't know how to enter them as I am a\n>> relative new-comer to Linux.\n>>\n>> Thanks so much,\n>> Mark\n>>\n>> ---\n>>\n>> Mark W. Kimpel MD  ** Neuroinformatics ** Dept. of Psychiatry\n>> Indiana University School of Medicine\n>>\n>> 15032 Hunter Court, Westfield, IN  46074\n>>\n>> (317) 490-5129 Work, & Mobile & VoiceMail\n>> (317) 663-0513 Home (no voice mail please)\n>>\n>> _______________________________________________\n>> R-SIG-Debian mailing list\n>> R-SIG-Debian at r-project.org\n>> https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n> \n>",
+      "body_snippet": "Hugh,\n\nThanks for the advice. I decided to go the route of using source debian \npackages this time around. Below is the basic script I used, adapted \nfrom the other replies I received. This was succes",
+      "thread_id": "thread-ffa8b21d033e",
+      "thread_depth": 0,
+      "month": "2007-10"
     }
   ],
   "threads": [
@@ -275,6 +294,17 @@
       "started": "2007-10-30T11:26:33-04:00",
       "last_reply": "2007-10-30T22:02:36-04:00",
       "root_message_id": "msg-03d6cea5060e"
+    },
+    {
+      "id": "thread-ffa8b21d033e",
+      "subject": "trouble installing building packages from\tsource using R 2.6.0 on Ubuntu Gutsy AMD64",
+      "message_count": 1,
+      "participants": [
+        "Mark W Kimpel"
+      ],
+      "started": "2007-10-31T22:58:30-04:00",
+      "last_reply": "2007-10-31T22:58:30-04:00",
+      "root_message_id": "msg-ffa8b21d033e"
     }
   ]
 }
