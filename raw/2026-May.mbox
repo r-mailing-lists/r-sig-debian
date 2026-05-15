@@ -1,0 +1,347 @@
+From |uben@d|mov @end|ng |rom gm@||@com  Thu May 14 16:35:43 2026
+From: |uben@d|mov @end|ng |rom gm@||@com (Luben Dimov)
+Date: Thu, 14 May 2026 10:35:43 -0400
+Subject: [R-sig-Debian] getting started with rocker
+Message-ID: <3128202f26876fc057365cfd8685fca39eba3f90.camel@gmail.com>
+
+Dirk,
+
+First time docker and rocker user here (and no programming expertise). After
+trying on and off for several months, I managed to install and run rocker on my
+Linux Mint, with RStudio running in the web browser
+at?http://localhost:8787/?and I was finally able to figure out how to access
+files, graphs, etc., that I save in RStudio at localhost:8787 by mounting a
+folder from my host machine in the container, so files are saved on my system.?
+
+A newbie question... Running this in the Linux terminal:
+
+sudo docker run --rm -ti rocker/r-ver
+
+starts the latest version of R, the 4 .6.0 (2026-04-24)
+
+But running either:
+sudo docker run --rm -ti -e PASSWORD=yourpassword -p 8787:8787 -v ~/rstudio-
+projects:/home/rstudio rocker/tidyverse
+or
+sudo docker run --rm -ti -e PASSWORD=yourpassword -p 8787:8787 -v ~/rstudio-
+projects:/home/rstudio rocker/rstudio
+
+and then opening the localhost:8787, shows that it is running R version 4.4.1
+(2024-06-14)
+
+How do I update the R version in the rocker container?
+
+Thank you for your help!
+Luben
+
+	[[alternative HTML version deleted]]
+
+
+From edd @end|ng |rom deb|@n@org  Thu May 14 16:54:06 2026
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Thu, 14 May 2026 09:54:06 -0500
+Subject: [R-sig-Debian] getting started with rocker
+In-Reply-To: <3128202f26876fc057365cfd8685fca39eba3f90.camel@gmail.com>
+References: <3128202f26876fc057365cfd8685fca39eba3f90.camel@gmail.com>
+Message-ID: <27141.57870.968049.69748@paul.eddelbuettel.com>
+
+
+Hi Luben,
+
+On 14 May 2026 at 10:35, Luben Dimov wrote:
+| First time docker and rocker user here (and no programming expertise). After
+| trying on and off for several months, I managed to install and run rocker on my
+| Linux Mint, with RStudio running in the web browser
+| at?http://localhost:8787/?and I was finally able to figure out how to access
+| files, graphs, etc., that I save in RStudio at localhost:8787 by mounting a
+| folder from my host machine in the container, so files are saved on my system.?
+| 
+| A newbie question... Running this in the Linux terminal:
+| 
+| sudo docker run --rm -ti rocker/r-ver
+
+Small aside: this is discouraged. You are generally better off making
+yourself a member of the docker group so that you in your account can run
+docker. Unconditionally letting docker run as root is somewhat dangerous.
+
+See eg here https://docs.docker.com/engine/install/linux-postinstall/ or via
+different tutorials.
+
+| starts the latest version of R, the 4 .6.0 (2026-04-24)
+| 
+| But running either:
+| sudo docker run --rm -ti -e PASSWORD=yourpassword -p 8787:8787 -v ~/rstudio-
+| projects:/home/rstudio rocker/tidyverse
+| or
+| sudo docker run --rm -ti -e PASSWORD=yourpassword -p 8787:8787 -v ~/rstudio-
+| projects:/home/rstudio rocker/rstudio
+| 
+| and then opening the localhost:8787, shows that it is running R version 4.4.1
+| (2024-06-14)
+| 
+| How do I update the R version in the rocker container?
+
+Usually by downloading updated containers:  `docker pull rocker/rstudio`.
+
+Cheers, Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+Support my Tour de Shore 2026 ride benefiting Maywood Fine Arts! More info at
+https://dirk.eddelbuettel.com/blog/2026/04/03#sponsor_tour_de_shore_2026
+
+
+From |uben@d|mov @end|ng |rom gm@||@com  Thu May 14 17:27:26 2026
+From: |uben@d|mov @end|ng |rom gm@||@com (Luben Dimov)
+Date: Thu, 14 May 2026 11:27:26 -0400
+Subject: [R-sig-Debian] getting started with rocker
+In-Reply-To: <27141.57870.968049.69748@paul.eddelbuettel.com>
+References: <3128202f26876fc057365cfd8685fca39eba3f90.camel@gmail.com>
+ <27141.57870.968049.69748@paul.eddelbuettel.com>
+Message-ID: <4b65138f65c78f45ff7964848ba43b5b105f0817.camel@gmail.com>
+
+Thank you, Dirk, that worked like a charm! Last couple of questions today:
+
+1. If I will no longer use the image that has the old R and RStudio versions,
+how do I delete those images? I understand that I can't just browse to that
+folder and delete.
+
+Here is what "sudo docker images" produces, so I'm not even sure if the old
+images are still there:
+
+IMAGE                      ID             DISK USAGE   CONTENT SIZE   EXTRA
+hello-world:latest         d2c94e258dcb       13.3kB             0B    U   
+r-base:latest              182b915af647        897MB             0B        
+rocker/geospatial:latest   3e05f39c91cc       4.19GB             0B        
+rocker/r-ver:latest        aee3e2a32c93        945MB             0B        
+rocker/rstudio:latest      d68b530808b5       2.49GB             0B        
+rocker/tidyverse:latest    94209eda92ec       2.93GB             0B        
+rocker/verse:latest        a163ecb251d6       4.07GB             0B        
+ubuntu:latest              61b2756d6fa9       78.1MB             0B    U   
+
+
+2. (A possibly very stupid question) If I have to log in with user and password
+of rstudio and yourpassword after running:
+
+docker run --rm -ti -e PASSWORD=yourpassword -p 8787:8787 rocker/rstudio
+
+then if I run:
+
+docker run --rm -ti -e PASSWORD=yourpassword -p 8787:8787 rocker/tidyverse
+
+do I have to log in with user and password of?tidyverse and yourpassword?
+
+I can get lots of help with R around here, but zero help with docker, rocker,
+and Linux, so I really appreciate your help!
+Luben
+
+-----Original Message-----
+From: Dirk Eddelbuettel <edd at debian.org>
+To: Luben Dimov <luben.dimov at gmail.com>
+Cc: r-sig-debian <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] getting started with rocker
+Date: Thu, 14 May 2026 09:54:06 -0500
+
+
+Hi Luben,
+
+On 14 May 2026 at 10:35, Luben Dimov wrote:
+> First time docker and rocker user here (and no programming expertise). After
+> trying on and off for several months, I managed to install and run rocker on
+> my
+> Linux Mint, with RStudio running in the web browser
+> at?http://localhost:8787/?and I was finally able to figure out how to access
+> files, graphs, etc., that I save in RStudio at localhost:8787 by mounting a
+> folder from my host machine in the container, so files are saved on my
+> system.?
+> 
+> A newbie question... Running this in the Linux terminal:
+> 
+> sudo docker run --rm -ti rocker/r-ver
+
+Small aside: this is discouraged. You are generally better off making
+yourself a member of the docker group so that you in your account can run
+docker. Unconditionally letting docker run as root is somewhat dangerous.
+
+See eg here https://docs.docker.com/engine/install/linux-postinstall/?or via
+different tutorials.
+
+> starts the latest version of R, the 4 .6.0 (2026-04-24)
+> 
+> But running either:
+> sudo docker run --rm -ti -e PASSWORD=yourpassword -p 8787:8787 -v ~/rstudio-
+> projects:/home/rstudio rocker/tidyverse
+> or
+> sudo docker run --rm -ti -e PASSWORD=yourpassword -p 8787:8787 -v ~/rstudio-
+> projects:/home/rstudio rocker/rstudio
+> 
+> and then opening the localhost:8787, shows that it is running R version 4.4.1
+> (2024-06-14)
+> 
+> How do I update the R version in the rocker container?
+
+Usually by downloading updated containers:? `docker pull rocker/rstudio`.
+
+Cheers, Dirk
+
+
+From edd @end|ng |rom deb|@n@org  Thu May 14 17:34:54 2026
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Thu, 14 May 2026 10:34:54 -0500
+Subject: [R-sig-Debian] getting started with rocker
+In-Reply-To: <4b65138f65c78f45ff7964848ba43b5b105f0817.camel@gmail.com>
+References: <3128202f26876fc057365cfd8685fca39eba3f90.camel@gmail.com>
+ <27141.57870.968049.69748@paul.eddelbuettel.com>
+ <4b65138f65c78f45ff7964848ba43b5b105f0817.camel@gmail.com>
+Message-ID: <27141.60318.453643.84587@paul.eddelbuettel.com>
+
+
+On 14 May 2026 at 11:27, Luben Dimov wrote:
+| Thank you, Dirk, that worked like a charm! Last couple of questions today:
+| 
+| 1. If I will no longer use the image that has the old R and RStudio versions,
+| how do I delete those images? I understand that I can't just browse to that
+| folder and delete.
+
+Please consider running a google query "how do I delete a docker image" or
+consult a basic tutorial. In short you want 'docker rmi' here.
+ 
+| Here is what "sudo docker images" produces, so I'm not even sure if the old
+
+Please see my last email and its comment about 'sudo docker'.
+
+| images are still there:
+| 
+| IMAGE                      ID             DISK USAGE   CONTENT SIZE   EXTRA
+| hello-world:latest         d2c94e258dcb       13.3kB             0B    U   
+| r-base:latest              182b915af647        897MB             0B        
+| rocker/geospatial:latest   3e05f39c91cc       4.19GB             0B        
+| rocker/r-ver:latest        aee3e2a32c93        945MB             0B        
+| rocker/rstudio:latest      d68b530808b5       2.49GB             0B        
+| rocker/tidyverse:latest    94209eda92ec       2.93GB             0B        
+| rocker/verse:latest        a163ecb251d6       4.07GB             0B        
+| ubuntu:latest              61b2756d6fa9       78.1MB             0B    U   
+| 
+| 
+| 2. (A possibly very stupid question) If I have to log in with user and password
+| of rstudio and yourpassword after running:
+| 
+| docker run --rm -ti -e PASSWORD=yourpassword -p 8787:8787 rocker/rstudio
+| 
+| then if I run:
+| 
+| docker run --rm -ti -e PASSWORD=yourpassword -p 8787:8787 rocker/tidyverse
+| 
+| do I have to log in with user and password of?tidyverse and yourpassword?
+
+I don't fully understand the question.
+
+But I also don't use or author these two containers. Maybe consult the search
+function at the GitHub repos for these containers made by my colleagues in
+Rocker. The issue of password authentication has come up many times before.
+ 
+| I can get lots of help with R around here, but zero help with docker, rocker,
+| and Linux, so I really appreciate your help!
+
+The list is for R on Debian. It it is not a Rocker list; I am happy to help with
+the occassional and Debian-centric question but we generally recommend
+brining Rocker questions to the Rocker issues. Preferably to the container in
+question and not just 'general'.
+
+Cheers, Dirk
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+Support my Tour de Shore 2026 ride benefiting Maywood Fine Arts! More info at
+https://dirk.eddelbuettel.com/blog/2026/04/03#sponsor_tour_de_shore_2026
+
+
+From |uben@d|mov @end|ng |rom gm@||@com  Thu May 14 17:54:03 2026
+From: |uben@d|mov @end|ng |rom gm@||@com (Luben Dimov)
+Date: Thu, 14 May 2026 11:54:03 -0400
+Subject: [R-sig-Debian] getting started with rocker
+In-Reply-To: <27141.60318.453643.84587@paul.eddelbuettel.com>
+References: <3128202f26876fc057365cfd8685fca39eba3f90.camel@gmail.com>
+ <27141.57870.968049.69748@paul.eddelbuettel.com>
+ <4b65138f65c78f45ff7964848ba43b5b105f0817.camel@gmail.com>
+ <27141.60318.453643.84587@paul.eddelbuettel.com>
+Message-ID: <4e5d8fdc6351100f65e7da37fc703a3a72435b4b.camel@gmail.com>
+
+Dirk,
+
+Got it. I assumed that R (in Rocker) on Linux Mint is related enough to post on
+this R on Debian list. I'll look for other places if I need to ask more Rocker
+related questions.
+
+Thank you again for answering my questions.
+
+Take care,
+Luben
+
+
+-----Original Message-----
+From: Dirk Eddelbuettel <edd at debian.org>
+To: Luben Dimov <luben.dimov at gmail.com>
+Cc: r-sig-debian <r-sig-debian at r-project.org>
+Subject: Re: [R-sig-Debian] getting started with rocker
+Date: Thu, 14 May 2026 10:34:54 -0500
+
+
+On 14 May 2026 at 11:27, Luben Dimov wrote:
+> Thank you, Dirk, that worked like a charm! Last couple of questions today:
+> 
+> 1. If I will no longer use the image that has the old R and RStudio versions,
+> how do I delete those images? I understand that I can't just browse to that
+> folder and delete.
+
+Please consider running a google query "how do I delete a docker image" or
+consult a basic tutorial. In short you want 'docker rmi' here.
+?
+> Here is what "sudo docker images" produces, so I'm not even sure if the old
+
+Please see my last email and its comment about 'sudo docker'.
+
+> images are still there:
+> 
+> IMAGE????????????????????? ID???????????? DISK USAGE?? CONTENT SIZE?? EXTRA
+> hello-world:latest???????? d2c94e258dcb?????? 13.3kB???????????? 0B??? U?? 
+> r-base:latest????????????? 182b915af647??????? 897MB???????????? 0B??????? 
+> rocker/geospatial:latest?? 3e05f39c91cc?????? 4.19GB???????????? 0B??????? 
+> rocker/r-ver:latest??????? aee3e2a32c93??????? 945MB???????????? 0B??????? 
+> rocker/rstudio:latest????? d68b530808b5?????? 2.49GB???????????? 0B??????? 
+> rocker/tidyverse:latest??? 94209eda92ec?????? 2.93GB???????????? 0B??????? 
+> rocker/verse:latest??????? a163ecb251d6?????? 4.07GB???????????? 0B??????? 
+> ubuntu:latest????????????? 61b2756d6fa9?????? 78.1MB???????????? 0B??? U?? 
+> 
+> 
+> 2. (A possibly very stupid question) If I have to log in with user and
+> password
+> of rstudio and yourpassword after running:
+> 
+> docker run --rm -ti -e PASSWORD=yourpassword -p 8787:8787 rocker/rstudio
+> 
+> then if I run:
+> 
+> docker run --rm -ti -e PASSWORD=yourpassword -p 8787:8787 rocker/tidyverse
+> 
+> do I have to log in with user and password of?tidyverse and yourpassword?
+
+I don't fully understand the question.
+
+But I also don't use or author these two containers. Maybe consult the search
+function at the GitHub repos for these containers made by my colleagues in
+Rocker. The issue of password authentication has come up many times before.
+?
+> I can get lots of help with R around here, but zero help with docker, rocker,
+> and Linux, so I really appreciate your help!
+
+The list is for R on Debian. It it is not a Rocker list; I am happy to help with
+the occassional and Debian-centric question but we generally recommend
+brining Rocker questions to the Rocker issues. Preferably to the container in
+question and not just 'general'.
+
+Cheers, Dirk
+
+
