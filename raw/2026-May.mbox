@@ -345,3 +345,145 @@ question and not just 'general'.
 Cheers, Dirk
 
 
+From @tp @end|ng |rom p|@kor@k|@com  Wed May 20 20:45:14 2026
+From: @tp @end|ng |rom p|@kor@k|@com (Andrew Piskorski)
+Date: Wed, 20 May 2026 14:45:14 -0400
+Subject: [R-sig-Debian] missing newer elpa-ess 24.01.1-5 package for Ubuntu
+ 24.04 LTS?
+Message-ID: <ag4BOt1DunPKaCJt@piskorski.com>
+
+My machine running Ubuntu 24.04.4 LTS uses the cloud.r-project.org
+repository, as described in the instructions here:
+
+  https://cloud.r-project.org/bin/linux/ubuntu/
+
+That recently upgraded my r-base-core, which UNINSTALLED elpa-ess.
+That's because the only available elpa-ess is version 24.01.1-1, which
+r-base-core says is too old, via the "Breaks:" line shown below.
+
+Is there a plan to make the newer elpa-ess available via the same
+noble-cran40 repository r-base-core is coming from?  If not, is there
+somewhere else we should get it from?
+
+Currently, it looks like the official Ubuntu repositories have the
+newer elpa-ess 24.01.1-5 available for Ubuntu 26.04 (resolute), but
+only the older 24.01.1-1 is available for Ubuntu 24.04.4 (noble).
+We can see that here:
+
+  https://pkgs.org/search/?q=elpa-ess&on=name
+  https://launchpad.net/ubuntu/+source/ess
+
+My current workaround is simply to install ESS v25.01.0 from the
+Github source.  (v26.01.0 doesn't seem to be tagged in Git.)
+Fortunately this isn't hard, and so far seems to work fine:
+
+  https://ess.r-project.org/index.php?Section=download
+  https://github.com/emacs-ess/ESS
+
+
+Output from my machine:
+--------------------------------------------------
+$ apt show r-base-core | egrep '^(Package|Version|Breaks):'
+Package: r-base-core
+Version: 4.6.0-4.2404.0
+Breaks: elpa-ess (<< 24.01.1-5~), r-cran-gsl (<< 2.1-8-1+b1~), r-cran-rlang (<< 1.1.5-3~)
+
+$ apt show elpa-ess | egrep '^(Package|Version|Breaks):'
+Package: elpa-ess
+Version: 24.01.1-1
+
+$ grep DESCRIPTION /etc/lsb-release 
+DISTRIB_DESCRIPTION="Ubuntu 24.04.4 LTS"
+
+$ grep '^deb' /etc/apt/sources.list.d/archive_uri-https_cloud_r-project_org_bin_linux_ubuntu-noble.list
+deb https://cloud.r-project.org/bin/linux/ubuntu noble-cran40/
+--------------------------------------------------
+
+-- 
+Andrew Piskorski <atp at piskorski.com>
+
+
+From edd @end|ng |rom deb|@n@org  Wed May 20 21:43:04 2026
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Wed, 20 May 2026 14:43:04 -0500
+Subject: [R-sig-Debian] 
+ missing newer elpa-ess 24.01.1-5 package for Ubuntu 24.04 LTS?
+In-Reply-To: <ag4BOt1DunPKaCJt@piskorski.com>
+References: <ag4BOt1DunPKaCJt@piskorski.com>
+Message-ID: <27150.3784.503334.393489@paul.eddelbuettel.com>
+
+
+On 20 May 2026 at 14:45, Andrew Piskorski wrote:
+| My machine running Ubuntu 24.04.4 LTS uses the cloud.r-project.org
+| repository, as described in the instructions here:
+| 
+|   https://cloud.r-project.org/bin/linux/ubuntu/
+| 
+| That recently upgraded my r-base-core, which UNINSTALLED elpa-ess.
+| That's because the only available elpa-ess is version 24.01.1-1, which
+| r-base-core says is too old, via the "Breaks:" line shown below.
+
+Package maintainer here. That was because the elpa-ess package in its wisdom
+decided to use what is known as 'autopkgtest', those failed, and it is
+blocking passage of r-base from unstable to testing.
+
+| Is there a plan to make the newer elpa-ess available via the same
+| noble-cran40 repository r-base-core is coming from?  If not, is there
+| somewhere else we should get it from?
+
+Former ess package maintainer here: I just gave up on it as upstream made no
+releases for years, and use elpa/melpa/... directly. I also orphaned the
+package within Debian.  For a while we had another maintainer of ess /
+elpa-ess in Debian but it looks like he stopped too.
+
+Hth, Dirk
+
+| Currently, it looks like the official Ubuntu repositories have the
+| newer elpa-ess 24.01.1-5 available for Ubuntu 26.04 (resolute), but
+| only the older 24.01.1-1 is available for Ubuntu 24.04.4 (noble).
+| We can see that here:
+| 
+|   https://pkgs.org/search/?q=elpa-ess&on=name
+|   https://launchpad.net/ubuntu/+source/ess
+| 
+| My current workaround is simply to install ESS v25.01.0 from the
+| Github source.  (v26.01.0 doesn't seem to be tagged in Git.)
+| Fortunately this isn't hard, and so far seems to work fine:
+| 
+|   https://ess.r-project.org/index.php?Section=download
+|   https://github.com/emacs-ess/ESS
+| 
+| 
+| Output from my machine:
+| --------------------------------------------------
+| $ apt show r-base-core | egrep '^(Package|Version|Breaks):'
+| Package: r-base-core
+| Version: 4.6.0-4.2404.0
+| Breaks: elpa-ess (<< 24.01.1-5~), r-cran-gsl (<< 2.1-8-1+b1~), r-cran-rlang (<< 1.1.5-3~)
+| 
+| $ apt show elpa-ess | egrep '^(Package|Version|Breaks):'
+| Package: elpa-ess
+| Version: 24.01.1-1
+| 
+| $ grep DESCRIPTION /etc/lsb-release 
+| DISTRIB_DESCRIPTION="Ubuntu 24.04.4 LTS"
+| 
+| $ grep '^deb' /etc/apt/sources.list.d/archive_uri-https_cloud_r-project_org_bin_linux_ubuntu-noble.list
+| deb https://cloud.r-project.org/bin/linux/ubuntu noble-cran40/
+| --------------------------------------------------
+| 
+| -- 
+| Andrew Piskorski <atp at piskorski.com>
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+Dirk Eddelbuettel | edd at debian.org | http://dirk.eddelbuettel.com
+
+Support my Tour de Shore 2026 ride benefiting Maywood Fine Arts! More info at
+https://dirk.eddelbuettel.com/blog/2026/04/03#sponsor_tour_de_shore_2026
+
+
