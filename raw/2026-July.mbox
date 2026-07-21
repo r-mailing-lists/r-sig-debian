@@ -149,3 +149,172 @@ Dirk
 dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
 
 
+From chr|@ho|d @end|ng |rom p@yctc@org  Mon Jul 20 19:14:41 2026
+From: chr|@ho|d @end|ng |rom p@yctc@org (Chris Evans)
+Date: Mon, 20 Jul 2026 18:14:41 +0100
+Subject: [R-sig-Debian] Running open source shiny server on Debian
+ (redirecting from R-help)
+Message-ID: <ddb5aaf3-30e3-4026-aec0-b7eb7cff556b@psyctc.org>
+
+[Redirected from R-help at Dirk Eddelbuettel's wise advice!]
+
+I am a retired clinician continuing to do pro bono research but have 
+zero research income.? However, I have run a little public service shiny 
+server (https://shiny.psyctc.org) since early 2024 and want to continue 
+with it and expand it. ?(See 
+https://www.psyctc.org/Analysing_shiny_usage.html for too much 
+information about its use if that interests you!)
+
+Recently my excellent ISP wanted to upgrade their various servers, 
+including that one.? They are pretty much FLOSS only and happy that I 
+use R but they are not R or shiny experts though, in my view, superb for 
+general ISP Email and web server support on Debian.
+
+They said that they were finding it hard to be sure of running the open 
+source shiny server on Debian and I can find no recent information on 
+this and see that Posit say that their OS shiny server is only 
+installable on:
+ ? ?Red Hat Enterprise Linux 8 and higher
+ ? ?Ubuntu 22.04 and higher (LTS releases only)
+ ? ?SUSE Linux Enterprise Server 15 SP7
+(from https://docs.posit.co/shiny-server/)
+
+They did do the upgrade of the server to bookworm and the shiny server 
+is now on R 4.2.2.? The apps are all runnning OK (and they are mostly 
+very simple) but this is clearly not good to be using a version of R 
+that is four years old.
+
+So could anyone point me to any information about installing the OS 
+shiny server on Debian bookworm or trixie and using a recent R.
+
+I am asking here before stepping into the time consuming process of 
+installing a VM manager on my own Ubuntu machine, and then installing 
+bookworm or trixie as VMs and trying to explore this myself.? I know 
+that would be taking me to the limits of my competences (I am a 
+psychotherapist and fairly competent data analyst not a server manager 
+or programmer!) and using up hours of work time!!
+
+TIA and thanks for umpteen (>=17) years of learning from r-help,
+
+Chris
+
+---
+Chris Evans
+Visiting Professor, UDLA, Quito, Ecuador
+Work web site: https://www.psyctc.org/psyctc/
+CORE site: http://www.coresystemtrust.org.uk/
+Personal site: https://www.psyctc.org/pelerinage2016/
+
+
+From edd @end|ng |rom deb|@n@org  Mon Jul 20 19:40:05 2026
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 20 Jul 2026 12:40:05 -0500
+Subject: [R-sig-Debian] Running open source shiny server on Debian
+ (redirecting from R-help)
+In-Reply-To: <ddb5aaf3-30e3-4026-aec0-b7eb7cff556b@psyctc.org>
+References: <ddb5aaf3-30e3-4026-aec0-b7eb7cff556b@psyctc.org>
+Message-ID: <27230.23925.249993.114282@paul.eddelbuettel.com>
+
+
+On 20 July 2026 at 18:14, Chris Evans via R-SIG-Debian wrote:
+| [Redirected from R-help at Dirk Eddelbuettel's wise advice!]
+| 
+| I am a retired clinician continuing to do pro bono research but have 
+| zero research income.? However, I have run a little public service shiny 
+| server (https://shiny.psyctc.org) since early 2024 and want to continue 
+| with it and expand it. ?(See 
+| https://www.psyctc.org/Analysing_shiny_usage.html for too much 
+| information about its use if that interests you!)
+| 
+| Recently my excellent ISP wanted to upgrade their various servers, 
+| including that one.? They are pretty much FLOSS only and happy that I 
+| use R but they are not R or shiny experts though, in my view, superb for 
+| general ISP Email and web server support on Debian.
+| 
+| They said that they were finding it hard to be sure of running the open 
+| source shiny server on Debian and I can find no recent information on 
+| this and see that Posit say that their OS shiny server is only 
+| installable on:
+|  ? ?Red Hat Enterprise Linux 8 and higher
+|  ? ?Ubuntu 22.04 and higher (LTS releases only)
+|  ? ?SUSE Linux Enterprise Server 15 SP7
+| (from https://docs.posit.co/shiny-server/)
+| 
+| They did do the upgrade of the server to bookworm and the shiny server 
+| is now on R 4.2.2.? The apps are all runnning OK (and they are mostly 
+| very simple) but this is clearly not good to be using a version of R 
+| that is four years old.
+| 
+| So could anyone point me to any information about installing the OS 
+| shiny server on Debian bookworm or trixie and using a recent R.
+| 
+| I am asking here before stepping into the time consuming process of 
+| installing a VM manager on my own Ubuntu machine, and then installing 
+| bookworm or trixie as VMs and trying to explore this myself.? I know 
+| that would be taking me to the limits of my competences (I am a 
+| psychotherapist and fairly competent data analyst not a server manager 
+| or programmer!) and using up hours of work time!!
+| 
+| TIA and thanks for umpteen (>=17) years of learning from r-help,
+
+You are being careful, but possibly overly so.
+
+If you step back and look at how third-party (commercial, sometimes 'free as
+in beer', sometimes open source) .deb packages are provided you will noticed
+that there _frequently_ is only one source of .deb binaries for the different
+operating systems (meaning we may run "debian" on ubuntu or vice versa).
+
+The key here is that these (commercial, mostly) .deb packages generally
+_bundle_ their own shared libraries instead of relying on the host. That is
+i) different from these distro do, ii) a wastse of diskspace, iii) easier for
+them and iv) very common!  E.g. on the (ubuntu 26.04) machine that I am
+typing this I am running the following (commerical, mostly, some "open sauce"
+and installed as a binary for convenience) packages all supplied at a .deb
+
+   brave (another browser)
+   chrome
+   docker
+   duckdb
+   ollama
+   positron
+   quarto
+   rstudio (desktop)
+   rstudio-server
+   spotify
+   syncthing
+   zoom
+
+At least some of these are technically from a 'debian' repo but as stated,
+these third-party repos are *very* different from the normal package in the
+repo and generally do not use packages _at all_.
+
+In short, you should have no risk.
+
+But I am not running the Debian release you are looking at so I cannot "say
+this for certain". I can be reasonably close, based on over three decades
+with all this.
+
+Lastly, you could also consider making yourself sleep better at night (if
+that matters) and use Ubuntu as a host OS. Also open source, and the shiny
+server then "runs natively".
+
+Hth, Dirk
+ 
+| Chris
+| 
+| ---
+| Chris Evans
+| Visiting Professor, UDLA, Quito, Ecuador
+| Work web site: https://www.psyctc.org/psyctc/
+| CORE site: http://www.coresystemtrust.org.uk/
+| Personal site: https://www.psyctc.org/pelerinage2016/
+| 
+| _______________________________________________
+| R-SIG-Debian mailing list
+| R-SIG-Debian at r-project.org
+| https://stat.ethz.ch/mailman/listinfo/r-sig-debian
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
