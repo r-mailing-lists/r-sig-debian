@@ -53,3 +53,141 @@ Dirk
 dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
 
 
+From edd @end|ng |rom deb|@n@org  Mon Aug 31 14:13:36 2026
+From: edd @end|ng |rom deb|@n@org (Dirk Eddelbuettel)
+Date: Mon, 31 Aug 2026 07:13:36 -0500
+Subject: [R-sig-Debian] [R] Ubuntu sources file for R packages
+In-Reply-To: <CAMVm2GbsYYAj-cBqibh9yKEjBXXHgmZpfVFA02EeKdrSe=xGYw@mail.gmail.com>
+References: <DM3PPF9A5B544E097A291FD821262A0DB22FAAB2@DM3PPF9A5B544E0.NAMP223.PROD.OUTLOOK.COM>
+ <CAMVm2GbsYYAj-cBqibh9yKEjBXXHgmZpfVFA02EeKdrSe=xGYw@mail.gmail.com>
+Message-ID: <27285.28656.376922.235745@paul.eddelbuettel.com>
+
+
+Robert,
+
+Thanks for piping in. Much appreciated. Michael and I will still see that the
+README gets updated.
+
+On 29 August 2026 at 07:01, Robert Dorazio wrote:
+| Naresh,
+| 
+| The instructions given at https://cran.r-project.org/bin/linux/ubuntu/  for
+| installing R on Ubuntu work well.
+| 
+| However, for installing R packages I recommend the following approach.
+| 
+| 1. Download the shell script for your version of Ubuntu (e.g.,
+| add_cranapt_resolute.sh for Ubuntu 26.04) from
+| the r2u website:  https://github.com/eddelbuettel/r2u
+| 
+| 2. Run the shell script from the terminal as follows:
+| sudo su
+| bash add_cranapt_resolute.sh
+| exit
+| 
+| Then you have two options for installing R packages from the fast,
+| well-connected mirror  r2u.stat.illinois.edu
+| 
+| As an example, you can install the R package "sp" using either of the
+| following options:
+| 
+| 1. From the terminal:  sudo apt install r-cran-sp
+
+My favourite here is to also install a few of the scripts from the littler
+package as the the r2u containers do because then you can say at the terminal
+
+   install.r sp         # littler script, calls install.packages
+
+because under an r2u setup with bspm (or rapt) this does the same. But is
+shorter, and uses the R package name internally switching to the binary.
+
+And yes, 'sf' is a great example due to the geospatial stack and its
+dependencies. It is so lovely to see this 'just' work, as it does for the
+other r2u payload.
+
+Dirk
+
+PS For example in the r2u container, after installing littler, I do
+
+        [ initial steps skipped ]
+        ## Install a number littler scripts
+  	&& ln -s /usr/lib/R/site-library/littler/examples/build.r /usr/local/bin/build.r \
+  	&& ln -s /usr/lib/R/site-library/littler/examples/check.r /usr/local/bin/check.r \
+  	&& ln -s /usr/lib/R/site-library/littler/examples/install.r /usr/local/bin/install.r \
+ 	&& ln -s /usr/lib/R/site-library/littler/examples/install2.r /usr/local/bin/install2.r \
+	&& ln -s /usr/lib/R/site-library/littler/examples/installBioc.r /usr/local/bin/installBioc.r \
+ 	&& ln -s /usr/lib/R/site-library/littler/examples/installDeps.r /usr/local/bin/installDeps.r \
+ 	&& ln -s /usr/lib/R/site-library/littler/examples/installGithub.r /usr/local/bin/installGithub.r \
+ 	&& ln -s /usr/lib/R/site-library/littler/examples/installRub.r /usr/local/bin/installRub.r \
+ 	&& ln -s /usr/lib/R/site-library/littler/examples/testInstalled.r /usr/local/bin/testInstalled.r \
+ 	&& ln -s /usr/lib/R/site-library/littler/examples/tt.r /usr/local/bin/tt.r \
+ 	&& ln -s /usr/lib/R/site-library/littler/examples/tttf.r /usr/local/bin/tttf.r \
+ 	&& ln -s /usr/lib/R/site-library/littler/examples/tttl.r /usr/local/bin/tttl.r \
+  	&& ln -s /usr/lib/R/site-library/littler/examples/update.r /usr/local/bin/update.r \
+        [ more skipped ]
+
+See https://github.com/rocker-org/r2u/blob/master/resolute/Dockerfile#L70-L83
+
+| 
+| 2. From R:  install.packages("sp")
+| 
+| A big advantage of using r2u is that all dependencies of each package are
+| downloaded properly.
+| 
+| Robert Dorazio
+| 
+| 
+| 
+| On Sat, Aug 29, 2026 at 5:50?AM Naresh Gurbuxani <
+| naresh_gurbuxani at hotmail.com> wrote:
+| 
+| > I followed these instructions to install R on my new Ubuntu desktop.
+| >
+| > https://cran.r-project.org/bin/linux/ubuntu/
+| >
+| >
+| > To install additional packages, I am following these instructions:
+| >
+| > https://cran.r-project.org/bin/linux/ubuntu/fullREADME.html
+| >
+| >
+| > For Ubuntu 26.04 (Resolute Racoon), /etc/apt/sources.list is
+| > deprecated.  It seems I need to create a file in
+| > /etc/apt/sources.list.d/.  I started a file "r-package.sources" and need
+| > entries for the last two fields.  My file:
+| >
+| > ## R package repository
+| > Types: deb
+| > URIs: https://cloud.r-project.org/bin/linux/ubuntu
+| > Suites: resolute-cran40
+| > Components:
+| > Signed-By:
+| >
+| > It will also benefit other users if you can update the instructions in
+| > fullREADME.html
+| >
+| >
+| > Thanks,
+| >
+| > Naresh
+| >
+| > ______________________________________________
+| > R-help at r-project.org mailing list -- To UNSUBSCRIBE and more, see
+| > https://stat.ethz.ch/mailman/listinfo/r-help
+| > PLEASE do read the posting guide
+| > https://www.R-project.org/posting-guide.html
+| > and provide commented, minimal, self-contained, reproducible code.
+| >
+| 
+| 	[[alternative HTML version deleted]]
+| 
+| ______________________________________________
+| R-help at r-project.org mailing list -- To UNSUBSCRIBE and more, see
+| https://stat.ethz.ch/mailman/listinfo/r-help
+| PLEASE do read the posting guide https://www.R-project.org/posting-guide.html
+| and provide commented, minimal, self-contained, reproducible code.
+
+-- 
+dirk.eddelbuettel.com | @eddelbuettel | edd at debian.org
+
+
