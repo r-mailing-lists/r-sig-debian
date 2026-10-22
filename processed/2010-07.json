@@ -13,11 +13,12 @@
       "subject_clean": "pkg/tests: how to run them with --vanilla",
       "in_reply_to": null,
       "references": [],
-      "body_plain": "Hello\n\nI recently submitted an update of a package, and received error reports \nfrom CRAN maintainers concerning the pkg/tests section:\n\n> Next time you update, can you please ensure that the .Rout.save files \n> are generated in English (with LANGUAGE=en set).  R 2.12.x will ensure \n> that the tests are run in English, and it saves a lot of unnecessary \n> chatter if the reference results also are.\n>\n> As a further point,\n>\n>> [Sauvegarde de la session pr?c?dente restaur?e]\n>\n> indicates that they were not generated in a vanilla session, and they \n> should be (as the tests are run with --vanilla --slave).\n>\n> Brian Ripley \n  I always used to run the .Rout.save files with R CMD BATCH xxx.R So it \nseems I should rather do it with R --vanilla... I tried:\ncat xxx.R| R --vanilla --slave > xxx.Rout.save\n\nBut this gives files without the \">\", and then it gets reported in the R \nCMD check... What would be the good way to do?\n\nSecondly, I always got this error that the R CMD BATCH run in french, \nbut the R CMD check in english. I have been told I should change to \nlanguage=EN. But how do I do this in Linux? I just added:\nSys.setlocale(\"LC_ALL\",\"en_US.UTF8\")\nSys.setlocale(\"LC_CTYPE\",\"en_US.UTF8\")\nSys.setlocale(\"LC_MESSAGES\",\"en_US.UTF8\")\n\nin the .Rprofile... it this right?\n\nThanks!!\n\nMatthieu",
+      "body_plain": "Hello\n\nI recently submitted an update of a package, and received error reports \nfrom CRAN maintainers concerning the pkg/tests section:\n\n> Next time you update, can you please ensure that the .Rout.save files \n> are generated in English (with LANGUAGE=en set).  R 2.12.x will ensure \n> that the tests are run in English, and it saves a lot of unnecessary \n> chatter if the reference results also are.\n>\n> As a further point,\n>\n>> [Sauvegarde de la session précédente restaurée]\n>\n> indicates that they were not generated in a vanilla session, and they \n> should be (as the tests are run with --vanilla --slave).\n>\n> Brian Ripley \n  I always used to run the .Rout.save files with R CMD BATCH xxx.R So it \nseems I should rather do it with R --vanilla... I tried:\ncat xxx.R| R --vanilla --slave > xxx.Rout.save\n\nBut this gives files without the \">\", and then it gets reported in the R \nCMD check... What would be the good way to do?\n\nSecondly, I always got this error that the R CMD BATCH run in french, \nbut the R CMD check in english. I have been told I should change to \nlanguage=EN. But how do I do this in Linux? I just added:\nSys.setlocale(\"LC_ALL\",\"en_US.UTF8\")\nSys.setlocale(\"LC_CTYPE\",\"en_US.UTF8\")\nSys.setlocale(\"LC_MESSAGES\",\"en_US.UTF8\")\n\nin the .Rprofile... it this right?\n\nThanks!!\n\nMatthieu",
       "body_snippet": "Hello\n\nI recently submitted an update of a package, and received error reports \nfrom CRAN maintainers concerning the pkg/tests section:\n\n> Next time you update, can you please ensure that the .Rout.sa",
       "thread_id": "thread-535ff8fe817c",
       "thread_depth": 0,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001327.html"
     },
     {
       "id": "msg-78daa79c0721",
@@ -31,11 +32,12 @@
       "references": [
         "<4C2EFDCF.2010406@gmail.com>"
       ],
-      "body_plain": "On 3 July 2010 at 11:07, mat wrote:\n| Hello\n| \n| I recently submitted an update of a package, and received error reports \n| from CRAN maintainers concerning the pkg/tests section:\n| \n| > Next time you update, can you please ensure that the .Rout.save files \n| > are generated in English (with LANGUAGE=en set).  R 2.12.x will ensure \n| > that the tests are run in English, and it saves a lot of unnecessary \n| > chatter if the reference results also are.\n| >\n| > As a further point,\n| >\n| >> [Sauvegarde de la session pr?c?dente restaur?e]\n| >\n| > indicates that they were not generated in a vanilla session, and they \n| > should be (as the tests are run with --vanilla --slave).\n| >\n| > Brian Ripley \n|   I always used to run the .Rout.save files with R CMD BATCH xxx.R So it \n| seems I should rather do it with R --vanilla... I tried:\n| cat xxx.R| R --vanilla --slave > xxx.Rout.save\n\nSee 'R CMD BATCH --help' --- you can pass further options along:\n\nedd at ron:/tmp$ echo \"cat(4)\" > foo.R\nedd at ron:/tmp$ R CMD BATCH --vanilla --slave /tmp/foo.R\nedd at ron:/tmp$ cat foo.Rout \n4> proc.time()\n   user  system elapsed \n  0.352   0.036   0.373 \nedd at ron:/tmp$ R CMD BATCH --vanilla /tmp/foo.R\nedd at ron:/tmp$ cat foo.Rout \n\nR version 2.11.1 (2010-05-31)\nCopyright (C) 2010 The R Foundation for Statistical Computing\nISBN 3-900051-07-0\n\nR is free software and comes with ABSOLUTELY NO WARRANTY.\nYou are welcome to redistribute it under certain conditions.\nType 'license()' or 'licence()' for distribution details.\n\n  Natural language support but running in an English locale\n\nR is a collaborative project with many contributors.\nType 'contributors()' for more information and\n'citation()' on how to cite R or R packages in publications.\n\nType 'demo()' for some demos, 'help()' for on-line help, or\n'help.start()' for an HTML browser interface to help.\nType 'q()' to quit R.\n\n> cat(4)\n4> \n> proc.time()\n   user  system elapsed \n   0.34    0.04    0.38 \nedd at ron:/tmp$ \n\n| But this gives files without the \">\", and then it gets reported in the R \n| CMD check... What would be the good way to do?\n| \n| Secondly, I always got this error that the R CMD BATCH run in french, \n| but the R CMD check in english. I have been told I should change to \n| language=EN. But how do I do this in Linux? I just added:\n| Sys.setlocale(\"LC_ALL\",\"en_US.UTF8\")\n| Sys.setlocale(\"LC_CTYPE\",\"en_US.UTF8\")\n| Sys.setlocale(\"LC_MESSAGES\",\"en_US.UTF8\")\n| \n| in the .Rprofile... it this right?\n\nDefaults work for me, so I never changed them. Sorry.\n\n-- \n  Regards, Dirk",
+      "body_plain": "On 3 July 2010 at 11:07, mat wrote:\n| Hello\n| \n| I recently submitted an update of a package, and received error reports \n| from CRAN maintainers concerning the pkg/tests section:\n| \n| > Next time you update, can you please ensure that the .Rout.save files \n| > are generated in English (with LANGUAGE=en set).  R 2.12.x will ensure \n| > that the tests are run in English, and it saves a lot of unnecessary \n| > chatter if the reference results also are.\n| >\n| > As a further point,\n| >\n| >> [Sauvegarde de la session précédente restaurée]\n| >\n| > indicates that they were not generated in a vanilla session, and they \n| > should be (as the tests are run with --vanilla --slave).\n| >\n| > Brian Ripley \n|   I always used to run the .Rout.save files with R CMD BATCH xxx.R So it \n| seems I should rather do it with R --vanilla... I tried:\n| cat xxx.R| R --vanilla --slave > xxx.Rout.save\n\nSee 'R CMD BATCH --help' --- you can pass further options along:\n\nedd at ron:/tmp$ echo \"cat(4)\" > foo.R\nedd at ron:/tmp$ R CMD BATCH --vanilla --slave /tmp/foo.R\nedd at ron:/tmp$ cat foo.Rout \n4> proc.time()\n   user  system elapsed \n  0.352   0.036   0.373 \nedd at ron:/tmp$ R CMD BATCH --vanilla /tmp/foo.R\nedd at ron:/tmp$ cat foo.Rout \n\nR version 2.11.1 (2010-05-31)\nCopyright (C) 2010 The R Foundation for Statistical Computing\nISBN 3-900051-07-0\n\nR is free software and comes with ABSOLUTELY NO WARRANTY.\nYou are welcome to redistribute it under certain conditions.\nType 'license()' or 'licence()' for distribution details.\n\n  Natural language support but running in an English locale\n\nR is a collaborative project with many contributors.\nType 'contributors()' for more information and\n'citation()' on how to cite R or R packages in publications.\n\nType 'demo()' for some demos, 'help()' for on-line help, or\n'help.start()' for an HTML browser interface to help.\nType 'q()' to quit R.\n\n> cat(4)\n4> \n> proc.time()\n   user  system elapsed \n   0.34    0.04    0.38 \nedd at ron:/tmp$ \n\n| But this gives files without the \">\", and then it gets reported in the R \n| CMD check... What would be the good way to do?\n| \n| Secondly, I always got this error that the R CMD BATCH run in french, \n| but the R CMD check in english. I have been told I should change to \n| language=EN. But how do I do this in Linux? I just added:\n| Sys.setlocale(\"LC_ALL\",\"en_US.UTF8\")\n| Sys.setlocale(\"LC_CTYPE\",\"en_US.UTF8\")\n| Sys.setlocale(\"LC_MESSAGES\",\"en_US.UTF8\")\n| \n| in the .Rprofile... it this right?\n\nDefaults work for me, so I never changed them. Sorry.\n\n-- \n  Regards, Dirk",
       "body_snippet": "On 3 July 2010 at 11:07, mat wrote:\n| Hello\n| \n| I recently submitted an update of a package, and received error reports \n| from CRAN maintainers concerning the pkg/tests section:\n| \n| > Next time you",
       "thread_id": "thread-535ff8fe817c",
       "thread_depth": 1,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001328.html"
     },
     {
       "id": "msg-035f3c327b40",
@@ -50,11 +52,12 @@
         "<4C2EFDCF.2010406@gmail.com>",
         "<19503.42996.819736.587124@ron.nulle.part>"
       ],
-      "body_plain": "Thanks! But I have then a strange problem:\n-running R CMD BATCH will read in english\n-running R CMD BATCH --vanilla --slave will read in french!\n\nI guess it comes from the fact that R CMD BATCH reads my .Rprofile \nsettings but --vanilla --slave not?\n\nSee:\n\nmat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ echo \n\"library(sandwich)\" > foo.R\nmat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH foo.R\nmat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout\n\nR version 2.11.1 (2010-05-31)\n[...]\n[Previously saved workspace restored]\n\n > library(sandwich)\nLoading required package: zoo\n >\n > proc.time()\nuser system elapsed\n0.630 0.010 0.632\nmat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$\nmat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH --vanilla \n--slave foo.R\nmat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout\nLe chargement a n?cessit? le package : zoo\n > proc.time()\nutilisateur syst?me ?coul?\n0.38 0.02 0.38\n\nSo it seems I should change the language differently... probably setting \nthe global environment variable? I don't know if this is possible just \nwithin the R CMD BATCH? I read from ?BATCH\n\nAdditional options can be set by the environment variable\n?R_BATCH_OPTIONS?: these come after ?--restore --save\n--no-readline? and before any options given on the command line\n\nBut I did not find any example how to run them...\n\nThanks!!\n\nMatthieu\n\n\n\nLe 03. 07. 10 23:13, Dirk Eddelbuettel a ?crit :\n> On 3 July 2010 at 11:07, mat wrote:\n> | Hello\n> |\n> | I recently submitted an update of a package, and received error reports\n> | from CRAN maintainers concerning the pkg/tests section:\n> |\n> |>  Next time you update, can you please ensure that the .Rout.save files\n> |>  are generated in English (with LANGUAGE=en set).  R 2.12.x will ensure\n> |>  that the tests are run in English, and it saves a lot of unnecessary\n> |>  chatter if the reference results also are.\n> |>\n> |>  As a further point,\n> |>\n> |>>  [Sauvegarde de la session pr?c?dente restaur?e]\n> |>\n> |>  indicates that they were not generated in a vanilla session, and they\n> |>  should be (as the tests are run with --vanilla --slave).\n> |>\n> |>  Brian Ripley\n> |   I always used to run the .Rout.save files with R CMD BATCH xxx.R So it\n> | seems I should rather do it with R --vanilla... I tried:\n> | cat xxx.R| R --vanilla --slave>  xxx.Rout.save\n>\n> See 'R CMD BATCH --help' --- you can pass further options along:\n>\n> edd at ron:/tmp$ echo \"cat(4)\">  foo.R\n> edd at ron:/tmp$ R CMD BATCH --vanilla --slave /tmp/foo.R\n> edd at ron:/tmp$ cat foo.Rout\n> 4>  proc.time()\n>     user  system elapsed\n>    0.352   0.036   0.373\n> edd at ron:/tmp$ R CMD BATCH --vanilla /tmp/foo.R\n> edd at ron:/tmp$ cat foo.Rout\n>\n> R version 2.11.1 (2010-05-31)\n> Copyright (C) 2010 The R Foundation for Statistical Computing\n> ISBN 3-900051-07-0\n>\n> R is free software and comes with ABSOLUTELY NO WARRANTY.\n> You are welcome to redistribute it under certain conditions.\n> Type 'license()' or 'licence()' for distribution details.\n>\n>    Natural language support but running in an English locale\n>\n> R is a collaborative project with many contributors.\n> Type 'contributors()' for more information and\n> 'citation()' on how to cite R or R packages in publications.\n>\n> Type 'demo()' for some demos, 'help()' for on-line help, or\n> 'help.start()' for an HTML browser interface to help.\n> Type 'q()' to quit R.\n>\n>    \n>> cat(4)\n>>      \n> 4>\n>    \n>> proc.time()\n>>      \n>     user  system elapsed\n>     0.34    0.04    0.38\n> edd at ron:/tmp$\n>\n> | But this gives files without the \">\", and then it gets reported in the R\n> | CMD check... What would be the good way to do?\n> |\n> | Secondly, I always got this error that the R CMD BATCH run in french,\n> | but the R CMD check in english. I have been told I should change to\n> | language=EN. But how do I do this in Linux? I just added:\n> | Sys.setlocale(\"LC_ALL\",\"en_US.UTF8\")\n> | Sys.setlocale(\"LC_CTYPE\",\"en_US.UTF8\")\n> | Sys.setlocale(\"LC_MESSAGES\",\"en_US.UTF8\")\n> |\n> | in the .Rprofile... it this right?\n>\n> Defaults work for me, so I never changed them. Sorry.\n>\n>",
+      "body_plain": "Thanks! But I have then a strange problem:\n-running R CMD BATCH will read in english\n-running R CMD BATCH --vanilla --slave will read in french!\n\nI guess it comes from the fact that R CMD BATCH reads my .Rprofile \nsettings but --vanilla --slave not?\n\nSee:\n\nmat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ echo \n\"library(sandwich)\" > foo.R\nmat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH foo.R\nmat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout\n\nR version 2.11.1 (2010-05-31)\n[...]\n[Previously saved workspace restored]\n\n > library(sandwich)\nLoading required package: zoo\n >\n > proc.time()\nuser system elapsed\n0.630 0.010 0.632\nmat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$\nmat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH --vanilla \n--slave foo.R\nmat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout\nLe chargement a nécessité le package : zoo\n > proc.time()\nutilisateur système écoulé\n0.38 0.02 0.38\n\nSo it seems I should change the language differently... probably setting \nthe global environment variable? I don't know if this is possible just \nwithin the R CMD BATCH? I read from ?BATCH\n\nAdditional options can be set by the environment variable\n‘R_BATCH_OPTIONS’: these come after ‘--restore --save\n--no-readline’ and before any options given on the command line\n\nBut I did not find any example how to run them...\n\nThanks!!\n\nMatthieu\n\n\n\nLe 03. 07. 10 23:13, Dirk Eddelbuettel a écrit :\n> On 3 July 2010 at 11:07, mat wrote:\n> | Hello\n> |\n> | I recently submitted an update of a package, and received error reports\n> | from CRAN maintainers concerning the pkg/tests section:\n> |\n> |>  Next time you update, can you please ensure that the .Rout.save files\n> |>  are generated in English (with LANGUAGE=en set).  R 2.12.x will ensure\n> |>  that the tests are run in English, and it saves a lot of unnecessary\n> |>  chatter if the reference results also are.\n> |>\n> |>  As a further point,\n> |>\n> |>>  [Sauvegarde de la session précédente restaurée]\n> |>\n> |>  indicates that they were not generated in a vanilla session, and they\n> |>  should be (as the tests are run with --vanilla --slave).\n> |>\n> |>  Brian Ripley\n> |   I always used to run the .Rout.save files with R CMD BATCH xxx.R So it\n> | seems I should rather do it with R --vanilla... I tried:\n> | cat xxx.R| R --vanilla --slave>  xxx.Rout.save\n>\n> See 'R CMD BATCH --help' --- you can pass further options along:\n>\n> edd at ron:/tmp$ echo \"cat(4)\">  foo.R\n> edd at ron:/tmp$ R CMD BATCH --vanilla --slave /tmp/foo.R\n> edd at ron:/tmp$ cat foo.Rout\n> 4>  proc.time()\n>     user  system elapsed\n>    0.352   0.036   0.373\n> edd at ron:/tmp$ R CMD BATCH --vanilla /tmp/foo.R\n> edd at ron:/tmp$ cat foo.Rout\n>\n> R version 2.11.1 (2010-05-31)\n> Copyright (C) 2010 The R Foundation for Statistical Computing\n> ISBN 3-900051-07-0\n>\n> R is free software and comes with ABSOLUTELY NO WARRANTY.\n> You are welcome to redistribute it under certain conditions.\n> Type 'license()' or 'licence()' for distribution details.\n>\n>    Natural language support but running in an English locale\n>\n> R is a collaborative project with many contributors.\n> Type 'contributors()' for more information and\n> 'citation()' on how to cite R or R packages in publications.\n>\n> Type 'demo()' for some demos, 'help()' for on-line help, or\n> 'help.start()' for an HTML browser interface to help.\n> Type 'q()' to quit R.\n>\n>    \n>> cat(4)\n>>      \n> 4>\n>    \n>> proc.time()\n>>      \n>     user  system elapsed\n>     0.34    0.04    0.38\n> edd at ron:/tmp$\n>\n> | But this gives files without the \">\", and then it gets reported in the R\n> | CMD check... What would be the good way to do?\n> |\n> | Secondly, I always got this error that the R CMD BATCH run in french,\n> | but the R CMD check in english. I have been told I should change to\n> | language=EN. But how do I do this in Linux? I just added:\n> | Sys.setlocale(\"LC_ALL\",\"en_US.UTF8\")\n> | Sys.setlocale(\"LC_CTYPE\",\"en_US.UTF8\")\n> | Sys.setlocale(\"LC_MESSAGES\",\"en_US.UTF8\")\n> |\n> | in the .Rprofile... it this right?\n>\n> Defaults work for me, so I never changed them. Sorry.\n>\n>",
       "body_snippet": "Thanks! But I have then a strange problem:\n-running R CMD BATCH will read in english\n-running R CMD BATCH --vanilla --slave will read in french!\n\nI guess it comes from the fact that R CMD BATCH reads ",
       "thread_id": "thread-535ff8fe817c",
       "thread_depth": 2,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001329.html"
     },
     {
       "id": "msg-c06cb60107c2",
@@ -70,11 +73,12 @@
         "<19503.42996.819736.587124@ron.nulle.part>",
         "<4C3047FA.4080108@gmail.com>"
       ],
-      "body_plain": "On 4 July 2010 at 10:36, mat wrote:\n| Thanks! But I have then a strange problem:\n| -running R CMD BATCH will read in english\n| -running R CMD BATCH --vanilla --slave will read in french!\n| \n| I guess it comes from the fact that R CMD BATCH reads my .Rprofile \n| settings but --vanilla --slave not?\n\nYes, and by design as --vanilla means ignore my ~/.R* files.\n\nSo you must change your language in another place, for example in the shell\nin which you are calling R CMD BATCH.  You could just create a 'worker\nscript' that sets those variables and then calls R CMD BATCH.\n\nDirk\n \n| See:\n| \n| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ echo \n| \"library(sandwich)\" > foo.R\n| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH foo.R\n| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout\n| \n| R version 2.11.1 (2010-05-31)\n| [...]\n| [Previously saved workspace restored]\n| \n|  > library(sandwich)\n| Loading required package: zoo\n|  >\n|  > proc.time()\n| user system elapsed\n| 0.630 0.010 0.632\n| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$\n| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH --vanilla \n| --slave foo.R\n| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout\n| Le chargement a n?cessit? le package : zoo\n|  > proc.time()\n| utilisateur syst?me ?coul?\n| 0.38 0.02 0.38\n| \n| So it seems I should change the language differently... probably setting \n| the global environment variable? I don't know if this is possible just \n| within the R CMD BATCH? I read from ?BATCH\n| \n| Additional options can be set by the environment variable\n| ?R_BATCH_OPTIONS?: these come after ?--restore --save\n| --no-readline? and before any options given on the command line\n| \n| But I did not find any example how to run them...\n| \n| Thanks!!\n| \n| Matthieu\n| \n| \n| \n| Le 03. 07. 10 23:13, Dirk Eddelbuettel a ?crit :\n| > On 3 July 2010 at 11:07, mat wrote:\n| > | Hello\n| > |\n| > | I recently submitted an update of a package, and received error reports\n| > | from CRAN maintainers concerning the pkg/tests section:\n| > |\n| > |>  Next time you update, can you please ensure that the .Rout.save files\n| > |>  are generated in English (with LANGUAGE=en set).  R 2.12.x will ensure\n| > |>  that the tests are run in English, and it saves a lot of unnecessary\n| > |>  chatter if the reference results also are.\n| > |>\n| > |>  As a further point,\n| > |>\n| > |>>  [Sauvegarde de la session pr?c?dente restaur?e]\n| > |>\n| > |>  indicates that they were not generated in a vanilla session, and they\n| > |>  should be (as the tests are run with --vanilla --slave).\n| > |>\n| > |>  Brian Ripley\n| > |   I always used to run the .Rout.save files with R CMD BATCH xxx.R So it\n| > | seems I should rather do it with R --vanilla... I tried:\n| > | cat xxx.R| R --vanilla --slave>  xxx.Rout.save\n| >\n| > See 'R CMD BATCH --help' --- you can pass further options along:\n| >\n| > edd at ron:/tmp$ echo \"cat(4)\">  foo.R\n| > edd at ron:/tmp$ R CMD BATCH --vanilla --slave /tmp/foo.R\n| > edd at ron:/tmp$ cat foo.Rout\n| > 4>  proc.time()\n| >     user  system elapsed\n| >    0.352   0.036   0.373\n| > edd at ron:/tmp$ R CMD BATCH --vanilla /tmp/foo.R\n| > edd at ron:/tmp$ cat foo.Rout\n| >\n| > R version 2.11.1 (2010-05-31)\n| > Copyright (C) 2010 The R Foundation for Statistical Computing\n| > ISBN 3-900051-07-0\n| >\n| > R is free software and comes with ABSOLUTELY NO WARRANTY.\n| > You are welcome to redistribute it under certain conditions.\n| > Type 'license()' or 'licence()' for distribution details.\n| >\n| >    Natural language support but running in an English locale\n| >\n| > R is a collaborative project with many contributors.\n| > Type 'contributors()' for more information and\n| > 'citation()' on how to cite R or R packages in publications.\n| >\n| > Type 'demo()' for some demos, 'help()' for on-line help, or\n| > 'help.start()' for an HTML browser interface to help.\n| > Type 'q()' to quit R.\n| >\n| >    \n| >> cat(4)\n| >>      \n| > 4>\n| >    \n| >> proc.time()\n| >>      \n| >     user  system elapsed\n| >     0.34    0.04    0.38\n| > edd at ron:/tmp$\n| >\n| > | But this gives files without the \">\", and then it gets reported in the R\n| > | CMD check... What would be the good way to do?\n| > |\n| > | Secondly, I always got this error that the R CMD BATCH run in french,\n| > | but the R CMD check in english. I have been told I should change to\n| > | language=EN. But how do I do this in Linux? I just added:\n| > | Sys.setlocale(\"LC_ALL\",\"en_US.UTF8\")\n| > | Sys.setlocale(\"LC_CTYPE\",\"en_US.UTF8\")\n| > | Sys.setlocale(\"LC_MESSAGES\",\"en_US.UTF8\")\n| > |\n| > | in the .Rprofile... it this right?\n| >\n| > Defaults work for me, so I never changed them. Sorry.\n| >\n| >    \n| \n\n-- \n  Regards, Dirk",
+      "body_plain": "On 4 July 2010 at 10:36, mat wrote:\n| Thanks! But I have then a strange problem:\n| -running R CMD BATCH will read in english\n| -running R CMD BATCH --vanilla --slave will read in french!\n| \n| I guess it comes from the fact that R CMD BATCH reads my .Rprofile \n| settings but --vanilla --slave not?\n\nYes, and by design as --vanilla means ignore my ~/.R* files.\n\nSo you must change your language in another place, for example in the shell\nin which you are calling R CMD BATCH.  You could just create a 'worker\nscript' that sets those variables and then calls R CMD BATCH.\n\nDirk\n \n| See:\n| \n| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ echo \n| \"library(sandwich)\" > foo.R\n| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH foo.R\n| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout\n| \n| R version 2.11.1 (2010-05-31)\n| [...]\n| [Previously saved workspace restored]\n| \n|  > library(sandwich)\n| Loading required package: zoo\n|  >\n|  > proc.time()\n| user system elapsed\n| 0.630 0.010 0.632\n| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$\n| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH --vanilla \n| --slave foo.R\n| mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout\n| Le chargement a nécessité le package : zoo\n|  > proc.time()\n| utilisateur système écoulé\n| 0.38 0.02 0.38\n| \n| So it seems I should change the language differently... probably setting \n| the global environment variable? I don't know if this is possible just \n| within the R CMD BATCH? I read from ?BATCH\n| \n| Additional options can be set by the environment variable\n| ‘R_BATCH_OPTIONS’: these come after ‘--restore --save\n| --no-readline’ and before any options given on the command line\n| \n| But I did not find any example how to run them...\n| \n| Thanks!!\n| \n| Matthieu\n| \n| \n| \n| Le 03. 07. 10 23:13, Dirk Eddelbuettel a écrit :\n| > On 3 July 2010 at 11:07, mat wrote:\n| > | Hello\n| > |\n| > | I recently submitted an update of a package, and received error reports\n| > | from CRAN maintainers concerning the pkg/tests section:\n| > |\n| > |>  Next time you update, can you please ensure that the .Rout.save files\n| > |>  are generated in English (with LANGUAGE=en set).  R 2.12.x will ensure\n| > |>  that the tests are run in English, and it saves a lot of unnecessary\n| > |>  chatter if the reference results also are.\n| > |>\n| > |>  As a further point,\n| > |>\n| > |>>  [Sauvegarde de la session précédente restaurée]\n| > |>\n| > |>  indicates that they were not generated in a vanilla session, and they\n| > |>  should be (as the tests are run with --vanilla --slave).\n| > |>\n| > |>  Brian Ripley\n| > |   I always used to run the .Rout.save files with R CMD BATCH xxx.R So it\n| > | seems I should rather do it with R --vanilla... I tried:\n| > | cat xxx.R| R --vanilla --slave>  xxx.Rout.save\n| >\n| > See 'R CMD BATCH --help' --- you can pass further options along:\n| >\n| > edd at ron:/tmp$ echo \"cat(4)\">  foo.R\n| > edd at ron:/tmp$ R CMD BATCH --vanilla --slave /tmp/foo.R\n| > edd at ron:/tmp$ cat foo.Rout\n| > 4>  proc.time()\n| >     user  system elapsed\n| >    0.352   0.036   0.373\n| > edd at ron:/tmp$ R CMD BATCH --vanilla /tmp/foo.R\n| > edd at ron:/tmp$ cat foo.Rout\n| >\n| > R version 2.11.1 (2010-05-31)\n| > Copyright (C) 2010 The R Foundation for Statistical Computing\n| > ISBN 3-900051-07-0\n| >\n| > R is free software and comes with ABSOLUTELY NO WARRANTY.\n| > You are welcome to redistribute it under certain conditions.\n| > Type 'license()' or 'licence()' for distribution details.\n| >\n| >    Natural language support but running in an English locale\n| >\n| > R is a collaborative project with many contributors.\n| > Type 'contributors()' for more information and\n| > 'citation()' on how to cite R or R packages in publications.\n| >\n| > Type 'demo()' for some demos, 'help()' for on-line help, or\n| > 'help.start()' for an HTML browser interface to help.\n| > Type 'q()' to quit R.\n| >\n| >    \n| >> cat(4)\n| >>      \n| > 4>\n| >    \n| >> proc.time()\n| >>      \n| >     user  system elapsed\n| >     0.34    0.04    0.38\n| > edd at ron:/tmp$\n| >\n| > | But this gives files without the \">\", and then it gets reported in the R\n| > | CMD check... What would be the good way to do?\n| > |\n| > | Secondly, I always got this error that the R CMD BATCH run in french,\n| > | but the R CMD check in english. I have been told I should change to\n| > | language=EN. But how do I do this in Linux? I just added:\n| > | Sys.setlocale(\"LC_ALL\",\"en_US.UTF8\")\n| > | Sys.setlocale(\"LC_CTYPE\",\"en_US.UTF8\")\n| > | Sys.setlocale(\"LC_MESSAGES\",\"en_US.UTF8\")\n| > |\n| > | in the .Rprofile... it this right?\n| >\n| > Defaults work for me, so I never changed them. Sorry.\n| >\n| >    \n| \n\n-- \n  Regards, Dirk",
       "body_snippet": "On 4 July 2010 at 10:36, mat wrote:\n| Thanks! But I have then a strange problem:\n| -running R CMD BATCH will read in english\n| -running R CMD BATCH --vanilla --slave will read in french!\n| \n| I guess ",
       "thread_id": "thread-535ff8fe817c",
       "thread_depth": 3,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001330.html"
     },
     {
       "id": "msg-03a00a5f464c",
@@ -90,7 +94,8 @@
       "body_snippet": "Evening folks:\n\nNot sure where this fits into the picture so bear with me for a few\nmoments while I think out loud to lay out the particulars of my problem.\n\n-would love to be employed using R for a l",
       "thread_id": "thread-03a00a5f464c",
       "thread_depth": 0,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001331.html"
     },
     {
       "id": "msg-57c864ea6dfc",
@@ -108,7 +113,8 @@
       "body_snippet": "On 4 July 2010 at 19:33, Brian Lunergan wrote:\n| Evening folks:\n| \n| Not sure where this fits into the picture so bear with me for a few\n| moments while I think out loud to lay out the particulars of ",
       "thread_id": "thread-03a00a5f464c",
       "thread_depth": 1,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001332.html"
     },
     {
       "id": "msg-21ceaaa297c2",
@@ -126,7 +132,8 @@
       "body_snippet": "Your hardware specifications are not much worse than those of my\nnetbook. And I am quite happy with Xubuntu 10.04 on it.\n\nBest regards,\n\nCarlos J. Gil Bellosta\nhttp://www.datanalytics.com\n\n\n2010/7/5 B",
       "thread_id": "thread-03a00a5f464c",
       "thread_depth": 1,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001333.html"
     },
     {
       "id": "msg-cb0b5066d3fc",
@@ -148,6 +155,7 @@
       "thread_id": "thread-535ff8fe817c",
       "thread_depth": 4,
       "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001334.html",
       "restored_from": [
         "https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100705/94d027d6/attachment.pl"
       ]
@@ -168,7 +176,8 @@
       "body_snippet": "Le dim. 4 juil. ? 19:33, Brian Lunergan a ?crit :\n\n> Evening folks:\n> \n> Not sure where this fits into the picture so bear with me for a few\n> moments while I think out loud to lay out the particulars",
       "thread_id": "thread-03a00a5f464c",
       "thread_depth": 1,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001335.html"
     },
     {
       "id": "msg-3ea3c7d99dd5",
@@ -182,11 +191,12 @@
       "references": [
         "<1278286432.21859.22.camel@brian-desktop>"
       ],
-      "body_plain": "Brian\n\nI run Ubuntu and Gnome and R on some systems that are much older than\nthat, and performance is reasonable.  I ran 8.04, 9.04, and now am\nrunning 10.04, and several versions of R.  I'm not sure about the 3.5\ndisks. My machines have those drives, but I've not recently checked if\nthey work.  I'll see if I can find a disk to try.\n\nI think the dial-up Internet may be a problem. At least, I find Gnome is\nvery slow when I don't have my Internet connection. I'm not sure what\nthe reason is, but some things (orbit? Update?, other applets?) seem to\ncheck the Internet often, and stall waiting for a response.\n\nPaul \n\n>-----Original Message-----\n>From: r-sig-debian-bounces at r-project.org\n[mailto:r-sig-debian-bounces at r-\n>project.org] On Behalf Of Brian Lunergan\n>Sent: July 4, 2010 7:34 PM\n>To: R Debian SIG List\n>Subject: [R-sig-Debian] OT: Problems updating OS to deal with fading\n>Rsupport for Ubuntu Hardy Heron...\n>\n>Evening folks:\n>\n>Not sure where this fits into the picture so bear with me for a few\n>moments while I think out loud to lay out the particulars of my\nproblem.\n>\n>-would love to be employed using R for a living but so far I have just\n>worked with it on my home machine to develop a basic level of skill\nwith\n>it.\n>-I run Ubuntu linux 8.04 LTS on a machine with a 2.5GHz Celeron\n>processor and 1.2GB of memory. The Heron runs sprightly enough to suit\n>on that combination.\n>-noted on Cran that with the intro of the newest LTS edition, Lucid\n>Lynx, support for the Heron is continued on suffrage only.\n>-So, I tried to upgrade. Tried both Kubuntu and Ubuntu. Kubuntu dialled\n>out and connected to my ISP but failed to get anywhere after\n>authentication, Ubuntu failed to recognize my 3.5\" A drive, and they\n>were both unbelievably sluggish on my system so out they both go and\nI'm\n>in the process of getting things set back up the way I had them with\n>8.04.\n>\n>I realize this more OS than R, but I thought someone in the group might\n>have some ideas or suggestions they'd care to share, off-list of\ncourse.\n>Is there a way around this situation that doesn't involve huge outlays\n>in new hardware? Is there another flavour of Linux that would work with\n>my system and allow me to maintain a toe hold in the R camp so that\nI've\n>got it as a marketable skill somewhere down the road? Any thoughts\nwould\n>be appreciated.\n>\n>Regards...\n>--\n>Brian Lunergan\n>Nepean, Ontario\n>Canada\n>\n>_______________________________________________\n>R-SIG-Debian mailing list\n>R-SIG-Debian at r-project.org\n>https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n====================================================================================\n\nLa version fran?aise suit le texte anglais.\n\n------------------------------------------------------------------------------------\n\nThis email may contain privileged and/or confidential information, and the Bank of\nCanada does not waive any related rights. Any distribution, use, or copying of this\nemail or the information it contains by other than the intended recipient is\nunauthorized. If you received this email in error please delete it immediately from\nyour system and notify the sender promptly by email that you have done so. \n\n------------------------------------------------------------------------------------\n\nLe pr?sent courriel peut contenir de l'information privil?gi?e ou confidentielle.\nLa Banque du Canada ne renonce pas aux droits qui s'y rapportent. Toute diffusion,\nutilisation ou copie de ce courriel ou des renseignements qu'il contient par une\npersonne autre que le ou les destinataires d?sign?s est interdite. Si vous recevez\nce courriel par erreur, veuillez le supprimer imm?diatement et envoyer sans d?lai ?\nl'exp?diteur un message ?lectronique pour l'aviser que vous avez ?limin? de votre\nordinateur toute copie du courriel re?u.",
+      "body_plain": "Brian\n\nI run Ubuntu and Gnome and R on some systems that are much older than\nthat, and performance is reasonable.  I ran 8.04, 9.04, and now am\nrunning 10.04, and several versions of R.  I'm not sure about the 3.5\ndisks. My machines have those drives, but I've not recently checked if\nthey work.  I'll see if I can find a disk to try.\n\nI think the dial-up Internet may be a problem. At least, I find Gnome is\nvery slow when I don't have my Internet connection. I'm not sure what\nthe reason is, but some things (orbit? Update?, other applets?) seem to\ncheck the Internet often, and stall waiting for a response.\n\nPaul \n\n>-----Original Message-----\n>From: r-sig-debian-bounces at r-project.org\n[mailto:r-sig-debian-bounces at r-\n>project.org] On Behalf Of Brian Lunergan\n>Sent: July 4, 2010 7:34 PM\n>To: R Debian SIG List\n>Subject: [R-sig-Debian] OT: Problems updating OS to deal with fading\n>Rsupport for Ubuntu Hardy Heron...\n>\n>Evening folks:\n>\n>Not sure where this fits into the picture so bear with me for a few\n>moments while I think out loud to lay out the particulars of my\nproblem.\n>\n>-would love to be employed using R for a living but so far I have just\n>worked with it on my home machine to develop a basic level of skill\nwith\n>it.\n>-I run Ubuntu linux 8.04 LTS on a machine with a 2.5GHz Celeron\n>processor and 1.2GB of memory. The Heron runs sprightly enough to suit\n>on that combination.\n>-noted on Cran that with the intro of the newest LTS edition, Lucid\n>Lynx, support for the Heron is continued on suffrage only.\n>-So, I tried to upgrade. Tried both Kubuntu and Ubuntu. Kubuntu dialled\n>out and connected to my ISP but failed to get anywhere after\n>authentication, Ubuntu failed to recognize my 3.5\" A drive, and they\n>were both unbelievably sluggish on my system so out they both go and\nI'm\n>in the process of getting things set back up the way I had them with\n>8.04.\n>\n>I realize this more OS than R, but I thought someone in the group might\n>have some ideas or suggestions they'd care to share, off-list of\ncourse.\n>Is there a way around this situation that doesn't involve huge outlays\n>in new hardware? Is there another flavour of Linux that would work with\n>my system and allow me to maintain a toe hold in the R camp so that\nI've\n>got it as a marketable skill somewhere down the road? Any thoughts\nwould\n>be appreciated.\n>\n>Regards...\n>--\n>Brian Lunergan\n>Nepean, Ontario\n>Canada\n>\n>_______________________________________________\n>R-SIG-Debian mailing list\n>R-SIG-Debian at r-project.org\n>https://stat.ethz.ch/mailman/listinfo/r-sig-debian\n====================================================================================\n\nLa version française suit le texte anglais.\n\n------------------------------------------------------------------------------------\n\nThis email may contain privileged and/or confidential information, and the Bank of\nCanada does not waive any related rights. Any distribution, use, or copying of this\nemail or the information it contains by other than the intended recipient is\nunauthorized. If you received this email in error please delete it immediately from\nyour system and notify the sender promptly by email that you have done so. \n\n------------------------------------------------------------------------------------\n\nLe présent courriel peut contenir de l'information privilégiée ou confidentielle.\nLa Banque du Canada ne renonce pas aux droits qui s'y rapportent. Toute diffusion,\nutilisation ou copie de ce courriel ou des renseignements qu'il contient par une\npersonne autre que le ou les destinataires désignés est interdite. Si vous recevez\nce courriel par erreur, veuillez le supprimer immédiatement et envoyer sans délai à\nl'expéditeur un message électronique pour l'aviser que vous avez éliminé de votre\nordinateur toute copie du courriel reçu.",
       "body_snippet": "Brian\n\nI run Ubuntu and Gnome and R on some systems that are much older than\nthat, and performance is reasonable.  I ran 8.04, 9.04, and now am\nrunning 10.04, and several versions of R.  I'm not sure ",
       "thread_id": "thread-03a00a5f464c",
       "thread_depth": 1,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001336.html"
     },
     {
       "id": "msg-9b88cf007ce2",
@@ -204,11 +214,12 @@
         "<19504.31178.563047.178579@ron.nulle.part>",
         "<alpine.LFD.2.00.1007041354210.1935@gannet.stats.ox.ac.uk>"
       ],
-      "body_plain": "Thanks a lot for your answers!\n\nActually, I am still a little bit confused, as running R CMD BATCH with \nthe --vanilla --slave options produces a .Rout.save without the > at \neach code line, and this is then reported in the R CMD check:\n\nchecking tests ...\n   Ex?cution ?00SetarAndFriends.R?\n   Comparaison ?00SetarAndFriends.Rout? ? ?00SetarAndFriends.Rout.save? \n...1,3d0\n<\n<\n< > library(tsDyn)\n12,18d8\n< >\n< > data(zeroyld)\n< > dat<-zeroyld\n\nWhile if I do just R CMD BATCH, I get another diff report, concerning \nthe startup message:\nchecking tests ...\n   Ex?cution ?00SetarAndFriends.R?\n   Comparaison ?00SetarAndFriends.Rout? ? ?00SetarAndFriends.Rout.save? \n...1a2,19\n > R version 2.11.1 (2010-05-31)\n > Copyright (C) 2010 The R Foundation for Statistical Computing\n > ISBN 3-900051-07-0\n\nSo I did not find a way to have a clean R CMD check output... How do you \ndo usually? DOn't you have one of those issues?\n\nThanks a lot!\n\nMatthieu\n\n\n\nLe 04. 07. 10 15:00, Prof Brian Ripley a ?crit :\n> On Sun, 4 Jul 2010, Dirk Eddelbuettel wrote:\n>\n>>\n>> On 4 July 2010 at 10:36, mat wrote:\n>> | Thanks! But I have then a strange problem:\n>> | -running R CMD BATCH will read in english\n>> | -running R CMD BATCH --vanilla --slave will read in french!\n>> |\n>> | I guess it comes from the fact that R CMD BATCH reads my .Rprofile\n>> | settings but --vanilla --slave not?\n>>\n>> Yes, and by design as --vanilla means ignore my ~/.R* files.\n>>\n>> So you must change your language in another place, for example in the \n>> shell\n>> in which you are calling R CMD BATCH.  You could just create a 'worker\n>> script' that sets those variables and then calls R CMD BATCH.\n>\n> And as the R-admin manual says and I said, you set the environment \n> variable LANGUAGE to en: this overrides any other settings for the \n> language.  So in any shell\n>\n> env LANGUAGE=en R CMD BATCH --vanilla --slave foo.R foo.Rout.save\n>\n> or in bash\n>\n> LANGUAGE=en R CMD BATCH --vanilla --slave foo.R foo.Rout.save\n>\n> How to set environment variables is covered in the rw-FAQ, but Linux \n> users are expected to know how to use them!\n>\n>>\n>> Dirk\n>>\n>> | See:\n>> |\n>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ echo\n>> | \"library(sandwich)\" > foo.R\n>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH foo.R\n>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout\n>> |\n>> | R version 2.11.1 (2010-05-31)\n>> | [...]\n>> | [Previously saved workspace restored]\n>> |\n>> | > library(sandwich)\n>> | Loading required package: zoo\n>> | >\n>> | > proc.time()\n>> | user system elapsed\n>> | 0.630 0.010 0.632\n>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$\n>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH --vanilla\n>> | --slave foo.R\n>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout\n>> | Le chargement a n?cessit? le package : zoo\n>> | > proc.time()\n>> | utilisateur syst?me ?coul?\n>> | 0.38 0.02 0.38\n>> |\n>> | So it seems I should change the language differently... probably \n>> setting\n>> | the global environment variable? I don't know if this is possible just\n>> | within the R CMD BATCH? I read from ?BATCH\n>> |\n>> | Additional options can be set by the environment variable\n>> | ?R_BATCH_OPTIONS?: these come after ?--restore --save\n>> | --no-readline? and before any options given on the command line\n>> |\n>> | But I did not find any example how to run them...\n>> |\n>> | Thanks!!\n>> |\n>> | Matthieu\n>> |\n>> |\n>> |\n>> | Le 03. 07. 10 23:13, Dirk Eddelbuettel a ?crit :\n>> | > On 3 July 2010 at 11:07, mat wrote:\n>> | > | Hello\n>> | > |\n>> | > | I recently submitted an update of a package, and received error \n>> reports\n>> | > | from CRAN maintainers concerning the pkg/tests section:\n>> | > |\n>> | > |>  Next time you update, can you please ensure that the \n>> .Rout.save files\n>> | > |>  are generated in English (with LANGUAGE=en set).  R 2.12.x \n>> will ensure\n>> | > |>  that the tests are run in English, and it saves a lot of \n>> unnecessary\n>> | > |>  chatter if the reference results also are.\n>> | > |>\n>> | > |>  As a further point,\n>> | > |>\n>> | > |>>  [Sauvegarde de la session pr?c?dente restaur?e]\n>> | > |>\n>> | > |>  indicates that they were not generated in a vanilla session, \n>> and they\n>> | > |>  should be (as the tests are run with --vanilla --slave).\n>> | > |>\n>> | > |>  Brian Ripley\n>> | > |   I always used to run the .Rout.save files with R CMD BATCH \n>> xxx.R So it\n>> | > | seems I should rather do it with R --vanilla... I tried:\n>> | > | cat xxx.R| R --vanilla --slave>  xxx.Rout.save\n>> | >\n>> | > See 'R CMD BATCH --help' --- you can pass further options along:\n>> | >\n>> | > edd at ron:/tmp$ echo \"cat(4)\">  foo.R\n>> | > edd at ron:/tmp$ R CMD BATCH --vanilla --slave /tmp/foo.R\n>> | > edd at ron:/tmp$ cat foo.Rout\n>> | > 4>  proc.time()\n>> | >     user  system elapsed\n>> | >    0.352   0.036   0.373\n>> | > edd at ron:/tmp$ R CMD BATCH --vanilla /tmp/foo.R\n>> | > edd at ron:/tmp$ cat foo.Rout\n>> | >\n>> | > R version 2.11.1 (2010-05-31)\n>> | > Copyright (C) 2010 The R Foundation for Statistical Computing\n>> | > ISBN 3-900051-07-0\n>> | >\n>> | > R is free software and comes with ABSOLUTELY NO WARRANTY.\n>> | > You are welcome to redistribute it under certain conditions.\n>> | > Type 'license()' or 'licence()' for distribution details.\n>> | >\n>> | >    Natural language support but running in an English locale\n>> | >\n>> | > R is a collaborative project with many contributors.\n>> | > Type 'contributors()' for more information and\n>> | > 'citation()' on how to cite R or R packages in publications.\n>> | >\n>> | > Type 'demo()' for some demos, 'help()' for on-line help, or\n>> | > 'help.start()' for an HTML browser interface to help.\n>> | > Type 'q()' to quit R.\n>> | >\n>> | >\n>> | >> cat(4)\n>> | >>\n>> | > 4>\n>> | >\n>> | >> proc.time()\n>> | >>\n>> | >     user  system elapsed\n>> | >     0.34    0.04    0.38\n>> | > edd at ron:/tmp$\n>> | >\n>> | > | But this gives files without the \">\", and then it gets reported \n>> in the R\n>> | > | CMD check... What would be the good way to do?\n>> | > |\n>> | > | Secondly, I always got this error that the R CMD BATCH run in \n>> french,\n>> | > | but the R CMD check in english. I have been told I should \n>> change to\n>> | > | language=EN. But how do I do this in Linux? I just added:\n>> | > | Sys.setlocale(\"LC_ALL\",\"en_US.UTF8\")\n>> | > | Sys.setlocale(\"LC_CTYPE\",\"en_US.UTF8\")\n>> | > | Sys.setlocale(\"LC_MESSAGES\",\"en_US.UTF8\")\n>> | > |\n>> | > | in the .Rprofile... it this right?\n>> | >\n>> | > Defaults work for me, so I never changed them. Sorry.\n>> | >\n>> | >\n>> |\n>>\n>> -- \n>>  Regards, Dirk\n>>\n>",
+      "body_plain": "Thanks a lot for your answers!\n\nActually, I am still a little bit confused, as running R CMD BATCH with \nthe --vanilla --slave options produces a .Rout.save without the > at \neach code line, and this is then reported in the R CMD check:\n\nchecking tests ...\n   Exécution ‘00SetarAndFriends.R’\n   Comparaison ‘00SetarAndFriends.Rout’ à ‘00SetarAndFriends.Rout.save’ \n...1,3d0\n<\n<\n< > library(tsDyn)\n12,18d8\n< >\n< > data(zeroyld)\n< > dat<-zeroyld\n\nWhile if I do just R CMD BATCH, I get another diff report, concerning \nthe startup message:\nchecking tests ...\n   Exécution ‘00SetarAndFriends.R’\n   Comparaison ‘00SetarAndFriends.Rout’ à ‘00SetarAndFriends.Rout.save’ \n...1a2,19\n > R version 2.11.1 (2010-05-31)\n > Copyright (C) 2010 The R Foundation for Statistical Computing\n > ISBN 3-900051-07-0\n\nSo I did not find a way to have a clean R CMD check output... How do you \ndo usually? DOn't you have one of those issues?\n\nThanks a lot!\n\nMatthieu\n\n\n\nLe 04. 07. 10 15:00, Prof Brian Ripley a écrit :\n> On Sun, 4 Jul 2010, Dirk Eddelbuettel wrote:\n>\n>>\n>> On 4 July 2010 at 10:36, mat wrote:\n>> | Thanks! But I have then a strange problem:\n>> | -running R CMD BATCH will read in english\n>> | -running R CMD BATCH --vanilla --slave will read in french!\n>> |\n>> | I guess it comes from the fact that R CMD BATCH reads my .Rprofile\n>> | settings but --vanilla --slave not?\n>>\n>> Yes, and by design as --vanilla means ignore my ~/.R* files.\n>>\n>> So you must change your language in another place, for example in the \n>> shell\n>> in which you are calling R CMD BATCH.  You could just create a 'worker\n>> script' that sets those variables and then calls R CMD BATCH.\n>\n> And as the R-admin manual says and I said, you set the environment \n> variable LANGUAGE to en: this overrides any other settings for the \n> language.  So in any shell\n>\n> env LANGUAGE=en R CMD BATCH --vanilla --slave foo.R foo.Rout.save\n>\n> or in bash\n>\n> LANGUAGE=en R CMD BATCH --vanilla --slave foo.R foo.Rout.save\n>\n> How to set environment variables is covered in the rw-FAQ, but Linux \n> users are expected to know how to use them!\n>\n>>\n>> Dirk\n>>\n>> | See:\n>> |\n>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ echo\n>> | \"library(sandwich)\" > foo.R\n>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH foo.R\n>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout\n>> |\n>> | R version 2.11.1 (2010-05-31)\n>> | [...]\n>> | [Previously saved workspace restored]\n>> |\n>> | > library(sandwich)\n>> | Loading required package: zoo\n>> | >\n>> | > proc.time()\n>> | user system elapsed\n>> | 0.630 0.010 0.632\n>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$\n>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ R CMD BATCH --vanilla\n>> | --slave foo.R\n>> | mat at cunix:~/Dropbox/Documents/tsDyn/tsDyn/tests$ cat foo.Rout\n>> | Le chargement a nécessité le package : zoo\n>> | > proc.time()\n>> | utilisateur système écoulé\n>> | 0.38 0.02 0.38\n>> |\n>> | So it seems I should change the language differently... probably \n>> setting\n>> | the global environment variable? I don't know if this is possible just\n>> | within the R CMD BATCH? I read from ?BATCH\n>> |\n>> | Additional options can be set by the environment variable\n>> | ‘R_BATCH_OPTIONS’: these come after ‘--restore --save\n>> | --no-readline’ and before any options given on the command line\n>> |\n>> | But I did not find any example how to run them...\n>> |\n>> | Thanks!!\n>> |\n>> | Matthieu\n>> |\n>> |\n>> |\n>> | Le 03. 07. 10 23:13, Dirk Eddelbuettel a écrit :\n>> | > On 3 July 2010 at 11:07, mat wrote:\n>> | > | Hello\n>> | > |\n>> | > | I recently submitted an update of a package, and received error \n>> reports\n>> | > | from CRAN maintainers concerning the pkg/tests section:\n>> | > |\n>> | > |>  Next time you update, can you please ensure that the \n>> .Rout.save files\n>> | > |>  are generated in English (with LANGUAGE=en set).  R 2.12.x \n>> will ensure\n>> | > |>  that the tests are run in English, and it saves a lot of \n>> unnecessary\n>> | > |>  chatter if the reference results also are.\n>> | > |>\n>> | > |>  As a further point,\n>> | > |>\n>> | > |>>  [Sauvegarde de la session précédente restaurée]\n>> | > |>\n>> | > |>  indicates that they were not generated in a vanilla session, \n>> and they\n>> | > |>  should be (as the tests are run with --vanilla --slave).\n>> | > |>\n>> | > |>  Brian Ripley\n>> | > |   I always used to run the .Rout.save files with R CMD BATCH \n>> xxx.R So it\n>> | > | seems I should rather do it with R --vanilla... I tried:\n>> | > | cat xxx.R| R --vanilla --slave>  xxx.Rout.save\n>> | >\n>> | > See 'R CMD BATCH --help' --- you can pass further options along:\n>> | >\n>> | > edd at ron:/tmp$ echo \"cat(4)\">  foo.R\n>> | > edd at ron:/tmp$ R CMD BATCH --vanilla --slave /tmp/foo.R\n>> | > edd at ron:/tmp$ cat foo.Rout\n>> | > 4>  proc.time()\n>> | >     user  system elapsed\n>> | >    0.352   0.036   0.373\n>> | > edd at ron:/tmp$ R CMD BATCH --vanilla /tmp/foo.R\n>> | > edd at ron:/tmp$ cat foo.Rout\n>> | >\n>> | > R version 2.11.1 (2010-05-31)\n>> | > Copyright (C) 2010 The R Foundation for Statistical Computing\n>> | > ISBN 3-900051-07-0\n>> | >\n>> | > R is free software and comes with ABSOLUTELY NO WARRANTY.\n>> | > You are welcome to redistribute it under certain conditions.\n>> | > Type 'license()' or 'licence()' for distribution details.\n>> | >\n>> | >    Natural language support but running in an English locale\n>> | >\n>> | > R is a collaborative project with many contributors.\n>> | > Type 'contributors()' for more information and\n>> | > 'citation()' on how to cite R or R packages in publications.\n>> | >\n>> | > Type 'demo()' for some demos, 'help()' for on-line help, or\n>> | > 'help.start()' for an HTML browser interface to help.\n>> | > Type 'q()' to quit R.\n>> | >\n>> | >\n>> | >> cat(4)\n>> | >>\n>> | > 4>\n>> | >\n>> | >> proc.time()\n>> | >>\n>> | >     user  system elapsed\n>> | >     0.34    0.04    0.38\n>> | > edd at ron:/tmp$\n>> | >\n>> | > | But this gives files without the \">\", and then it gets reported \n>> in the R\n>> | > | CMD check... What would be the good way to do?\n>> | > |\n>> | > | Secondly, I always got this error that the R CMD BATCH run in \n>> french,\n>> | > | but the R CMD check in english. I have been told I should \n>> change to\n>> | > | language=EN. But how do I do this in Linux? I just added:\n>> | > | Sys.setlocale(\"LC_ALL\",\"en_US.UTF8\")\n>> | > | Sys.setlocale(\"LC_CTYPE\",\"en_US.UTF8\")\n>> | > | Sys.setlocale(\"LC_MESSAGES\",\"en_US.UTF8\")\n>> | > |\n>> | > | in the .Rprofile... it this right?\n>> | >\n>> | > Defaults work for me, so I never changed them. Sorry.\n>> | >\n>> | >\n>> |\n>>\n>> -- \n>>  Regards, Dirk\n>>\n>",
       "body_snippet": "Thanks a lot for your answers!\n\nActually, I am still a little bit confused, as running R CMD BATCH with \nthe --vanilla --slave options produces a .Rout.save without the > at \neach code line, and this ",
       "thread_id": "thread-9b88cf007ce2",
       "thread_depth": 0,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001337.html"
     },
     {
       "id": "msg-0130adc95713",
@@ -231,7 +242,8 @@
       "body_snippet": "Hello.\nI understand that, to build from source, you need to have all sources \n(in the right place and with the right names, and so on),\nbut your sentence,\n> To build from source you need to have devel",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 0,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001338.html"
     },
     {
       "id": "msg-8d0182ddb084",
@@ -255,7 +267,8 @@
       "body_snippet": "On Thu, Jul 8, 2010 at 9:41 AM, Scotti Roberto <roberto.scotti at gmail.com> wrote:\n> Hello.\n> I understand that, to build from source, you need to have all sources (in\n> the right place and with the ",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 1,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001339.html"
     },
     {
       "id": "msg-802c4dd6b6a0",
@@ -279,7 +292,8 @@
       "body_snippet": "Dear Roberto\n\nOn Thu, Jul 8, 2010 at 3:41 PM, Scotti Roberto <roberto.scotti at gmail.com> wrote:\n> stimulates a very basic question: \"Is it possible to avoid building from\n> source using R in Kubuntu",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 1,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001340.html"
     },
     {
       "id": "msg-2753cf8aca5f",
@@ -304,7 +318,8 @@
       "body_snippet": "Dear Liviu and Paul, many thanks for answering.\nUp to a certain extent I can spend efforts and time playing around in \nbuilding the tools I need to work.\nMy major concern are the students. If I want t",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 2,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001341.html"
     },
     {
       "id": "msg-7fe1f9d13b78",
@@ -330,7 +345,8 @@
       "body_snippet": "Scotti,\n\nBuilding packages from source is a difficult thing on Windows, but it is trivial on Linux in general and on Debian in particular. (Ok, but for a few \"complicated\" packages.) As stated in the ",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 3,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001342.html"
     },
     {
       "id": "msg-2643bb39d2d3",
@@ -354,7 +370,8 @@
       "body_snippet": "At 15:41 08/07/2010, Scotti Roberto wrote:\n\n>Hello.\n>I understand that, to build from source, you need to have all \n>sources (in the right place and with the right names, and so on),\n>but your sentenc",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 1,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001343.html"
     },
     {
       "id": "msg-263de77217dd",
@@ -378,7 +395,8 @@
       "body_snippet": "On Thu, 2010-07-08 at 16:41 +0200, Scotti Roberto wrote:\n> stimulates a very basic question: \"Is it possible to avoid building\n> from \n> source using R in Kubuntu?\n> I shifted over from MS only recent",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 1,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001344.html"
     },
     {
       "id": "msg-d994bbe5b682",
@@ -403,7 +421,8 @@
       "body_snippet": "On 10 July 2010 at 11:54, Ross Boylan wrote:\n| On Thu, 2010-07-08 at 16:41 +0200, Scotti Roberto wrote:\n| > stimulates a very basic question: \"Is it possible to avoid building\n| > from \n| > source usi",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 2,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001345.html"
     },
     {
       "id": "msg-64e1583f9a4c",
@@ -429,7 +448,8 @@
       "body_snippet": "On 10 July 2010 at 14:32, Dirk Eddelbuettel wrote:\n| \n| On 10 July 2010 at 11:54, Ross Boylan wrote:\n| | On Thu, 2010-07-08 at 16:41 +0200, Scotti Roberto wrote:\n| | > stimulates a very basic question",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 3,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001346.html"
     },
     {
       "id": "msg-a9e51293ce18",
@@ -456,7 +476,8 @@
       "body_snippet": "Many thank to everyone.\nI really appreciate your kindness in making the point (or your point) on \nthe topics that come up.\nI am afraid that we completely abandoned the topic in the original \nsubject l",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 4,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001347.html"
     },
     {
       "id": "msg-7476d3ca575a",
@@ -472,7 +493,8 @@
       "body_snippet": "--- En date de?: Dim 11.7.10, Scotti Roberto <roberto.scotti at gmail.com> a ?crit?:\n\n> De: Scotti Roberto <roberto.scotti at gmail.com>\n> Objet: Re: [R-sig-Debian] \"Graphics history\" in UNIX --> \"R\" ",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 5,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001348.html"
     },
     {
       "id": "msg-d85ca8912736",
@@ -491,7 +513,8 @@
       "body_snippet": "Denis,\n\nOn 11 July 2010 at 13:57, denis brion wrote:\n[...]\n| I do not think the solution B is very risky because :\n| \n| * R's package building is one of the easiest in the GNU(linux : works under BSD ",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 6,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001349.html"
     },
     {
       "id": "msg-6e09cf8b550e",
@@ -507,7 +530,8 @@
       "body_snippet": "I quite agree that , in a tolerant world, \n*****\nWindows (just reread the thread)\n*****\ncomparisons do not arouse reactions (did they???)\n.....\nBut why is the evocation of Centos 5.5 (released this ye",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 7,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001350.html"
     },
     {
       "id": "msg-fa0a54746eae",
@@ -523,7 +547,8 @@
       "body_snippet": "On 11-Jul-10 14:54:14, Dirk Eddelbuettel wrote:\n> [...]\n> Hence it is not the place for conjectures about what may or may not\n> work sometimes or not on unnamed other Linux distributions, or\n> other /",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 7,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001351.html"
     },
     {
       "id": "msg-bcdc139cb2c3",
@@ -542,7 +567,8 @@
       "body_snippet": "On 11 July 2010 at 17:21, (Ted Harding) wrote:\n| I have felt for some time that there is a place for an R SIG on\n| Linux generally -- e.g. \"r-sig-linux\". Linux is not what it used\n| to be, and the div",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 8,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001352.html"
     },
     {
       "id": "msg-8856cff56fd4",
@@ -570,7 +596,8 @@
       "body_snippet": "On Sun, 2010-07-11 at 12:44 +0200, Scotti Roberto wrote:\n> \n> What is the ideal compromise between these bounds?\n> \n> A -        On 10 July 2010 at 11:54, Ross Boylan:\n> \"The point of most distributio",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 5,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001353.html"
     },
     {
       "id": "msg-12fbb3fb13c4",
@@ -587,6 +614,7 @@
       "thread_id": "thread-12fbb3fb13c4",
       "thread_depth": 0,
       "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001354.html",
       "restored_from": [
         "https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100712/278ed5dc/attachment.pl"
       ]
@@ -605,7 +633,8 @@
       "body_snippet": "\"comments on the suggestion\"\n\na) There are already howtos to install R (and packages, if they depend on external libraries) on various Unices and GNUlinux distributions (sects?) ... in R's wiki.\n\nThis",
       "thread_id": "thread-0130adc95713",
       "thread_depth": 8,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001355.html"
     },
     {
       "id": "msg-84ba9eeead7e",
@@ -623,7 +652,8 @@
       "body_snippet": "On 12 July 2010 at 02:24, David Rosengarten wrote:\n| Hi,\n| \n| I am new to this list and apologize for my lack of experience in the\n| subject.  Does anyone here use RInside?  I am trying to run the exa",
       "thread_id": "thread-12fbb3fb13c4",
       "thread_depth": 1,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001356.html"
     },
     {
       "id": "msg-da1b9e272f45",
@@ -639,7 +669,8 @@
       "body_snippet": "Running R.2.11.1, debian linux, I tried to update.packages as root \nwithin R and get errors\nfor cairoDevice and latticeExtra I don't know how to fix.\nFor cairoDevice, I don't know what gtk+2.0 is;\nfor",
       "thread_id": "thread-da1b9e272f45",
       "thread_depth": 0,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001357.html"
     },
     {
       "id": "msg-e591d6dd3f57",
@@ -657,7 +688,8 @@
       "body_snippet": "At 16:15 12/07/2010, Michael Friendly wrote:\n\n>Running R.2.11.1, debian linux, I tried to update.packages as root \n>within R and get errors\n>for cairoDevice and latticeExtra I don't know how to fix.\n>",
       "thread_id": "thread-da1b9e272f45",
       "thread_depth": 1,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001358.html"
     },
     {
       "id": "msg-bca7ee17a455",
@@ -677,6 +709,7 @@
       "thread_id": "thread-12fbb3fb13c4",
       "thread_depth": 2,
       "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001359.html",
       "restored_from": [
         "https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100712/b723c7fe/attachment.pl"
       ]
@@ -699,7 +732,8 @@
       "body_snippet": "On Mon, Jul 12, 2010 at 12:40 PM, David Rosengarten\n<save.of.ten at gmail.com> wrote:\n> Yes, I have R and r-base-dev installed, and I just did this yesterday so I\n> am working with the newest versions",
       "thread_id": "thread-12fbb3fb13c4",
       "thread_depth": 3,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001360.html"
     },
     {
       "id": "msg-9cd10c1dc849",
@@ -720,7 +754,8 @@
       "body_snippet": "Paul,\n\nOn 18 July 2010 at 23:43, Paul Johnson wrote:\n| I never tried RInside before, but after your post I became curious.  I\n| checked your first message, it does not say if you installed R from\n| th",
       "thread_id": "thread-12fbb3fb13c4",
       "thread_depth": 4,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001361.html"
     },
     {
       "id": "msg-b22b150806c7",
@@ -737,6 +772,7 @@
       "thread_id": "thread-b22b150806c7",
       "thread_depth": 0,
       "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001362.html",
       "restored_from": [
         "https://stat.ethz.ch/pipermail/r-sig-debian/attachments/20100725/5c576c5a/attachment.pl"
       ]
@@ -757,7 +793,8 @@
       "body_snippet": "On 07/25/2010 05:19 PM, Michael Wesolowski wrote:\n> Hello,\n>\n> As per the subject, I am unable to do the following:\n>\n> plot(1);\n>\n> The error message I get is ( as user postgres)\n>\n> No protocol spec",
       "thread_id": "thread-b22b150806c7",
       "thread_depth": 1,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001363.html"
     },
     {
       "id": "msg-893dc55056fb",
@@ -775,7 +812,8 @@
       "body_snippet": "On 25 July 2010 at 17:19, Michael Wesolowski wrote:\n| Hello,\n| \n| As per the subject, I am unable to do the following:\n| \n| plot(1);\n| \n| The error message I get is ( as user postgres)\n| \n| No protoco",
       "thread_id": "thread-b22b150806c7",
       "thread_depth": 1,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001364.html"
     },
     {
       "id": "msg-f20bf930e8ef",
@@ -791,7 +829,8 @@
       "body_snippet": "Hello,\nI am trying to upgrade to 2.11 from 2.10 in the hopes of gaining\nTCL/TK capabilities (let's pretend for the moment that this should\nwork).  I've added \"deb http://cran.stat.ucla.edu/bin/linux/u",
       "thread_id": "thread-f20bf930e8ef",
       "thread_depth": 0,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001365.html"
     },
     {
       "id": "msg-c945e660c469",
@@ -809,7 +848,8 @@
       "body_snippet": "On 07/26/2010 04:48 PM, Ben Domingue wrote:\n> Hello,\n> I am trying to upgrade to 2.11 from 2.10 in the hopes of gaining\n> TCL/TK capabilities (let's pretend for the moment that this should\n> work).  I",
       "thread_id": "thread-f20bf930e8ef",
       "thread_depth": 1,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001366.html"
     },
     {
       "id": "msg-b32915848a83",
@@ -828,7 +868,8 @@
       "body_snippet": "On Mon, Jul 26, 2010 at 3:12 PM, Michael Rutter <mar36 at psu.edu> wrote:\n>\n>\n> On 07/26/2010 04:48 PM, Ben Domingue wrote:\n>>\n>> Hello,\n>> I am trying to upgrade to 2.11 from 2.10 in the hopes of gai",
       "thread_id": "thread-f20bf930e8ef",
       "thread_depth": 2,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001367.html"
     },
     {
       "id": "msg-8fbf90586565",
@@ -848,7 +889,8 @@
       "body_snippet": "Perhaps this is me missing something obvious, but I've also noticed\nthat I'm still able to run R even though none of the r-base packages\nseem to be installed (i.e. nothing is returned by apt-show-vers",
       "thread_id": "thread-f20bf930e8ef",
       "thread_depth": 3,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001368.html"
     },
     {
       "id": "msg-6f7038813e51",
@@ -869,7 +911,8 @@
       "body_snippet": "On 07/26/2010 05:57 PM, Ben Domingue wrote:\n> Perhaps this is me missing something obvious, but I've also noticed\n> that I'm still able to run R even though none of the r-base packages\n> seem to be in",
       "thread_id": "thread-f20bf930e8ef",
       "thread_depth": 4,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001369.html"
     },
     {
       "id": "msg-53079521cf30",
@@ -891,7 +934,8 @@
       "body_snippet": "That worked.  Thanks!\n\n\nOn Mon, Jul 26, 2010 at 4:00 PM, Michael Rutter <mar36 at psu.edu> wrote:\n>\n>\n> On 07/26/2010 05:57 PM, Ben Domingue wrote:\n>>\n>> Perhaps this is me missing something obvious, ",
       "thread_id": "thread-f20bf930e8ef",
       "thread_depth": 5,
-      "month": "2010-07"
+      "month": "2010-07",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2010-July/001370.html"
     }
   ],
   "threads": [

@@ -17,7 +17,8 @@
       "body_snippet": "I came across this problem moving from the standard jessie package to\nthe backport:\n\n    $ sudo dpkg --configure r-base-core   \n    Setting up r-base-core (3.3.2-1~jessiecran.0) ...\n    Preserving use",
       "thread_id": "thread-4d42017c7c4e",
       "thread_depth": 0,
-      "month": "2017-03"
+      "month": "2017-03",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2017-March/002657.html"
     },
     {
       "id": "msg-60474cf52f3a",
@@ -35,7 +36,8 @@
       "body_snippet": "On 2 March 2017 at 14:36, Jim Ottaway wrote:\n| I came across this problem moving from the standard jessie package to\n| the backport:\n| \n|     $ sudo dpkg --configure r-base-core   \n|     Setting up r-",
       "thread_id": "thread-4d42017c7c4e",
       "thread_depth": 1,
-      "month": "2017-03"
+      "month": "2017-03",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2017-March/002658.html"
     },
     {
       "id": "msg-72e06e841b66",
@@ -54,7 +56,8 @@
       "body_snippet": ">>>>> Dirk Eddelbuettel <edd at debian.org> writes:\n> Backports are unofficial, and I have limited time.\n\n> But if you can work on a test case / improve on this / provide a patch I will\n> of course in",
       "thread_id": "thread-4d42017c7c4e",
       "thread_depth": 2,
-      "month": "2017-03"
+      "month": "2017-03",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2017-March/002659.html"
     },
     {
       "id": "msg-2723b4a6b81e",
@@ -68,11 +71,12 @@
       "references": [
         "<87pohzsq34.fsf@jeho.org>"
       ],
-      "body_plain": "Hi,\n\nAm Donnerstag, 2. M?rz 2017, 14:36:31 schrieb Jim Ottaway:\n> I came across this problem moving from the standard jessie package to\n> the backport:\n> \n>     $ sudo dpkg --configure r-base-core\n>     Setting up r-base-core (3.3.2-1~jessiecran.0) ...\n\nI am the one building and uploading those backports to Debian stable to \nCRAN...\n\n>     Preserving user changes to /usr/share/bash-completion/completions/R\n> (renamed from /etc/bash_completion.d/R)... \n> mv: cannot stat\n> ?/usr/share/bash-completion/completions/R?: No such file or directory\n> dpkg:\n> error processing package r-base-core (--configure):\n>      subprocess installed post-installation script returned error exit\n> status 1 Errors were encountered while processing:\n>      r-base-core\n\nOK, to check this, I just installed R from jessie on a fresh jessie \ninstallation, and upgraded using the CRAN backports. I get\n\nConfiguration file '/etc/bash_completion.d/R'\n ==> Deleted (by you or by a script) since installation.\n ==> Package distributor has shipped an updated version.\n   What would you like to do about it ?  Your options are:\n    Y or I  : install the package maintainer's version\n    N or O  : keep your currently-installed version\n      D     : show the differences between the versions\n      Z     : start a shell to examine the situation\n The default action is to keep your current version.\n*** R (Y/I/N/O/D/Z) [default=N] ? \n\n\"Deleted (by you or by a script) since installation\" points to a packaging \nproblem, as I have not touched anything in this installation. Indeed, there is \nno file /etc/bash_completion.d/R in the system.\n\nI accepted the default (keep the currently-installed version) and the \ninstallation proceeded without errors.\n\nThen I purged r-base and r-base-core, installed R 3.1.1 from jessie again, and \nrepeated the upgrade, selecting the other option (install the package \nmaintainers version).\n\nThen I get:\n\nInstalling new version of config file /etc/bash_completion.d/R ...\nPreserving user changes to /usr/share/bash-completion/completions/R (renamed \nfrom /etc/bash_completion.d/R)...\nmv: cannot stat ?/usr/share/bash-completion/completions/R?: No such file or \ndirectory\ndpkg: error processing package r-base-core (--configure):\n subprocess installed post-installation script returned error exit status 1\n\nwhich is exactly the error you got!\n\n> I managed to fix this by manually copying the R completion script\n> /etc/bash_completion.d/R to /usr/share/bash-completion/completions/\n\nThanks for sharing the workaround.\n\n> I thought I'd best post something about this in case either I haven't\n> actually fixed it or it means something in the backporting is slightly\n> wrong with respect to bash completion.\n\nSomehow the R 3.3.2 package deletes /etc/bash_completion.d/R before it tries \nto move it. Then, if you select to keep your current version, this current \nversion is empty which leads to the error.\n\nAccording to the changelog, debian/r-base-core.maintscript was introduced to \nfix\n\nhttps://bugs.debian.org/cgi-bin/bugreport.cgi?bug=840506\n\nIt seems that the interaction of the maintscript and dh_bash-completion is \nerror-prone. Admins should not be bothered by a question about bash completion \nwhen they did not touch the configuration.\n\nOn the other hand, the backports install fine when accepting the default \noption, and we have a workaround for the other case.\n\nHopefully we can do better when packaging/backporting R 3.3.3, expected for \nnext week.\n\nKind regards,\n\nJohannes\n\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
-      "body_snippet": "Hi,\n\nAm Donnerstag, 2. M?rz 2017, 14:36:31 schrieb Jim Ottaway:\n> I came across this problem moving from the standard jessie package to\n> the backport:\n> \n>     $ sudo dpkg --configure r-base-core\n>  ",
+      "body_plain": "Hi,\n\nAm Donnerstag, 2. März 2017, 14:36:31 schrieb Jim Ottaway:\n> I came across this problem moving from the standard jessie package to\n> the backport:\n> \n>     $ sudo dpkg --configure r-base-core\n>     Setting up r-base-core (3.3.2-1~jessiecran.0) ...\n\nI am the one building and uploading those backports to Debian stable to \nCRAN...\n\n>     Preserving user changes to /usr/share/bash-completion/completions/R\n> (renamed from /etc/bash_completion.d/R)... \n> mv: cannot stat\n> ‘/usr/share/bash-completion/completions/R’: No such file or directory\n> dpkg:\n> error processing package r-base-core (--configure):\n>      subprocess installed post-installation script returned error exit\n> status 1 Errors were encountered while processing:\n>      r-base-core\n\nOK, to check this, I just installed R from jessie on a fresh jessie \ninstallation, and upgraded using the CRAN backports. I get\n\nConfiguration file '/etc/bash_completion.d/R'\n ==> Deleted (by you or by a script) since installation.\n ==> Package distributor has shipped an updated version.\n   What would you like to do about it ?  Your options are:\n    Y or I  : install the package maintainer's version\n    N or O  : keep your currently-installed version\n      D     : show the differences between the versions\n      Z     : start a shell to examine the situation\n The default action is to keep your current version.\n*** R (Y/I/N/O/D/Z) [default=N] ? \n\n\"Deleted (by you or by a script) since installation\" points to a packaging \nproblem, as I have not touched anything in this installation. Indeed, there is \nno file /etc/bash_completion.d/R in the system.\n\nI accepted the default (keep the currently-installed version) and the \ninstallation proceeded without errors.\n\nThen I purged r-base and r-base-core, installed R 3.1.1 from jessie again, and \nrepeated the upgrade, selecting the other option (install the package \nmaintainers version).\n\nThen I get:\n\nInstalling new version of config file /etc/bash_completion.d/R ...\nPreserving user changes to /usr/share/bash-completion/completions/R (renamed \nfrom /etc/bash_completion.d/R)...\nmv: cannot stat ‘/usr/share/bash-completion/completions/R’: No such file or \ndirectory\ndpkg: error processing package r-base-core (--configure):\n subprocess installed post-installation script returned error exit status 1\n\nwhich is exactly the error you got!\n\n> I managed to fix this by manually copying the R completion script\n> /etc/bash_completion.d/R to /usr/share/bash-completion/completions/\n\nThanks for sharing the workaround.\n\n> I thought I'd best post something about this in case either I haven't\n> actually fixed it or it means something in the backporting is slightly\n> wrong with respect to bash completion.\n\nSomehow the R 3.3.2 package deletes /etc/bash_completion.d/R before it tries \nto move it. Then, if you select to keep your current version, this current \nversion is empty which leads to the error.\n\nAccording to the changelog, debian/r-base-core.maintscript was introduced to \nfix\n\nhttps://bugs.debian.org/cgi-bin/bugreport.cgi?bug=840506\n\nIt seems that the interaction of the maintscript and dh_bash-completion is \nerror-prone. Admins should not be bothered by a question about bash completion \nwhen they did not touch the configuration.\n\nOn the other hand, the backports install fine when accepting the default \noption, and we have a workaround for the other case.\n\nHopefully we can do better when packaging/backporting R 3.3.3, expected for \nnext week.\n\nKind regards,\n\nJohannes\n\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "Hi,\n\nAm Donnerstag, 2. März 2017, 14:36:31 schrieb Jim Ottaway:\n> I came across this problem moving from the standard jessie package to\n> the backport:\n> \n>     $ sudo dpkg --configure r-base-core\n>  ",
       "thread_id": "thread-4d42017c7c4e",
       "thread_depth": 1,
-      "month": "2017-03"
+      "month": "2017-03",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2017-March/002660.html"
     },
     {
       "id": "msg-d46a25cdf59f",
@@ -91,7 +95,8 @@
       "body_snippet": "That all looks exactly as it happened for me.\n\nThank you for going through the steps like that: next time I find a\nproblem like this I'll have a better idea how to track it down and\npropose a fix rath",
       "thread_id": "thread-4d42017c7c4e",
       "thread_depth": 2,
-      "month": "2017-03"
+      "month": "2017-03",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2017-March/002661.html"
     },
     {
       "id": "msg-9d8d09de69ee",
@@ -110,7 +115,8 @@
       "body_snippet": "On 3 March 2017 at 08:51, Johannes Ranke wrote:\n| \"Deleted (by you or by a script) since installation\" points to a packaging \n| problem, as I have not touched anything in this installation. Indeed, th",
       "thread_id": "thread-4d42017c7c4e",
       "thread_depth": 2,
-      "month": "2017-03"
+      "month": "2017-03",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2017-March/002662.html"
     },
     {
       "id": "msg-9693e94705f5",
@@ -126,11 +132,12 @@
         "<16737033.tq8XXiCoVN@tux>",
         "<22713.34399.379241.294364@max.eddelbuettel.com>"
       ],
-      "body_plain": "Am Freitag, 3. M?rz 2017, 09:06:07 schrieb Dirk Eddelbuettel:\n> On 3 March 2017 at 08:51, Johannes Ranke wrote:\n> | \"Deleted (by you or by a script) since installation\" points to a packaging\n> | problem, as I have not touched anything in this installation. Indeed,\n> | there is no file /etc/bash_completion.d/R in the system.\n> \n> The default location for these files changed, I finally complied.\n> \n> But nobody tests this for backports -- so if you or Jim could cook up one or\n> two changes to the postinst etc files (ie /var/lib/dpkg/info/r-base-core.p*\n> once installed) it would help for your case.\n\nWhy postinst? We already have two places where this is dealt with, in \ndebian/rules (dh_bash-completion) and in debian/r-base-core.maintscript.\n\nBefore I think about doing something in a third script, I would like to \nunderstand how these two interact.\n\nJohannes",
-      "body_snippet": "Am Freitag, 3. M?rz 2017, 09:06:07 schrieb Dirk Eddelbuettel:\n> On 3 March 2017 at 08:51, Johannes Ranke wrote:\n> | \"Deleted (by you or by a script) since installation\" points to a packaging\n> | probl",
+      "body_plain": "Am Freitag, 3. März 2017, 09:06:07 schrieb Dirk Eddelbuettel:\n> On 3 March 2017 at 08:51, Johannes Ranke wrote:\n> | \"Deleted (by you or by a script) since installation\" points to a packaging\n> | problem, as I have not touched anything in this installation. Indeed,\n> | there is no file /etc/bash_completion.d/R in the system.\n> \n> The default location for these files changed, I finally complied.\n> \n> But nobody tests this for backports -- so if you or Jim could cook up one or\n> two changes to the postinst etc files (ie /var/lib/dpkg/info/r-base-core.p*\n> once installed) it would help for your case.\n\nWhy postinst? We already have two places where this is dealt with, in \ndebian/rules (dh_bash-completion) and in debian/r-base-core.maintscript.\n\nBefore I think about doing something in a third script, I would like to \nunderstand how these two interact.\n\nJohannes",
+      "body_snippet": "Am Freitag, 3. März 2017, 09:06:07 schrieb Dirk Eddelbuettel:\n> On 3 March 2017 at 08:51, Johannes Ranke wrote:\n> | \"Deleted (by you or by a script) since installation\" points to a packaging\n> | probl",
       "thread_id": "thread-4d42017c7c4e",
       "thread_depth": 3,
-      "month": "2017-03"
+      "month": "2017-03",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2017-March/002663.html"
     },
     {
       "id": "msg-23e5ce698b47",
@@ -146,7 +153,8 @@
       "body_snippet": "I am trying to update R on debian testing and am getting the following \nerror from the package manager.  Do I need to change the website link?  \nIs there a new signature for the repository that is com",
       "thread_id": "thread-23e5ce698b47",
       "thread_depth": 0,
-      "month": "2017-03"
+      "month": "2017-03",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2017-March/002664.html"
     },
     {
       "id": "msg-0f9785f9a08a",
@@ -160,11 +168,12 @@
       "references": [
         "<bc2f2ab0-5622-d561-3c87-86aaab25a5f7@gmail.com>"
       ],
-      "body_plain": "Hi,\n\nI just saw that R 3.3.3 migrated to testing - so please just use the regular \nDebian repositories.\n\nJohannes\n\n\nAm Sonntag, 12. M?rz 2017, 10:24:26 schrieb Shannon Markiewicz:\n> I am trying to update R on debian testing and am getting the following\n> error from the package manager.  Do I need to change the website link?\n> Is there a new signature for the repository that is compliant?\n> \n> W: GPG error: http://cloud.r-project.org/bin/linux/debian jessie-cran3/\n> Release: The following signatures were invalid:\n> 6212B7B7931C4BB16280BA1306F90DE5381BA480\n> E: The repository 'http://cloud.r-project.org/bin/linux/debian\n> jessie-cran3/ Release' is not signed.\n> N: Updating from such a repository can't be done securely, and is\n> therefore disabled by default.\n> N: See apt-secure(8) manpage for repository creation and user\n> configuration details.\n> \n> Thanks,\n> \n> Shannon\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
-      "body_snippet": "Hi,\n\nI just saw that R 3.3.3 migrated to testing - so please just use the regular \nDebian repositories.\n\nJohannes\n\n\nAm Sonntag, 12. M?rz 2017, 10:24:26 schrieb Shannon Markiewicz:\n> I am trying to upd",
+      "body_plain": "Hi,\n\nI just saw that R 3.3.3 migrated to testing - so please just use the regular \nDebian repositories.\n\nJohannes\n\n\nAm Sonntag, 12. März 2017, 10:24:26 schrieb Shannon Markiewicz:\n> I am trying to update R on debian testing and am getting the following\n> error from the package manager.  Do I need to change the website link?\n> Is there a new signature for the repository that is compliant?\n> \n> W: GPG error: http://cloud.r-project.org/bin/linux/debian jessie-cran3/\n> Release: The following signatures were invalid:\n> 6212B7B7931C4BB16280BA1306F90DE5381BA480\n> E: The repository 'http://cloud.r-project.org/bin/linux/debian\n> jessie-cran3/ Release' is not signed.\n> N: Updating from such a repository can't be done securely, and is\n> therefore disabled by default.\n> N: See apt-secure(8) manpage for repository creation and user\n> configuration details.\n> \n> Thanks,\n> \n> Shannon\n> \n> _______________________________________________\n> R-SIG-Debian mailing list\n> R-SIG-Debian at r-project.org\n> https://stat.ethz.ch/mailman/listinfo/r-sig-debian",
+      "body_snippet": "Hi,\n\nI just saw that R 3.3.3 migrated to testing - so please just use the regular \nDebian repositories.\n\nJohannes\n\n\nAm Sonntag, 12. März 2017, 10:24:26 schrieb Shannon Markiewicz:\n> I am trying to upd",
       "thread_id": "thread-23e5ce698b47",
       "thread_depth": 1,
-      "month": "2017-03"
+      "month": "2017-03",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2017-March/002665.html"
     },
     {
       "id": "msg-4e7078c34c8b",
@@ -180,7 +189,8 @@
       "body_snippet": "Hi\n\nI am facing an issue with the package selectr, where I get an error trying\nto run an example code: css_to_xpath(\".testclass\"), gives could not find\nfunction \"xpath_class\"\n\nThe issue arises however",
       "thread_id": "thread-4e7078c34c8b",
       "thread_depth": 0,
-      "month": "2017-03"
+      "month": "2017-03",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2017-March/002666.html"
     },
     {
       "id": "msg-4cf04c02c180",
@@ -198,7 +208,8 @@
       "body_snippet": "On 03/22/2017 02:54 PM, Matthieu S wrote:\n> Hi\n>\n> I am facing an issue with the package selectr, where I get an error trying\n> to run an example code: css_to_xpath(\".testclass\"), gives could not find",
       "thread_id": "thread-4e7078c34c8b",
       "thread_depth": 1,
-      "month": "2017-03"
+      "month": "2017-03",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2017-March/002667.html"
     },
     {
       "id": "msg-46284d0c6603",
@@ -216,7 +227,8 @@
       "body_snippet": "On 03/22/2017 02:54 PM, Matthieu S wrote:\n> Hi\n>\n> I am facing an issue with the package selectr, where I get an error trying\n> to run an example code: css_to_xpath(\".testclass\"), gives could not find",
       "thread_id": "thread-4e7078c34c8b",
       "thread_depth": 1,
-      "month": "2017-03"
+      "month": "2017-03",
+      "source_url": "https://stat.ethz.ch/pipermail/r-sig-debian/2017-March/002668.html"
     }
   ],
   "threads": [
